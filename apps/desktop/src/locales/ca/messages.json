@@ -39,7 +39,7 @@
     "message": "Compte bancari"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Lloc web o aplicació"
   },
   "typeCardSubtitle": {
     "message": "Targeta de crèdit o dèbit"
@@ -104,6 +104,18 @@
   "shared": {
     "message": "Compartit"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
   "share": {
     "message": "Comparteix"
   },
@@ -127,7 +139,7 @@
     "message": "No teniu permisos per editar aquest element"
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "Benvingut/da de nou"
   },
   "moveToOrgDesc": {
     "message": "Trieu una organització a la qual vulgueu desplaçar aquest element. El trasllat a una organització transfereix la propietat de l'element a aquesta organització. Ja no sereu el propietari directe d'aquest element una vegada s'haja mogut."
@@ -259,55 +271,55 @@
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Edita inici de sessió",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Edita la targeta",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Edició de la identitat",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Edita nota",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Edita nota segura",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Edita inici de sessió",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Edita targeta",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Edita identitat",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Edita nota",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Edita clau SSH",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Edita compte bancari",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Edita la llicència",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Edita passaport",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -364,7 +376,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Text a compartir"
   },
   "newItemHeaderTextSendV2": {
     "message": "Text nou",
@@ -375,11 +387,11 @@
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Edita el text",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Edita el fitxer",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -425,11 +437,15 @@
   "passphrase": {
     "message": "Frase de pas"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Edita l'element"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Edita l'element - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Edita el camp"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Edita $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1334,7 +1350,7 @@
     "message": "Pista de la contrasenya mestra"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "S'ha guardat la contrasenya mestra"
   },
   "passwordStrengthScore": {
     "message": "Password strength score $SCORE$",
@@ -1737,7 +1753,7 @@
     "message": "Canvia la contrasenya mestra"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Canvia la contrasenya mestra"
   },
   "continueToWebApp": {
     "message": "Continua cap a l'aplicació web?"
@@ -2115,7 +2131,7 @@
     "message": "Res a mostrar"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "No has generat res recentment"
   },
   "undo": {
     "message": "Desfés"
@@ -2575,16 +2591,16 @@
     "message": "Cerca en arxiu"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Cerca inici de sessió"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Cerca targeta"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Cerca identitat"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Cerca nota segura"
   },
   "searchSshKey": {
     "message": "Search SSH key"
@@ -2602,22 +2618,22 @@
     "message": "Element arxivat restaurat"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Elements arxivats restaurats"
   },
   "restoredItem": {
     "message": "Element restaurat"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "Elements restaurats"
   },
   "permanentlyDelete": {
     "message": "Suprimeix definitivament"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "Elements suprimits definitivament"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "Elements enviats a la paperera"
   },
   "deletedCollections": {
     "message": "Deleted collections"
@@ -2629,10 +2645,10 @@
     "message": "Collections deleted"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Element desplaçat"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "Elements desplaçats"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "En tancar la sessió s'eliminarà tot l'accés a la vostra caixa forta i es requerirà una autenticació en línia després del període de temps d'espera. Esteu segur que voleu utilitzar aquesta configuració?"
@@ -2774,7 +2790,7 @@
     "message": "La nova contrasenya principal no compleix els requisits de la política."
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Una o més polítiques d’organització requereixen que la vostra contrasenya principal complisca els requisits següents:"
   },
   "receiveMarketingEmails": {
     "message": "Receive updates from Bitwarden in your inbox."
@@ -2970,7 +2986,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Crea Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2999,7 +3015,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Copia l'enllaç Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -3937,7 +3953,7 @@
     "message": "Device"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositius"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirma la contrasenya del fitxer"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "S'han exportat les dades de la caixa forta"
@@ -4941,14 +4981,14 @@
     "message": "Imbriqueu una carpeta afegint el nom de la carpeta principal seguit d'una \"/\". Exemple: Social/Fòrums"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Envieu informació confidencial, de manera segura",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Compartiu fitxers i dades de manera segura amb qualsevol persona, en qualsevol plataforma. La informació romandrà xifrada de principi a fi i alhora limitarà l'exposició.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
@@ -5161,7 +5201,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Els elements seleccionats s'han desplaçat a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5242,7 +5282,7 @@
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Edita la drecera"
   },
   "archiveNoun": {
     "message": "Arxiu",
@@ -5336,7 +5376,7 @@
     "message": "Card number"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Actualitza ara"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
@@ -5357,7 +5397,7 @@
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Actualitza a Prèmium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -5399,13 +5439,13 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Acció després del temps d'espera"
   },
   "errorCannotDecrypt": {
     "message": "Error: Cannot decrypt"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Temps de sessió"
   },
   "browserAccessDenied": {
     "message": "Either an invalid browser directory was selected, or access was denied"
@@ -5449,7 +5489,7 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On restart"
+    "message": "En reiniciar"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
@@ -5482,7 +5522,7 @@
     "message": "Grant Access"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Actualitza"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
@@ -5563,10 +5603,10 @@
     "message": "La caixa forta protegeix més que només les contrasenyes. Guarda ací de forma segura els inicis de sessió, els identificadors, les targetes i les notes."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "No has afegit cap element als preferits"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Afig els elements que fas servir amb freqüència als preferits per accedir-hi ràpidament."
   },
   "noSearchResults": {
     "message": "No search results returned"
@@ -5785,13 +5825,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Veure text"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Veure fitxer"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send creat",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {

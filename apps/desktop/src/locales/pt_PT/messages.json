@@ -104,6 +104,18 @@
   "shared": {
     "message": "Partilhado"
   },
+  "sharedFolder": {
+    "message": "Pasta partilhada"
+  },
+  "sharedFolders": {
+    "message": "Pastas partilhadas"
+  },
+  "myFolder": {
+    "message": "A minha pasta"
+  },
+  "myFolders": {
+    "message": "As minhas pastas"
+  },
   "share": {
     "message": "Partilhar"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "Frase de acesso"
   },
+  "passwordAnnounceSpace": {
+    "message": "espaço",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Editar item"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copiar site"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copiar $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -750,7 +766,7 @@
     "message": "Tipo"
   },
   "items": {
-    "message": "Items"
+    "message": "Itens"
   },
   "firstName": {
     "message": "Nome próprio"
@@ -851,7 +867,7 @@
     "message": "Eliminar site"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Eliminar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Editar campo"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Editar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1225,7 +1241,7 @@
     "message": "Ficheiro"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Fotografia"
   },
   "selectFile": {
     "message": "Selecionar um ficheiro"
@@ -4190,13 +4206,13 @@
     "message": "Iniciar o Duo no navegador"
   },
   "importFormatError": {
-    "message": "Os dados não estão formatados corretamente. Por favor, verifique o seu ficheiro de importação e tente novamente."
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
   "importNothingError": {
     "message": "Nada foi importado."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ itens serão ignorados",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4205,43 +4221,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Os seguintes itens não puderam ser lidos e não serão incluídos na sua importação:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Contacto"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Adesão"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Passaporte"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Carta de condução"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Cartão de cidadão"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Certidão de nascimento"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Credenciais da base de dados"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Credenciais do servidor"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Licença de software"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Seguro de saúde"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Credenciais de Wi-Fi"
   },
   "general": {
-    "message": "General"
+    "message": "Geral"
   },
   "importEncKeyError": {
     "message": "Erro ao desencriptar o ficheiro exportado. A sua chave de encriptação não corresponde à chave de encriptação utilizada para exportar os dados."
@@ -4307,6 +4323,30 @@
   "confirmFilePassword": {
     "message": "Confirmar a palavra-passe do ficheiro"
   },
+  "keePassMasterPassword": {
+    "message": "Palavra-passe mestra do KeePass"
+  },
+  "addKeyFile": {
+    "message": "Adicionar ficheiro de chave"
+  },
+  "keyFileUpload": {
+    "message": "Carregar ficheiro de chave"
+  },
+  "kdbxFileUpload": {
+    "message": "Carregar ficheiro KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formatos aceites: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
+  },
+  "kdbxWrongFileType": {
+    "message": "Este ficheiro não é uma base de dados KeePass (.kdbx) válida. Selecione um ficheiro .kdbx e tente novamente."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Esta base de dados KeePass é demasiado grande para ser importada."
+  },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
@@ -4347,7 +4387,7 @@
     "message": "Falha na autenticação multifator"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Ocorreu um problema ao comunicar com o Keeper. Tente a importação novamente."
   },
   "includeSharedFolders": {
     "message": "Incluir pastas partilhadas"
@@ -4408,121 +4448,121 @@
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "E-mail do Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Introduza o e-mail que utiliza para iniciar sessão no Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Localização do centro de dados"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Palavra-passe mestra do Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Introduza a sua palavra-passe mestra do Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Introduza o código do seu método de dois fatores"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Introduza o código da sua app de autenticação"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Introduza o código enviado por mensagem de texto"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Introduza o código da sua app Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Aprovação do administrador"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Enviámos um pedido de aprovação ao seu administrador"
   },
   "method": {
-    "message": "Method"
+    "message": "Método"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Importador direto"
   },
   "csv": {
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Autenticação SSO necessária"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "A sua conta do Keeper requer autenticação SSO. Conclua o início de sessão na janela do navegador que foi aberta e, em seguida, cole o token apresentado na página."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Conclua o início de sessão no separador do navegador que foi aberto. O token será capturado automaticamente."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Token SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Autenticação do Keeper necessária"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Aprovação do dispositivo do Keeper necessária"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Métodos de aprovação"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Aprovação do dispositivo necessária"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Aprove este dispositivo selecionando um dos métodos abaixo"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Método de dois fatores"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Verificação de e-mail"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Verifique o seu e-mail e introduza o código de verificação abaixo"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Notificação do Keeper Push enviada para o dispositivo aprovado"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push enviado"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "O pedido de aprovação será cancelado"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Tem a certeza de que pretende sair? O seu pedido de aprovação ao administrador será cancelado."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Cancelar pedido"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Autenticação de dois fatores do Keeper necessária"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Aprove o pedido de início de sessão na sua app de autenticação. Esta caixa de diálogo fechar-se-á automaticamente."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Selecionar método de dois fatores"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Escolha como pretende verificar a sua identidade."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "App de autenticação (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Mensagem de texto (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4531,70 +4571,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Códigos de recuperação"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Chave de segurança (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Chave de segurança (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Verificação do Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Aprove a notificação do Keeper DNA no seu dispositivo"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Selecionar método do Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Escolha como pretende verificar a sua identidade com o Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Notificação push"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Introduzir código manualmente"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Autenticação de dois fatores"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Método desconhecido"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Selecionar método do Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Escolha como pretende verificar a sua identidade com o Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Chamada telefónica"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Verificação do Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Aprove a notificação push do Duo no seu dispositivo."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Foi enviada uma mensagem de texto para o seu telemóvel. Introduza o código na app Duo para continuar."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Atenda a chamada do Duo e siga as instruções."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Tente outro método"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "A sua conta do Keeper requer um método de autenticação de dois fatores que, de momento, não é suportado pelo importador direto."
   },
   "commonImportFormats": {
     "message": "Formatos comuns",
