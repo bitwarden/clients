@@ -229,7 +229,8 @@ libs/unlock                                       @bitwarden/team-key-management
 # Node-cryptofunction service
 libs/node  @bitwarden/team-key-management-dev
 
-apps/desktop/desktop_native/core/src/biometric_v2/              @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/biometric/                          @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/napi/src/biometrics.rs              @bitwarden/team-key-management-dev
 apps/desktop/desktop_native/secure_memory/                      @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts           @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-key-management-dev
