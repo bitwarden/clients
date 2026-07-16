@@ -7,7 +7,7 @@ import { HttpStatusCode } from "../../../enums";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
 import { Utils } from "../../../platform/misc/utils";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "../../abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../enums";

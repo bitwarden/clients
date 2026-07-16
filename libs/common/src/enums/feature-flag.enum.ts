@@ -14,7 +14,6 @@ export enum FeatureFlag {
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
   StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
@@ -142,7 +141,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

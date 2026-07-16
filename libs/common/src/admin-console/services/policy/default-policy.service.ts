@@ -1,15 +1,16 @@
 import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
+import { OrganizationUserPolicyContext } from "@bitwarden/sdk-internal";
+
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
-import { OrganizationUserStatusType, PolicyType } from "../../enums";
+import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Organization } from "../../models/domain/organization";
@@ -35,9 +36,8 @@ export class DefaultPolicyService implements PolicyService {
 
     // This callback is used to avoid a circular dependency error.
     // PM-35986 addresses the root cause of the circular dependency.
-    // The callback can be removed after that is merged, or when
-    // the feature flag is removed, whichever is sooner.
-    private configService: () => ConfigService,
+    // The callback can be removed after that is merged.
+    private sdkService: () => SdkService,
   ) {}
 
   private policyState(userId: UserId) {
@@ -52,28 +52,35 @@ export class DefaultPolicyService implements PolicyService {
     return this.policyData$(userId).pipe(map((policyData) => policyRecordToArray(policyData)));
   }
 
-  policiesByType$(policyType: PolicyType, userId: UserId) {
+  policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
     if (!userId) {
       throw new Error("No userId provided");
     }
 
-    return this.configService()
-      .getFeatureFlag$(FeatureFlag.PoliciesInAcceptedState)
-      .pipe(
-        switchMap((useSdk) => {
-          if (useSdk) {
-            return this.newPolicyService.policiesByType$(policyType, userId);
-          }
+    // Uses the stateless SDK `client$` rather than `userClient$(userId)` because
+    // this is invoked during login before the user client is initialized.
+    // Safe for now because the policies crate is stateless, but will have to be
+    // revisited if we want SDK-managed state in the future.
 
-          const allPolicies$ = this.policies$(userId);
-          const organizations$ = this.organizationService.organizations$(userId);
+    return combineLatest([
+      this.organizationService.organizations$(userId),
+      this.organizationService.acceptedOrganizations$(userId),
+      // Note: use newPolicyService state to include both accepted and confirmed policies
+      this.newPolicyService.policies$(userId),
+      this.sdkService().client$,
+    ]).pipe(
+      map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
+        const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
+        const sdkOrganizationContext = confirmedOrganizations
+          .concat(acceptedOrganizations)
+          .map((o) => DefaultPolicyService.toSdkOrganizationUserPolicyContext(o));
+        const filteredViews = sdkClient
+          .policies()
+          .filter_by_type(sdkPolicies, sdkOrganizationContext, policyType);
 
-          return combineLatest([allPolicies$, organizations$]).pipe(
-            map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
-            map((policies) => policies.filter((p) => p.type === policyType)),
-          );
-        }),
-      );
+        return filteredViews.map((v) => Policy.fromSdkPolicyView(v));
+      }),
+    );
   }
 
   policyAppliesToUser$(policyType: PolicyType, userId: UserId) {
@@ -81,26 +88,6 @@ export class DefaultPolicyService implements PolicyService {
       getFirstPolicy,
       map((policy) => !!policy),
     );
-  }
-
-  private enforcedPolicyFilter(policies: Policy[], organizations: Organization[]) {
-    const orgDict = Object.fromEntries(organizations.map((o) => [o.id, o]));
-    return policies.filter((policy) => {
-      const organization = orgDict[policy.organizationId];
-
-      // This shouldn't happen, i.e. the user should only have policies for orgs they are a member of
-      // But if it does, err on the side of enforcing the policy
-      if (!organization) {
-        return true;
-      }
-
-      return (
-        policy.enabled &&
-        organization.status >= OrganizationUserStatusType.Accepted &&
-        organization.usePolicies &&
-        !this.isExemptFromPolicy(policy.type, organization, policies)
-      );
-    });
   }
 
   masterPasswordPolicyOptions$(
@@ -285,47 +272,20 @@ export class DefaultPolicyService implements PolicyService {
   }
 
   /**
-   * Determines whether an orgUser is exempt from a specific policy because of their role
-   * Generally orgUsers who can manage policies are exempt from them, but some policies are stricter
+   * Converts organization sync data to the SDK context model.
+   * This belongs in this service because it is specific to the policy domain.
    */
-  private isExemptFromPolicy(
-    policyType: PolicyType,
+  private static toSdkOrganizationUserPolicyContext(
     organization: Organization,
-    allPolicies: Policy[],
-  ) {
-    switch (policyType) {
-      case PolicyType.MaximumVaultTimeout:
-        // Max Vault Timeout applies to everyone except owners
-        return organization.isOwner;
-      // the following policies apply to everyone
-      case PolicyType.PasswordGenerator:
-        // password generation policy
-        return false;
-      case PolicyType.FreeFamiliesSponsorship:
-        // free Bitwarden families policy
-        return false;
-      case PolicyType.RestrictedItemTypes:
-        // restricted item types policy
-        return false;
-      case PolicyType.RemoveUnlockWithPin:
-        // Remove Unlock with PIN policy
-        return false;
-      case PolicyType.AutomaticUserConfirmation:
-        return false;
-      case PolicyType.OrganizationUserNotification:
-        // organization user notification banner applies to everyone, including admins and owners
-        return false;
-      case PolicyType.MasterPassword:
-        // MasterPassword policy applies to everyone, including admins and owners
-        return false;
-      case PolicyType.OrganizationDataOwnership:
-        // organization data ownership policy applies to everyone except admins and owners
-        return organization.isAdmin;
-      case PolicyType.SingleOrg:
-        return organization.canManagePolicies;
-      default:
-        return organization.canManagePolicies;
-    }
+  ): OrganizationUserPolicyContext {
+    return {
+      id: organization.id,
+      status: organization.status,
+      role: organization.type,
+      enabled: organization.enabled,
+      usePolicies: organization.usePolicies,
+      isProviderUser: organization.isProviderUser,
+    };
   }
 
   private mergeMasterPasswordPolicyOptions(
