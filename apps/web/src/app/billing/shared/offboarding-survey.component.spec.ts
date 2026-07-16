@@ -209,5 +209,6 @@ describe("OffboardingSurveyComponent", () => {
     expect(mockDialogRef.close).not.toHaveBeenCalled();
     expect(fixture.componentInstance.annualUpgradeRedeemLoading).toBe(false);
     expect(fixture.componentInstance.annualUpgradeRedeemError).toBeTruthy();
+    expect(mockLogService.error).toHaveBeenCalled();
   });
 });

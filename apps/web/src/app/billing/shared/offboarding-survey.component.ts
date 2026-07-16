@@ -213,7 +213,8 @@ export class OffboardingSurveyComponent implements OnInit {
       });
 
       await this.dialogRef.close(this.ResultType.Submitted);
-    } catch {
+    } catch (e) {
+      this.logService.error(e);
       this.annualUpgradeRedeemError = this.i18nService.t("unexpectedError");
     } finally {
       this.annualUpgradeRedeemLoading = false;
