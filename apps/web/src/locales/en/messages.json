@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "New organization"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "You do not belong to any organizations. Organizations allow you to securely share items with other users."
   },
