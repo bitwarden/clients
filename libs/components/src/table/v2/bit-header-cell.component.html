@@ -16,7 +16,7 @@
         (click)="onSortClick()"
       >
         <ng-container *ngTemplateOutlet="content"></ng-container>
-        <i class="bwi tw-ms-2" [class]="sortIcon()"></i>
+        <bit-icon class="tw-ms-2" [name]="sortIcon()"></bit-icon>
       </button>
     } @else {
       <ng-container *ngTemplateOutlet="content"></ng-container>

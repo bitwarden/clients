@@ -9,6 +9,8 @@ import {
   viewChild,
 } from "@angular/core";
 
+import { IconComponent } from "../../icon";
+
 import { BitColumnComponent } from "./bit-column.component";
 import { BitTableV2Component } from "./table-v2.component";
 
@@ -35,7 +37,7 @@ import { BitTableV2Component } from "./table-v2.component";
 @Component({
   selector: "bit-header-cell",
   templateUrl: "./bit-header-cell.component.html",
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-contents",
