@@ -234,6 +234,9 @@ export class VaultHeaderComponent {
 
   protected readonly canCreateCipher = computed(() => {
     const org = this.organization();
+    if (org && !org.enabled) {
+      return false;
+    }
     if (org?.isProviderUser && !org?.isMember) {
       return false;
     }

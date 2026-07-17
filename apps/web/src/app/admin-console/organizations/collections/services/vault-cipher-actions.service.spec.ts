@@ -54,6 +54,7 @@ function makeDialogRef<T>(result: T): DialogRef<T> {
 function buildOrg(overrides: Partial<Organization> = {}): Organization {
   return {
     id: ORG_ID,
+    enabled: true,
     canEditAllCiphers: true,
     canEditAnyCollection: true,
     canEditUnassignedCiphers: true,

@@ -5,7 +5,6 @@ import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -116,31 +115,6 @@ describe("CipherFormComponent", () => {
       expect(showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "cannotSaveItemNoConfirmedOrgs",
-      });
-      expect(mockAddEditFormService.saveCipher).not.toHaveBeenCalled();
-      expect(cipherSavedSpy).not.toHaveBeenCalled();
-    });
-
-    it("shows an error toast and aborts when the target organization is suspended", async () => {
-      component.config = {
-        mode: "add",
-        organizationDataOwnershipDisabled: false,
-        organizations: [{ id: "org-1", enabled: false } as Organization],
-      } as unknown as CipherFormConfig;
-      component["updatedCipherView"] = new CipherView();
-      component["updatedCipherView"].organizationId = "org-1";
-
-      const toastService = TestBed.inject(ToastService);
-      const showToast = jest.spyOn(toastService, "showToast");
-      mockAddEditFormService.saveCipher = jest.fn();
-      const cipherSavedSpy = jest.fn();
-      component.cipherSaved.subscribe(cipherSavedSpy);
-
-      await component.submit();
-
-      expect(showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "cannotSaveItemOrganizationSuspended",
       });
       expect(mockAddEditFormService.saveCipher).not.toHaveBeenCalled();
       expect(cipherSavedSpy).not.toHaveBeenCalled();

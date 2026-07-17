@@ -7217,9 +7217,6 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
   },
-  "cannotSaveItemOrganizationSuspended": {
-    "message": "Unable to save item. This organization is suspended."
-  },
   "duplicateAttachmentNameError": {
     "message": "Items cannot have multiple attachments with the same file name"
   },

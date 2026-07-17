@@ -250,7 +250,11 @@ export class VaultHeaderComponent {
   }
 
   get canCreateCipher(): boolean {
-    return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
+    const activeOrganization = this.activeOrganization;
+    if (activeOrganization && !activeOrganization.enabled) {
+      return false;
+    }
+    return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
   }
 
   deleteCollection() {

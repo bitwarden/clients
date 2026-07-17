@@ -25,7 +25,9 @@
         {{ menuItem.labelKey | i18n }}
       </a>
     }
-    <bit-menu-divider></bit-menu-divider>
+    @if ((cipherMenuItems$ | async)?.length) {
+      <bit-menu-divider></bit-menu-divider>
+    }
     <button type="button" bitMenuItem (click)="openFolderDialog()">
       <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
       {{ "folder" | i18n }}

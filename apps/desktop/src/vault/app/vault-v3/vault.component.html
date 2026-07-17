@@ -6,7 +6,7 @@
     <vault-organization-user-notifications></vault-organization-user-notifications>
     <app-header>
       <vault-new-cipher-menu
-        [canCreateCipher]="true"
+        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
         [canCreateFolder]="true"
         [canCreateSshKey]="true"
         (cipherAdded)="addCipher($event)"

@@ -378,18 +378,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       return;
     }
 
-    const targetOrganizationId = this.updatedCipherView?.organizationId;
-    const targetOrganization = this.config.organizations?.find(
-      (o) => o.id === targetOrganizationId,
-    );
-    if (targetOrganization && !targetOrganization.enabled) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("cannotSaveItemOrganizationSuspended"),
-      });
-      return;
-    }
-
     let successToast: string = "editedItem";
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();

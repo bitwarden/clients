@@ -663,6 +663,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected async openAddItemDialog(): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher: organization?.enabled ?? true,
       canCreateFolder: false,
       canCreateCollection: organization?.canCreateNewCollections ?? false,
       canCreateSshKey: false,

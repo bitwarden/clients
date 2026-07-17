@@ -5916,9 +5916,6 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
   },
-  "cannotSaveItemOrganizationSuspended": {
-    "message": "Unable to save item. This organization is suspended."
-  },
   "sendDeletionDateSetByOrg": {
     "message": "$ORGNAME$ has set this deletion date",
     "placeholders": {
