@@ -590,7 +590,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const genericSubmitElement = await this.querySubmitButtonElement(
       element,
       "[type='submit']",
-      (element: Element) => elementIsTypeSubmitElement(element),
+      (element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       return genericSubmitElement;
@@ -599,7 +599,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitButtonElement = await this.querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (element: Element) => elementIsButtonElement(element),
+      (element) => elementIsButtonElement(element),
     );
     if (submitButtonElement) {
       return submitButtonElement;
@@ -609,7 +609,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitAnchorElement = await this.querySubmitButtonElement(
       element,
       "a",
-      (element: Element) => elementIsAnchorElement(element),
+      (element) => elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;

@@ -1361,8 +1361,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Checks if the passed node is a form field element.
-   * @param {Node} element
-   * @returns {boolean}
+   * @param {Element} element the element to check.
+   * @returns {boolean} whether the element is a form field element.
    * @private
    */
   private isElementFormFieldElement(element: Element): boolean {
