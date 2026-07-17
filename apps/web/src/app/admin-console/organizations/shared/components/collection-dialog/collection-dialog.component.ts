@@ -111,7 +111,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected collection?: CollectionAdminView;
   protected nestOptions: CollectionView[] = [];
   protected accessItems: AccessItemView[] = [];
-  protected deletedParentName: string | undefined;
+  protected readonly deletedParentName = signal<string | undefined>(undefined);
   protected readonly showOrgSelector = signal(false);
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
@@ -124,8 +124,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected PermissionMode = PermissionMode;
   protected readonly showDeleteButton = signal(false);
   protected readonly showAddAccessWarning = signal(false);
-  protected buttonDisplayName: ButtonType = ButtonType.Save;
-  protected initialPermission: CollectionPermission;
+  protected readonly buttonDisplayName = signal<ButtonType>(ButtonType.Save);
+  protected readonly initialPermission = signal(
+    this.params.initialPermission ?? CollectionPermission.View,
+  );
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
@@ -133,7 +135,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.tabIndex = this.params.initialTab ?? CollectionDialogTabType.Info;
-    this.initialPermission = this.params.initialPermission ?? CollectionPermission.View;
   }
 
   async ngOnInit() {
@@ -183,9 +184,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .pipe(
         tap((_) => {
           if (this.organizationSelected.errors?.cannotCreateCollections) {
-            this.buttonDisplayName = ButtonType.Upgrade;
+            this.buttonDisplayName.set(ButtonType.Upgrade);
           } else {
-            this.buttonDisplayName = ButtonType.Save;
+            this.buttonDisplayName.set(ButtonType.Save);
           }
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
@@ -269,7 +270,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               !allCollections.find((c) => c.name === parentName)
             ) {
               // The user can view all collections, but the parent was not found -> assume it has been deleted
-              this.deletedParentName = parentName;
+              this.deletedParentName.set(parentName);
             } else if (!this.nestOptions.find((c) => c.name === parentName)) {
               // We cannot find the current parent collection in our list of options, so add a placeholder
               this.nestOptions.unshift({ name: parentName } as CollectionView);
@@ -360,7 +361,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.formGroup.markAllAsTouched();
 
-    if (this.buttonDisplayName == ButtonType.Upgrade) {
+    if (this.buttonDisplayName() == ButtonType.Upgrade) {
       this.close(CollectionDialogAction.Upgrade);
       if (this.orgExceedingCollectionLimit !== undefined) {
         this.changePlan(this.orgExceedingCollectionLimit);
