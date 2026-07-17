@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
@@ -87,6 +87,21 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
+  private readonly params = inject<CollectionDialogParams>(DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly dialogRef = inject<DialogRef<CollectionDialogResult>>(DialogRef);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly groupService = inject(GroupApiService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly i18nService = inject(I18nService);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly dialogService = inject(DialogService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
+  private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
+
   private destroy$ = new Subject<void>();
   protected organizations$: Observable<Organization[]> | undefined;
 
@@ -116,24 +131,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   );
   private orgExceedingCollectionLimit: Organization | undefined;
 
-  constructor(
-    @Inject(DIALOG_DATA) private params: CollectionDialogParams,
-    private formBuilder: FormBuilder,
-    private dialogRef: DialogRef<CollectionDialogResult>,
-    private organizationService: OrganizationService,
-    private groupService: GroupApiService,
-    private collectionAdminService: CollectionAdminService,
-    private i18nService: I18nService,
-    private organizationUserApiService: OrganizationUserApiService,
-    private dialogService: DialogService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private accountService: AccountService,
-    private toastService: ToastService,
-    private collectionService: CollectionService,
-    private configService: ConfigService,
-  ) {
-    this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
-    this.initialPermission = params.initialPermission ?? CollectionPermission.View;
+  constructor() {
+    this.tabIndex = this.params.initialTab ?? CollectionDialogTabType.Info;
+    this.initialPermission = this.params.initialPermission ?? CollectionPermission.View;
   }
 
   async ngOnInit() {
