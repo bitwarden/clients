@@ -79,6 +79,7 @@ export class WebRegistrationFinishService
     masterPassword: string,
     masterPasswordHint?: string,
     emailVerificationToken?: string,
+    salesAssistedToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
@@ -94,6 +95,15 @@ export class WebRegistrationFinishService
     );
 
     // web specific logic
+
+    // Sales-assisted invites are deep-linked to trial initiation.
+    // It does not grant an org, family, emergency-access, or provider relationship; it
+    // authorizes registration on instances where open self-registration is disabled.
+    // No linking/validation needed here, only forward the token.
+    if (salesAssistedToken) {
+      registerRequest.sales_assisted_token = salesAssistedToken;
+    }
+
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
@@ -145,6 +155,7 @@ export class WebRegistrationFinishService
     passwordInputResult: PasswordInputResult,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
+    salesAssistedToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
@@ -160,6 +171,15 @@ export class WebRegistrationFinishService
     );
 
     // web specific logic
+
+    // Sales-assisted invites are deep-linked to trial initiation.
+    // It does not grant an org, family, emergency-access, or provider relationship; it
+    // authorizes registration on instances where open self-registration is disabled.
+    // No linking/validation needed here, only forward the token.
+    if (salesAssistedToken) {
+      registerRequest.salesAssistedToken = salesAssistedToken;
+    }
+
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
