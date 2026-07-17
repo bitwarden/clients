@@ -154,8 +154,7 @@ export class SshAgentService implements OnDestroy {
 
           return of([message, account.id]);
         }),
-        // This switchMap handles fetching the ciphers from the vault.
-        switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+        concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
             map((ciphers) => [message, ciphers] as const),
           ),
@@ -334,7 +333,7 @@ export class SshAgentService implements OnDestroy {
             }
             return of([message, account.id] as const);
           }),
-          switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+          concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
             from(this.cipherService.getAllDecrypted(userId)).pipe(
               map((ciphers) => [message, ciphers] as const),
             ),
