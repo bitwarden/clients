@@ -1,4 +1,5 @@
 import {
+  BiometricFingerprint,
   NoCredentialsIcon,
   ReportBreach,
   ReportExposedPasswords,
@@ -20,6 +21,7 @@ export enum ReportType {
   Inactive2fa = "inactive2fa",
   DataBreach = "dataBreach",
   MemberAccessReport = "memberAccessReport",
+  PasskeyLogin = "passkeyLogin",
 }
 
 type ReportWithoutVariant = Omit<ReportEntry, "variant">;
@@ -66,5 +68,11 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     description: "memberAccessReportDesc",
     route: "member-access-report",
     icon: UserLockIcon,
+  },
+  [ReportType.PasskeyLogin]: {
+    title: "passkeyLoginReport",
+    description: "passkeyLoginReportMenuDesc",
+    route: "passkey-report",
+    icon: BiometricFingerprint,
   },
 };
