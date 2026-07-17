@@ -19,11 +19,14 @@ import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-c
 import { OrganizationConnectionRequest } from "@bitwarden/common/admin-console/models/request/organization-connection.request";
 import { ScimConfigRequest } from "@bitwarden/common/admin-console/models/request/scim-config.request";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  A11yTitleDirective,
   AriaDisableDirective,
   BaseCardDirective,
   BitActionDirective,
@@ -31,8 +34,10 @@ import {
   CalloutComponent,
   CardComponent,
   DialogService,
+  FormControlCardComponent,
   FormFieldModule,
   LinkComponent,
+  PopoverModule,
   SpinnerComponent,
   SwitchComponent,
   ToastService,
@@ -53,6 +58,7 @@ let nextId = 0;
   imports: [
     WebHeaderComponent,
     ReactiveFormsModule,
+    A11yTitleDirective,
     BaseCardDirective,
     CalloutComponent,
     CardComponent,
@@ -60,7 +66,9 @@ let nextId = 0;
     LinkComponent,
     AriaDisableDirective,
     SwitchComponent,
+    FormControlCardComponent,
     FormFieldModule,
+    PopoverModule,
     BitIconButtonComponent,
     BitActionDirective,
     I18nPipe,
@@ -70,6 +78,7 @@ let nextId = 0;
 export class ScimV2Component {
   private readonly route = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
+  private readonly configService = inject(ConfigService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly i18nService = inject(I18nService);
   private readonly environmentService = inject(EnvironmentService);
@@ -80,14 +89,19 @@ export class ScimV2Component {
   protected readonly loading = signal(true);
   protected readonly showScimSettings = signal(false);
   protected readonly showScimKey = signal(false);
+  protected readonly stagedStatusEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.StagedStatus),
+    { initialValue: false },
+  );
 
   protected readonly descriptionId = `scim-description-${nextId++}`;
   protected readonly labelId = `scim-label-${nextId++}`;
   protected readonly switchId = `scim-switch-${nextId++}`;
   protected readonly switchInputId = `${this.switchId}-input`;
-  private readonly switchRef = viewChild.required(SwitchComponent);
+  private readonly switchRef = viewChild.required<SwitchComponent>("enabledSwitch");
 
   protected readonly enabled = new FormControl(false);
+  protected readonly inviteUsersAfterProvisioning = new FormControl(true);
   protected readonly formData = new FormGroup({
     endpointUrl: new FormControl(""),
     clientSecret: new FormControl(""),
@@ -201,7 +215,11 @@ export class ScimV2Component {
       this.organizationId(),
       OrganizationConnectionType.Scim,
       true,
-      new ScimConfigRequest(this.enabled.value ?? false),
+      new ScimConfigRequest(
+        this.enabled.value ?? false,
+        undefined,
+        this.inviteUsersAfterProvisioning.value ?? true,
+      ),
     );
     let response: OrganizationConnectionResponse<ScimConfigApi>;
 
@@ -252,6 +270,9 @@ export class ScimV2Component {
     this.existingConnectionId.set(connection?.id);
     this.cachedApiKey.set(undefined);
     this.showScimKey.set(false);
+    this.inviteUsersAfterProvisioning.setValue(
+      connection?.config?.inviteUsersAfterProvisioning ?? true,
+    );
     if (connection !== null && connection.config?.enabled) {
       await this.scimBannerService.markBannerSeen(this.organizationId());
       this.showScimSettings.set(true);
