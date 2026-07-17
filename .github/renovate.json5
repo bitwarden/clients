@@ -366,6 +366,7 @@
         "memsec",
         "node-forge",
         "rand",
+        "rand_core",
         "rsa",
         "russh-cryptovec",
         "sha2",
