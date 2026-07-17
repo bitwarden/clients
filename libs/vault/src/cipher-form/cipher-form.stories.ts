@@ -41,6 +41,7 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/te
 
 import { CipherFormConfig, CipherFormGenerationService, PasswordRepromptService } from "..";
 import { SshImportPromptService } from "../services/ssh-import-prompt.service";
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
@@ -286,7 +287,10 @@ export default {
       (story) => `<div class="tw-bg-background-alt tw-text-main tw-border">${story}</div>`,
     ),
     applicationConfig({
-      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+      providers: [
+        importProvidersFrom(PreloadedEnglishI18nModule),
+        { provide: Vfo1TerminologyService, useValue: { enabled: signal(true) } },
+      ],
     }),
   ],
   args: {
