@@ -840,7 +840,6 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       SUPPORTS_SECURE_STORAGE,
       SECURE_STORAGE,
-      KeyGenerationService,
       EncryptService,
       LogService,
       LOGOUT_CALLBACK,

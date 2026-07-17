@@ -9,12 +9,12 @@ use anyhow::Result;
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(target_os = "macos", path = "unimplemented.rs")]
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
-mod biometric_v2;
+mod biometric;
 
 #[cfg(target_os = "windows")]
 pub mod windows_focus;
 
-pub use biometric_v2::BiometricLockSystem;
+pub use biometric::BiometricLockSystem;
 
 /// Platform-specific biometric-protected key storage
 #[allow(async_fn_in_trait)]
