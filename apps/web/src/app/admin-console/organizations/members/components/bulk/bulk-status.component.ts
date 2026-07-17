@@ -26,11 +26,18 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 
 export interface BulkUserDetails {
   id: string;
+  /**
+   * The user's account id. Used (along with `avatarColor`) to keep the avatar color consistent
+   * with the one shown on the members list, which is keyed off of the account id rather than the
+   * org/provider user id.
+   */
+  userId?: string;
   name: string | undefined;
   email: string;
   status: OrganizationUserStatusType | ProviderUserStatusType;
   hasMasterPassword?: boolean;
   claimedByOrganization?: boolean;
+  avatarColor?: string;
 }
 
 type BulkStatusEntry = {

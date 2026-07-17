@@ -1,18 +1,17 @@
 use std::sync::Arc;
 
+#[cfg(feature = "napi")]
+use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
 use crate::{BitwardenError, Callback, TimedCallback};
 
-/// Request to retrieve the lock status of the desktop client.
-#[derive(Debug, Serialize, Deserialize)]
-pub(super) struct LockStatusRequest {}
-
 /// Response for the lock status of the desktop client.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[serde(rename_all = "camelCase")]
 pub struct LockStatusResponse {
     /// Whether the desktop client is unlocked.
-    #[serde(rename = "isUnlocked")]
     pub is_unlocked: bool,
 }
 
