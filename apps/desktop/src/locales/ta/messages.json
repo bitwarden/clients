@@ -917,8 +917,8 @@
   "linkedHelpText": {
     "message": "ஒரு குறிப்பிட்ட வலைத்தளத்திற்கு தானியங்கு நிரப்புதல் சிக்கல்களை நீங்கள் சந்திக்கும் போது இணைக்கப்பட்ட புலத்தைப் பயன்படுத்தவும்."
   },
-  "linkedLabelHelpText": {
-    "message": "புலத்தின் html id, பெயர், aria-label, அல்லது பிளேஸ்ஹோல்டரை உள்ளிடவும்."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "folder": {
     "message": "கோப்புறை"
@@ -2114,8 +2114,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "உருவாக்கிய வரலாற்றை அழிக்கவும்"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "நீங்கள் தொடர்ந்தால், உருவாக்கும் வரலாற்றில் உள்ள அனைத்து உள்ளீடுகளும் நிரந்தரமாக நீக்கப்படும். நீங்கள் தொடர விரும்புகிறீர்களா?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "clear": {
     "message": "அழி",
@@ -2390,8 +2390,8 @@
   "restrictCardTypeImportDesc": {
     "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவனங்களால் அமைக்கப்பட்ட ஒரு கொள்கை, உங்கள் பெட்டகங்களுக்கு அட்டைகளை இறக்குமதி செய்வதை தடுக்கிறது."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“கோப்பு கடவுச்சொல்” மற்றும் “கோப்பு கடவுச்சொல்லை உறுதிப்படுத்தவும்“ பொருந்தவில்லை."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "done": {
     "message": "முடிந்தது"
@@ -2403,8 +2403,8 @@
   "confirmVaultExport": {
     "message": "பெட்டக ஏற்றுமதியை உறுதிப்படுத்தவும்"
   },
-  "exportWarningDesc": {
-    "message": "இந்த ஏற்றுமதியில் உங்கள் பெட்டக தரவுகள் குறியாக்கப்படாத வடிவத்தில் உள்ளன. நீங்கள் ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்களில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதை நீங்கள் பயன்படுத்தியவுடன் உடனடியாக நீக்க வேண்டும்."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "இந்த ஏற்றுமதி உங்கள் கணக்கின் குறியாக்க விசையைப் பயன்படுத்தி உங்கள் தரவை குறியாக்கும். உங்கள் கணக்கின் குறியாக்க விசையை நீங்கள் எப்போதாவது மாற்றினால், இந்த ஏற்றுமதி கோப்பை உங்களால் திறக்க முடியாது என்பதால் மீண்டும் ஏற்றுமதி செய்ய வேண்டும்."
@@ -3518,8 +3518,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "தவறான $SERVICENAME$ API டோக்கன்",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3528,8 +3528,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "தவறான $SERVICENAME$ API டோக்கன்: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3542,8 +3542,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை மறுத்துவிட்டது. உதவிக்கு உங்கள் சேவை வழங்குநரைத் தொடர்பு கொள்ளவும்.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3552,8 +3552,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை மறுத்துவிட்டது: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3626,8 +3626,8 @@
   "apiKey": {
     "message": "API சாவி"
   },
-  "premiumSubcriptionRequired": {
-    "message": "பிரீமியம் சந்தா தேவை"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "நிறுவனம் இடைநிறுத்தப்பட்டது"
