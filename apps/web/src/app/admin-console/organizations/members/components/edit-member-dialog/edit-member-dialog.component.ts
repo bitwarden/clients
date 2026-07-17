@@ -269,6 +269,10 @@ export class EditMemberDialogComponent {
       ),
     );
 
+    this.formGroup.controls.email.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.email.setErrors(null));
+
     this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
       if (restrictEditingSelf) {
         this.formGroup.controls.groups.disable();
