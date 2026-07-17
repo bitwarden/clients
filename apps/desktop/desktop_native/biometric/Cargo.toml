@@ -1,0 +1,48 @@
+[package]
+name = "biometric"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+anyhow = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+secure_memory = { path = "../secure_memory" }
+tokio = { workspace = true, features = ["sync"] }
+tracing = { workspace = true }
+zbus = { workspace = true }
+zbus_polkit = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+aes = { workspace = true }
+chacha20poly1305 = { workspace = true }
+desktop_core = { path = "../core" }
+rand = { workspace = true }
+scopeguard = { workspace = true }
+secure_memory = { path = "../secure_memory" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = "=0.10.9"
+tokio = { workspace = true, features = ["sync"] }
+tracing = { workspace = true }
+windows = { workspace = true, features = [
+    "Foundation",
+    "Security_Credentials_UI",
+    "Security_Cryptography",
+    "Storage_Streams",
+    "Win32_Foundation",
+    "Win32_Security_Credentials",
+    "Win32_System_Threading",
+    "Win32_System_WinRT",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
+windows-future = { workspace = true }
+
+[target.'cfg(any(target_os = "linux", target_os = "windows"))'.dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+[lints]
+workspace = true

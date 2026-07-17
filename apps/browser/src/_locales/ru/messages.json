@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Пароль скопирован"
   },
+  "passwordAnnounceSpace": {
+    "message": "пробел",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1480,6 +1484,18 @@
   "shared": {
     "message": "Общие"
   },
+  "sharedFolder": {
+    "message": "Общая папка"
+  },
+  "sharedFolders": {
+    "message": "Общие папки"
+  },
+  "myFolder": {
+    "message": "Моя папка"
+  },
+  "myFolders": {
+    "message": "Мои папки"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden для Бизнеса позволяет предоставлять доступ к элементам вашего хранилища другим пользователям с помощью организации. Более подробную информацию можно найти на сайте bitwarden.com."
   },
@@ -1569,10 +1585,10 @@
     "message": "Файл"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Фото"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Неизвестно"
   },
   "fileToShare": {
     "message": "Файл для отправки"
@@ -4775,7 +4791,7 @@
     "message": "Ничего не было импортировано."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ элементов будут пропущены",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4784,40 +4800,40 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Следующие элементы не удалось прочитать, и они не будут включены в ваш импорт:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Контакт"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Участники"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Водительское удостоверение"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Удостоверение личности"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Свидетельство о рождении"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Учетные данные базы данных"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Учетные данные сервера"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Лицензия на программное обеспечение"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Медицинское страхование"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Учетные данные Wi-Fi"
   },
   "importEncKeyError": {
     "message": "Ошибка при расшифровке экспортированного файла. Ваш ключ шифрования не совпадает с ключом шифрования, использованным при экспорте данных."
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Подтвердите пароль к файлу"
+  },
+  "keePassMasterPassword": {
+    "message": "Мастер-пароль KeePass"
+  },
+  "addKeyFile": {
+    "message": "Добавить файл ключа"
+  },
+  "keyFileUpload": {
+    "message": "Загрузка файла ключа"
+  },
+  "kdbxFileUpload": {
+    "message": "Загрузка файла KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Допустимые форматы: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Формат данных некорректен. Проверьте файл импорта и повторите попытку."
+  },
+  "kdbxWrongFileType": {
+    "message": "Этот файл не является допустимой базой данных KeePass (.kdbx). Выберите файл .kdbx и повторите попытку."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Эта база данных KeePass слишком велика для импорта."
   },
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
@@ -4986,7 +5026,7 @@
     "message": "Сбой многофакторной аутентификации"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Возникла проблема при подключении к Keeper. Пожалуйста, попробуйте выполнить импорт еще раз."
   },
   "includeSharedFolders": {
     "message": "Включить общие папки"
@@ -5041,43 +5081,43 @@
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Адрес email Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Введите адрес email, который вы используете для авторизации в Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Расположение дата-центра"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Мастер-пароль Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Пожалуйста, введите мастер-пароль Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Введите код, сгенерированный вашим средством двухфакторной аутентификации"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Введите код из приложения-аутентификатора"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Введите код, присланный в SMS"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Введите код из приложения Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Подтверждение администратора"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Мы отправили запрос на одобрение администратора вашему администратору"
   },
   "method": {
-    "message": "Method"
+    "message": "Метод"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Прямой импортер"
   },
   "csv": {
     "message": "CSV"
@@ -5086,76 +5126,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Требуется аутентификация SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Для входа в ваш аккаунт Keeper требуется аутентификация SSO. Завершите авторизацию в открывшемся окне браузера, а затем вставьте токен, отображенный на странице."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Завершите авторизацию на открывшейся вкладке браузера. Токен будет считан автоматически."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Токен SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Требуется аутентификация Keeper"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Требуется подтверждение устройства Keeper"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Методы подтверждения"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Требуется подтверждение устройства"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Подтвердите это устройство, выбрав один из способов ниже"
   },
   "keeperPush": {
-    "message": "Keeper Push"
+    "message": "Push-уведомление Keeper"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Метод двухфакторной аутентификации"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Подтверждение email"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Пожалуйста, проверьте свою почту и введите код подтверждения ниже"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Отправлено push-уведомление Keeper на авторизованное устройство"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Отправлено push-уведомление Keeper"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Запрос на подтверждение будет отменен"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Вы уверены, что хотите выйти? Ваш запрос на подтверждение администратором будет отменен."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Отменить запрос"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Требуется двухфакторная аутентификация Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Подтвердите запрос на вход в приложении-аутентификаторе. Это окно закроется автоматически."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Выберите метод двухфакторной аутентификации"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Выберите способ подтверждения своей личности."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Приложение-аутентификатор (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Текстовое сообщение (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5164,70 +5204,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Резервные коды"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Ключ безопасности (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Ключ безопасности (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Верификация Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Подтвердите уведомление Keeper DNA на своем устройстве"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Выберите метод Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Выберите способ подтверждения с помощью Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Push-уведомление"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Введите код вручную"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двухфакторная аутентификация"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Неизвестный метод"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Выберите метод Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Выберите способ подтверждения с помощью Duo Security.."
   },
   "duoPush": {
-    "message": "Duo Push"
+    "message": "Push-уведомление Duo"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Телефонный вызов"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Верификация Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Подтвердите push-уведомление Duo на своем устройстве"
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "На ваш телефон было отправлено SMS. Введите код в приложении Duo, чтобы продолжить."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Ответьте на звонок от Duo и следуйте инструкциям."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Попробуйте другой способ"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Для вашего аккаунта Keeper требуется метод двухфакторной аутентификации, который в настоящее время не поддерживается прямым импортером."
   },
   "switchAccount": {
     "message": "Сменить аккаунт"
@@ -6304,9 +6344,6 @@
   "unlockPinSet": {
     "message": "Установить PIN--код разблокировки"
   },
-  "unlockWithBiometricSet": {
-    "message": "Разблокировка с помощью биометрии настроена"
-  },
   "authenticating": {
     "message": "Аутентификация"
   },
@@ -6716,7 +6753,7 @@
     "message": "Далее"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Гид",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6998,16 +7035,16 @@
     "message": "При включении информация о состоянии разблокировки будет передаваться в веб-хранилище Bitwarden."
   },
   "newPermissionNeeded": {
-    "message": "New permission needed"
+    "message": "Требуется новое разрешение"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "Чтобы использовать общую разблокировку, Bitwarden требуется разрешение на общение с приложением для компьютера. При продолжении браузер запросит у вас разрешение."
   },
   "sharedUnlockDesktopPermissionWarning": {
-    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+    "message": "Bitwarden заблокирует хранилище и обновит его. После вашего подтверждения расширение перезагрузится и заблокирует ваше хранилище."
   },
   "biometricPermissionDesc": {
-    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "Чтобы использовать биометрическую разблокировку, Bitwarden требуется разрешение на общение с приложением для компьютера. При продолжении браузер запросит у вас разрешение."
   },
   "enterMonth": {
     "message": "Введите месяц."

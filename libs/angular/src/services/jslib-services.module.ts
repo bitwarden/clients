@@ -75,7 +75,7 @@ import {
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -840,7 +840,6 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       SUPPORTS_SECURE_STORAGE,
       SECURE_STORAGE,
-      KeyGenerationService,
       EncryptService,
       LogService,
       LOGOUT_CALLBACK,
@@ -1012,6 +1011,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountCryptographicStateService,
       V2UpgradeTokenStateService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1263,7 +1263,7 @@ const safeProviders: SafeProvider[] = [
         organizationService,
         accountService,
         newPolicyService,
-        () => injector.get(ConfigService),
+        () => injector.get(SdkService),
       ),
     deps: [
       StateProvider,
@@ -1279,17 +1279,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalNewPolicyService,
-    useFactory: (
-      stateProvider: StateProvider,
-      organizationService: OrganizationServiceAbstraction,
-      injector: Injector,
-    ) =>
-      new DefaultNewPolicyService(
-        stateProvider,
-        () => injector.get(SdkService),
-        organizationService,
-      ),
-    deps: [StateProvider, OrganizationServiceAbstraction, Injector],
+    useClass: DefaultNewPolicyService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PolicyApiServiceAbstraction,
