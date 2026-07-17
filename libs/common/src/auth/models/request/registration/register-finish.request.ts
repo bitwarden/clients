@@ -15,6 +15,7 @@ export class RegisterFinishRequest {
     public masterPasswordUnlock: MasterPasswordUnlockData,
 
     public emailVerificationToken?: string,
+    public salesAssistedToken?: string,
     public orgSponsoredFreeFamilyPlanToken?: string,
     public acceptEmergencyAccessInviteToken?: string,
     public acceptEmergencyAccessId?: string,
