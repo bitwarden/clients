@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -11,12 +12,14 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
@@ -35,6 +38,7 @@ import { BiometricMessageHandlerService } from "../../services/biometric-message
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 import { UpdateRestartService } from "./update-restart.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable()
 export class InitService {
@@ -68,7 +72,10 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private stateProvider: StateProvider,
+    private messagingService: MessagingService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {}
 
   init() {
@@ -122,6 +129,24 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       await this.sharedUnlockPeerService.start();
+
+      AutomationDriver.attachToGlobalIfDev(
+        this.win,
+        this.platformUtilsService,
+        this.configService,
+        this.stateProvider,
+        this.messagingService,
+        {
+          reloadProcess: () => ipc.platform.reloadProcess(),
+          biometrics: {
+            setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+            listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+            approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+            deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+          },
+          logService: this.logService,
+        },
+      );
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();
