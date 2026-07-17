@@ -136,6 +136,19 @@ export default {
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  // Automation-only surface, controlled by the renderer automation driver (dev mode only).
+  automation: {
+    biometrics: {
+      setStatus: (status: number): Promise<void> =>
+        ipcRenderer.invoke("automation.biometric", { action: "setStatus", status }),
+      listPending: (): Promise<unknown[]> =>
+        ipcRenderer.invoke("automation.biometric", { action: "listPending" }),
+      approve: (id?: string): Promise<void> =>
+        ipcRenderer.invoke("automation.biometric", { action: "approve", id }),
+      deny: (id?: string): Promise<void> =>
+        ipcRenderer.invoke("automation.biometric", { action: "deny", id }),
+    },
+  },
   registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
     const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);
 
