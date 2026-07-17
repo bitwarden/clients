@@ -31,6 +31,7 @@ import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable()
 export class InitService {
@@ -59,9 +60,10 @@ export class InitService {
     private sharedUnlockPeerService: SharedUnlockPeerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
-    private stateProvider: StateProvider,
     private storageServiceProvider: StorageServiceProvider,
+    private stateProvider: StateProvider,
     private logService: LogService,
+    private configService: ConfigService,
   ) {}
 
   init() {
