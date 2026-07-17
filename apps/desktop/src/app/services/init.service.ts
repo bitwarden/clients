@@ -14,6 +14,7 @@ import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shar
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -21,6 +22,7 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
