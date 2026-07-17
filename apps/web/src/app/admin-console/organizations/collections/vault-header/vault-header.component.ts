@@ -243,6 +243,12 @@ export class VaultHeaderComponent {
     return true;
   });
 
+  /** Whether the "New" button should be disabled because the organization is suspended. */
+  protected readonly isOrganizationSuspended = computed(() => {
+    const org = this.organization();
+    return !!org && !org.enabled;
+  });
+
   handleDeleteCollection() {
     this.deleteCollection.emit();
   }

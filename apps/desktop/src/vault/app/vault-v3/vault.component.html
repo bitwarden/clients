@@ -9,6 +9,7 @@
         [canCreateCipher]="(canCreateCipher$ | async) ?? true"
         [canCreateFolder]="true"
         [canCreateSshKey]="true"
+        [disabled]="!((canCreateCipher$ | async) ?? true)"
         (cipherAdded)="addCipher($event)"
         (folderAdded)="addFolder()"
         (onAddItemDialog)="openAddItemDialog()"

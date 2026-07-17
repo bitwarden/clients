@@ -257,6 +257,12 @@ export class VaultHeaderComponent {
     return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
   }
 
+  /** Whether the "New" button should be disabled because the active organization is suspended. */
+  get isOrganizationSuspended(): boolean {
+    const activeOrganization = this.activeOrganization;
+    return !!activeOrganization && !activeOrganization.enabled;
+  }
+
   deleteCollection() {
     this.onDeleteCollection.emit();
   }
