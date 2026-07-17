@@ -20,7 +20,7 @@
               <td width="30" bitCell>
                 <bit-avatar
                   [text]="item.user | userName"
-                  [id]="item.user.userId ?? item.user.id"
+                  [id]="item.user | avatarId"
                   [color]="item.user.avatarColor"
                 ></bit-avatar>
               </td>

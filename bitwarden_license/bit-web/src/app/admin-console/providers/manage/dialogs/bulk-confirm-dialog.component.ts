@@ -33,6 +33,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { BaseBulkConfirmComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/base-bulk-confirm.component";
 import { BulkUserDetails } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
+import { AvatarIdPipe } from "@bitwarden/web-vault/app/admin-console/organizations/members/pipes/avatar-id.pipe";
 
 type BulkConfirmDialogParams = {
   providerId: string;
@@ -47,6 +48,7 @@ type BulkConfirmDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,
