@@ -117,7 +117,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
   ): Promise<OrganizationInviteLinkInviteResponse> {
     const r = await this.apiService.send(
       "POST",
-      "/organizations/users/invite-link/invite-blob",
+      "/organizations/users/invite-link/invite",
       request,
       true,
       true,
