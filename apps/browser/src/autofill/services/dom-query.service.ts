@@ -564,19 +564,21 @@ export class DomQueryService implements DomQueryServiceInterface {
         : NodeFilter.FILTER_ACCEPT,
     );
 
-    let currentNode: Node | Element | null = treeWalker?.currentNode;
+    do {
+      const currentNode: Node | Element | null = treeWalker.currentNode;
 
-    while (currentNode) {
       // `currentNode` can be one of two things: the root node (which is a `Node`),
       // or an `Element` (due to the `NodeFilter.SHOW_ELEMENT`). Therefore,
       // `currentNode` is an `Element` if it is not the root node, or if it
       // is an element.
-      let currentElement: Element | null = null;
+      let currentElement: Element;
       if (currentNode != treeWalker.root || nodeIsElement(currentNode)) {
         currentElement = currentNode as Element;
+      } else {
+        continue;
       }
 
-      if (currentElement != null && filterCallback(currentElement)) {
+      if (filterCallback(currentElement)) {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
@@ -584,7 +586,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       // Fast path: element.shadowRoot for open roots, free on any element type.
       // Fall back to the extension API (chrome.dom.openOrClosedShadowRoot) for
       // closed roots on any host element.
-      if (this.pageContainsShadowDom && currentElement != null) {
+      if (this.pageContainsShadowDom) {
         let nodeShadowRoot: ShadowRoot | null = currentElement.shadowRoot;
         if (!nodeShadowRoot) {
           nodeShadowRoot = this.getShadowRoot(currentNode);
@@ -608,8 +610,6 @@ export class DomQueryService implements DomQueryServiceInterface {
           );
         }
       }
-
-      currentNode = treeWalker?.nextNode();
-    }
+    } while (treeWalker.nextNode())
   }
 }
