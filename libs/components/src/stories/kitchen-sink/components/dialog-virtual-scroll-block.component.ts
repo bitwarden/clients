@@ -1,8 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from "@angular/core";
 
-import { BadgeComponent } from "../../../badge";
-import { BadgeGroupComponent } from "../../../badge-group";
+import { BadgeListModule } from "../../../badge-list";
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
 import {
@@ -23,8 +22,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   selector: "dialog-virtual-scroll-block",
   imports: [
     DatePipe,
-    BadgeComponent,
-    BadgeGroupComponent,
+    BadgeListModule,
     DialogModule,
     IconButtonModule,
     BitTableV2Component,
@@ -55,11 +53,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     <bit-column sortable [sortFn]="sortByTags">
       <bit-header-cell>Tags</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.tags; let row" [truncate]="false">
-        <bit-badge-group>
-          @for (tag of row.tags; track tag) {
-            <span bitBadge variant="subtle">{{ tag }}</span>
-          }
-        </bit-badge-group>
+        <bit-badge-list [items]="row.tags" variant="subtle"></bit-badge-list>
       </bit-cell>
     </bit-column>
     <bit-column width="64px">
