@@ -9,7 +9,6 @@
   <ng-container *ngIf="sub && !loading">
     <app-subscription-status
       [organizationSubscriptionResponse]="sub"
-      [planOverride]="sub.pendingAnnualUpgrade?.plan"
       [hideCallout]="isResellerOrganizationOwnerExempt"
       (reinstatementRequested)="reinstate()"
       *ngIf="!userOrg.isFreeOrg"

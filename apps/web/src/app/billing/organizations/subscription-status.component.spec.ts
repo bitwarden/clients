@@ -113,19 +113,22 @@ describe("SubscriptionStatusComponent", () => {
   });
 
   describe("planName getter", () => {
-    beforeEach(() => {
+    it("uses the response plan name when there is no pending annual upgrade", () => {
       component.organizationSubscriptionResponse = {
         ...makeOrgResponse(makeSubscription()),
         plan: { name: "Teams (Monthly)" },
       } as any;
-    });
 
-    it("uses response plan name when no override", () => {
       expect(component.planName).toBe("Teams (Monthly)");
     });
 
-    it("uses planOverride name when provided", () => {
-      component.planOverride = { name: "Teams (Annually)" } as any;
+    it("uses the pending annual upgrade plan name when present", () => {
+      component.organizationSubscriptionResponse = {
+        ...makeOrgResponse(makeSubscription()),
+        plan: { name: "Teams (Monthly)" },
+        pendingAnnualUpgrade: { plan: { name: "Teams (Annually)" } },
+      } as any;
+
       expect(component.planName).toBe("Teams (Annually)");
     });
   });
