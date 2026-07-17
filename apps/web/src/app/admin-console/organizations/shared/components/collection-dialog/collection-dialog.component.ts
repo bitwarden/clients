@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
@@ -68,59 +66,21 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionDialogTabType {
-  Info = 0,
-  Access = 1,
-}
+import {
+  CollectionDialogAction,
+  CollectionDialogParams,
+  CollectionDialogResult,
+  CollectionDialogTabType,
+} from "./collection-dialog.models";
 
-/**
- * Enum representing button labels for the "Add New Collection" dialog.
- *
- * @readonly
- * @enum {string}
- */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum ButtonType {
+const ButtonType = Object.freeze({
   /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
-  Upgrade = "upgrade",
+  Upgrade: "upgrade",
   /** Displayed when the user can still add more collections within the allowed limit. */
-  Save = "save",
-}
+  Save: "save",
+} as const);
+type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 
-export interface CollectionDialogParams {
-  collectionId?: CollectionId;
-  organizationId: OrganizationId;
-  initialTab?: CollectionDialogTabType;
-  parentCollectionId?: string;
-  showOrgSelector?: boolean;
-  initialPermission?: CollectionPermission;
-  /**
-   * Flag to limit the nested collections to only those the user has explicit CanManage access too.
-   */
-  limitNestedCollections?: boolean;
-  readonly?: boolean;
-  isAddAccessCollection?: boolean;
-  isAdminConsoleActive?: boolean;
-}
-
-export interface CollectionDialogResult {
-  action: CollectionDialogAction;
-  collection: CollectionResponse | CollectionView;
-}
-
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionDialogAction {
-  Saved = "saved",
-  Canceled = "canceled",
-  Deleted = "deleted",
-  Upgrade = "upgrade",
-}
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
@@ -128,7 +88,7 @@ export enum CollectionDialogAction {
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  protected organizations$: Observable<Organization[]>;
+  protected organizations$: Observable<Organization[]> | undefined;
 
   protected tabIndex: CollectionDialogTabType;
   protected loading = true;
@@ -154,7 +114,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
-  private orgExceedingCollectionLimit!: Organization;
+  private orgExceedingCollectionLimit: Organization | undefined;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
@@ -178,12 +138,20 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // Opened from the individual vault
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (this.params.showOrgSelector) {
       this.showOrgSelector = true;
       this.formGroup.controls.selectedOrg.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((id) => this.loadOrg(id));
+        .pipe(
+          map((id) => {
+            if (id != null) {
+              return this.loadOrg(id);
+            }
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe();
+
       this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
         map((orgs) =>
@@ -202,7 +170,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.organizationSelected.setAsyncValidators(
       freeOrgCollectionLimitValidator(
-        this.organizations$,
+        this.organizations$ ?? of([]),
         this.collectionService
           .encryptedCollections$(userId)
           .pipe(map((collections) => collections ?? [])),
@@ -221,7 +189,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           }
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
+        switchMap((organizationId) =>
+          (this.organizations$ ?? of([])).pipe(getById(organizationId)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {
@@ -239,7 +209,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     const groups$ = organization$.pipe(
       switchMap((organization) => {
-        if (!organization.useGroups) {
+        if (!organization?.useGroups) {
           return of([] as GroupView[]);
         }
 
@@ -260,6 +230,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     })
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
       .subscribe(({ organization, collections: allCollections, groups, users }) => {
+        if (!organization) {
+          return;
+        }
         this.organization = organization;
 
         if (this.params.collectionId) {
@@ -270,7 +243,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           }
         }
 
-        this.accessItems = [].concat(
+        this.accessItems = ([] as AccessItemView[]).concat(
           groups.map((group) => mapGroupToAccessItemView(group, this.collection)),
           users.data.map((user) => mapUserToAccessItemView(user, this.collection)),
         );
@@ -292,7 +265,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           // Determine if the user can see/select the parent collection
           if (parentName !== undefined) {
             if (
-              this.organization.canViewAllCollections &&
+              organization.canViewAllCollections &&
               !allCollections.find((c) => c.name === parentName)
             ) {
               // The user can view all collections, but the parent was not found -> assume it has been deleted
@@ -352,7 +325,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get isExternalIdVisible(): boolean {
-    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+    return !!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
   }
 
   protected get collectionId() {
@@ -387,7 +360,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     if (this.buttonDisplayName == ButtonType.Upgrade) {
       this.close(CollectionDialogAction.Upgrade);
-      this.changePlan(this.orgExceedingCollectionLimit);
+      if (this.orgExceedingCollectionLimit !== undefined) {
+        this.changePlan(this.orgExceedingCollectionLimit);
+      }
       return;
     }
 
@@ -412,6 +387,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
     if (
       this.editMode &&
+      this.organization != null &&
       !this.collection?.canEditName(this.organization) &&
       this.formGroup.controls.name.dirty
     ) {
@@ -431,15 +407,17 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     );
 
     collectionView.name = parent
-      ? `${parent}/${this.formGroup.controls.name.value}`
-      : this.formGroup.controls.name.value;
+      ? `${parent}/${this.formGroup.controls.name.value ?? ""}`
+      : (this.formGroup.controls.name.value ?? "");
     collectionView.id = this.params.collectionId as CollectionId;
-    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
-    collectionView.externalId = this.formGroup.controls.externalId.value;
-    collectionView.groups = this.formGroup.controls.access.value
+    collectionView.organizationId =
+      this.formGroup.controls.selectedOrg.value ?? ("" as OrganizationId);
+    collectionView.externalId = this.formGroup.controls.externalId.value ?? undefined;
+    const accessValue = this.formGroup.controls.access.value ?? [];
+    collectionView.groups = accessValue
       .filter((v) => v.type === AccessItemType.Group)
       .map(convertToSelectionView);
-    collectionView.users = this.formGroup.controls.access.value
+    collectionView.users = accessValue
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
 
@@ -467,7 +445,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
 
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.collection?.name,
+      title: this.collection?.name ?? "",
       content: { key: "deleteCollectionConfirmation" },
       type: "warning",
     });
@@ -476,7 +454,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    await this.collectionAdminService.delete(this.params.organizationId, this.params.collectionId);
+    if (this.params.collectionId !== undefined) {
+      await this.collectionAdminService.delete(
+        this.params.organizationId,
+        this.params.collectionId,
+      );
+    }
 
     this.toastService.showToast({
       variant: "success",
@@ -495,7 +478,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: org.id,
-        subscription: null,
+        subscription: undefined,
         productTierType: org.productTierType,
       },
     });
@@ -528,6 +511,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.collection || !this.organization) {
+      return;
+    }
     const canEditName = this.collection.canEditName(this.organization);
     this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
     this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
@@ -539,18 +525,20 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 }
 
 function parseName(collection: CollectionView) {
-  const nameParts = collection.name?.split("/");
+  const nameParts = collection.name.split("/");
   const name = nameParts[nameParts.length - 1];
   const parent = nameParts.length > 1 ? nameParts.slice(0, -1).join("/") : undefined;
 
   return { name, parent };
 }
 
-function mapToAccessSelections(collectionDetails: CollectionAdminView): AccessItemValue[] {
-  if (collectionDetails == undefined) {
+function mapToAccessSelections(
+  collectionDetails: CollectionAdminView | undefined,
+): AccessItemValue[] {
+  if (collectionDetails === undefined) {
     return [];
   }
-  return [].concat(
+  return ([] as AccessItemValue[]).concat(
     collectionDetails.groups.map<AccessItemValue>((selection) => ({
       id: selection.id,
       type: AccessItemType.Group,
@@ -582,7 +570,7 @@ function validateCanManagePermission(control: AbstractControl) {
  */
 function mapGroupToAccessItemView(
   group: GroupView,
-  collection: CollectionAdminView,
+  collection: CollectionAdminView | undefined,
 ): AccessItemView {
   return {
     id: group.id,
@@ -605,7 +593,7 @@ function mapGroupToAccessItemView(
  */
 function mapUserToAccessItemView(
   user: OrganizationUserUserMiniResponse,
-  collection: CollectionAdminView,
+  collection: CollectionAdminView | undefined,
 ): AccessItemView {
   return {
     id: user.id,
