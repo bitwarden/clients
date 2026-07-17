@@ -140,11 +140,15 @@ impl super::BiometricTrait for BiometricLockSystem {
 #[cfg(test)]
 #[allow(clippy::print_stdout)]
 mod tests {
+    use bitwarden_crypto::{BitwardenLegacyKeyBytes, SymmetricCryptoKey};
     use rand_core::Rng;
 
     use super::{
         encryption::{Challenge, CHALLENGE_LENGTH, PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH},
         ephemeral::windows_hello_authenticate,
+        keychain::{
+            self, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1, KEYCHAIN_SERVICE_NAME,
+        },
         keycredentialmanager::KeyCredentialManager,
         BiometricLockSystem,
     };
@@ -247,5 +251,46 @@ mod tests {
             .has_persistent(&user_id)
             .await
             .unwrap());
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_legacy_entry_migrates_on_unlock() {
+        let user_id = String::from("test_user");
+        let mut key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut key);
+
+        let windows_hello_lock_system = BiometricLockSystem::new();
+
+        // Write a legacy (pre-envelope) keychain entry directly, simulating a user enrolled with an
+        // older build.
+        let mut challenge_bytes = [0u8; CHALLENGE_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut challenge_bytes);
+        let challenge = Challenge::from_bytes(challenge_bytes);
+        let windows_hello_key = KeyCredentialManager::derive_prf(&challenge).await.unwrap();
+        let user_key =
+            SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(key.to_vec())).unwrap();
+        let legacy =
+            WindowsHelloKeychainEntryV1::seal(challenge, &windows_hello_key, &user_key).unwrap();
+        desktop_core::password::set_password(
+            KEYCHAIN_SERVICE_NAME,
+            &user_id,
+            &serde_json::to_string(&legacy).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        println!("Unlocking user (should decrypt legacy entry and migrate)");
+        let key_after_unlock = windows_hello_lock_system
+            .unlock(&user_id, Vec::new())
+            .await
+            .unwrap();
+        assert_eq!(key_after_unlock, key);
+
+        // The entry should now be stored in the envelope (V2) format.
+        let migrated = keychain::get_entry(&user_id).await.unwrap();
+        assert!(matches!(migrated, WindowsHelloKeychainEntry::V2(_)));
+
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
     }
 }

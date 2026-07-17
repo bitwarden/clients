@@ -19,6 +19,7 @@ zbus_polkit = { workspace = true }
 aes = { workspace = true }
 bitwarden-crypto = { workspace = true }
 bitwarden-random = { workspace = true }
+bitwarden-sensitive-value = { workspace = true }
 chacha20poly1305 = { workspace = true }
 desktop_core = { path = "../core" }
 rand_core = { workspace = true }
