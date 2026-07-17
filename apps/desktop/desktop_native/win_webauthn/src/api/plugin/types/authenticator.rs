@@ -4,7 +4,7 @@ use std::{
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use windows::core::GUID;
+use windows::{core::GUID, Win32::Foundation::NTE_EXISTS};
 
 use crate::{
     api::{
@@ -183,7 +183,7 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
 pub(crate) fn add_authenticator(
     options: &PluginAddAuthenticatorOptionsRaw,
-) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
+) -> Result<Option<PluginAddAuthenticatorResponse>, WinWebAuthnError> {
     let raw_response = {
         let mut raw_response = MaybeUninit::uninit();
         // SAFETY: We are holding references to all the input data beyond the OS call, so it is
@@ -191,6 +191,10 @@ pub(crate) fn add_authenticator(
         let result = unsafe {
             webauthn_plugin_add_authenticator(&options.inner, raw_response.as_mut_ptr())?
         };
+
+        if result == NTE_EXISTS {
+            return Ok(None);
+        }
 
         result.ok().map_err(|err| {
             WinWebAuthnError::with_cause(
@@ -205,7 +209,7 @@ pub(crate) fn add_authenticator(
     if let Some(response) = NonNull::new(raw_response) {
         // SAFETY: The pointer was allocated by a successful call to
         // webauthn_plugin_add_authenticator, so we trust that it's valid.
-        unsafe { Ok(PluginAddAuthenticatorResponse::try_from_ptr(response)) }
+        unsafe { Ok(Some(PluginAddAuthenticatorResponse::try_from_ptr(response))) }
     } else {
         Err(WinWebAuthnError::new(
             ErrorKind::WindowsInternal,
