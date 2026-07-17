@@ -2,7 +2,12 @@ import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
-export const MemberDialogTab = Object.freeze({ Role: 0, Groups: 1, Collections: 2 } as const);
+export const MemberDialogTab = Object.freeze({
+  Role: 0,
+  Details: 0,
+  Groups: 1,
+  Collections: 2,
+} as const);
 export type MemberDialogTab = (typeof MemberDialogTab)[keyof typeof MemberDialogTab];
 
 export const MemberDialogResult = Object.freeze({
@@ -28,6 +33,8 @@ export interface AddMemberDialogParams extends CommonMemberDialogParams {
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
   kind: "Edit";
   name: string;
+  email?: string;
+  createdDate?: Date;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
   claimedByOrganization?: boolean;
