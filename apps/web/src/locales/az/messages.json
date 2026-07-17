@@ -989,6 +989,9 @@
   "save": {
     "message": "Saxla"
   },
+  "saveAndContinue": {
+    "message": "Save and continue"
+  },
   "cancel": {
     "message": "İmtina"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Paylaşılan"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "attachments": {
     "message": "Qoşmalar"
@@ -1461,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "Parol kopyalandı"
+  },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala",
@@ -2525,6 +2544,30 @@
   },
   "confirmFilePassword": {
     "message": "Fayl parolunu təsdiqlə"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "accountRestrictedOptionDescription": {
     "message": "Xaricə köçürməni şifrələmək və daxilə köçürməni yalnız mövcud Bitwarden hesabı ilə məhdudlaşdırmaq üçün hesabınızın istifadəçi adı və Ana Parolundan əldə edilən hesab şifrələmə açarınızı istifadə edin."
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Mətn \"Send\"i yaradıldı"
+  "createdTextSendV2": {
+    "message": "Created text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "E-poçt doğrulaması olan mətn \"Send\"i yaradıldı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Created text Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Parola sahib mətn \"Send\"i yaradıldı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Created text Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Fayl \"Send\"i yaradıldı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Created file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "E-poçt doğrulaması olan fayl \"Send\"i yaradıldı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Created file Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Parola sahib fayl \"Send\"i yaradıldı",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Created file Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Send mətninə düzəliş edildi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Edited text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Send faylına düzəliş edildi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Edited file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Send mətni silindi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Deleted text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Send faylı silindi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Deleted file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Send mətninə erişildi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Send faylına erişildi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "External"
+  },
+  "sendAccessExternalDomain": {
+    "message": "External ($DOMAIN$ domain)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "View Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "View member $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "$ID$ elementi bir təşkilata daşındı.",
@@ -7435,8 +7591,8 @@
     "message": "Send yaratma və düzəliş seçimlərini ayarla. Send-ləri xaric etmə imkanı da var.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Üzvlərin \"Send\"i necə istifadə edəcəyini idarə edin. Adminlər və sahiblər bu siyasətdən azaddırlar.",
+  "sendControlsPolicyDescV4": {
+    "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Avto-doldurma üçün giriş məlumatlarının nə vaxt təklif ediləcəyini müəyyənləşdirin. Adminlər və sahiblər bu siyasətdən azaddır."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "İlkin URI uyuşma aşkarlaması"
@@ -10381,6 +10540,42 @@
       }
     }
   },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Ödənişsiz təşkilatların ən çox $COLLECTIONCOUNT$ kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin.",
     "placeholders": {
@@ -12783,6 +12978,24 @@
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
     "message": "Ailə təşkilatında ən çox $SEATCOUNT$ üzv ola bilər. Yüksəltmək üçün təşkilatınızın sahibi ilə əlaqə saxlayın.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
