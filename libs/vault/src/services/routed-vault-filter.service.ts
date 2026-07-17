@@ -84,7 +84,7 @@ export class RoutedVaultFilterService implements OnDestroy {
         folderId: filter.folderId ?? null,
         ...(this.vfo1TerminologyService.enabled()
           ? { vaultId: organizationId, organizationId: null }
-          : { organizationId }),
+          : { organizationId, vaultId: null }),
         type: filter.type ?? null,
       },
       queryParamsHandling: "merge",
