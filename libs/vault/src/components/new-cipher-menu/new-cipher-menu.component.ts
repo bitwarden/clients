@@ -10,7 +10,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
+  BitwardenIcon,
   ButtonModule,
+  ButtonType,
   MenuModule,
   PopoverComponent,
   PopoverModule,
@@ -39,6 +41,8 @@ export class NewCipherMenuComponent {
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
+  readonly icon = input<BitwardenIcon>("bwi-plus");
+  readonly buttonType = input<ButtonType>("primary");
 
   /**
    * When `true`, the "New" button is rendered in a disabled state, e.g. because the
@@ -117,7 +121,11 @@ export class NewCipherMenuComponent {
     }
 
     if (btnTextAddCreateFeatureFlag) {
-      return "add";
+      if (this.buttonType() === "secondary") {
+        return "addItem";
+      } else {
+        return "add";
+      }
     } else {
       return "new";
     }

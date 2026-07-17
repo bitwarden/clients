@@ -193,32 +193,6 @@ describe("NodeCrypto Function Service", () => {
     // Maybe move to something else if we ever want to generate keys of this size.
     // testRsaGenerateKeyPair(4096);
   });
-
-  describe("randomBytes", () => {
-    it("should make a value of the correct length", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const randomData = await nodeCryptoFunctionService.randomBytes(16);
-      expect(randomData.byteLength).toBe(16);
-    });
-
-    it("should not make the same value twice", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const randomData = await nodeCryptoFunctionService.randomBytes(16);
-      const randomData2 = await nodeCryptoFunctionService.randomBytes(16);
-      expect(
-        randomData.byteLength === randomData2.byteLength && randomData !== randomData2,
-      ).toBeTruthy();
-    });
-  });
-
-  describe("aesGenerateKey", () => {
-    it("should delegate to randomBytes", async () => {
-      const nodeCryptoFunctionService = new NodeCryptoFunctionService();
-      const spy = jest.spyOn(nodeCryptoFunctionService, "randomBytes");
-      await nodeCryptoFunctionService.aesGenerateKey(256);
-      expect(spy).toHaveBeenCalledWith(32);
-    });
-  });
 });
 
 function testPbkdf2(

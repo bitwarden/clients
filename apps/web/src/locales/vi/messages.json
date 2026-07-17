@@ -66,7 +66,7 @@
     "message": "Rủi ro theo thời gian"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "Lọc rủi ro theo thời gian"
   },
   "passwordsAtRisk": {
     "message": "Mật khẩu có rủi ro"
@@ -989,6 +989,9 @@
   "save": {
     "message": "Lưu"
   },
+  "saveAndContinue": {
+    "message": "Lưu và tiếp tục"
+  },
   "cancel": {
     "message": "Hủy bỏ"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Đã chia sẻ"
+  },
+  "sharedFolder": {
+    "message": "Thư mục chia sẻ"
+  },
+  "sharedFolders": {
+    "message": "Thư mục chia sẻ"
+  },
+  "myFolder": {
+    "message": "Thư mục của tôi"
+  },
+  "myFolders": {
+    "message": "Thư mục của tôi"
   },
   "attachments": {
     "message": "Đính kèm"
@@ -1461,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "Đã sao chép mật khẩu"
+  },
+  "passwordAnnounceSpace": {
+    "message": "dấu nối",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Sao chép tên đăng nhập",
@@ -2525,6 +2544,30 @@
   },
   "confirmFilePassword": {
     "message": "Nhập lại mật khẩu tập tin"
+  },
+  "keePassMasterPassword": {
+    "message": "Mật khẩu chính KeePass"
+  },
+  "addKeyFile": {
+    "message": "Thêm tệp khóa"
+  },
+  "keyFileUpload": {
+    "message": "Tải lên tệp khóa"
+  },
+  "kdbxFileUpload": {
+    "message": "Tải lên tệp KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Định dạng được chấp nhận: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Dữ liệu không đúng định dạng. Vui lòng kiểm tra tệp tin nhập và thử lại."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tệp này không phải là cơ sở dữ liệu KeePass (.kdbx) hợp lệ. Vui lòng chọn một tệp .kdbx rồi thử lại."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Cơ sở dữ liệu KeePass này quá lớn để nhập."
   },
   "accountRestrictedOptionDescription": {
     "message": "Sử dụng khóa mã hóa tài khoản của bạn, được tạo từ tên đăng nhập và mật khẩu chính của bạn để mã hóa tệp xuất và giới hạn việc nhập chỉ cho tài khoản Bitwarden hiện tại."
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Đã tạo Send văn bản"
+  "createdTextSendV2": {
+    "message": "Đã tạo văn bản Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Đã tạo Send văn bản với xác thực email",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Đã tạo văn bản Send$SENDID$ có xác minh email",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Đã tạo Send văn bản với mật khẩu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Đã tạo văn bản Send$SENDID$ có mật khẩu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Đã tạo Send tệp",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Đã tạo tệp Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Đã tạo Send tệp với xác thực email",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Đã tạo tệp Send$SENDID$ có xác minh email",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Đã tạo Send tệp với mật khẩu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Đã tạo tệp Send$SENDID$ có mật khẩu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Đã chỉnh sửa Send văn bản",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Đã chỉnh sửa văn bản Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Đã chỉnh sửa Send tệp",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Đã chỉnh sửa tệp Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Đã xóa Send văn bản",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Đã xóa văn bản Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Đã xóa Send tệp",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Đã xóa tệp Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Đã truy cập Send văn bản",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Đã truy cập văn bản Send$SENDID$ do $ID$ tạo.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Đã truy cập Send tệp",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Đã truy cập tệp Send$SENDID$ do $ID$ tạo.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Bên ngoài"
+  },
+  "sendAccessExternalDomain": {
+    "message": "Bên ngoài (tên miền $DOMAIN$)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "Xem Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "Xem thành viên $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Đã di chuyển mục $ID$ vào một tổ chức.",
@@ -6061,7 +6217,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Xoá $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6972,7 +7128,7 @@
     "message": "Tất cả Send"
   },
   "filterSends": {
-    "message": "Filter Sends"
+    "message": "Lọc Send"
   },
   "maxAccessCountReached": {
     "message": "Đã vượt số lần truy cập tối đa",
@@ -7435,8 +7591,8 @@
     "message": "Đặt các tùy chọn để tạo và chỉnh sửa các Send, bao gồm khả năng xóa các Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Quản lý cách thành viên sử dụng Send. Quản trị viên và chủ sở hữu được miễn trừ khỏi chính sách này.",
+  "sendControlsPolicyDescV4": {
+    "message": "Quản lý cách thành viên sử dụng Send. Chính sách này sẽ áp dụng cho các Send được tạo sau khi bạn bật chính sách. Quản trị viên và chủ sở hữu không bị áp dụng.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Xác định thời điểm nên đề xuất tự động điền thông tin đăng nhập. Quản trị viên và chủ sở hữu không bị ràng buộc bởi chính sách này."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Đặt mặc định những phần nào của địa chỉ trang web (URI) cần khớp để Bitwarden đề xuất mục đăng nhập khi tự động điền. Chính sách này sẽ không được áp dụng cho chủ sở hữu và quản trị viên."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Phát hiện khớp URI mặc định"
@@ -9077,7 +9236,7 @@
     "message": "Đã tạo email"
   },
   "spinboxBoundariesHint": {
-    "message": "Giá trị phải nằm trong khoảng từ $MIN$ đến $MAX$.",
+    "message": "Độ dài phải nằm trong khoảng từ $MIN$ đến $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -9423,17 +9582,17 @@
     "message": "Khóa API này có quyền quản lý người dùng trong tổ chức của bạn. Hãy giữ bí mật khóa này."
   },
   "scimInviteUsersAfterProvisioning": {
-    "message": "Automatically send email invitations"
+    "message": "Tự động gửi lời mời qua email"
   },
   "scimInviteUsersAfterProvisioningHint": {
-    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "message": "Gửi lời mời qua email ngay khi người dùng được cấp quyền thông qua SCIM.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimInviteUsersAfterProvisioningHelpTitle": {
-    "message": "About email invitations"
+    "message": "Về lời mời qua email"
   },
   "scimInviteUsersAfterProvisioningHelpBody": {
-    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "message": "Khi bật tùy chọn này, các thành viên được cấp quyền thông qua SCIM sẽ được gửi lời mời qua email và hiển thị là Đã mời trên trang Thành viên. Khi tắt, các thành viên sẽ hiển thị ở trạng thái Chờ và phải được quản trị viên mời thủ công hoặc thông qua liên kết mời.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
@@ -10374,6 +10533,42 @@
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
     "message": "Gói Teams Starter có thể có tối đa $SEATCOUNT$ thành viên. Liên hệ với chủ sở hữu tổ chức của bạn để nâng cấp gói và mời thêm thành viên.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Tổ chức miễn phí chỉ được có tối đa $SEATCOUNT$ thành viên. Nâng cấp lên gói trả phí để khôi phục quyền truy cập của thành viên này.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Tổ chức miễn phí chỉ được có tối đa $SEATCOUNT$ thành viên. Liên hệ chủ sở hữu tổ chức để nâng cấp.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Gói Teams Starter chỉ được có tối đa $SEATCOUNT$ thành viên. Nâng cấp gói của bạn để khôi phục quyền truy cập của thành viên này.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Gói Teams Starter chỉ được có tối đa $SEATCOUNT$ thành viên. Liên hệ chủ sở hữu tổ chức để nâng cấp gói và khôi phục quyền truy cập của thành viên này.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12298,7 +12493,7 @@
     "message": "Chọn một gói"
   },
   "planBillingInterval": {
-    "message": "Plan billing interval"
+    "message": "Chu kỳ thanh toán của gói"
   },
   "thirtyFivePercentDiscount": {
     "message": "Giảm giá 35%"
@@ -12790,6 +12985,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Gói gia đình chỉ được có tối đa $SEATCOUNT$ thành viên. Nâng cấp lên gói trả phí để khôi phục quyền truy cập của thành viên này.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Gói gia đình chỉ được có tối đa $SEATCOUNT$ thành viên. Liên hệ chủ sở hữu tổ chức để nâng cấp.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "Nâng cấp gói của bạn để mời thành viên và trải nghiệm các tính năng bảo mật mạnh mẽ."
   },
@@ -13218,7 +13431,7 @@
     }
   },
   "revokeSponsorshipAcceptedWithPriceConfirmation": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $PRICE$ + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "message": "Nếu bạn xóa $EMAIL$, chương trình tài trợ cho gói Gia đình này sẽ kết thúc và phương thức thanh toán đã lưu sẽ bị tính phí $PRICE$ cùng các khoản thuế áp dụng vào ngày $DATE$. Bạn sẽ không thể đổi một chương trình tài trợ mới cho đến ngày $DATE$. Bạn có chắc chắn muốn tiếp tục không?",
     "placeholders": {
       "email": {
         "content": "$1",
