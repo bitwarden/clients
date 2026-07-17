@@ -105,7 +105,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected organizations$: Observable<Organization[]> | undefined;
 
-  protected tabIndex: CollectionDialogTabType;
+  protected readonly tabIndex = signal(this.params.initialTab ?? CollectionDialogTabType.Info);
   protected readonly loading = signal(true);
   protected organization?: Organization;
   protected collection?: CollectionAdminView;
@@ -132,10 +132,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
   private orgExceedingCollectionLimit: Organization | undefined;
-
-  constructor() {
-    this.tabIndex = this.params.initialTab ?? CollectionDialogTabType.Info;
-  }
 
   async ngOnInit() {
     // Opened from the individual vault
@@ -372,7 +368,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     if (this.formGroup.invalid) {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
-      if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
+      if (this.tabIndex() === CollectionDialogTabType.Access && !accessTabError) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(
@@ -380,7 +376,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             this.i18nService.t("collectionInfo"),
           ),
         });
-      } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
+      } else if (this.tabIndex() === CollectionDialogTabType.Info && accessTabError) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),

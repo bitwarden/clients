@@ -17,7 +17,7 @@
       </ng-container>
     }
     @if (!loading()) {
-      <bit-tab-group [(selectedIndex)]="tabIndex">
+      <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab label="{{ 'collectionInfo' | i18n }}">
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
