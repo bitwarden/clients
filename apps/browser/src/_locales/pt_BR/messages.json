@@ -346,7 +346,7 @@
     "message": "Autenticação em duas etapas"
   },
   "logOut": {
-    "message": "Sair"
+    "message": "Desconectar"
   },
   "aboutBitwarden": {
     "message": "Sobre o Bitwarden"
@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Senha copiada"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Compartilhado"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite que você compartilhe os itens do seu cofre com outras pessoas usando uma organização. Saiba mais no site do bitwarden.com."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Confirmar senha do arquivo"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN de desbloqueio configurado"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Desbloqueio por biometria configurado"
   },
   "authenticating": {
     "message": "Autenticando"
