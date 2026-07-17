@@ -4,7 +4,6 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -12,6 +11,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
@@ -40,6 +40,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
   BitwardenJsonExport,
@@ -166,7 +167,6 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
 
 describe("VaultExportService", () => {
   let exportService: IndividualVaultExportService;
-  let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let folderService: MockProxy<FolderService>;
@@ -182,7 +182,6 @@ describe("VaultExportService", () => {
   const userId = emptyGuid as UserId;
 
   beforeEach(() => {
-    cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
     keyGenerationService = mock<KeyGenerationService>();
     folderService = mock<FolderService>();
@@ -191,6 +190,12 @@ describe("VaultExportService", () => {
     kdfConfigService = mock<KdfConfigService>();
     apiService = mock<ApiService>();
     logService = mock<LogService>();
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(SdkRandomNumberClient.prototype, "gen_bytes").mockReturnValue(new Uint8Array(16));
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
@@ -224,7 +229,6 @@ describe("VaultExportService", () => {
       keyGenerationService,
       keyService,
       encryptService,
-      cryptoFunctionService,
       kdfConfigService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,

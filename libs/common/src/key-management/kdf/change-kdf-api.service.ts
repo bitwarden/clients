@@ -1,7 +1,7 @@
 import { ApiService } from "../../abstractions/api.service";
-import { KdfRequest } from "../../models/request/kdf.request";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
+import { ChangeKdfRequest } from "./models/change-kdf.request";
 
 /**
  * @internal
@@ -9,7 +9,7 @@ import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 export class DefaultChangeKdfApiService implements ChangeKdfApiService {
   constructor(private apiService: ApiService) {}
 
-  async updateUserKdfParams(request: KdfRequest): Promise<void> {
+  async updateUserKdfParams(request: ChangeKdfRequest): Promise<void> {
     return this.apiService.send("POST", "/accounts/kdf", request, true, false);
   }
 }

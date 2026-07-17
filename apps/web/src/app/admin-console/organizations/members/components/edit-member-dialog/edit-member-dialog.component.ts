@@ -30,12 +30,14 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
   A11yTitleDirective,
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CheckboxModule,
   DIALOG_DATA,
@@ -50,6 +52,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import {
   GroupApiService,
@@ -84,6 +87,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     A11yTitleDirective,
     AsyncActionsModule,
     AsyncPipe,
+    BadgeModule,
     ButtonModule,
     CheckboxModule,
     DialogModule,
@@ -111,6 +115,8 @@ export class EditMemberDialogComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
+  private readonly billingConstraint = inject(BillingConstraintService);
+  private readonly organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -380,7 +386,7 @@ export class EditMemberDialogComponent {
     return Object.assign(p, partialPermissions);
   }
 
-  private async handleEditUser() {
+  private async handleEditUser(organization: Organization) {
     const userId = this.params.organizationUserId;
     const type = this.formGroup.getRawValue().type;
     const permissions = this.setRequestPermissions(
@@ -406,7 +412,7 @@ export class EditMemberDialogComponent {
       accessSecretsManager,
     });
 
-    await this.userService.saveV2(request, userId, this.params.organizationId);
+    await this.userService.saveV2(request, userId, organization);
 
     this.toastService.showToast({
       variant: "success",
@@ -439,7 +445,7 @@ export class EditMemberDialogComponent {
       return;
     }
 
-    await this.handleEditUser();
+    await this.handleEditUser(organization);
   };
 
   readonly revoke = async () => {
@@ -481,6 +487,15 @@ export class EditMemberDialogComponent {
 
   readonly restore = async () => {
     const organization = await firstValueFrom(this.organization$);
+
+    const billingMetadata = await firstValueFrom(
+      this.organizationMetadataService.getOrganizationMetadata$(organization.id),
+    );
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+      return;
+    }
+
     const result = await this.memberActionsService.restoreUser(
       organization,
       this.params.organizationUserId,
