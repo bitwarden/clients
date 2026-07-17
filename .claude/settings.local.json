@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rm *)",
+      "Bash(npx eslint *)",
+      "Bash(npm run *)",
+      "Bash(git stash *)",
+      "Bash(node -p \"require\\('./node_modules/@bitwarden/sdk-internal/package.json'\\).version\")",
+      "Bash(npx tsc *)",
+      "Bash(npx jest *)",
+      "Bash(chmod +x /tmp/tc.sh)",
+      "Bash(/tmp/tc.sh /tmp/tc-baseline.txt)",
+      "Bash(/tmp/tc.sh /tmp/tc-now.txt)",
+      "Bash(npx prettier *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'refactor\\(crypto\\): move NodeCryptoFunctionService callers to legacy-crypto *)",
+      "Bash(python3 /tmp/codemod.py /tmp/layer02.json --apply)",
+      "Bash(chmod +x /tmp/run-layer.sh)",
+      "Bash(/tmp/run-layer.sh /tmp/layer02.json)",
+      "Bash(gh auth *)",
+      "Bash(gh pr *)",
+      "Bash(git branch *)",
+      "Bash(env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.excludesFile GIT_CONFIG_VALUE_0=/dev/null git push origin km/unlock-1-user-key-reads km/unlock-2-login-strategies km/unlock-3-lock-component km/unlock-4-set-initial-password km/unlock-5-tde-jit-registration km/unlock-6-key-connector km/unlock-8-bootstrap-auto-unlock km/unlock-7-base km/unlock-7-remove-electron-key-service km/unlock-9-base km/unlock-9-auto-unlock-service)",
+      "Bash(git commit *)",
+      "Bash(acli --version)",
+      "Bash(acli jira *)",
+      "Bash(acli confluence *)",
+      "WebFetch(domain:bitwarden.com)",
+      "Bash(acli --help)",
+      "WebSearch",
+      "Bash(gh stack *)",
+      "Bash(gh extension *)",
+      "Bash(python3 -)",
+      "Bash(cd *)",
+      "Bash(git push *)",
+      "Bash(grep -vE \"ts-jest\\\\[config\\\\]|isolatedModules|^\\\\s*$|typescriptlang\")",
+      "Bash(grep -n -i -B2 -A2 \"^status code $\")"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "electron-devtools-attach",
+    "chrome-devtools-attach",
+    "chrome-devtools-headless"
+  ]
+}
