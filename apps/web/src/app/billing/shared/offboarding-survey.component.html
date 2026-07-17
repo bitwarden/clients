@@ -24,15 +24,23 @@
             type="info"
             [title]="'switchToAnnualAndSave' | i18n: formatCurrency(annualUpgradeOffer.savings)"
           >
-            <div class="tw-flex tw-justify-between">
-              <span>{{ "currentCostMonthlyBilling" | i18n }}</span>
-              <span>{{ formatCurrency(annualUpgradeOffer.currentAnnualCost) }}</span>
+            <div>
+              <div class="tw-flex tw-mb-1">
+                <span class="tw-text-muted tw-min-w-52">{{
+                  "currentCostMonthlyBilling" | i18n
+                }}</span>
+                <span class="tw-font-medium">{{
+                  formatCurrency(annualUpgradeOffer.currentAnnualCost)
+                }}</span>
+              </div>
+              <div class="tw-flex">
+                <span class="tw-text-muted tw-min-w-52">{{ "annualBillingCost" | i18n }}</span>
+                <span class="tw-font-medium">{{
+                  formatCurrency(annualUpgradeOffer.newAnnualCost)
+                }}</span>
+              </div>
             </div>
-            <div class="tw-flex tw-justify-between">
-              <span>{{ "annualBillingCost" | i18n }}</span>
-              <span>{{ formatCurrency(annualUpgradeOffer.newAnnualCost) }}</span>
-            </div>
-            <p class="tw-text-muted">{{ "annualSwitchDisclaimer" | i18n }}</p>
+            <p class="tw-text-muted tw-text-xs tw-mt-2">{{ "annualSwitchDisclaimer" | i18n }}</p>
             @if (annualUpgradeRedeemError) {
               <p class="tw-text-danger">{{ annualUpgradeRedeemError }}</p>
             }
