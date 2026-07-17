@@ -109,7 +109,7 @@ jobs:
         id: rust-nightly
         uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
         with:
-          toolchain: nightly-2026-06-23
+          toolchain: nightly-2026-06-29
           components: rustfmt
 
       - name: Check Rust version

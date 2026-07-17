@@ -168,7 +168,7 @@ pub async fn import_logins(
     // doesn't fail for a missing file, only when something goes really wrong.
     let all_logins = local_logins
         .into_iter()
-        .chain(account_logins.into_iter())
+        .chain(account_logins)
         .collect::<Vec<_>>();
 
     let results = decrypt_logins(all_logins, &mut crypto_service).await;
