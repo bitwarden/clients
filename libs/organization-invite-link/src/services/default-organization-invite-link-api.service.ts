@@ -3,9 +3,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkInviteBlobRequest } from "../models/requests/organization-invite-link-invite-blob.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
+import { OrganizationInviteLinkInviteBlobResponse } from "../models/responses/organization-invite-link-invite-blob.response";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
@@ -108,5 +110,18 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       true,
       false,
     );
+  }
+
+  async getInviteBlob(
+    request: OrganizationInviteLinkInviteBlobRequest,
+  ): Promise<OrganizationInviteLinkInviteBlobResponse> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/users/invite-link/invite-blob",
+      request,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkInviteBlobResponse(r);
   }
 }
