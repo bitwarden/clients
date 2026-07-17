@@ -73,12 +73,12 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
         passwordInputResult.newPassword, // String,
         passwordInputResult.newPasswordHint, // Option<String>,
         emailVerificationToken, // Option<String>,
-        salesAssistedToken, // Option<String>,
         orgSponsoredFreeFamilyPlanToken,
         acceptEmergencyAccessInviteToken,
         emergencyAccessId,
         providerInviteToken,
         providerUserId,
+        salesAssistedToken, // Option<String>,
       );
 
       // The SDK call returns the
@@ -114,12 +114,12 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       passwordInputResult,
       userAsymmetricKeys,
       emailVerificationToken,
-      salesAssistedToken,
       orgSponsoredFreeFamilyPlanToken,
       acceptEmergencyAccessInviteToken,
       emergencyAccessId,
       providerInviteToken,
       providerUserId,
+      salesAssistedToken,
     );
 
     return await this.accountApiService.registerFinish(registerRequest);
@@ -131,12 +131,12 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     masterPassword: string,
     masterPasswordHint?: string,
     emailVerificationToken?: string,
-    salesAssistedToken?: string, // web only
     orgSponsoredFreeFamilyPlanToken?: string, // web only
     acceptEmergencyAccessInviteToken?: string, // web only
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
+    salesAssistedToken?: string, // web only
   ): Promise<UserMasterPasswordRegistrationRequest> {
     const registerFinishRequest: UserMasterPasswordRegistrationRequest = {
       email: email,
@@ -144,7 +144,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       master_password: masterPassword,
       master_password_hint: masterPasswordHint,
       email_verification_token: emailVerificationToken,
-      sales_assisted_token: undefined,
       organization_user_id: undefined,
       org_invite_token: undefined,
       org_sponsored_free_family_plan_token: undefined,
@@ -152,6 +151,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       accept_emergency_access_id: undefined,
       provider_invite_token: undefined,
       provider_user_id: undefined,
+      sales_assisted_token: undefined,
     };
 
     return registerFinishRequest;
@@ -163,12 +163,12 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     passwordInputResult: PasswordInputResult,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
-    salesAssistedToken?: string, // web only
     orgSponsoredFreeFamilyPlanToken?: string, // web only
     acceptEmergencyAccessInviteToken?: string, // web only
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
+    salesAssistedToken?: string, // web only
   ): Promise<RegisterFinishRequest> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],

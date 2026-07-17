@@ -15,7 +15,6 @@ export class RegisterFinishRequest {
     public masterPasswordUnlock: MasterPasswordUnlockData,
 
     public emailVerificationToken?: string,
-    public salesAssistedToken?: string,
     public orgSponsoredFreeFamilyPlanToken?: string,
     public acceptEmergencyAccessInviteToken?: string,
     public acceptEmergencyAccessId?: string,
@@ -25,5 +24,7 @@ export class RegisterFinishRequest {
     // Org Invite data (only applies on web)
     public organizationUserId?: string,
     public orgInviteToken?: string,
+
+    public salesAssistedToken?: string,
   ) {}
 }

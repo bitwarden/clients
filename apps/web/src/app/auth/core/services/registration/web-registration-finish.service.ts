@@ -79,12 +79,12 @@ export class WebRegistrationFinishService
     masterPassword: string,
     masterPasswordHint?: string,
     emailVerificationToken?: string,
-    salesAssistedToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
+    salesAssistedToken?: string,
   ): Promise<UserMasterPasswordRegistrationRequest> {
     const registerRequest = await super.buildSdkRegisterRequest(
       email,
@@ -156,12 +156,12 @@ export class WebRegistrationFinishService
     passwordInputResult: PasswordInputResult,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
-    salesAssistedToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
     acceptEmergencyAccessInviteToken?: string,
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
+    salesAssistedToken?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
       newUserKey,
