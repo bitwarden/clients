@@ -130,7 +130,7 @@ export class WebRegistrationFinishService
     }
 
     // Alternative invite/acceptance tokens (org invite, org-sponsored
-    // family plan, emergency access, provider) are mutually exclusive with
+    // family plan, emergency access, provider, sales-assisted) are mutually exclusive with
     // emailVerificationToken — presence of any one of them proves email ownership
     // via the server-issued invite link, so the standalone email verification
     // token is not required and would not be present.
@@ -139,7 +139,8 @@ export class WebRegistrationFinishService
       (registerRequest.org_invite_token ||
         registerRequest.org_sponsored_free_family_plan_token ||
         registerRequest.accept_emergency_access_invite_token ||
-        registerRequest.provider_invite_token)
+        registerRequest.provider_invite_token ||
+        registerRequest.sales_assisted_token)
     ) {
       throw new Error(
         `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
@@ -204,7 +205,7 @@ export class WebRegistrationFinishService
     }
 
     // Alternative invite/acceptance tokens (org invite, org-sponsored
-    // family plan, emergency access, provider) are mutually exclusive with
+    // family plan, emergency access, provider, sales-assisted) are mutually exclusive with
     // emailVerificationToken — presence of any one of them proves email ownership
     // via the server-issued invite link, so the standalone email verification
     // token is not required and would not be present.
@@ -213,7 +214,8 @@ export class WebRegistrationFinishService
       (registerRequest.orgInviteToken ||
         registerRequest.orgSponsoredFreeFamilyPlanToken ||
         registerRequest.acceptEmergencyAccessInviteToken ||
-        registerRequest.providerInviteToken)
+        registerRequest.providerInviteToken ||
+        registerRequest.salesAssistedToken)
     ) {
       throw new Error(
         `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,

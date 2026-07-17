@@ -442,6 +442,26 @@ describe("WebRegistrationFinishService", () => {
       expect(accountApiService.registerFinish).not.toHaveBeenCalled();
     });
 
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
     it("does not set emergency access fields when only the token is provided", async () => {
       await service.finishRegistration(
         email,
@@ -805,6 +825,26 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           providerInviteToken,
           providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
         ),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
