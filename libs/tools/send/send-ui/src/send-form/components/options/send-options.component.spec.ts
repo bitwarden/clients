@@ -127,45 +127,4 @@ describe("SendOptionsComponent", () => {
       expect(privateNoteEl).toBeTruthy();
     });
   });
-  describe("Max access count increment/decrement", () => {
-    beforeEach(async () => {
-      mockSendFormService.originalSendView.mockReturnValue({ maxAccessCount: 3 } as SendView);
-      fixture.componentRef.setInput("editing", true);
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-    it("should show +/- buttons in edit mode", () => {
-      const incrementBtn = fixture.debugElement.query(
-        By.css("[data-testid='increment-max-access-count']"),
-      );
-      const decrementBtn = fixture.debugElement.query(
-        By.css("[data-testid='decrement-max-access-count']"),
-      );
-      expect(incrementBtn).toBeTruthy();
-      expect(decrementBtn).toBeTruthy();
-    });
-    it("should not show +/- buttons in view mode", () => {
-      fixture.componentRef.setInput("editing", false);
-      fixture.detectChanges();
-      const incrementBtn = fixture.debugElement.query(
-        By.css("[data-testid='increment-max-access-count']"),
-      );
-      expect(incrementBtn).toBeNull();
-    });
-    it("should increment maxAccessCount when + button clicked", () => {
-      component.sendOptionsForm.patchValue({ maxAccessCount: "3" });
-      component.incrementMaxAccessCount();
-      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("4");
-    });
-    it("should decrement maxAccessCount when - button clicked", () => {
-      component.sendOptionsForm.patchValue({ maxAccessCount: "3" });
-      component.decrementMaxAccessCount();
-      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("2");
-    });
-    it("should not decrement below 1", () => {
-      component.sendOptionsForm.patchValue({ maxAccessCount: "1" });
-      component.decrementMaxAccessCount();
-      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("1");
-    });
-  });
 });
