@@ -266,11 +266,6 @@ export const HiddenLabel: Story = {
       ...args,
     },
     template: /*html*/ `
-      <!--
-        A visually-hidden (\`sr-only\`) label keeps the field accessible while
-        collapsing the label/field gap, so the field stays vertically centered
-        alongside sibling controls in a row.
-      -->
       <div class="tw-flex tw-items-center tw-gap-2">
         <bit-form-field disableMargin class="tw-w-44">
           <bit-label class="tw-sr-only">Rows per page</bit-label>

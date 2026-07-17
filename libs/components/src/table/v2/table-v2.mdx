@@ -600,8 +600,9 @@ two in one table — if you need sort, selection, or any other built-in feature,
 
 ## Accessibility
 
-- Always include a header — even an empty one — for each column; screen readers use it to give cell
-  data context.
+- Always include a header for each column; screen readers use it to give cell data context. A column
+  with no visible header (e.g. an actions column) should still carry screenreader-accessible text
+  rather than being truly empty.
 - Avoid spanning data across cells.
 - Give repeating row actions a specific label — `aria-label="Edit Netflix"` rather than a bare
   "Edit".
