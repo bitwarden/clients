@@ -755,4 +755,49 @@ describe("MembersComponent", () => {
       ).rejects.toThrow("Side effect failed");
     });
   });
+
+  describe("staged filter fallback (PM-40482)", () => {
+    const stagedUser = {
+      ...mockUser,
+      id: newGuid(),
+      status: OrganizationUserStatusType.Staged,
+    } as OrganizationUserView;
+
+    it("resets the status filter to All when the last staged member is removed while the Staged view is selected", () => {
+      component["dataSource"]().data = [stagedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Staged);
+
+      component["dataSource"]().removeUser(stagedUser);
+
+      expect(component["statusToggle"].value).toBeUndefined();
+    });
+
+    it("keeps the Staged filter selected while staged members remain", () => {
+      const otherStagedUser = {
+        ...mockUser,
+        id: newGuid(),
+        status: OrganizationUserStatusType.Staged,
+      } as OrganizationUserView;
+      component["dataSource"]().data = [stagedUser, otherStagedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Staged);
+
+      component["dataSource"]().removeUser(stagedUser);
+
+      expect(component["statusToggle"].value).toBe(OrganizationUserStatusType.Staged);
+    });
+
+    it("leaves other selected filters unchanged when their count reaches zero", () => {
+      const invitedUser = {
+        ...mockUser,
+        id: newGuid(),
+        status: OrganizationUserStatusType.Invited,
+      } as OrganizationUserView;
+      component["dataSource"]().data = [invitedUser];
+      component["statusToggle"].next(OrganizationUserStatusType.Invited);
+
+      component["dataSource"]().removeUser(invitedUser);
+
+      expect(component["statusToggle"].value).toBe(OrganizationUserStatusType.Invited);
+    });
+  });
 });
