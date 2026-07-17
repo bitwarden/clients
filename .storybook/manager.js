@@ -1,8 +1,6 @@
 import { addons } from "storybook/manager-api";
 import { create } from "storybook/theming";
 
-// Manager entry: registers the "Feature Flags" panel. Imported by relative path
-// because the manager bundle (esbuild) cannot resolve `@bitwarden/*` aliases.
 import "../libs/storybook/src/addons/feature-flags/panel";
 
 const lightTheme = create({

@@ -4,8 +4,6 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "moduleResolution": "node10",
-    // Transpile-only for jest: node10 resolution can't read @storybook/angular's
-    // exports-based types. Type-checking is handled by the `tsc` typecheck target.
     "isolatedModules": true,
     "types": ["jest", "node"]
   },
