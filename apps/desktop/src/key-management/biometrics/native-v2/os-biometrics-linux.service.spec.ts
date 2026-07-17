@@ -1,12 +1,12 @@
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { biometrics_v2, passwords } from "@bitwarden/desktop-napi";
+import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 
 jest.mock("@bitwarden/desktop-napi", () => ({
-  biometrics_v2: {
+  biometrics: {
     initBiometricSystem: jest.fn(() => "mockSystem"),
     provideKey: jest.fn(),
     unenroll: jest.fn(),
@@ -40,28 +40,28 @@ describe("OsBiometricsServiceLinux", () => {
 
   it("should set biometric key", async () => {
     await service.setBiometricKey(userId, key);
-    expect(biometrics_v2.provideKey).toHaveBeenCalled();
+    expect(biometrics.provideKey).toHaveBeenCalled();
   });
 
   it("should delete biometric key", async () => {
     await service.deleteBiometricKey(userId);
-    expect(biometrics_v2.unenroll).toHaveBeenCalled();
+    expect(biometrics.unenroll).toHaveBeenCalled();
   });
 
   it("should get biometric key", async () => {
-    (biometrics_v2.unlock as jest.Mock).mockResolvedValue(mockKey);
+    (biometrics.unlock as jest.Mock).mockResolvedValue(mockKey);
     const result = await service.getBiometricKey(userId);
     expect(result).toBeInstanceOf(SymmetricCryptoKey);
   });
 
   it("should return null if no biometric key", async () => {
-    (biometrics_v2.unlock as jest.Mock).mockResolvedValue(null);
+    (biometrics.unlock as jest.Mock).mockResolvedValue(null);
     const result = await service.getBiometricKey(userId);
     expect(result).toBeNull();
   });
 
   it("should authenticate biometric", async () => {
-    (biometrics_v2.authenticate as jest.Mock).mockResolvedValue(true);
+    (biometrics.authenticate as jest.Mock).mockResolvedValue(true);
     const result = await service.authenticateBiometric();
     expect(result).toBe(true);
   });
@@ -73,7 +73,7 @@ describe("OsBiometricsServiceLinux", () => {
   });
 
   it("should check if setup is needed", async () => {
-    (biometrics_v2.authenticateAvailable as jest.Mock).mockResolvedValue(false);
+    (biometrics.authenticateAvailable as jest.Mock).mockResolvedValue(false);
     const result = await service.needsSetup();
     expect(result).toBe(true);
   });
@@ -84,7 +84,7 @@ describe("OsBiometricsServiceLinux", () => {
   });
 
   it("should get biometrics first unlock status for user", async () => {
-    (biometrics_v2.unlockAvailable as jest.Mock).mockResolvedValue(true);
+    (biometrics.unlockAvailable as jest.Mock).mockResolvedValue(true);
     const result = await service.getBiometricsFirstUnlockStatusForUser(userId);
     expect(result).toBe(BiometricsStatus.Available);
   });

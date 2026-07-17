@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -113,6 +113,12 @@ type LoadAction =
   ],
 })
 export class ViewComponent {
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   private activeUserId: UserId;
 
   headerText: string;
@@ -153,7 +159,6 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
-    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -224,12 +229,20 @@ export class ViewComponent {
   setHeader(type: CipherType) {
     const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: "viewItemHeaderLogin",
-      [CipherType.Card]: "viewItemHeaderCard",
-      [CipherType.Identity]: "viewItemHeaderIdentity",
+      [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderLoginSentenceCase"
+        : "viewItemHeaderLogin",
+      [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderCardSentenceCase"
+        : "viewItemHeaderCard",
+      [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderIdentitySentenceCase"
+        : "viewItemHeaderIdentity",
       [CipherType.SecureNote]: newItemTypesEnabled
         ? "viewItemHeaderSecureNote"
-        : "viewItemHeaderNote",
+        : this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderNoteSentenceCase"
+          : "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       [CipherType.DriversLicense]: "viewItemHeaderLicense",

@@ -348,6 +348,15 @@ describe("VaultBatchBarService", () => {
 
       expect(service.canArchive()).toBe(true);
     });
+
+    it("returns false when in org vault (admin console)", () => {
+      userCanArchiveSubject.next(true);
+      service.setConfig(makeConfig({ isOrgVault: true }));
+
+      service.selection.select(makeCipherItem({ organizationId: orgId }));
+
+      expect(service.canArchive()).toBe(false);
+    });
   });
 
   describe("canUnarchive", () => {
@@ -379,6 +388,14 @@ describe("VaultBatchBarService", () => {
       service.selection.select(makeCipherItem({ archivedDate: new Date() }));
 
       expect(service.canUnarchive()).toBe(true);
+    });
+
+    it("returns false when in org vault (admin console)", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+
+      service.selection.select(makeCipherItem({ archivedDate: new Date(), organizationId: orgId }));
+
+      expect(service.canUnarchive()).toBe(false);
     });
   });
 
