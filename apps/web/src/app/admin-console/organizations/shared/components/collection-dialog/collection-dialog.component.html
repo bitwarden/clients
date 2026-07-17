@@ -3,7 +3,7 @@
     @if (editMode) {
       {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}
       @if (!loading()) {
-        <span class="tw-text-sm tw-normal-case tw-text-muted">{{ collection.name }}</span>
+        <span class="tw-text-sm tw-normal-case tw-text-muted">{{ collection()?.name }}</span>
       }
     }
     @if (!editMode) {
@@ -53,7 +53,7 @@
                 >
                 </bit-option>
               }
-              @for (collection of nestOptions; track collection) {
+              @for (collection of nestOptions(); track collection) {
                 <bit-option
                   icon="bwi-collection-shared"
                   [value]="collection.name"
@@ -78,13 +78,13 @@
                   {{ "grantManageCollectionWarning" | i18n }}
                 </bit-callout>
               }
-              @if (organization.useGroups) {
+              @if (organization()?.useGroups) {
                 <span>{{ "grantCollectionAccess" | i18n }}</span>
               }
-              @if (!organization.useGroups) {
+              @if (!organization()?.useGroups) {
                 <span>{{ "grantCollectionAccessMembersOnly" | i18n }}</span>
               }
-              @if (organization.allowAdminAccessToAllCollectionItems) {
+              @if (organization()?.allowAdminAccessToAllCollectionItems) {
                 <span>
                   {{ " " + ("adminCollectionAccess" | i18n) }}
                 </span>
@@ -99,11 +99,11 @@
               <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
             </div>
           }
-          @if (organization.useGroups) {
+          @if (organization()?.useGroups) {
             <bit-access-selector
               [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
               formControlName="access"
-              [items]="accessItems"
+              [items]="accessItems()"
               [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
               [selectorLabelText]="'selectGroupsAndMembers' | i18n"
               [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
@@ -111,11 +111,11 @@
               [initialPermission]="initialPermission()"
             ></bit-access-selector>
           }
-          @if (!organization.useGroups) {
+          @if (!organization()?.useGroups) {
             <bit-access-selector
               [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
               formControlName="access"
-              [items]="accessItems"
+              [items]="accessItems()"
               [columnHeader]="'memberColumnHeader' | i18n"
               [selectorLabelText]="'selectMembers' | i18n"
               [emptySelectionText]="'noMembersAdded' | i18n"

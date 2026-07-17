@@ -107,10 +107,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   protected readonly tabIndex = signal(this.params.initialTab ?? CollectionDialogTabType.Info);
   protected readonly loading = signal(true);
-  protected organization?: Organization;
-  protected collection?: CollectionAdminView;
-  protected nestOptions: CollectionView[] = [];
-  protected accessItems: AccessItemView[] = [];
+  protected readonly organization = signal<Organization | undefined>(undefined);
+  protected readonly collection = signal<CollectionAdminView | undefined>(undefined);
+  protected readonly nestOptions = signal<CollectionView[]>([]);
+  protected readonly accessItems = signal<AccessItemView[]>([]);
   protected readonly deletedParentName = signal<string | undefined>(undefined);
   protected readonly showOrgSelector = signal(false);
   protected formGroup = this.formBuilder.group({
@@ -131,7 +131,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
-  private orgExceedingCollectionLimit: Organization | undefined;
+  private readonly orgExceedingCollectionLimit = signal<Organization | undefined>(undefined);
 
   async ngOnInit() {
     // Opened from the individual vault
@@ -192,7 +192,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {
-        this.orgExceedingCollectionLimit = org;
+        this.orgExceedingCollectionLimit.set(org);
         this.organizationSelected.markAsTouched();
         this.formGroup.updateValueAndValidity();
       });
@@ -230,34 +230,37 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         if (!organization) {
           return;
         }
-        this.organization = organization;
+        this.organization.set(organization);
 
         if (this.params.collectionId) {
-          this.collection = allCollections.find((c) => c.id === this.collectionId);
-
-          if (!this.collection) {
+          const found = allCollections.find((c) => c.id === this.collectionId);
+          if (!found) {
             throw new Error("Could not find collection to edit.");
           }
+          this.collection.set(found);
         }
 
-        this.accessItems = ([] as AccessItemView[]).concat(
-          groups.map((group) => mapGroupToAccessItemView(group, this.collection)),
-          users.data.map((user) => mapUserToAccessItemView(user, this.collection)),
+        const collection = this.collection();
+        this.accessItems.set(
+          ([] as AccessItemView[]).concat(
+            groups.map((group) => mapGroupToAccessItemView(group, collection)),
+            users.data.map((user) => mapUserToAccessItemView(user, collection)),
+          ),
         );
 
         // Force change detection to update the access selector's items
         this.changeDetectorRef.detectChanges();
 
-        this.nestOptions = this.params.limitNestedCollections
+        let nestOptions: CollectionView[] = this.params.limitNestedCollections
           ? allCollections.filter((c) => c.manage)
           : allCollections;
 
-        if (this.collection) {
+        if (collection) {
           // Ensure we don't allow nesting the current collection within itself
-          this.nestOptions = this.nestOptions.filter((c) => c.id !== this.collectionId);
+          nestOptions = nestOptions.filter((c) => c.id !== this.collectionId);
 
           // Parse the name to find its parent name
-          const { name, parent: parentName } = parseName(this.collection);
+          const { name, parent: parentName } = parseName(collection);
 
           // Determine if the user can see/select the parent collection
           if (parentName !== undefined) {
@@ -267,26 +270,26 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             ) {
               // The user can view all collections, but the parent was not found -> assume it has been deleted
               this.deletedParentName.set(parentName);
-            } else if (!this.nestOptions.find((c) => c.name === parentName)) {
+            } else if (!nestOptions.find((c) => c.name === parentName)) {
               // We cannot find the current parent collection in our list of options, so add a placeholder
-              this.nestOptions.unshift({ name: parentName } as CollectionView);
+              nestOptions = [{ name: parentName } as CollectionView, ...nestOptions];
             }
           }
 
-          const accessSelections = mapToAccessSelections(this.collection);
+          this.nestOptions.set(nestOptions);
+          const accessSelections = mapToAccessSelections(collection);
           this.formGroup.patchValue({
             name,
-            externalId: this.collection.externalId,
+            externalId: collection.externalId,
             parent: parentName,
             access: accessSelections,
           });
-          this.showDeleteButton.set(
-            !this.dialogReadonly && this.collection.canDelete(organization),
-          );
+          this.showDeleteButton.set(!this.dialogReadonly && collection.canDelete(organization));
         } else {
-          const parent = this.nestOptions.find((c) => c.id === this.params.parentCollectionId);
+          this.nestOptions.set(nestOptions);
+          const parent = nestOptions.find((c) => c.id === this.params.parentCollectionId);
           const currentOrgUserId = users.data.find(
-            (u) => u.userId === this.organization?.userId,
+            (u) => u.userId === this.organization()?.userId,
           )?.id;
           const initialSelection: AccessItemValue[] =
             currentOrgUserId !== undefined
@@ -359,8 +362,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     if (this.buttonDisplayName() == ButtonType.Upgrade) {
       this.close(CollectionDialogAction.Upgrade);
-      if (this.orgExceedingCollectionLimit !== undefined) {
-        this.changePlan(this.orgExceedingCollectionLimit);
+      const org = this.orgExceedingCollectionLimit();
+      if (org !== undefined) {
+        this.changePlan(org);
       }
       return;
     }
@@ -384,10 +388,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       }
       return;
     }
+    const collection = this.collection();
     if (
       this.editMode &&
-      this.organization != null &&
-      !this.collection?.canEditName(this.organization) &&
+      this.organization() !== undefined &&
+      !collection?.canEditName(this.organization()!) &&
       this.formGroup.controls.name.dirty
     ) {
       throw new Error("Cannot change readonly field: Name");
@@ -402,7 +407,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         organizationId: "" as OrganizationId,
         name: "",
       }),
-      this.collection,
+      collection,
     );
 
     collectionView.name = parent
@@ -443,8 +448,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const collection = this.collection();
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.collection?.name ?? "",
+      title: collection?.name ?? "",
       content: { key: "deleteCollectionConfirmation" },
       type: "warning",
     });
@@ -462,10 +468,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("deletedCollectionId", this.collection?.name),
+      message: this.i18nService.t("deletedCollectionId", collection?.name),
     });
 
-    this.close(CollectionDialogAction.Deleted, this.collection);
+    this.close(CollectionDialogAction.Deleted, collection);
   };
 
   ngOnDestroy(): void {
@@ -485,7 +491,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   private handleAddAccessWarning(): boolean {
     if (
-      !this.organization?.allowAdminAccessToAllCollectionItems &&
+      !this.organization()?.allowAdminAccessToAllCollectionItems &&
       this.params.isAddAccessCollection
     ) {
       return true;
@@ -510,10 +516,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.collection || !this.organization) {
+    const collection = this.collection();
+    if (!collection || !this.organization()) {
       return;
     }
-    const canEditName = this.collection.canEditName(this.organization);
+    const canEditName = collection.canEditName(this.organization()!);
     this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
     this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
   }
