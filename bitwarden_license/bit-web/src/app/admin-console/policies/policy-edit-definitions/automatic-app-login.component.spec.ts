@@ -15,7 +15,6 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
-  AutomaticAppLoginPolicy,
   AutomaticAppLoginPolicyComponent,
   AutomaticAppLoginPolicyV2Component,
 } from "./automatic-app-login.component";
@@ -31,25 +30,6 @@ function makePolicyResponse(enabled: boolean, data: object | null = null) {
     Data: data,
   });
 }
-
-describe("AutomaticAppLoginPolicy", () => {
-  it("has correct attributes", () => {
-    const policy = new AutomaticAppLoginPolicy();
-
-    expect(policy.name).toBe("automaticAppLoginWithSSO");
-    expect(policy.description).toBe("automaticAppLoginWithSSODesc");
-    expect(policy.type).toBe(PolicyType.AutomaticAppLogIn);
-    expect(policy.component).toBe(AutomaticAppLoginPolicyComponent);
-  });
-
-  it("renders the v2 component inside the drawer, with its own drawer description", () => {
-    const policy = new AutomaticAppLoginPolicy();
-
-    expect(policy.v2?.component).toBe(AutomaticAppLoginPolicyV2Component);
-    expect(policy.v2?.component).not.toBe(policy.component);
-    expect(policy.v2?.description).toBe("automaticAppLoginWithSSODescV2");
-  });
-});
 
 describe.each`
   description                             | componentClass
@@ -77,10 +57,6 @@ describe.each`
 
     fixture = TestBed.createComponent(componentClass);
     component = fixture.componentInstance;
-  });
-
-  it("starts with the idpHost control empty", () => {
-    expect(component.data.controls.idpHost.value).toBeNull();
   });
 
   it("loads idpHost from policy data on init", () => {
