@@ -355,6 +355,14 @@ impl WebAuthnPlugin {
         add_authenticator(&options_raw)
     }
 
+    /// Updates details about your Windows WebAuthn plugin.
+    pub fn update_authenticator_details(
+        options: &PluginUpdateAuthenticatorDetails,
+    ) -> Result<(), WinWebAuthnError> {
+        let options_raw = options.try_into()?;
+        update_authenticator(&options_raw)
+    }
+
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.
     ///
     /// # Arguments
