@@ -15,8 +15,15 @@ export function isAppImage() {
   return isLinux() && "APPIMAGE" in process.env;
 }
 
+// snapd sets SNAP (mount path) and SNAP_NAME for confined snaps. Match our snap name
+// specifically so SNAP_* vars leaking from a parent snap process into a non-snap build
+// (AppImage/deb/rpm launched from within another snap) don't produce a false positive.
+const SNAP_STORE_NAMES = ["bitwarden", "bitwarden-beta"];
+
 export function isSnapStore() {
-  return isLinux() && process.env.SNAP_USER_DATA != null;
+  return (
+    isLinux() && process.env.SNAP != null && SNAP_STORE_NAMES.includes(process.env.SNAP_NAME ?? "")
+  );
 }
 
 export function isMac() {
