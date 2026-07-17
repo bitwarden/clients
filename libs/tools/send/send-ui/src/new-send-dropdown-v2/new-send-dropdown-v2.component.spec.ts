@@ -18,14 +18,11 @@ describe("NewSendDropdownV2Component", () => {
   let billingService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
   let premiumUpgradeService: MockProxy<PremiumUpgradePromptService>;
-  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     billingService = mock<BillingAccountProfileStateService>();
     accountService = mock<AccountService>();
     premiumUpgradeService = mock<PremiumUpgradePromptService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     // Default: user has premium
     accountService.activeAccount$ = of({ id: "user-123" } as any);

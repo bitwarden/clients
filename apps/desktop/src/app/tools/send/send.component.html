@@ -19,7 +19,7 @@
     <tools-new-send-dropdown-v2
       slot="empty-button"
       [hideIcon]="true"
-      buttonType="primary"
+      [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
       (addSend)="addSend($event)"
     />
   </tools-send-list>
