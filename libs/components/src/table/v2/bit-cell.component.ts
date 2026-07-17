@@ -1,13 +1,5 @@
 import { NgClass } from "@angular/common";
-import {
-  AfterContentChecked,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  input,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { TypographyModule } from "../../typography";
 
@@ -33,18 +25,7 @@ import { TypographyModule } from "../../typography";
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BitCellComponent implements AfterContentChecked {
+export class BitCellComponent {
   /** Truncate the default and secondary slots on overflow. Default `true`. */
   readonly truncate = input(true);
-
-  protected readonly secondarySlot = viewChild<ElementRef<HTMLDivElement>>("secondarySlot");
-  protected readonly endSlot = viewChild<ElementRef<HTMLDivElement>>("endSlot");
-
-  protected readonly hasSecondary = signal(false);
-  protected readonly hasEnd = signal(false);
-
-  ngAfterContentChecked(): void {
-    this.hasSecondary.set((this.secondarySlot()?.nativeElement.childElementCount ?? 0) > 0);
-    this.hasEnd.set((this.endSlot()?.nativeElement.childElementCount ?? 0) > 0);
-  }
 }

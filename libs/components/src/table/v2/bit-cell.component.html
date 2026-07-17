@@ -6,17 +6,15 @@
       <ng-content></ng-content>
     </div>
     <div
-      #secondarySlot
       bitTypography="helper"
-      class="tw-text-muted"
+      class="tw-text-muted empty:tw-hidden"
       [ngClass]="truncate() ? 'tw-truncate' : 'tw-text-wrap tw-break-words'"
-      [hidden]="!hasSecondary()"
     >
       <ng-content select="[slot=secondary]"></ng-content>
     </div>
   </div>
 
-  <div #endSlot class="tw-flex tw-gap-2 tw-items-center" [hidden]="!hasEnd()">
+  <div class="tw-flex tw-gap-2 tw-items-center empty:tw-hidden">
     <ng-content select="[slot=end]"></ng-content>
   </div>
 </div>
