@@ -150,7 +150,8 @@ export class SendPolicyService {
           const allowedSendTypes: SendType[] = policies.flatMap(
             (p) => p.data.allowedSendTypes ?? [],
           );
-          return [...new Set(allowedSendTypes)];
+          const restrictedTypes = [...new Set(allowedSendTypes)];
+          return restrictedTypes.length === 0 ? [SendType.Text, SendType.File] : restrictedTypes;
         }),
       );
     }),

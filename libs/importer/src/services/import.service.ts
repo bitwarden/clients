@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -18,6 +18,7 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -104,6 +105,13 @@ import {
   regularImportOptions,
 } from "../models/import-options";
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
+import {
+  buildSdkImporterRegistry,
+  CredentialKind,
+  SdkImportCredentials,
+  SdkImporterRegistry,
+  SdkImportSummary,
+} from "../sdk";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
@@ -111,6 +119,8 @@ export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
+
+  private readonly sdkImporters: SdkImporterRegistry = buildSdkImporterRegistry();
 
   constructor(
     private cipherService: CipherService,
@@ -123,6 +133,7 @@ export class ImportService implements ImportServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private sdkService: SdkService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -233,6 +244,74 @@ export class ImportService implements ImportServiceAbstraction {
     }
     importer.organizationId = organizationId;
     return importer;
+  }
+
+  /** True when the format's parse/encrypt/submit is handled by an SDK importer strategy. */
+  isSdkImporter(format: ImportType): boolean {
+    return this.sdkImporters.has(format);
+  }
+
+  /** The credentials an SDK importer requires, so callers can collect them generically. */
+  credentialKindFor(format: ImportType): CredentialKind | undefined {
+    return this.sdkImporters.get(format)?.credentialKind;
+  }
+
+  /** Optional file-picker `accept` hint declared by an SDK importer. */
+  sdkFileTypeHint(format: ImportType): string | undefined {
+    return this.sdkImporters.get(format)?.fileTypeHint;
+  }
+
+  /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
+  sdkErrorMessageKey(format: ImportType, error: unknown): string | undefined {
+    return this.sdkImporters.get(format)?.errorMessageKey?.(error);
+  }
+
+  /**
+   * Runs an SDK-backed import: the SDK parses, encrypts, and submits the data, returning per-type
+   * counts. The unlocked-client lifecycle and the org/permission guard live here; the per-format
+   * SDK mapping lives in the registered strategy.
+   */
+  async importWithSdk(
+    format: ImportType,
+    file: Uint8Array,
+    credentials: SdkImportCredentials,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<SdkImportSummary> {
+    const importer = this.sdkImporters.get(format);
+    if (importer == null) {
+      throw new Error(`No SDK importer registered for format '${format}'.`);
+    }
+
+    // Mirror the pipeline's guard: an org import with no target collection leaves every item
+    // unassigned, which is only allowed with import/export permission.
+    if (organizationId && !selectedImportTarget && !canAccessImportExport) {
+      throw new Error(this.i18nService.t("importUnassignedItemsError"));
+    }
+
+    const restrictedTypes = await firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restricted) => restricted.map((r) => r.cipherType)),
+      ),
+    );
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await importer.import(ref.value, file, credentials, {
+            organizationId: organizationId ?? undefined,
+            selectedImportTarget: selectedImportTarget ?? undefined,
+            restrictedTypes,
+          });
+        }),
+      ),
+    );
   }
 
   private getImporterInstance(

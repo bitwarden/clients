@@ -37,20 +37,28 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill } from "@bitwarden/desktop-napi";
+type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
+type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
+type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
+type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
+type PasskeyAssertionWithoutUserInterfaceRequest =
+  autofill.PasskeyAssertionWithoutUserInterfaceRequest;
+type NativeStatus = autofill.NativeStatus;
 
-import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
+import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
-  NativeAutofillFido2Credential,
-  NativeAutofillPasswordCredential,
-  NativeAutofillSyncCommand,
-} from "../../platform/main/autofill/sync.command";
+  AutofillFido2Credential,
+  AutofillPasswordCredential,
+  AutofillSyncCommand,
+} from "../models/autofill-sync.command";
+import { IpcListenerBindFn } from "../models/ipc-handler.type";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest?: autofill.PasskeyRegistrationRequest;
+  private registrationRequest?: PasskeyRegistrationRequest;
   private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
   private isEnabled: boolean = false;
 
@@ -145,8 +153,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[] = [];
-    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
+    let fido2Credentials: AutofillFido2Credential[] = [];
+    let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -183,7 +191,7 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials,
     });
 
-    const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
+    const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
       namespace: "autofill",
       command: "sync",
       params: {
@@ -201,7 +209,7 @@ export class DesktopAutofillService implements OnDestroy {
   /** Get autofill status from OS */
   private status() {
     // TODO: Investigate why this type needs to be explicitly set
-    return ipc.autofill.runCommand<NativeAutofillStatusCommand>({
+    return ipc.autofill.desktopAutofill.runCommand<AutofillStatusCommand>({
       namespace: "autofill",
       command: "status",
       params: {},
@@ -212,134 +220,158 @@ export class DesktopAutofillService implements OnDestroy {
     return this.registrationRequest;
   }
 
-  listenIpc() {
-    ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
-      if (!this.isEnabled) {
-        this.logService.debug(
-          `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-        );
-        callback(new Error("Native credential sync feature flag is disabled"), null);
-        return;
-      }
+  async doLockStatus(): Promise<autofill.LockStatusResponse> {
+    const isUnlocked =
+      (await firstValueFrom(this.authService.activeAccountStatus$)) ===
+      AuthenticationStatus.Unlocked;
+    return { isUnlocked };
+  }
 
-      this.registrationRequest = request;
+  async doPasskeyRegistration(
+    request: PasskeyRegistrationRequest,
+  ): Promise<PasskeyRegistrationResponse> {
+    const controller = new AbortController();
+    this.registrationRequest = request;
 
-      this.logService.debug("listenPasskeyRegistration", clientId, sequenceNumber, request);
-      this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
+    const response = await this.fido2AuthenticatorService.makeCredential(
+      this.convertRegistrationRequest(request),
+      { windowXy: request.clientWindow.position },
+      controller,
+    );
+    return this.convertRegistrationResponse(request, response);
+  }
 
-      const controller = new AbortController();
+  async doPasskeyAssertion(request: PasskeyAssertionRequest): Promise<PasskeyAssertionResponse> {
+    const controller = new AbortController();
 
-      try {
-        const response = await this.fido2AuthenticatorService.makeCredential(
-          this.convertRegistrationRequest(request),
-          { windowXy: normalizePosition(request.clientWindow.position) },
-          controller,
-        );
+    const assumeUserPresence = false;
 
-        callback(null, this.convertRegistrationResponse(request, response));
-      } catch (error) {
-        this.logService.error("listenPasskeyRegistration error", error);
-        if (error instanceof Error) {
-          callback(error, null);
-        } else if (typeof error === "string") {
-          callback(new Error(error), null);
-        } else {
-          callback(new Error(JSON.stringify(error)), null);
-        }
-      }
-    });
-
-    ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
-      async (clientId, sequenceNumber, request, callback) => {
-        if (!this.isEnabled) {
-          this.logService.debug(
-            `listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-          );
-          callback(new Error("Native credential sync feature flag is disabled"), null);
-          return;
-        }
-
-        this.logService.debug(
-          "listenPasskeyAssertion without user interface",
-          clientId,
-          sequenceNumber,
-          request,
-        );
-
-        const controller = new AbortController();
-
-        try {
-          const response = await this.fido2AuthenticatorService.getAssertion(
-            this.convertAssertionRequest(request, true),
-            { windowXy: normalizePosition(request.clientWindow.position) },
-            controller,
-          );
-
-          callback(null, this.convertAssertionResponse(request, response));
-        } catch (error) {
-          this.logService.error("listenPasskeyAssertion error", error);
-
-          if (error instanceof Error) {
-            callback(error, null);
-          } else if (typeof error === "string") {
-            callback(new Error(error), null);
-          } else {
-            callback(new Error(JSON.stringify(error)), null);
-          }
-          return;
-        }
-      },
+    const response = await this.fido2AuthenticatorService.getAssertion(
+      this.convertAssertionRequest(request, assumeUserPresence),
+      { windowXy: request.clientWindow.position },
+      controller,
     );
 
-    ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
+    return this.convertAssertionResponse(request, response);
+  }
+
+  async doPasskeyAssertionWithoutUserInterface(
+    request: PasskeyAssertionWithoutUserInterfaceRequest,
+  ): Promise<PasskeyAssertionResponse> {
+    const controller = new AbortController();
+
+    const assumeUserPresence = true;
+
+    const response = await this.fido2AuthenticatorService.getAssertion(
+      this.convertAssertionRequest(request, assumeUserPresence),
+      { windowXy: request.clientWindow.position },
+      controller,
+    );
+
+    return this.convertAssertionResponse(request, response);
+  }
+
+  async doNativeStatus(status: NativeStatus): Promise<void> {
+    this.logService.info("Received native status", status.key, status.value);
+    if (status.key === "request-sync") {
+      // perform ad-hoc sync
+      await this.adHocSync();
+    }
+  }
+
+  listenIpc() {
+    const ipcDesktopAutofill = ipc.autofill.desktopAutofill;
+    // These must be arrow functions to bind `this` properly.
+    this.makeListener(ipcDesktopAutofill.listenPasskeyRegistration, (r) =>
+      this.doPasskeyRegistration(r),
+    );
+
+    this.makeListener(ipcDesktopAutofill.listenPasskeyAssertion, (r) => this.doPasskeyAssertion(r));
+    this.makeListener(ipcDesktopAutofill.listenPasskeyAssertionWithoutUserInterface, (r) =>
+      this.doPasskeyAssertionWithoutUserInterface(r),
+    );
+
+    this.makeListener(ipcDesktopAutofill.listenNativeStatus, (r) => this.doNativeStatus(r));
+
+    this.makeListener(ipcDesktopAutofill.listenLockStatus, () => this.doLockStatus());
+
+    ipcDesktopAutofill.listenerReady();
+  }
+
+  /**
+   * Binds a function to handle messages for an autofill IPC channel.
+   *
+   * @param channelBindFn - A function to register a function with the IPC
+   * channel. Should be one of the `listen*` methods on {@link ipc.autofill.desktopAutofill}.
+   *
+   * @param handleFn - A function to handle the type of request.
+   */
+  makeListener<Request, Response>(
+    channelBindFn: IpcListenerBindFn<Request, Response>,
+    handleFn: (request: Request) => Promise<Response>,
+  ) {
+    /** Name to use in logs.
+     *
+     * The simpler way of doing this, using `channelBindFn.name`, doesn't work
+     * because of how the function is passed from Electron's renderer process.
+     * So we look up the key by the reference to the function.
+     */
+    const handlerName =
+      Object.keys(ipc.autofill.desktopAutofill).find(
+        (key) => (ipc.autofill.desktopAutofill as Record<string, unknown>)[key] === channelBindFn,
+      ) ?? "unknownHandler";
+
+    const listener = async (
+      clientId: number,
+      sequenceNumber: number,
+      request: Request,
+      /** Callback to return the response back to Autofill main process. May be
+       * empty for requests that do not expect a response. */
+      completeCallback?: {
+        (error: null, response: Response): void;
+        (error: Error, response: null): void;
+      },
+    ) => {
+      this.logService.debug("[DesktopAutofillService]", `${handlerName}: Received message`, {
+        clientId,
+        sequenceNumber,
+      });
       if (!this.isEnabled) {
         this.logService.debug(
-          `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
+          "[DesktopAutofillService]",
+          `${handlerName}: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
-        callback(new Error("Native credential sync feature flag is disabled"), null);
+        if (completeCallback) {
+          completeCallback(new Error("Native credential sync feature flag is disabled"), null);
+        }
         return;
       }
 
-      this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
-
-      const controller = new AbortController();
       try {
-        const response = await this.fido2AuthenticatorService.getAssertion(
-          this.convertAssertionRequest(request),
-          { windowXy: normalizePosition(request.clientWindow.position) },
-          controller,
-        );
-
-        callback(null, this.convertAssertionResponse(request, response));
+        const response = await handleFn(request);
+        if (completeCallback) {
+          completeCallback(null, response);
+        }
       } catch (error) {
-        this.logService.error("listenPasskeyAssertion error", error);
-        if (error instanceof Error) {
-          callback(error, null);
-        } else if (typeof error === "string") {
-          callback(new Error(error), null);
-        } else {
-          callback(new Error(JSON.stringify(error)), null);
+        this.logService.error(
+          "[DesktopAutofillService]",
+          `${handlerName}: Error occurred during processing`,
+          { clientId, sequenceNumber },
+          error,
+        );
+        if (completeCallback) {
+          if (error instanceof Error) {
+            completeCallback(error, null);
+          } else if (typeof error === "string") {
+            completeCallback(new Error(error), null);
+          } else {
+            completeCallback(new Error(JSON.stringify(error)), null);
+          }
         }
       }
-    });
+    };
 
-    // Listen for native status messages
-    ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
-      if (!this.isEnabled) {
-        this.logService.debug(
-          `listenNativeStatus: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-        );
-        return;
-      }
-
-      this.logService.info("Received native status", status.key, status.value);
-      if (status.key === "request-sync") {
-        // perform ad-hoc sync
-        await this.adHocSync();
-      }
-    });
-
-    ipc.autofill.listenerReady();
+    channelBindFn(listener);
   }
 
   private convertRegistrationRequest(
@@ -393,9 +425,7 @@ export class DesktopAutofillService implements OnDestroy {
    * @returns
    */
   private convertAssertionRequest(
-    request:
-      | autofill.PasskeyAssertionRequest
-      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    request: PasskeyAssertionRequest | PasskeyAssertionWithoutUserInterfaceRequest,
     assumeUserPresence: boolean = false,
   ): Fido2AuthenticatorGetAssertionParams {
     let allowedCredentials;
@@ -426,9 +456,7 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   private convertAssertionResponse(
-    request:
-      | autofill.PasskeyAssertionRequest
-      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    request: PasskeyAssertionRequest | PasskeyAssertionWithoutUserInterfaceRequest,
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
     // TODO(PM-40112): Model this as an optional field. macOS requires a user handle to be
@@ -452,14 +480,4 @@ export class DesktopAutofillService implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-}
-
-function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
-  // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
-  const xPositionOffset = 100;
-
-  return {
-    x: Math.round(position.x + xPositionOffset),
-    y: Math.round(position.y),
-  };
 }
