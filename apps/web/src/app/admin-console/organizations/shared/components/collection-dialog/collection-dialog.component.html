@@ -2,7 +2,7 @@
   <span bitDialogTitle>
     @if (editMode) {
       {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}
-      @if (!loading) {
+      @if (!loading()) {
         <span class="tw-text-sm tw-normal-case tw-text-muted">{{ collection.name }}</span>
       }
     }
@@ -11,19 +11,19 @@
     }
   </span>
   <div bitDialogContent>
-    @if (loading) {
+    @if (loading()) {
       <ng-container #spinner>
         <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
       </ng-container>
     }
-    @if (!loading) {
+    @if (!loading()) {
       <bit-tab-group [(selectedIndex)]="tabIndex">
         <bit-tab label="{{ 'collectionInfo' | i18n }}">
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput appAutofocus formControlName="name" />
           </bit-form-field>
-          @if (showOrgSelector) {
+          @if (showOrgSelector()) {
             <bit-form-field>
               <bit-label>{{ "organization" | i18n }}</bit-label>
               <bit-select bitInput formControlName="selectedOrg">
@@ -70,7 +70,7 @@
               <span>{{ "readOnlyCollectionAccess" | i18n }}</span>
             }
             @if (!dialogReadonly) {
-              @if (showAddAccessWarning) {
+              @if (showAddAccessWarning()) {
                 <bit-callout
                   title="{{ 'grantManageCollectionWarningTitle' | i18n }}"
                   type="warning"
@@ -92,7 +92,8 @@
             }
           </div>
           @if (
-            formGroup.controls.access.hasError("managePermissionRequired") && !showAddAccessWarning
+            formGroup.controls.access.hasError("managePermissionRequired") &&
+            !showAddAccessWarning()
           ) {
             <div class="tw-mb-3 tw-text-danger">
               <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
@@ -130,7 +131,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading || dialogReadonly"
+      [disabled]="loading() || dialogReadonly"
     >
       {{ buttonDisplayName | i18n }}
     </button>
@@ -140,11 +141,11 @@
       bitFormButton
       buttonType="secondary"
       (click)="cancel()"
-      [disabled]="loading"
+      [disabled]="loading()"
     >
       {{ "cancel" | i18n }}
     </button>
-    @if (showDeleteButton) {
+    @if (showDeleteButton()) {
       <button
         type="button"
         bitIconButton="bwi-trash"
@@ -153,7 +154,7 @@
         bitFormButton
         [label]="'delete' | i18n"
         [bitAction]="delete"
-        [disabled]="loading"
+        [disabled]="loading()"
       ></button>
     }
   </ng-container>

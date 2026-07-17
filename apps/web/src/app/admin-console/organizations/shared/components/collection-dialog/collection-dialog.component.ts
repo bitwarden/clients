@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
@@ -106,13 +106,13 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected organizations$: Observable<Organization[]> | undefined;
 
   protected tabIndex: CollectionDialogTabType;
-  protected loading = true;
+  protected readonly loading = signal(true);
   protected organization?: Organization;
   protected collection?: CollectionAdminView;
   protected nestOptions: CollectionView[] = [];
   protected accessItems: AccessItemView[] = [];
   protected deletedParentName: string | undefined;
-  protected showOrgSelector = false;
+  protected readonly showOrgSelector = signal(false);
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
     // set to readonly in the template
@@ -122,8 +122,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     selectedOrg: "" as OrganizationId,
   });
   protected PermissionMode = PermissionMode;
-  protected showDeleteButton = false;
-  protected showAddAccessWarning = false;
+  protected readonly showDeleteButton = signal(false);
+  protected readonly showAddAccessWarning = signal(false);
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
@@ -140,7 +140,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     // Opened from the individual vault
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (this.params.showOrgSelector) {
-      this.showOrgSelector = true;
+      this.showOrgSelector.set(true);
       this.formGroup.controls.selectedOrg.valueChanges
         .pipe(
           map((id) => {
@@ -283,7 +283,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             parent: parentName,
             access: accessSelections,
           });
-          this.showDeleteButton = !this.dialogReadonly && this.collection.canDelete(organization);
+          this.showDeleteButton.set(
+            !this.dialogReadonly && this.collection.canDelete(organization),
+          );
         } else {
           const parent = this.nestOptions.find((c) => c.id === this.params.parentCollectionId);
           const currentOrgUserId = users.data.find(
@@ -315,8 +317,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
         this.handleFormGroupReadonly(this.dialogReadonly);
 
-        this.loading = false;
-        this.showAddAccessWarning = this.handleAddAccessWarning();
+        this.loading.set(false);
+        this.showAddAccessWarning.set(this.handleAddAccessWarning());
       });
   }
 
