@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -14,6 +15,8 @@ import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shar
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -21,6 +24,7 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
@@ -70,6 +74,9 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private stateProvider: StateProvider,
+    private messagingService: MessagingService,
+    private logService: LogService,
   ) {}
 
   init() {
@@ -114,6 +121,24 @@ export class InitService {
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      AutomationDriver.attachToGlobalIfDev(
+        this.win,
+        this.platformUtilsService,
+        this.configService,
+        this.stateProvider,
+        this.messagingService,
+        {
+          reloadProcess: () => ipc.platform.reloadProcess(),
+          biometrics: {
+            setStatus: (status) => ipc.platform.automation.biometrics.setStatus(status),
+            listPending: () => ipc.platform.automation.biometrics.listPending(),
+            approve: (id) => ipc.platform.automation.biometrics.approve(id),
+            deny: (id) => ipc.platform.automation.biometrics.deny(id),
+          },
+          logService: this.logService,
+        },
+      );
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
         await this.sharedUnlockLeaderService.start();
