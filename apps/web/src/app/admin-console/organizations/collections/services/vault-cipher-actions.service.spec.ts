@@ -313,6 +313,14 @@ describe("VaultCipherActionsService", () => {
 
       expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith("add", undefined, null);
     });
+
+    it("does not build a cipher form when the organization is suspended (disabled)", async () => {
+      initService(buildOrg({ enabled: false }));
+
+      await service.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
+    });
   });
 
   describe("editCipher", () => {
