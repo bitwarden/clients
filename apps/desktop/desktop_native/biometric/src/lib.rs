@@ -5,16 +5,12 @@
 
 use anyhow::Result;
 
-#[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(target_os = "macos", path = "unimplemented.rs")]
-#[cfg_attr(target_os = "windows", path = "windows.rs")]
-mod biometric;
+#[cfg_attr(target_os = "windows", path = "windows/mod.rs")]
+mod platform;
 
-#[cfg(target_os = "windows")]
-pub mod windows_focus;
-
-pub use biometric::BiometricLockSystem;
+pub use platform::BiometricLockSystem;
 
 /// Platform-specific biometric-protected key storage
 #[allow(async_fn_in_trait)]

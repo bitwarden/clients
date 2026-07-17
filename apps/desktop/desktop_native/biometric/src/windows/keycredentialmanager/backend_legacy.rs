@@ -1,10 +1,20 @@
-//! Windows-specific window focus management for biometric prompts.
+//! Legacy Windows Hello signing backend.
 //!
-//! A large part of this is hacks to get around limitations with the Windows-Hello API used,
-//! since it does not bring the authentication prompt into focus automatically.
+//! Signs the challenge with [`KeyCredential::RequestSignAsync`] and manually forces the Windows
+//! Hello prompt into focus. `RequestSignAsync` does not reliably bring its own prompt to the
+//! foreground when invoked from another window, and the prompt errors out if it is not focused, so
+//! we spawn a background thread that repeatedly focuses it for the duration of the call.
+//!
+//! The window-focus management is a collection of hacks to work around this Windows-Hello API
+//! limitation; it is kept alongside the backend that needs it.
 
+use std::sync::{atomic::AtomicBool, Arc};
+
+use anyhow::Result;
+use tracing::debug;
 use windows::{
     core::s,
+    Security::Cryptography::CryptographicBuffer,
     Win32::{
         Foundation::HWND,
         System::Threading::{AttachThreadInput, GetCurrentThreadId},
@@ -19,6 +29,55 @@ use windows::{
     },
 };
 
+use super::{
+    super::encryption::{Challenge, WindowsHelloPrf},
+    open_or_create_credential, prf_from_signature,
+};
+
+/// Derive a [`WindowsHelloPrf`] from a [`Challenge`], signing with `RequestSignAsync`.
+///
+/// Windows will only sign the challenge if the user has successfully authenticated with Windows,
+/// ensuring user presence.
+///
+/// Note: This API has inconsistent focusing behavior when called from another window, so the prompt
+/// is manually forced into focus for the duration of the call.
+pub(super) async fn derive_prf(challenge: &Challenge) -> Result<WindowsHelloPrf> {
+    debug!("[Windows Hello] Authenticating to sign challenge");
+
+    // Ugly hack: We need to focus the window via window focusing APIs until Microsoft releases a
+    // new API. This is unreliable, and if it does not work, the operation may fail
+    let stop_focusing = Arc::new(AtomicBool::new(false));
+    let stop_focusing_clone = stop_focusing.clone();
+    let _ = std::thread::spawn(move || loop {
+        if !stop_focusing_clone.load(std::sync::atomic::Ordering::Relaxed) {
+            focus_security_prompt();
+            std::thread::sleep(std::time::Duration::from_millis(500));
+        } else {
+            break;
+        }
+    });
+    // Only stop focusing once this function exits. The focus MUST run both during the initial
+    // creation with RequestCreateAsync, and also with the subsequent use with RequestSignAsync.
+    let _guard = scopeguard::guard((), |_| {
+        stop_focusing.store(true, std::sync::atomic::Ordering::Relaxed);
+    });
+
+    // First create or replace the Bitwarden Biometrics signing key
+    let credential = open_or_create_credential().await?;
+
+    let signature = {
+        let sign_operation = credential.RequestSignAsync(
+            &CryptographicBuffer::CreateFromByteArray(challenge.as_bytes().as_slice())?,
+        )?;
+
+        // We need to drop the credential here to avoid holding it across an await point.
+        drop(credential);
+        sign_operation.await?
+    };
+
+    prf_from_signature(signature)
+}
+
 pub(crate) struct HwndHolder(pub(crate) HWND);
 unsafe impl Send for HwndHolder {}
 
@@ -29,7 +88,7 @@ pub(crate) fn get_active_window() -> Option<HwndHolder> {
 /// Searches for a window that looks like a security prompt and set it as focused.
 /// Only works when the process has permission to foreground, either by being in foreground
 /// Or by being given foreground permission https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
-pub fn focus_security_prompt() {
+fn focus_security_prompt() {
     let hwnd_result = unsafe { FindWindowA(s!("Credential Dialog Xaml Host"), None) };
     if let Ok(hwnd) = hwnd_result {
         set_focus(hwnd);
@@ -105,5 +164,28 @@ pub(crate) fn restore_focus(hwnd: HWND) {
     unsafe {
         let _ = SetForegroundWindow(hwnd);
         let _ = SetFocus(Some(hwnd));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        super::super::encryption::{Challenge, CHALLENGE_LENGTH},
+        derive_prf,
+    };
+
+    /// Exercises the legacy `RequestSignAsync` backend end to end. Requires a real Windows Hello
+    /// prompt, so it is ignored in CI - run manually with `--ignored --nocapture` on a machine with
+    /// Windows Hello configured.
+    #[tokio::test]
+    #[ignore = "Requires manual interaction with the Windows Hello prompt"]
+    #[allow(clippy::print_stdout)]
+    async fn test_derive_prf_manual() {
+        let challenge = Challenge::from_bytes([0u8; CHALLENGE_LENGTH]);
+        let windows_hello_key = derive_prf(&challenge).await.unwrap();
+        println!(
+            "[legacy backend] derived Windows Hello key: {:?}",
+            windows_hello_key.as_bytes()
+        );
     }
 }
