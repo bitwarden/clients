@@ -198,7 +198,13 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
+    if (
+      selected.length === 0 ||
+      !this.userCanArchive() ||
+      hasCollections ||
+      this.inTrash() ||
+      this.config().isOrgVault
+    ) {
       return false;
     }
     return !selected.find((item) => item.cipher && item.cipher.archivedDate);
@@ -207,7 +213,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.inTrash()) {
+    if (selected.length === 0 || this.inTrash() || this.config().isOrgVault) {
       return false;
     }
     return !selected.find((i) => !i.cipher?.archivedDate);

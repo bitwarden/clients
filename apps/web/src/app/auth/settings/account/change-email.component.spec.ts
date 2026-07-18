@@ -9,6 +9,7 @@ import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-provider.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -24,11 +25,14 @@ describe("ChangeEmailComponent", () => {
   let changeEmailService: MockProxy<ChangeEmailService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let accountService: FakeAccountService;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     changeEmailService = mock<ChangeEmailService>();
     twoFactorService = mock<TwoFactorService>();
     accountService = mockAccountServiceWith("UserId" as UserId);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
@@ -40,6 +44,7 @@ describe("ChangeEmailComponent", () => {
         { provide: FormBuilder, useClass: FormBuilder },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ChangeEmailService, useValue: changeEmailService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -61,7 +66,7 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes userId", async () => {
       await component.ngOnInit();
-      expect(component.userId).toBe("UserId");
+      expect(component["userId"]()).toBe("UserId");
     });
 
     it("errors if there is no active user", async () => {
@@ -74,28 +79,28 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes showTwoFactorEmailWarning", async () => {
       await component.ngOnInit();
-      expect(component.showTwoFactorEmailWarning).toBe(true);
+      expect(component["showTwoFactorEmailWarning"]()).toBe(true);
     });
   });
 
   describe("submit", () => {
     beforeEach(() => {
-      component.userId = "UserId" as UserId;
-      component.formGroup.controls.step1.setValue({
+      component["userId"].set("UserId" as UserId);
+      component.formGroup.controls.userVerificationAndNewEmail.setValue({
         masterPassword: "password",
         newEmail: "test@example.com",
       });
     });
 
     it("throws if userId is null on submit", async () => {
-      component.userId = undefined;
+      component["userId"].set(undefined);
 
       await expect(component.submit()).rejects.toThrow("Can't find user");
     });
 
-    describe("step 1", () => {
-      it("does not submit if step 1 is invalid", async () => {
-        component.formGroup.controls.step1.setValue({
+    describe("user verification and new email", () => {
+      it("does not submit if user verification and new email are invalid", async () => {
+        component.formGroup.controls.userVerificationAndNewEmail.setValue({
           masterPassword: "",
           newEmail: "",
         });
@@ -105,7 +110,7 @@ describe("ChangeEmailComponent", () => {
         expect(changeEmailService.requestEmailToken).not.toHaveBeenCalled();
       });
 
-      it("sends email token in step 1 if tokenSent is false", async () => {
+      it("requests an email token when user verification has not succeeded yet", async () => {
         await component.submit();
 
         expect(changeEmailService.requestEmailToken).toHaveBeenCalledWith(
@@ -113,30 +118,30 @@ describe("ChangeEmailComponent", () => {
           "test@example.com",
           "UserId" as UserId,
         );
-        // should activate step 2
-        expect(component.tokenSent).toBe(true);
-        expect(component.formGroup.controls.step1.disabled).toBe(true);
-        expect(component.formGroup.controls.token.enabled).toBe(true);
+        // should advance to email ownership verification
+        expect(component["userVerificationSuccessful"]()).toBe(true);
+        expect(component.formGroup.controls.userVerificationAndNewEmail.disabled).toBe(true);
+        expect(component.formGroup.controls.emailOwnershipVerification.enabled).toBe(true);
       });
     });
 
-    describe("step 2", () => {
+    describe("email ownership verification", () => {
       beforeEach(() => {
-        component.tokenSent = true;
-        component.formGroup.controls.step1.disable();
-        component.formGroup.controls.token.enable();
-        component.formGroup.controls.token.setValue("token");
+        component["userVerificationSuccessful"].set(true);
+        component.formGroup.controls.userVerificationAndNewEmail.disable();
+        component.formGroup.controls.emailOwnershipVerification.enable();
+        component.formGroup.controls.emailOwnershipVerification.setValue("token");
       });
 
       it("does not post email if token is missing on submit", async () => {
-        component.formGroup.controls.token.setValue("");
+        component.formGroup.controls.emailOwnershipVerification.setValue("");
 
         await component.submit();
 
         expect(changeEmailService.confirmEmailChange).not.toHaveBeenCalled();
       });
 
-      it("submits if step 2 is valid", async () => {
+      it("confirms the email change when email ownership verification is valid", async () => {
         await component.submit();
 
         expect(changeEmailService.confirmEmailChange).toHaveBeenCalledWith(
