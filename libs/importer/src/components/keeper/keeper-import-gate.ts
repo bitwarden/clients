@@ -1,5 +1,5 @@
-import { ImportRecordError } from "../../importers/keeper/keeper-import-error";
 import { ImportResult } from "../../models";
+import { ImportRecordError } from "../../models/import-record-error";
 
 /**
  * Decides whether the Keeper partial-import confirmation dialog is needed and whether any records
