@@ -13,7 +13,9 @@
         </tr>
       </ng-container>
       <ng-template body let-rows$>
-        @for (r of (rows$ | async) ?? []; track $index) {
+        <!-- bit-table types its body context as `unknown`; $any wraps the whole iterable so @for
+        can consume it. -->
+        @for (r of $any((rows$ | async) ?? []); track $index) {
           <tr bitRow>
             <td bitCell>{{ r.id }}</td>
             <td bitCell>{{ r.reason }}</td>
