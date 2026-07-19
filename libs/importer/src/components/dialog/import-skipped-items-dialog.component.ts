@@ -49,6 +49,9 @@ export class ImportSkippedItemsDialogComponent {
 
   protected readonly hasReturnDestination = !!this.data.returnUrl && !!this.data.returnLabel;
 
+  protected readonly titleKey =
+    this.data.errors.length === 1 ? "importPartialErrorTitleSingular" : "importPartialErrorTitle";
+
   constructor() {
     this.dataSource.data = this.data.errors.map((error) => ({
       id: error.id?.trim() ? error.id : "—",

@@ -64,6 +64,28 @@ describe("ImportSkippedItemsDialogComponent", () => {
     expect(rowsOf(fixture)).toEqual([{ id: "—", reason: "importSkipReasonGeneric" }]);
   });
 
+  it("uses the singular title key for exactly one skipped item", async () => {
+    const fixture = await createComponent({
+      errors: [new ImportRecordError("only-uuid", ImportRecordErrorReason.Error)],
+    });
+    const title = (fixture.nativeElement as HTMLElement).querySelector("[bitDialogTitle]");
+
+    expect(title?.textContent).toContain("importPartialErrorTitleSingular");
+  });
+
+  it("uses the plural title key for multiple skipped items", async () => {
+    const fixture = await createComponent({
+      errors: [
+        new ImportRecordError("a", ImportRecordErrorReason.Error),
+        new ImportRecordError("b", ImportRecordErrorReason.Error),
+      ],
+    });
+    const title = (fixture.nativeElement as HTMLElement).querySelector("[bitDialogTitle]");
+
+    expect(title?.textContent).toContain("importPartialErrorTitle");
+    expect(title?.textContent).not.toContain("importPartialErrorTitleSingular");
+  });
+
   it("shows a close button and no return button without a return destination", async () => {
     const fixture = await createComponent({
       errors: [new ImportRecordError("x", ImportRecordErrorReason.Error)],
