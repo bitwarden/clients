@@ -112,7 +112,7 @@ export class SendOptionsComponent {
     effect(() => {
       if (!this.editing() && this.sendFormService.originalSendView()) {
         this.sendOptionsForm.patchValue({
-          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount?.toString() ?? "",
+          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount?.toString(),
           accessCount: this.sendFormService.originalSendView()?.accessCount,
           hideEmail: this.sendFormService.originalSendView()?.hideEmail,
           notes: this.sendFormService.originalSendView()?.notes,
@@ -132,28 +132,13 @@ export class SendOptionsComponent {
       const value = this.sendOptionsForm.getRawValue();
       this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
-          maxAccessCount:
-            value.maxAccessCount == null || value.maxAccessCount === ""
-              ? null
-              : Number(value.maxAccessCount),
+          maxAccessCount: value.maxAccessCount === "" ? null : Number(value.maxAccessCount),
           accessCount: value.accessCount,
           hideEmail: value.hideEmail,
           notes: value.notes,
         });
       });
     });
-  }
-
-  incrementMaxAccessCount(): void {
-    const current = Number(this.sendOptionsForm.get("maxAccessCount")?.value ?? 0);
-    this.sendOptionsForm.patchValue({ maxAccessCount: String(current + 1) });
-  }
-
-  decrementMaxAccessCount(): void {
-    const current = Number(this.sendOptionsForm.get("maxAccessCount")?.value ?? 1);
-    if (current > 1) {
-      this.sendOptionsForm.patchValue({ maxAccessCount: String(current - 1) });
-    }
   }
 
   isIntegerValidator(): ValidatorFn {
