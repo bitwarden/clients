@@ -1071,10 +1071,6 @@
   "passwordCopied": {
     "message": "Password copied"
   },
-  "passwordAnnounceSpace": {
-    "message": "space",
-    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
-  },
   "uri": {
     "message": "URI"
   },
@@ -1438,8 +1434,8 @@
   "accountRestricted": {
     "message": "Account restricted"
   },
-  "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "“File password”  and “Confirm file password“ do not match."
   },
   "warning": {
     "message": "WARNING",
@@ -1452,8 +1448,8 @@
   "confirmVaultExport": {
     "message": "Confirm vault export"
   },
-  "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+  "exportWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "This export encrypts your data using your account's encryption key. If you ever rotate your account's encryption key you should export again since you will not be able to decrypt this export file."
@@ -1466,18 +1462,6 @@
   },
   "shared": {
     "message": "Shared"
-  },
-  "sharedFolder": {
-    "message": "Shared folder"
-  },
-  "sharedFolders": {
-    "message": "Shared folders"
-  },
-  "myFolder": {
-    "message": "My folder"
-  },
-  "myFolders": {
-    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website."
@@ -1603,7 +1587,7 @@
   "premiumSignUpAndGet": {
     "message": "Sign up for a Premium membership and get:"
   },
-  "premiumSignUpStorage": {
+  "ppremiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
@@ -1630,16 +1614,16 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "premiumSignUpReports": {
+  "ppremiumSignUpReports": {
     "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "premiumSignUpTotp": {
+  "ppremiumSignUpTotp": {
     "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "premiumSignUpSupport": {
+  "ppremiumSignUpSupport": {
     "message": "Priority customer support."
   },
-  "premiumSignUpFuture": {
+  "ppremiumSignUpFuture": {
     "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
@@ -2473,7 +2457,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
   },
-  "clearGeneratorHistoryDescription": {
+  "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
@@ -2998,11 +2982,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "The desktop application is logged into a different account. Please ensure both applications are logged into the same account."
   },
-  "nativeMessagingAccountMismatchTitle": {
-    "message": "Account mismatch"
+  "nativeMessagingWrongUserTitle": {
+    "message": "Account missmatch"
   },
-  "nativeMessagingBiometricKeyMismatchTitle": {
-    "message": "Biometric key mismatch"
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
@@ -3036,18 +3020,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
-  },
-  "nativeMessagingPermissionErrorTitle": {
-    "message": "Permission not provided"
-  },
-  "nativeMessagingPermissionErrorDesc": {
-    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
-  },
-  "nativeMessagingPermissionSidebarTitle": {
-    "message": "Permission request error"
-  },
-  "nativeMessagingPermissionSidebarDesc": {
-    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
     "message": "Due to an Enterprise Policy, you are restricted from saving items to your personal vault. Change the Ownership option to an organization and choose from available collections."
@@ -3851,7 +3823,7 @@
       }
     }
   },
-  "forwarderInvalidToken": {
+  "forwaderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3861,7 +3833,7 @@
       }
     }
   },
-  "forwarderInvalidTokenWithMessage": {
+  "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3875,7 +3847,7 @@
       }
     }
   },
-  "forwarderInvalidOperation": {
+  "forwaderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3885,7 +3857,7 @@
       }
     }
   },
-  "forwarderInvalidOperationWithMessage": {
+  "forwaderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3962,7 +3934,7 @@
   "ssoKeyConnectorError": {
     "message": "Key connector error: make sure key connector is available and working correctly."
   },
-  "premiumSubscriptionRequired": {
+  "premiumSubcriptionRequired": {
     "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
@@ -5657,8 +5629,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Edit field"
