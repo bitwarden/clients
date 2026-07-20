@@ -1897,7 +1897,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.hookedCustomElementTags.add(tagName);
     globalThis.customElements.whenDefined(tagName).then(
       () => this.enrollDefinedHosts(tagName),
-      () => {},
+      (error) => {
+        // eslint-disable-next-line no-console
+        console.warn(`Unexpected whenDefined rejection for custom element "${tagName}"`, error);
+      },
     );
   }
 
