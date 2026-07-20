@@ -12,8 +12,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -23,12 +22,12 @@ import {
   I18nMockService,
   LayoutComponent,
   NavigationModule,
-  StorybookConfigService,
   StorybookGlobalStateProvider,
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ProductSwitcherService } from "../shared/product-switcher.service";
@@ -107,12 +106,6 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
-class MockConfigService implements Partial<ConfigService> {
-  getFeatureFlag$<Flag extends FeatureFlag>(key: Flag): Observable<FeatureFlagValueType<Flag>> {
-    return of(false as FeatureFlagValueType<Flag>);
-  }
-}
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -161,7 +154,6 @@ export default {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
         },
-        { provide: ConfigService, useClass: MockConfigService },
         ProductSwitcherService,
         {
           provide: I18nService,
@@ -339,9 +331,6 @@ const RealisticTemplate: StoryObj<
             <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
-          <ng-container slot="footer">
-            Some footer content goes in here
-          </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
       </bit-layout>
@@ -366,14 +355,5 @@ export const RealisticSideNav = {
 
 export const RealisticSideNavV2 = {
   ...RealisticTemplate,
-  decorators: [
-    moduleMetadata({
-      providers: [
-        {
-          provide: ConfigService,
-          useValue: new StorybookConfigService({ [FeatureFlag.VFO1Foundation]: true }),
-        },
-      ],
-    }),
-  ],
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };

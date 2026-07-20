@@ -1,7 +1,6 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
@@ -9,7 +8,6 @@ import { ButtonModule } from "../button";
 import { NavigationModule } from "../navigation";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { TypographyModule } from "../typography";
-import { StorybookConfigService } from "../utils/config-mock.service";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -35,7 +33,6 @@ export default {
           provide: I18nService,
           useFactory: () => new I18nMockService(mockLayoutI18n),
         },
-        { provide: ConfigService, useClass: StorybookConfigService },
       ],
     }),
     applicationConfig({
