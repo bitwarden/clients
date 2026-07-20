@@ -170,7 +170,7 @@ export class EditMemberDialogComponent {
     groups: [[] as AccessItemValue[]],
   });
 
-  // Map server Problem Detial Error Keys to client owned i18n keys for fileds that support inline errors
+  // Map server Problem Detail Error Keys to client owned i18n keys for fields that support inline errors
   private readonly problemDetailFieldMap: ProblemDetailsFieldMap = {
     email: {
       new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
