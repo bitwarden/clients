@@ -346,8 +346,7 @@ export class SsoLoginStrategy extends LoginStrategy {
   protected override async setAccountCryptographicState(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
-  ): Promise<void> {
-  }
+  ): Promise<void> {}
 
   exportCache(): CacheData {
     return {

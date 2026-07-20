@@ -117,10 +117,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async unlock(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
   }
 

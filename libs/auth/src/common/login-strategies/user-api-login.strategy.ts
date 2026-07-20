@@ -66,10 +66,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async unlock(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const sdkHandledKeyConnector =
       response.canUnlockWithKeyConnector() &&
       (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
