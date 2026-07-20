@@ -35,6 +35,7 @@ export class BitFieldContainerDirective {
       "has-[:focus-visible]:tw-ring-1",
       "has-[.tw-test-focus-visible]:tw-ring-1",
       "tw-relative",
+      "has-[select]:after:tw-pointer-events-none",
       "has-[select]:after:tw-absolute",
       // spacing here to match visual spacing used by ng-select arrow
       "has-[select]:after:tw-end-[calc(theme(spacing.3)_+_2px)]",

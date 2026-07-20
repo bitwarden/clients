@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "கடவுச்சொல் நகலெடுக்கப்பட்டது"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "பகிரப்பட்டது"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business ஒரு அமைப்பைப் பயன்படுத்தி மற்றவர்களுடன் உங்கள் வால்ட் பொருட்களைப் பகிர உங்களை அனுமதிக்கிறது. bitwarden.com வலைத்தளத்தில் மேலும் அறிக."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "கோப்பு கடவுச்சொல்லை உறுதிப்படுத்தவும்"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "exportSuccess": {
     "message": "வால்ட் தரவு ஏற்றுமதி செய்யப்பட்டது"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "பின் திறத்தல் அமைக்கப்பட்டது"
-  },
-  "unlockWithBiometricSet": {
-    "message": "பயோமெட்ரிக்ஸுடன் திறத்தல் அமைக்கப்பட்டது"
   },
   "authenticating": {
     "message": "அங்கீகரிக்கிறது"

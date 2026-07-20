@@ -352,6 +352,11 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
+    const decCiphers = await this.getDecryptedCiphers(userId);
+    if (decCiphers != null && decCiphers.length !== 0) {
+      return decCiphers;
+    }
+
     try {
       const result = await this.cipherSdkService.getAllDecrypted(userId);
 
