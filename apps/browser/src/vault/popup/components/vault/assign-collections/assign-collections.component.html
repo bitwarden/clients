@@ -1,7 +1,7 @@
 <popup-page>
   <popup-header
     slot="header"
-    [pageTitle]="'assignToCollections' | vfo1I18n: 'assignToSharedFolders'"
+    [pageTitle]="'assignToCollections' | vfo1I18n: 'addToSharedFolders'"
     showBackButton
   >
     <ng-container slot="end">
@@ -27,7 +27,7 @@
       buttonType="primary"
       type="submit"
     >
-      {{ "assign" | i18n }}
+      {{ "assign" | vfo1I18n: "transferAndAdd" }}
     </button>
     <a bitButton buttonType="secondary" (click)="navigateBack()">
       {{ "cancel" | i18n }}
