@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { Component, Input, OnInit, input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -13,7 +13,13 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherMenuItem, CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogService,
+  MenuModule,
+  NoItemsModule,
+  TooltipDirective,
+} from "@bitwarden/components";
 import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -31,7 +37,15 @@ export interface NewItemInitialValues {
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown.component.html",
-  imports: [NoItemsModule, JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule],
+  imports: [
+    NoItemsModule,
+    JslibModule,
+    CommonModule,
+    ButtonModule,
+    RouterLink,
+    MenuModule,
+    TooltipDirective,
+  ],
 })
 export class NewItemDropdownComponent implements OnInit {
   cipherType = CipherType;
@@ -45,16 +59,28 @@ export class NewItemDropdownComponent implements OnInit {
   initialValues: NewItemInitialValues;
 
   /**
+   * Whether a cipher can be created for the current organization context.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  readonly canCreateCipher = input(true);
+
+  /**
    * Observable of cipher menu items that are not restricted by policy
    */
-  readonly cipherMenuItems$: Observable<CipherMenuItem[]> =
-    this.restrictedItemTypeService.restricted$.pipe(
-      map((restrictedTypes) => {
-        const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
+  readonly cipherMenuItems$: Observable<CipherMenuItem[]> = combineLatest([
+    this.restrictedItemTypeService.restricted$,
+    toObservable(this.canCreateCipher),
+  ]).pipe(
+    map(([restrictedTypes, canCreateCipher]) => {
+      if (!canCreateCipher) {
+        return [];
+      }
 
-        return CIPHER_MENU_ITEMS.filter((menuItem) => !restrictedTypeArr.includes(menuItem.type));
-      }),
-    );
+      const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
+
+      return CIPHER_MENU_ITEMS.filter((menuItem) => !restrictedTypeArr.includes(menuItem.type));
+    }),
+  );
 
   readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
