@@ -46,7 +46,7 @@
       @if (canCreateFolder()) {
         <button type="button" bitMenuItem (click)="folderAdded.emit()">
           <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-          {{ "folder" | vfo1I18n: "myFolder" }}
+          {{ "folder" | i18n }}
         </button>
       }
       @if (canCreateCollection()) {
