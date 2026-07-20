@@ -31,6 +31,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
+
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -46,6 +48,7 @@ type BulkConfirmDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,

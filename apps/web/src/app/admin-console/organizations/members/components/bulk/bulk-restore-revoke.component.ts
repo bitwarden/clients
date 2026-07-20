@@ -26,6 +26,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
+
 import { BulkUserDetails } from "./bulk-status.component";
 
 type BulkRestoreDialogParams = {
@@ -41,6 +43,7 @@ type BulkRestoreDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,

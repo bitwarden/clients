@@ -14,8 +14,8 @@ export enum FeatureFlag {
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
   StagedStatus = "pm-34423-staged-status",
+  PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -85,6 +85,7 @@ export enum FeatureFlag {
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
+  PasskeyLoginReport = "inno-passkey-directory-report",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
 
@@ -143,7 +144,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PoliciesInAcceptedState]: FALSE,
+  [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -173,6 +174,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
+  [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
 

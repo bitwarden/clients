@@ -44,7 +44,7 @@
                     <div class="tw-mr-6">
                       <bit-avatar
                         [text]="user | userName"
-                        [id]="user.userId ?? user.id"
+                        [id]="user | avatarId"
                         [color]="user.avatarColor"
                       ></bit-avatar>
                     </div>
@@ -97,7 +97,7 @@
                     <div class="tw-mr-6">
                       <bit-avatar
                         [text]="user | userName"
-                        [id]="user.userId ?? user.id"
+                        [id]="user | avatarId"
                         [color]="user.avatarColor"
                       ></bit-avatar>
                     </div>
