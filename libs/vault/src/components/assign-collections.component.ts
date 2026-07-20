@@ -19,6 +19,7 @@ import {
   map,
   Observable,
   shareReplay,
+  startWith,
   Subject,
   switchMap,
   takeUntil,
@@ -288,13 +289,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.submitBtn.loading.set(loading);
     });
 
-    this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-      if (!this.submitBtn) {
-        return;
-      }
+    // Disable the submit button while the form is submitting or invalid.
+    combineLatest([
+      this.bitSubmit.disabled$,
+      this.formGroup.statusChanges.pipe(startWith(this.formGroup.status)),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([disabled, status]) => {
+        if (!this.submitBtn) {
+          return;
+        }
 
-      this.submitBtn.disabled.set(disabled);
-    });
+        this.submitBtn.disabled.set(disabled || status === "INVALID");
+      });
   }
 
   ngOnDestroy(): void {
