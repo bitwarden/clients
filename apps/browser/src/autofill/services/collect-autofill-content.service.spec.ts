@@ -2956,7 +2956,9 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["pendingShadowDomCheck"] = false;
 
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+      jest
+        .spyOn(domQueryService, "checkForNewShadowRoots")
+        .mockReturnValue({ foundNewRoot: false, unresolvedHosts: new Set() });
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
@@ -3163,7 +3165,9 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["currentLocationHref"] = window.location.href;
         collectAutofillContentService["pendingShadowDomCheck"] = false;
         jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-        jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+        jest
+          .spyOn(domQueryService, "checkForNewShadowRoots")
+          .mockReturnValue({ foundNewRoot: false, unresolvedHosts: new Set() });
 
         const widget = document.createElement("my-widget");
         document.body.appendChild(widget);
@@ -3225,7 +3229,7 @@ describe("CollectAutofillContentService", () => {
         jest.advanceTimersByTime(500);
 
         // First check ran before hydration: nothing found, host tracked for re-scan.
-        expect(checkSpy).toHaveLastReturnedWith(false);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: false }));
         expect(collectAutofillContentService["unresolvedShadowHosts"].has(lazyHost)).toBe(true);
         expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).not.toBeNull();
 
@@ -3235,7 +3239,7 @@ describe("CollectAutofillContentService", () => {
 
         jest.advanceTimersByTime(500);
 
-        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
         expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
         expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
@@ -3258,7 +3262,7 @@ describe("CollectAutofillContentService", () => {
         ]);
         jest.advanceTimersByTime(500);
 
-        expect(checkSpy).toHaveLastReturnedWith(false);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: false }));
         expect(collectAutofillContentService["unresolvedShadowHosts"].has(innerHost)).toBe(true);
 
         const innerRoot = innerHost.attachShadow({ mode: "open" });
@@ -3266,7 +3270,7 @@ describe("CollectAutofillContentService", () => {
 
         jest.advanceTimersByTime(500);
 
-        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
         expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
 
         document.body.removeChild(outerHost);
@@ -3402,7 +3406,7 @@ describe("CollectAutofillContentService", () => {
         // Cover the next backoff retry regardless of rounds consumed so far.
         await jest.advanceTimersByTimeAsync(2000);
 
-        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
         expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
 
         document.body.removeChild(host);
@@ -3428,7 +3432,7 @@ describe("CollectAutofillContentService", () => {
         // Parked-only sweep runs at the retry cap cadence.
         jest.advanceTimersByTime(8000);
 
-        expect(checkSpy).toHaveLastReturnedWith(true);
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
         expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
         expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
 

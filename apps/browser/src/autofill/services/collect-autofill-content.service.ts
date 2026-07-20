@@ -1397,32 +1397,30 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   } {
     const formElements: HTMLFormElement[] = [];
     const formFieldElements: FormFieldElement[] = [];
+
     // Hosts rendered before the observer attached produce no mutation candidates;
-    // the collection walk is their only path into the unresolved pipeline.
-    const walkUnresolvedHostSink = new Set<Element>();
+    // the collection walk is their only path into the unresolved pipeline, so this
+    // path surfaces them alongside the matched form/field elements.
+    const { elements: queriedElements, unresolvedHosts } =
+      this.domQueryService.queryWithUnresolvedShadowHosts<HTMLElement>(
+        globalThis.document.documentElement,
+        (node: Node) => {
+          if (nodeIsFormElement(node)) {
+            formElements.push(node);
+            return true;
+          }
 
-    const queriedElements = this.domQueryService.query<HTMLElement>(
-      globalThis.document.documentElement,
-      `form, ${this.formFieldQueryString}`,
-      (node: Node) => {
-        if (nodeIsFormElement(node)) {
-          formElements.push(node);
-          return true;
-        }
+          if (this.isNodeFormFieldElement(node)) {
+            formFieldElements.push(node as FormFieldElement);
+            return true;
+          }
 
-        if (this.isNodeFormFieldElement(node)) {
-          formFieldElements.push(node as FormFieldElement);
-          return true;
-        }
+          return false;
+        },
+        this.mutationObserver,
+      );
 
-        return false;
-      },
-      this.mutationObserver,
-      undefined,
-      walkUnresolvedHostSink,
-    );
-
-    this.trackUnresolvedShadowHosts(walkUnresolvedHostSink);
+    this.trackUnresolvedShadowHosts(unresolvedHosts);
 
     if (formElements.length || formFieldElements.length) {
       return { formElements, formFieldElements };
@@ -1743,15 +1741,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const unresolvedHostSink = new Set<Element>();
-    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(
-      batch,
-      unresolvedHostSink,
-    );
-    if (hasNewShadowRoots) {
+    const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(batch);
+    if (foundNewRoot) {
       this.debouncedRequirePageDetailsUpdate();
     }
-    this.trackUnresolvedShadowHosts(unresolvedHostSink);
+    this.trackUnresolvedShadowHosts(unresolvedHosts);
   };
 
   // Rebuilt from the sink each scan: hosts that hydrated or disconnected drop out

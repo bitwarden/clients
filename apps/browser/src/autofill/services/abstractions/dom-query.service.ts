@@ -1,3 +1,5 @@
+export type ShadowRootScanResult = { foundNewRoot: boolean; unresolvedHosts: Set<Element> };
+
 export interface DomQueryService {
   query<T>(
     root: Document | ShadowRoot | Element,
@@ -5,12 +7,17 @@ export interface DomQueryService {
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
-    unresolvedHostSink?: Set<Element>,
+    ignoredTreeWalkerNodesOverride?: Set<string>,
   ): T[];
+  queryWithUnresolvedShadowHosts<T>(
+    root: Document | ShadowRoot | Element,
+    treeWalkerFilter: CallableFunction,
+    mutationObserver?: MutationObserver,
+  ): { elements: T[]; unresolvedHosts: Set<Element> };
   updatePageContainsShadowDom(): boolean;
   refreshShadowDomStateForUserRequest(): void;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
-  checkForNewShadowRoots(addedElements?: Element[], unresolvedHostSink?: Set<Element>): boolean;
+  checkForNewShadowRoots(addedElements?: Element[]): ShadowRootScanResult;
   setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;
