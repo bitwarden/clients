@@ -10,13 +10,16 @@ import {
   inject,
   effect,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SideNavService, SideNavVersion } from "./side-nav.service";
+import { SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
@@ -59,7 +62,15 @@ export class SideNavComponent {
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly version = input<SideNavVersion>("1");
+  private readonly configService = inject(ConfigService);
+
+  /**
+   * Whether the VFO1 Foundation flag is enabled, which selects the v2 side nav layout.
+   */
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -90,7 +101,7 @@ export class SideNavComponent {
 
   constructor() {
     effect(() => {
-      this.sideNavService.version.set(this.version());
+      this.sideNavService.version.set(this.vfo1Enabled() ? "2" : "1");
     });
   }
 }

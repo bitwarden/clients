@@ -11,10 +11,12 @@ import {
   getAllByLabelText,
 } from "storybook/test";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { StorybookConfigService } from "../../utils/config-mock.service";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../../utils/state-mock";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -104,6 +106,7 @@ export default {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,
         },
+        { provide: ConfigService, useClass: StorybookConfigService },
       ],
     }),
   ],

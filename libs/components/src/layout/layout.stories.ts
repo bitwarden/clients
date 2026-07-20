@@ -2,6 +2,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
@@ -9,6 +10,7 @@ import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
+import { StorybookConfigService } from "../utils/config-mock.service";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -29,6 +31,7 @@ export default {
             return new I18nMockService(mockLayoutI18n);
           },
         },
+        { provide: ConfigService, useClass: StorybookConfigService },
       ],
     }),
     applicationConfig({

@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
@@ -9,13 +11,13 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavigationModule } from "./navigation.module";
-import { SideNavService, SideNavVersion } from "./side-nav.service";
+import { SideNavService } from "./side-nav.service";
 
 @Component({
   imports: [NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <bit-side-nav [version]="version()">
+    <bit-side-nav>
       <bit-nav-logo [openIcon]="logo" route="." label="Home"></bit-nav-logo>
       <bit-nav-group text="Tools" icon="bwi-wrench" [open]="true">
         <bit-nav-item text="Child A" route="a"></bit-nav-item>
@@ -26,7 +28,6 @@ import { SideNavService, SideNavVersion } from "./side-nav.service";
   `,
 })
 class HostComponent {
-  readonly version = signal<SideNavVersion>("1");
   logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
 }
 
@@ -36,8 +37,11 @@ class HostComponent {
 describe("side-nav v1 content projection", () => {
   let fixture: ComponentFixture<HostComponent>;
   let sideNavService: SideNavService;
+  let vfo1Enabled: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
+    vfo1Enabled = new BehaviorSubject<boolean>(false);
+
     await TestBed.configureTestingModule({
       imports: [HostComponent, RouterModule.forRoot([])],
       providers: [
@@ -53,6 +57,12 @@ describe("side-nav v1 content projection", () => {
             }),
         },
         { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: () => vfo1Enabled.asObservable(),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -87,9 +97,7 @@ describe("side-nav v1 content projection", () => {
     sideNavService.open.set(true);
     fixture.detectChanges();
 
-    const interactive = fixture.nativeElement.querySelector(
-      "[data-testid='nav-item-interactive']",
-    );
+    const interactive = fixture.nativeElement.querySelector("[data-testid='nav-item-interactive']");
     expect(interactive?.hasAttribute("aria-expanded")).toBe(false);
     expect(interactive?.hasAttribute("aria-controls")).toBe(false);
   });
@@ -109,7 +117,7 @@ describe("side-nav v1 content projection", () => {
   // Regression: nav-item declared a separate `<ng-content select="[slot=end]">` in each version
   // branch, so projected [slot=end] content bound to the v1 instance and rendered empty in v2.
   it("projects nav-item [slot=end] trailing content in v2", () => {
-    fixture.componentInstance.version.set("2");
+    vfo1Enabled.next(true);
     sideNavService.open.set(true);
     fixture.detectChanges();
 
@@ -117,26 +125,22 @@ describe("side-nav v1 content projection", () => {
   });
 
   it("renders the nav-group collapse arrow in v2", () => {
-    fixture.componentInstance.version.set("2");
+    vfo1Enabled.next(true);
     sideNavService.open.set(true);
     fixture.detectChanges();
 
-    const arrow = fixture.nativeElement.querySelector(
-      "[data-testid='nav-group-collapse-arrow']",
-    );
+    const arrow = fixture.nativeElement.querySelector("[data-testid='nav-group-collapse-arrow']");
     expect(arrow).not.toBeNull();
   });
 
   // In v2 the top-level chevron is decorative, so aria-expanded/aria-controls live on the
   // interactive row element instead of a dedicated toggle button.
   it("exposes aria-expanded/aria-controls on the top-level row in v2", () => {
-    fixture.componentInstance.version.set("2");
+    vfo1Enabled.next(true);
     sideNavService.open.set(true);
     fixture.detectChanges();
 
-    const interactive = fixture.nativeElement.querySelector(
-      "[data-testid='nav-item-interactive']",
-    );
+    const interactive = fixture.nativeElement.querySelector("[data-testid='nav-item-interactive']");
     expect(interactive?.getAttribute("aria-expanded")).toBe("true");
     expect(interactive?.getAttribute("aria-controls")).toBeTruthy();
   });

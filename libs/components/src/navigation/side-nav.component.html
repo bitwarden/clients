@@ -1,5 +1,6 @@
 @let open = sideNavService.open();
 @let isOverlay = sideNavService.isOverlay();
+@let version = sideNavService.version();
 
 <ng-template #logoContent><ng-content select="bit-nav-logo"></ng-content></ng-template>
 <ng-template #productSwitcherContent
@@ -8,7 +9,7 @@
 <ng-template #navContent><ng-content></ng-content></ng-template>
 <ng-template #footerContent><ng-content select="[slot=footer]"></ng-content></ng-template>
 
-@if (version() === "2") {
+@if (version === "2") {
   <div
     class="tw-relative tw-h-full"
     [attr.role]="isOverlay ? 'dialog' : null"
@@ -18,7 +19,7 @@
   >
     <div
       id="bit-side-nav"
-      [attr.data-nav-version]="version()"
+      [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
       [style]="
@@ -77,7 +78,7 @@
   >
     <nav
       id="bit-side-nav"
-      [attr.data-nav-version]="version()"
+      [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
       [style]="

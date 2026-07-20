@@ -23,6 +23,7 @@ import {
   I18nMockService,
   LayoutComponent,
   NavigationModule,
+  StorybookConfigService,
   StorybookGlobalStateProvider,
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
@@ -299,19 +300,17 @@ export const WithAllOptions: Story = {
 
 /**
  * A realistic side nav: the product switcher plus a fuller set of items, including
- * nested nav groups. Rendered with the `version` input so the same content can be
- * compared across the v1 and v2 layouts.
+ * nested nav groups. The v1/v2 layout is driven by the `VFO1Foundation` feature flag —
+ * see the `RealisticSideNav` (v1) and `RealisticSideNavV2` (v2) stories.
  */
 const RealisticTemplate: StoryObj<
-  Omit<NavigationProductSwitcherComponent, "version"> &
-    MockProviderService &
-    MockOrganizationService & { version: "1" | "2" }
+  NavigationProductSwitcherComponent & MockProviderService & MockOrganizationService
 > = {
   render: (args) => ({
     props: { ...args, logo: PasswordManagerLogo },
     template: `
       <bit-layout>
-        <bit-side-nav [version]="version">
+        <bit-side-nav>
           <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
           <bit-nav-item text="Vault" icon="bwi-lock" route="vault"></bit-nav-item>
           <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
@@ -349,7 +348,6 @@ const RealisticTemplate: StoryObj<
     `,
   }),
   args: {
-    version: "1",
     mockOrgs: [
       {
         id: "org-a",
@@ -364,16 +362,18 @@ const RealisticTemplate: StoryObj<
 
 export const RealisticSideNav = {
   ...RealisticTemplate,
-  args: {
-    ...RealisticTemplate.args,
-    version: "1",
-  },
 };
 
 export const RealisticSideNavV2 = {
   ...RealisticTemplate,
-  args: {
-    ...RealisticTemplate.args,
-    version: "2",
-  },
+  decorators: [
+    moduleMetadata({
+      providers: [
+        {
+          provide: ConfigService,
+          useValue: new StorybookConfigService({ [FeatureFlag.VFO1Foundation]: true }),
+        },
+      ],
+    }),
+  ],
 };
