@@ -8,6 +8,7 @@
     "module": "ES2020",
     "lib": ["es5", "es6", "es7", "dom", "ES2021", "ESNext.Disposable"],
     "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
@@ -73,7 +74,8 @@
       "@bitwarden/vault-export-core": ["./libs/tools/export-vault-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export-vault-ui/src"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"],
-      "@bitwarden/pam": ["./libs/pam/src/index.ts"]
+      "@bitwarden/pam": ["./libs/pam/src/index.ts"],
+      "@bitwarden/storybook": ["./libs/storybook/src/index.ts"]
     },
     "plugins": [
       {

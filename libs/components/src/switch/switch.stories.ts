@@ -2,6 +2,7 @@ import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angul
 import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { FormControlModule } from "../form-control";
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
@@ -9,8 +10,6 @@ import { FormControlGroupComponent } from "../form-control/form-control-group.co
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
-
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Form/Switch",
