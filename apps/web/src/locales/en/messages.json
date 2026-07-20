@@ -4555,6 +4555,9 @@
   "defaultCollection": {
     "message": "Default collection"
   },
+  "defaultSharedFolder": {
+    "message": "Default shared folder"
+  },
   "getHelp": {
     "message": "Get help"
   },

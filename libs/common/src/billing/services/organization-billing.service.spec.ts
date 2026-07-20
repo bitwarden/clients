@@ -10,8 +10,10 @@ import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "../../platform/sync";
@@ -33,6 +35,7 @@ describe("OrganizationBillingService", () => {
   let i18nService: jest.Mocked<I18nService>;
   let organizationApiService: jest.Mocked<OrganizationApiService>;
   let syncService: jest.Mocked<SyncService>;
+  let configService: jest.Mocked<ConfigService>;
 
   let sut: OrganizationBillingService;
 
@@ -46,6 +49,7 @@ describe("OrganizationBillingService", () => {
     i18nService = mock<I18nService>();
     organizationApiService = mock<OrganizationApiService>();
     syncService = mock<SyncService>();
+    configService = mock<ConfigService>();
 
     sut = new OrganizationBillingService(
       apiService,
@@ -55,6 +59,7 @@ describe("OrganizationBillingService", () => {
       i18nService,
       organizationApiService,
       syncService,
+      configService,
     );
   });
 
@@ -398,6 +403,38 @@ describe("OrganizationBillingService", () => {
         expect(organizationApiService.create).toHaveBeenCalledWith(
           expect.not.objectContaining({ coupons: expect.anything() }),
         );
+      });
+
+      it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+        const subscriptionWithPayment = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          } as PaymentInformation,
+        } as SubscriptionInformation;
+        configService.getFeatureFlag.mockResolvedValue(false);
+
+        await sut.purchaseSubscription(subscriptionWithPayment, mockUserId);
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+        expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+      });
+
+      it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+        const subscriptionWithPayment = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          } as PaymentInformation,
+        } as SubscriptionInformation;
+        configService.getFeatureFlag.mockResolvedValue(true);
+
+        await sut.purchaseSubscription(subscriptionWithPayment, mockUserId);
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+        expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
       });
     });
 
