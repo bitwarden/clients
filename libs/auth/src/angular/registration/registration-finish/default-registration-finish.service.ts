@@ -147,6 +147,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       accept_emergency_access_id: undefined,
       provider_invite_token: undefined,
       provider_user_id: undefined,
+      sales_assisted_token: undefined,
     };
 
     return registerFinishRequest;
