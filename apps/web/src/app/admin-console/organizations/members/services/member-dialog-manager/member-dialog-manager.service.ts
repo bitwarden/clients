@@ -90,15 +90,24 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
+    const detailsTabEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM28365_ChangeMemberEmail,
+    );
+    const resolvedTab =
+      detailsTabEnabled && initialTab === MemberDialogTab.Role
+        ? MemberDialogTab.Details
+        : initialTab;
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: initialTab,
+        initialTab: resolvedTab,
         claimedByOrganization: user.claimedByOrganization,
       },
     });
