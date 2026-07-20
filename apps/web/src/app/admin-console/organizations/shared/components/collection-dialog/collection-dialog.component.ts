@@ -83,6 +83,7 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
