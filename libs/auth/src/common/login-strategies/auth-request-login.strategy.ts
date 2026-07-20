@@ -86,16 +86,6 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     await this.deviceTrustService.trustDeviceIfRequired(userId);
   }
 
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
-  }
-
   exportCache(): CacheData {
     return {
       authRequest: this.cache.value,

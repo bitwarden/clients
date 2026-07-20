@@ -347,12 +347,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (tokenResponse.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
   }
 
   exportCache(): CacheData {

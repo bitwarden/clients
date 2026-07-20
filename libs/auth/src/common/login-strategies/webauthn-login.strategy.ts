@@ -100,16 +100,6 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
-  }
-
   exportCache(): CacheData {
     return {
       webAuthn: this.cache.value,

@@ -287,10 +287,20 @@ export abstract class LoginStrategy {
    */
   protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setAccountCryptographicState(
+  protected async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<void> {
+    // The accountKeysResponseModel is always present except for JIT SSO users
+    // which have just registered but not yet initialized the cryptographic state
+    // for their account.
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+  }
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins
