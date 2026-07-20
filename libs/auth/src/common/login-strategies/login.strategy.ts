@@ -263,7 +263,7 @@ export abstract class LoginStrategy {
 
     await this.setMasterKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
-    await this.setUserKey(response, userId);
+    await this.unlock(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -282,7 +282,10 @@ export abstract class LoginStrategy {
    */
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  /**
+   * Unlocks the SDK for the user using the implementation for the login strategy.
+   */
+  protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   protected abstract setAccountCryptographicState(
     response: IdentityTokenResponse,

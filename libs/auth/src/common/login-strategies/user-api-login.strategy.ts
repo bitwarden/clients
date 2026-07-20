@@ -66,7 +66,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setUserKey(
+  protected override async unlock(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {

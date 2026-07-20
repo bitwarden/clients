@@ -175,7 +175,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
   // so might be worth moving this logic to a common place (base login strategy or a separate service?)
-  protected override async setUserKey(
+  protected override async unlock(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {

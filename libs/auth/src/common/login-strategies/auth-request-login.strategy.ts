@@ -75,7 +75,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     // This login strategy does not use a master key
   }
 
-  protected override async setUserKey(
+  protected override async unlock(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {

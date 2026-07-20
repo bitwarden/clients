@@ -117,7 +117,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async setUserKey(
+  protected override async unlock(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
