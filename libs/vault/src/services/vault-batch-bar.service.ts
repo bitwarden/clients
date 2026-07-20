@@ -39,7 +39,7 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "../components/bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import { VaultItem } from "../components/vault-item";
+import { compareVaultItems, VaultItem } from "../components/vault-item";
 import { All } from "../models/routed-vault-filter.model";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
@@ -143,7 +143,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   );
 
   /** The Angular CDK selection model. Add, remove, or clear items directly. */
-  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
   private readonly _completed$ = new Subject<void>();
   /** Emits once after each successful bulk action. Subscribe to trigger a list refresh. */
