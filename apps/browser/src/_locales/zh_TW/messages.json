@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "帳號已受限制"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「檔案密碼」與「確認檔案密碼」不一致。"
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "警告",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "確認匯出密碼庫"
   },
-  "exportWarningDesc": {
-    "message": "此匯出檔包含未加密的密碼庫資料。請勿透過不安全的管道（如電子郵件）儲存或傳送此檔案。使用完畢後，請務必立即刪除。"
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "此匯出檔會使用您帳戶的加密金鑰進行加密。若您日後更換了帳戶的加密金鑰，請務必重新匯出，否則將無法解密此檔案。"
@@ -1588,7 +1588,7 @@
     "message": "Photo"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "未知"
   },
   "fileToShare": {
     "message": "要分享的檔案"
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "升級為進階會員即可獲得："
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB 的加密附件儲存空間。"
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "重新啟用進階版"
   },
-  "ppremiumSignUpReports": {
-    "message": "提供密碼健全性、帳戶健康狀態及資料外洩報告，確保您的密碼庫安全。"
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "為密碼庫中的登入項目產生 TOTP 驗證碼（2FA）。"
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "優先客戶支援。"
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "未來會新增更多進階功能，敬請期待！"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "升級為進階會員"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除產生器歷史記錄"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "若繼續，所有產生器曾經產生的記錄會被刪除。您確定要繼續？"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "返回"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "桌面應用程式目前登入的是不同的帳戶。請確認兩個應用程式皆登入相同的帳戶。"
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "帳戶不相符"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "生物辨識金鑰錯誤"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "生物辨識解鎖失敗。生物辨識金鑰解鎖密碼庫失敗。請嘗試重新設定生物辨識。"
@@ -3112,17 +3112,17 @@
   "biometricsFailedDesc": {
     "message": "生物特徵辨識無法完成，請考慮使用主密碼或登出。若仍無法解決，請聯絡 Bitwarden 客服。"
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "未提供權限"
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "若未取得與 Bitwarden 桌面應用程式通訊的權限，無法在瀏覽器擴充套件中提供生物辨識。請再試一次。"
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "若無權限與 Bitwarden 桌面應用程式進行通訊，我們將無法在瀏覽器擴充套件中提供生物辨識功能。請重試。"
   },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "權限要求錯誤"
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "權限請求錯誤"
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "此動作無法在側邊欄中執行，請在快顯視窗或彈出視窗中重試此動作。"
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "此動作無法在側邊欄執行，請在彈出視窗或彈出頁面中重試。"
   },
   "personalOwnershipSubmitError": {
     "message": "由於企業政策限制，您無法將項目儲存至個人密碼庫。請將「所有權」選項變更為組織，並從可用的集合中選擇。"
@@ -3930,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "無效的 $SERVICENAME$ API 權杖",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "無效的 $SERVICENAME$ API 權杖：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ 拒絕了你的請求。請聯絡你的服務提供者以取得協助。",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒絕了您的請求。請聯絡您的服務供應商以尋求協助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ 拒絕了你的請求：$ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒絕了您的請求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector 錯誤：請確認 Key Connector 可用且運作正常。"
   },
-  "premiumSubcriptionRequired": {
-    "message": "需要進階版訂閲"
+  "premiumSubscriptionRequired": {
+    "message": "需要進階版訂閱"
   },
   "organizationIsDisabled": {
     "message": "組織已停用。"
@@ -4791,7 +4791,7 @@
     "message": "未匯入任何內容。"
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "將略過 $COUNT$ 個項目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4800,40 +4800,40 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "下列項目無法讀取，將不會包含在您的匯入中："
   },
   "contact": {
-    "message": "Contact"
+    "message": "聯絡人"
   },
   "membership": {
-    "message": "Membership"
+    "message": "會員資格"
   },
   "passport": {
-    "message": "Passport"
+    "message": "護照"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "駕照"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "身分證"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "出生證明"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "資料庫憑證"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "伺服器憑證"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "軟體授權條款"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "健康保險"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 憑證"
   },
   "importEncKeyError": {
     "message": "解密匯出的檔案時發生錯誤，您的加密金鑰與匯出資料時使用的金鑰不同。"
@@ -4900,28 +4900,28 @@
     "message": "確認檔案密碼"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "Keepass 主密碼"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "新增金鑰檔案"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "上傳金鑰檔案"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "上傳 KDBX 檔案"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "接受的格式：kbdx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "資料格式不正確。請檢查您的匯入檔, 並重新匯入。"
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "該檔案不是有效的 KeePass 資料庫 (.kbdx)，請選擇一個 .kbdx 檔案並重試。"
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "無法匯入這個 KeePass 資料庫，因為它太大了。"
   },
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
@@ -5026,7 +5026,7 @@
     "message": "多因素驗證失敗"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "與 Keeper 通訊時出現問題。請重新匯入。"
   },
   "includeSharedFolders": {
     "message": "包含共用的資料夾"
@@ -5081,16 +5081,16 @@
     "message": "將與您的 LastPass 帳戶連結的 YubiKey 插入電腦的 USB 連接埠，然後按下按鈕。"
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Keeper電子郵件"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "輸入你用來登入Keeper的電子郵件"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "資料中心位置"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Keeper 主密碼"
   },
   "keeperMasterPasswordPrompt": {
     "message": "Please enter your Keeper master password"
@@ -5192,10 +5192,10 @@
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "驗證器 (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "文字訊息 (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5204,34 +5204,34 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "備援碼"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "安全金鑰 (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "安全金鑰 (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA 驗證"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "在您的裝置上核准 Keeper DNA 通知"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "選擇 Keeper DNA 驗證方式"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "選擇您要使用的 Keeper DNA 驗證方式。Push notification推播通知Enter code manually手動輸入代碼。"
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "推播通知"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "手動輸入代碼"
   },
   "twoFactorAuthentication": {
     "message": "Two-factor authentication"
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "使用連結欄位若您在特定網站上遇到自動填入問題。"
   },
-  "linkedLabelHelpText": {
-    "message": "填入欄位的 html id、名稱、標籤或預留字元"
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "編輯欄位"

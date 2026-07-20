@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "حساب کاربری محدود شده است"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "عدم تطابق \"کلمه عبور پرونده\" و \"تأیید کلمه عبور پرونده\" با یکدیگر."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "هشدار",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "برون ریزی گاوصندوق را تأیید کنید"
   },
-  "exportWarningDesc": {
-    "message": "این برون ریزی شامل داده‌های گاوصندوق در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "این برون ریزی با استفاده از کلید رمزگذاری حساب کاربری شما، اطلاعاتتان را رمزگذاری می کند. اگر زمانی کلید رمزگذاری حساب کاربری خود را تغییر دهید، باید دوباره خروجی بگیرید، چون قادر به رمزگشایی این پرونده برون ریزی نخواهید بود."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "برای عضویت پرمیوم ثبت نام کنید و دریافت کنید:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "۱ گیگابایت فضای ذخیره‌سازی رمزگذاری شده برای پیوست‌های پرونده."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ فضای ذخیره‌سازی رمزگذاری شده برای پیوست‌های پرونده.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "راه‌اندازی مجدد پریمیوم"
   },
-  "ppremiumSignUpReports": {
-    "message": "گزارش‌های بهداشت کلمه عبور، سلامت حساب کاربری و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "تولید کننده کد تأیید (2FA) از نوع TOTP برای ورودهای در گاوصندوقتان."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "اولویت پشتیبانی از مشتری."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "تمام ویژگی‌های پرمیوم آینده. به زودی بیشتر!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "خرید پرمیوم"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "پاک کردن تاریخچه تولید کننده"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "اگر ادامه دهید، تمام ورودی‌ها به‌طور دائمی از تاریخچه تولید کننده حذف خواهند شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "بازگشت"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "برنامه دسکتاپ به یک حساب کاربری دیگر وارد شده است. لطفاً اطمینان حاصل کنید که هر دو برنامه به یک حساب کاربری وارد شده اند."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "عدم تطابق حساب کاربری"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "عدم تطابق کلید بیومتریک"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "باز کردن قفل بیومتریک ناموفق بود. کلید مخفی بیومتریک نتوانست گاوصندوق را باز کند. لطفاً دوباره تنظیمات بیومتریک را انجام دهید."
@@ -3112,17 +3112,17 @@
   "biometricsFailedDesc": {
     "message": "زیست‌سنجی نمی‌تواند انجام شود، استفاده از کلمه عبور اصلی یا خروج را در نظر بگیرید. اگر این مشکل ادامه یافت لطفاً با پشتیبانی Bitwarden تماس بگیرید."
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "مجوز ارائه نشده است"
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "بدون اجازه برای ارتباط با برنامه دسکتاپ Bitwarden، نمی‌توانیم بیومتریک را در افزونه مرورگر ارائه دهیم. لطفاً دوباره تلاش کنید."
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "خطای درخواست مجوز"
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "این عمل را نمی‌توان در نوار کناری انجام داد، لطفاً اقدام را در پنجره بازشو بازخوانی کنید."
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
     "message": "به دلیل سیاست پرمیوم، برای ذخیره موارد در گاوصندوق شخصی خود محدود شده‌اید. گزینه مالکیت را به یک سازمان تغییر دهید و مجموعه‌های موجود را انتخاب کنید."
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "توکن API نامعتبر برای $SERVICENAME$",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "توکن API نامعتبر برای $SERVICENAME$: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ درخواست شما را رد کرد. لطفاً برای دریافت کمک با ارائه‌دهنده سرویس خود تماس بگیرید.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ درخواست شما را رد کرد: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "خطای رابط کلید: مطمئن شوید که رابط کلید در دسترس است و به درستی کار می‌کند."
   },
-  "premiumSubcriptionRequired": {
-    "message": "اشتراک پرمیوم نیاز است"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "سازمان از کار افتاده است."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "وقتی در پر کردن خودکار برای یک وب‌سایت خاص به مشکل برخوردید، از فیلد مرتبط استفاده کنید."
   },
-  "linkedLabelHelpText": {
-    "message": "شناسه html، نام، aria-label یا محل نگهدار فیلد را وارد کنید."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "ویرایش فیلد"
