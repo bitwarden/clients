@@ -1,8 +1,10 @@
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
+import { OrganizationInviteLinkConfirmRequest } from "../models/requests/organization-invite-link-confirm.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
+import { ConfirmOrganizationInviteLinkResult } from "../models/responses/confirm-organization-invite-link-result";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
@@ -42,4 +44,9 @@ export abstract class OrganizationInviteLinkApiService {
 
   /** Accept an invite link, joining the authenticated user to the organization */
   abstract accept(request: OrganizationInviteLinkAcceptRequest): Promise<void>;
+
+  /** Confirm the authenticated user into the organization via an invite link */
+  abstract confirm(
+    request: OrganizationInviteLinkConfirmRequest,
+  ): Promise<ConfirmOrganizationInviteLinkResult>;
 }

@@ -1,14 +1,40 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { mapApiErrorToResult } from "@bitwarden/common/models/response/api-error-result";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
+import { OrganizationInviteLinkConfirmRequest } from "../models/requests/organization-invite-link-confirm.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
+import { ConfirmOrganizationInviteLinkResult } from "../models/responses/confirm-organization-invite-link-result";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
+
+/** The confirm result's failure kinds (every kind except the success `ok`). */
+type ConfirmFailureKind = Exclude<ConfirmOrganizationInviteLinkResult["kind"], "ok">;
+
+/**
+ * Maps the confirm endpoint's stable RFC 7807 validation error `type` codes (see the server's
+ * `ConfirmOrganizationInviteLinkErrors`) to the discrete client result kinds. Any code not listed
+ * here falls through to `unexpected-error`.
+ */
+const SERVER_ERROR_TYPE_TO_KIND: Record<string, ConfirmFailureKind> = {
+  invite_link_not_available: "invite-link-not-available",
+  email_domain_not_allowed: "email-domain-not-allowed",
+  provider_users_cannot_join: "provider-users-cannot-join",
+  organization_access_revoked: "organization-access-revoked",
+  already_organization_member: "already-organization-member",
+  organization_has_no_available_seats: "organization-has-no-available-seats",
+  seat_add_failed: "seat-add-failed",
+  reset_password_key_required: "reset-password-key-required",
+  member_of_another_organization: "member-of-another-organization",
+  single_organization_policy: "single-organization-policy",
+  two_factor_required_for_membership: "two-factor-required-for-membership",
+  only_one_free_organization_admin_allowed: "only-one-free-organization-admin-allowed",
+};
 
 export class DefaultOrganizationInviteLinkApiService implements OrganizationInviteLinkApiService {
   constructor(private apiService: ApiService) {}
@@ -108,5 +134,27 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       true,
       false,
     );
+  }
+
+  async confirm(
+    request: OrganizationInviteLinkConfirmRequest,
+  ): Promise<ConfirmOrganizationInviteLinkResult> {
+    try {
+      await this.apiService.send(
+        "POST",
+        "/organizations/users/invite-link/confirm",
+        request,
+        true,
+        false,
+      );
+      return { kind: "ok" };
+    } catch (e) {
+      return mapApiErrorToResult<ConfirmFailureKind>(e, {
+        validationErrorTypes: SERVER_ERROR_TYPE_TO_KIND,
+        unauthorized: "unauthorized",
+        notFound: "invite-link-not-found",
+        unexpected: "unexpected-error",
+      });
+    }
   }
 }
