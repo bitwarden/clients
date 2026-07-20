@@ -207,6 +207,7 @@ apps/desktop/src/services/encrypted-message-handler.service.ts   @bitwarden/team
 .github/workflows/chromatic.yml                                  @bitwarden/team-ui-foundation
 .storybook                                                       @bitwarden/team-ui-foundation
 libs/components                                                  @bitwarden/team-ui-foundation
+libs/storybook                                                   @bitwarden/team-ui-foundation
 libs/assets                                                      @bitwarden/team-ui-foundation
 libs/ui                                                          @bitwarden/team-ui-foundation
 libs/angular/src/scss                                            @bitwarden/team-ui-foundation
@@ -229,7 +230,8 @@ libs/unlock                                       @bitwarden/team-key-management
 # Node-cryptofunction service
 libs/node  @bitwarden/team-key-management-dev
 
-apps/desktop/desktop_native/core/src/biometric_v2/              @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/biometric/                          @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/napi/src/biometrics.rs              @bitwarden/team-key-management-dev
 apps/desktop/desktop_native/secure_memory/                      @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts           @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-key-management-dev

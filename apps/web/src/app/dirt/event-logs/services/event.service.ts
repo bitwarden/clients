@@ -517,6 +517,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_AdminChangedEmail:
+        msg = this.i18nService.t("eventAdminChangedUserEmail", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "eventAdminChangedUserEmail",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");

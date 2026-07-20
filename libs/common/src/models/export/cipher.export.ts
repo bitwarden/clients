@@ -29,7 +29,7 @@ export class CipherExport {
     return req;
   }
 
-  static toView(req: CipherExport, view = new CipherView()) {
+  static toView(req: CipherExport, view = new CipherView(), allowDerivedSshKeys = false) {
     view.type = req.type;
     view.folderId = req.folderId;
     if (view.organizationId == null) {
@@ -73,7 +73,7 @@ export class CipherExport {
       case CipherType.SshKey:
         if (req.sshKey != null) {
           // toView only returns undefined when req is null, which we've already checked
-          view.sshKey = SshKeyExport.toView(req.sshKey)!;
+          view.sshKey = SshKeyExport.toView(req.sshKey, undefined, allowDerivedSshKeys)!;
         }
         break;
       case CipherType.BankAccount:
