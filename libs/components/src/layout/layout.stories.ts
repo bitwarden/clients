@@ -4,6 +4,7 @@ import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
@@ -13,8 +14,6 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { LayoutComponent } from "./layout.component";
 import { mockLayoutI18n } from "./mocks";
-
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Layout",
