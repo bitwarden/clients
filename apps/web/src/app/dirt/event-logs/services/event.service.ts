@@ -966,24 +966,24 @@ export class EventService {
         break;
       case EventType.Send_Accessed_Text:
         msg = this.i18nService.t(
-          "accessedTextSendV2",
+          "accessedTextSendV3",
           this.formatSendId(ev, options),
           this.formatSendCreatorId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "accessedTextSendV2",
+          "accessedTextSendV3",
           this.formatSendIdText(ev, options),
           this.getShortId(ev.userId),
         );
         break;
       case EventType.Send_Accessed_File:
         msg = this.i18nService.t(
-          "accessedFileSendV2",
+          "accessedFileSendV3",
           this.formatSendId(ev, options),
           this.formatSendCreatorId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
-          "accessedFileSendV2",
+          "accessedFileSendV3",
           this.formatSendIdText(ev, options),
           this.getShortId(ev.userId),
         );

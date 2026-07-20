@@ -4981,8 +4981,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +4995,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
