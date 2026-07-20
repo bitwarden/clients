@@ -92,7 +92,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly pendingMutationAddedElementsCap = 256;
   // Custom elements scanned while still shadow-less (lazy hydration attaches the
   // root after the candidate window closes, emitting no observable mutations).
-  // Value = wall-clock deadline (performance.now ms) after which the host is
+  // Value = wall-clock deadline (Date.now epoch ms) after which the host is
   // written off as never hydrating.
   private unresolvedShadowHosts: Map<Element, number> = new Map();
   private expiredShadowHostCandidates = new WeakSet<Element>();
@@ -1754,7 +1754,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private trackUnresolvedShadowHosts(scannedUnresolvedHosts: Set<Element>) {
     const previousDeadlines = this.unresolvedShadowHosts;
     this.unresolvedShadowHosts = new Map();
-    const now = performance.now();
+    const now = Date.now();
     let sinkHasNewHost = false;
 
     for (const element of scannedUnresolvedHosts) {
@@ -1807,10 +1807,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         !this.expiredShadowHostCandidates.has(element) &&
         !this.unresolvedShadowHosts.has(element)
       ) {
-        this.unresolvedShadowHosts.set(
-          element,
-          performance.now() + this.unresolvedShadowHostLifetimeMs,
-        );
+        this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
       }
     }
   }
@@ -1831,10 +1828,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         hosts.delete(element);
         enrolled = true;
         if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-          this.unresolvedShadowHosts.set(
-            element,
-            performance.now() + this.unresolvedShadowHostLifetimeMs,
-          );
+          this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
         } else if (
           this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap
         ) {
@@ -1920,10 +1914,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
       enrolled = true;
       if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-        this.unresolvedShadowHosts.set(
-          element,
-          performance.now() + this.unresolvedShadowHostLifetimeMs,
-        );
+        this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
       } else if (this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap) {
         this.unresolvedShadowHostOverflow.push(element);
       }
