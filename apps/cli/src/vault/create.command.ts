@@ -100,7 +100,11 @@ export class CreateCommand {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      const cipherView = CipherExport.toView(req);
+      const allowDerivedSshKeys = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM40201_DeriveSSHKeys),
+      );
+
+      const cipherView = CipherExport.toView(req, undefined, allowDerivedSshKeys);
 
       if (
         cipherView.type === CipherType.BankAccount ||
@@ -123,7 +127,7 @@ export class CreateCommand {
       }
 
       const newCipher = await this.cipherService.createWithServer(
-        CipherExport.toView(req),
+        CipherExport.toView(req, undefined, allowDerivedSshKeys),
         activeUserId,
       );
       const res = new CipherResponse(newCipher);

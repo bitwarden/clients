@@ -107,6 +107,7 @@ export enum FeatureFlag {
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
   PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
+  PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -194,6 +195,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
+  [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,

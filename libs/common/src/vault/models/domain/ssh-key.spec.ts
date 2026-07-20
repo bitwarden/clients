@@ -38,8 +38,8 @@ describe("Sshkey", () => {
 
     expect(sshKey).toBeInstanceOf(SshKey);
     expect(sshKey.privateKey).toBeInstanceOf(EncString);
-    expect(sshKey.publicKey).toBeInstanceOf(EncString);
-    expect(sshKey.keyFingerprint).toBeInstanceOf(EncString);
+    expect(sshKey.publicKey).toBeUndefined();
+    expect(sshKey.keyFingerprint).toBeUndefined();
     expect(data.privateKey).toBeUndefined();
     expect(data.publicKey).toBeUndefined();
     expect(data.keyFingerprint).toBeUndefined();
@@ -97,6 +97,16 @@ describe("Sshkey", () => {
         publicKey: "publicKey",
         fingerprint: "keyFingerprint",
       });
+    });
+
+    it("emits undefined for a missing public key and fingerprint", () => {
+      const sshKey = new SshKey(new SshKeyData(new SshKeyApi({ PrivateKey: "privateKey" })));
+
+      const sdkSshKey = sshKey.toSdkSshKey();
+
+      expect(sdkSshKey.privateKey).toBe("privateKey");
+      expect(sdkSshKey.publicKey).toBeUndefined();
+      expect(sdkSshKey.fingerprint).toBeUndefined();
     });
   });
 
