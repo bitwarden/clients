@@ -125,7 +125,14 @@ export class IntegrationContext<Settings extends object> {
    * @returns prefix derived from the website URL or an empty string if a website isn't available
    * */
   prefix(request: IntegrationRequest) {
-    const hostname = Utils.getHostname(this.website(request)) ?? "";
+    const website = this.website(request);
+
+    // Validate that the URL is actually valid before extracting hostname
+    if (!Utils.getUrl(website)) {
+      return "";
+    }
+
+    const hostname = Utils.getHostname(website) ?? "";
     if (hostname === "") {
       return "";
     }
