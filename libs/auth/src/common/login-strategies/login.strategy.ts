@@ -276,7 +276,10 @@ export abstract class LoginStrategy {
     return result;
   }
 
-  // The keys comes from different sources depending on the login strategy
+  /**
+   * The keys comes from different sources depending on the login strategy
+   * @deprecated This method will be removed with https://bitwarden.atlassian.net/browse/PM-33722
+   */
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
