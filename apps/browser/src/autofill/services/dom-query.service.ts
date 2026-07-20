@@ -5,7 +5,6 @@ import {
   SHADOW_ROOT_CANDIDATE_NODE_NAMES,
 } from "@bitwarden/common/autofill/constants";
 
-import { stopwatch } from "../content/performance";
 import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
@@ -48,7 +47,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   ]);
 
   constructor() {
-    this.getShadowRoot = stopwatch("getShadowRoot", this.getShadowRoot);
     void this.init();
   }
 
