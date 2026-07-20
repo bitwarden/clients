@@ -270,8 +270,13 @@ export class ScimV2Component {
     this.existingConnectionId.set(connection?.id);
     this.cachedApiKey.set(undefined);
     this.showScimKey.set(false);
+    // New connections (no saved config yet) default to staged (toggle off) only when the staged
+    // status feature is enabled; otherwise they keep the legacy "invite" default. Existing
+    // connections keep their stored value; a missing flag on an existing connection is treated as
+    // invite (on) for backwards compatibility with connections created before this setting existed.
+    const config = connection?.config;
     this.inviteUsersAfterProvisioning.setValue(
-      connection?.config?.inviteUsersAfterProvisioning ?? true,
+      config == null ? !this.stagedStatusEnabled() : (config.inviteUsersAfterProvisioning ?? true),
     );
     if (connection !== null && connection.config?.enabled) {
       await this.scimBannerService.markBannerSeen(this.organizationId());
