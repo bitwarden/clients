@@ -226,6 +226,24 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       : this.i18nService.t("personalItemTransferWarningSingular");
   };
 
+  protected transferWarningTextPre = (itemsCount: number) => {
+    if (itemsCount > 1) {
+      return this.i18nService.t("personalItemsWithOrgTransferWarningPluralPre", itemsCount);
+    }
+    if (itemsCount === 1) {
+      return this.i18nService.t("personalItemWithOrgTransferWarningSingularPre");
+    }
+  };
+
+  protected transferWarningTextPost = (itemsCount: number) => {
+    if (itemsCount > 1) {
+      return this.i18nService.t("personalItemsWithOrgTransferWarningPluralPost");
+    }
+    if (itemsCount === 1) {
+      return this.i18nService.t("personalItemWithOrgTransferWarningSingularPost");
+    }
+  };
+
   private editableItems: CipherView[] = [];
   // Get the selected organization ID. If the user has not selected an organization from the form,
   // fallback to use the organization ID from the params.

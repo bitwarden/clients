@@ -1,35 +1,58 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="assign_collections_form">
-  <p>
-    {{
-      personalItemsCount === 1
-        ? ("bulkCollectionAssignmentDialogDescriptionSingular"
-          | vfo1I18n: "bulkVaultSharedFolderAssignmentDialogDescriptionSingular")
-        : ("bulkCollectionAssignmentDialogDescriptionPlural"
-          | vfo1I18n: "bulkVaultSharedFolderAssignmentDialogDescriptionPlural")
-    }}
-  </p>
+  @if (!vfo1TerminologyService.enabled()) {
+    <p>
+      {{
+        (personalItemsCount === 1
+          ? "bulkCollectionAssignmentDialogDescriptionSingular"
+          : "bulkCollectionAssignmentDialogDescriptionPlural"
+        ) | i18n
+      }}
+    </p>
 
-  <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words">
-    @if (readonlyItemCount > 0) {
-      <li>
-        <p>
-          {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
-        </p>
-      </li>
-    }
-    @if (personalItemsCount > 0) {
-      <li>
-        <p>
-          {{ transferWarningText(orgName, personalItemsCount) }}
-        </p>
-      </li>
-    }
-  </ul>
+    <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words">
+      @if (readonlyItemCount > 0) {
+        <li>
+          <p>
+            {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
+          </p>
+        </li>
+      }
+      @if (personalItemsCount > 0) {
+        <li>
+          <p>
+            {{ transferWarningText(orgName, personalItemsCount) }}
+          </p>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="tw-text-muted">
+      @if (orgName) {
+        {{ transferWarningTextPre(personalItemsCount) }}
+        <span class="tw-italic">{{ orgName }}</span
+        >{{ transferWarningTextPost(personalItemsCount) }}
+        {{
+          (personalItemsCount === 1
+            ? "bulkVaultSharedFolderAssignmentDialogDescriptionSingular"
+            : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
+          ) | i18n
+        }}
+      } @else {
+        {{ transferWarningText(orgName, personalItemsCount) }}
+        {{
+          (personalItemsCount === 1
+            ? "bulkVaultSharedFolderAssignmentDialogDescriptionSingular"
+            : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
+          ) | i18n
+        }}
+      }
+    </p>
+  }
 
   @if (showOrgSelector) {
     <div class="tw-flex">
       <bit-form-field class="tw-grow tw-max-w-full">
-        <bit-label>{{ "moveToOrganization" | vfo1I18n: "moveToVault" }}</bit-label>
+        <bit-label>{{ "moveToOrganization" | vfo1I18n: "vault" }}</bit-label>
         <bit-select formControlName="selectedOrg">
           @for (org of organizations$ | async; track org.id) {
             <bit-option
@@ -46,9 +69,7 @@
 
   <div class="tw-flex">
     <bit-form-field class="tw-grow tw-max-w-full" disableMargin>
-      <bit-label>{{
-        "selectCollectionsToAssign" | vfo1I18n: "selectSharedFoldersToAssign"
-      }}</bit-label>
+      <bit-label>{{ "selectCollectionsToAssign" | vfo1I18n: "sharedFolder" }}</bit-label>
       <bit-multi-select
         class="tw-w-full"
         formControlName="collections"
