@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "パスワードをコピーしました"
   },
+  "passwordAnnounceSpace": {
+    "message": "スペース",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "共有"
+  },
+  "sharedFolder": {
+    "message": "共有フォルダー"
+  },
+  "sharedFolders": {
+    "message": "共有フォルダー"
+  },
+  "myFolder": {
+    "message": "マイフォルダー"
+  },
+  "myFolders": {
+    "message": "マイフォルダー"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business は組織を使って保管庫アイテムを他の人と共有することができます。詳細は bitwarden.com ウェブサイトをご覧ください。"
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "ファイルパスワードの確認"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass のマスターパスワード"
+  },
+  "addKeyFile": {
+    "message": "キーファイルを追加"
+  },
+  "keyFileUpload": {
+    "message": "キーファイルのアップロード"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX ファイルのアップロード"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "受け入れられる形式: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "データが正しい形式ではありません。インポートするファイルを確認してやり直してください。"
+  },
+  "kdbxWrongFileType": {
+    "message": "このファイルは有効な KeePass データベース (.kdbx) ではありません。.kdbx ファイルを選択して再度お試し下さい。"
+  },
+  "kdbxFileTooLarge": {
+    "message": "この KeePass データベースは大きすぎてインポートできません。"
+  },
   "exportSuccess": {
     "message": "保管庫データをエクスポートしました"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN のロックを解除"
-  },
-  "unlockWithBiometricSet": {
-    "message": "生体認証でロック解除を設定しました"
   },
   "authenticating": {
     "message": "認証中"
