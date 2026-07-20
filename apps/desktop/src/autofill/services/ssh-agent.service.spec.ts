@@ -810,3 +810,196 @@ describe("SshAgentService – list keys request", () => {
     }
   });
 });
+
+describe("SshAgentService – concurrent sign requests", () => {
+  let service: SshAgentService;
+  let signRequestSubject: Subject<Record<string, unknown>>;
+  let mockSignRequestResponse: jest.Mock;
+  let mockGetAllDecrypted: jest.Mock;
+
+  beforeEach(async () => {
+    signRequestSubject = new Subject();
+    mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
+    mockGetAllDecrypted = jest.fn();
+
+    (global as any).ipc = {
+      autofill: {
+        sshAgent: {
+          isLoaded: jest.fn().mockResolvedValue(false),
+          init: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue(undefined),
+          stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: mockSignRequestResponse,
+          listRequestResponse: jest.fn().mockResolvedValue(undefined),
+        },
+      },
+      platform: { focusWindow: jest.fn() },
+    };
+
+    service = new SshAgentService(
+      {
+        cipherViews$: jest.fn().mockReturnValue(of([])),
+        getAllDecrypted: mockGetAllDecrypted,
+      } as any,
+      { info: jest.fn(), error: jest.fn() } as any,
+      { open: jest.fn() } as any,
+      {
+        messages$: jest
+          .fn()
+          .mockImplementation((def: { command: string }) =>
+            def.command === SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST
+              ? signRequestSubject.asObservable()
+              : EMPTY,
+          ),
+      } as any,
+      {
+        activeAccountStatus$: of(AuthenticationStatus.Unlocked),
+        authStatusFor$: jest.fn().mockReturnValue(of(AuthenticationStatus.Unlocked)),
+      } as any,
+      { showToast: jest.fn() } as any,
+      { t: jest.fn().mockReturnValue("") } as any,
+      {
+        sshAgentEnabled$: of(true),
+        // Never: no dialog shown, signRequestResponse called immediately after decrypt.
+        sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
+      } as any,
+      { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+    );
+
+    await service.init();
+  });
+
+  afterEach(() => {
+    service.ngOnDestroy();
+    jest.clearAllMocks();
+  });
+
+  it("when two sign requests arrive before getAllDecrypted resolves, both receive signRequestResponse", async () => {
+    // Gate the first decryption behind a manually controlled promise so that the
+    // second request can arrive while the first is still in-flight through the pipeline.
+    let resolveFirstDecrypt!: (ciphers: CipherView[]) => void;
+    mockGetAllDecrypted
+      .mockReturnValueOnce(
+        new Promise<CipherView[]>((resolve) => {
+          resolveFirstDecrypt = resolve;
+        }),
+      )
+      .mockResolvedValue([]);
+
+    // Emit both requests before the pending getAllDecrypted resolves.
+    signRequestSubject.next({
+      cipherId: "c1",
+      requestId: 1,
+      processName: "",
+      namespace: "",
+      isAgentForwarding: false,
+      isListRequest: false,
+    });
+    signRequestSubject.next({
+      cipherId: "c1",
+      requestId: 2,
+      processName: "",
+      namespace: "",
+      isAgentForwarding: false,
+      isListRequest: false,
+    });
+    await flush();
+
+    // Release the first decryption. With concatMap, request 1 proceeds and request 2
+    // is queued. With switchMap (bug), request 1 was already cancelled and only request 2
+    // ever gets a response.
+    resolveFirstDecrypt([]);
+    await flush();
+    await flush();
+
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(1, true);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(2, true);
+  });
+});
+
+describe("SshAgentService – concurrent list keys requests", () => {
+  let service: SshAgentService;
+  let listKeysRequestSubject: Subject<Record<string, unknown>>;
+  let mockListRequestResponse: jest.Mock;
+  let mockGetAllDecrypted: jest.Mock;
+
+  beforeEach(async () => {
+    listKeysRequestSubject = new Subject();
+    mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
+    mockGetAllDecrypted = jest.fn();
+
+    (global as any).ipc = {
+      autofill: {
+        sshAgent: {
+          isLoaded: jest.fn().mockResolvedValue(false),
+          init: jest.fn().mockResolvedValue(undefined),
+          replace: jest.fn().mockResolvedValue(undefined),
+          stop: jest.fn().mockResolvedValue(undefined),
+          signRequestResponse: jest.fn().mockResolvedValue(undefined),
+          listRequestResponse: mockListRequestResponse,
+        },
+      },
+      platform: { focusWindow: jest.fn() },
+    };
+
+    service = new SshAgentService(
+      {
+        cipherViews$: jest.fn().mockReturnValue(of([])),
+        getAllDecrypted: mockGetAllDecrypted,
+      } as any,
+      { info: jest.fn(), error: jest.fn() } as any,
+      { open: jest.fn() } as any,
+      {
+        messages$: jest
+          .fn()
+          .mockImplementation((def: { command: string }) =>
+            def.command === SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST
+              ? listKeysRequestSubject.asObservable()
+              : EMPTY,
+          ),
+      } as any,
+      {
+        activeAccountStatus$: of(AuthenticationStatus.Unlocked),
+        authStatusFor$: jest.fn().mockReturnValue(of(AuthenticationStatus.Unlocked)),
+      } as any,
+      { showToast: jest.fn() } as any,
+      { t: jest.fn().mockReturnValue("") } as any,
+      {
+        sshAgentEnabled$: of(true),
+        sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
+      } as any,
+      { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+    );
+
+    await service.init();
+  });
+
+  afterEach(() => {
+    service.ngOnDestroy();
+    jest.clearAllMocks();
+  });
+
+  it("when two list requests arrive before getAllDecrypted resolves, both receive listRequestResponse", async () => {
+    let resolveFirstDecrypt!: (ciphers: CipherView[]) => void;
+    mockGetAllDecrypted
+      .mockReturnValueOnce(
+        new Promise<CipherView[]>((resolve) => {
+          resolveFirstDecrypt = resolve;
+        }),
+      )
+      .mockResolvedValue([]);
+
+    listKeysRequestSubject.next({ requestId: 1 });
+    listKeysRequestSubject.next({ requestId: 2 });
+    await flush();
+
+    resolveFirstDecrypt([]);
+    await flush();
+    await flush();
+
+    expect(mockListRequestResponse).toHaveBeenCalledWith(1, true);
+    expect(mockListRequestResponse).toHaveBeenCalledWith(2, true);
+  });
+});

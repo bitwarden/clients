@@ -15,6 +15,7 @@ import {
 } from "../models/autofill-ipc-channels";
 
 import AutofillIpcServer = autofill.AutofillIpcServer;
+import WindowHandleQueryResponse = autofill.WindowHandleQueryResponse;
 
 type BufferedMessage = {
   channel: string;
@@ -108,11 +109,27 @@ export class DesktopAutofillMain {
     );
     const nativeStatusCallback = this.makeListener(AutofillIpcChannelIncoming.NativeStatus);
 
+    const lockStatusCallback = this.makeListener(
+      AutofillIpcChannelIncoming.LockStatus,
+      AutofillIpcChannelOutgoing.LockStatus,
+      AutofillIpcServer.prototype.completeLockStatus,
+    );
+
+    // The window handle query only requires reading from main process, so no need to
+    // ping-pong between ipc->main->renderer-main->renderer->main->ipc. Use a
+    // method bound to this class instance instead of going through IPC.
+    const windowHandleQueryCallback = this.doWindowHandleQuery;
+
+    const cancelRequestCallback = this.makeListener(AutofillIpcChannelIncoming.CancelRequest);
+
     this.ipcServer = await AutofillIpcServer.listen("af", {
       registrationCallback,
       assertionCallback,
       assertionWithoutUserInterfaceCallback,
       nativeStatusCallback,
+      lockStatusCallback,
+      windowHandleQueryCallback,
+      cancelRequestCallback,
     });
 
     ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {
@@ -129,6 +146,33 @@ export class DesktopAutofillMain {
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
     });
   }
+
+  /**
+   * Responds to a window handle query.
+   *
+   * Declared as an arrow-function field so `this` stays bound when passed as an IPC callback.
+   */
+  private doWindowHandleQuery: Listener<void> = (error, clientId, sequenceNumber) => {
+    if (error) {
+      this.logService.error("[NativeAutofillMain]", "windowHandleQuery", error);
+      this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+      return;
+    }
+
+    const window = this.windowMain.win;
+    if (!window) {
+      this.logService.error("[NativeAutofillMain]", "windowHandleQuery: No window available");
+      this.ipcServer?.completeError(clientId, sequenceNumber, "No window available");
+      return;
+    }
+
+    const response: WindowHandleQueryResponse = {
+      isVisible: window.isVisible(),
+      isFocused: window.isFocused(),
+      handle: Array.from(window.getNativeWindowHandle()),
+    };
+    this.ipcServer?.completeWindowHandleQuery(clientId, sequenceNumber, response);
+  };
 
   /**
    * Creates a listener function for an autofill IPC request, and selects a Electron
