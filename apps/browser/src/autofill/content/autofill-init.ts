@@ -146,8 +146,7 @@ class AutofillInit implements AutofillInitInterface {
     message: AutofillExtensionMessage,
     sendDetailsInResponse = false,
   ): Promise<AutofillPageDetails | void> {
-    // Explicit request (key command, popup, background) — the user's intent must
-    // not depend on passive shadow DOM discovery having already succeeded.
+    // Explicit request must not depend on passive shadow DOM discovery.
     this.collectAutofillContentService.prepareForExplicitCollection();
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();

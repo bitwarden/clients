@@ -12,12 +12,7 @@ import {
   ShadowRootScanResult,
 } from "./abstractions/dom-query.service";
 
-type ScanVerdict =
-  | { branch: "shortCircuit"; foundNewRoot: false; unresolvedHosts: Set<Element> }
-  | { branch: "narrow"; foundNewRoot: boolean; unresolvedHosts: Set<Element> };
-
-// Bounds within-scan sink growth only; the persistent tracking cap (64) lives in
-// CollectAutofillContentService, which rotates overflow through a FIFO queue.
+// Bounds per-scan sink growth only; the persistent cap lives in the collector.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -95,12 +90,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
   }
 
-  /**
-   * Like {@link query} (tree-walker strategy), but also returns the un-hydrated
-   * custom-element hosts discovered during the same walk. Used by the initial
-   * collection pass, whose walk is the only enrollment source for hosts that
-   * predate observer attachment (they never surface as mutation candidates).
-   */
+  /** Like {@link query}, but also returns the un-hydrated custom-element hosts found in the walk. */
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,
     treeWalkerFilter: CallableFunction,
@@ -125,9 +115,8 @@ export class DomQueryService implements DomQueryServiceInterface {
     return this.pageContainsShadowDom;
   };
 
-  // User-initiated collection (key command, popup, context menu) must not depend
-  // on prior passive discovery — the invocation may be the page's first signal.
-  // Scans only while the latch is false, preserving the one-way ratchet.
+  // User-initiated collection may be the page's first signal; scan while the latch
+  // is false so it can't depend on prior passive discovery (ratchet preserved).
   refreshShadowDomStateForUserRequest = (): void => {
     if (!this.pageContainsShadowDom) {
       this.updatePageContainsShadowDom();
@@ -159,34 +148,21 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Scans the given candidate subtrees for unobserved shadow roots. The scan is
-   * exhaustive: `unresolvedHosts` collects every connected custom element (dash in
-   * tag name) with no shadow root yet, so the caller can re-scan them once lazy
-   * hydration attaches one.
-   * @param addedElements - candidate subtrees to scan for unobserved roots
-   * @returns `foundNewRoot` (flips the latch on first post-init() find) and the
-   * `unresolvedHosts` set discovered during the same walk.
+   * Exhaustively scans candidate subtrees for unobserved shadow roots. `foundNewRoot`
+   * flips the latch on the first post-init() find; `unresolvedHosts` collects the
+   * still-shadow-less custom elements so the caller can re-scan them after hydration.
    */
   checkForNewShadowRoots = (addedElements?: Element[]): ShadowRootScanResult => {
-    const verdict = this.classifyShadowRootScan(addedElements);
-    if (verdict.foundNewRoot && !this.pageContainsShadowDom) {
+    const unresolvedHosts = new Set<Element>();
+    // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
+    if (!addedElements?.length) {
+      return { foundNewRoot: false, unresolvedHosts };
+    }
+    const foundNewRoot = this.findNewShadowRootInBatch(addedElements, unresolvedHosts);
+    if (foundNewRoot && !this.pageContainsShadowDom) {
       this.markShadowDomPresent();
     }
-    return { foundNewRoot: verdict.foundNewRoot, unresolvedHosts: verdict.unresolvedHosts };
-  };
-
-  // Owns the unresolvedHosts accumulator; threads it through the (private) recursion
-  // rather than allocating per visited node, then hands it back via the verdict.
-  private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
-    const unresolvedHosts = new Set<Element>();
-    const hasAddedElements = !!addedElements && addedElements.length > 0;
-    // No added elements ⇒ nothing to discover; never escalate to a full-document walk
-    // (re-pierces known roots, O(document)). A batch is scanned even with latch false.
-    if (!hasAddedElements) {
-      return { branch: "shortCircuit", foundNewRoot: false, unresolvedHosts };
-    }
-    const foundNewRoot = this.findNewShadowRootInBatch(addedElements!, unresolvedHosts);
-    return { branch: "narrow", foundNewRoot, unresolvedHosts };
+    return { foundNewRoot, unresolvedHosts };
   };
 
   private findNewShadowRootInBatch = (
@@ -427,8 +403,6 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
   // read-only. See https://dom.spec.whatwg.org/#dom-element-attachshadow.
-  // `unresolvedHosts` is a caller-owned accumulator threaded through the recursion;
-  // the scan is exhaustive (no early exit) so the accumulator ends up complete.
   private scanForNewShadowRootInSubtree = (
     subtree: Element | ShadowRoot,
     depth: number,
@@ -453,8 +427,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     return found;
   };
 
-  /** @returns true when the element hosts an unobserved root, directly or transitively.
-   * Accumulates un-hydrated custom-element hosts into `unresolvedHosts` as it descends. */
+  /** @returns true when the element hosts an unobserved root, directly or transitively. */
   private visitShadowHostCandidate = (
     element: Element,
     depth: number,
@@ -633,10 +606,8 @@ export class DomQueryService implements DomQueryServiceInterface {
       if (nodeIsElement(currentNode)) {
         const el = currentNode as Element;
         let nodeShadowRoot: ShadowRoot | null = null;
-        // Only probe for a shadow root when the page is known to have shadow DOM.
-        // Fast path: element.shadowRoot for open roots, free on any element type.
-        // Fall back to the extension API (chrome.dom.openOrClosedShadowRoot) for
-        // closed roots on any host element.
+        // Probe only when shadow DOM is known present: `el.shadowRoot` (open) then
+        // the extension API (chrome.dom.openOrClosedShadowRoot) for closed roots.
         if (this.pageContainsShadowDom) {
           nodeShadowRoot = el.shadowRoot ?? this.getShadowRoot(currentNode);
         }
@@ -663,8 +634,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           el.tagName.includes("-") &&
           !el.shadowRoot
         ) {
-          // Hosts that predate observer attachment never appear as mutation
-          // candidates; the collection walk is their only enrollment source.
+          // Only enrollment source for hosts that predate observer attachment.
           unresolvedHosts.add(el);
         }
       }

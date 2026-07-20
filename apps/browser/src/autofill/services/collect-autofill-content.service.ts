@@ -90,22 +90,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingMutationAddedElementsOverflowed = false;
   // Caps the batch handed to suppressDescendantsInBatch; on cap the kept set is scanned incrementally.
   private readonly pendingMutationAddedElementsCap = 256;
-  // Custom elements scanned while still shadow-less (lazy hydration attaches the
-  // root after the candidate window closes, emitting no observable mutations).
-  // Value = wall-clock deadline (Date.now epoch ms) after which the host is
-  // written off as never hydrating.
+  // Shadow-less custom elements awaiting lazy hydration (attachShadow after the
+  // candidate window closes emits no mutation). Value = deadline (epoch ms).
   private unresolvedShadowHosts: Map<Element, number> = new Map();
   private expiredShadowHostCandidates = new WeakSet<Element>();
   private unresolvedShadowHostRetryTimeout: NodeJS.Timeout | number | null = null;
   private unresolvedShadowHostRetryRound = 0;
-  // Wall-clock lifetime, deliberately not a scan count: page churn triggers extra
-  // scans (observed: 6 in ~2s on busy pages), so a scan budget burns at mutation
-  // rate. A deadline keeps coverage independent of page activity.
+  // A deadline, not a scan count: coverage stays independent of page churn.
   private readonly unresolvedShadowHostLifetimeMs = 30000;
   private readonly unresolvedShadowHostRetryCapMs = 8000;
-  // The tracked map is persistent and re-scanned until its deadline, so its cap
-  // must be tighter than the one-shot 256 pending intake. Overflow rotates FIFO
-  // so tree-order bias degrades to delay, not starvation.
+  // Tighter than the one-shot 256 intake; overflow rotates FIFO (delay, not starvation).
   private readonly unresolvedShadowHostTrackingCap = 64;
   private unresolvedShadowHostOverflow: Element[] = [];
   private readonly unresolvedShadowHostOverflowCap = 192;
@@ -210,8 +204,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.autofillFieldElements.clear();
     this.autofillFieldsByOpid.clear();
     this.elementInitializingIntersectionObserver.clear();
-    // Late-hydration shadow-host tracking is monitoring-scoped; clear it so a future
-    // startMonitoring() begins against the current page rather than stale deadlines.
+    // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
     if (this.unresolvedShadowHostRetryTimeout) {
       clearTimeout(this.unresolvedShadowHostRetryTimeout);
       this.unresolvedShadowHostRetryTimeout = null;
@@ -236,9 +229,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {Promise<AutofillPageDetails>}
    * @public
    */
-  // Explicit user request (key command, popup, context menu): refresh the shadow
-  // DOM latch and, when the cached answer is "no fields" or shadow hosts are still
-  // unresolved, force a fresh query. Cached populated results stay served.
+  // Explicit request: refresh the latch and force a fresh query when the cache is
+  // "no fields" or hosts are unresolved; cached populated results stay served.
   prepareForExplicitCollection = () => {
     this.domQueryService.refreshShadowDomStateForUserRequest();
     if (
@@ -1398,9 +1390,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const formElements: HTMLFormElement[] = [];
     const formFieldElements: FormFieldElement[] = [];
 
-    // Hosts rendered before the observer attached produce no mutation candidates;
-    // the collection walk is their only path into the unresolved pipeline, so this
-    // path surfaces them alongside the matched form/field elements.
+    // The collection walk is the only enrollment path for hosts that predate the observer.
     const { elements: queriedElements, unresolvedHosts } =
       this.domQueryService.queryWithUnresolvedShadowHosts<HTMLElement>(
         globalThis.document.documentElement,
@@ -1733,8 +1723,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         batch.push(element);
       }
     }
-    // Re-scan hosts still awaiting lazy hydration; their attachShadow emits no
-    // mutation records, so the original candidate window is the last signal we get.
+    // Re-scan hosts awaiting hydration; their attachShadow emits no mutation record.
     for (const element of this.unresolvedShadowHosts.keys()) {
       if (element.isConnected && !this.pendingMutationAddedElements.has(element)) {
         batch.push(element);
@@ -1748,9 +1737,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.trackUnresolvedShadowHosts(unresolvedHosts);
   };
 
-  // Rebuilt from the sink each scan: hosts that hydrated or disconnected drop out
-  // naturally; persistent ones carry their original deadline; expired ones are
-  // tombstoned in the WeakSet so a later sink can't resurrect them.
+  // Single source of the admission rule: deadline map under cap, else FIFO overflow.
+  private admitUnresolvedHost(element: Element, expiresAt: number) {
+    if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
+      this.unresolvedShadowHosts.set(element, expiresAt);
+    } else if (this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap) {
+      this.unresolvedShadowHostOverflow.push(element);
+    }
+  }
+
+  // Rebuilt from the sink each scan: hydrated/disconnected hosts drop out; survivors
+  // keep their original deadline; expired ones are tombstoned against resurrection.
   private trackUnresolvedShadowHosts(scannedUnresolvedHosts: Set<Element>) {
     const previousDeadlines = this.unresolvedShadowHosts;
     this.unresolvedShadowHosts = new Map();
@@ -1762,9 +1759,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
       const tagName = element.tagName.toLowerCase();
-      // Registry checks (customElements.get/whenDefined) are realm-scoped and the
-      // content script's isolated-world registry never sees page definitions.
-      // `:defined` reflects shared DOM state — the only cross-world signal.
+      // The isolated-world registry never sees page definitions; `:defined` reflects
+      // shared DOM state and is the only cross-world signal for upgrade.
       if (!element.matches(":defined")) {
         this.parkHostAwaitingDefinition(tagName, element);
         continue;
@@ -1777,17 +1773,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.expiredShadowHostCandidates.add(element);
         continue;
       }
-      if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-        this.unresolvedShadowHosts.set(element, expiresAt);
-      } else if (this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap) {
-        this.unresolvedShadowHostOverflow.push(element);
-      }
+      this.admitUnresolvedHost(element, expiresAt);
     }
 
     this.drainShadowHostOverflow();
 
-    // Resetting on any candidate capture would pin the retry at the 500 ms floor on
-    // pages that continuously insert custom elements; only new work restarts backoff.
+    // Only new work restarts backoff; otherwise churn would pin it at the floor.
     if (sinkHasNewHost) {
       this.unresolvedShadowHostRetryRound = 0;
     }
@@ -1796,6 +1787,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private drainShadowHostOverflow() {
+    const now = Date.now();
     while (
       this.unresolvedShadowHostOverflow.length > 0 &&
       this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap
@@ -1807,15 +1799,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         !this.expiredShadowHostCandidates.has(element) &&
         !this.unresolvedShadowHosts.has(element)
       ) {
-        this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
+        // while-guard keeps size < cap, so admit always seats in the map here.
+        this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
       }
     }
   }
 
-  // Page-world `customElements.define` is invisible to this realm, but the upgrade
-  // flips `:defined` on the shared element — sweep for that flip instead.
+  // Sweep parked hosts for the `:defined` flip the cross-realm `define` won't signal.
   private enrollUpgradedParkedHosts() {
     let enrolled = false;
+    const now = Date.now();
     for (const [tagName, hosts] of this.hostsAwaitingDefinition) {
       for (const element of hosts) {
         if (!element.isConnected) {
@@ -1827,13 +1820,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         }
         hosts.delete(element);
         enrolled = true;
-        if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-          this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
-        } else if (
-          this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap
-        ) {
-          this.unresolvedShadowHostOverflow.push(element);
-        }
+        this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
       }
       if (hosts.size === 0) {
         this.hostsAwaitingDefinition.delete(tagName);
@@ -1870,9 +1857,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.unresolvedShadowHostRetryRound = 0;
       return;
     }
-    // Exponential backoff; per-element deadlines bound total work even when
-    // fresh mutation windows keep resetting the round. Parked-only state has
-    // nothing to scan — just sweep `:defined` at the cap cadence.
+    // Exponential backoff (deadlines bound total work). Parked-only: sweep at cap cadence.
     const delay =
       this.unresolvedShadowHosts.size === 0
         ? this.unresolvedShadowHostRetryCapMs
@@ -1887,9 +1872,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }, delay);
   }
 
-  // Undefined tags have an exact event (whenDefined), so they pay no polling
-  // budget; the budget is reserved for defined tags (lazy-hydrating proxies)
-  // where no such event exists.
+  // Undefined tags have an exact event (whenDefined), so they pay no polling budget.
   private hookCustomElementDefinition(tagName: string) {
     if (this.hookedCustomElementTags.has(tagName) || !globalThis.customElements) {
       return;
@@ -1911,16 +1894,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
     let enrolled = false;
+    const now = Date.now();
     for (const element of parked) {
       if (!element.isConnected) {
         continue;
       }
       enrolled = true;
-      if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-        this.unresolvedShadowHosts.set(element, Date.now() + this.unresolvedShadowHostLifetimeMs);
-      } else if (this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap) {
-        this.unresolvedShadowHostOverflow.push(element);
-      }
+      this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
     }
     if (enrolled) {
       // Upgrade runs attachShadow soon after definition; check at base delay.
@@ -1929,10 +1909,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  // Residual gap: a plain (non-custom) element added empty and given
-  // `attachShadow()` later never qualifies as a candidate and emits no further
-  // observable mutations. Custom elements in the same situation are covered by
-  // the bounded re-scans in `unresolvedShadowHosts`.
+  // Residual gap: a plain (non-custom) element given `attachShadow()` later is never
+  // a candidate and emits no mutation. Custom elements are covered by the re-scans.
   private collectAddedShadowRootCandidates(mutations: MutationRecord[]) {
     if (this.pendingMutationAddedElementsOverflowed) {
       return;

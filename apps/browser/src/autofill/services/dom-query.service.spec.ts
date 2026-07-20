@@ -674,47 +674,40 @@ describe("DomQueryService", () => {
       expect(result.foundNewRoot).toBe(true);
     });
 
-    describe("classifyShadowRootScan (pure classifier)", () => {
-      it("returns shortCircuit verdict when latch is false and no added elements", () => {
+    describe("batch gating", () => {
+      it("short-circuits with an empty result when no added elements are given", () => {
         domQueryService["pageContainsShadowDom"] = false;
 
-        const verdict = domQueryService["classifyShadowRootScan"]();
+        const result = domQueryService.checkForNewShadowRoots();
 
-        expect(verdict).toEqual({
-          branch: "shortCircuit",
-          foundNewRoot: false,
-          unresolvedHosts: new Set(),
-        });
+        expect(result).toEqual({ foundNewRoot: false, unresolvedHosts: new Set() });
       });
 
-      it("returns a narrow verdict (not shortCircuit) when addedElements is non-empty even with latch false", () => {
+      it("scans a non-empty batch even with the latch false (sinks the un-hydrated host)", () => {
         domQueryService["pageContainsShadowDom"] = false;
         const host = document.createElement("custom-element");
-
-        const verdict = domQueryService["classifyShadowRootScan"]([host]);
-
-        expect(verdict.branch).toBe("narrow");
-      });
-
-      it("returns shortCircuit on an empty batch even with the latch true (no full-document walk)", () => {
-        domQueryService["pageContainsShadowDom"] = true;
-
-        const verdict = domQueryService["classifyShadowRootScan"]([]);
-
-        expect(verdict).toEqual({
-          branch: "shortCircuit",
-          foundNewRoot: false,
-          unresolvedHosts: new Set(),
-        });
-      });
-
-      it("does not mutate pageContainsShadowDom", () => {
-        domQueryService["pageContainsShadowDom"] = false;
-        const host = document.createElement("custom-element");
-        host.attachShadow({ mode: "open" });
         document.body.appendChild(host);
 
-        domQueryService["classifyShadowRootScan"]([host]);
+        const result = domQueryService.checkForNewShadowRoots([host]);
+
+        // A scan (not a short-circuit) surfaces the bare custom-element host.
+        expect(result.unresolvedHosts).toEqual(new Set([host]));
+      });
+
+      it("short-circuits on an empty batch even with the latch true (no full-document walk)", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+
+        const result = domQueryService.checkForNewShadowRoots([]);
+
+        expect(result).toEqual({ foundNewRoot: false, unresolvedHosts: new Set() });
+      });
+
+      it("leaves the latch untouched when a scan finds no new root", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const host = document.createElement("custom-element");
+        document.body.appendChild(host);
+
+        domQueryService.checkForNewShadowRoots([host]);
 
         expect(domQueryService["pageContainsShadowDom"]).toBe(false);
       });
