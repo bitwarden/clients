@@ -10,6 +10,7 @@ import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,
   CollectionAssignmentResult,
+  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -17,7 +18,14 @@ import {
 @Component({
   standalone: true,
   templateUrl: "./assign-collections-desktop.component.html",
-  imports: [AssignCollectionsComponent, PluralizePipe, DialogModule, ButtonModule, I18nPipe],
+  imports: [
+    AssignCollectionsComponent,
+    PluralizePipe,
+    DialogModule,
+    ButtonModule,
+    I18nPipe,
+    Vfo1I18nPipe,
+  ],
 })
 export class AssignCollectionsDesktopComponent {
   protected editableItemCount: number;
