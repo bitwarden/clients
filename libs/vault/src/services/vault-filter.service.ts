@@ -53,6 +53,8 @@ import {
   OrganizationFilter,
 } from "..";
 
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
+
 const NestingDelimiter = "/";
 
 @Injectable()
@@ -211,6 +213,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected collectionService: CollectionService,
     protected accountService: AccountService,
     protected configService: ConfigService,
+    protected vfo1Terminology: Vfo1TerminologyService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -358,7 +361,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected getCollectionFilterHead(): TreeNode<CollectionFilter> {
     const head = CollectionView.vaultFilterHead() as CollectionFilter;
-    return new TreeNode<CollectionFilter>(head, null, "collections", "AllCollections");
+    const name = this.vfo1Terminology.enabled() ? "sharedFolders" : "collections";
+    return new TreeNode<CollectionFilter>(head, null, name, "AllCollections");
   }
 
   protected async filterFolders(
@@ -401,7 +405,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected getFolderFilterHead(): TreeNode<FolderFilter> {
     const head = new FolderView() as FolderFilter;
-    return new TreeNode<FolderFilter>(head, null, "folders", "AllFolders");
+    const name = this.vfo1Terminology.enabled() ? "myFolders" : "folders";
+    return new TreeNode<FolderFilter>(head, null, name, "AllFolders");
   }
 
   protected buildCipherTypeTree(): Observable<TreeNode<CipherTypeFilter>> {
