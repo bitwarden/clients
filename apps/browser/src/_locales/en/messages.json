@@ -5608,6 +5608,12 @@
   "assignToSharedFolders": {
     "message": "Assign to shared folders"
   },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
   "copyEmail": {
     "message": "Copy email"
   },
