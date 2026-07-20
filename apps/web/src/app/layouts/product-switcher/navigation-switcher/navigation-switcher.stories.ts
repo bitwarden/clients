@@ -340,6 +340,9 @@ const RealisticTemplate: StoryObj<
             <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
+          <ng-container slot="footer">
+            Some footer content goes in here
+          </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
       </bit-layout>

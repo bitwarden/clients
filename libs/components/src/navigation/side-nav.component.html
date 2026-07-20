@@ -16,7 +16,7 @@
     [cdkTrapFocus]="isOverlay"
     [attr.aria-label]="isOverlay ? ('sideNavigation' | i18n) : null"
   >
-    <nav
+    <div
       id="bit-side-nav"
       [attr.data-nav-version]="version()"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
@@ -27,45 +27,30 @@
           : ''
       "
       (keydown)="handleKeyDown($event)"
-      [attr.aria-label]="'sideNavigation' | i18n"
     >
       <div
         class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none"
         style="container-type: size"
       >
         <div class="tw-flex tw-flex-col tw-min-h-full">
-          <div class="tw-flex-1">
+          <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
             <ng-container *ngTemplateOutlet="logoContent"></ng-container>
-            <div
-              class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
-            >
+            <div class="tw-w-full tw-bg-bg-nav">
               <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
             </div>
             <ng-container *ngTemplateOutlet="navContent"></ng-container>
+          </nav>
+          <div
+            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+          >
+            <bit-nav-divider></bit-nav-divider>
+            @if (open) {
+              <ng-container *ngTemplateOutlet="footerContent"></ng-container>
+            }
           </div>
         </div>
       </div>
-      <div class="tw-w-full tw-bg-bg-nav">
-        <bit-nav-divider></bit-nav-divider>
-        @if (open) {
-          <ng-container *ngTemplateOutlet="footerContent"></ng-container>
-        }
-        <div class="tw-m-4">
-          <button
-            #toggleButton
-            type="button"
-            class="tw-mx-auto tw-block"
-            [bitIconButton]="open ? 'bwi-angle-left' : 'bwi-angle-right'"
-            buttonType="side-nav"
-            size="small"
-            (click)="sideNavService.toggle()"
-            [label]="'toggleSideNavigation' | i18n"
-            [attr.aria-expanded]="open"
-            aria-controls="bit-side-nav"
-          ></button>
-        </div>
-      </div>
-    </nav>
+    </div>
     <div
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
