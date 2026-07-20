@@ -317,7 +317,7 @@
         @if (showAssignToCollections) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
             <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-            {{ "assignToCollections" | i18n }}
+            {{ "assignToCollections" | vfo1I18n: "assignToSharedFolders" }}
           </button>
         }
         @if (showEventLogs) {
