@@ -1,13 +1,16 @@
-import { computed, inject, Injectable, Signal } from "@angular/core";
+import { inject, Injectable, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-/** Collection icon shown when the VFO1 terminology flag is off. */
-const LEGACY_COLLECTION_ICON = "bwi-collection-shared";
-/** Collection ("shared folder") icon shown when the VFO1 terminology flag is on. */
-const SHARED_FOLDER_ICON = "bwi-shared-folder";
+/**
+ * Legacy icon class → VFO1 replacement, applied when the terminology flag is on.
+ * Icon classes not present here are returned unchanged.
+ */
+const VFO1_ICON_MAP: Readonly<Record<string, string>> = Object.freeze({
+  "bwi-collection-shared": "bwi-shared-folder",
+});
 
 @Injectable({ providedIn: "root" })
 export class Vfo1TerminologyService {
@@ -18,10 +21,11 @@ export class Vfo1TerminologyService {
   );
 
   /**
-   * The icon class to use for collections. Switches to the "shared folder" icon when the
-   * terminology flag is on. Text terms are handled separately by the `vfo1I18n` pipe.
+   * Returns the VFO1 replacement for `iconClass` when the terminology flag is on, otherwise
+   * `iconClass` unchanged. Icon classes without a mapping are passed through as-is.
+   * Text terms are handled separately by the `vfo1I18n` pipe.
    */
-  readonly collectionIconClass: Signal<string> = computed(() =>
-    this.enabled() ? SHARED_FOLDER_ICON : LEGACY_COLLECTION_ICON,
-  );
+  iconClass(iconClass: string): string {
+    return this.enabled() ? (VFO1_ICON_MAP[iconClass] ?? iconClass) : iconClass;
+  }
 }
