@@ -2,9 +2,12 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
@@ -48,10 +51,36 @@ export class NewItemPageComponent {
     { initialValue: undefined },
   );
 
+  /**
+   * Whether a cipher can be created for the organization referenced by `organizationId`.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected readonly canCreateCipher = toSignal(
+    combineLatest([
+      this.accountService.activeAccount$.pipe(getUserId),
+      this.route.queryParams.pipe(switchMap(async (p) => p["organizationId"] as OrganizationId)),
+    ]).pipe(
+      switchMap(([userId, organizationId]) =>
+        this.organizationService.organizations$(userId).pipe(
+          map((organizations) => {
+            if (!organizationId) {
+              return true;
+            }
+            const organization = organizations.find((o) => o.id === organizationId);
+            return !organization || organization.enabled;
+          }),
+        ),
+      ),
+    ),
+    { initialValue: true },
+  );
+
   constructor(
     private readonly dialogService: DialogService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly organizationService: OrganizationService,
+    private readonly accountService: AccountService,
   ) {}
 
   protected async onItemSelected(item: AddItemGridResult): Promise<void> {
@@ -65,6 +94,11 @@ export class NewItemPageComponent {
     }
 
     if (item.result !== AddItemGridResult.Cipher) {
+      return;
+    }
+
+    if (!this.canCreateCipher()) {
+      // The organization is suspended and cannot have new items saved to it.
       return;
     }
 

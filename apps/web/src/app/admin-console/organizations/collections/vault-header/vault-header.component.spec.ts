@@ -333,6 +333,13 @@ describe("VaultHeaderComponent", () => {
       setInputs({ organization: makeOrg({ isProviderUser: true, isMember: true }) });
       expect((component as any).canCreateCipher()).toBe(true);
     });
+
+    it("returns false when the organization is suspended (disabled)", () => {
+      setInputs({
+        organization: makeOrg({ enabled: false, isProviderUser: false, isMember: true }),
+      });
+      expect((component as any).canCreateCipher()).toBe(false);
+    });
   });
 
   describe("handleAddCipher", () => {

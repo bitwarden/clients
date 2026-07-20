@@ -9,6 +9,7 @@ export { AddItemGridResult as AddItemDialogResult } from "../add-item-grid/add-i
 export type AddItemDialogCloseResult = AddItemGridResult;
 
 export type AddItemDialogData = {
+  canCreateCipher?: boolean;
   canCreateFolder: boolean;
   canCreateCollection: boolean;
   canCreateSshKey: boolean;

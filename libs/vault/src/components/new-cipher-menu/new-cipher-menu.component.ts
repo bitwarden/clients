@@ -17,6 +17,7 @@ import {
   PopoverComponent,
   PopoverModule,
   PositionIdentifier,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -25,7 +26,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "vault-new-cipher-menu",
   templateUrl: "new-cipher-menu.component.html",
-  imports: [ButtonModule, CommonModule, MenuModule, PopoverModule, I18nPipe, JslibModule],
+  imports: [
+    ButtonModule,
+    CommonModule,
+    MenuModule,
+    PopoverModule,
+    I18nPipe,
+    JslibModule,
+    TooltipDirective,
+  ],
 })
 export class NewCipherMenuComponent {
   readonly canCreateCipher = input(false);
@@ -34,6 +43,12 @@ export class NewCipherMenuComponent {
   readonly canCreateSshKey = input(false);
   readonly icon = input<BitwardenIcon>("bwi-plus");
   readonly buttonType = input<ButtonType>("primary");
+
+  /**
+   * When `true`, the "New" button is rendered in a disabled state, e.g. because the
+   * organization is suspended and nothing can be created until it's reinstated.
+   */
+  readonly disabled = input(false);
 
   /** Optional popover to anchor to the "New" button for coachmark tours */
   readonly coachmarkPopover = input<PopoverComponent>();

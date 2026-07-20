@@ -30,12 +30,16 @@ describe("AddItemGridComponent", () => {
   });
 
   function createComponent(inputs: {
+    canCreateCipher?: boolean;
     canCreateFolder: boolean;
     canCreateCollection: boolean;
     canCreateSshKey: boolean;
   }) {
     fixture = TestBed.createComponent(AddItemGridComponent);
     component = fixture.componentInstance;
+    if (inputs.canCreateCipher !== undefined) {
+      fixture.componentRef.setInput("canCreateCipher", inputs.canCreateCipher);
+    }
     fixture.componentRef.setInput("canCreateFolder", inputs.canCreateFolder);
     fixture.componentRef.setInput("canCreateCollection", inputs.canCreateCollection);
     fixture.componentRef.setInput("canCreateSshKey", inputs.canCreateSshKey);
@@ -74,6 +78,21 @@ describe("AddItemGridComponent", () => {
 
     const items = component["items"]();
     expect(items.map((i) => i.labelKey)).not.toContain("typeSshKey");
+  });
+
+  it("hides all cipher types when canCreateCipher=false, e.g. because the organization is suspended", () => {
+    createComponent({
+      canCreateCipher: false,
+      canCreateFolder: true,
+      canCreateCollection: true,
+      canCreateSshKey: true,
+    });
+
+    const items = component["items"]();
+    expect(items.map((i) => i.labelKey)).not.toEqual(
+      expect.arrayContaining(["typeLogin", "typeCard", "typeSshKey"]),
+    );
+    expect(items.map((i) => i.labelKey)).toEqual(expect.arrayContaining(["folder", "collection"]));
   });
 
   it("shows folder when canCreateFolder=true", () => {

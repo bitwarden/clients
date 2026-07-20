@@ -250,7 +250,17 @@ export class VaultHeaderComponent {
   }
 
   get canCreateCipher(): boolean {
-    return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
+    const activeOrganization = this.activeOrganization;
+    if (activeOrganization && !activeOrganization.enabled) {
+      return false;
+    }
+    return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
+  }
+
+  /** Whether the "New" button should be disabled because the active organization is suspended. */
+  get isOrganizationSuspended(): boolean {
+    const activeOrganization = this.activeOrganization;
+    return !!activeOrganization && !activeOrganization.enabled;
   }
 
   deleteCollection() {

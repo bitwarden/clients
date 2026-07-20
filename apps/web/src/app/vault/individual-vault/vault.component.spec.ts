@@ -510,4 +510,46 @@ describe("VaultComponent", () => {
       expect(config.data.organizationId).toBe("org-1");
     });
   });
+
+  describe("addCipher", () => {
+    const buildOrg = (id: string, overrides: Partial<Organization> = {}) =>
+      ({
+        id,
+        name: id,
+        enabled: true,
+        ...overrides,
+      }) as Organization;
+
+    it("opens the vault item dialog when the target organization is enabled", async () => {
+      (component as any).allOrganizations = [buildOrg("org-1", { enabled: true })];
+      component.activeFilter = { organizationId: "org-1" } as unknown as VaultFilter;
+
+      // The dialog's `closed` observable never emits in this test setup, so avoid
+      // awaiting the full `addCipher()` call (which awaits dialog closure) and instead
+      // flush pending microtasks until the dialog has been opened.
+      void component.addCipher();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+    });
+
+    it("opens the vault item dialog when no organization is selected (individual vault)", async () => {
+      (component as any).allOrganizations = [];
+      component.activeFilter = { organizationId: "MyVault" } as unknown as VaultFilter;
+
+      void component.addCipher();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+    });
+
+    it("does NOT open the vault item dialog when the target organization is suspended (disabled)", async () => {
+      (component as any).allOrganizations = [buildOrg("org-1", { enabled: false })];
+      component.activeFilter = { organizationId: "org-1" } as unknown as VaultFilter;
+
+      await component.addCipher();
+
+      expect(openVaultItemDialogSpy).not.toHaveBeenCalled();
+    });
+  });
 });
