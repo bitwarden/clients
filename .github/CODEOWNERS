@@ -207,6 +207,7 @@ apps/desktop/src/services/encrypted-message-handler.service.ts   @bitwarden/team
 .github/workflows/chromatic.yml                                  @bitwarden/team-ui-foundation
 .storybook                                                       @bitwarden/team-ui-foundation
 libs/components                                                  @bitwarden/team-ui-foundation
+libs/storybook                                                   @bitwarden/team-ui-foundation
 libs/assets                                                      @bitwarden/team-ui-foundation
 libs/ui                                                          @bitwarden/team-ui-foundation
 libs/angular/src/scss                                            @bitwarden/team-ui-foundation

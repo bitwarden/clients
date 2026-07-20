@@ -2,8 +2,8 @@ import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils";
 
 import { ColorPasswordComponent } from "./color-password.component";

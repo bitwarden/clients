@@ -3,6 +3,7 @@ import { Router, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -12,7 +13,6 @@ import { I18nMockService } from "../utils";
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 @Component({
   template: /*html*/ ` <div class="tw-mt-5">Some really cool content for {{ currentUrl }}</div> `,
   changeDetection: ChangeDetectionStrategy.OnPush,

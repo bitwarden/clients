@@ -10,6 +10,8 @@ const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
   stories: [
+    "../libs/storybook/src/**/*.mdx",
+    "../libs/storybook/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/auth/src/**/*.mdx",
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
