@@ -2,10 +2,14 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   RestrictedCipherType,
@@ -30,6 +34,7 @@ describe("NewItemPageComponent", () => {
 
   let navigate: jest.SpyInstance;
   let queryParams$: BehaviorSubject<Record<string, string>>;
+  let organizationService: MockProxy<OrganizationService>;
 
   beforeEach(async () => {
     restrictedItemTypesServiceMock = {
@@ -44,6 +49,9 @@ describe("NewItemPageComponent", () => {
 
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
 
+    organizationService = mock<OrganizationService>();
+    organizationService.organizations$.mockReturnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [NewItemPageComponent, RouterTestingModule],
       providers: [
@@ -52,6 +60,11 @@ describe("NewItemPageComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesServiceMock },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        { provide: OrganizationService, useValue: organizationService },
+        {
+          provide: AccountService,
+          useValue: mockAccountServiceWith("user-1" as UserId),
+        },
       ],
     }).compileComponents();
 
@@ -68,6 +81,34 @@ describe("NewItemPageComponent", () => {
     expect(newItemGrid().componentInstance.canCreateSshKey()).toBe(true);
     expect(newItemGrid().componentInstance.canCreateFolder()).toBe(true);
     expect(newItemGrid().componentInstance.canCreateCollection()).toBe(false);
+    expect(newItemGrid().componentInstance.canCreateCipher()).toBe(true);
+  });
+
+  describe("canCreateCipher", () => {
+    it("is true when no organizationId is set", async () => {
+      await fixture.whenStable();
+      expect((fixture.componentInstance as any).canCreateCipher()).toBe(true);
+    });
+
+    it("is true when the target organization is enabled", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "org-1", enabled: true } as any]),
+      );
+      queryParams$.next({ organizationId: "org-1" });
+      await fixture.whenStable();
+
+      expect((fixture.componentInstance as any).canCreateCipher()).toBe(true);
+    });
+
+    it("is false when the target organization is suspended (disabled)", async () => {
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "org-1", enabled: false } as any]),
+      );
+      queryParams$.next({ organizationId: "org-1" });
+      await fixture.whenStable();
+
+      expect((fixture.componentInstance as any).canCreateCipher()).toBe(false);
+    });
   });
 
   describe("onItemSelected", () => {
@@ -122,6 +163,21 @@ describe("NewItemPageComponent", () => {
         const navigateCall = navigate.mock.calls[0];
         const queryParams = navigateCall[1].queryParams;
         expect(queryParams.prefillNameAndURIFromTab).toBeUndefined();
+      });
+
+      it("does not navigate when canCreateCipher is false, e.g. because the organization is suspended", async () => {
+        organizationService.organizations$.mockReturnValue(
+          of([{ id: "org-1", enabled: false } as any]),
+        );
+        queryParams$.next({ organizationId: "org-1" });
+        await fixture.whenStable();
+
+        newItemGrid().triggerEventHandler("itemSelected", {
+          result: AddItemGridResult.Cipher,
+          cipherType: CipherType.SecureNote,
+        });
+
+        expect(navigate).not.toHaveBeenCalled();
       });
 
       it("passes folderId, organizationId, and collectionId from route params", async () => {
