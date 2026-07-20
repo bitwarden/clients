@@ -38,6 +38,11 @@ export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
 export * from "./components/vault-items-transfer";
 export { VaultItem } from "./components/vault-item";
+export { VaultOrganizationUserNotificationsComponent } from "./components/vault-organization-user-notifications/vault-organization-user-notifications.component";
+export {
+  VaultOrganizationUserNotificationsService,
+  OrganizationUserNotificationBannerData,
+} from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
@@ -58,6 +63,7 @@ export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstracti
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export * from "./services/bulk-delete.service";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
@@ -86,5 +92,15 @@ export {
   BulkDeleteDialogResult,
 } from "./tokens/bulk-delete-dialog.token";
 
+export {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+  BulkEditCollectionAccessParams,
+  BulkEditCollectionAccessResult,
+} from "./tokens/bulk-edit-collection-access-dialog.token";
+
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
+
+export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
+export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";

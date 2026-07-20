@@ -623,6 +623,10 @@ export class AppComponent implements OnInit, OnDestroy {
             desktopAddDevices: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
             ),
+            // TODO: PM-34580 - remove pm32009NewItemTypes flag read and MenuAccount field population
+            pm32009NewItemTypes: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+            ),
           };
         }
       }
@@ -744,11 +748,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
       // Provide the userId of the user to upload events for
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
-      await this.keyService.clearKeys(userBeingLoggedOut);
+
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
       await this.pinService.logout(userBeingLoggedOut);
+
+      await this.keyService.clearKeys(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 

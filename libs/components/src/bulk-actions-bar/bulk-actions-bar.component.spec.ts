@@ -74,7 +74,7 @@ describe("BulkActionsBarComponent", () => {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              selected: "selected",
+              selectedLowercase: "selected",
               selectionCleared: "Selection cleared",
               clear: "Clear",
               clearSelection: "Clear selection",
@@ -390,7 +390,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              selected: "selected",
+              selectedLowercase: "selected",
               selectionCleared: "Selection cleared",
               clear: "Clear",
               bulkActionsBar: "Bulk actions",

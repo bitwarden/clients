@@ -59,7 +59,7 @@ describe("AddItemGridComponent", () => {
         "typeIdentity",
         "typeDriversLicense",
         "typePassport",
-        "typeNote",
+        "typeSecureNote",
         "typeSshKey",
       ]),
     );

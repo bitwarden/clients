@@ -1,17 +1,18 @@
 import {
+  CipherListView,
+  CreateAttachmentRequest,
+  CreatedAttachment,
+} from "@bitwarden/sdk-internal";
+
+import {
   CipherId,
   CollectionId,
   EmergencyAccessId,
   OrganizationId,
   UserId,
-} from "@bitwarden/common/types/guid";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  CipherListView,
-  CreateAttachmentRequest,
-  CreatedAttachment,
-} from "@bitwarden/sdk-internal";
+} from "../../types/guid";
+import { Cipher } from "../models/domain/cipher";
+import { CipherView } from "../models/view/cipher.view";
 
 /**
  * Result of decrypting all ciphers, containing both successes and failures.

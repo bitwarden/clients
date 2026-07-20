@@ -1,11 +1,12 @@
-import { UserKey } from "@bitwarden/common/types/key";
-import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UserId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+
+import { EncryptionContext } from "./cipher.service";
 
 /**
  * Service responsible for encrypting and decrypting ciphers.

@@ -12,7 +12,6 @@ pub mod autofill;
 pub mod autostart;
 pub mod autotype;
 pub mod biometrics;
-pub mod biometrics_v2;
 pub mod chromium_importer;
 pub mod clipboards;
 pub mod ipc;

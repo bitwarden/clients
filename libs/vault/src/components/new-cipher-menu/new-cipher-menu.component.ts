@@ -10,7 +10,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
+  BitwardenIcon,
   ButtonModule,
+  ButtonType,
   MenuModule,
   PopoverComponent,
   PopoverModule,
@@ -30,6 +32,8 @@ export class NewCipherMenuComponent {
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
+  readonly icon = input<BitwardenIcon>("bwi-plus");
+  readonly buttonType = input<ButtonType>("primary");
 
   /** Optional popover to anchor to the "New" button for coachmark tours */
   readonly coachmarkPopover = input<PopoverComponent>();
@@ -42,6 +46,11 @@ export class NewCipherMenuComponent {
   collectionAdded = output();
   cipherAdded = output<CipherType>();
   onAddItemDialog = output();
+
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   protected readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
@@ -85,13 +94,26 @@ export class NewCipherMenuComponent {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();
     const canCreateCollection = this.canCreateCollection();
+    const btnTextAddCreateFeatureFlag = this.btnTextAddCreateFeatureFlag();
 
     // If only collections can be created, be specific
     if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
-      return "newCollection";
+      if (btnTextAddCreateFeatureFlag) {
+        return "addCollection";
+      } else {
+        return "newCollection";
+      }
     }
 
-    return "new";
+    if (btnTextAddCreateFeatureFlag) {
+      if (this.buttonType() === "secondary") {
+        return "addItem";
+      } else {
+        return "add";
+      }
+    } else {
+      return "new";
+    }
   }
 
   /**

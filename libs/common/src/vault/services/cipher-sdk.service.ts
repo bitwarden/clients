@@ -1,16 +1,5 @@
 import { firstValueFrom, switchMap, catchError } from "rxjs";
 
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import {
-  CipherId,
-  CollectionId,
-  EmergencyAccessId,
-  OrganizationId,
-  UserId,
-} from "@bitwarden/common/types/guid";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherListView,
   CipherView as SdkCipherView,
@@ -18,8 +7,19 @@ import {
   CreatedAttachment,
 } from "@bitwarden/sdk-internal";
 
+import { DECRYPT_ERROR } from "../../key-management/crypto/models/enc-string";
+import { LogService } from "../../platform/abstractions/log.service";
+import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import {
+  CipherId,
+  CollectionId,
+  EmergencyAccessId,
+  OrganizationId,
+  UserId,
+} from "../../types/guid";
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
+import { CipherView } from "../models/view/cipher.view";
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(

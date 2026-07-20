@@ -76,6 +76,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
   };
 
+  private isMonitoring = false;
+
   constructor() {
     /**
      * Sets up mutation observers for the inline menu elements, the menu container, and
@@ -91,7 +93,40 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.containerElementMutationObserver = new MutationObserver(
       this.handleContainerElementMutationObserverUpdate,
     );
+  }
+
+  /**
+   * Attaches the page-attribute mutation observers that guard the inline menu
+   * against website style interference. Idempotent.
+   */
+  startMonitoring(): void {
+    if (this.isMonitoring) {
+      return;
+    }
+    this.isMonitoring = true;
     this.observePageAttributes();
+  }
+
+  /**
+   * Detaches the page-attribute observers, clears monitoring-scoped
+   * iteration counters, and removes the inline-menu UI from the DOM so
+   * a logged-out user does not see an orphaned iframe. The iframes
+   * themselves are torn down in `destroy()`. Idempotent.
+   */
+  stopMonitoring(): void {
+    this.isMonitoring = false;
+    this.closeInlineMenu();
+    this.unobservePageAttributes();
+    this.unobserveCustomElements();
+    this.unobserveContainerElement();
+    this.clearPersistentLastChildOverrideTimeout();
+    if (this.mutationObserverIterationsResetTimeout) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+      this.mutationObserverIterationsResetTimeout = null;
+    }
+    this.mutationObserverIterations = 0;
+    this.refreshCountWithinTimeThreshold.topLayer = 0;
+    this.refreshCountWithinTimeThreshold.popoverAttribute = 0;
   }
 
   /**
@@ -790,18 +825,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Disconnects the mutation observers and removes the inline menu elements from the DOM.
+   * Stops monitoring (which closes the inline menu UI) and then tears
+   * down the iframe wrappers for terminal disposal.
    */
   destroy() {
-    this.closeInlineMenu();
-    this.clearPersistentLastChildOverrideTimeout();
-    this.unobservePageAttributes();
-    this.unobserveCustomElements();
-    this.unobserveContainerElement();
-    if (this.mutationObserverIterationsResetTimeout) {
-      clearTimeout(this.mutationObserverIterationsResetTimeout);
-      this.mutationObserverIterationsResetTimeout = null;
-    }
+    this.stopMonitoring();
     this.buttonIframe?.destroy();
     this.listIframe?.destroy();
   }

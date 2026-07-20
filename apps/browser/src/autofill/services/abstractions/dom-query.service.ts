@@ -11,6 +11,7 @@ export interface DomQueryService {
   refreshShadowDomStateForUserRequest(): void;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
   checkForNewShadowRoots(addedElements?: Element[], unresolvedHostSink?: Set<Element>): boolean;
+  setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;

@@ -12,18 +12,18 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -39,6 +39,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -54,7 +56,6 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -66,7 +67,7 @@ import { DesktopSettingsService } from "./platform/services/desktop-settings.ser
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
-import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
+import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
@@ -79,6 +80,7 @@ export class Main {
   memoryStorageForStateProviders: SerializedMemoryStorageService;
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
+  govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
@@ -95,7 +97,7 @@ export class Main {
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
-  nativeAutofillMain: NativeAutofillMain;
+  desktopAutofillMain: DesktopAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
   versionMain: VersionMain;
@@ -213,6 +215,8 @@ export class Main {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
+    this.govModeService = new DefaultGovModeService(this.environmentService);
+
     this.migrationRunner = new MigrationRunner(
       this.storageService,
       this.logService,
@@ -222,11 +226,6 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-    const encryptService = new EncryptServiceImplementation(
-      this.mainCryptoFunctionService,
-      this.logService,
-      true,
-    );
 
     this.shell = new SafeShell(this.logService);
 
@@ -247,8 +246,6 @@ export class Main {
       this.logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      this.mainCryptoFunctionService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
@@ -324,6 +321,13 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.ipcService = new IpcMainService(
+      this.logService,
+      app,
+      this.nativeMessagingMain,
+      this.windowMain,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -342,14 +346,13 @@ export class Main {
 
     new ChromiumImporterService();
 
-    this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
-    void this.nativeAutofillMain.init();
+    this.desktopAutofillMain = new DesktopAutofillMain(this.logService, this.windowMain);
+    void this.desktopAutofillMain.init();
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
       this.windowMain,
     );
-    this.ipcService = new NoopIpcService(this.logService);
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
@@ -403,13 +406,18 @@ export class Main {
           firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
         ]);
 
-        try {
-          // Re-register the native messaging host integrations on startup, in case they are not present
-          if (ddgIntegrationEnabled) {
+        if (ddgIntegrationEnabled) {
+          try {
             await this.nativeMessagingMain.generateDdgManifests();
+          } catch (err) {
+            this.logService.error(
+              "Error while generating DuckDuckGo native messaging manifests:",
+              err,
+            );
           }
+        }
 
-          // Start native messaging when shared unlock is enabled at runtime
+        try {
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {
@@ -418,7 +426,7 @@ export class Main {
 
         app.removeAsDefaultProtocolClient("bitwarden");
         if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requirering a different protocol client
+          // Fix development build on Windows requiring a different protocol client
           app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
             process.argv[1],
             path.resolve(process.argv[2]),
