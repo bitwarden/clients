@@ -1,13 +1,37 @@
 <div
   bitOverflowList
-  [items]="items()"
   [gap]="8"
   #ovf="bitOverflowList"
   [class.tw-invisible]="!ovf.ready()"
   class="tw-flex [&>*]:tw-shrink-0"
 >
-  <ng-content></ng-content>
-  <span bitBadge bitOverflowTrigger variant="subtle" [title]="hiddenLabels()">
-    +{{ overflow().length }}
-  </span>
+  @for (badge of badges(); track $index) {
+    <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
+      {{ badge.label }}
+    </span>
+  }
+  <button
+    type="button"
+    bit-chip-action
+    bitOverflowTrigger
+    variant="subtle"
+    [label]="'+' + overflow().length"
+    [bitPopoverTriggerFor]="overflowPopover"
+    position="above-center"
+  ></button>
 </div>
+
+<bit-popover
+  #overflowPopover
+  [accessibleName]="'showMore' | i18n"
+  [showCloseButton]="false"
+  maxHeightClass="tw-max-h-[25rem]"
+>
+  <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
+    @for (badge of overflowBadges(); track $index) {
+      <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
+        {{ badge.label }}
+      </span>
+    }
+  </div>
+</bit-popover>

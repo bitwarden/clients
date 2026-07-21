@@ -2,25 +2,43 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  contentChildren,
   effect,
+  input,
   viewChild,
 } from "@angular/core";
 
-import { BadgeModule } from "../badge";
-import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BadgeModule, BadgeVariant } from "../badge";
+import { ChipActionComponent } from "../chips";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
+import { PopoverModule } from "../popover";
+import { BitwardenIcon } from "../shared/icon";
+
+/** A single badge rendered by {@link BadgeGroupComponent}. */
+export type BadgeGroupItem = {
+  /** Text shown inside the badge. */
+  label: string;
+  /**
+   * Visual variant that determines the badge's color scheme.
+   * @default "primary"
+   */
+  variant?: BadgeVariant;
+  /** Optional leading icon. */
+  startIcon?: BitwardenIcon | null;
+};
 
 /**
- * Displays a collection of projected badges in a horizontal row that doesn't
- * wrap. Badges that don't fit the container width are hidden via
- * `bitOverflowList`, and a "+N" overflow badge is rendered at the end with a
- * tooltip listing the hidden badges' text.
+ * Displays a collection of badges in a horizontal row that doesn't wrap. Badges
+ * that don't fit the container width are hidden via `bitOverflowList`, and a
+ * "+N" action chip is rendered at the end. Clicking the chip opens a popover
+ * that lists the hidden badges.
  *
- * The consumer authors each `<bit-badge>` directly — variant, icon, label,
- * truncation, etc. are owned per-badge. The first badge is pinned, so at
- * least one badge is always visible regardless of available width (matches
+ * Badges are passed as data through the `badges` input; the group renders both
+ * the row and the popover from that data, so variant, icon, and label are
+ * described per-item rather than authored as markup. The first badge is pinned,
+ * so at least one badge is always visible regardless of available width (matches
  * the "one full chip" minimum-width rule from the chip column spec).
  *
  * Sizing is fully measurement-driven; the group does not take a `maxItems`
@@ -29,26 +47,34 @@ import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.dire
 @Component({
   selector: "bit-badge-group",
   templateUrl: "badge-group.component.html",
-  imports: [BadgeModule, OverflowListDirective, OverflowTriggerDirective],
+  imports: [
+    BadgeModule,
+    ChipActionComponent,
+    PopoverModule,
+    OverflowListDirective,
+    OverflowTriggerDirective,
+    I18nPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeGroupComponent {
-  protected readonly items = contentChildren(OverflowItemDirective, { descendants: true });
+  readonly badges = input<BadgeGroupItem[]>([]);
+
   private readonly list = viewChild.required(OverflowListDirective);
 
   protected readonly overflow = computed(() => this.list().overflow());
-  protected readonly hiddenLabels = computed(() => {
-    const overflow = this.overflow();
-    const items = this.items();
-    return overflow
-      .map((i) => items[i]?.elementRef.nativeElement.textContent?.trim() ?? "")
-      .filter(Boolean)
-      .join(", ");
+
+  /** The hidden badges, in original order, rendered inside the popover. */
+  protected readonly overflowBadges = computed(() => {
+    const badges = this.badges();
+    return this.overflow()
+      .map((i) => badges[i])
+      .filter((badge): badge is BadgeGroupItem => badge != null);
   });
 
   constructor() {
     effect(() => {
-      const items = this.items();
+      const items = this.list().items();
       items.forEach((item, i) => item.pinned.set(i === 0));
     });
   }

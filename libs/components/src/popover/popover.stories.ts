@@ -117,6 +117,72 @@ export const Default: Story = {
   },
 };
 
+/**
+ * Without a `title`, the popover omits the heading region entirely and renders
+ * only the projected content. The content reserves room for the close button so
+ * its first line doesn't run underneath it. Because the dialog has no title to
+ * label it, supply `accessibleName` so screen readers announce a discernible
+ * name.
+ */
+export const NoTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[400px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      <bit-popover #myPopover [accessibleName]="'Latest release notes'">
+        A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+      </bit-popover>
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
+
+/**
+ * Set `[showCloseButton]="false"` to omit the built-in close button when the
+ * popover is dismissed another way — a backdrop click, Escape, or re-triggering
+ * its anchor. The content reclaims the space the button would have reserved.
+ */
+export const NoCloseButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[400px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      <bit-popover [title]="'We\\'ve just released a new dashboard'" [showCloseButton]="false" #myPopover>
+        A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+      </bit-popover>
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
+
 export const WithFooter: Story = {
   render: (args) => ({
     props: args,

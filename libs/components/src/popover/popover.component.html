@@ -5,30 +5,34 @@
     class="tw-relative"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="title()"
+    [attr.aria-label]="dialogLabel()"
   >
-    <div class="tw-overflow-hidden tw-rounded-xl tw-shadow-md tw-border tw-border-border-base">
+    <div [class]="containerClasses()" [tabindex]="maxHeightClass() ? '0' : null">
       <div
         class="tw-relative tw-z-20 tw-max-w-[22.5rem] tw-break-words tw-bg-bg-primary tw-text-fg-body"
       >
         <ng-content select="bit-popover-header"></ng-content>
         <div class="tw-p-6">
-          <div class="tw-absolute tw-top-3 tw-right-3">
-            <button
-              type="button"
-              bitIconButton="bwi-close"
-              [buttonType]="closeButtonType()"
-              [label]="'close' | i18n"
-              (click)="closed.emit()"
-              size="small"
-            ></button>
-          </div>
+          @if (showCloseButton()) {
+            <div class="tw-absolute tw-top-3 tw-right-3">
+              <button
+                type="button"
+                bitIconButton="bwi-close"
+                [buttonType]="closeButtonType()"
+                [label]="'close' | i18n"
+                (click)="closed.emit()"
+                size="small"
+              ></button>
+            </div>
+          }
           <div class="tw-flex tw-flex-col tw-gap-6">
             <div class="tw-flex tw-flex-col tw-gap-3">
-              <h2 bitTypography="h4" [class]="titleClasses()">
-                {{ title() }}
-              </h2>
-              <div bitTypography="body2" class="tw-text-fg-body">
+              @if (title()) {
+                <h2 bitTypography="h4" [class]="titleClasses()">
+                  {{ title() }}
+                </h2>
+              }
+              <div bitTypography="body2" [class]="contentClasses()">
                 <ng-content></ng-content>
               </div>
             </div>

@@ -1,2 +1,2 @@
-export { BadgeGroupComponent } from "./badge-group.component";
+export { BadgeGroupComponent, BadgeGroupItem } from "./badge-group.component";
 export * from "./badge-group.module";
