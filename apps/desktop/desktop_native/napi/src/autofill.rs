@@ -141,6 +141,13 @@ pub mod autofill {
                                     }
                                 };
                             match msg.request {
+                                ExtensionRequest::CancelRequest(context) => {
+                                    let params = (client_id, msg.sequence_number, context);
+                                    callbacks.cancel_request_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
                                 ExtensionRequest::LockStatus => {
                                     let params = (client_id, msg.sequence_number);
                                     callbacks.lock_status_callback.call(

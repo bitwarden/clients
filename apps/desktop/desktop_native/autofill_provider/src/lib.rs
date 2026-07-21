@@ -166,6 +166,7 @@ pub struct ExtensionRequestMessage {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "request", content = "params", rename_all = "camelCase")]
 pub enum ExtensionRequest {
+    CancelRequest(String),
     LockStatus,
     NativeStatus(NativeStatus),
     PasskeyAssertion(PasskeyAssertionRequest),
@@ -385,6 +386,14 @@ impl AutofillProviderClient {
     pub fn send_native_status(&self, key: String, value: String) {
         let status = NativeStatus { key, value };
         self.send_request(ExtensionRequest::NativeStatus(status), None);
+    }
+
+    /// Cancel a request.
+    ///
+    /// The `context` parameter should be the same as the `context`
+    /// field from the original request.
+    pub fn cancel_request(&self, context: String) {
+        self.send_request(ExtensionRequest::CancelRequest(context), None);
     }
 
     /// Send a request to create a new passkey to the desktop client.
