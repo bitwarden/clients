@@ -17,7 +17,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -35,6 +34,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { getOrgIconForTier } from "../../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
 import {
@@ -184,17 +184,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   getOrgIcon(org: Organization): BitwardenIcon {
-    switch (org.productTierType) {
-      case ProductTierType.Free:
-      case ProductTierType.Families:
-        return "bwi-family";
-      case ProductTierType.Teams:
-      case ProductTierType.TeamsStarter:
-      case ProductTierType.Enterprise:
-        return "bwi-business";
-      default:
-        return "bwi-business";
-    }
+    return getOrgIconForTier(org.productTierType);
   }
 
   get favoriteIcon() {
