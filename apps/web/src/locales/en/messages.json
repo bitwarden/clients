@@ -14641,6 +14641,15 @@
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
   },
+  "recoveryStepFido2Title": {
+    "message": "Verifying passkey integrity"
+  },
+  "recoveryDeleteFido2Title": {
+    "message": "Delete unrecoverable passkeys"
+  },
+  "recoveryDeleteFido2Desc": {
+    "message": "Some of your vault items have passkeys that could not be recovered. Do you want to delete these unrecoverable passkeys? The rest of each item will be kept."
+  },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
   },

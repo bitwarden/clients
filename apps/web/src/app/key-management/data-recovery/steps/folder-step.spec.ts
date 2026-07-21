@@ -52,6 +52,7 @@ describe("FolderStep", () => {
         userKey: null,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [],
       };
@@ -71,6 +72,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2] as Folder[],
       };
@@ -102,6 +104,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };
@@ -127,6 +130,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };
@@ -162,6 +166,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2] as Folder[],
       };
@@ -197,6 +202,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
@@ -218,6 +224,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
@@ -243,6 +250,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
@@ -268,6 +276,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [],
       };
@@ -287,6 +296,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1] as Folder[],
       };
@@ -312,6 +322,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1] as Folder[],
       };
@@ -342,6 +353,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2] as Folder[],
       };
@@ -376,6 +388,7 @@ describe("FolderStep", () => {
         userKey: mockUserKey,
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
+        fido2CorruptCipherIds: [],
         ciphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };

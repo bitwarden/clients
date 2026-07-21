@@ -40,4 +40,9 @@ export type RecoveryWorkingData = {
   isPrivateKeyCorrupt: boolean;
   ciphers: Cipher[];
   folders: Folder[];
+  /**
+   * Ids of Login ciphers whose only decryption failure is corrupt FIDO2 credentials.
+   * Populated by the FIDO2 step so the cipher step can exclude them from its own counts.
+   */
+  fido2CorruptCipherIds: string[];
 };
