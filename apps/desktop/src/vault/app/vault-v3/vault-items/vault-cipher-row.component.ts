@@ -28,7 +28,6 @@ import {
   CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
-  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "./vault-item-event";
@@ -47,7 +46,6 @@ interface CopyFieldConfig {
   imports: [
     NgClass,
     I18nPipe,
-    Vfo1I18nPipe,
     TableModule,
     OrganizationNameBadgeComponent,
     BitIconButtonComponent,

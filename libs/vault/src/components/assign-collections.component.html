@@ -4,11 +4,7 @@
       (personalItemsCount === 1
         ? "bulkCollectionAssignmentDialogDescriptionSingular"
         : "bulkCollectionAssignmentDialogDescriptionPlural"
-      )
-        | vfo1I18n
-          : (personalItemsCount === 1
-              ? "bulkSharedFolderAssignmentDialogDescriptionSingular"
-              : "bulkSharedFolderAssignmentDialogDescriptionPlural")
+      ) | i18n
     }}
   </p>
 
@@ -44,9 +40,7 @@
 
   <div class="tw-flex">
     <bit-form-field class="tw-grow tw-max-w-full" disableMargin>
-      <bit-label>{{
-        "selectCollectionsToAssign" | vfo1I18n: "selectSharedFoldersToAssign"
-      }}</bit-label>
+      <bit-label>{{ "selectCollectionsToAssign" | i18n }}</bit-label>
       <bit-multi-select
         class="tw-w-full"
         formControlName="collections"
@@ -54,10 +48,7 @@
       ></bit-multi-select>
       @if (readOnlyCollectionNames.length > 0) {
         <bit-hint data-testid="view-only-hint">
-          {{
-            "cannotRemoveViewOnlyCollections"
-              | vfo1I18n: "cannotRemoveViewOnlySharedFolders" : readOnlyCollectionNames.join(", ")
-          }}
+          {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionNames.join(", ") }}
         </bit-hint>
       }
     </bit-form-field>

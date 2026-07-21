@@ -1,4 +1,3 @@
-import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -22,8 +21,6 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
-
-import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 import {
   AssignCollectionsComponent,
@@ -98,15 +95,7 @@ describe("AssignCollectionsComponent", () => {
 
   const organizations$ = jest.fn().mockReturnValue(of([org]));
 
-  // Controls the VFO1 shared-folder terminology flag for the component under test.
-  const terminologyEnabled = signal(false);
-
   beforeEach(async () => {
-    terminologyEnabled.set(false);
-
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
-
     await TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -115,8 +104,7 @@ describe("AssignCollectionsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
-        { provide: ConfigService, useValue: configService },
-        { provide: Vfo1TerminologyService, useValue: { enabled: terminologyEnabled } },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 
@@ -220,55 +208,6 @@ describe("AssignCollectionsComponent", () => {
         sharedCollection.id,
         defaultCollection.id,
       ]);
-    });
-  });
-
-  describe("collectionAssignmentToastKey", () => {
-    const toastKey = (ciphersCount: number, collectionsCount: number): string =>
-      component["collectionAssignmentToastKey"](ciphersCount, collectionsCount);
-
-    describe("with shared-folder terminology disabled", () => {
-      beforeEach(() => {
-        terminologyEnabled.set(false);
-      });
-
-      it("returns the singular-cipher, singular-collection key", () => {
-        expect(toastKey(1, 1)).toBe("itemMovedToCollection");
-      });
-
-      it("returns the singular-cipher, plural-collection key", () => {
-        expect(toastKey(1, 2)).toBe("itemMovedToCollections");
-      });
-
-      it("returns the plural-cipher, singular-collection key", () => {
-        expect(toastKey(2, 1)).toBe("itemsMovedToCollection");
-      });
-
-      it("returns the plural-cipher, plural-collection key", () => {
-        expect(toastKey(2, 2)).toBe("itemsMovedToCollections");
-      });
-    });
-
-    describe("with shared-folder terminology enabled", () => {
-      beforeEach(() => {
-        terminologyEnabled.set(true);
-      });
-
-      it("returns the singular-cipher, singular-shared-folder key", () => {
-        expect(toastKey(1, 1)).toBe("itemMovedToSharedFolder");
-      });
-
-      it("returns the singular-cipher, plural-shared-folder key", () => {
-        expect(toastKey(1, 2)).toBe("itemMovedToSharedFolders");
-      });
-
-      it("returns the plural-cipher, singular-shared-folder key", () => {
-        expect(toastKey(2, 1)).toBe("itemsMovedToSharedFolder");
-      });
-
-      it("returns the plural-cipher, plural-shared-folder key", () => {
-        expect(toastKey(2, 2)).toBe("itemsMovedToSharedFolders");
-      });
     });
   });
 });
