@@ -104,6 +104,18 @@
   "shared": {
     "message": "Freigegeben"
   },
+  "sharedFolder": {
+    "message": "Geteilter Ordner"
+  },
+  "sharedFolders": {
+    "message": "Geteilte Ordner"
+  },
+  "myFolder": {
+    "message": "Mein Ordner"
+  },
+  "myFolders": {
+    "message": "Meine Ordner"
+  },
   "share": {
     "message": "Teilen"
   },
@@ -424,6 +436,10 @@
   },
   "passphrase": {
     "message": "Passphrase"
+  },
+  "passwordAnnounceSpace": {
+    "message": "Leerzeichen",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Eintrag bearbeiten"
@@ -901,8 +917,8 @@
   "linkedHelpText": {
     "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Webseite hast."
   },
-  "linkedLabelHelpText": {
-    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+  "linkedFieldLabelHelpText": {
+    "message": "Gib die HTML-ID, den Namen, das aria-label oder den Platzhalter des Felds ein."
   },
   "folder": {
     "message": "Ordner"
@@ -2098,7 +2114,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generator-Verlauf löschen"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Wenn du fortfährst, werden alle Einträge dauerhaft aus dem Generator-Verlauf gelöscht. Bist du sicher, dass du fortfahren möchtest?"
   },
   "clear": {
@@ -2374,7 +2390,7 @@
   "restrictCardTypeImportDesc": {
     "message": "Eine von einer oder mehreren Organisationen festgelegte Richtlinie verhindert, dass du Karten in deinen Tresor importieren kannst."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "„Dateipasswort“ und „Dateipasswort bestätigen“ stimmen nicht überein."
   },
   "done": {
@@ -2387,8 +2403,8 @@
   "confirmVaultExport": {
     "message": "Tresor-Export bestätigen"
   },
-  "exportWarningDesc": {
-    "message": "Dieser Export enthält deine Tresordaten in einem unverschlüsseltem Format. Du solltest sie nicht speichern oder über unsichere Kanäle (z. B. E-Mail) senden. Lösche sie sofort nach ihrer Verwendung."
+  "exportUnencryptedWarningDesc": {
+    "message": "Dieser Export enthält deine Tresor-Daten in einem unverschlüsseltem Format. Du solltest die Datei daher nicht über unsichere Kanäle (z.B. E-Mail) versenden oder speichern. Lösche die Datei sofort nach ihrer Verwendung."
   },
   "encExportKeyWarningDesc": {
     "message": "Dieser Export verschlüsselt deine Daten mit dem Verschlüsselungscode deines Kontos. Falls du deinen Verschlüsselungscode erneuerst, solltest du den Export erneut durchführen, da du die zuvor erstellte Datei ansonsten nicht mehr entschlüsseln kannst."
@@ -3502,7 +3518,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Ungültiger API-Token von $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3512,7 +3528,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Ungültiger API-Token von $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3526,7 +3542,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3536,7 +3552,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3610,7 +3626,7 @@
   "apiKey": {
     "message": "API-Schlüssel"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium-Abonnement erforderlich"
   },
   "organizationIsDisabled": {
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Dateipasswort bestätigen"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass-Master-Passwort"
+  },
+  "addKeyFile": {
+    "message": "Schlüsseldatei hinzufügen"
+  },
+  "keyFileUpload": {
+    "message": "Schlüsseldatei hochladen"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX-Datei hochladen"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Akzeptierte Formate: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Die Daten sind nicht richtig formatiert. Kontrolliere bitte deine Import-Datei und versuche es erneut."
+  },
+  "kdbxWrongFileType": {
+    "message": "Diese Datei ist keine gültige KeePass-Datenbank (.kdbx). Bitte wähle eine .kdbx-Datei aus und versuche es erneut."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Diese KeePass-Datenbank ist zu groß, um sie zu importieren."
   },
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"

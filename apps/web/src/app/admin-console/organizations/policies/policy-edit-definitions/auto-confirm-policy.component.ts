@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  Signal,
+  TemplateRef,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, of, startWith, switchMap } from "rxjs";
 
@@ -8,6 +18,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -27,6 +38,13 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
+  // Explicitly typed against the base class's declared `v2` shape (rather than left to be
+  // inferred from this literal) so that optional fields like `description`/`prerequisiteKey`
+  // remain valid to access - even though this policy doesn't set them - instead of TypeScript
+  // narrowing the field to only `{ component: ... }`.
+  v2: BasePolicyEditDefinition["v2"] = {
+    component: AutoConfirmPolicyEditV2Component,
+  };
 
   constructor(readonly firstTimeDialog: boolean = false) {
     super();
@@ -62,9 +80,15 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
   private readonly step0Content: Signal<TemplateRef<unknown>> = viewChild.required("step0Content");
   private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
 
-  private readonly step1Title: Signal<TemplateRef<unknown>> = viewChild.required("step1Title");
-  private readonly step1Content: Signal<TemplateRef<unknown>> = viewChild.required("step1Content");
-  private readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
+  /**
+   * Step 1 ("how to turn on") title/content/footer templates. Protected (rather than private) so
+   * the v2 variant of this component can reuse them unchanged - only step 0 differs between v1
+   * and v2.
+   */
+  protected readonly step1Title: Signal<TemplateRef<unknown>> = viewChild.required("step1Title");
+  protected readonly step1Content: Signal<TemplateRef<unknown>> =
+    viewChild.required("step1Content");
+  protected readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
 
   protected readonly autoConfirmEnabled$: Observable<boolean> =
     this.accountService.activeAccount$.pipe(
@@ -156,9 +180,77 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     }
   }
 
-  private async navigateToExtensionPromptStep(): Promise<void> {
+  /**
+   * Protected (rather than private) so the v2 variant of this component can reuse it unchanged
+   * as the step 1 sideEffect - only step 0 differs between v1 and v2.
+   */
+  protected async navigateToExtensionPromptStep(): Promise<void> {
     await this.router.navigate(["/browser-extension-prompt"], {
       queryParams: { url: "AutoConfirm" },
     });
   }
+}
+
+/**
+ * Drawer (v2) variant. Reuses step 1 ("how to turn on") and all save/rollback logic from the
+ * standard component unchanged. Step 0 is replaced with a new template that:
+ * - Renders the enable control as a switch (instead of a checkbox) labeled "Enable policy".
+ * - Splits the single "I accept these risks..." checkbox out of the enable control into its own
+ *   risk-confirmation checkbox, which gates (enables/disables) the switch.
+ * - Uses a single, unconditional "Save and continue" footer button instead of the v1 footer's
+ *   conditional "Save"/"Continue" label.
+ */
+@Component({
+  selector: "auto-confirm-policy-v2-edit",
+  templateUrl: "auto-confirm-policy-v2.component.html",
+  imports: [SharedModule, SwitchComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AutoConfirmPolicyEditV2Component extends AutoConfirmPolicyEditComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Gates the enable switch: an admin must accept the security risk before they can turn the
+   * policy on. Defaults to accepted when editing an already-enabled policy, since the risk was
+   * necessarily accepted the first time it was turned on. Public (matching {@link enabled}/
+   * {@link data} on the base class) so it can be exercised directly from tests.
+   */
+  readonly riskAccepted = new FormControl(false, { nonNullable: true });
+
+  private readonly step0ContentV2: Signal<TemplateRef<unknown>> =
+    viewChild.required("step0ContentV2");
+  private readonly step0FooterV2: Signal<TemplateRef<unknown>> =
+    viewChild.required("step0FooterV2");
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    this.riskAccepted.setValue(this.enabled.value ?? false);
+
+    this.riskAccepted.valueChanges
+      .pipe(startWith(this.riskAccepted.value), takeUntilDestroyed(this.destroyRef))
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.enabled.enable({ emitEvent: false });
+        } else {
+          this.enabled.disable({ emitEvent: false });
+          this.enabled.setValue(false);
+        }
+      });
+  }
+
+  override readonly policySteps: PolicyStep[] = [
+    {
+      bodyContent: this.step0ContentV2,
+      footerContent: this.step0FooterV2,
+      disableSave: this.saveDisabled$,
+      sideEffect: () => this.savePolicy(),
+    },
+    {
+      titleContent: this.step1Title,
+      bodyContent: this.step1Content,
+      footerContent: this.step1Footer,
+      sideEffect: () => this.navigateToExtensionPromptStep(),
+    },
+  ];
 }
