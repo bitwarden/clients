@@ -46,8 +46,11 @@ export abstract class OrganizationInviteLinkApiService {
     request: OrganizationInviteLinkValidateEmailDomainRequest,
   ): Promise<OrganizationInviteLinkValidateEmailDomainResponse>;
 
-  /** Get the public status of an invite link by its code (anonymous) */
-  abstract getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel>;
+  /** Get the public status of an invite link (anonymous) */
+  abstract getStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OrganizationInviteLinkStatusResponseModel>;
 
   /** Accept an invite link, joining the authenticated user to the organization */
   abstract accept(request: OrganizationInviteLinkAcceptRequest): Promise<void>;

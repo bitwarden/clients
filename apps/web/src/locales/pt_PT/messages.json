@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Nova organização"
   },
+  "newVault": {
+    "message": "Novo cofre"
+  },
   "noOrganizationsList": {
     "message": "Não pertence a nenhuma organização. As organizações permitem-lhe partilhar itens em segurança com outros utilizadores."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Confirmar a exportação de segredos"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
+  "exportUnencryptedWarningDesc": {
+    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve guardar nem enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente depois de terminar de o utilizar."
   },
   "exportSecretsWarningDesc": {
     "message": "Esta exportação contém os dados dos seus segredos num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Protegido por palavra-passe"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Palavra-passe do ficheiro\" e \"Confirmar palavra-passe do ficheiro\" não correspondem."
+  "filePasswordConfirmationMismatch": {
+    "message": "A palavra-passe do ficheiro e a confirmação da palavra-passe do ficheiro não coincidem."
   },
   "confirmVaultImport": {
     "message": "Confirmar a importação do cofre"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Limpar o histórico do gerador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Se continuar, todas as entradas serão permanentemente eliminadas do histórico do gerador. Tem a certeza de que pretende continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão eliminadas permanentemente do histórico do gerador. Tem a certeza de que pretende continuar?"
   },
   "noPasswordsInList": {
     "message": "Não existem palavras-passe para listar."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Não foram encontrados sites no seu cofre com uma configuração de verificação de dois passos em falta."
   },
+  "passkeyLoginReport": {
+    "message": "Início de sessão com chave de acesso"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "As chaves de acesso são uma alternativa às palavras-passe que é segura e resistente ao phishing. Veja quais das suas contas as suportam."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "As chaves de acesso são uma alternativa às palavras-passe que é segura e resistente ao phishing. Veja quais das contas no seu cofre suportam chaves de acesso para uma experiência de início de sessão mais simples e sem palavras-passe. Saiba"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "como funcionam as chaves de acesso"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "e "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "como utilizá-las no Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Credenciais que suportam chaves de acesso"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Encontrámos $COUNT$ credencial(is) no seu cofre que suporta(m) chaves de acesso. Para proteger ainda mais estas contas, considere configurar uma chave de acesso sempre que estiver disponível. Dados obtidos através de passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Encontrámos $COUNT$ credencial(is) nos seus cofres que suporta(m) chaves de acesso. Para proteger ainda mais estas contas, considere configurar uma chave de acesso sempre que estiver disponível. Dados obtidos através de passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Não foram encontradas credenciais no seu cofre que suportem chaves de acesso e que ainda não tenham uma configurada."
+  },
   "instructions": {
     "message": "Instruções"
+  },
+  "passwordlessLogin": {
+    "message": "Início de sessão sem palavra-passe"
+  },
+  "multifactorAuthentication": {
+    "message": "Autenticação multifator"
   },
   "exposedPasswordsReport": {
     "message": "Palavras-passe expostas"
@@ -3726,7 +3777,7 @@
     "message": "Acesso de emergência"
   },
   "premiumSignUpReports": {
-    "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
+    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
   },
   "premiumSignUpTotp": {
     "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Precisa de aprovação"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Está a tentar iniciar sessão?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Endereço de e-mail de $ID$ atualizado.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ iniciou sessão utilizando o SSO pela primeira vez",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Estenda a segurança e a conveniência do SSO para apps não geridas. Quando os utilizadores iniciam uma aplicação a partir do seu fornecedor de identidade, as suas credenciais são preenchidas e enviadas automaticamente, criando um fluxo seguro com um clique do fornecedor de identidade para a app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Quando os utilizadores iniciarem uma app a partir do seu fornecedor de identidade, as respetivas credenciais serão preenchidas e enviadas automaticamente, criando um início de sessão seguro com um único clique."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Anfitrião do fornecedor de identidade"
   },
@@ -8680,8 +8743,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Sem planos familiares patrocinados"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Os planos familiares patrocinados de não membros serão apresentados aqui"
+  "noSponsoredFamiliesDetails": {
+    "message": "Os planos familiares patrocinados para não membros serão apresentados aqui"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
@@ -9422,8 +9485,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token da API de $SERVICENAME$ inválido",
+  "forwarderInvalidToken": {
+    "message": "Token de API de $SERVICENAME$ inválido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9495,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Token de API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Contacte o seu fornecedor de serviços para obter assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "É necessária uma subscrição Premium"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Remover membro"
   },
+  "revokeMember": {
+    "message": "Revogar membro"
+  },
+  "restoreMember": {
+    "message": "Restaurar membro"
+  },
+  "deleteMember": {
+    "message": "Eliminar membro"
+  },
   "collection": {
     "message": "Coleção"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Função do membro"
+  },
+  "moreActions": {
+    "message": "Mais ações"
+  },
+  "emailUpdateOnSave": {
+    "message": "O e-mail será atualizado ao guardar"
+  },
+  "createdDate": {
+    "message": "Data de criação"
   },
   "moreSettings": {
     "message": "Mais definições"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Atribuir acesso à coleção"
   },
-  "collectionsEdited": {
-    "message": "Coleções editadas"
-  },
   "editedCollections": {
     "message": "Coleções editadas"
+  },
+  "editedCollection": {
+    "message": "Coleção editada"
   },
   "collectionEdited": {
     "message": "Coleção editada"
   },
-  "editedCollection": {
-    "message": "Coleção editada"
+  "collectionsEdited": {
+    "message": "Coleções editadas"
   },
   "baseUrl": {
     "message": "URL do servidor"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Utilize um campo ligado quando tiver problemas de preenchimento automático para um site específico."
   },
-  "linkedLabelHelpText": {
-    "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
+  "linkedFieldLabelHelpText": {
+    "message": "Introduza o ID HTML, nome, aria-label ou placeholder do campo."
   },
   "uppercaseDescription": {
     "message": "Incluir caracteres em maiúsculas",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscrever o plano $PLAN$",
     "placeholders": {
       "plan": {
