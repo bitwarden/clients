@@ -27,6 +27,7 @@ import {
   RecoveryWorkingData,
   FolderStep,
   CipherStep,
+  Fido2Step,
 } from "./steps";
 
 export const StepStatus = Object.freeze({
@@ -75,6 +76,7 @@ export class DataRecoveryComponent {
       this.cryptoFunctionService,
     ),
     new FolderStep(this.folderApiService, this.dialogService),
+    new Fido2Step(this.cipherEncryptService, this.apiService, this.dialogService),
     new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
   ];
   private workingData: RecoveryWorkingData | null = null;
@@ -108,6 +110,7 @@ export class DataRecoveryComponent {
       encryptedPrivateKey: null,
       ciphers: [],
       folders: [],
+      fido2CorruptCipherIds: [],
     };
 
     await this.runDiagnosticsInternal();

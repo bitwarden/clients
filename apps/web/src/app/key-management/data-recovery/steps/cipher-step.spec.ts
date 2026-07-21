@@ -36,6 +36,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       const result = await cipherStep.runDiagnostics(workingData, logger);
@@ -56,6 +57,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [cipher1, cipher2],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockResolvedValue({} as any);
@@ -80,6 +82,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [userCipher, orgCipher1, orgCipher2],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockResolvedValue({} as any);
@@ -108,6 +111,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [cipher1, cipher2, cipher3],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt
@@ -123,6 +127,36 @@ describe("CipherStep", () => {
       expect(logger.record).toHaveBeenCalledWith("Found 2 undecryptable ciphers");
     });
 
+    it("excludes ciphers listed in fido2CorruptCipherIds from undecryptable counts", async () => {
+      const userId = "user-id" as UserId;
+      const okCipher = { id: "cipher-1", organizationId: null } as Cipher;
+      const fido2Cipher = { id: "cipher-fido2", organizationId: null } as Cipher;
+      const brokenCipher = { id: "cipher-broken", organizationId: null } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [okCipher, fido2Cipher, brokenCipher],
+        folders: [],
+        fido2CorruptCipherIds: ["cipher-fido2"],
+      };
+
+      cipherEncryptionService.decrypt
+        .mockResolvedValueOnce({} as any) // okCipher succeeds
+        .mockRejectedValueOnce(new Error("Decryption failed")) // fido2Cipher fails (fido2-only)
+        .mockRejectedValueOnce(new Error("Decryption failed")); // brokenCipher fails
+
+      const result = await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(result).toBe(false);
+      expect(cipherStep["undecryptableCipherIds"]).toEqual(["cipher-broken"]);
+      expect(logger.record).not.toHaveBeenCalledWith("Cipher ID cipher-fido2 was undecryptable");
+      expect(logger.record).toHaveBeenCalledWith("Cipher ID cipher-broken was undecryptable");
+      expect(logger.record).toHaveBeenCalledWith("Found 1 undecryptable ciphers");
+    });
+
     it("returns correct results when running diagnostics multiple times", async () => {
       const userId = "user-id" as UserId;
       const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
@@ -135,6 +169,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [cipher1, cipher2],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       // First run: cipher1 succeeds, cipher2 fails
@@ -172,6 +207,7 @@ describe("CipherStep", () => {
           { id: "cipher-2", organizationId: null } as Cipher,
         ],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockResolvedValue({} as any);
@@ -194,6 +230,7 @@ describe("CipherStep", () => {
           { id: "cipher-2", organizationId: null } as Cipher,
         ],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockRejectedValueOnce(new Error("Decryption failed"));
@@ -216,6 +253,7 @@ describe("CipherStep", () => {
           { id: "cipher-2", organizationId: null } as Cipher,
         ],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
@@ -236,6 +274,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       await cipherStep.runRecovery(workingData, logger);
@@ -254,6 +293,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
@@ -282,6 +322,7 @@ describe("CipherStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [cipher1, cipher2],
         folders: [],
+        fido2CorruptCipherIds: [],
       };
 
       cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));

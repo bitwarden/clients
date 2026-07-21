@@ -4,6 +4,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { LogRecorder } from "../log-recorder";
 
+import { logCipherCorruption } from "./corruption-log";
 import { RecoveryStep, RecoveryWorkingData } from "./recovery-step";
 
 export class CipherStep implements RecoveryStep {
@@ -35,7 +36,13 @@ export class CipherStep implements RecoveryStep {
         await this.cipherService.decrypt(cipher, workingData.userId);
         this.decryptableCipherIds.push(cipher.id);
       } catch {
+        // Ciphers that only fail because of corrupt FIDO2 credentials are handled by the FIDO2
+        // step; exclude them here so they aren't counted (and deleted) as whole-cipher failures.
+        if (workingData.fido2CorruptCipherIds.includes(cipher.id)) {
+          continue;
+        }
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
+        logCipherCorruption(cipher, logger);
         this.undecryptableCipherIds.push(cipher.id);
       }
     }
