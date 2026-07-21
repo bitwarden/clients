@@ -278,7 +278,9 @@ describe("DefaultOrganizationInviteLinkService", () => {
         mockOrgId,
         "sealed-envelope-base64",
       );
-      expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
+      expect(url).toBe(
+        `https://vault.bitwarden.com/#/join/${mockOrgId}/reconstruct?key=unwrapped==`,
+      );
     });
   });
 });
