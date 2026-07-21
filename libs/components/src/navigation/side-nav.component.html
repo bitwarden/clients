@@ -42,11 +42,11 @@
             <ng-container *ngTemplateOutlet="navContent"></ng-container>
           </nav>
           <div
-            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+            class="tw-w-full tw-bg-bg-nav tw-group [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
           >
-            <bit-nav-divider></bit-nav-divider>
+            <bit-nav-divider class="tw-hidden group-has-[[slot=footer]]:tw-block"></bit-nav-divider>
             @if (open) {
-              <ng-container *ngTemplateOutlet="footerContent"></ng-container>
+              <ng-container *ngTemplateOutlet="footerContent"> </ng-container>
             }
           </div>
         </div>

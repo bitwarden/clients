@@ -3,8 +3,10 @@ import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angula
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { BerryComponent } from "../berry";
 import { ChipActionComponent } from "../chips";
@@ -106,6 +108,11 @@ export const Default: StoryObj<NavGroupComponent> = {
       </bit-side-nav>
     `,
   }),
+};
+
+export const DefaultVfo1: StoryObj<NavGroupComponent> = {
+  ...Default,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const HideEmptyGroups: StoryObj<NavGroupComponent & { renderChildren: boolean }> = {
@@ -360,4 +367,9 @@ export const InteractionStates: StoryObj<NavGroupComponent> = {
       },
     },
   },
+};
+
+export const InteractionStatesVfo1: StoryObj<NavGroupComponent> = {
+  ...InteractionStates,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
