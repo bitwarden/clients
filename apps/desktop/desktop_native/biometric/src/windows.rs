@@ -186,12 +186,13 @@ impl super::BiometricTrait for BiometricLockSystem {
             }
         });
 
-        let mut secure_memory = self.secure_memory.lock().await;
         // If the key is held ephemerally, always use UV API. Only use signing API if the key is not
         // held ephemerally but the keychain holds it persistently.
-        if secure_memory.has(user_id) {
+        if self.secure_memory.lock().await.has(user_id) {
             if windows_hello_authenticate("Unlock your vault".to_string()).await? {
-                secure_memory
+                self.secure_memory
+                    .lock()
+                    .await
                     .get(user_id)?
                     .ok_or_else(|| anyhow!("No key found for user"))
             } else {
@@ -239,15 +240,17 @@ impl super::BiometricTrait for BiometricLockSystem {
             let decrypted_key = user_key.to_encoded().to_vec();
             // The first unlock already sets the key for subsequent unlocks. The key may again be
             // set externally after unlock finishes.
-            secure_memory.put(user_id.to_string(), &decrypted_key);
+            self.secure_memory
+                .lock()
+                .await
+                .put(user_id.to_string(), &decrypted_key);
             Ok(decrypted_key)
         }
     }
 
     async fn unlock_available(&self, user_id: &String) -> Result<bool> {
-        let secure_memory = self.secure_memory.lock().await;
-        let has_key =
-            secure_memory.has(user_id) || self.has_persistent(user_id).await.unwrap_or(false);
+        let has_key = self.secure_memory.lock().await.has(user_id)
+            || self.has_persistent(user_id).await.unwrap_or(false);
         Ok(has_key && self.authenticate_available().await.unwrap_or(false))
     }
 
