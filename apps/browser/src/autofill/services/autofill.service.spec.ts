@@ -52,6 +52,7 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
+import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
@@ -207,11 +208,15 @@ describe("AutofillService", () => {
       webExtSender: chrome.runtime.MessageSender = mock<chrome.runtime.MessageSender>(),
       sender: string = AutofillMessageSender.collectPageDetailsFromTabObservable,
     ): CollectPageDetailsResponseMessage {
-      return mock<CollectPageDetailsResponseMessage>({
-        tab,
+      // The browser-authoritative sender is stamped by the runtime-message ingest, not
+      // carried in the message body, so mirror that here rather than setting a property.
+      return stampWebExtSender(
+        mock<CollectPageDetailsResponseMessage>({
+          tab,
+          sender,
+        }),
         webExtSender,
-        sender,
-      });
+      );
     }
 
     beforeEach(() => {
@@ -260,6 +265,25 @@ describe("AutofillService", () => {
       await pausePromise;
 
       expect(tracker.emissions[1]).toBeUndefined();
+    });
+
+    it("drops page details from a message with no stamped sender", async () => {
+      // A message that never passed through the runtime-message ingest carries no
+      // symbol-stamped sender, so it must not be attributed to a frame — fail closed.
+      const unstamped: CollectPageDetailsResponseMessage = {
+        tab,
+        details: mock<AutofillPageDetails>(),
+        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+      };
+
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tab));
+      const pausePromise = tracker.pauseUntilReceived(1);
+
+      messages.next(unstamped);
+
+      await pausePromise;
+
+      expect(tracker.emissions[0]).toEqual([]);
     });
 
     it("ignores messages from a different sender", async () => {
