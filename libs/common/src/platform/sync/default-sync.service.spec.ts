@@ -18,7 +18,7 @@ import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-ma
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
@@ -29,6 +29,7 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
@@ -39,12 +40,14 @@ import {
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
@@ -81,6 +84,8 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
+  let configService: MockProxy<ConfigService>;
 
   let sut: DefaultSyncService;
 
@@ -114,6 +119,8 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    v2UpgradeTokenStateService = mock();
+    configService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -144,6 +151,8 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      v2UpgradeTokenStateService,
+      configService,
     );
   });
 
@@ -445,6 +454,42 @@ describe("DefaultSyncService", () => {
 
         expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
+
+      it("should persist the V2 upgrade token when present on the user decryption response", async () => {
+        const wrappedUserKey1 = "mockWrappedUserKey1";
+        const wrappedUserKey2 = "mockWrappedUserKey2";
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {
+            V2UpgradeToken: {
+              WrappedUserKey1: wrappedUserKey1,
+              WrappedUserKey2: wrappedUserKey2,
+            },
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).toHaveBeenCalledWith(
+          { wrapped_user_key_1: wrappedUserKey1, wrapped_user_key_2: wrappedUserKey2 },
+          user1,
+        );
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).not.toHaveBeenCalled();
+      });
+
+      it("should clear the V2 upgrade token when the response omits it", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          UserDecryption: {},
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).toHaveBeenCalledWith(user1);
+        expect(v2UpgradeTokenStateService.setV2UpgradeToken).not.toHaveBeenCalled();
+      });
     });
 
     describe("mutate 'last update time'", () => {
@@ -629,6 +674,35 @@ describe("DefaultSyncService", () => {
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
+      });
+    });
+
+    describe("account email sync", () => {
+      const newEmail = "new@example.com";
+
+      const emailSyncResponse = new SyncResponse({
+        Profile: { Id: user1, Email: newEmail },
+      });
+
+      it("sets the account email when the self-service change email flag is enabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM30806_SelfServiceChangeEmailCommand,
+        );
+        expect(accountService.setAccountEmail).toHaveBeenCalledWith(user1, newEmail);
+      });
+
+      it("does not set the account email when the self-service change email flag is disabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(accountService.setAccountEmail).not.toHaveBeenCalled();
       });
     });
 

@@ -3,10 +3,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   DIALOG_DATA,
@@ -19,23 +23,20 @@ import {
   ToastService,
   DialogModule,
   ButtonComponent,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
+import { SendPolicyService } from "../services/send-policy.service";
 
 export interface SendItemDialogParams {
   /**
    * The configuration object for the dialog and form.
    */
   formConfig: SendFormConfig;
-
-  /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
 
   /**
    * A function that is called to determine whether the dialog is allowed
@@ -77,9 +78,18 @@ export type SendItemDialogResult = {
     AsyncActionsModule,
     DialogModule,
     CipherFormGeneratorComponent,
+    CalloutComponent,
   ],
 })
 export class SendAddEditDialogComponent {
+  SendDisabledReason = SendDisabledReason;
+
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
+
   readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
@@ -114,6 +124,12 @@ export class SendAddEditDialogComponent {
   config: SendFormConfig;
 
   /**
+   * Whether the form is disabled (e.g., the Send is disabled by policy).
+   * When true, the Save button is hidden.
+   */
+  disableForm = false;
+
+  /**
    * Whether the Send is actively being edited
    */
   protected readonly editing = signal(false);
@@ -133,6 +149,16 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
+  /**
+   * Whether to show the "Make a copy" button or not
+   */
+  protected readonly showCopyButton = signal(false);
+
+  /**
+   * Whether to show the trash icon button on the far right of the footer
+   */
+  protected readonly showTrashIconButton = signal(false);
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -141,9 +167,43 @@ export class SendAddEditDialogComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
-    this.config = params.formConfig;
+    void this.init();
+  }
+
+  async init() {
+    this.config = this.params.formConfig;
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: "sendDisabledNonCompliantBannerMessage",
+          showMakeCopyButton: true,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    }
     this.editing.set(this.config.mode === "add");
+    this.showCopyButton.set(
+      this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+    );
+    this.showTrashIconButton.set(
+      this.showCopyButton() || (!this.config.originalSend?.disabled && this.config?.mode !== "add"),
+    );
   }
 
   /**
@@ -305,5 +365,34 @@ export class SendAddEditDialogComponent {
       data: params,
       closePredicate: params.closePredicate,
     });
+  }
+
+  async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
+      },
+    };
+    await this.init();
   }
 }

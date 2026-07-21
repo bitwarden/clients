@@ -30,7 +30,7 @@ pub enum AuthError {
 
 /// Bitwarden's SSH operation authorization policy:
 ///
-/// - Always allows listing keys while the agent is running
+/// - Allows listing keys when the keystore is initialized and otherwise requests approval.
 /// - Always requires approval for signing operations
 /// - Delegates approval decisions to the provided handler
 pub struct BitwardenAuthPolicy<K, H>
@@ -64,8 +64,22 @@ where
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
             AuthRequest::List => {
-                info!("Allowing list request.");
-                Ok(true)
+                // The keystore being initialized means that the vault has been unlocked and keys
+                // received from the vault. The before keystore initialization is a case that arises
+                // in BFU (Before First Unlock)- where the vault state is logged into but hasn't
+                // yet been unlocked during the app's runtime.
+                if !self.keystore.is_initialized() {
+                    info!(
+                        "Keystore not yet initialized on list request, requesting list approval."
+                    );
+                    self.approval_handler
+                        .request_list_approval()
+                        .await
+                        .map_err(Into::into)
+                } else {
+                    info!("Allowing list request.");
+                    Ok(true)
+                }
             }
             AuthRequest::Sign(sign_request) => {
                 let cipher_id = match self.keystore.get(&sign_request.public_key) {
@@ -77,10 +91,7 @@ where
                         return Err(AuthError::KeystoreError(error));
                     }
                 };
-                info!(
-                    public_key = %sign_request.public_key,
-                    "Requesting sign approval."
-                );
+                info!(?sign_request, "Requesting sign approval.");
 
                 self.approval_handler
                     .request_sign_approval(SignApprovalRequest {
@@ -108,7 +119,7 @@ mod tests {
     use super::*;
     use crate::{
         approval::{ApprovalError, MockApprovalRequester},
-        server::SIGNamespace,
+        server::{ConnectionContext, SIGNamespace, SessionBindContext},
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
@@ -121,24 +132,23 @@ mod tests {
 
     fn create_test_sign_request(
         public_key: crate::crypto::PublicKey,
-        process_name: Option<&str>,
-        is_forwarding: bool,
+        connection: ConnectionContext,
         namespace: Option<SIGNamespace>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
-            process_name: process_name.map(std::string::ToString::to_string),
-            is_forwarding,
+            connection,
             namespace,
-            flags: None,
         })
     }
 
     fn create_default_test_sign_request(public_key: crate::crypto::PublicKey) -> AuthRequest {
         create_test_sign_request(
             public_key,
-            Some(TEST_PROCESS_NAME),
-            TEST_IS_FORWARDING,
+            ConnectionContext {
+                process_name: Some(TEST_PROCESS_NAME.to_string()),
+                session_bind: None,
+            },
             None,
         )
     }
@@ -163,18 +173,62 @@ mod tests {
     }
 
     const TEST_PROCESS_NAME: &str = "ssh";
-    const TEST_IS_FORWARDING: bool = false;
 
     #[tokio::test]
-    async fn test_authorize_list_always_returns_true() {
-        let keystore = Arc::new(MockKeyStore::new());
+    async fn test_authorize_list_initialized_keystore_allows_without_callback() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| true);
+        // Approval handler must NOT be called when keystore is already initialized.
         let approval_handler = MockApprovalRequester::new();
 
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
         let result = policy.authorize(&AuthRequest::List).await;
 
-        assert!(matches!(result, Ok(true)), "Should always allow list");
+        assert!(
+            matches!(result, Ok(true)),
+            "Initialized keystore should allow without callback"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_authorize_list_uninitialized_keystore_calls_callback_and_allows() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| false);
+        let mut approval_handler = MockApprovalRequester::new();
+        approval_handler
+            .expect_request_list_approval()
+            .once()
+            .returning(|| Ok(true));
+
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+
+        let result = policy.authorize(&AuthRequest::List).await;
+
+        assert!(
+            matches!(result, Ok(true)),
+            "Uninitialized keystore + approved callback should return Ok(true)"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_authorize_list_uninitialized_keystore_callback_denied_returns_false() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| false);
+        let mut approval_handler = MockApprovalRequester::new();
+        approval_handler
+            .expect_request_list_approval()
+            .once()
+            .returning(|| Ok(false));
+
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+
+        let result = policy.authorize(&AuthRequest::List).await;
+
+        assert!(
+            matches!(result, Ok(false)),
+            "Uninitialized keystore + denied callback should return Ok(false)"
+        );
     }
 
     #[tokio::test]
@@ -324,8 +378,13 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .withf(|req| {
-                req.sign_request.process_name == Some("test-process".to_string())
-                    && req.sign_request.is_forwarding
+                req.sign_request.connection.process_name == Some("test-process".to_string())
+                    && req
+                        .sign_request
+                        .connection
+                        .session_bind
+                        .as_ref()
+                        .is_some_and(|s| s.is_forwarding)
                     && req.sign_request.namespace == Some(SIGNamespace::Unsupported)
             })
             .times(1)
@@ -335,8 +394,13 @@ mod tests {
 
         let request = create_test_sign_request(
             test_pub_key,
-            Some("test-process"),
-            true,
+            ConnectionContext {
+                process_name: Some("test-process".to_string()),
+                session_bind: Some(SessionBindContext {
+                    is_forwarding: true,
+                    host_fingerprint: "test-fingerprint".to_string(),
+                }),
+            },
             Some(SIGNamespace::Unsupported),
         );
         let result = policy.authorize(&request).await;

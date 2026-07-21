@@ -28,6 +28,7 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
+  BulkDeleteDialogResult,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -42,10 +43,7 @@ import {
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { AssignCollectionsWebComponent } from "../../../../vault/components/assign-collections";
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { openBulkDeleteDialog } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
 import { VaultCollectionService } from "./vault-collection.service";
@@ -146,11 +144,17 @@ export class VaultCipherActionsService {
   async addCipher(cipherType?: CipherType): Promise<void> {
     const activeFilter = await firstValueFrom(this.activeFilter$);
     const type = cipherType ?? activeFilter.cipherType;
+
+    const organization = await firstValueFrom(this.organization$);
+    if (!organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
+      return;
+    }
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
 
     const collectionId: CollectionId | undefined = activeFilter.collectionId as CollectionId;
 
-    const organization = await firstValueFrom(this.organization$);
     cipherFormConfig.initialValues = {
       organizationId: organization.id,
       collectionIds: collectionId ? [collectionId] : [],

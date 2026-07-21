@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -113,6 +113,12 @@ type LoadAction =
   ],
 })
 export class ViewComponent {
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   private activeUserId: UserId;
 
   headerText: string;
@@ -124,12 +130,11 @@ export class ViewComponent {
   senderTabId?: number;
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
-  //feature flag
-  private readonly pm30521FeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM30521_AutofillButtonViewLoginScreen),
-  );
-
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
@@ -153,7 +158,6 @@ export class ViewComponent {
     private archiveService: CipherArchiveService,
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
-    private configService: ConfigService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
   ) {
     this.subscribeToParams();
@@ -223,11 +227,22 @@ export class ViewComponent {
   }
 
   setHeader(type: CipherType) {
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: "viewItemHeaderLogin",
-      [CipherType.Card]: "viewItemHeaderCard",
-      [CipherType.Identity]: "viewItemHeaderIdentity",
-      [CipherType.SecureNote]: "viewItemHeaderNote",
+      [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderLoginSentenceCase"
+        : "viewItemHeaderLogin",
+      [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderCardSentenceCase"
+        : "viewItemHeaderCard",
+      [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+        ? "viewItemHeaderIdentitySentenceCase"
+        : "viewItemHeaderIdentity",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? "viewItemHeaderSecureNote"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderNoteSentenceCase"
+          : "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       [CipherType.DriversLicense]: "viewItemHeaderLicense",
@@ -338,11 +353,6 @@ export class ViewComponent {
   }
 
   showAutofillButton(): boolean {
-    //feature flag
-    if (!this.pm30521FeatureFlag()) {
-      return false;
-    }
-
     if (!this.autofillAllowed()) {
       return false;
     }
@@ -355,13 +365,6 @@ export class ViewComponent {
   }
 
   async doAutofill() {
-    //feature flag
-    if (
-      !(await this.configService.getFeatureFlag(FeatureFlag.PM30521_AutofillButtonViewLoginScreen))
-    ) {
-      return;
-    }
-
     //for non login types that are still auto-fillable
     if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
       await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);

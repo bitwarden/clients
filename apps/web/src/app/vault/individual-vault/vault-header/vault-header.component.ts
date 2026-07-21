@@ -31,6 +31,7 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
@@ -53,6 +54,7 @@ import { PipesModule } from "../pipes/pipes.module";
     JslibModule,
     NewCipherMenuComponent,
     CoachmarkComponent,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -248,7 +250,17 @@ export class VaultHeaderComponent {
   }
 
   get canCreateCipher(): boolean {
-    return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
+    const activeOrganization = this.activeOrganization;
+    if (activeOrganization && !activeOrganization.enabled) {
+      return false;
+    }
+    return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
+  }
+
+  /** Whether the "New" button should be disabled because the active organization is suspended. */
+  get isOrganizationSuspended(): boolean {
+    const activeOrganization = this.activeOrganization;
+    return !!activeOrganization && !activeOrganization.enabled;
   }
 
   deleteCollection() {

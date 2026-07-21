@@ -12,6 +12,7 @@ export type Urls = {
   events?: string;
   keyConnector?: string;
   scim?: string;
+  send?: string;
 };
 
 /**
@@ -20,6 +21,7 @@ export type Urls = {
 const _Region = Object.freeze({
   US: "US",
   EU: "EU",
+  Gov: "Gov",
   SelfHosted: "Self-hosted",
 } as const);
 

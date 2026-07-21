@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,12 +19,12 @@ describe("background browser biometrics service tests", function () {
   const biometricStateService = mock<BiometricStateService>();
   const messagingService = mock<MessagingService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-  const pinService = mock<PinServiceAbstraction>();
   const mockConfigService = mock<ConfigService>();
   mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.useFakeTimers();
     service = new BackgroundBrowserBiometricsService(
       () => nativeMessagingBackground,
       () => mockConfigService,
@@ -34,9 +33,12 @@ describe("background browser biometrics service tests", function () {
       biometricStateService,
       messagingService,
       vaultTimeoutSettingsService,
-      pinService,
       () => null as any,
     );
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe("canEnableBiometricUnlock", () => {

@@ -9,7 +9,7 @@ Distilled from [Web Code Style — TypeScript](https://contributing.bitwarden.co
 
 ## Boolean Naming
 
-Use the base word. Add `is` / `has` / `can` prefixes only when the unprefixed name would collide with another property.
+Use the base word. Add `is` / `has` / `can` prefixes only when meaning cannot be conveyed without them — for example, when the unprefixed name would collide with another property.
 
 ```typescript
 // Prefer
@@ -23,6 +23,8 @@ isEnabled = signal(true); // because `enabled` is already an input
 ## No TypeScript Enums (ADR-0025)
 
 Use const objects with derived type aliases. Don't add new enums; legacy ones remain.
+
+`Object.freeze` is recommended to prevent member injection at runtime.
 
 ```typescript
 // Numeric
@@ -71,3 +73,21 @@ Use **RxJS** (not Signals) in services for:
 - Code shared with non-Angular clients (CLI)
 - Complex reactive workflows
 - Interop with existing Observable-based code
+
+## File and Class Naming
+
+File names use suffixes to indicate role:
+
+- Conventional: `.service`, `.component`, `.pipe`, `.module`, `.directive`
+- Less conventional: `.api`, `.data`, `.view`, `.export`, `.request`, `.response`, `.type`, `.enum`
+
+Class names include the same suffix: `folder.service.ts` → `FolderService`, `folder.request.ts` → `FolderRequest`.
+
+### Implementation Prefixes
+
+When an abstract class has multiple implementations, prefix the class name:
+
+- `Default` — the default implementation
+- `Web`, `Browser`, `Desktop`, `Cli` — platform-specific implementations
+
+Example: `DefaultFolderService`, `BrowserPlatformUtilsService`.

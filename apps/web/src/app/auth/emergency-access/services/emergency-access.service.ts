@@ -20,6 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -267,7 +268,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     )) as UserKey;
 
     let ciphers: CipherView[] = [];
-    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
+    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(new CipherData(c)));
     ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }

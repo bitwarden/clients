@@ -41,6 +41,12 @@ export interface SecretsManagerSubscriptionOptions {
   baseServiceAccountCount: number;
 
   /**
+   * The number of permanent service accounts retained from a pricing migration.
+   * These are free and excluded from the billable additional count.
+   */
+  graceServiceAccounts: number;
+
+  /**
    * The current number of additional service accounts the organization subscribes to.
    */
   additionalServiceAccounts: number;

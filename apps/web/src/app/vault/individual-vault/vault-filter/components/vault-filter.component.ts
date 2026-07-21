@@ -41,6 +41,7 @@ import {
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -77,6 +78,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -258,7 +260,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     const addAction = !singleOrgPolicy
-      ? { text: "newOrganization", route: "/create-organization" }
+      ? {
+          text: this.vfo1TerminologyService.enabled() ? "newVault" : "newOrganization",
+          route: "/create-organization",
+        }
       : undefined;
 
     const orgFilterSection: VaultFilterSection = {

@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
-import { filter, map, Observable, startWith, concatMap, firstValueFrom } from "rxjs";
+import { filter, map, Observable, startWith, concatMap, firstValueFrom, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -23,6 +23,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/reports";
 
@@ -49,6 +51,7 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private router: Router,
+    private configService: ConfigService,
   ) {
     this.router.events
       .pipe(
@@ -73,7 +76,7 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(params.organizationId)),
       ),
-      map((org) => this.buildReports(org.productTierType)),
+      switchMap((org) => this.buildReports(org.productTierType)),
     );
   }
 
@@ -117,7 +120,7 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private buildReports(productType: ProductTierType): ReportEntry[] {
+  private async buildReports(productType: ProductTierType): Promise<ReportEntry[]> {
     const reportRequiresUpgrade =
       productType == ProductTierType.Free ? ReportVariant.RequiresUpgrade : ReportVariant.Enabled;
 
@@ -150,6 +153,17 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             : ReportVariant.RequiresEnterprise,
       },
     ];
+
+    const passkeyReportEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PasskeyLoginReport),
+    );
+
+    if (passkeyReportEnabled) {
+      reportsArray.push({
+        ...reports[ReportType.PasskeyLogin],
+        variant: reportRequiresUpgrade,
+      });
+    }
 
     return reportsArray;
   }

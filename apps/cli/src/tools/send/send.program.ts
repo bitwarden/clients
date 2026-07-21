@@ -46,7 +46,7 @@ export class SendProgram extends BaseProgram {
       .option("-f, --file", "Specifies that <data> is a filepath")
       .option(
         "-d, --deleteInDays <days>",
-        "The number of days in the future to set deletion date, defaults to 7",
+        "The number of days in the future to set deletion date, defaults to 7. If a particular deletion date is mandated by enterprise policy that value will override this flag.",
         "7",
       )
       .addOption(
@@ -342,6 +342,8 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
     );
     return await cmd.run(encodedJson, options);
   }

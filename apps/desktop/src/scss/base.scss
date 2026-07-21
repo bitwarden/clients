@@ -18,7 +18,7 @@ body {
   color: $text-color;
 
   // We initially rely on electron to provide the appropriate background color.
-  // This ensures the background color while reloading is correct to avoid a jarring missmatch.
+  // This ensures the background color while reloading is correct to avoid a jarring mismatch.
   background-color: transparent;
 
   @include themify($themes) {
@@ -66,8 +66,8 @@ a:not([bitlink], [bitbutton]) {
   }
 }
 
-input:not(bit-form-field input, input[bitcheckbox]),
-select,
+input:not(bit-form-field input, input[bitcheckbox], bit-search input),
+select:not(select[bitinput]),
 textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
