@@ -1,5 +1,5 @@
 import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
-import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import { platformBrowser } from "@angular/platform-browser";
 
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
@@ -20,7 +20,7 @@ if (process.env.ENV === "production") {
 }
 
 function init() {
-  void platformBrowserDynamic().bootstrapModule(AppModule, {
+  void platformBrowser().bootstrapModule(AppModule, {
     applicationProviders: [provideZoneChangeDetection()],
   });
 }
