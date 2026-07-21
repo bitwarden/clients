@@ -77,7 +77,7 @@ export class AtRiskGaugeComponent {
 
   /** Percentage text color: green when clean, red when at risk (matches the design). */
   protected readonly percentageTextClass = computed(() =>
-    this.isAtRisk() ? "!tw-text-danger-600" : "!tw-text-success-600",
+    this.isAtRisk() ? "tw-text-danger-600" : "tw-text-success-600",
   );
 
   /** Localized accessible summary announced by screen readers, e.g. "37% at risk". */

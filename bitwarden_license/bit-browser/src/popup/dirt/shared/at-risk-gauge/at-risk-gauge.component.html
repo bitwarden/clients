@@ -1,5 +1,5 @@
 <div
-  class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-size-24"
+  class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-size-36"
   role="progressbar"
   aria-valuemin="0"
   aria-valuemax="100"
@@ -19,7 +19,7 @@
         cx="18"
         cy="18"
         r="15.9155"
-        stroke-width="3"
+        stroke-width="3.35"
         stroke-linecap="round"
         stroke-dasharray="75 25"
       ></circle>
@@ -31,7 +31,7 @@
           cx="18"
           cy="18"
           r="15.9155"
-          stroke-width="3"
+          stroke-width="3.35"
           stroke-linecap="round"
           [attr.stroke-dasharray]="fillDashArray()"
         ></circle>
@@ -41,7 +41,7 @@
 
   <!-- Centered percentage + label overlay -->
   <div class="tw-absolute tw-flex tw-flex-col tw-items-center tw-justify-center tw-leading-none">
-    <span bitTypography="h5" [noMargin]="true" [class]="percentageTextClass()"
+    <span class="tw-text-2xl tw-font-medium" [class]="percentageTextClass()"
       >{{ percentage() }}%</span
     >
     <span bitTypography="helper" class="tw-text-main">{{ "atRisk" | i18n }}</span>
