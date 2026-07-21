@@ -7,7 +7,6 @@ export interface DomQueryService {
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
-    ignoredTreeWalkerNodesOverride?: Set<string>,
   ): T[];
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,

@@ -222,13 +222,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this._autofillFormElements;
   }
 
-  /**
-   * Builds the data for all forms and fields found within the page DOM.
-   * Sets up a mutation observer to verify DOM changes and returns early
-   * with cached data if no changes are detected.
-   * @returns {Promise<AutofillPageDetails>}
-   * @public
-   */
   // Explicit request: refresh the latch and force a fresh query when the cache is
   // "no fields" or hosts are unresolved; cached populated results stay served.
   prepareForExplicitCollection = () => {
@@ -243,6 +236,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
+  /**
+   * Builds the data for all forms and fields found within the page DOM.
+   * Sets up a mutation observer to verify DOM changes and returns early
+   * with cached data if no changes are detected.
+   * @returns {Promise<AutofillPageDetails>}
+   * @public
+   */
   async getPageDetails(): Promise<AutofillPageDetails> {
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
@@ -1862,7 +1862,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.unresolvedShadowHosts.size === 0
         ? this.unresolvedShadowHostRetryCapMs
         : Math.min(
-            this.shadowDomCheckTimeoutMs << this.unresolvedShadowHostRetryRound,
+            // Clamp the exponent: `<<` is a 32-bit shift, so an unclamped round would
+            // eventually wrap to a tiny delay. 5 already exceeds the cap (500 << 5 = 16s).
+            this.shadowDomCheckTimeoutMs << Math.min(this.unresolvedShadowHostRetryRound, 5),
             this.unresolvedShadowHostRetryCapMs,
           );
     this.unresolvedShadowHostRetryRound++;

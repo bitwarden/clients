@@ -57,7 +57,6 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param treeWalkerFilter - The filter callback to use for the treeWalker query
    * @param mutationObserver - The MutationObserver to use for observing shadow roots
    * @param forceDeepQueryAttempt - Whether to force a deep query attempt
-   * @param ignoredTreeWalkerNodesOverride - An optional set of node names to ignore when using the treeWalker strategy
    */
   query<T>(
     root: Document | ShadowRoot | Element,
@@ -65,15 +64,12 @@ export class DomQueryService implements DomQueryServiceInterface {
     treeWalkerFilter: CallableFunction,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
-    ignoredTreeWalkerNodesOverride?: Set<string>,
   ): T[] {
-    const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
-
     if (!forceDeepQueryAttempt) {
       return this.queryAllTreeWalkerNodes<T>(
         root,
         treeWalkerFilter,
-        ignoredTreeWalkerNodes,
+        this.ignoredTreeWalkerNodes,
         mutationObserver,
       ).elements;
     }
@@ -84,7 +80,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       return this.queryAllTreeWalkerNodes<T>(
         root,
         treeWalkerFilter,
-        ignoredTreeWalkerNodes,
+        this.ignoredTreeWalkerNodes,
         mutationObserver,
       ).elements;
     }
