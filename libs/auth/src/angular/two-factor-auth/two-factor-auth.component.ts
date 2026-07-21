@@ -107,8 +107,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
-    | ElementRef
-    | undefined = undefined;
+    ElementRef | undefined = undefined;
 
   loading = true;
 

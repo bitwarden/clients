@@ -3,13 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 import { BitwardenIcon } from "../shared/icon";
 
 export type IconTileVariant =
-  | "primary"
-  | "success"
-  | "danger"
-  | "warning"
-  | "subtle"
-  | "dark"
-  | "contrast";
+  "primary" | "success" | "danger" | "warning" | "subtle" | "dark" | "contrast";
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 

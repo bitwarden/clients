@@ -244,8 +244,7 @@ describe("Fido2 Content Script", () => {
 
     async function expectNotAllowedErrorAndNoBackgroundCall(
       messageType:
-        | typeof MessageTypes.CredentialCreationRequest
-        | typeof MessageTypes.CredentialGetRequest,
+        typeof MessageTypes.CredentialCreationRequest | typeof MessageTypes.CredentialGetRequest,
     ) {
       jest.clearAllMocks();
       (jest.spyOn(globalThis, "document", "get") as jest.Mock).mockImplementation(

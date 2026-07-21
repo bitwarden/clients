@@ -1,13 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
 export type BerryVariant =
-  | "primary"
-  | "subtle"
-  | "success"
-  | "warning"
-  | "danger"
-  | "accentPrimary"
-  | "contrast";
+  "primary" | "subtle" | "success" | "warning" | "danger" | "accentPrimary" | "contrast";
 
 /**
  * The berry component is a compact visual indicator used to display short,

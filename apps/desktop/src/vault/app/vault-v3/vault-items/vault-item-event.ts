@@ -3,5 +3,4 @@ import { VaultItemEvent as BaseVaultItemEvent } from "@bitwarden/vault";
 
 // Extend base events with desktop-specific events
 export type VaultItemEvent<C extends CipherViewLike> =
-  | BaseVaultItemEvent<C>
-  | { type: "viewCipher"; item: C };
+  BaseVaultItemEvent<C> | { type: "viewCipher"; item: C };

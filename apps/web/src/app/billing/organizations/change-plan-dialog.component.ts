@@ -1007,12 +1007,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
       setTimeout(() => {
         const card = cardElements[newIndex];
-        if (
-          !(
-            card.classList.contains("tw-bg-secondary-100") &&
-            card.classList.contains("tw-text-muted")
-          )
-        ) {
+        if (!(
+          card.classList.contains("tw-bg-secondary-100") && card.classList.contains("tw-text-muted")
+        )) {
           card?.focus();
         }
       }, 0);

@@ -30,8 +30,7 @@ import { RouterService } from "../../../core/router.service";
 import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
 export type InitiationPath =
-  | "Password Manager trial from marketing website"
-  | "Secrets Manager trial from marketing website";
+  "Password Manager trial from marketing website" | "Secrets Manager trial from marketing website";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

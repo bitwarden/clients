@@ -27,42 +27,50 @@ export function NotificationConfirmationMessage({
 }: NotificationConfirmationMessageProps) {
   return html`
     <div class=${containerStyles}>
-      ${message || buttonText
-        ? html`
-            <div class=${singleLineWrapperStyles}>
-              ${itemName
-                ? html`
-                    <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
-                  `
-                : nothing}
-              <span
-                title=${message || buttonText}
-                class=${notificationConfirmationMessageStyles(theme)}
-              >
-                ${message || nothing}
-                ${buttonText
-                  ? html`
-                      <a
-                        title=${buttonText}
-                        class=${notificationConfirmationButtonTextStyles(theme)}
-                        @click=${handleClick}
-                        @keydown=${(e: KeyboardEvent) =>
-                          handleButtonKeyDown(e, () => handleClick(e))}
-                        aria-label=${buttonAria}
-                        tabindex="0"
-                        role="button"
-                      >
-                        ${buttonText}
-                      </a>
-                    `
-                  : nothing}
-              </span>
-            </div>
-          `
-        : nothing}
-      ${messageDetails
-        ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
-        : nothing}
+      ${
+        message || buttonText
+          ? html`
+              <div class=${singleLineWrapperStyles}>
+                ${
+                  itemName
+                    ? html`
+                        <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
+                      `
+                    : nothing
+                }
+                <span
+                  title=${message || buttonText}
+                  class=${notificationConfirmationMessageStyles(theme)}
+                >
+                  ${message || nothing}
+                  ${
+                    buttonText
+                      ? html`
+                          <a
+                            title=${buttonText}
+                            class=${notificationConfirmationButtonTextStyles(theme)}
+                            @click=${handleClick}
+                            @keydown=${(e: KeyboardEvent) =>
+                              handleButtonKeyDown(e, () => handleClick(e))}
+                            aria-label=${buttonAria}
+                            tabindex="0"
+                            role="button"
+                          >
+                            ${buttonText}
+                          </a>
+                        `
+                      : nothing
+                  }
+                </span>
+              </div>
+            `
+          : nothing
+      }
+      ${
+        messageDetails
+          ? html`<div class=${AdditionalMessageStyles({ theme })}>${messageDetails}</div>`
+          : nothing
+      }
     </div>
   `;
 }

@@ -70,5 +70,4 @@ export type ForwarderProfileMetadata<Options> = ExtensionProfileMetadata<Options
  *  manager
  */
 export type ProfileMetadata<Options> =
-  | CoreProfileMetadata<Options>
-  | ForwarderProfileMetadata<Options>;
+  CoreProfileMetadata<Options> | ForwarderProfileMetadata<Options>;
