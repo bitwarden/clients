@@ -56,6 +56,7 @@ export const Empty: StoryObj<ComponentAndControls> = {
     actionText: "New login",
     i18n: { actionAria: mockI18n.addNewLoginItemAria },
     iconName: "plus",
+    theme: ThemeTypes.Dark,
     dataTestId: "inline-menu-empty-state",
     actionDataTestId: "inline-menu-new-item-button",
   },
