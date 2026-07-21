@@ -18,8 +18,9 @@ import {
   shareReplay,
   startWith,
   switchMap,
+  tap,
   filter,
-  takeUntil,
+  take,
 } from "rxjs";
 
 import {
@@ -104,9 +105,7 @@ export class CollectionDialogComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly collectionService = inject(CollectionService);
   private readonly configService = inject(ConfigService);
-
   private readonly destroyRef = inject(DestroyRef);
-  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
@@ -116,6 +115,8 @@ export class CollectionDialogComponent implements OnInit {
     access: [[] as AccessItemValue[]],
     selectedOrg: "" as OrganizationId,
   });
+
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly organizations$: Observable<Organization[]> = this.activeUserId$.pipe(
     switchMap((userId) => this.organizationService.organizations$(userId)),
@@ -143,6 +144,8 @@ export class CollectionDialogComponent implements OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  protected readonly organization = toSignal(this.organization$);
+
   private readonly allCollections$ = this.selectedOrgId$.pipe(
     switchMap((orgId) =>
       orgId
@@ -167,6 +170,8 @@ export class CollectionDialogComponent implements OnInit {
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
+
+  protected readonly collection = toSignal(this.collection$);
 
   private readonly groups$ = combineLatest([this.organization$, this.selectedOrgId$]).pipe(
     switchMap(([organization, orgId]) =>
@@ -195,9 +200,6 @@ export class CollectionDialogComponent implements OnInit {
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
-
-  protected readonly collection = toSignal(this.collection$);
-  protected readonly organization = toSignal(this.organization$);
 
   private readonly nestOptionsState$ = combineLatest({
     allCollections: this.allCollections$,
@@ -246,8 +248,6 @@ export class CollectionDialogComponent implements OnInit {
     this.params.initialTab ?? CollectionDialogTabType.Info,
   );
 
-  protected readonly loading = signal(true);
-  protected readonly showOrgSelector = signal(false);
   protected readonly showDeleteButton = toSignal(
     combineLatest([this.collection$, this.organization$]).pipe(
       map(
@@ -260,7 +260,7 @@ export class CollectionDialogComponent implements OnInit {
     ),
     { initialValue: false },
   );
-  protected readonly showAddAccessWarning = signal(false);
+
   protected readonly buttonDisplayName$ = this.formGroup.controls.selectedOrg.statusChanges.pipe(
     startWith(null),
     map(() =>
@@ -270,39 +270,51 @@ export class CollectionDialogComponent implements OnInit {
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
+
   protected readonly initialPermission = signal(
     this.params.initialPermission ?? CollectionPermission.View,
   );
+
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
-  private readonly orgExceedingCollectionLimit = signal<Organization | undefined>(undefined);
+
+  private readonly orgExceedingCollectionLimit$ = this.organizationSelected.valueChanges.pipe(
+    filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
+    switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
+    tap(() => {
+      this.organizationSelected.markAsTouched();
+      this.formGroup.updateValueAndValidity();
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly orgExceedingCollectionLimit = toSignal(this.orgExceedingCollectionLimit$);
+
+  protected readonly loading = toSignal(this.allCollections$.pipe(map(() => false)), {
+    initialValue: true,
+  });
+
+  protected readonly showAddAccessWarning = toSignal(
+    this.organization$.pipe(
+      map(
+        (org) => !org?.allowAdminAccessToAllCollectionItems && !!this.params.isAddAccessCollection,
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly showOrgSelector = signal(false);
 
   protected readonly PermissionMode = PermissionMode;
 
   async ngOnInit() {
-    // Opened from the individual vault
     const userId = await firstValueFrom(this.activeUserId$);
     if (this.params.showOrgSelector) {
       this.showOrgSelector.set(true);
-      this.formGroup.controls.selectedOrg.valueChanges
-        .pipe(
-          map((id) => {
-            if (id != null) {
-              return this.loadOrg(id);
-            }
-          }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe();
-
-      // patchValue will trigger a call to loadOrg() in this case, so no need to call it again here
-      this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
-    } else {
-      // Opened from the org vault
-      this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
-      await this.loadOrg(this.params.organizationId);
     }
+
+    this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
 
     this.organizationSelected.setAsyncValidators(
       freeOrgCollectionLimitValidator(
@@ -316,44 +328,46 @@ export class CollectionDialogComponent implements OnInit {
 
     this.formGroup.updateValueAndValidity();
 
-    this.organizationSelected.valueChanges
-      .pipe(
-        filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((org) => {
-        this.orgExceedingCollectionLimit.set(org);
-        this.organizationSelected.markAsTouched();
-        this.formGroup.updateValueAndValidity();
-      });
-  }
+    this.organization$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((organization) => {
+      if (!organization) {
+        return;
+      }
+      if (!organization.allowAdminAccessToAllCollectionItems) {
+        this.formGroup.controls.access.addValidators(validateCanManagePermission);
+      } else {
+        this.formGroup.controls.access.removeValidators(validateCanManagePermission);
+      }
+      this.formGroup.controls.access.updateValueAndValidity();
+    });
 
-  async loadOrg(orgId: string) {
-    combineLatest({
-      organization: this.organization$,
-      collection: this.collection$,
-      collections: this.allCollections$,
-      users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
-    })
+    combineLatest([this.collection$, this.organization$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.handleFormGroupReadonly(this.dialogReadonly));
+
+    this.selectedOrgId$
       .pipe(
+        switchMap(() =>
+          combineLatest({
+            organization: this.organization$,
+            collection: this.collection$,
+            allCollections: this.allCollections$,
+            users: this.users$,
+          }).pipe(take(1)),
+        ),
         takeUntilDestroyed(this.destroyRef),
-        takeUntil(this.formGroup.controls.selectedOrg.valueChanges),
       )
-      .subscribe(({ organization, collection, collections: allCollections, users }) => {
+      .subscribe(({ organization, collection, allCollections, users }) => {
         if (!organization) {
           return;
         }
 
         if (collection) {
           const { name, parent: parentName } = parseName(collection);
-
-          const accessSelections = mapToAccessSelections(collection);
           this.formGroup.patchValue({
             name,
             externalId: collection.externalId,
             parent: parentName,
-            access: accessSelections,
+            access: mapToAccessSelections(collection),
           });
         } else {
           const nestOptions: CollectionView[] = this.params.limitNestedCollections
@@ -377,18 +391,6 @@ export class CollectionDialogComponent implements OnInit {
             access: initialSelection,
           });
         }
-
-        if (!organization.allowAdminAccessToAllCollectionItems) {
-          this.formGroup.controls.access.addValidators(validateCanManagePermission);
-        } else {
-          this.formGroup.controls.access.removeValidators(validateCanManagePermission);
-        }
-        this.formGroup.controls.access.updateValueAndValidity();
-
-        this.handleFormGroupReadonly(this.dialogReadonly);
-
-        this.loading.set(false);
-        this.showAddAccessWarning.set(this.handleAddAccessWarning());
       });
   }
 
@@ -552,17 +554,6 @@ export class CollectionDialogComponent implements OnInit {
         productTierType: org.productTierType,
       },
     });
-  }
-
-  private handleAddAccessWarning(): boolean {
-    if (
-      !this.organization()?.allowAdminAccessToAllCollectionItems &&
-      this.params.isAddAccessCollection
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   private handleFormGroupReadonly(readonly: boolean) {
