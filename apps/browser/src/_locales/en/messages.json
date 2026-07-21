@@ -6137,6 +6137,12 @@
   "personalItemVaultTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
   },
+  "personalItemWithOrgTransferWarningSingularPre": {
+    "message": "1 item will be permanently transferred to "
+  },
+  "personalItemWithOrgTransferWarningSingularPost": {
+    "message": ". You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
     "placeholders": {

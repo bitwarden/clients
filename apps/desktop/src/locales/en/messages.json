@@ -5160,6 +5160,12 @@
       }
     }
   },
+  "personalItemWithOrgTransferWarningSingularPre": {
+    "message": "1 item will be permanently transferred to "
+  },
+  "personalItemWithOrgTransferWarningSingularPost": {
+    "message": ". You will no longer own this item."
+  },
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
