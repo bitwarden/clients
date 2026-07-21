@@ -1,13 +1,13 @@
 import {
-  ChangeDetectorRef,
+  ChangeDetectionStrategy,
   Component,
-  OnDestroy,
+  DestroyRef,
   OnInit,
   WritableSignal,
   inject,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -17,10 +17,9 @@ import {
   of,
   shareReplay,
   startWith,
-  Subject,
   switchMap,
-  takeUntil,
   filter,
+  takeUntil,
 } from "rxjs";
 
 import {
@@ -85,13 +84,13 @@ const ButtonType = Object.freeze({
 } as const);
 type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
   imports: [SharedModule, AccessSelectorModule, SelectModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollectionDialogComponent implements OnInit, OnDestroy {
+export class CollectionDialogComponent implements OnInit {
   private readonly params = inject<CollectionDialogParams>(DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialogRef = inject<DialogRef<CollectionDialogResult>>(DialogRef);
@@ -101,13 +100,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private readonly i18nService = inject(I18nService);
   private readonly organizationUserApiService = inject(OrganizationUserApiService);
   private readonly dialogService = inject(DialogService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
   private readonly collectionService = inject(CollectionService);
   private readonly configService = inject(ConfigService);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly formGroup = this.formBuilder.group({
@@ -201,14 +199,67 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected readonly collection = toSignal(this.collection$);
   protected readonly organization = toSignal(this.organization$);
 
+  private readonly nestOptionsState$ = combineLatest({
+    allCollections: this.allCollections$,
+    collection: this.collection$,
+    organization: this.organization$,
+  }).pipe(
+    map(({ allCollections, collection, organization }) => {
+      let nestOptions: CollectionView[] = this.params.limitNestedCollections
+        ? allCollections.filter((c) => c.manage)
+        : allCollections;
+
+      let deletedParentName: string | undefined = undefined;
+
+      if (collection) {
+        nestOptions = nestOptions.filter((c) => c.id !== this.params.collectionId);
+
+        const { parent: parentName } = parseName(collection);
+
+        if (parentName !== undefined) {
+          if (
+            organization?.canViewAllCollections &&
+            !allCollections.find((c) => c.name === parentName)
+          ) {
+            deletedParentName = parentName;
+          } else if (!nestOptions.find((c) => c.name === parentName)) {
+            nestOptions = [{ name: parentName } as CollectionView, ...nestOptions];
+          }
+        }
+      }
+
+      return { nestOptions, deletedParentName };
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly nestOptions = toSignal(
+    this.nestOptionsState$.pipe(map((s) => s.nestOptions)),
+    { initialValue: [] as CollectionView[] },
+  );
+
+  protected readonly deletedParentName = toSignal(
+    this.nestOptionsState$.pipe(map((s) => s.deletedParentName)),
+  );
+
   protected readonly tabIndex: WritableSignal<number> = signal(
     this.params.initialTab ?? CollectionDialogTabType.Info,
   );
+
   protected readonly loading = signal(true);
-  protected readonly nestOptions = signal<CollectionView[]>([]);
-  protected readonly deletedParentName = signal<string | undefined>(undefined);
   protected readonly showOrgSelector = signal(false);
-  protected readonly showDeleteButton = signal(false);
+  protected readonly showDeleteButton = toSignal(
+    combineLatest([this.collection$, this.organization$]).pipe(
+      map(
+        ([collection, organization]) =>
+          !this.dialogReadonly &&
+          !!collection &&
+          !!organization &&
+          collection.canDelete(organization),
+      ),
+    ),
+    { initialValue: false },
+  );
   protected readonly showAddAccessWarning = signal(false);
   protected readonly buttonDisplayName$ = this.formGroup.controls.selectedOrg.statusChanges.pipe(
     startWith(null),
@@ -227,7 +278,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   );
   private readonly orgExceedingCollectionLimit = signal<Organization | undefined>(undefined);
 
-  protected PermissionMode = PermissionMode;
+  protected readonly PermissionMode = PermissionMode;
 
   async ngOnInit() {
     // Opened from the individual vault
@@ -241,7 +292,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               return this.loadOrg(id);
             }
           }),
-          takeUntil(this.destroy$),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe();
 
@@ -262,13 +313,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.i18nService,
       ),
     );
+
     this.formGroup.updateValueAndValidity();
 
     this.organizationSelected.valueChanges
       .pipe(
         filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
         switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((org) => {
         this.orgExceedingCollectionLimit.set(org);
@@ -278,51 +330,24 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   async loadOrg(orgId: string) {
-    const groups$ = this.organization$.pipe(
-      switchMap((organization) =>
-        organization?.useGroups ? this.groupService.getAll(orgId) : of([] as GroupView[]),
-      ),
-    );
-
     combineLatest({
       organization: this.organization$,
       collection: this.collection$,
       collections: this.allCollections$,
-      groups: groups$,
       users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
     })
-      .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
-      .subscribe(({ organization, collection, collections: allCollections, groups, users }) => {
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        takeUntil(this.formGroup.controls.selectedOrg.valueChanges),
+      )
+      .subscribe(({ organization, collection, collections: allCollections, users }) => {
         if (!organization) {
           return;
         }
 
-        let nestOptions: CollectionView[] = this.params.limitNestedCollections
-          ? allCollections.filter((c) => c.manage)
-          : allCollections;
-
         if (collection) {
-          // Ensure we don't allow nesting the current collection within itself
-          nestOptions = nestOptions.filter((c) => c.id !== this.collectionId);
-
-          // Parse the name to find its parent name
           const { name, parent: parentName } = parseName(collection);
 
-          // Determine if the user can see/select the parent collection
-          if (parentName !== undefined) {
-            if (
-              organization.canViewAllCollections &&
-              !allCollections.find((c) => c.name === parentName)
-            ) {
-              // The user can view all collections, but the parent was not found -> assume it has been deleted
-              this.deletedParentName.set(parentName);
-            } else if (!nestOptions.find((c) => c.name === parentName)) {
-              // We cannot find the current parent collection in our list of options, so add a placeholder
-              nestOptions = [{ name: parentName } as CollectionView, ...nestOptions];
-            }
-          }
-
-          this.nestOptions.set(nestOptions);
           const accessSelections = mapToAccessSelections(collection);
           this.formGroup.patchValue({
             name,
@@ -330,9 +355,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             parent: parentName,
             access: accessSelections,
           });
-          this.showDeleteButton.set(!this.dialogReadonly && collection.canDelete(organization));
         } else {
-          this.nestOptions.set(nestOptions);
+          const nestOptions: CollectionView[] = this.params.limitNestedCollections
+            ? allCollections.filter((c) => c.manage)
+            : allCollections;
           const parent = nestOptions.find((c) => c.id === this.params.parentCollectionId);
           const currentOrgUserId = users.data.find((u) => u.userId === organization.userId)?.id;
           const initialSelection: AccessItemValue[] =
@@ -396,7 +422,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     this.close(CollectionDialogAction.Canceled);
   }
 
-  protected submit = async () => {
+  protected async submit() {
     // Saving a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
@@ -484,9 +510,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     });
 
     this.close(CollectionDialogAction.Saved, collectionResponse);
-  };
+  }
 
-  protected delete = async () => {
+  protected async delete() {
     // Deleting a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
@@ -516,11 +542,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     });
 
     this.close(CollectionDialogAction.Deleted, collection);
-  };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private changePlan(org: Organization) {
