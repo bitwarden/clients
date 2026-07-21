@@ -28,7 +28,7 @@ import {
   LockService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
@@ -123,6 +123,7 @@ import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -138,6 +139,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -335,6 +337,7 @@ export class ServiceContainer {
   configApiService: ConfigApiServiceAbstraction;
   configService: ConfigService;
   availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -492,7 +495,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -557,17 +559,13 @@ export class ServiceContainer {
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      () => this.sdkService,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
       this.newPolicyService,
-      () => this.configService,
+      () => this.sdkService,
     );
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
@@ -629,6 +627,8 @@ export class ServiceContainer {
       this.environmentService,
       this.configService,
     );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
@@ -827,7 +827,12 @@ export class ServiceContainer {
       this.apiService,
       this.environmentService,
     );
-    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+    this.passwordPreloginService = new DefaultPasswordPreloginService(
+      passwordPreloginApiService,
+      this.sdkService,
+      this.environmentService,
+      this.configService,
+    );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
       this.globalStateProvider,
@@ -1018,6 +1023,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);

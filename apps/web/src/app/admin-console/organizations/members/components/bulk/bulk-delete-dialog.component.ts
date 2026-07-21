@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { BulkUserDetails } from "./bulk-status.component";
@@ -32,6 +33,7 @@ type BulkDeleteDialogParams = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AvatarIdPipe,
     AvatarModule,
     BadgeModule,
     ButtonModule,

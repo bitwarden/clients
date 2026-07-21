@@ -266,6 +266,11 @@ export const HiddenLabel: Story = {
       ...args,
     },
     template: /*html*/ `
+      <!--
+        A visually-hidden (\`sr-only\`) label keeps the field accessible while
+        collapsing the label/field gap, so the field stays vertically centered
+        alongside sibling controls in a row.
+      -->
       <div class="tw-flex tw-items-center tw-gap-2">
         <bit-form-field disableMargin class="tw-w-44">
           <bit-label class="tw-sr-only">Rows per page</bit-label>
@@ -605,8 +610,21 @@ export const Textarea: Story = {
     template: /*html*/ `
       <bit-form-field>
         <bit-label>Textarea</bit-label>
-        <textarea bitInput rows="4"></textarea>
+        <textarea bitInput rows="4">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
         <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea disabled</bit-label>
+        <textarea bitInput rows="4" disabled>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea readonly</bit-label>
+        <textarea bitInput rows="4" readonly>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
       </bit-form-field>
     `,
   }),

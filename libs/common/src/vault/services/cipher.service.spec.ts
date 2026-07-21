@@ -26,7 +26,7 @@ import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
-import { CipherKey, OrgKey, UserKey } from "../../types/key";
+import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
@@ -546,9 +546,6 @@ describe("Cipher Service", () => {
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
-      keyService.makeCipherKey.mockReturnValue(
-        Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
-      );
       encryptService.encryptString.mockImplementation(encryptText);
       encryptService.wrapSymmetricKey.mockResolvedValue(new EncString("Re-encrypted Cipher Key"));
 
@@ -613,10 +610,6 @@ describe("Cipher Service", () => {
       );
       encryptedKey = new EncString("Re-encrypted Cipher Key");
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-
-      keyService.makeCipherKey.mockResolvedValue(
-        new SymmetricCryptoKey(new Uint8Array(32)) as CipherKey,
-      );
 
       cipherEncryptionService.encryptCipherForRotation.mockImplementation((cipher: CipherView) =>
         Promise.resolve({
@@ -1678,6 +1671,26 @@ describe("Cipher Service", () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
+    });
+
+    it("should serve the decrypted cache without calling the SDK when the cache is populated (flag enabled)", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const cachedView = new CipherView();
+      cachedView.id = "cached-cipher-id" as CipherId;
+      cachedView.name = "Cached Cipher";
+
+      stateProvider.singleUser
+        .getFake(mockUserId, DECRYPTED_CIPHERS)
+        .nextState({ [cachedView.id]: cachedView });
+
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("Cached Cipher");
     });
 
     it("should not call cipherSdkService when feature flag is disabled", async () => {

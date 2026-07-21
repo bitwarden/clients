@@ -52,7 +52,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
     return [
       "tw-flex",
       "tw-flex-col",
-      "has-[input:disabled]:!tw-text-fg-inactive",
+      "has-[:is(input,textarea):disabled]:!tw-text-fg-inactive",
       "[&_bit-hint]:tw-m-0",
       "[&_bit-error]:tw-m-0",
       // When the label is visually hidden, don't reserve the label/field gap so
