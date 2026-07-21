@@ -25,3 +25,11 @@ export function isIpcMessage(message: any): message is IpcMessage {
 export function isForwardedIpcMessage(message: any): message is ForwardedIpcMessage {
   return message != null && message.type === "forwarded-bitwarden-ipc-message";
 }
+
+/**
+ * Detects the `{ command: "connected" }` message emitted by the `desktop_proxy` native-messaging
+ * binary after connecting to the desktop app.
+ */
+export function isProxyConnectedMessage(message: any): boolean {
+  return message != null && message.command === "connected";
+}

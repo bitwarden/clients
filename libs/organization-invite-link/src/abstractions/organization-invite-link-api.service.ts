@@ -1,6 +1,9 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
+import { OrganizationInviteLinkUpdateSupportConfirmationRequest } from "../models/requests/organization-invite-link-update-support-confirmation.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
@@ -14,8 +17,8 @@ export abstract class OrganizationInviteLinkApiService {
     request: OrganizationInviteLinkCreateRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
 
-  /** Update the allowed domains for the given organization's invite link */
-  abstract update(
+  /** Update the allowed domains on an existing invite link */
+  abstract updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
@@ -24,6 +27,12 @@ export abstract class OrganizationInviteLinkApiService {
   abstract refresh(
     organizationId: string,
     request: OrganizationInviteLinkRefreshRequest,
+  ): Promise<OrganizationInviteLinkResponseModel>;
+
+  /** Update the invite and confirmation-support flag on an existing invite link */
+  abstract updateSupportsConfirmation(
+    organizationId: OrganizationId,
+    request: OrganizationInviteLinkUpdateSupportConfirmationRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
 
   /** Retrieve the invite link for the given organization */
@@ -37,8 +46,11 @@ export abstract class OrganizationInviteLinkApiService {
     request: OrganizationInviteLinkValidateEmailDomainRequest,
   ): Promise<OrganizationInviteLinkValidateEmailDomainResponse>;
 
-  /** Get the public status of an invite link by its code (anonymous) */
-  abstract getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel>;
+  /** Get the public status of an invite link (anonymous) */
+  abstract getStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OrganizationInviteLinkStatusResponseModel>;
 
   /** Accept an invite link, joining the authenticated user to the organization */
   abstract accept(request: OrganizationInviteLinkAcceptRequest): Promise<void>;

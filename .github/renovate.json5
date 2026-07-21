@@ -265,7 +265,6 @@
         "@angular/compiler",
         "@angular/core",
         "@angular/forms",
-        "@angular/platform-browser-dynamic",
         "@angular/platform-browser",
         "@angular/platform",
         "@angular/router",
@@ -304,6 +303,7 @@
       matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
+        "@bufbuild/protobuf",
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",

@@ -39,7 +39,7 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "../components/bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import { VaultItem } from "../components/vault-item";
+import { compareVaultItems, VaultItem } from "../components/vault-item";
 import { All } from "../models/routed-vault-filter.model";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
@@ -143,7 +143,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   );
 
   /** The Angular CDK selection model. Add, remove, or clear items directly. */
-  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
   private readonly _completed$ = new Subject<void>();
   /** Emits once after each successful bulk action. Subscribe to trigger a list refresh. */
@@ -198,21 +198,25 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
+    if (
+      selected.length === 0 ||
+      !this.userCanArchive() ||
+      hasCollections ||
+      this.inTrash() ||
+      this.config().isOrgVault
+    ) {
       return false;
     }
-    return !selected.find(
-      (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-    );
+    return !selected.find((item) => item.cipher && item.cipher.archivedDate);
   });
 
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.inTrash()) {
+    if (selected.length === 0 || this.inTrash() || this.config().isOrgVault) {
       return false;
     }
-    return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
+    return !selected.find((i) => !i.cipher?.archivedDate);
   });
 
   /** True when all selected ciphers can be restored from trash. */
