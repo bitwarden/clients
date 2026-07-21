@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Налог је ограничен"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "Унете лозинке се не подударају."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "УПОЗОРЕЊЕ",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Потврдите извоз сефа"
   },
-  "exportWarningDesc": {
-    "message": "Овај извоз садржи податке сефа у нешифрираном формату. Не бисте смели да сачувате или шаљете извезену датотеку преко несигурних канала (као што је имејл). Избришите датотеку одмах након што завршите са коришћењем."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Овај извоз шифрује податке користећи кључ за шифровање вашег налога. Ако икада промените кључ за шифровање свог налога, требало би да поново извезете, јер нећете моћи да дешифрујете овај извоз."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Пријавите се за премијум чланство и добијте:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1ГБ шифровано складиште за прилоге."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ шифровано складиште за прилоге.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Обнови Премијум"
   },
-  "ppremiumSignUpReports": {
-    "message": "Извештаји о хигијени лозинки, здравственом стању налога и кршењу података да бисте заштитили сеф."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Генератор једнократног кода (2FA) за пријаве из сефа."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Приоритетна корисничка подршка."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Све будуће премијум функције. Више долазе ускоро!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Купити премијум"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Испразнити генератор историје"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Ако наставите, сви уноси ће бити трајно избрисани из генератора историје. Да ли сте сигурни да желите да наставите?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Назад"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Desktop апликација је пријављена на други налог. Проверите да су обе апликације са истим налогом."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Неподударање налога"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Неподударање биометријског кључа"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Биометријско откључавање није успело. Биометријски тајни кључ није успео да откључа сеф. Покушајте поново да подесите биометрију."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Биометрија се не може завршити, размислите о коришћењу главне лозинке или одјавите се. Ако се ово настави, контактирајте подршку Bitwarden-а."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Погрешан АПИ токен $SERVICENAME$",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Погрешан АПИ токен $SERVICENAME$: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ одбио ваш захтев. Обратите се свом провајдеру сервиса за помоћ.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ одбио ваш захтев: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector грешка: будите сигурни да је Key Connector доступан и да ради."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Premium претплата је потребна"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Организација је онемогућена."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Користите повезано поље када имате проблема са аутоматским попуњавањем за одређену веб локацију."
   },
-  "linkedLabelHelpText": {
-    "message": "Унесите html Ид поља, име, aria-label, или placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Уреди поље"

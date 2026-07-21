@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Konto med restriktioner"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Fillösenord\" och \"Bekräfta fillösenord\" stämmer inte överens."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "VARNING",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Bekräfta export av valv"
   },
-  "exportWarningDesc": {
-    "message": "Den här exporten innehåller ditt valvs okrypterade data i .csv-format. Du bör inte lagra eller skicka filen över osäkra anslutningar (genom t.ex. mejl). Radera filen efter du är färdig med den."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Denna export krypterar dina data med kontots krypteringsnyckel. Om du någonsin roterar kontots krypteringsnyckel bör du exportera igen eftersom du inte kommer att kunna dekryptera denna exportfil."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Registrera dig för ett premium-medlemskap och få:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB lagring av krypterade filer."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ krypterad lagring för filbilagor.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Starta om Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Lösenordshygien, kontohälsa och dataintrångsrapporter för att hålla ditt valv säkert."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "TOTP verifieringskod-generator (2FA) för inloggningar i ditt valv."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Prioriterad kundsupport."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Alla framtida premium-funktioner. Mer kommer snart!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Köp Premium"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Rensa generatorhistorik"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Om du fortsätter kommer alla poster att raderas permanent från generatorns historik. Är du säker på att du vill fortsätta?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Tillbaka"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Skrivbordsprogrammet är inloggat på ett annat konto. Se till att båda applikationerna är inloggade på samma konto."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Kontoavvikelse"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Missmatchning av biometrisk nyckel"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometrisk upplåsning misslyckades. Den biometriska hemliga nyckeln kunde inte låsa upp valvet. Försök att ställa in biometri igen."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biometri kan inte slutföras, överväg att använda ett huvudlösenord eller logga ut. Om detta kvarstår, kontakta Bitwardens support."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Ogiltig $SERVICENAME$ API-token",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Ogiltig $SERVICENAME$ API token: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ avvisade din begäran. Vänligen kontakta din tjänsteleverantör för hjälp.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ avvisade din begäran: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector-fel: säkerställ att Key Connector är tillgänglig och fungerar korrekt."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Premium-prenumeration krävs"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Organisationen är inaktiverad."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Använd ett länkat fält när du har problem med autofyll för en viss webbplats."
   },
-  "linkedLabelHelpText": {
-    "message": "Ange fältets html-id, namn, aria-label eller platshållare."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Redigera fält"

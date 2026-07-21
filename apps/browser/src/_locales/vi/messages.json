@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Tài khoản bị hạn chế"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“Mật khẩu tập tin” và “Nhập lại mật khẩu tập tin” không khớp."
+  "filePasswordConfirmationMismatch": {
+    "message": "\"Mật khẩu tệp\" và \"Xác nhận mật khẩu tệp\" không khớp."
   },
   "warning": {
     "message": "CẢNH BÁO",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Xác nhận xuất kho"
   },
-  "exportWarningDesc": {
-    "message": "Bản xuất này chứa dữ liệu kho bạn và không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin đã xuất thông qua phương thức rủi ro (như email). Vui lòng xóa nó ngay lập tức khi bạn đã sử dụng xong."
+  "exportUnencryptedWarningDesc": {
+    "message": "Tệp xuất này chứa dữ liệu kho lưu trữ của bạn ở dạng không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin này thông qua phương thức không an toàn (như email). Hãy xóa tệp ngay sau khi sử dụng xong."
   },
   "encExportKeyWarningDesc": {
     "message": "Quá trình xuất này sẽ mã hóa dữ liệu của bạn bằng khóa mã hóa của tài khoản. Nếu bạn từng thay đổi mã hóa tài khoản của mình, bạn nên xuất lại vì bạn sẽ không thể giải mã tập tin xuất này."
@@ -1626,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "Đăng ký làm thành viên Cao cấp và nhận được:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
   },
-  "ppremiumSignUpReports": {
-    "message": "Thanh lọc mật khẩu, kiểm tra an toàn tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho dữ liệu của bạn."
+  "premiumSignUpReports": {
+    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Trình tạo mã xác nhận TOTP (2FA) để đăng nhập vào kho lưu trữ của bạn."
+  "premiumSignUpTotp": {
+    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Ưu tiên hỗ trợ khách hàng."
+  "premiumSignUpSupport": {
+    "message": "Hỗ trợ khách hàng ưu tiên."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Tất cả các tính năng Cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
   },
   "premiumPurchase": {
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Dọn dẹp lịch sử trình tạo"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Nếu bạn tiếp tục, tất cả các mục sẽ bị xóa vĩnh viễn khỏi lịch sử của trình tạo. Bạn có chắc chắn muốn tiếp tục không?"
   },
   "back": {
@@ -3073,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Ứng dụng trên máy tính đang đăng nhập vào một tài khoản khác. Hãy đảm bảo cả hai ứng dụng được đăng nhập vào cùng một tài khoản."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Không khớp tài khoản"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Tài khoản không khớp"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Khóa sinh trắc học không khớp"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Không thể xác thực sinh trắc học, hãy cân nhắc sử dụng mật khẩu chính hoặc đăng xuất. Nếu sự cố vẫn tiếp diễn, vui lòng liên hệ bộ phận hỗ trợ của Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Chưa được cấp quyền"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Nếu không được phép giao tiếp với Ứng dụng Bitwarden trên máy tính, chúng tôi không thể cung cấp tính năng sinh trắc học trong tiện ích mở rộng trình duyệt. Vui lòng thử lại."
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Không có quyền giao tiếp với Ứng dụng Bitwarden trên máy tính nên tiện ích mở rộng trình duyệt không thể sử dụng tính năng sinh trắc học. Vui lòng thử lại."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Lỗi yêu cầu quyền truy cập"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Không thể thực hiện hành động này trong thanh bên, vui lòng thử lại hành động trong cửa sổ bật lên hoặc cửa sổ bật ra."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Khoá API $SERVICENAME$ không hợp lệ",
+  "forwarderInvalidToken": {
+    "message": "Token API $SERVICENAME$ không hợp lệ",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Token API $SERVICENAME$ không hợp lệ: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ của bạn để được hỗ trợ.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ để được hỗ trợ.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Lỗi kết nối khóa: hãy đảm bảo kết nối khóa khả dụng và hoạt động bình thường."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Yêu cầu đăng ký gói Cao cấp"
   },
   "organizationIsDisabled": {
@@ -4472,7 +4472,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
+    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai trên mọi nền tảng. Thông tin của bạn luôn được mã hóa đầu cuối để giảm nguy cơ bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Sử dụng trường liên kết khi bạn gặp vấn đề với tính năng tự động điền trên một trang web cụ thể."
   },
-  "linkedLabelHelpText": {
-    "message": "Nhập html id, name, aria-label hoặc placeholder của các trường."
+  "linkedFieldLabelHelpText": {
+    "message": "Nhập id HTML, name, aria-label hoặc placeholder của trường."
   },
   "editField": {
     "message": "Chỉnh sửa trường"

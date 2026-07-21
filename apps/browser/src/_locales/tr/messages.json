@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Hesap kısıtlı"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Dosya parolası\" ile \"Dosya parolasını onaylayın\" eşleşmiyor."
+  "filePasswordConfirmationMismatch": {
+    "message": "“Dosya parolası” ile “Dosya parolasını onaylayın” eşleşmiyor."
   },
   "warning": {
     "message": "UYARI",
@@ -1469,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "Kasayı dışa aktarmayı onaylayın"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Dışa aktarılan dosyadaki verileriniz şifrelenmemiş olacak. Bu dosyayı güvensiz yöntemlerle (örn. e-posta) göndermemeli ve saklamamalısınız. İşiniz bittikten sonra dosyayı hemen silin."
   },
   "encExportKeyWarningDesc": {
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Premium üye olarak sahip olacağınız avantajlar:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "Dosya ekleri için 1 GB şifrelenmiş depolama."
+  "premiumSignUpStorage": {
+    "message": "Dosya ekleri için 1 GB şifrelenmiş depolama alanı."
   },
   "premiumSignUpStorageV2": {
     "message": "Dosya ekleri için $SIZE$ şifrelenmiş depolama.",
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "Premium’u yeniden başlat"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Kasanızdaki hesaplar için TOTP doğrulama kodu (2FA) oluşturucu."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Öncelikli müşteri desteği."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Ve ileride duyuracağımız tüm premium özellikler. Daha fazlası yakında!"
   },
   "premiumPurchase": {
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Üreteç geçmişini temizle"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Devam ederseniz üreteç geçmişindeki tüm kayıtlar kalıcı olarak silinecektir. Devam etmek istediğinizden emin misiniz?"
   },
   "back": {
@@ -3073,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Masaüstü uygulamasında farklı bir hesaba giriş yapılmış. Lütfen her iki uygulamada da aynı hesaba giriş yapın."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "Hesap uyuşmazlığı"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Biyometrik anahtar eşleşmedi"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biyometri doğrulaması tamamlanamadı. Ana parolanızı kullanabilir veya çıkış yapabilirsiniz. Sorun devam ederse Bitwarden destek ekibiyle iletişime geçin."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "İzin verilmedi"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Bitwarden masaüstü uygulamasıyla iletişim kurma iznimiz olmadan tarayıcı uzantısında biyometriyi kullanamayız. Lütfen tekrar deneyin."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "İzin isteme hatası"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Bu işlemi kenar çubuğundan yapamazsınız. Lütfen açılır pencereden yapmayı deneyin."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Geçersiz $SERVICENAME$ API anahtarı",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Geçersiz $SERVICENAME$ API anahtarı: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$, isteğinizi reddetti. Yardım için lütfen hizmet sağlayıcınızla iletişime geçin.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$, isteğinizi reddetti: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Anahtar bağlayıcı hatası: Anahtar bağlayıcının kullanılabilir olduğundan ve doğru çalıştığından emin olun."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Premium abonelik gerekli"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Kuruluş askıya alındı."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Belirli bir web sitesi için otomatik doldurma sorunları yaşıyorsanız bağlantılı bir alan kullanın."
   },
-  "linkedLabelHelpText": {
-    "message": "Alanın html kimliğini (id), adını (name), aria-label etiketini veya yer tutucusunu (placeholder) girin."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Alanı düzenle"

@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Restrita à conta"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Senha do arquivo\" e \"Confirmar senha do arquivo\" não correspondem."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "ALERTA",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Confirmar exportação do cofre"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação criptografa seus dados usando a chave de criptografia da sua conta. Se você rotacionar a chave de criptografia da sua conta, você deve exportar novamente, já que não será capaz de descriptografar este arquivo de exportação anterior."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Inscreva-se para um plano Premium e receba:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB de armazenamento criptografado para anexo de arquivos."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ de armazenamento criptografado para anexos de arquivo.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Retomar Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Relatórios de higiene de senha, saúde da conta e vazamentos de dados para manter o seu cofre seguro."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Prioridade no suporte ao cliente."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Todos as recursos do Premium no futuro. Mais em breve!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Comprar Premium"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Limpar histórico do gerador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Se continuar, todos os itens serão apagados permanentemente do histórico do gerador. Tem certeza de que deseja continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Voltar"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "O aplicativo para computador está conectado a uma conta diferente. Certifique-se de que ambos estejam conectados à mesma conta."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Incompatibilidade de conta"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Incompatibilidade da chave biométrica"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "O desbloqueio biométrico falhou. A chave secreta não conseguiu desbloquear o cofre. Tente configurar a biometria novamente."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Não foi possível concluir a biometria. Considere usar a senha principal ou desconectar. Se o problema persistir, entre em contato com o suporte do Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token de API do(a) $SERVICENAME$ inválido",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token de API do(a) $SERVICENAME$ inválido: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "O(A) $SERVICENAME$ recusou sua solicitação. Contate seu provedor de serviços para receber assistência.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "O(A) $SERVICENAME$ recusou sua solicitação: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Erro de Key Connector: certifique-se de que o Key Connector está disponível e funcionando corretamente."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Plano Premium necessário"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "A organização está desativada."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Use um campo vinculado ao enfrentar problemas de preenchimento automático em um site específico."
   },
-  "linkedLabelHelpText": {
-    "message": "Digite o ID html, nome, aria-label, ou placeholder do campo."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Editar campo"

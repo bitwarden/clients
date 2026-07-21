@@ -1455,7 +1455,7 @@
   "accountRestricted": {
     "message": "Регистрацията е ограничена"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
   "warning": {
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Потвърждаване на изнасянето на трезора"
   },
-  "exportWarningDesc": {
-    "message": "Този износ съдържа данни на трезора ви в некриптиран формат. Не трябва да съхранявате или изпращате износния файл през незащитени канали (като имейл). Изтрийте файла моментално след като свършите работата си с него."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "При изнасяне данните се шифрират с ключа ви. Ако го смените, ще трябва наново да ги изнесете, защото няма да може да дешифрирате настоящия файл."
@@ -1626,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "Платеният абонамент дава следните предимства:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "Подновяване на платения абонамент"
   },
-  "ppremiumSignUpReports": {
-    "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
+  "premiumSignUpReports": {
+    "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за изтекли данни, което спомага трезорът ви да е допълнително защитен."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Генериране на временни, еднократни кодове за двустепенно удостоверяване за регистрациите в трезора."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Приоритетна поддръжка."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Всички бъдещи функции на платения абонамент! Предстои въвеждането на още!"
   },
   "premiumPurchase": {
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Изчистване на историята на генериране"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
   },
   "back": {
@@ -3073,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "В момента самостоятелното приложение е с регистрация на различен потребител. За да работят заедно, двете приложения трябва да ползват една и съща регистрация."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Регистрациите са различни"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Акаунтите са различни"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Несъответстващ биометричен ключ"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Удостоверяването чрез биометрични данни не може да бъде завършено. Опитайте да използвате главната си парола или се отпишете. Ако този проблем продължи да се случва, свържете се с поддръжката на Битуорден."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Разрешението не е предоставено"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Без разрешение за връзка с настолното приложение, добавката за браузъра не може да осигури потвърждаване с биометрични данни. Опитайте отново."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Грешка при заявката за разрешение"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Това действие не може да бъде извършено в страничната лента. Опитайте отново в изскачащия прозорец."
   },
   "personalOwnershipSubmitError": {
@@ -3930,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Грешка с конектора за ключове: уверете се, че конекторът за ключове е наличен и работи правилно."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Изисква се платен абонамент"
   },
   "organizationIsDisabled": {
@@ -6054,7 +6054,7 @@
   "linkedHelpText": {
     "message": "Използвайте свързано поле, когато имате проблеми с автоматичното попълване на конкретен уеб сайт."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Въведете подробности за полето от атрибутите му в HTML – id, name, aria-label или placeholder."
   },
   "editField": {

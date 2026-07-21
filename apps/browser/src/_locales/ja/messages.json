@@ -1455,7 +1455,7 @@
   "accountRestricted": {
     "message": "アカウント制限"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "「ファイルパスワード」と「ファイルパスワードの確認」が一致しません。"
   },
   "warning": {
@@ -1469,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "保管庫のエクスポートの確認"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "このエクスポートデータは暗号化されていない形式の保管庫データを含んでいます。メールなどのセキュリティ保護されていない方法で共有したり保管したりしないでください。使用した後はすぐに削除してください。"
   },
   "encExportKeyWarningDesc": {
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "プレミアム会員に登録すると以下の特典を得られます："
   },
-  "ppremiumSignUpStorage": {
-    "message": "1GB の暗号化されたファイルストレージ"
+  "premiumSignUpStorage": {
+    "message": "添付ファイル用の 1GB の暗号化されたファイルストレージ。"
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ の暗号化されたファイルストレージ。",
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "プレミアムを再開"
   },
-  "ppremiumSignUpReports": {
-    "message": "保管庫を安全に保つための、パスワードやアカウントの健全性、データ侵害に関するレポート"
+  "premiumSignUpReports": {
+    "message": "保管庫を安全に保つためにパスワード、アカウントの状態、データ漏洩レポートを作成。"
   },
-  "ppremiumSignUpTotp": {
-    "message": "保管庫内での2段階認証コード生成"
+  "premiumSignUpTotp": {
+    "message": "保管庫内での2要素認証コード生成。"
   },
-  "ppremiumSignUpSupport": {
-    "message": "優先カスタマーサポート"
+  "premiumSignUpSupport": {
+    "message": "優先カスタマーサポート。"
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "将来のプレミアム機能すべて（詳細は近日公開予定！）"
   },
   "premiumPurchase": {
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "生成履歴を消去"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "続行すると、すべてのエントリは生成履歴から完全に削除されます。続行してもよろしいですか？"
+  "clearGeneratorHistoryDescription": {
+    "message": "続行すると、すべてのエントリが生成履歴から完全に削除されます。続行してもよろしいですか？"
   },
   "back": {
     "message": "戻る"
@@ -3073,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "デスクトップアプリは別のアカウントにログインしています。両方のアプリが同じアカウントにログインしているか確認してください。"
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "アカウントが一致しません"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "生体認証キーが一致しません"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "生体認証を完了できません。マスターパスワードを使うかログアウトしてください。それでも直らない場合は、Bitwarden サポートまでお問い合わせください。"
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "権限が提供されていません"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden デスクトップアプリとの通信権限がなければ、ブラウザー拡張機能で生体認証を利用できません。もう一度やり直してください。"
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Bitwarden デスクトップアプリケーションとの通信権限がなければブラウザ拡張機能で生体認証を提供できません。もう一度やり直してください。"
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "権限リクエストエラー"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "この操作はサイドバーでは行えません。ポップアップまたはポップアウトでやり直してください。"
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "不正な$SERVICENAME$ API トークン",
+  "forwarderInvalidToken": {
+    "message": "不正な $SERVICENAME$ API トークン",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "不正な$SERVICENAME$ API トークン: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "不正な $SERVICENAME$ API トークン: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ はリクエストを拒否しました。サービスプロバイダーにお問い合わせください。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ があなたのリクエストを拒否しました: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "キーコネクターエラー: キーコネクターが使用可能で、正常に動作しているか確認してください。"
   },
-  "premiumSubcriptionRequired": {
-    "message": "プレミアム版が必要です"
+  "premiumSubscriptionRequired": {
+    "message": "プレミアムサブスクリプションが必要です"
   },
   "organizationIsDisabled": {
     "message": "組織は無効です。"
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "特定のウェブサイトで自動入力の問題が発生している場合は、リンクされたフィールドを使用します"
   },
-  "linkedLabelHelpText": {
-    "message": "フィールドの HTML ID、名前、aria-label、またはプレースホルダを入力します"
+  "linkedFieldLabelHelpText": {
+    "message": "フィールドの HTML ID、名前、aria-label、またはプレースホルダを入力してください。"
   },
   "editField": {
     "message": "フィールドを編集"
