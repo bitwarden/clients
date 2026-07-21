@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Nouvelle organisation"
   },
+  "newVault": {
+    "message": "Nouveau coffre"
+  },
   "noOrganizationsList": {
     "message": "Vous ne faites partie d'aucune organisation. Les organisations vous permettent de partager des éléments de façon sécurisée avec d'autres utilisateurs."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Confirmer l'export des secrets"
   },
-  "exportWarningDesc": {
-    "message": "Cet export contient vos données de coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
+  "exportUnencryptedWarningDesc": {
+    "message": "Cet export contient les données de votre coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme un courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
   },
   "exportSecretsWarningDesc": {
     "message": "Cet export contient vos données secrètes dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Protégé par mot de passe"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "Le \"Mot de Passe\" et le \"Mot de Passe Confirmé\" ne correspondent pas."
+  "filePasswordConfirmationMismatch": {
+    "message": "Le \"Mot de passe du fichier\" et la \"Confirmation du mot de passe du fichier\" ne correspondent pas."
   },
   "confirmVaultImport": {
     "message": "Confirmer l'Importation du Coffre"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Effacer l'historique du générateur"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer ?"
   },
   "noPasswordsInList": {
     "message": "Aucun mot de passe à afficher."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Aucun site web n'a été trouvé dans votre coffre avec une configuration d'authentification à deux facteurs manquante."
   },
+  "passkeyLoginReport": {
+    "message": "Connexion par clé d'accès"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Les clés d'accès sont une alternative sécuritaire et résistante à l'hameçonnage des mots de passe. Voyez ceux de vos comptes qui les supportent."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Les clés d'accès sont une alternative sécuritaire et résistante à l'hameçonnage des mots de passe. Voyez les comptes de votre coffre qui supportent les clés d'accès pour une expérience de connexion simplifiée et sans mot de passe. Apprenez"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "comment fonctionnent les clés d'accès"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "et "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "comment les utiliser dans Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Identifiants qui supportent les clés d'accès"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Nous avons trouvé $COUNT$ identifiant(s) dans votre coffre qui supportent les clés d'accès. Pour sécuriser davantage ces comptes, envisagez de configurer une clé d'accès où cela est disponible. Source : passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Nous avons trouvé $COUNT$ identifiant(s) dans votre coffre qui supportent les clés d'accès. Pour sécuriser davantage ces comptes, envisagez de configurer une clé d'accès où cela est disponible. Source : passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Aucun compte n'a été trouvé dans votre coffre qui supporte les clés d'accès sans en avoir une non configurée."
+  },
   "instructions": {
     "message": "Instructions"
+  },
+  "passwordlessLogin": {
+    "message": "Connexion sans mot de passe"
+  },
+  "multifactorAuthentication": {
+    "message": "Authentification multifacteur"
   },
   "exposedPasswordsReport": {
     "message": "Mots de passe exposés"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Requiert une approbation"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Essayez-vous de vous connecter ?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Adresse couriel de $ID$ mise à jour.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ s'est connecté avec le SSO pour la première fois",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Étendre la sécurité et la commodité SSO aux applications non gérées. Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion sont automatiquement saisis et soumis, créant une connexion sécuriséw en un clic depuis le fournisseur d'identité vers l'application."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion seront automatiquement remplis et soumis, créant ainsi une connexion sécurisée en un seul clic."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hôte du fournisseur d'identité"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Aucune famille parrainée"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,8 +9485,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Jeton API $SERVICENAME$ invalide",
+  "forwarderInvalidToken": {
+    "message": "Jeton d'API $SERVICENAME$ invalide",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9495,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Jeton API $SERVICENAME$ non valide : $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Jeton d'API de $SERVICENAME$ invalide : $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de service pour assistance.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de services pour obtenir de l'aide.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9519,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Abonnement Premium requis"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Supprimer le membre"
   },
+  "revokeMember": {
+    "message": "Révoquer le membre"
+  },
+  "restoreMember": {
+    "message": "Restaurer le membre"
+  },
+  "deleteMember": {
+    "message": "Supprimer le membre"
+  },
   "collection": {
     "message": "Collection"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Rôle du membre"
+  },
+  "moreActions": {
+    "message": "Plus d'actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Le courriel sera mis à jour lors de la sauvegarde"
+  },
+  "createdDate": {
+    "message": "Date de création"
   },
   "moreSettings": {
     "message": "Plus de paramètres"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Assigner l'accès à la collection"
   },
-  "collectionsEdited": {
-    "message": "Collections modifiées"
-  },
   "editedCollections": {
     "message": "Collections modifiées"
+  },
+  "editedCollection": {
+    "message": "Collection modifiée"
   },
   "collectionEdited": {
     "message": "Collection modifiée"
   },
-  "editedCollection": {
-    "message": "Collection modifiée"
+  "collectionsEdited": {
+    "message": "Collections modifiées"
   },
   "baseUrl": {
     "message": "URL du serveur"
@@ -11590,7 +11671,7 @@
     "message": "Au moins un membre ou un groupe doit avoir l'autorisation peut gérer."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Clé d'accès"
   },
   "passkeyNotCopied": {
     "message": "La clé d'accès ne sera pas copiée"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Utilisez un champ lié lorsque vous rencontrez des problèmes de saisie automatique pour un site Web spécifique."
   },
-  "linkedLabelHelpText": {
-    "message": "Entrez l'identifiant html, le nom, l'étiquette aria ou l'espace réservé du champ."
+  "linkedFieldLabelHelpText": {
+    "message": "Entrez l'identifiant HTML du champ, le nom, l'aria-label ou le placeholder."
   },
   "uppercaseDescription": {
     "message": "Inclure les caractères majuscules",
@@ -14102,8 +14183,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "Abonnez-vous au plan $PLAN$",
+  "subscribeToEnterprise": {
+    "message": "S'abonner à $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",

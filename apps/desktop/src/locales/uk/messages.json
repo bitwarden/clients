@@ -36,52 +36,52 @@
     "message": "Ключ SSH"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Банківський рахунок"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Вебсайт або програма"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Кредитна або дебетова картка"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Особисті дані"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Важливий текст"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Токен входу на сервер"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Банківські реквізити"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Паспортні дані"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Паспорт додано"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Проїзний документ"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Організуйте свої записи"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Організуйте спільні записи"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Ліцензія"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Водійське посвідчення"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Виберіть запис, щоб додати"
   },
   "chooseItemToAddDesc": {
     "message": "Select the item type you want to add to your vault."
@@ -105,16 +105,16 @@
     "message": "Спільні"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Спільна тека"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Спільні теки"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Моя тека"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Мої теки"
   },
   "share": {
     "message": "Поділитися"
@@ -139,7 +139,7 @@
     "message": "Вам не дозволено редагувати цей запис"
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "З поверненням"
   },
   "moveToOrgDesc": {
     "message": "Виберіть організацію, до якої ви бажаєте перемістити цей запис. Переміщуючи до організації, власність запису передається тій організації. Ви більше не будете єдиним власником цього запису після переміщення."
@@ -148,13 +148,13 @@
     "message": "Вкладення"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "Цей запис має старі вкладені файли, які необхідно виправити."
   },
   "viewItem": {
     "message": "Переглянути запис"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Переглянути збірку - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -163,39 +163,39 @@
     }
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Перегляд запису",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Перегляд картки",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Перегляд посвідчення",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Перегляд нотатки",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Перегляд захищеної нотатки",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Перегляд ключа SSH",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Перегляд банківського рахунку",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Перегляд ліцензії",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Перегляд паспорта",
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
@@ -2058,7 +2058,7 @@
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
   },
   "premiumSignUpTotp": {
-    "message": "Генератор коду авторизації TOTP (2FA) для входу в сховище."
+    "message": "Генератор кодів підтвердження TOTP (2FA) для записів у вашому сховищі."
   },
   "premiumSignUpSupport": {
     "message": "Пріоритетну технічну підтримку."
@@ -4493,10 +4493,10 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Необхідно пройти автентифікацію SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Ваш обліковий запис Keeper потребує автентифікації за допомогою SSO. Завершіть вхід у щойно відкритому вікні браузера, а потім вставте токен, показаний на сторінці."
   },
   "keeperSsoAutoCaptureDesc": {
     "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
@@ -4505,7 +4505,7 @@
     "message": "SSO token"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Необхідно пройти автентифікацію Keeper"
   },
   "keeperDeviceApprovalRequired": {
     "message": "Keeper device approval required"
@@ -4547,10 +4547,10 @@
     "message": "Cancel request"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Необхідно пройти двофакторну автентифікацію Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Схваліть запит входу в програмі автентифікації. Це діалогове вікно автоматично закриється."
   },
   "selectTwoFactorMethod": {
     "message": "Select two-factor method"
@@ -4601,7 +4601,7 @@
     "message": "Enter code manually"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двофакторна автентифікація"
   },
   "unknownMethod": {
     "message": "Unknown method"
@@ -4634,7 +4634,7 @@
     "message": "Try another method"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Ваш обліковий запис Keeper вимагає спосіб двофакторної автентифікації, який наразі не підтримується прямим імпортером."
   },
   "commonImportFormats": {
     "message": "Поширені формати",

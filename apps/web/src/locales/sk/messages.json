@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Nová organizácia"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "Nie ste členom žiadnej organizácie. Organizácie umožňujú bezpečne zdieľať položky s ostatnými používateľmi."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Potvrdiť export položiek"
   },
-  "exportWarningDesc": {
-    "message": "Tento export obsahuje vaše dáta v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. email). Okamžite ho odstráňte, keď ho prestanete používať."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Tento export obsahuje vaše dáta v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. email). Okamžite ho odstráňte, keď ho prestanete používať."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Chránené heslom"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Heslo súboru\" a \"Potvrdiť heslo súboru\" sa nezhodujú."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Potvrdiť import trezoru"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Vymazať históriu generátora"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Ak budete pokračovať, všetky položky z histórie generátora budu natrvalo vymazané. Naozaj chcete pokračovať?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "Neboli nájdené žiadne heslá."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Vo vašom trezore sme nenašli účty bez dvojstupňového overenia."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Pokyny"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Uniknuté heslá"
@@ -5578,8 +5629,8 @@
   "needsApproval": {
     "message": "Potrebuje súhlas"
   },
-  "areYouTryingtoLogin": {
-    "message": "Snažíte sa prihlásiť?"
+  "areYouTryingToLogin": {
+    "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
     "message": "Pokus o prihlásenie pomocou $EMAIL$",
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ logged in using Sso for the first time",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Rozšírte bezpečnosť a pohodlie jednotného prihlásenia (SSO) na nespravované aplikácie. Keď používatelia spustia aplikáciu od vášho poskytovateľa identít, ich prihlasovacie údaje sa automaticky vyplnia a odošlú, čím sa umožní bezpečná cesta jedným kliknutím od poskytovateľa identít do aplikácie."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -8680,8 +8743,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Žiadne sponzorované rodiny"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Tu sa zobrazia sponzorované plány pre Rodiny pre nečlenov"
+  "noSponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Členovia vašej organizácie majú nárok na bezplatný plán pre Rodiny. Bezplatný plán pre Rodiny môžete sponzorovať aj pre zamestnancov ktorí nie sú členmi vašej Bitwarden organizácie. Spozorovanie nečlena vyžaduje voľné sedenie v organizácii."
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť. Obráťte sa na svojho poskytovateľa služieb a požiadajte o pomoc.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9519,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Vyžaduje sa predplatné Prémium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "SCIM poskytovanie",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Odstániť člena"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Zbierka"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Rola člena"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "Ďalšie nastavenia"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Udeliť prístup k zbierke"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "Zbierky upravené"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "URL servera"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Ak máte problémy s automatickým vypĺňaním pre konkrétnu webovú stránku, použite prepojené pole."
   },
-  "linkedLabelHelpText": {
-    "message": "Zadajte html atribút poľa id, name, aria-label, alebo placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Zahrnúť veľké písmená",
@@ -14102,8 +14183,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "Predplatiť si $PLAN$",
+  "subscribeToEnterprise": {
+    "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
