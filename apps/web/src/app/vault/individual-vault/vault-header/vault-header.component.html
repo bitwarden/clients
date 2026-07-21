@@ -82,6 +82,7 @@
         [canCreateFolder]="true"
         [canCreateSshKey]="true"
         [canCreateCollection]="canCreateCollections"
+        [disabled]="isOrganizationSuspended"
         [coachmarkPopover]="addItemCoachmark.popover()"
         [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
         [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"

@@ -1,7 +1,8 @@
 @let control = base.formControl();
 <div class="tw-flex tw-flex-col tw-gap-2">
+  <!-- tw-outline-none supports forced colors mode; ring utility does not -->
   <div
-    class="tw-flex tw-items-center tw-relative tw-isolate tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent tw-transition-colors"
+    class="tw-flex tw-items-center tw-relative tw-isolate tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-outline-none has-[input:focus-visible]:tw-border-transparent tw-transition-colors"
     [class]="
       control.disabled
         ? ''
