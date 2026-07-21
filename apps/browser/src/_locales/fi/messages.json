@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Salasana kopioitu"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1451,8 +1455,8 @@
   "accountRestricted": {
     "message": "Tiliä on rajoitettu"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Tiedoston salasana\" ja \"Vahvista tiedoston salasana\" eivät täsmää."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "VAROITUS",
@@ -1465,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Vahvista holvin vienti"
   },
-  "exportWarningDesc": {
-    "message": "Tämä vienti sisältää holvisi tiedot salaamattomassa muodossa. Sinun ei tulisi säilyttää tai lähettää vietyä tiedostoa suojaamattomien kanavien (kuten sähköpostin) välityksellä. Poista se välittömästi kun sille ei enää ole käyttöä."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Tämä vienti salaa tietosi käyttäjätilisi salausavaimella. Jos joskus uudistat tilisi salausavaimen, on tiedot vietävä uudelleen, koska et voi enää purkaa nyt luodun vientitiedoston salausta."
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Jaettu"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business mahdollistaa holvisi sisällön jakamisen organisaation avulla. Lue lisää osoitteesta bitwarden.com."
@@ -1610,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Liity Premium-jäseneksi saadaksesi:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -1637,17 +1653,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Salasanahygienian, tilin terveyden ja tietovuotojen raportointitoiminnot pitävät holvisi turvassa."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Kaksivaiheisen kirjautumisen (2FA) TOTP-todennuskoodien generaattori holvisi kirjautumistiedoille."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Ensisijainen asiakaspalvelu."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Kaikki tulossa olevat Premium-toiminnot. Lisää tulossa pian!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Osta Premium"
@@ -2532,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Tyhjennä generaattorihistoria"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Jos jatkat, kaikki generaattorihistorian kohteet poistetaan. Haluatko varmasti jatkaa?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Takaisin"
@@ -3057,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Työpöytäsovellus on kirjautuneena eri tilille. Varmista, että molemmat sovellukset ovat kirjautuneet samalle tilille."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Tili ei täsmää"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometrinen avain ei täsmää"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometrinen avaus epäonnistui. Biometrinen salainen avain ei voinut avata holvia. Yritä määrittää biometria uudelleen."
@@ -3096,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biometristä todennusta ei voida suorittaa. Harkitse pääsalasanan käyttämistä tai uloskirjautumista. Jos tämä jatkuu, ole yhteydessä Bitwardenin asiakaspalveluun."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3914,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Virheellinen $SERVICENAME$ API -tunniste",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3924,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Virheellinen $SERVICENAME$ API -tunniste: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3938,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ hylkäsi pyyntösi. Ole yhteydessä palveluntarjoajaasi saadaksesi apua.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3948,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ hylkäsi pyyntösi: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4025,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector -virhe: Varmista, että Key Connector on käytettävissä ja toimii oikein."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Premium-tilaus vaaditaan"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Organisaatio on poistettu käytöstä."
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Vahvista tiedoston salasana"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "Holvin tiedot on viety"
@@ -6014,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Käytä linkitettyjä kenttiä kohdatessasi sivustokohtaisia automaattitäytön ongelmia."
   },
-  "linkedLabelHelpText": {
-    "message": "Syötä kentän HTML-koodista löytyvä id-, name-, aria-label- tai placeholder-arvo."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Muokkaa kenttää"
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN asetettu"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Biometrinen kirjautuminen otettu käyttöön"
   },
   "authenticating": {
     "message": "Todennetaan"

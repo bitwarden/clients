@@ -10,7 +10,6 @@ export { Family } from "./family";
 export { Folder } from "./folder";
 export { Globe } from "./globe";
 export { Lock } from "./lock";
-export { Passkey } from "./passkey";
 export { PencilSquare } from "./pencil-square";
 export { Plus } from "./plus";
 export { Shield } from "./shield";

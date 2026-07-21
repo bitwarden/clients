@@ -69,7 +69,6 @@ export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
 export const LockIcon = createIconStory("Lock");
-export const PasskeyIcon = createIconStory("Passkey");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const PlusIcon = createIconStory("Plus");
 export const ShieldIcon = createIconStory("Shield");

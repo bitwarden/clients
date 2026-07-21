@@ -23,8 +23,8 @@ export default {
     width: { control: "number", min: 160, max: 480, step: 8 },
   },
   args: {
-    message: "No items to show",
-    actionText: "New login",
+    message: mockI18n.noItemsToShow,
+    actionText: mockI18n.newLogin,
     i18n: { actionAria: mockI18n.addNewLoginItemAria },
     iconName: "plus",
     theme: ThemeTypes.Light,
@@ -52,10 +52,11 @@ const Template = (args: ComponentAndControls) => {
 
 export const Empty: StoryObj<ComponentAndControls> = {
   args: {
-    message: "No items to show",
-    actionText: "New login",
+    message: mockI18n.noItemsToShow,
+    actionText: mockI18n.newLogin,
     i18n: { actionAria: mockI18n.addNewLoginItemAria },
     iconName: "plus",
+    theme: ThemeTypes.Dark,
     dataTestId: "inline-menu-empty-state",
     actionDataTestId: "inline-menu-new-item-button",
   },
@@ -64,8 +65,8 @@ export const Empty: StoryObj<ComponentAndControls> = {
 
 export const Locked: StoryObj<ComponentAndControls> = {
   args: {
-    message: "Unlock your account to view autofill suggestions",
-    actionText: "Unlock account",
+    message: mockI18n.unlockYourAccountToViewAutofillSuggestions,
+    actionText: mockI18n.unlockAccount,
     i18n: { actionAria: mockI18n.unlockAccountAria },
     iconName: "lock",
     theme: ThemeTypes.Dark,
