@@ -105,16 +105,16 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共享的文件夹"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共享的文件夹"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "我的文件夹"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "我的文件夹"
   },
   "share": {
     "message": "共享"
@@ -918,7 +918,7 @@
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "folder": {
     "message": "文件夹"
@@ -2115,7 +2115,7 @@
     "message": "清除生成器历史记录"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "clear": {
     "message": "清除",
@@ -2391,7 +2391,7 @@
     "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "done": {
     "message": "完成"
@@ -2404,7 +2404,7 @@
     "message": "确认密码库导出"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
     "message": "此导出将使用您的账户加密密钥来加密您的数据。如果您曾经轮换过您的账户加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
@@ -3519,7 +3519,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3529,7 +3529,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3543,7 +3543,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3553,7 +3553,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3627,7 +3627,7 @@
     "message": "API 密钥"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
     "message": "组织已暂停"
@@ -5685,7 +5685,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "任意"
   },
   "invalidDay": {
     "message": "请输入有效的日期。"
