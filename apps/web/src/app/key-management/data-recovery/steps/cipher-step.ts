@@ -33,7 +33,13 @@ export class CipherStep implements RecoveryStep {
     const userCiphers = workingData.ciphers.filter((c) => c.organizationId == null);
     for (const cipher of userCiphers) {
       try {
-        await this.cipherService.decrypt(cipher, workingData.userId);
+        const result = await this.cipherService.decrypt(cipher, workingData.userId);
+        // Decrypt may throw if the cipherkey or passkeys fail to decrypt, but may succced
+        // with decryption failure on field-level errors.
+        if (result.decryptionFailure) {
+          logger.record(`Cipher ID ${cipher.id} detected field-level decryption failure`);
+          throw new Error("Decryption failed");
+        }
         this.decryptableCipherIds.push(cipher.id);
       } catch {
         // Ciphers that only fail because of corrupt FIDO2 credentials are handled by the FIDO2
