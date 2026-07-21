@@ -55,6 +55,14 @@ function validateDuplicateCustomField(
 }
 
 describe("1Password 1Pux Importer", () => {
+  beforeEach(() => {
+    // The whole SDK module is auto-mocked, so give the SshKeyImportError type guard a realistic
+    // implementation that mirrors the SDK's (an Error named "SshKeyImportError").
+    jest
+      .spyOn(sdkInternal, "isSshKeyImportError")
+      .mockImplementation((e) => e instanceof Error && e.name === "SshKeyImportError");
+  });
+
   const OnePuxExampleFileJson = JSON.stringify(OnePuxExampleFile);
   const LoginDataJson = JSON.stringify(LoginData);
   const CreditCardDataJson = JSON.stringify(CreditCardData);

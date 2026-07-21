@@ -9,7 +9,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
-import { import_ssh_key, SshKeyImportError } from "@bitwarden/sdk-internal";
+import { import_ssh_key, isSshKeyImportError } from "@bitwarden/sdk-internal";
 
 import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { ImportResult } from "../../models/import-result";
@@ -133,7 +133,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           this.result.errors.push(new ImportRecordError(uid, reason));
 
           const message = `1Password import skipped an item (uuid: ${uid || "unknown"}, reason: ${reason})`;
-          if ((e as Partial<SshKeyImportError>)?.variant != null) {
+          if (isSshKeyImportError(e)) {
             this.logService.warning(message);
           } else {
             this.logService.error(message);
@@ -693,10 +693,13 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       });
   }
 
-  // Any item can throw during processing. The SDK's SshKeyImportError carries a `variant`; anything
-  // else is treated as a generic failure.
+  // Any item can throw during processing. Only the SDK's SshKeyImportError maps to a specific
+  // reason; anything else is a generic failure.
   private importErrorReason(error: unknown): ImportRecordErrorReason {
-    switch ((error as Partial<SshKeyImportError>)?.variant) {
+    if (!isSshKeyImportError(error)) {
+      return ImportRecordErrorReason.Error;
+    }
+    switch (error.variant) {
       case "UnsupportedKeyType":
         return ImportRecordErrorReason.UnsupportedType;
       case "Parsing":
