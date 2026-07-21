@@ -21,6 +21,7 @@ import { SharedModule } from "../../../shared";
 })
 export class AssignCollectionsWebComponent {
   protected editableItemCount: number;
+  protected submitButtonText: string;
 
   constructor(
     @Inject(DIALOG_DATA) public params: CollectionAssignmentParams,

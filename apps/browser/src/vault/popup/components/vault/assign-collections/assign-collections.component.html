@@ -15,6 +15,7 @@
         [params]="params"
         [submitBtn]="assignSubmitButton"
         (onCollectionAssign)="navigateBack()"
+        (submitButtonTextChange)="submitButtonText = $event"
       ></assign-collections>
     }
   </bit-card>
@@ -27,7 +28,7 @@
       buttonType="primary"
       type="submit"
     >
-      {{ "assign" | vfo1I18n: "transferAndAdd" }}
+      {{ submitButtonText ?? ("assign" | vfo1I18n: "transferAndAdd") }}
     </button>
     <a bitButton buttonType="secondary" (click)="navigateBack()">
       {{ "cancel" | i18n }}

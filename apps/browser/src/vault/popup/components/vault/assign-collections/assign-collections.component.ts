@@ -60,6 +60,8 @@ export class AssignCollections {
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;
 
+  protected submitButtonText: string;
+
   constructor(
     private location: Location,
     private collectionService: CollectionService,

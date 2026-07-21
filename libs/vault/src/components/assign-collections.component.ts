@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  output,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -150,6 +151,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCollectionAssign = new EventEmitter<CollectionAssignmentResult>();
 
+  /**
+   * Emits the text that the host's submit button should display. The button lives in the host
+   * template (as projected content), so the resolved label is pushed out from here where the
+   * relevant state (`showOrgSelector`, terminology flag) is known.
+   */
+  readonly submitButtonTextChange = output<string>();
+
   formGroup = this.formBuilder.group({
     selectedOrg: [null],
     collections: [<SelectItemView[]>[], [Validators.required]],
@@ -271,6 +279,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.showOrgSelector = true;
     }
 
+    this.submitButtonTextChange.emit(this.submitButtonText);
+
     await this.initializeItems(this.selectedOrgId);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
@@ -313,6 +323,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     const currentCollections = this.formGroup.controls.collections.value as SelectItemView[];
     const updatedCollections = [...currentCollections, ...items].sort(this.sortItems);
     this.formGroup.patchValue({ collections: updatedCollections });
+  }
+
+  /**
+   * The label shown on the host's submit button. When there is no organization selector and the
+   * vault terminology is enabled, the action is a simple "Add"; otherwise it falls back to the
+   * transfer/assign wording.
+   */
+  private get submitButtonText(): string {
+    if (!this.showOrgSelector && this.vfo1TerminologyService.enabled()) {
+      return this.i18nService.t("add");
+    }
+
+    return this.i18nService.t(this.vfo1TerminologyService.enabled() ? "transferAndAdd" : "assign");
   }
 
   submit = async () => {

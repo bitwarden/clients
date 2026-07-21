@@ -29,6 +29,7 @@ import {
 })
 export class AssignCollectionsDesktopComponent {
   protected editableItemCount: number;
+  protected submitButtonText: string;
 
   constructor(
     @Inject(DIALOG_DATA) public params: CollectionAssignmentParams,
