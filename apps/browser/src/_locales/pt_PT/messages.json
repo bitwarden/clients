@@ -614,6 +614,23 @@
   "upgradeToUseArchive": {
     "message": "É necessária uma subscrição Premium para utilizar o Arquivo."
   },
+  "archiveItemsPlural": {
+    "message": "Arquivar $NUM$ itens",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Arquivar item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Depois de arquivados, estes itens serão excluídos dos resultados de pesquisa e das sugestões de preenchimento automático."
+  },
   "itemRestored": {
     "message": "O item foi restaurado"
   },
@@ -1071,6 +1088,10 @@
   "passwordCopied": {
     "message": "Palavra-passe copiada"
   },
+  "passwordAnnounceSpace": {
+    "message": "espaço",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1434,8 +1455,8 @@
   "accountRestricted": {
     "message": "Conta restringida"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Palavra-passe do ficheiro\" e \"Confirmar palavra-passe do ficheiro\" não correspondem."
+  "filePasswordConfirmationMismatch": {
+    "message": "A palavra-passe do ficheiro e a confirmação da palavra-passe do ficheiro não coincidem."
   },
   "warning": {
     "message": "AVISO",
@@ -1448,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Confirmar a exportação do cofre"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
+  "exportUnencryptedWarningDesc": {
+    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve guardar nem enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente depois de terminar de o utilizar."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez regenerar a chave de encriptação da sua conta, deve exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
@@ -1462,6 +1483,18 @@
   },
   "shared": {
     "message": "Partilhado"
+  },
+  "sharedFolder": {
+    "message": "Pasta partilhada"
+  },
+  "sharedFolders": {
+    "message": "Pastas partilhadas"
+  },
+  "myFolder": {
+    "message": "A minha pasta"
+  },
+  "myFolders": {
+    "message": "As minhas pastas"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com."
@@ -1551,6 +1584,12 @@
   "file": {
     "message": "Ficheiro"
   },
+  "photo": {
+    "message": "Fotografia"
+  },
+  "unknown": {
+    "message": "Desconhecido"
+  },
   "fileToShare": {
     "message": "Ficheiro a partilhar"
   },
@@ -1587,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "Subscreva uma subscrição Premium e obtenha:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
   "premiumSignUpStorageV2": {
@@ -1614,17 +1653,17 @@
   "restartPremium": {
     "message": "Reiniciar o Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
+  "premiumSignUpReports": {
+    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Prioridade no apoio ao cliente."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Todas as futuras funcionalidades Premium. Mais em breve!"
+  "premiumSignUpFuture": {
+    "message": "Todas as futuras funcionalidades Premium. E muitas mais em breve!"
   },
   "premiumPurchase": {
     "message": "Adquirir Premium"
@@ -2321,6 +2360,42 @@
   "licenseClass": {
     "message": "Categoria da carta de condução"
   },
+  "addItemHeaderLogin": {
+    "message": "Adicionar credencial",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Adicionar cartão",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Adicionar identidade",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Adicionar nota",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Adicionar nota segura",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Adicionar chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Adicionar conta bancária",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Adicionar carta de condução",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Adicionar passaporte",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -2384,6 +2459,22 @@
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Editar nota",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
@@ -2457,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Limpar o histórico do gerador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Se continuar, todas as entradas serão permanentemente eliminadas do histórico do gerador. Tem a certeza de que pretende continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão eliminadas permanentemente do histórico do gerador. Tem a certeza de que pretende continuar?"
   },
   "back": {
     "message": "Voltar"
@@ -2982,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "A aplicação para computador tem a sessão iniciada numa conta diferente. Por favor, certifique-se de que ambas as aplicações têm a sessão iniciada na mesma conta."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Incompatibilidade de contas"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Conta incompatível"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Incompatibilidade da chave biométrica"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Chave biométrica incompatível"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "O desbloqueio biométrico falhou. A chave secreta biométrica não conseguiu desbloquear o cofre. Por favor, tente configurar a biometria novamente."
@@ -3020,6 +3111,18 @@
   },
   "biometricsFailedDesc": {
     "message": "A biometria não pode ser concluída, considere a possibilidade de utilizar uma palavra-passe mestra ou terminar a sessão. Se o problema persistir, contacte a assistência do Bitwarden."
+  },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "Permissão não concedida"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Sem permissão para comunicar com a aplicação Bitwarden para computador, não é possível disponibilizar a autenticação biométrica na extensão do navegador. Por favor, tente novamente."
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "Erro ao pedir permissão"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "Esta ação não pode ser realizada na barra lateral. Tente novamente na janela pop-up ou na janela separada."
   },
   "personalOwnershipSubmitError": {
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
@@ -3139,6 +3242,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Rever e alterar as $COUNT$ palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Rever 1 palavra-passe em risco"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Rever $COUNT$ palavras-passe em risco",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3342,6 +3457,10 @@
   },
   "createSend": {
     "message": "Novo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Criar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3811,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token da API de $SERVICENAME$ inválido",
+  "forwarderInvalidToken": {
+    "message": "Token de API de $SERVICENAME$ inválido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3821,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Token de API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3835,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Contacte o seu fornecedor de serviços para obter assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3845,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3922,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Erro no Key Connector: certifique-se de que o Key Connector está disponível e a funcionar corretamente."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "É necessária uma subscrição Premium"
   },
   "organizationIsDisabled": {
@@ -4666,10 +4785,55 @@
     "message": "Iniciar o Duo"
   },
   "importFormatError": {
-    "message": "Os dados não estão formatados corretamente. Por favor, verifique o seu ficheiro de importação e tente novamente."
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
   "importNothingError": {
     "message": "Nada foi importado."
+  },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ itens serão ignorados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Os seguintes itens não puderam ser lidos e não serão incluídos na sua importação:"
+  },
+  "contact": {
+    "message": "Contacto"
+  },
+  "membership": {
+    "message": "Adesão"
+  },
+  "passport": {
+    "message": "Passaporte"
+  },
+  "driverLicense": {
+    "message": "Carta de condução"
+  },
+  "ssnCard": {
+    "message": "Cartão de cidadão"
+  },
+  "birthCertificate": {
+    "message": "Certidão de nascimento"
+  },
+  "databaseCredentials": {
+    "message": "Credenciais da base de dados"
+  },
+  "serverCredentials": {
+    "message": "Credenciais do servidor"
+  },
+  "softwareLicense": {
+    "message": "Licença de software"
+  },
+  "healthInsurance": {
+    "message": "Seguro de saúde"
+  },
+  "wifiCredentials": {
+    "message": "Credenciais de Wi-Fi"
   },
   "importEncKeyError": {
     "message": "Erro ao desencriptar o ficheiro exportado. A sua chave de encriptação não corresponde à chave de encriptação utilizada para exportar os dados."
@@ -4734,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirmar a palavra-passe do ficheiro"
+  },
+  "keePassMasterPassword": {
+    "message": "Palavra-passe mestra do KeePass"
+  },
+  "addKeyFile": {
+    "message": "Adicionar ficheiro de chave"
+  },
+  "keyFileUpload": {
+    "message": "Carregar ficheiro de chave"
+  },
+  "kdbxFileUpload": {
+    "message": "Carregar ficheiro KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formatos aceites: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
+  },
+  "kdbxWrongFileType": {
+    "message": "Este ficheiro não é uma base de dados KeePass (.kdbx) válida. Selecione um ficheiro .kdbx e tente novamente."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Esta base de dados KeePass é demasiado grande para ser importada."
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
@@ -4837,6 +5025,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Falha na autenticação multifator"
   },
+  "keeperConnectionError": {
+    "message": "Ocorreu um problema ao comunicar com o Keeper. Tente a importação novamente."
+  },
   "includeSharedFolders": {
     "message": "Incluir pastas partilhadas"
   },
@@ -4888,6 +5079,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
+  },
+  "keeperEmail": {
+    "message": "E-mail do Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Introduza o e-mail que utiliza para iniciar sessão no Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Localização do centro de dados"
+  },
+  "keeperMasterPassword": {
+    "message": "Palavra-passe mestra do Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Introduza a sua palavra-passe mestra do Keeper"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Introduza o código do seu método de dois fatores"
+  },
+  "totpCodePrompt": {
+    "message": "Introduza o código da sua app de autenticação"
+  },
+  "smsCodePrompt": {
+    "message": "Introduza o código enviado por mensagem de texto"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Introduza o código da sua app Keeper DNA"
+  },
+  "adminApproval": {
+    "message": "Aprovação do administrador"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Enviámos um pedido de aprovação ao seu administrador"
+  },
+  "method": {
+    "message": "Método"
+  },
+  "directImporter": {
+    "message": "Importador direto"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "JSON"
+  },
+  "ssoAuthRequired": {
+    "message": "Autenticação SSO necessária"
+  },
+  "keeperSsoDesc": {
+    "message": "A sua conta do Keeper requer autenticação SSO. Conclua o início de sessão na janela do navegador que foi aberta e, em seguida, cole o token apresentado na página."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Conclua o início de sessão no separador do navegador que foi aberto. O token será capturado automaticamente."
+  },
+  "ssoToken": {
+    "message": "Token SSO"
+  },
+  "keeperAuthRequired": {
+    "message": "Autenticação do Keeper necessária"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Aprovação do dispositivo do Keeper necessária"
+  },
+  "selectApprovalMethod": {
+    "message": "Métodos de aprovação"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Aprovação do dispositivo necessária"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Aprove este dispositivo selecionando um dos métodos abaixo"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Método de dois fatores"
+  },
+  "emailVerification": {
+    "message": "Verificação de e-mail"
+  },
+  "approvalEmailDesc": {
+    "message": "Verifique o seu e-mail e introduza o código de verificação abaixo"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Notificação do Keeper Push enviada para o dispositivo aprovado"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push enviado"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "O pedido de aprovação será cancelado"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Tem a certeza de que pretende sair? O seu pedido de aprovação ao administrador será cancelado."
+  },
+  "cancelRequest": {
+    "message": "Cancelar pedido"
+  },
+  "keeperMFARequired": {
+    "message": "Autenticação de dois fatores do Keeper necessária"
+  },
+  "mfaPushDesc": {
+    "message": "Aprove o pedido de início de sessão na sua app de autenticação. Esta caixa de diálogo fechar-se-á automaticamente."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Selecionar método de dois fatores"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Escolha como pretende verificar a sua identidade."
+  },
+  "authenticatorAppTotp": {
+    "message": "App de autenticação (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Mensagem de texto (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Códigos de recuperação"
+  },
+  "securityKeyU2f": {
+    "message": "Chave de segurança (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Chave de segurança (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Verificação do Keeper DNA"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Aprove a notificação do Keeper DNA no seu dispositivo"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Selecionar método do Keeper DNA"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Escolha como pretende verificar a sua identidade com o Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Notificação push"
+  },
+  "enterCodeManually": {
+    "message": "Introduzir código manualmente"
+  },
+  "twoFactorAuthentication": {
+    "message": "Autenticação de dois fatores"
+  },
+  "unknownMethod": {
+    "message": "Método desconhecido"
+  },
+  "selectDuoMethod": {
+    "message": "Selecionar método do Duo"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Escolha como pretende verificar a sua identidade com o Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Chamada telefónica"
+  },
+  "duoVerification": {
+    "message": "Verificação do Duo"
+  },
+  "duoPushWaiting": {
+    "message": "Aprove a notificação push do Duo no seu dispositivo."
+  },
+  "duoSmsWaiting": {
+    "message": "Foi enviada uma mensagem de texto para o seu telemóvel. Introduza o código na app Duo para continuar."
+  },
+  "duoVoiceWaiting": {
+    "message": "Atenda a chamada do Duo e siga as instruções."
+  },
+  "tryAnotherMethod": {
+    "message": "Tente outro método"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "A sua conta do Keeper requer um método de autenticação de dois fatores que, de momento, não é suportado pelo importador direto."
   },
   "switchAccount": {
     "message": "Mudar de conta"
@@ -5032,11 +5412,26 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "Defina o Bitwarden como o gestor de palavras-passe predefinido do seu navegador"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Definir o Bitwarden como o seu gestor de palavras-passe predefinido",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Desative as definições de preenchimento automático do navegador para evitar conflitos.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Gerir definições do navegador",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "do pedido do navegador para conceder permissão ao Bitwarden para alterar as suas definições."
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "Desativaremos o gestor de palavras-passe integrado do seu navegador para que possa usufruir de uma experiência de início de sessão segura."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "O Bitwarden foi definido como o gestor de palavras-passe predefinido do navegador"
   },
   "allow": {
     "message": "Permitir",
@@ -5299,6 +5694,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Ver nota",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Criar",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Adicionar coleção"
+  },
   "new": {
     "message": "Novo"
   },
@@ -5483,11 +5901,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Site adicionado"
   },
   "addWebsite": {
     "message": "Adicionar site"
+  },
+  "addWebsiteOrApp": {
+    "message": "Adicionar site ou app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Eliminar site"
@@ -5617,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Utilize um campo ligado quando tiver problemas de preenchimento automático para um site específico."
   },
-  "linkedLabelHelpText": {
-    "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
+  "linkedFieldLabelHelpText": {
+    "message": "Introduza o ID HTML, nome, aria-label ou placeholder do campo."
   },
   "editField": {
     "message": "Editar campo"
@@ -5683,10 +6120,10 @@
     "message": "Selecione as coleções a atribuir"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
+    "message": "1 item será transferido permanentemente para a organização selecionada. Deixará de ser o proprietário deste item."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5695,7 +6132,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
+    "message": "1 item será transferido permanentemente para $ORG$. Deixará de ser o proprietário deste item.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -5704,7 +6141,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para $ORG$. Estes itens deixarão de lhe pertencer.",
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para $ORG$. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5718,6 +6155,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
+  },
+  "itemMovedToCollection": {
+    "message": "Item movido para a coleção"
+  },
+  "itemMovedToCollections": {
+    "message": "Item movido para as coleções"
+  },
+  "itemsMovedToCollection": {
+    "message": "Itens movidos para a coleção"
+  },
+  "itemsMovedToCollections": {
+    "message": "Itens movidos para as coleções"
   },
   "itemAssignedToCollections": {
     "message": "Item atribuído a coleções"
@@ -5894,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Definição do PIN de desbloqueio"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Desbloquear com conjunto biométrico"
   },
   "authenticating": {
     "message": "A autenticar"
@@ -6576,14 +7022,29 @@
   "sharedUnlock": {
     "message": "Desbloqueio partilhado"
   },
-  "sharedUnlockDescription": {
-    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado por todas as aplicações neste dispositivo. A aplicação para computador é necessária para sincronizar entre diferentes navegadores."
+  "sharedUnlockWithDesktop": {
+    "message": "Partilhar desbloqueio com a aplicação para computador"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden no Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "Quando ativado, o estado de desbloqueio será partilhado com a aplicação Bitwarden para computador."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Mantenha as suas apps do Bitwarden sincronizadas. Quando ativado, o estado de desbloqueio será partilhado com a aplicação para computador do Bitwarden."
+  "sharedUnlockWithWeb": {
+    "message": "Partilhar desbloqueio com o cofre web"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden."
+  },
+  "newPermissionNeeded": {
+    "message": "É necessária uma nova permissão"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "Para utilizar o desbloqueio partilhado, o Bitwarden precisa de permissão para comunicar com a aplicação para computador. Ao continuar, o navegador pedir-lhe-á que conceda essa permissão."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "O Bitwarden será bloqueado e recarregado. Depois de conceder a permissão, a extensão será recarregada e bloqueará o seu cofre."
+  },
+  "biometricPermissionDesc": {
+    "message": "Para utilizar o desbloqueio biométrico, o Bitwarden precisa de permissão para comunicar com a aplicação para computador. Ao continuar, o navegador pedir-lhe-á que conceda essa permissão."
   },
   "enterMonth": {
     "message": "Introduza o mês."
@@ -6747,17 +7208,37 @@
     "message": "Para editar este Send, crie uma cópia. Se este Send puder expirar na data de eliminação definida, não é necessária qualquer ação",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "Este Send expirará automaticamente na data de eliminação definida",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "makeACopy": {
     "message": "Fazer uma cópia"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Os Sends de texto não são permitidos na sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Os Sends de ficheiro não são permitidos na sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Este Send expirará automaticamente na data de eliminação definida",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Não foi possível guardar o item. Tem de estar confirmado na organização para poder guardar itens."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Os itens não podem ter vários anexos com o mesmo nome de ficheiro"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ definiu esta data de eliminação",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   }
 }

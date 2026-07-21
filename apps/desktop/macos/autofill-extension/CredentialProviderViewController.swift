@@ -199,6 +199,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             attempts += 1
         }
 
+        let x, y: Int32
         let finalWindowFrame = self.view.window?.frame ?? .zero
         logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
 
@@ -207,15 +208,19 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
             logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
-            return WindowDetails(position: Position(x: centerX, y: centerY), handle: nil)
+            x = centerX
+            y = centerY
         } else {
             // Fallback to mouse position
             let mouseLocation = NSEvent.mouseLocation
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
-            return WindowDetails(position: Position(x: mouseX, y: mouseY), handle: nil)
+            x = mouseX
+            y = mouseY
         }
+        // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
+        return WindowDetails(position: Position(x: x + 100, y: y), handle: nil)
     }
 
     override func viewDidLoad() {
@@ -311,6 +316,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 */
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyAssertionWithoutUserInterfaceRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -320,7 +326,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userName: passkeyIdentity.userName,
                         userHandle: passkeyIdentity.userHandle,
                         recordIdentifier: passkeyIdentity.recordIdentifier,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
@@ -408,6 +414,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyRegistrationRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -417,7 +424,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userHandle: passkeyIdentity.userHandle,
                         supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
                         excludedCredentials: excludedCredentialIds,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
@@ -479,13 +486,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         Task {
             let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
             let req = PasskeyAssertionRequest(
                 rpId: requestParameters.relyingPartyIdentifier,
                 clientDataHash: requestParameters.clientDataHash,
                 userVerification: userVerification,
                 clientWindow: clientWindow,
                 allowedCredentials: requestParameters.allowedCredentials,
-                context: nil
+                context: context
             )
 
             let client = await getClient()

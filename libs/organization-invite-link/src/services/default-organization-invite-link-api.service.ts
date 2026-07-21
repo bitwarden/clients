@@ -1,9 +1,11 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
+import { OrganizationInviteLinkUpdateSupportConfirmationRequest } from "../models/requests/organization-invite-link-update-support-confirmation.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
@@ -41,6 +43,20 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
+  async updateSupportsConfirmation(
+    organizationId: OrganizationId,
+    request: OrganizationInviteLinkUpdateSupportConfirmationRequest,
+  ): Promise<OrganizationInviteLinkResponseModel> {
+    const r = await this.apiService.send(
+      "PUT",
+      `/organizations/${organizationId}/invite-link/support-confirm`,
+      request,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkResponseModel(r);
+  }
+
   async get(organizationId: string): Promise<OrganizationInviteLinkResponseModel> {
     const r = await this.apiService.send(
       "GET",
@@ -52,7 +68,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
-  async update(
+  async updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel> {
