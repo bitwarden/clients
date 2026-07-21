@@ -45,9 +45,11 @@ export function InlineMenuPrompt({
     theme,
     dataTestId,
     children: html`
-      ${message
-        ? html`<div class=${messageStyles(theme)} title=${message}>${message}</div>`
-        : nothing}
+      ${
+        message
+          ? html`<div class=${messageStyles(theme)} title=${message}>${message}</div>`
+          : nothing
+      }
       <div class=${actionContainerStyles(theme, !!message)}>
         <button
           type="button"
@@ -56,13 +58,15 @@ export function InlineMenuPrompt({
           aria-label=${i18n.actionAria}
           @click=${handleButtonClick}
         >
-          ${icon
-            ? html`
-                <span class=${actionIconStyles}>
-                  ${icon({ theme, color: themes[theme].primary["600"] })}
-                </span>
-              `
-            : null}
+          ${
+            icon
+              ? html`
+                  <span class=${actionIconStyles}>
+                    ${icon({ theme, color: themes[theme].primary["600"] })}
+                  </span>
+                `
+              : null
+          }
           <span>${actionText}</span>
         </button>
       </div>
@@ -85,11 +89,13 @@ const actionContainerStyles = (theme: Theme, borderedTop: boolean) => css`
   padding: calc(${spacing["1"]} / 2);
   transition: background-color 0.2s ease-in-out;
   background-color: ${themes[theme].background.DEFAULT};
-  ${borderedTop
-    ? css`
-        border-top: 1px solid ${themes[theme].secondary["300"]};
-      `
-    : css``}
+  ${
+    borderedTop
+      ? css`
+          border-top: 1px solid ${themes[theme].secondary["300"]};
+        `
+      : css``
+  }
 
   :hover {
     background-color: ${themes[theme].background.alt};

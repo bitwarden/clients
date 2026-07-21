@@ -188,8 +188,7 @@ export class SendCreateCommand {
     );
 
     const whoCanAccessPolicyData = policies.find((p) => p.data?.whoCanAccess != null)?.data as
-      | SendControlsPolicyData
-      | undefined;
+      SendControlsPolicyData | undefined;
     if (whoCanAccessPolicyData?.whoCanAccess === WhoCanAccessType.SpecificPeople) {
       if (req.authType !== AuthType.Email || !req.emails?.length) {
         return Response.error(
@@ -227,8 +226,7 @@ export class SendCreateCommand {
     // the user has specified. This matches the UI behavior, where users are
     // barred from using other deletion dates when one is mandated by org policy.
     const deletionDatePolicyData = policies.find((p) => p.data?.deletionHours)?.data as
-      | SendControlsPolicyData
-      | undefined;
+      SendControlsPolicyData | undefined;
     if (deletionDatePolicyData?.deletionHours != null) {
       const policyCompliantDeletionDate = new Date();
       policyCompliantDeletionDate.setTime(
