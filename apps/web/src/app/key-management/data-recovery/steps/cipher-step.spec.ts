@@ -127,6 +127,90 @@ describe("CipherStep", () => {
       expect(logger.record).toHaveBeenCalledWith("Found 2 undecryptable ciphers");
     });
 
+    it("treats a resolved decrypt with decryptionFailure as an undecryptable cipher", async () => {
+      const userId = "user-id" as UserId;
+      const okCipher = { id: "cipher-ok", organizationId: null } as Cipher;
+      const fieldFailureCipher = { id: "cipher-field", organizationId: null, key: null } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [okCipher, fieldFailureCipher],
+        folders: [],
+        fido2CorruptCipherIds: [],
+      };
+
+      cipherEncryptionService.decrypt
+        .mockResolvedValueOnce({ decryptionFailure: false } as any) // okCipher decrypts cleanly
+        .mockResolvedValueOnce({ decryptionFailure: true } as any); // fieldFailureCipher has field-level failure
+
+      const result = await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(result).toBe(false);
+      expect(cipherStep["undecryptableCipherIds"]).toEqual(["cipher-field"]);
+      expect(cipherStep["decryptableCipherIds"]).toEqual(["cipher-ok"]);
+      expect(logger.record).toHaveBeenCalledWith(
+        "Cipher ID cipher-field detected field-level decryption failure",
+      );
+      expect(logger.record).toHaveBeenCalledWith("Cipher ID cipher-field was undecryptable");
+      expect(logger.record).toHaveBeenCalledWith("Found 1 undecryptable ciphers");
+      expect(logger.record).toHaveBeenCalledWith("Found 1 decryptable ciphers");
+    });
+
+    it("excludes a field-level decryption failure when its cipher is a corrupt fido2 cipher", async () => {
+      const userId = "user-id" as UserId;
+      const fido2FieldCipher = { id: "cipher-fido2", organizationId: null } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [fido2FieldCipher],
+        folders: [],
+        fido2CorruptCipherIds: ["cipher-fido2"],
+      };
+
+      cipherEncryptionService.decrypt.mockResolvedValue({ decryptionFailure: true } as any);
+
+      const result = await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(result).toBe(true);
+      expect(cipherStep["undecryptableCipherIds"]).toEqual([]);
+      expect(logger.record).not.toHaveBeenCalledWith("Cipher ID cipher-fido2 was undecryptable");
+    });
+
+    it("records cipher corruption details for undecryptable ciphers", async () => {
+      const userId = "user-id" as UserId;
+      const brokenCipher = {
+        id: "cipher-broken",
+        organizationId: null,
+        key: {} as any,
+        revisionDate: new Date("2024-01-02T03:04:05.000Z"),
+        creationDate: new Date("2023-01-02T03:04:05.000Z"),
+      } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [brokenCipher],
+        folders: [],
+        fido2CorruptCipherIds: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
+
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(logger.record).toHaveBeenCalledWith(
+        "Corrupt cipher cipher-broken: cipherKeyPresent=true, revisionDate=2024-01-02T03:04:05.000Z, creationDate=2023-01-02T03:04:05.000Z",
+      );
+    });
+
     it("excludes ciphers listed in fido2CorruptCipherIds from undecryptable counts", async () => {
       const userId = "user-id" as UserId;
       const okCipher = { id: "cipher-1", organizationId: null } as Cipher;
@@ -233,7 +317,9 @@ describe("CipherStep", () => {
         fido2CorruptCipherIds: [],
       };
 
-      cipherEncryptionService.decrypt.mockRejectedValueOnce(new Error("Decryption failed"));
+      cipherEncryptionService.decrypt
+        .mockResolvedValue({ decryptionFailure: false } as any)
+        .mockRejectedValueOnce(new Error("Decryption failed"));
 
       await cipherStep.runDiagnostics(workingData, logger);
       const result = cipherStep.canRecover(workingData);
@@ -340,6 +426,30 @@ describe("CipherStep", () => {
       expect(logger.record).toHaveBeenCalledWith("Deleted cipher cipher-1");
       expect(logger.record).toHaveBeenCalledWith("Deleted cipher cipher-2");
       expect(logger.record).toHaveBeenCalledWith("Successfully deleted 2 ciphers");
+    });
+
+    it("logs and rethrows when deleting a cipher fails", async () => {
+      const userId = "user-id" as UserId;
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey: null,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
+        folders: [],
+        fido2CorruptCipherIds: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      apiService.deleteCipher.mockRejectedValue(new Error("Network error"));
+
+      await expect(cipherStep.runRecovery(workingData, logger)).rejects.toThrow("Network error");
+
+      expect(logger.record).toHaveBeenCalledWith("Failed to delete cipher cipher-1: Network error");
+      expect(logger.record).not.toHaveBeenCalledWith("Successfully deleted 1 ciphers");
     });
   });
 });
