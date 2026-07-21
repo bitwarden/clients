@@ -123,11 +123,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     private domQueryService: DomQueryService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
   ) {
-    let inputQuery = "input:not([data-bwignore])";
+    let inputQuery = "input";
     for (const type of this.ignoredInputTypes) {
       inputQuery += `:not([type="${type}"])`;
     }
-    this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+    this.formFieldQueryString = `${inputQuery}, textarea, select, span[data-bwautofill]`;
 
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
@@ -1407,14 +1407,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return true;
     }
 
-    const nodeHasBwIgnoreAttribute = node.hasAttribute("data-bwignore");
     const nodeIsValidInputElement =
       nodeTagName === "input" && !this.ignoredInputTypes.has((node as HTMLInputElement).type);
-    if (nodeIsValidInputElement && !nodeHasBwIgnoreAttribute) {
+    if (nodeIsValidInputElement) {
       return true;
     }
 
-    return this.nonInputFormFieldTags.has(nodeTagName) && !nodeHasBwIgnoreAttribute;
+    return this.nonInputFormFieldTags.has(nodeTagName);
   }
 
   private setupInitialTopLayerListeners = () => {

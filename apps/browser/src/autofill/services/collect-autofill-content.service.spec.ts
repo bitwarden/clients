@@ -1184,7 +1184,7 @@ describe("CollectAutofillContentService", () => {
       expect(formElements).toEqual([spanElement, textAreaInput]);
     });
 
-    it("returns form elements from the targeted document, ignoring input types `hidden`, `submit`, `reset`, `button`, `image`, `file`, and inputs tagged with `data-bwignore`, while giving lower order priority to `checkbox` and `radio` inputs if the returned list is truncated by `limit", () => {
+    it("returns form elements from the targeted document, ignoring input types `hidden`, `submit`, `reset`, `button`, `image`, and `file`, while giving lower order priority to `checkbox` and `radio` inputs if the returned list is truncated by `limit", () => {
       document.body.innerHTML = `
         <div>
           <fieldset>
@@ -1209,7 +1209,6 @@ describe("CollectAutofillContentService", () => {
           <label for="doYouWantToCheck">Do you want to skip checking this box?</label>
           <select><option value="1">Option 1</option></select>
           <label for="username">username</label>
-          <input type="text" data-bwignore value="None" />
           <input type="hidden" value="of" />
           <input type="submit" value="these" />
           <input type="reset" value="inputs" />
@@ -4016,40 +4015,6 @@ describe("CollectAutofillContentService", () => {
             false,
           ),
       );
-    });
-
-    describe("rejects nodes carrying data-bwignore", () => {
-      // Consolidating onto formFieldQueryString means data-bwignore-marked elements no longer
-      // trip the gate. Safe because they'd be filtered out during collection anyway.
-      it('rejects <input type="text" data-bwignore>', () =>
-        expectGate(
-          mutationForInput((i) => {
-            i.type = "text";
-            i.setAttribute("data-bwignore", "");
-          }),
-          false,
-        ));
-
-      it("rejects <select data-bwignore>", () => {
-        const select = document.createElement("select");
-        select.setAttribute("data-bwignore", "");
-        expectGate(mutationForChild(select), false);
-      });
-
-      it("rejects <textarea data-bwignore>", () => {
-        const textarea = document.createElement("textarea");
-        textarea.setAttribute("data-bwignore", "");
-        expectGate(mutationForChild(textarea), false);
-      });
-
-      it("rejects a <div> wrapping only a data-bwignore field (descendant inherits exclusion)", () => {
-        const wrapper = document.createElement("div");
-        const input = document.createElement("input");
-        input.type = "text";
-        input.setAttribute("data-bwignore", "");
-        wrapper.appendChild(input);
-        expectGate(mutationForChild(wrapper), false);
-      });
     });
 
     describe("admits via descendant match", () => {
