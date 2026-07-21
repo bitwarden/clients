@@ -197,10 +197,10 @@ filter = (row: User, f: Filters) =>
 <bit-table-v2 [tableDef]="table" [filter]="filter">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
-    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
     </bit-filter-menu>
-    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star" bitTableFilter />
+    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star" />
   </bit-table-toolbar>
   …columns…
 </bit-table-v2>

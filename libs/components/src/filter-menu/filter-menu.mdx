@@ -12,7 +12,7 @@ single on/off chip with no menu.
 
 The chips work like a reactive form: each chip has a `key`, owns its own selection, and reports its
 value up. The chips are **host-agnostic** — outside a table they just track their selection. Inside
-a `bit-table-v2`, add the `bitTableFilter` directive and the chip's value lands in
+a `bit-table-v2`, a chip registers itself automatically and its value lands in
 `table.filterValues()` — see [Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
 
 <Canvas of={stories.Default} />
@@ -61,13 +61,13 @@ message shows when nothing matches. The term resets when the menu closes.
 
 ## Driving a table
 
-Add `bitTableFilter` to a chip inside a `bit-table-v2`. The chip's value lands in
+Project a chip into a `bit-table-v2` and it registers itself. The chip's value lands in
 `table.filterValues()` under its `key`; the table's `filter(row, values)` reads it. There are no
 matchers and no per-chip state — see
 [Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
 
 ```html
-<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
   <bit-filter-option [value]="'login'">Login</bit-filter-option>
 </bit-filter-menu>
 ```

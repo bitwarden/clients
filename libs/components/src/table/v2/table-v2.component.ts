@@ -25,7 +25,7 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { FilterControl } from "../../filter-menu/filter-tokens";
+import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SearchComponent } from "../../search/search.component";
@@ -40,7 +40,6 @@ import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
-import { FILTER_HOST, FilterHost } from "./filter-host";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
@@ -177,8 +176,8 @@ type RenderItem<T> =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    // Filter chips projected into the table register against this host via the
-    // `bitTableFilter` bridge; the table folds their values into `filtered`.
+    // Filter chips projected into the table resolve this host by DI and
+    // self-register; the table folds their values into `filtered`.
     { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
     // The virtual-scroll viewport in the template picks up the table's own strategy.
     {
@@ -336,7 +335,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** Selection state, present only when {@link selection} is configured. */
   readonly selectionModel = this._selectionModel.asReadonly();
 
-  /** Registers a projected filter chip. Called by the `bitTableFilter` bridge. */
+  /** Registers a projected filter chip. Called by the chip as it self-registers. */
   registerFilter(control: FilterControl): void {
     this._filters.update((filters) => [...filters, control]);
   }

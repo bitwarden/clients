@@ -32,7 +32,6 @@ import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
-import { BitTableFilterDirective } from "./bit-table-filter.directive";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { TableDef, defineTable } from "./table-def";
@@ -174,7 +173,6 @@ type VaultFilters = {
     BitHeaderCellComponent,
     BitCellComponent,
     BitTableToolbarComponent,
-    BitTableFilterDirective,
     FilterMenuModule,
     SearchModule,
     ButtonModule,
@@ -187,7 +185,7 @@ type VaultFilters = {
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
 
-          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
             @for (option of typeOptions(); track option.value) {
               <bit-filter-option [value]="option.value" [count]="option.count">
                 {{ option.label }}
@@ -197,7 +195,7 @@ type VaultFilters = {
 
           <bit-filter-divider></bit-filter-divider>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple bitTableFilter>
+          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions(); track option.value) {
               <bit-filter-option [value]="option.value" [count]="option.count">
                 {{ option.label }}
@@ -205,7 +203,7 @@ type VaultFilters = {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Collections" multiple bitTableFilter>
+          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
             @for (org of collectionOrgs(); track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -217,12 +215,7 @@ type VaultFilters = {
             }
           </bit-filter-menu>
 
-          <bit-filter-toggle
-            key="favorite"
-            label="Favorites"
-            icon="bwi-star"
-            bitTableFilter
-          ></bit-filter-toggle>
+          <bit-filter-toggle key="favorite" label="Favorites" icon="bwi-star"></bit-filter-toggle>
         </bit-table-toolbar>
 
         <bit-column sortable defaultSort="asc">
@@ -306,7 +299,6 @@ class DemoFilterableTableComponent {
     BitHeaderCellComponent,
     BitCellComponent,
     BitTableToolbarComponent,
-    BitTableFilterDirective,
     BitTablePaginatorComponent,
     FilterMenuModule,
     SearchModule,
@@ -319,24 +311,19 @@ class DemoFilterableTableComponent {
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
 
-          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
             @for (option of typeOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="vault" placeholderText="Vault" multiple bitTableFilter>
+          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
             @for (option of vaultOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }
           </bit-filter-menu>
 
-          <bit-filter-toggle
-            key="favorite"
-            label="Favorites"
-            icon="bwi-star"
-            bitTableFilter
-          ></bit-filter-toggle>
+          <bit-filter-toggle key="favorite" label="Favorites" icon="bwi-star"></bit-filter-toggle>
         </bit-table-toolbar>
 
         <bit-column sortable defaultSort="asc">
@@ -883,9 +870,9 @@ export const FillPage: Story = {
 
 /**
  * Filtering with projected filter chips. A radio chip and a toggle chip register
- * with the table via `bitTableFilter`; the table composes their predicates into
- * the rendered rows and shows a "no matching items" state when they exclude
- * everything. See [Filter menu](?path=/docs/component-library-filter-menu--docs).
+ * with the table automatically when projected in; the table composes their
+ * predicates into the rendered rows and shows a "no matching items" state when
+ * they exclude everything. See [Filter menu](?path=/docs/component-library-filter-menu--docs).
  */
 export const Filterable: Story = {
   render: () => ({

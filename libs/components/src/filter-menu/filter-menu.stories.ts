@@ -9,7 +9,7 @@ import { FilterMenuModule } from "./filter-menu.module";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
- * `bit-table-v2` the chips carry `bitTableFilter` and their values land in
+ * `bit-table-v2` the chips self-register with the table and their values land in
  * `table.filterValues()`; here they simply display their selection.
  */
 @Component({

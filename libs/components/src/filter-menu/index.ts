@@ -8,8 +8,10 @@ export { FilterMenuModule } from "./filter-menu.module";
 export {
   FILTER_CONTROL,
   FILTER_GROUP,
+  FILTER_HOST,
   FILTER_PRESENTER,
   type FilterControl,
   type FilterGroup,
+  type FilterHost,
   type FilterPresenter,
 } from "./filter-tokens";

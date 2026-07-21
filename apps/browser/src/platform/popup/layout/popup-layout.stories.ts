@@ -32,7 +32,6 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitRowGroupComponent,
-  BitTableFilterDirective,
   BitTableToolbarComponent,
   BitTableV2Component,
   ChipActionComponent,
@@ -488,7 +487,6 @@ type TableVaultFilters = {
     BitCellComponent,
     BitRowGroupComponent,
     BitTableToolbarComponent,
-    BitTableFilterDirective,
     FilterMenuModule,
     SearchModule,
     ButtonModule,
@@ -516,7 +514,7 @@ type TableVaultFilters = {
           <bit-table-toolbar>
             <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
 
-            <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+            <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
               @for (option of typeOptions(); track option.value) {
                 <bit-filter-option [value]="option.value" [count]="option.count">
                   {{ option.label }}
@@ -526,7 +524,7 @@ type TableVaultFilters = {
 
             <bit-filter-divider></bit-filter-divider>
 
-            <bit-filter-menu key="vault" placeholderText="Vault" multiple bitTableFilter>
+            <bit-filter-menu key="vault" placeholderText="Vault" multiple>
               @for (option of vaultOptions(); track option.value) {
                 <bit-filter-option [value]="option.value" [count]="option.count">
                   {{ option.label }}
@@ -534,7 +532,7 @@ type TableVaultFilters = {
               }
             </bit-filter-menu>
 
-            <bit-filter-menu key="collection" placeholderText="Collections" multiple bitTableFilter>
+            <bit-filter-menu key="collection" placeholderText="Collections" multiple>
               @for (org of collectionOrgs(); track org.name) {
                 <bit-filter-section [label]="org.name" collapsible>
                   @for (collection of org.collections; track collection.id) {
@@ -546,12 +544,7 @@ type TableVaultFilters = {
               }
             </bit-filter-menu>
 
-            <bit-filter-toggle
-              key="favorite"
-              label="Favorites"
-              icon="bwi-star"
-              bitTableFilter
-            ></bit-filter-toggle>
+            <bit-filter-toggle key="favorite" label="Favorites" icon="bwi-star"></bit-filter-toggle>
           </bit-table-toolbar>
 
           <bit-row-group [match]="isFavorite" collapsible>

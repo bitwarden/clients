@@ -292,21 +292,16 @@ filter = (row: Member, f: Filters) =>
 ```html
 <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="{ type: 'login' }">
   <bit-table-toolbar>
-    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
     </bit-filter-menu>
-    <bit-filter-toggle
-      key="favorites"
-      label="Favorites"
-      icon="bwi-star"
-      bitTableFilter
-    ></bit-filter-toggle>
+    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
   </bit-table-toolbar>
   <bit-column>...</bit-column>
 </bit-table-v2>
 ```
 
-Add `bitTableFilter` to each chip or toggle to register it with the table. For **server-side**
+Each chip or toggle registers itself with the table when projected in. For **server-side**
 filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
 build your query, and feed the pre-filtered rows to `data`. See the
 [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
@@ -317,7 +312,7 @@ build your query, and feed the pre-filtered rows to `data`. See the
 ### Search
 
 A `<bit-search>` in the toolbar is adopted automatically as a filter under the `search` key — no
-`bitTableFilter`, no `ngModel`. Read its term in your `filter` alongside the other keys:
+`key`, no `ngModel`. Read its term in your `filter` alongside the other keys:
 
 ```ts
 filter: (row, f) =>
@@ -335,22 +330,18 @@ filter: (row, f) =>
   chips with `<bit-filter-divider>`. On small screens this row collapses into a single trigger and
   dialog.
 
-The toolbar holds no filter state itself — chips register with the table via `bitTableFilter`, and a
-projected `<bit-search>` is adopted as the `search` filter (see [Search](#search)).
+The toolbar holds no filter state itself — chips register with the table automatically when
+projected in, and a projected `<bit-search>` is adopted as the `search` filter (see
+[Search](#search)).
 
 ```html
 <bit-table-v2 [tableDef]="table">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
     <button slot="end" bitButton buttonType="primary">New</button>
-    <bit-filter-menu key="type" placeholderText="Type" bitTableFilter>...</bit-filter-menu>
+    <bit-filter-menu key="type" placeholderText="Type">...</bit-filter-menu>
     <bit-filter-divider></bit-filter-divider>
-    <bit-filter-toggle
-      key="favorites"
-      label="Favorites"
-      icon="bwi-star"
-      bitTableFilter
-    ></bit-filter-toggle>
+    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
   </bit-table-toolbar>
   <bit-column>...</bit-column>
 </bit-table-v2>

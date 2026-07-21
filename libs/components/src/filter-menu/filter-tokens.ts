@@ -16,8 +16,30 @@ export interface FilterControl {
   setValue(value: unknown): void;
 }
 
-/** Provided by a filter chip / toggle; injected by a host bridge. */
+/** Provided by a filter chip / toggle; injected by a filter host. */
 export const FILTER_CONTROL = new InjectionToken<FilterControl>("FilterControl");
+
+/**
+ * What a filterable surface (e.g. `bit-table-v2`) exposes so filter chips can
+ * register against it. The host collects the registered controls' keyed values
+ * into a single `{ key: value }` object (the way a `FormGroup` exposes `.value`)
+ * and applies the consumer's filter function.
+ *
+ * Lives here, beside {@link FilterControl}, so a chip can self-register by
+ * injecting {@link FILTER_HOST} (optionally) without `filter-menu` depending on
+ * any host type — the chip stays usable outside a table, and the dependency
+ * arrow runs host → filter-menu, never the reverse.
+ */
+export interface FilterHost {
+  registerFilter(control: FilterControl): void;
+  unregisterFilter(control: FilterControl): void;
+}
+
+/**
+ * Provided by a filterable surface; injected (optionally) by a filter chip /
+ * toggle, which self-registers when it resolves a host.
+ */
+export const FILTER_HOST = new InjectionToken<FilterHost>("FilterHost");
 
 /**
  * The selection surface a `bit-filter-menu` provides to its projected

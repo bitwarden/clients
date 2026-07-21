@@ -2,6 +2,8 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  OnInit,
   TemplateRef,
   afterNextRender,
   booleanAttribute,
@@ -35,6 +37,7 @@ import {
   FILTER_CONTROL,
   FILTER_ENTRY,
   FILTER_GROUP,
+  FILTER_HOST,
   FILTER_PRESENTER,
   FilterControl,
   FilterEntry,
@@ -58,12 +61,14 @@ const CLEAR_FILTER = Symbol("clear-filter");
  * renders a `bit-search` at the top to narrow them.
  *
  * The chip owns its selection and exposes it as {@link FILTER_CONTROL} under its
- * `key`, so a host bridge (`bitTableFilter` for `bit-table-v2`) folds it into the
- * host's `filterValues`. The chip never depends on the host type.
+ * `key`. When projected into a filterable surface (e.g. `bit-table-v2`) it resolves
+ * that surface's {@link FILTER_HOST} by DI and self-registers, so its value folds
+ * into the host's `filterValues`. It speaks only to the token contracts — never the
+ * host type — so it stays usable outside a table (where the host is simply absent).
  *
  * @example
  * ```html
- * <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
+ * <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
  *   <bit-filter-option [value]="'login'">Login</bit-filter-option>
  * </bit-filter-menu>
  * ```
@@ -94,7 +99,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth", "maxWidthClass"] },
   ],
 })
-export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter {
+export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter, OnInit {
   /** The chip's key — the property its value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
 
@@ -111,6 +116,10 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   readonly multiple = input(false, { transform: booleanAttribute });
 
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
+
+  /** The filterable surface this chip is projected into, if any. */
+  private readonly filterHost = inject(FILTER_HOST, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   /** The selection: a single value (single-select) or an array (multi-select). */
   private readonly _value = signal<unknown>(undefined);
@@ -227,6 +236,18 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     });
     // Reflect the active state as the chip's pressed (selected) styling.
     effect(() => this.baseChip.selectedState.set(this.active()));
+  }
+
+  ngOnInit(): void {
+    // Register with the host (if any) once inputs like `key` have resolved, not in
+    // the constructor: the host seeds initial filters off `key`, which isn't set
+    // yet at construction. Inert when there's no host (used outside a table).
+    const host = this.filterHost;
+    if (!host) {
+      return;
+    }
+    host.registerFilter(this);
+    this.destroyRef.onDestroy(() => host.unregisterFilter(this));
   }
 
   /** Narrows an entry to a section for the template (else `null`). */

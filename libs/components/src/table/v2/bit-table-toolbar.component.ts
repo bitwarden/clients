@@ -26,8 +26,8 @@ import { BitTableV2Component } from "./table-v2.component";
  * row. Project a `<bit-search>` (its own slot), filter chips (`bit-filter-menu` /
  * `bit-filter-toggle`), and arbitrary controls via `slot="end"`.
  *
- * Filter chips register their values with the table directly via the
- * `bitTableFilter` bridge — the toolbar doesn't own filter state. It observes its
+ * Filter chips register their values with the table directly by resolving its
+ * `FILTER_HOST` — the toolbar doesn't own filter state. It observes its
  * projected filters (their shared `FILTER_PRESENTER` contract) for the responsive
  * collapse: below `md` the chip row is hidden and replaced by a single trigger
  * (with {@link appliedCount} as a berry) that opens the filters in a dialog. The

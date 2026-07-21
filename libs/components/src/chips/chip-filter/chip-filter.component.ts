@@ -44,7 +44,8 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
  *
  * @deprecated Use `bit-filter-menu` (from the `filter-menu` family) instead. It's the successor:
  * built on the same chip primitives, but composable (`bit-filter-option` / `bit-filter-section`),
- * host-agnostic, and integrates with `bit-table-v2` via `bitTableFilter`.
+ * host-agnostic, and integrates with `bit-table-v2` by self-registering with its
+ * `FILTER_HOST` when projected in.
  */
 @Component({
   selector: "bit-chip-filter",
