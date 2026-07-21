@@ -1452,9 +1452,6 @@
   "moveToOrganization": {
     "message": "Move to organization"
   },
-  "moveToVault": {
-    "message": "Move to vault"
-  },
   "valueCopied": {
     "message": "$VALUE$ copied",
     "description": "Value has been copied to the clipboard.",
@@ -11946,9 +11943,6 @@
   "assignToCollections": {
     "message": "Assign to collections"
   },
-  "assignToSharedFolders": {
-    "message": "Assign to shared folders"
-  },
   "addToSharedFolder": {
     "message": "Add to shared folder"
   },
@@ -11969,9 +11963,6 @@
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
-  },
-  "selectSharedFoldersToAssign": {
-    "message": "Select shared folders to assign"
   },
   "noCollectionsAssigned": {
     "message": "No collections have been assigned"
