@@ -32,6 +32,7 @@ import {
   MenuModule,
   SimpleDialogOptions,
   IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import {
   NewCipherMenuComponent,
@@ -216,7 +217,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"
