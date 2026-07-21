@@ -4,7 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -15,6 +15,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   AsyncActionsModule,
   CardComponent,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
@@ -28,6 +29,11 @@ import { CipherFormGenerationService } from "../../abstractions/cipher-form-gene
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
+
+import {
+  DeletePasskeyDialogComponent,
+  DeletePasskeyDialogResult,
+} from "./delete-passkey-dialog/delete-passkey-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -115,6 +121,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private auditService: AuditService,
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
+    private dialogService: DialogService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
@@ -231,6 +238,13 @@ export class LoginDetailsSectionComponent implements OnInit {
   };
 
   removePasskey = async () => {
+    const dialogRef = DeletePasskeyDialogComponent.open(this.dialogService);
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (result !== DeletePasskeyDialogResult.Delete) {
+      return;
+    }
+
     // Fido2Credentials do not have a form control, so update directly
     this.existingFido2Credentials = null;
     this.cipherFormContainer.patchCipher((cipher) => {

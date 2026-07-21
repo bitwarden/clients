@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -7,14 +5,13 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService } from "@bitwarden/components";
 
 /**
@@ -31,11 +28,12 @@ export function isEnterpriseOrgGuard(showError: boolean = true): CanActivateFn {
     const accountService = inject(AccountService);
     const dialogService = inject(DialogService);
 
-    const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
     const org = await firstValueFrom(
-      organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(route.params.organizationId)),
+      accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => organizationService.organizations$(userId)),
+        getById(route.params.organizationId),
+      ),
     );
 
     if (org == null) {
