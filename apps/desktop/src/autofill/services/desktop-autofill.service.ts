@@ -90,6 +90,18 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
+    // Signal the main process to register the native OS credential provider and start the autofill
+    // IPC server. Gated here because the main process cannot evaluate the feature flag itself.
+    const ipcServerStarted = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!ipcServerStarted) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to start native autofill; aborting init",
+      );
+      this.isEnabled = false;
+      return;
+    }
+
     this.configService
       .getFeatureFlag$(this.featureFlag)
       .pipe(
