@@ -1212,9 +1212,6 @@
   "newSharedFolder": {
     "message": "New shared folder"
   },
-  "assignToSharedFolders": {
-    "message": "Assign to shared folders"
-  },
   "attachments": {
     "message": "Attachments"
   },

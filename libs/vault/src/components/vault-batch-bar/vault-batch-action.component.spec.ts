@@ -175,14 +175,6 @@ describe("VaultBatchActionComponent", () => {
       expect(action.label).toBe("translated-assignToCollections");
     });
 
-    it("uses shared-folder terminology for assign-to-collections when the flag is enabled", () => {
-      canAssignToCollections.set(true);
-      vfo1Enabled.set(true);
-
-      const [action] = component["primaryActions"]();
-      expect(action.label).toBe("translated-assignToSharedFolders");
-    });
-
     it("assigns the correct icon and translated label for edit-access", () => {
       canEditCollectionAccess.set(true);
 
