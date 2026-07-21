@@ -5466,6 +5466,12 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "passkeyRemoved": {
     "message": "Passkey removed"
   },

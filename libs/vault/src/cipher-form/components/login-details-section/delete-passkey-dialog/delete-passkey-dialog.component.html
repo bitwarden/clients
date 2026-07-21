@@ -1,0 +1,25 @@
+<bit-simple-dialog>
+  <bit-icon-tile bitDialogIcon icon="bwi-error" variant="danger" size="lg"></bit-icon-tile>
+  <span bitDialogTitle>{{ "deletePasskey" | i18n }}</span>
+  <span bitDialogContent>{{ "deletePasskeyConfirmation" | i18n }}</span>
+  <ng-container bitDialogFooter>
+    <button
+      id="delete-passkey-dialog_button_delete"
+      bitButton
+      type="button"
+      buttonType="danger"
+      (click)="delete()"
+    >
+      {{ "delete" | i18n }}
+    </button>
+    <button
+      id="delete-passkey-dialog_button_cancel"
+      bitButton
+      type="button"
+      buttonType="secondary"
+      (click)="cancel()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>
