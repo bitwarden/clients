@@ -38,6 +38,7 @@ import {
   All,
   RoutedVaultFilterModel,
   Vfo1TerminologyService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
@@ -60,6 +61,7 @@ import { PipesModule } from "../pipes/pipes.module";
     NewCipherMenuComponent,
     CoachmarkComponent,
     IconModule,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -139,7 +141,7 @@ export class VaultHeaderComponent {
     private readonly dialogService: DialogService,
     private readonly router: Router,
     private readonly accountService: AccountService,
-  ) {}
+  ) { }
 
   /**
    * The id of the organization that is currently being filtered on.
