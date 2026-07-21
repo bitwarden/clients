@@ -56,7 +56,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-appearance-none",
     /**
      * tailwind's outline-none does not fully remove it because it supports forced colors mode, so
-     * we need to do in manually
+     * we need to do it manually
      */
     "focus-visible:[outline:none]",
     "tw-box-border",
