@@ -38,6 +38,7 @@ import {
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../../platform/flags";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
 @Injectable({
@@ -183,6 +184,11 @@ export class VaultPopupAutofillService {
     // `resolvedEnableFillAssist`, `targetingRules` are included to trigger new state
     // resolution, not consumed directly
     switchMap(async ([currentTab, , , tabIsOnBlocklist]) => {
+      // Developer-only banner
+      if (!devFlagEnabled("fillAssistDevTools")) {
+        return false;
+      }
+
       // A blocklisted tab suppresses all autofill, so Fill Assist is moot regardless of the
       // blocked-domains banner's shown/dismissed state.
       if (tabIsOnBlocklist) {

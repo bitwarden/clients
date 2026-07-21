@@ -29,8 +29,15 @@ import {
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../../platform/flags";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
+
+jest.mock("../../../platform/flags", () => ({
+  devFlagEnabled: jest.fn(),
+}));
+
+const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
 
 describe("VaultPopupAutofillService", () => {
   let testBed: TestBed;
@@ -65,6 +72,10 @@ describe("VaultPopupAutofillService", () => {
   let targetingRulesSubject: BehaviorSubject<any>;
 
   beforeEach(() => {
+    // `showFillAssistActiveBanner$` is gated behind this dev flag; default it on so the tests
+    // below exercise the targeting-rule logic. The gate itself is covered by its own test.
+    mockDevFlagEnabled.mockReturnValue(true);
+
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
     jest
@@ -126,6 +137,15 @@ describe("VaultPopupAutofillService", () => {
     // A minimal, non-empty `FormContent[]`. The exact shape is irrelevant here because
     // `getTargetingRulesForUrl` is mocked; only the emptiness of the result matters to the banner.
     const applicableTargetingRules = [{ category: "login", fields: {} }] as any;
+
+    it("emits `false` and skips the targeting-rule lookup when the `fillAssistDevTools` dev flag is disabled", async () => {
+      mockDevFlagEnabled.mockReturnValue(false);
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+      expect(mockDevFlagEnabled).toHaveBeenCalledWith("fillAssistDevTools");
+      expect(mockDomainSettingsService.getTargetingRulesForUrl).not.toHaveBeenCalled();
+    });
 
     it("emits `true` when the current tab has targeted fill rules", async () => {
       mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
