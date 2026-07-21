@@ -5,6 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
   debounceTime,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
@@ -19,6 +20,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { isUrlInList } from "@bitwarden/common/autofill/utils";
+import { matchTargetingRulesForUrl } from "@bitwarden/common/autofill/utils/targeting-rules";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -172,8 +174,12 @@ export class VaultPopupAutofillService {
   );
 
   /**
-   * Emits `true` when Fill Assist targeting rules apply to the current tab (any non-`null`
-   * response from {@link DomainSettingsService.getTargetingRulesForUrl}).
+   * Emits `true` when Fill Assist targeting rules apply to the current tab.
+   *
+   * The vault popup only renders when the vault is unlocked, so the auth/unlock gating that
+   * {@link DomainSettingsService.getTargetingRulesForUrl} performs is already guaranteed here.
+   * That lets us match the resolved rules synchronously via {@link matchTargetingRulesForUrl}
+   * rather than re-resolving (and re-awaiting) that state per emission.
    */
   showFillAssistActiveBanner$: Observable<boolean> = combineLatest([
     this.currentAutofillTab$,
@@ -181,11 +187,13 @@ export class VaultPopupAutofillService {
     this.domainSettingsService.targetingRules$,
     this.currentTabIsOnBlocklist$,
   ]).pipe(
-    // `resolvedEnableFillAssist`, `targetingRules` are included to trigger new state
-    // resolution, not consumed directly
-    switchMap(async ([currentTab, , , tabIsOnBlocklist]) => {
+    map(([currentTab, fillAssistEnabled, targetingRules, tabIsOnBlocklist]) => {
       // Developer-only banner
       if (!devFlagEnabled("fillAssistDevTools")) {
+        return false;
+      }
+
+      if (!fillAssistEnabled) {
         return false;
       }
 
@@ -199,14 +207,13 @@ export class VaultPopupAutofillService {
         return false;
       }
 
-      const targetingRules = await this.domainSettingsService.getTargetingRulesForUrl(
-        currentTab.url,
-      );
+      const matchedTargetingRules = matchTargetingRulesForUrl(targetingRules, currentTab.url);
 
       // Any non-`null` result means rules apply, including an empty array (a targeting-rule
       // blocklist that intentionally suppresses autofill). Only `null` (no rules) is inactive.
-      return Array.isArray(targetingRules);
+      return matchedTargetingRules !== null;
     }),
+    distinctUntilChanged(),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 

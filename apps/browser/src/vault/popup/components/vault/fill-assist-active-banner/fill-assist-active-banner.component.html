@@ -1,4 +1,4 @@
-@if ((showFillAssistActiveBanner$ | async) && !dismissed()) {
+@if (showBanner()) {
   <bit-banner variant="primary" [useAlertRole]="false" (dismiss)="onDismiss()">
     {{ "fillAssistActiveNotice" | i18n }}
   </bit-banner>
