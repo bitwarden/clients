@@ -32,35 +32,35 @@ export function NotificationConfirmationMessage({
           ? html`
               <div class=${singleLineWrapperStyles}>
                 ${
-                itemName
-                  ? html`
-                      <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
-                    `
-                  : nothing
-              }
+                  itemName
+                    ? html`
+                        <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
+                      `
+                    : nothing
+                }
                 <span
                   title=${message || buttonText}
                   class=${notificationConfirmationMessageStyles(theme)}
                 >
                   ${message || nothing}
                   ${
-                  buttonText
-                    ? html`
-                        <a
-                          title=${buttonText}
-                          class=${notificationConfirmationButtonTextStyles(theme)}
-                          @click=${handleClick}
-                          @keydown=${(e: KeyboardEvent) =>
-                          handleButtonKeyDown(e, () => handleClick(e))}
-                          aria-label=${buttonAria}
-                          tabindex="0"
-                          role="button"
-                        >
-                          ${buttonText}
-                        </a>
-                      `
-                    : nothing
-                }
+                    buttonText
+                      ? html`
+                          <a
+                            title=${buttonText}
+                            class=${notificationConfirmationButtonTextStyles(theme)}
+                            @click=${handleClick}
+                            @keydown=${(e: KeyboardEvent) =>
+                              handleButtonKeyDown(e, () => handleClick(e))}
+                            aria-label=${buttonAria}
+                            tabindex="0"
+                            role="button"
+                          >
+                            ${buttonText}
+                          </a>
+                        `
+                      : nothing
+                  }
                 </span>
               </div>
             `
