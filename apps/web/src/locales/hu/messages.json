@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Új szervezet"
   },
+  "newVault": {
+    "message": "Új széf"
+  },
   "noOrganizationsList": {
     "message": "Még nem tartozunk egyik szervezethez sem. A szervezetek lehetővé teszik az elemek megosztását más felhasználókkal."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Titkos adatok exportálásának megerősítése"
   },
-  "exportWarningDesc": {
-    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat.Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és továbbküldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
+  "exportUnencryptedWarningDesc": {
+    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat. Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és továbbküldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
   },
   "exportSecretsWarningDesc": {
     "message": "Ez az exportálás titkosítatlan formátumban tartalmazza a titkos adatokat. Ne tároljuk vagy ne küldjük el az exportált fájlt nem biztonságos csatornákon (például emailben). A használat befejezése után azonnal töröljük."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Jelszóval védett"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
+  "filePasswordConfirmationMismatch": {
+    "message": "A “Fájl jelszó” és a “Fájl jelszó megerősítés“ nem egyezik."
   },
   "confirmVaultImport": {
     "message": "Széf importálás megerősítése"
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generátor előzmények kiürítése"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ha folytatjuk, az összes bejegyzés véglegesen törlődik a generátor előzményeiből. Biztosan folytatjuk?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "A széfben nincs hiányzó kétlépcsős hitelesítés konfigurációval rendelkező webhely."
   },
+  "passkeyLoginReport": {
+    "message": "Belépő kucs bejelentkezés"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "A belépő kulcsok a jelszavak biztonságos, adathalászatnak ellenálló alternatívája. Nézzük meg, melyik fiók támogatja ezeket."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "A belépő kulcsok a jelszavak biztonságos, adathalászatnak ellenálló alternatívája. Tekintsük meg, hogy a széf támogató kulcsok mely fiókjai támogatják az egyszerűbb, jelszó nélküli bejelentkezési élményt. További információ:"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "hogyan működnek a belépő kulcsok"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "és "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "hogyan kell használni ezeket a Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Belépő kulcsokat támogató bejelentkezések"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "$COUNT$ bejelentkezés található a széfben, amelyek támogatják a belépő kulcsokat. A fiókok további biztonsága érdekében fontoljuk meg egy kulcs beállítását, ahol elérhető. A passkeys.2fa.directory-ból származik",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "$COUNT$ bejelentkezés található a széfekben, amelyek támogatják a belépő kulcsokat. A fiókok további biztonsága érdekében fontoljuk meg egy kulcs beállítását, ahol elérhető. A passkeys.2fa.directory-ból származik",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Nincenek olyan fiókok a széfben, amelyek támogatnák a konfigurált belépő kulcsokat."
+  },
   "instructions": {
     "message": "Utasítások"
+  },
+  "passwordlessLogin": {
+    "message": "Belépés jelszó nélkül"
+  },
+  "multifactorAuthentication": {
+    "message": "Többtényezős hitelesítés"
   },
   "exposedPasswordsReport": {
     "message": "Kiszivárgott jelszavak jelentés"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Jóváhagyást igényel"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Megpróbálunk bejelentkezni?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "$ID$ email címe frissítésre került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ első alkalommal jelentkezett be Sso szolgáltatássl.",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Az SSO biztonságának és kényelmének kiterjesztése a nem-felügyelt alkalmazásokra. Amikor a felhasználók elindítanak egy alkalmazást a saját azonosítás szolgáltatónktól, a bejelentkezési adatokk automatikusan kitöltésre és elküldésre kerülnek, így egy kattintással biztonságos áramlás jön létre az azonosítás szolgáltatótól az alkalmazás felé."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Amikor a felhasználók elindítanak egy alkalmazást a személyazonosság szolgáltatótól, a bejelentkezési adataik automatikusan kitöltésre és elküldésre kerülnek, így egy kattintással biztonságos bejelentkezés jön létre."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Azonosság szolgáltató kiszolgáló"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Nincsenek szponzorált családok."
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "A szponzorált, nem-tag családok csomagjai itt jelennek meg."
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen.",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot szolgáltatóval segítségért.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot a szolgáltatóval segítségért.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ elutasította a kérést: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Prémium előfizetés szükséges"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Tag eltávolítása"
   },
+  "revokeMember": {
+    "message": "Tag visszavonása"
+  },
+  "restoreMember": {
+    "message": "Tag visszaállítása"
+  },
+  "deleteMember": {
+    "message": "Tag törlése"
+  },
   "collection": {
     "message": "Gyűjtemény"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Tagi szerep"
+  },
+  "moreActions": {
+    "message": "További műveletek"
+  },
+  "emailUpdateOnSave": {
+    "message": "Az email cím frissül a mentéskor."
+  },
+  "createdDate": {
+    "message": "Létrehozás dátuma"
   },
   "moreSettings": {
     "message": "További beállítások"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Gyűjtemény elérés hozzárendelése"
   },
-  "collectionsEdited": {
-    "message": "A gyűjtemények szerkesztésre kerültek."
-  },
   "editedCollections": {
     "message": "Szerkesztett gyűjtemények"
+  },
+  "editedCollection": {
+    "message": "A gyűjtemény szerkesztésre került."
   },
   "collectionEdited": {
     "message": "A gyűjtemény szerkesztésre került."
   },
-  "editedCollection": {
-    "message": "A gyűjtemény szerkesztésre került."
+  "collectionsEdited": {
+    "message": "A gyűjtemények szerkesztésre kerültek."
   },
   "baseUrl": {
     "message": "Szerver webcím"
@@ -13151,7 +13232,7 @@
   "linkedHelpText": {
     "message": "Csatolt mező használata, ha egy adott webhely automatikus kitöltésével kapcsolatos problémákat tapasztalunk."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Adjuk meg a mező html azonosítóját, nevét, aria címkéjét vagy helyőrét."
   },
   "uppercaseDescription": {
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Feliratkozás: $PLAN$",
     "placeholders": {
       "plan": {

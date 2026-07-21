@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Нова организация"
   },
+  "newVault": {
+    "message": "Нов трезор"
+  },
   "noOrganizationsList": {
     "message": "Не сте член на никоя организация. Организациите позволяват да споделяте записи с други потребители по защитен начин."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Потвърждаване на изнасянето на тайните"
   },
-  "exportWarningDesc": {
-    "message": "Данните от трезора ви ще се изнесат в незащитен формат. Не го пращайте по незащитени канали като електронна поща. Изтрийте файла незабавно след като свършите работата си с него."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Изнесеният файл ще съдържа тайните, в незащитен формат. Не го пращайте по незащитени канали (напр. е-поща). Изтрийте файла незабавно след като свършите работата си с него."
@@ -2584,7 +2587,7 @@
   "passwordProtected": {
     "message": "Защитен с парола"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
   "confirmVaultImport": {
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Изчистване на историята на генериране"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Не са открити записи в трезора ви с липсващи настройки за двустепенна идентификация."
   },
+  "passkeyLoginReport": {
+    "message": "Вписване със секретен ключ"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Секретните ключове са сигурна и неподатлива на измами алтернатива на паролите. Вижте кои от акаунтите Ви ги поддържат."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Секретните ключове са сигурна и неподатлива на измами алтернатива на паролите. Вижте кои от акаунтите в трезора Ви поддържат секретни ключове, за да улесните вписването си, без да ползвате пароли. Научете"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "как работят секретните ключове"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "и "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "как да ги ползвате в Битуорден."
+  },
+  "passkeyLoginFound": {
+    "message": "Акаунти, които поддържат секретни ключове"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "В трезора Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "В трезорите Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "В трезора Ви няма акаунти, които поддържат секретни ключове, но все още нямат настроени такива."
+  },
   "instructions": {
     "message": "Инструкции"
+  },
+  "passwordlessLogin": {
+    "message": "Вписване без парола"
+  },
+  "multifactorAuthentication": {
+    "message": "Многостъпково удостоверяване"
   },
   "exposedPasswordsReport": {
     "message": "Доклад за разкрити пароли"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Изисква одобрение"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Опитвате се да се впишете ли?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Адресът на е-пощата на $ID$ е променен.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ се вписа за първи път с еднократно удостоверяване",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Възползвайте се от сигурността и удобството на еднократното удостоверяване дори и за неуправлявани приложения. Когато потребителите пуснат приложение от Вашия доставчик на самоличности, данните им за вписване ще бъдат автоматично попълнени и изпратени, с едно щракване и по безопасен път от доставчика на самоличност до приложението."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Когато потребителите стартират приложение от Вашия доставчик на идентификационни данни, данните им за вписване ще бъдат автоматично попълнени и изпратени — създавайки сигурен и лесен начин за вписване с едно щракване."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Сървър на доставчика на самоличност"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Няма спонсорирани семейни планове"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Спонсорираните семейни планове за не-членове ще се показват тук"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Изисква се платен абонамент"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Премахване на члена"
   },
+  "revokeMember": {
+    "message": "Отнемане на достъпа на члена"
+  },
+  "restoreMember": {
+    "message": "Възстановяване на достъпа на члена"
+  },
+  "deleteMember": {
+    "message": "Изтриване на члена"
+  },
   "collection": {
     "message": "Колекция"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Роля на члена"
+  },
+  "moreActions": {
+    "message": "Още действия"
+  },
+  "emailUpdateOnSave": {
+    "message": "Е-пощата ще се обнови при запазване"
+  },
+  "createdDate": {
+    "message": "Дата на създаване"
   },
   "moreSettings": {
     "message": "Още настройки"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
-  "collectionsEdited": {
-    "message": "Колекциите са редактирани"
-  },
   "editedCollections": {
     "message": "Редактирани колекции"
+  },
+  "editedCollection": {
+    "message": "Редактирана колекция"
   },
   "collectionEdited": {
     "message": "Колекцията е редактирана"
   },
-  "editedCollection": {
-    "message": "Редактирана колекция"
+  "collectionsEdited": {
+    "message": "Колекциите са редактирани"
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Използвайте свързано поле, когато имате проблеми с автоматичното попълване на конкретен уеб сайт."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Въведете подробности за полето от атрибутите му в HTML – id, name, aria-label или placeholder."
   },
   "uppercaseDescription": {
     "message": "Включване на главни букви",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Стартиране на абонамент за $PLAN$",
     "placeholders": {
       "plan": {

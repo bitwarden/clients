@@ -990,7 +990,7 @@
     "message": "Speichern"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "Speichern und fortfahren"
   },
   "cancel": {
     "message": "Abbrechen"
@@ -1195,16 +1195,16 @@
     "message": "Geteilt"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Geteilter Ordner"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Geteilte Ordner"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Mein Ordner"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Meine Ordner"
   },
   "attachments": {
     "message": "Anhänge"
@@ -1478,7 +1478,7 @@
     "message": "Passwort kopiert"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "Leerzeichen",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Neue Organisation"
   },
+  "newVault": {
+    "message": "Neuer Tresor"
+  },
   "noOrganizationsList": {
     "message": "Du gehörst keiner Organisation an. Organisationen erlauben es dir, Passwörter sicher mit anderen zu teilen."
   },
@@ -2504,7 +2507,7 @@
   "confirmSecretsExport": {
     "message": "Geheimnis-Export bestätigen"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Dieser Export enthält deine Tresor-Daten in einem unverschlüsseltem Format. Du solltest die Datei daher nicht über unsichere Kanäle (z.B. E-Mail) versenden oder speichern. Lösche die Datei sofort nach ihrer Verwendung."
   },
   "exportSecretsWarningDesc": {
@@ -2584,7 +2587,7 @@
   "passwordProtected": {
     "message": "Passwortgeschützt"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "„Dateipasswort“ und „Dateipasswort bestätigen“ stimmen nicht überein."
   },
   "confirmVaultImport": {
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generator-Verlauf löschen"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Wenn du fortfährst, werden alle Einträge dauerhaft aus dem Generator-Verlauf gelöscht. Bist du sicher, dass du fortfahren möchtest?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Es wurden keine Websites in deinem Tresor gefunden, bei denen eine Konfiguration der Zwei-Faktor-Authentifizierung fehlt."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey-Zugangsdaten"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys sind eine sichere, gegen Phishing geschützte Alternative zu Passwörtern. Finde heraus, welche Konten in deinem Tresor Passkeys unterstützen."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys sind eine sichere, gegen Phishing geschützte Alternative zu Passwörtern. Finde heraus, welche Konten in deinem Tresor Passkeys unterstützen, um dich einfacher und ohne Passwort anzumelden. Erfahre"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "wie Passkeys funktionieren"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "und "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "wie man sie in Bitwarden verwendet."
+  },
+  "passkeyLoginFound": {
+    "message": "Zugangsdaten, die Passkeys unterstützen"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Wir haben $COUNT$ Zugangsdaten in deinem Tresor gefunden, die Passkeys unterstützen. Um diese Konten noch besser zu schützen, solltest du in Betracht ziehen, einen Passkey einzurichten, sofern dies möglich ist. Abgerufen von: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Wir haben $COUNT$ Zugangsdaten in deinen Tresoren gefunden, die Passkeys unterstützen. Um diese Konten noch besser zu schützen, solltest du in Betracht ziehen, einen Passkey einzurichten, sofern dies möglich ist. Abgerufen von: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Es wurden keine Konten in deinem Tresor gefunden, die Passkeys unterstützen, ohne dass ein solcher konfiguriert wurde."
+  },
   "instructions": {
     "message": "Anleitung"
+  },
+  "passwordlessLogin": {
+    "message": "Passwortlose Anmeldung"
+  },
+  "multifactorAuthentication": {
+    "message": "Multi-Faktor-Authentifizierung"
   },
   "exposedPasswordsReport": {
     "message": "Kompromittierte Passwörter"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Benötigt Genehmigung"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Versuchst du dich anzumelden?"
   },
   "logInAttemptBy": {
@@ -7617,7 +7668,7 @@
     "message": "Lege fest, wann Zugangsdaten für Auto-Ausfüllen vorgeschlagen werden. Administratoren und Eigentümer sind von dieser Richtlinie ausgenommen."
   },
   "uriMatchDetectionPolicyDescV2": {
-    "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
+    "message": "Leg fest, welche Teile einer Website-Adresse (URI) übereinstimmen müssen, damit Bitwarden Zugangsdaten zum automatischen Ausfüllen anzeigt. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Standard URI-Übereinstimmungserkennung"
@@ -7974,6 +8025,15 @@
   },
   "eventResetSsoLink": {
     "message": "SSO Link für Benutzer $ID$ zurücksetzen",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminChangedUserEmail": {
+    "message": "E-Mail-Adresse von $ID$ aktualisiert.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Erweitere die Sicherheit und den Komfort von SSO auf nicht verwaltete Anwendungen. Wenn Benutzer eine Anwendung über Ihren Identitätsanbieter starten, werden deren Anmeldedaten automatisch ausgefüllt und übermittelt, sodass ein sicherer Ablauf mit nur einem Klick vom Identitätsanbieter zur Anwendung entsteht."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitätsanbieter Host"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Keine gesponserten Familien"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Gesponserte Families-Tarife von Nicht-Mitgliedern werden hier angezeigt"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Ungültiger API-Token von $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Ungültiger API-Token von $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium-Abonnement erforderlich"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Mitglied entfernen"
   },
+  "revokeMember": {
+    "message": "Mitglied widerrufen"
+  },
+  "restoreMember": {
+    "message": "Mitglied wiederherstellen"
+  },
+  "deleteMember": {
+    "message": "Mitglied löschen"
+  },
   "collection": {
     "message": "Sammlung"
   },
@@ -10495,6 +10567,15 @@
   "memberRole": {
     "message": "Mitgliedsrolle"
   },
+  "moreActions": {
+    "message": "Weitere Aktionen"
+  },
+  "emailUpdateOnSave": {
+    "message": "Die E-Mail-Adresse wird beim Speichern aktualisiert"
+  },
+  "createdDate": {
+    "message": "Erstellungsdatum"
+  },
   "moreSettings": {
     "message": "Weitere Einstellungen"
   },
@@ -10541,7 +10622,7 @@
     }
   },
   "freeOrgRestoreLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "Kostenlose Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade auf einen kostenpflichtigen Tarif, um den Zugriff dieses Mitglieds wiederherzustellen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10550,7 +10631,7 @@
     }
   },
   "freeOrgRestoreLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Kostenlose Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10559,7 +10640,7 @@
     }
   },
   "teamsStarterPlanRestoreLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "message": "Teams-Starter-Tarife können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade deinen Tarif, um den Zugriff dieses Mitglieds wiederherzustellen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10568,7 +10649,7 @@
     }
   },
   "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
+    "message": "Teams-Starter-Tarife können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer, um dein Abonnement zu upgraden und den Zugriff dieses Mitglieds wiederherzustellen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Sammlungszugriff zuweisen"
   },
-  "collectionsEdited": {
-    "message": "Sammlungen bearbeitet"
-  },
   "editedCollections": {
     "message": "Bearbeitete Sammlungen"
+  },
+  "editedCollection": {
+    "message": "Bearbeitete Sammlung"
   },
   "collectionEdited": {
     "message": "Sammlung bearbeitet"
   },
-  "editedCollection": {
-    "message": "Bearbeitete Sammlung"
+  "collectionsEdited": {
+    "message": "Sammlungen bearbeitet"
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -12986,7 +13067,7 @@
     }
   },
   "familiesPlanRestoreLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade auf einen kostenpflichtigen Tarif, um den Zugriff dieses Mitglieds wiederherzustellen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12995,7 +13076,7 @@
     }
   },
   "familiesPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Website hast."
   },
-  "linkedLabelHelpText": {
-    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+  "linkedFieldLabelHelpText": {
+    "message": "Gib die HTML-ID, den Namen, das aria-label oder den Platzhalter des Felds ein."
   },
   "uppercaseDescription": {
     "message": "Großbuchstaben einschließen",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "$PLAN$ abonnieren",
     "placeholders": {
       "plan": {

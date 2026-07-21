@@ -1384,7 +1384,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Перегляд захищеної нотатки",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -1392,7 +1392,7 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "Переглянути банківський рахунок",
+    "message": "Перегляд банківського рахунку",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
@@ -1400,7 +1400,7 @@
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "Переглянути паспорт",
+    "message": "Перегляд паспорта",
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Нова організація"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "Ви не входите до жодної організації. Організації дають змогу безпечно обмінюватися записами з іншими користувачами."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Підтвердити експорт секретів"
   },
-  "exportWarningDesc": {
-    "message": "Експортовані дані вашого сховища знаходяться в незашифрованому вигляді. Вам не слід зберігати чи надсилати їх через незахищені канали (наприклад, е-поштою). Після використання негайно видаліть їх."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Ваші експортовані секрети незашифровані. Не зберігайте і не надсилайте їх незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть їх."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Захищено паролем"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "Пароль файлу та підтвердження пароля відрізняються."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Підтвердити імпорт сховища"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Очистити історію генератора"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "Немає паролів."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "У вашому сховищі не знайдено вебсайтів з неактивною двоетапною перевіркою."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Інструкції"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Багатофакторна автентифікація"
   },
   "exposedPasswordsReport": {
     "message": "Викриті паролі"
@@ -3729,7 +3780,7 @@
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
   },
   "premiumSignUpTotp": {
-    "message": "Генератор коду авторизації TOTP (2FA) для входу в сховище."
+    "message": "Генератор кодів підтвердження TOTP (2FA) для записів у вашому сховищі."
   },
   "premiumSignUpSupport": {
     "message": "Пріоритетну технічну підтримку."
@@ -3896,7 +3947,7 @@
     "message": "Передплату було скасовано."
   },
   "pendingCancellation": {
-    "message": "Очікування скасування"
+    "message": "Очікується скасування"
   },
   "subscriptionPendingCanceled": {
     "message": "Передплату було позначено для скасування в кінці поточного оплаченого періоду."
@@ -5578,8 +5629,8 @@
   "needsApproval": {
     "message": "Потребує підтвердження"
   },
-  "areYouTryingtoLogin": {
-    "message": "Ви намагаєтесь увійти?"
+  "areYouTryingToLogin": {
+    "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
     "message": "Спроба входу з $EMAIL$",
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ вперше виконує вхід з використанням SSO",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Розширте безпеку SSO та зручність для некерованих програм. Коли користувачі запускають програму від провайдера ідентифікації, дані авторизації заповнюються і надсилаються автоматично, створюючи безпечний обмін даними від провайдера ідентифікації до програми."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Вузол провайдера ідентифікації"
   },
@@ -8680,8 +8743,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Немає спонсорованих родин"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Тут буде показано спонсоровані плани родин, які не є учасниками"
+  "noSponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Ви можете спонсорувати безплатні плани Bitwarden Families для співробітників, які не є учасниками вашої організації Bitwarden. Для спонсорування користувачів, які не є учасниками організації, необхідні вільні місця в межах вашої організації."
@@ -9422,8 +9485,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Недійсний токен API для $SERVICENAME$",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9495,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9519,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Необхідна передплата Premium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "Розгортання SCIM",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Вилучити учасника"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Збірка"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Роль учасника"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "More settings"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Призначити доступ до збірки"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "Відредаговані збірки"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Використовуйте пов'язане поле у разі виникнення проблем з автозаповненням для певного вебсайту."
   },
-  "linkedLabelHelpText": {
-    "message": "Введіть html-ідентифікатор поля, назву, мітку або заповнювач."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Символи верхнього регістру",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
@@ -15158,10 +15239,10 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Необхідно пройти автентифікацію SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Ваш обліковий запис Keeper потребує автентифікації за допомогою SSO. Завершіть вхід у щойно відкритому вікні браузера, а потім вставте токен, показаний на сторінці."
   },
   "keeperSsoAutoCaptureDesc": {
     "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
@@ -15170,7 +15251,7 @@
     "message": "SSO token"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Необхідно пройти автентифікацію Keeper"
   },
   "keeperDeviceApprovalRequired": {
     "message": "Keeper device approval required"
@@ -15212,10 +15293,10 @@
     "message": "Cancel request"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Необхідно пройти двофакторну автентифікацію Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Схваліть запит входу в програмі автентифікації. Це діалогове вікно автоматично закриється."
   },
   "selectTwoFactorMethod": {
     "message": "Select two-factor method"
@@ -15266,7 +15347,7 @@
     "message": "Enter code manually"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двофакторна автентифікація"
   },
   "unknownMethod": {
     "message": "Unknown method"
@@ -15299,13 +15380,13 @@
     "message": "Try another method"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Ваш обліковий запис Keeper вимагає спосіб двофакторної автентифікації, який наразі не підтримується прямим імпортером."
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "Багатофакторну автентифікацію скасовано"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Збій багатофакторної автентифікації"
   },
   "keeperConnectionError": {
     "message": "There was a problem communicating with Keeper. Please try the import again."

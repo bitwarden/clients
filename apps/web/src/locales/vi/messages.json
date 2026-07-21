@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Tổ chức mới"
   },
+  "newVault": {
+    "message": "Kho lưu trữ mới"
+  },
   "noOrganizationsList": {
     "message": "Bạn chưa thuộc tổ chức nào. Tổ chức sẽ cho phép bạn chia sẻ các mục với người dùng khác một cách bảo mật."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Xác nhận xuất kho lưu trữ"
   },
-  "exportWarningDesc": {
-    "message": "Bản xuất này chứa dữ liệu kho bạn và không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin đã xuất thông qua phương thức rủi ro (như email). Vui lòng xóa nó ngay lập tức khi bạn đã sử dụng xong."
+  "exportUnencryptedWarningDesc": {
+    "message": "Tệp xuất này chứa dữ liệu kho lưu trữ của bạn ở dạng không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin này thông qua phương thức không an toàn (như email). Hãy xóa tệp ngay sau khi sử dụng xong."
   },
   "exportSecretsWarningDesc": {
     "message": "Tệp xuất này chứa dữ liệu bí mật của bạn ở định dạng không được mã hóa. Bạn không nên lưu trữ hoặc gửi tệp đã xuất qua các kênh không an toàn (như email). Hãy xóa nó ngay lập tức sau khi bạn hoàn tất việc sử dụng."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Mật khẩu đã được bảo vệ"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“Mật khẩu tập tin” và “Nhập lại mật khẩu tập tin” không khớp."
+  "filePasswordConfirmationMismatch": {
+    "message": "\"Mật khẩu tệp\" và \"Xác nhận mật khẩu tệp\" không khớp."
   },
   "confirmVaultImport": {
     "message": "Xác nhận nhập kho mật khẩu"
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Dọn dẹp lịch sử trình tạo"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Nếu bạn tiếp tục, tất cả các mục sẽ bị xóa vĩnh viễn khỏi lịch sử của trình tạo. Bạn có chắc chắn muốn tiếp tục không?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Không tìm thấy trang web thiếu bảo mật 2 bước trong kho của bạn."
   },
+  "passkeyLoginReport": {
+    "message": "Đăng nhập bằng mã khóa"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Mã khóa là một phương thức thay thế mật khẩu an toàn và có khả năng chống lừa đảo. Hãy xem những tài khoản nào của bạn hỗ trợ mã khóa."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Mã khóa là một phương thức thay thế mật khẩu an toàn và có khả năng chống lừa đảo. Hãy xem những tài khoản nào trong kho lưu trữ của bạn hỗ trợ mã khóa để có trải nghiệm đăng nhập đơn giản hơn mà không cần mật khẩu. Tìm hiểu"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "cách mã khóa hoạt động"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "và"
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "cách sử dụng mã khóa trong Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Thông tin đăng nhập hỗ trợ mã khóa"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong các kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Không tìm thấy tài khoản nào trong kho lưu trữ của bạn hỗ trợ mã khóa mà chưa được thiết lập."
+  },
   "instructions": {
     "message": "Hướng dẫn"
+  },
+  "passwordlessLogin": {
+    "message": "Đăng nhập không cần mật khẩu"
+  },
+  "multifactorAuthentication": {
+    "message": "Xác thực đa yếu tố"
   },
   "exposedPasswordsReport": {
     "message": "Mật khẩu bị rò rỉ"
@@ -3726,10 +3777,10 @@
     "message": "Truy cập khẩn cấp"
   },
   "premiumSignUpReports": {
-    "message": "Thanh lọc mật khẩu, kiểm tra an toàn tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho dữ liệu của bạn."
+    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
   },
   "premiumSignUpTotp": {
-    "message": "Mã xác nhận TOTP (2FA) để đăng nhập vào kho của bạn."
+    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
   },
   "premiumSignUpSupport": {
     "message": "Hỗ trợ khách hàng ưu tiên."
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Cần phê duyệt"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Bạn đang cố gắng đăng nhập?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Đã cập nhật địa chỉ email của $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ đã đăng nhập bằng SSO lần đầu tiên",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Mở rộng tính năng đăng nhập một lần (SSO) để bảo mật và tiện lợi hơn cho các ứng dụng ngoài hệ thống. Khi người dùng mở một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập sẽ được tự động điền và gửi đi, giúp họ truy cập an toàn chỉ với một lần nhấp."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Máy chủ nhà cung cấp định danh"
   },
@@ -8680,8 +8743,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Không có gói gia đình được tài trợ nào"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Các gói gia đình không thành viên được tài trợ sẽ hiển thị tại đây"
+  "noSponsoredFamiliesDetails": {
+    "message": "Các gói Gia đình dành cho người không phải thành viên được tài trợ sẽ hiển thị tại đây"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Thành viên tổ chức của bạn đủ điều kiện sử dụng gói Bitwarden Gia đình miễn phí. Bạn có thể tài trợ Bitwarden Gia đình miễn phí cho nhân viên không thuộc tổ chức Bitwarden của bạn. Việc tài trợ cho người không phải thành viên yêu cầu có chỗ trống trong tổ chức của bạn."
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Token API $SERVICENAME$ không hợp lệ",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Token API $SERVICENAME$ không hợp lệ: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ để được hỗ trợ.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ để được hỗ trợ.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9519,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ từ chối yêu cầu của bạn: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Cần đăng ký gói Premium"
+  "premiumSubscriptionRequired": {
+    "message": "Yêu cầu đăng ký gói Cao cấp"
   },
   "scim": {
     "message": "Cung cấp SCIM",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Xóa thành viên"
   },
+  "revokeMember": {
+    "message": "Thu hồi quyền thành viên"
+  },
+  "restoreMember": {
+    "message": "Khôi phục quyền thành viên"
+  },
+  "deleteMember": {
+    "message": "Xóa thành viên"
+  },
   "collection": {
     "message": "Bộ sưu tập"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Vai trò thành viên"
+  },
+  "moreActions": {
+    "message": "Thao tác khác"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email sẽ được cập nhật sau khi lưu"
+  },
+  "createdDate": {
+    "message": "Ngày tạo"
   },
   "moreSettings": {
     "message": "Cài đặt thêm"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Gán quyền truy cập bộ sưu tập"
   },
-  "collectionsEdited": {
-    "message": "Các miền đã được chỉnh sửa"
-  },
   "editedCollections": {
+    "message": "Đã chỉnh sửa bộ sưu tập"
+  },
+  "editedCollection": {
     "message": "Đã chỉnh sửa bộ sưu tập"
   },
   "collectionEdited": {
     "message": "Bộ sưu tập đã được chỉnh sửa"
   },
-  "editedCollection": {
-    "message": "Đã chỉnh sửa bộ sưu tập"
+  "collectionsEdited": {
+    "message": "Các miền đã được chỉnh sửa"
   },
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Sử dụng trường liên kết khi bạn gặp vấn đề với tính năng tự động điền trên một trang web cụ thể."
   },
-  "linkedLabelHelpText": {
-    "message": "Nhập html id, name, aria-label hoặc placeholder của các trường."
+  "linkedFieldLabelHelpText": {
+    "message": "Nhập id HTML, name, aria-label hoặc placeholder của trường."
   },
   "uppercaseDescription": {
     "message": "Bao gồm các ký tự viết hoa",
@@ -13867,7 +13948,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
+    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai trên mọi nền tảng. Thông tin của bạn luôn được mã hóa đầu cuối để giảm nguy cơ bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Đăng ký $PLAN$",
     "placeholders": {
       "plan": {

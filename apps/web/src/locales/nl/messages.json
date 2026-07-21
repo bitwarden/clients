@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Nieuwe organisatie"
   },
+  "newVault": {
+    "message": "Nieuwe kluis"
+  },
   "noOrganizationsList": {
     "message": "Je behoort niet tot een organisatie. Via organisaties deel je je items veilig met andere gebruikers."
   },
@@ -2504,7 +2507,7 @@
   "confirmSecretsExport": {
     "message": "Geheimen exporteren bevestigen"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Deze export bevat jouw kluisgegevens in een niet-versleutelde opmaak. Je moet het geëxporteerde bestand niet opslaan of verzenden over onbeveiligde kanalen (zoals e-mail). Verwijder het exportbestand direct na gebruik."
   },
   "exportSecretsWarningDesc": {
@@ -2584,7 +2587,7 @@
   "passwordProtected": {
     "message": "Beveiligd met wachtwoord"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Bestandswachtwoord\" en \"Bestandswachtwoord bevestigen\" komen niet overeen."
   },
   "confirmVaultImport": {
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generatorgeschiedenis wissen"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Als je doorgaat, wis je definitief de geschiedenis van de generator. Weet je zeker dat je wilt doorgaan?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Er zijn geen websites in je kluis gevonden waarin tweestapsaanmelding ontbreekt."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey-login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke van je accounts deze ondersteunen."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke accounts in je kluis ondersteuning hebben voor passkeys voor een eenvoudigere, wachtwoordloze aanmeldervaring. Lees"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "hoe passkeys werken"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "en "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "hoe ze te gebruiken in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins die passkeys ondersteunen"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We hebben $COUNT$ login(s) in je kluis gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We hebben $COUNT$ login(s) in je kluizen gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Er zijn geen accounts in je kluis gevonden die passkeys ondersteunen zonder dat er al een is geconfigureerd."
+  },
   "instructions": {
     "message": "Instructies"
+  },
+  "passwordlessLogin": {
+    "message": "Wachtwoordloze login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor-authenticatie"
   },
   "exposedPasswordsReport": {
     "message": "Gelekte wachtwoorden"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Heeft goedkeuring nodig"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Probeer je in te loggen?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "e-mailadres $ID$ bijgewerkt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ heeft voor de eerste keer ingelogd met Sso",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Wanneer gebruikers een app van je identiteitsprovider starten, worden de inloggegevens automatisch ingevuld en verstuurd, wat veilig inloggen met één klik bewerkstelligt."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identiteitsproviderhost"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Geen gesponsorde families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Ongeldig $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Ongeldige $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd. Neem contact op met je serviceprovider voor hulp.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium-abonnement vereist"
   },
   "scim": {
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Lid verwijderen"
   },
+  "revokeMember": {
+    "message": "Lid intrekken"
+  },
+  "restoreMember": {
+    "message": "Lid herstellen"
+  },
+  "deleteMember": {
+    "message": "Lid verwijderen"
+  },
   "collection": {
     "message": "Collectie"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Rol van lid"
+  },
+  "moreActions": {
+    "message": "Meer acties"
+  },
+  "emailUpdateOnSave": {
+    "message": "E-mail wordt bijgewerkt bij opslaan"
+  },
+  "createdDate": {
+    "message": "Datum aangemaakt"
   },
   "moreSettings": {
     "message": "Meer instellingen"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Toegang collectie toewijzen"
   },
-  "collectionsEdited": {
-    "message": "Collecties bewerkt"
-  },
   "editedCollections": {
     "message": "Bewerkte collecties"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collectie bewerkt"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collecties bewerkt"
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -13151,7 +13232,7 @@
   "linkedHelpText": {
     "message": "Gebruik een gekoppeld veld als je problemen ervaart met het automatisch invullen voor een specifieke website."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Html-id, naam, aria-label of placeholder van het veld invullen."
   },
   "uppercaseDescription": {
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Abonneren op $PLAN$",
     "placeholders": {
       "plan": {

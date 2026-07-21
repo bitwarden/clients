@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Organització nova"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "No pertanyeu a cap organització. Les organitzacions permeten compartir elements amb altres usuaris de forma segura."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Confirma l'exportació de secrets"
   },
-  "exportWarningDesc": {
-    "message": "Aquesta exportació conté les dades de la vostra caixa forta en un format no xifrat. No hauríeu d'emmagatzemar o enviar el fitxer exportat a través de canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver acabat d'usar-lo."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Aquesta exportació conté les vostres dades secretes en un format sense xifrar. No hauríeu d'emmagatzemar ni enviar el fitxer exportat per canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver-lo acabat d'utilitzar."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Protegit amb contrasenya"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Confirma la importació de la Caixa forta"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Neteja l'historial del generador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Si continueu, totes les entrades se suprimiran permanentment de l'historial del generador. Esteu segur que voleu continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "No hi ha cap contrasenya a llistar."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "No s'han trobat llocs web a la vostra caixa forta sense configuració d'autenticació de dos factors."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Instruccions"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Contrasenyes exposades"
@@ -5578,7 +5629,7 @@
   "needsApproval": {
     "message": "Needs approval"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ connectat a SSO per primera vegada",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Cal una subscripció premium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "Aprovisionament SCIM",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Suprimeix membre"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Col·lecció"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Rol de membre"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "More settings"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Assigna accés a la col·lecció"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "Col·leccions editades"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Include uppercase characters",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {

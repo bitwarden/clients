@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "Nueva organización"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "No perteneces a ninguna organización. Las organizaciones te permiten compartir elementos con otros usuarios de forma segura."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "Confirmar exportación de secretos"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportación contiene los datos de tu caja fuerte en un formato no cifrado. No deberías almacenar o enviar el archivo exportado por canales no seguros (como el correo electrónico). Elimínalo inmediatamente cuando termines de utilizarlo."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Ésta exportación contiene sus datos de secretos en un formato no cifrado. No debería almacenar o enviar el archivo exportado por canales no seguros (como el correo electrónico). Elimínelo inmediatamente cuando termine de utilizarlo."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "Protegida con contraseña"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“Contraseña del archivo” y “Confirmar contraseña del archivo” no coinciden."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Confirmar importación de la caja fuerte"
@@ -2682,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Borrar historial del generador"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "No se han encontrado sitios web en su caja fuerte sin una configuración de autenticación de dos factores."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Instrucciones"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Infome de contraseñas comprometidas"
@@ -5578,8 +5629,8 @@
   "needsApproval": {
     "message": "Necesita aprobación"
   },
-  "areYouTryingtoLogin": {
-    "message": "¿Estás intentando iniciar sesión?"
+  "areYouTryingToLogin": {
+    "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
     "message": "Intento de inicio de sesión de $EMAIL$",
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ ha iniciado sesión usando SSO por primera vez",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -8680,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Se requiere una Suscripción Premium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "Aprovisionamiento de SCIM",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "Eliminar miembro"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Colección"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "Rol del miembro"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "More settings"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "Asignar acceso a colecciones"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "Colecciones modificadas"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Include uppercase characters",
@@ -14102,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {

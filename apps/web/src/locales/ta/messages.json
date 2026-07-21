@@ -2284,6 +2284,9 @@
   "newOrganization": {
     "message": "புதிய அமைப்பு"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "நீங்கள் எந்த அமைப்புகளிலும் சேரவில்லை. பிற பயனர்களுடன் உருப்படிகளைப் பாதுகாப்பாகப் பகிர அமைப்புகள் உங்களை அனுமதிக்கின்றன."
   },
@@ -2504,8 +2507,8 @@
   "confirmSecretsExport": {
     "message": "ரகசியங்கள் ஏற்றுமதியை உறுதிப்படுத்தவும்"
   },
-  "exportWarningDesc": {
-    "message": "இந்த ஏற்றுமதியில் உங்கள் பெட்டகத் தரவு என்க்ரிப்ட் செய்யப்படாத வடிவத்தில் உள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்களில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதைப் பயன்படுத்தி முடித்த உடனேயே அதை நீக்கிவிடவும்."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "இந்த ஏற்றுமதியில் உங்கள் ரகசியங்கள் தரவு என்க்ரிப்ட் செய்யப்படாத வடிவத்தில் உள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்களில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதைப் பயன்படுத்தி முடித்த உடனேயே அதை நீக்கிவிடவும்."
@@ -2584,8 +2587,8 @@
   "passwordProtected": {
     "message": "கடவுச்சொல் பாதுகாக்கப்பட்டது"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“கோப்பு கடவுச்சொல்” மற்றும் “கோப்பு கடவுச்சொல்லை உறுதிப்படுத்தவும்” ஆகியவை பொருந்தவில்லை."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "பெட்டக இறக்குமதியை உறுதிப்படுத்தவும்"
@@ -2682,8 +2685,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "ஜெனரேட்டர் வரலாற்றை அழி"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "நீங்கள் தொடர்ந்தால், ஜெனரேட்டர் வரலாற்றிலிருந்து அனைத்து உள்ளீடுகளும் நிரந்தரமாக நீக்கப்படும். நீங்கள் தொடர விரும்புகிறீர்களா?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "பட்டியலிட கடவுச்சொற்கள் எதுவும் இல்லை."
@@ -3493,8 +3496,56 @@
   "noInactive2fa": {
     "message": "உங்கள் வால்ட்டில் விடுபட்ட இரண்டு-படி உள்நுழைவு கட்டமைப்புடன் எந்த வலைத்தளங்களும் கண்டறியப்படவில்லை."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "அறிவுறுத்தல்கள்"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "வெளிப்படுத்தப்பட்ட கடவுச்சொற்கள்"
@@ -5578,8 +5629,8 @@
   "needsApproval": {
     "message": "ஒப்புதல் தேவை"
   },
-  "areYouTryingtoLogin": {
-    "message": "நீங்கள் உள்நுழைய முயற்சிக்கிறீர்களா?"
+  "areYouTryingToLogin": {
+    "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
     "message": "$EMAIL$ மூலம் உள்நுழைய முயற்சி",
@@ -7981,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ முதன்முறையாக SSO ஐப் பயன்படுத்தி உள்நுழைந்தார்",
     "placeholders": {
@@ -8394,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "அடையாள வழங்குநர் ஹோஸ்ட்"
   },
@@ -8680,8 +8743,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Sponsor செய்யப்பட்ட குடும்பங்கள் இல்லை"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Sponsor செய்யப்பட்ட உறுப்பினர் அல்லாத குடும்பங்களின் திட்டங்கள் இங்கே காண்பிக்கப்படும்"
+  "noSponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "உங்கள் நிறுவனத்தின் உறுப்பினர்கள் இலவச Bitwarden குடும்பங்களுக்குத் தகுதியுடையவர்கள். உங்கள் Bitwarden நிறுவனத்தில் உறுப்பினர் இல்லாத ஊழியர்களுக்கு நீங்கள் இலவச Bitwarden குடும்பங்களுக்கு sponsor செய்யலாம். உறுப்பினர் அல்லாத ஒருவருக்கு sponsor செய்வதற்கு உங்கள் நிறுவனத்தில் ஒரு இருக்கை காலியாக இருக்க வேண்டும்."
@@ -9422,8 +9485,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "தவறான $SERVICENAME$ API டோக்கன்",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9495,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "தவறான $SERVICENAME$ API டோக்கன்: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9509,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை மறுத்துவிட்டது. உதவிக்கு உங்கள் சேவை வழங்குநரைத் தொடர்பு கொள்ளவும்.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9519,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ உங்கள் கோரிக்கையை மறுத்துவிட்டது: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,8 +9608,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "பிரீமியம் சந்தா தேவை"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "SCIM வழங்கல்",
@@ -10324,6 +10387,15 @@
   "removeMember": {
     "message": "உறுப்பினரை நீக்கு"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "சேகரிப்பு"
   },
@@ -10494,6 +10566,15 @@
   },
   "memberRole": {
     "message": "உறுப்பினர் பங்கு"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "More settings"
@@ -11558,17 +11639,17 @@
   "assignCollectionAccess": {
     "message": "சேகரிப்பு அணுகலை ஒதுக்கவும்"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "திருத்தப்பட்ட சேகரிப்புகள்"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "சேவையக URL"
@@ -13151,8 +13232,8 @@
   "linkedHelpText": {
     "message": "ஒரு குறிப்பிட்ட இணையதளத்திற்குத் தானாக நிரப்புவதில் சிக்கல்களை நீங்கள் சந்திக்கும்போது இணைக்கப்பட்ட புலத்தைப் பயன்படுத்தவும்."
   },
-  "linkedLabelHelpText": {
-    "message": "புலத்தின் html id, name, aria-label, அல்லது placeholder உள்ளிடவும்."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "பெரிய எழுத்துகளைச் சேர்க்கவும்",
@@ -14102,8 +14183,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "$PLAN$க்கு சந்தா செலுத்து",
+  "subscribeToEnterprise": {
+    "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
