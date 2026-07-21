@@ -1089,7 +1089,7 @@
     "message": "Parol kopyalandı"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "boşluq",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1455,7 +1455,7 @@
   "accountRestricted": {
     "message": "Hesab məhdudlaşdırıldı"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyuşmur."
   },
   "warning": {
@@ -1469,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "Seyfi xaricə köçürməyi təsdiqlə"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Bu xaricə köçürmədəki seyf veriləriniz şifrələnməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
   },
   "encExportKeyWarningDesc": {
@@ -1485,16 +1485,16 @@
     "message": "Paylaşılan"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Paylaşılan qovluq"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Paylaşılan qovluqlar"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Qovluğum"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Qovluqlarım"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business, bir təşkilatı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza imkan verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət edin."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Premium üzvlük üçün qeydiyyatdan keçin və bunları əldə edin:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş anbar sahəsi"
+  "premiumSignUpStorage": {
+    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
   "premiumSignUpStorageV2": {
     "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Seyfinizdəki girişlər üçün TOTP doğrulama kodu (2FA) yaradıcısı."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Prioritet müştəri dəstəyi."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Bütün gələcək premium özəlliklər. Daha çoxu tezliklə!"
+  "premiumSignUpFuture": {
+    "message": "Bütün gələcək Premium özəlliklər. Daha çoxu tezliklə!"
   },
   "premiumPurchase": {
     "message": "Premium satın al"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Yaradıcı tarixçəsini təmizlə"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Davam etsəniz, bütün girişlər yaradıcı tarixçəsindən həmişəlik silinəcək. Davam etmək istəyirsiniz?"
   },
   "back": {
     "message": "Geri"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Masaüstü tətbiqdə fərqli bir hesaba giriş edilib. Lütfən hər iki tətbiqin eyni hesaba giriş etdiyinə əmin olun."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Hesablar uyuşmur"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Hesab uyuşmur"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometrik açarı uyuşmazlığı"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometrik açar uyuşmur"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometrik ilə kilid açma uğursuz oldu. Biometrik sirr açarı seyfin kilidini aça bilmədi. Lütfən biometriki yenidən qurmağa çalışın."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biometriklər tamamlana bilmir, ana parol istifadə etməyi düşünün və ya çıxış edin. Bu problem davam edərsə, lütfən Bitwarden dəstəyi ilə əlaqə saxlayın."
   },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "İcazə verilmədi"
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "İcazə verilməyib"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Bitwarden masaüstü tətbiqi ilə əlaqə qurma icazəsi olmadan, brauzer uzantısında biometrikləri təmin edə bilmirik. Lütfən yenidən sınayın."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "İcazə tələb xətası"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
@@ -3930,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Yararsız $SERVICENAME$ API jetonu",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Yararsız $SERVICENAME$ API jetonu: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi. Lütfən kömək üçün xidmət provayderinizlə əlaqə saxlayın.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Key connector xətası: \"Key connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium abunəlik tələb olunur"
   },
   "organizationIsDisabled": {
@@ -4900,28 +4900,28 @@
     "message": "Fayl parolunu təsdiqlə"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass ana parolu"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Açar faylı əlavə et"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Açar faylını yüklə"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX faylını yüklə"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "Qəbul edilən formatlar: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Verilər düzgün format olunmayıb. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "Bu fayl yararlı KeePass veri bazası (.kdbx) deyil. Lütfən .kdbx faylını seçib yenidən sınayın."
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "Bu KeePass veri bazası daxilə köçürmək üçün çox böyükdür."
   },
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Müəyyən bir veb sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
   },
-  "linkedLabelHelpText": {
-    "message": "Xana üçün bunları daxil edin: kimlik, ad, aria-label və ya placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Xana üçün bunları daxil edin: HTML kimlik, ad, aria-label və ya placeholder."
   },
   "editField": {
     "message": "Xanaya düzəliş et"
