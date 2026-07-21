@@ -17,7 +17,6 @@
     variant="subtle"
     [label]="'+' + overflow().length"
     [bitPopoverTriggerFor]="overflowPopover"
-    position="above-center"
   ></button>
 </div>
 
@@ -27,7 +26,7 @@
   [showCloseButton]="false"
   maxHeightClass="tw-max-h-[25rem]"
 >
-  <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
+  <div class="tw-flex tw-flex-col tw-items-start tw-gap-4">
     @for (badge of overflowBadges(); track $index) {
       <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
         {{ badge.label }}
