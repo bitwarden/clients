@@ -11,7 +11,6 @@ import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-no
 import AutofillInit from "../content/autofill-init";
 import { AutofillFieldQualifier } from "../enums/autofill-field.enums";
 import {
-  AutofillOverlayElement,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
@@ -528,7 +527,7 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("Closes the inline menu list and does not re-open the inline menu if the field has a value", async () => {
+        it("Updates the inline menu list if the value of the field has changed", async () => {
           (autofillFieldElement as HTMLInputElement).value = "test";
 
           await autofillOverlayContentService.setupOverlayListeners(
@@ -539,10 +538,13 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-            overlayElement: AutofillOverlayElement.List,
-            forceCloseInlineMenu: true,
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterAutofillInlineMenu", {
+            filterValue: "test",
           });
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateFocusedFieldData",
+            expect.anything(),
+          );
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
         });
 
@@ -556,6 +558,7 @@ describe("AutofillOverlayContentService", () => {
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("updateFocusedFieldData");
         });
 
         describe("input changes on a field filled by a card cipher", () => {

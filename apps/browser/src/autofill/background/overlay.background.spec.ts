@@ -78,6 +78,7 @@ import {
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
+  InlineMenuCipherData,
   InlineMenuPosition,
   PageDetailsForTab,
   PasswordGenerateRequestSource,
@@ -1028,6 +1029,16 @@ describe("OverlayBackground", () => {
           ["inline-menu-cipher-1", loginCipher1],
         ]),
       );
+    });
+
+    it("resets any active inline menu filter value when refreshing the overlay ciphers", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      overlayBackground["inlineMenuFilterValue"] = "stale-filter";
+
+      await overlayBackground.updateOverlayCiphers();
+      await flushPromises();
+
+      expect(overlayBackground["inlineMenuFilterValue"]).toBeUndefined();
     });
 
     it("queries only login ciphers when not updating all cipher types", async () => {
@@ -2166,7 +2177,318 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("checkGetInlineMenuCipherData correct return count according to filter", () => {
+      let focusedFieldData: FocusedFieldData;
+
+      beforeEach(() => {
+        focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          mock<chrome.runtime.MessageSender>({ tab: { id: 2 }, frameId: 0 }),
+        );
+      });
+
+      const userMap = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Example",
+            type: CipherType.Login,
+            login: {
+              username: "username1",
+              password: "password1",
+              uri: "https://example.com",
+            },
+          }),
+        ],
+        [
+          "inline-menu-cipher-2",
+          mock<CipherView>({
+            name: "Company 4",
+            type: CipherType.Login,
+            login: {
+              username: "Jamie1",
+              password: "smith",
+              uri: "https://company.eu",
+            },
+          }),
+        ],
+      ]);
+
+      const mapCases = (expectedLength: number, values: string[]): [string, number][] =>
+        values.map((v) => [v, expectedLength]);
+
+      const testCases = [
+        mapCases(2, ["1", "m", "M", "am", undefined, null, ""]),
+        mapCases(1, [
+          "username",
+          "userna",
+          "Username",
+          "Userna",
+          "usernAme",
+          "usernA",
+          "Example",
+          " ",
+          "y 4",
+        ]),
+        mapCases(0, ["asd", "nomatch"]),
+      ].flatMap((v) => v);
+
+      test.each(testCases)(
+        "returns true if the overlay login ciphers are filtered by %s correctly (%i hits)",
+        async (filterInput, expectedLength) => {
+          overlayBackground["inlineMenuCiphers"] = userMap;
+          overlayBackground["inlineMenuFilterValue"] = filterInput;
+          const entries = await overlayBackground["getInlineMenuCipherData"]();
+          expect(entries).toHaveLength(expectedLength);
+        },
+      );
+
+      it("tracks the total cipher count separately from the filtered count", async () => {
+        overlayBackground["inlineMenuCiphers"] = userMap;
+        overlayBackground["inlineMenuFilterValue"] = "username";
+
+        const entries = await overlayBackground["getInlineMenuCipherData"]();
+
+        expect(entries).toHaveLength(1);
+        expect(overlayBackground["currentInlineMenuCiphersCount"]).toBe(2);
+        expect(overlayBackground["filteredInlineMenuCiphersCount"]).toBe(1);
+      });
+    });
+
+    describe("getInlineMenuCipherData filtering across cipher types", () => {
+      const buildEntries = async (
+        filterValue: string,
+        fillType: CipherType,
+        ciphers: Map<string, CipherView>,
+      ) => {
+        sendMockExtensionMessage(
+          {
+            command: "updateFocusedFieldData",
+            focusedFieldData: createFocusedFieldDataMock({ inlineMenuFillType: fillType }),
+          },
+          mock<chrome.runtime.MessageSender>({ tab: { id: 2 }, frameId: 0 }),
+        );
+        overlayBackground["inlineMenuCiphers"] = ciphers;
+        overlayBackground["inlineMenuFilterValue"] = filterValue;
+        return overlayBackground["getInlineMenuCipherData"]();
+      };
+
+      const loginCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Acme",
+            type: CipherType.Login,
+            login: { username: "user", uri: "https://example.com", password: "pw" },
+          }),
+        ],
+      ]);
+
+      const cardCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Personal card",
+            type: CipherType.Card,
+            card: { subTitle: "Visa, *4242" },
+          }),
+        ],
+      ]);
+
+      const identityCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Home",
+            type: CipherType.Identity,
+            identity: { firstName: "Jane", lastName: "Doe" },
+          }),
+        ],
+      ]);
+
+      const accentedLoginCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "José",
+            type: CipherType.Login,
+            login: { username: "user", uri: "https://example.com", password: "pw" },
+          }),
+        ],
+      ]);
+
+      const plainNameLoginCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Jose",
+            type: CipherType.Login,
+            login: { username: "user", uri: "https://example.com", password: "pw" },
+          }),
+        ],
+      ]);
+
+      it("matches a login by its URI", async () => {
+        expect(await buildEntries("example.com", CipherType.Login, loginCiphers)).toHaveLength(1);
+      });
+
+      it("matches a card by its subtitle (brand and last four)", async () => {
+        expect(await buildEntries("visa", CipherType.Card, cardCiphers)).toHaveLength(1);
+        expect(await buildEntries("4242", CipherType.Card, cardCiphers)).toHaveLength(1);
+        expect(await buildEntries("mastercard", CipherType.Card, cardCiphers)).toHaveLength(0);
+      });
+
+      it("matches an identity by its full name", async () => {
+        expect(await buildEntries("jane", CipherType.Identity, identityCiphers)).toHaveLength(1);
+        expect(await buildEntries("doe", CipherType.Identity, identityCiphers)).toHaveLength(1);
+      });
+
+      it("matches ignoring accents/diacritics in both directions", async () => {
+        // plain query against accented cipher data
+        expect(await buildEntries("jose", CipherType.Login, accentedLoginCiphers)).toHaveLength(1);
+        // accented query against plain cipher data
+        expect(await buildEntries("josé", CipherType.Login, plainNameLoginCiphers)).toHaveLength(1);
+      });
+    });
+
+    describe("account creation inline menu ciphers filtering", () => {
+      const accountCreationLoginCiphers = new Map([
+        [
+          "inline-menu-cipher-1",
+          mock<CipherView>({
+            name: "Example",
+            type: CipherType.Login,
+            login: { username: "user", password: "pw", uri: "https://example.com" },
+          }),
+        ],
+      ]);
+
+      beforeEach(() => {
+        sendMockExtensionMessage(
+          {
+            command: "updateFocusedFieldData",
+            focusedFieldData: createFocusedFieldDataMock({
+              inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
+            }),
+          },
+          mock<chrome.runtime.MessageSender>({ tab: { id: 2 }, frameId: 0 }),
+        );
+        overlayBackground["inlineMenuCiphers"] = accountCreationLoginCiphers;
+      });
+
+      it("filters account creation login ciphers by the active filter value", async () => {
+        overlayBackground["inlineMenuFilterValue"] = "example";
+        expect(await overlayBackground["getInlineMenuCipherData"]()).toHaveLength(1);
+
+        overlayBackground["inlineMenuFilterValue"] = "nomatch";
+        expect(await overlayBackground["getInlineMenuCipherData"]()).toHaveLength(0);
+      });
+    });
+
+    describe("filterAutofillInlineMenu message handler", () => {
+      let sender: chrome.runtime.MessageSender;
+      let updateListSpy: jest.SpyInstance;
+      let toggleHiddenSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 0 });
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: 1,
+          frameId: 0,
+        });
+        updateListSpy = jest
+          .spyOn(overlayBackground as any, "updateInlineMenuListCiphers")
+          .mockResolvedValue(undefined);
+        toggleHiddenSpy = jest
+          .spyOn(overlayBackground as any, "toggleInlineMenuHidden")
+          .mockResolvedValue(undefined);
+      });
+
+      it("stores the filter value and updates the inline menu list without rebuilding the cipher data", async () => {
+        sendMockExtensionMessage(
+          { command: "filterAutofillInlineMenu", filterValue: "abc" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuFilterValue"]).toBe("abc");
+        expect(updateListSpy).toHaveBeenCalledWith(sender.tab, false);
+      });
+
+      it("shows the inline menu list when the filter returns matching ciphers", async () => {
+        overlayBackground["filteredInlineMenuCiphersCount"] = 2;
+
+        sendMockExtensionMessage({ command: "filterAutofillInlineMenu", filterValue: "a" }, sender);
+        await flushPromises();
+
+        expect(toggleHiddenSpy).toHaveBeenCalledWith({ isInlineMenuHidden: false }, sender);
+      });
+
+      it("hides the inline menu list when the filter returns no matching ciphers", async () => {
+        overlayBackground["filteredInlineMenuCiphersCount"] = 0;
+
+        sendMockExtensionMessage(
+          { command: "filterAutofillInlineMenu", filterValue: "nomatch" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(toggleHiddenSpy).toHaveBeenCalledWith({ isInlineMenuHidden: true }, sender);
+      });
+    });
+
+    describe("filtering reuses the built cipher data instead of rebuilding", () => {
+      let sender: chrome.runtime.MessageSender;
+      let buildSpy: jest.SpyInstance;
+      let filteredSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 0 });
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: 1,
+          frameId: 0,
+        });
+        overlayBackground["builtInlineMenuCipherData"] = [
+          mock<InlineMenuCipherData>({
+            name: "Example",
+            login: { username: "user", passkey: null },
+          }),
+        ];
+        jest.spyOn(overlayBackground as any, "toggleInlineMenuHidden").mockResolvedValue(undefined);
+        jest.spyOn(overlayBackground as any, "checkFocusedFieldHasValue").mockResolvedValue(true);
+        buildSpy = jest.spyOn(overlayBackground as any, "buildInlineMenuCipherData");
+        filteredSpy = jest.spyOn(overlayBackground as any, "getFilteredInlineMenuCipherData");
+      });
+
+      it("does not rebuild the cipher data while filtering", async () => {
+        sendMockExtensionMessage(
+          { command: "filterAutofillInlineMenu", filterValue: "exa" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(filteredSpy).toHaveBeenCalled();
+        expect(buildSpy).not.toHaveBeenCalled();
+      });
+    });
+
     describe("updateFocusedFieldData message handler", () => {
+      it("resets the inline menu filter value so a newly focused field is not shown a stale filtered list", async () => {
+        overlayBackground["inlineMenuFilterValue"] = "stale-filter";
+        const tab = createChromeTabMock({ id: 2 });
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 100 });
+        const focusedFieldData = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: sender.frameId,
+        });
+
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuFilterValue"]).toBeUndefined();
+      });
+
       it("sends a message to the sender frame to unset the most recently focused field data when the currently focused field does not belong to the sender", async () => {
         const tab = createChromeTabMock({ id: 2 });
         const firstSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 100 });
