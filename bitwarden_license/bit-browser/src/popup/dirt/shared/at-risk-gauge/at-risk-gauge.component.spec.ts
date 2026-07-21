@@ -15,7 +15,10 @@ describe("AtRiskGaugeComponent", () => {
       providers: [
         {
           provide: I18nService,
-          useValue: new I18nMockService({ atRisk: "at risk" }),
+          useValue: new I18nMockService({
+            atRisk: "at risk",
+            atRiskPasswords: "At-risk passwords",
+          }),
         },
       ],
     }).compileComponents();
@@ -144,6 +147,21 @@ describe("AtRiskGaugeComponent", () => {
       expect(bar?.getAttribute("aria-valuemax")).toBe("100");
       expect(bar?.getAttribute("aria-valuenow")).toBe("37");
       expect(bar?.getAttribute("aria-valuetext")).toBe("37% at risk");
+    });
+
+    it("names the progressbar with the localized fallback when no accessibleName is given", () => {
+      setInputs(37, 100);
+      const bar = (fixture.nativeElement as HTMLElement).querySelector('[role="progressbar"]');
+      expect(bar?.getAttribute("aria-label")).toBe("At-risk passwords");
+    });
+
+    it("uses a caller-supplied accessibleName when provided", () => {
+      fixture.componentRef.setInput("value", 37);
+      fixture.componentRef.setInput("total", 100);
+      fixture.componentRef.setInput("accessibleName", "Vault health");
+      fixture.detectChanges();
+      const bar = (fixture.nativeElement as HTMLElement).querySelector('[role="progressbar"]');
+      expect(bar?.getAttribute("aria-label")).toBe("Vault health");
     });
   });
 });

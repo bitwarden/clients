@@ -39,6 +39,12 @@ export class AtRiskGaugeComponent {
   readonly value = input<number>(0);
   /** The total the value is measured against. 0 (or less) renders empty without error. */
   readonly total = input<number>(0);
+  /**
+   * Accessible name for the progressbar. Consumers should pass the gauge's
+   * purpose (e.g. the Health Overview's context); falls back to a localized
+   * default so the control is never unnamed.
+   */
+  readonly accessibleName = input<string>();
 
   /** True only when there is a positive total and a positive value. Drives the red state and the fill. */
   protected readonly isAtRisk = computed(() => this.total() > 0 && this.value() > 0);
@@ -83,5 +89,10 @@ export class AtRiskGaugeComponent {
   /** Localized accessible summary announced by screen readers, e.g. "37% at risk". */
   protected readonly accessibleValueText = computed(
     () => `${this.percentage()}% ${this.i18nService.t("atRisk")}`,
+  );
+
+  /** Accessible name for the progressbar: the caller-supplied name or a localized fallback. */
+  protected readonly accessibleNameComputed = computed(
+    () => this.accessibleName() ?? this.i18nService.t("atRiskPasswords"),
   );
 }

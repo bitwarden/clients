@@ -5,6 +5,7 @@
   aria-valuemax="100"
   [attr.aria-valuenow]="percentage()"
   [attr.aria-valuetext]="accessibleValueText()"
+  [attr.aria-label]="accessibleNameComputed()"
 >
   <!-- 270° arc gauge. The ring circumference is ~100 (r=15.9155); the arc spans 75
        units (270°) with a 25-unit (90°) gap centered at the bottom. Rotating the

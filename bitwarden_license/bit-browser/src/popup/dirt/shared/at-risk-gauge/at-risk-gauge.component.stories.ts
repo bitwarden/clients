@@ -16,6 +16,7 @@ export default {
           useFactory: () =>
             new I18nMockService({
               atRisk: "at risk",
+              atRiskPasswords: "At-risk passwords",
             }),
         },
       ],
