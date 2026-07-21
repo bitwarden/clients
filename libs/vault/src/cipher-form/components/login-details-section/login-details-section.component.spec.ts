@@ -15,6 +15,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   BitPasswordInputToggleDirective,
+  CenterPositionStrategy,
   DialogRef,
   DialogService,
   ToastService,
@@ -609,7 +610,9 @@ describe("LoginDetailsSectionComponent", () => {
 
       tick();
 
-      expect(dialogService.open).toHaveBeenCalledWith(DeletePasskeyDialogComponent);
+      expect(dialogService.open).toHaveBeenCalledWith(DeletePasskeyDialogComponent, {
+        positionStrategy: expect.any(CenterPositionStrategy),
+      });
       expect(cipherFormContainer.patchCipher).toHaveBeenCalled();
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
 
