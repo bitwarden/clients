@@ -67,7 +67,6 @@ export type CollectPageDetailsResponseMessage = {
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
   sender?: string;
-  webExtSender: chrome.runtime.MessageSender;
 };
 
 export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =

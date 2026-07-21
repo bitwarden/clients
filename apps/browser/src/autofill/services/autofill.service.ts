@@ -47,6 +47,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
+import { getWebExtSender } from "../../platform/utils/web-ext-sender";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
@@ -135,20 +136,19 @@ export default class AutofillService implements AutofillServiceInterface {
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
             message.tab?.id === tab.id,
         ),
-        scan(
-          (acc: PageDetail[], message): PageDetail[] =>
-            message.webExtSender?.frameId === undefined
-              ? acc
-              : [
-                  ...acc,
-                  {
-                    frameId: message.webExtSender.frameId,
-                    tab: message.tab,
-                    details: message.details,
-                  },
-                ],
-          [] as PageDetail[],
-        ),
+        scan((acc: PageDetail[], message): PageDetail[] => {
+          const frameId = getWebExtSender(message)?.frameId;
+          return frameId === undefined
+            ? acc
+            : [
+                ...acc,
+                {
+                  frameId,
+                  tab: message.tab,
+                  details: message.details,
+                },
+              ];
+        }, [] as PageDetail[]),
       );
 
     void BrowserApi.tabSendMessage(
