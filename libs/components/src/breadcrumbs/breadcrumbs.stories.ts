@@ -242,7 +242,7 @@ export const ResponsiveOverflow: Story = {
           <bit-breadcrumb route="/groups">Page name</bit-breadcrumb>
           <bit-breadcrumb route="/members">Page name</bit-breadcrumb>
           <bit-breadcrumb route="/items">Page name</bit-breadcrumb>
-          <bit-breadcrumb route="/settings">Configure SSO</bit-breadcrumb>
+          <bit-breadcrumb route="/settings">Configure single sign-on for your enterprise organization</bit-breadcrumb>
         </bit-breadcrumbs>
       </div>
       <router-outlet/>

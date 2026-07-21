@@ -58,7 +58,12 @@
   [class.tw-invisible]="!ovf.ready()"
 >
   @for (breadcrumb of breadcrumbs(); track breadcrumb; let i = $index; let first = $first) {
-    <span bitOverflowItem class="tw-flex tw-shrink-0 tw-items-center">
+    <span
+      bitOverflowItem
+      #item="bitOverflowItem"
+      class="tw-flex tw-items-center"
+      [class]="item.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
+    >
       @if (!first) {
         <ng-container [ngTemplateOutlet]="arrow" />
       }

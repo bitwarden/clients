@@ -1,9 +1,9 @@
 <ng-template>
-  <div class="tw-flex tw-items-center tw-gap-2">
+  <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
     <ng-content select="[slot=start]"></ng-content>
     @if (icon(); as icon) {
-      <bit-icon [name]="icon" />
+      <bit-icon [name]="icon" class="tw-shrink-0" />
     }
-    <ng-content></ng-content>
+    <span class="tw-min-w-0 tw-truncate"><ng-content></ng-content></span>
   </div>
 </ng-template>

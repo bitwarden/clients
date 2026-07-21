@@ -6,6 +6,7 @@ import { provideRouter } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { IconTileComponent, IconTileSize } from "../icon-tile";
+import { OverflowItemDirective } from "../overflow-list";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
@@ -77,5 +78,35 @@ describe("BreadcrumbsComponent", () => {
     fixture.detectChanges();
 
     expect(tileSize()).toBe("xs");
+  });
+
+  /** The overflow-item wrapper span that gates the crumb's shrink/truncate behavior. */
+  function crumbWrapper(): { element: HTMLElement; item: OverflowItemDirective } {
+    const debugEl = fixture.debugElement.query(By.directive(OverflowItemDirective));
+    return {
+      element: debugEl.nativeElement as HTMLElement,
+      item: debugEl.injector.get(OverflowItemDirective),
+    };
+  }
+
+  it("keeps the crumb from shrinking by default", () => {
+    fixture.detectChanges();
+
+    const { element } = crumbWrapper();
+    expect(element.classList).toContain("tw-shrink-0");
+    expect(element.classList).not.toContain("tw-flex-1");
+  });
+
+  it("lets the crumb shrink and truncate once it is the lone displayed item", () => {
+    fixture.detectChanges();
+
+    const { element, item } = crumbWrapper();
+    item.shouldShrink.set(true);
+    fixture.detectChanges();
+
+    expect(element.classList).toContain("tw-flex-1");
+    expect(element.classList).toContain("tw-min-w-0");
+    expect(element.classList).toContain("tw-overflow-hidden");
+    expect(element.classList).not.toContain("tw-shrink-0");
   });
 });
