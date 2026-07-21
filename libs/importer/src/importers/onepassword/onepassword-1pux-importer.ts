@@ -128,12 +128,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           this.result.folderRelationships.length = folderRelationshipCount;
 
           const reason = this.importErrorReason(e);
-          // Identify the item by its non-sensitive UID
-          this.result.errors.push(
-            new ImportRecordError(this.getValueOrDefault(item.uuid, ""), reason),
-          );
+          // Identify the item by its non-sensitive UID (never its name, which is Vault Data)
+          const uid = this.getValueOrDefault(item.uuid, "");
+          this.result.errors.push(new ImportRecordError(uid, reason));
 
-          const message = `1Password import skipped an item (${reason})`;
+          const message = `1Password import skipped an item (uuid: ${uid || "unknown"}, reason: ${reason})`;
           if ((e as Partial<SshKeyImportError>)?.variant != null) {
             this.logService.warning(message);
           } else {

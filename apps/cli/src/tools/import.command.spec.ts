@@ -188,6 +188,6 @@ describe("ImportCommand", () => {
     const message = (response.data as MessageResponse).message;
     expect(message).toContain("1 item(s) could not be imported and were skipped");
     expect(message).toContain("ssh-key-uuid");
-    expect(message).toContain("SSH key could not be parsed");
+    expect(message).toContain("SSH key could not be imported");
   });
 });
