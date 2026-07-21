@@ -109,7 +109,7 @@ export class SendCreateCommand {
       req.authType = AuthType.None;
     }
 
-    const policyError = await this.enforceSendPolicy(req.authType, emails);
+    const policyError = await this.enforceSendPolicy(req);
     if (policyError) {
       return policyError;
     }
@@ -176,10 +176,7 @@ export class SendCreateCommand {
     }
   }
 
-  private async enforceSendPolicy(
-    authType: AuthType,
-    emails: string[] | undefined,
-  ): Promise<Response | null> {
+  private async enforceSendPolicy(req: SendResponse): Promise<Response | null> {
     const sendControlsEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendControls);
     if (!sendControlsEnabled) {
       return null;
@@ -189,20 +186,18 @@ export class SendCreateCommand {
     const policies = await firstValueFrom(
       this.policyService.policiesByType$(PolicyType.SendControls, userId),
     );
-    const policy = policies?.find((p) => p.data?.whoCanAccess != null);
-    if (!policy) {
-      return null;
-    }
-    const policyData: SendControlsPolicyData = policy.data;
 
-    if (policyData.whoCanAccess === WhoCanAccessType.SpecificPeople) {
-      if (authType !== AuthType.Email || !emails?.length) {
+    const whoCanAccessPolicyData = policies.find((p) => p.data?.whoCanAccess != null)?.data as
+      | SendControlsPolicyData
+      | undefined;
+    if (whoCanAccessPolicyData?.whoCanAccess === WhoCanAccessType.SpecificPeople) {
+      if (req.authType !== AuthType.Email || !req.emails?.length) {
         return Response.error(
           "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
         );
       }
 
-      const rawDomains = policyData.allowedDomains;
+      const rawDomains = whoCanAccessPolicyData?.allowedDomains;
       if (rawDomains) {
         const allowedDomains = rawDomains
           .split(",")
@@ -210,7 +205,7 @@ export class SendCreateCommand {
           .filter((d: string) => d.length > 0);
 
         if (allowedDomains.length > 0) {
-          const disallowed = emails.filter((email) => {
+          const disallowed = req.emails.filter((email) => {
             const domain = email.split("@")[1]?.toLowerCase();
             return !allowedDomains.includes(domain);
           });
@@ -221,12 +216,25 @@ export class SendCreateCommand {
           }
         }
       }
-    } else if (policyData.whoCanAccess === WhoCanAccessType.PasswordProtected) {
-      if (authType !== AuthType.Password) {
+    } else if (whoCanAccessPolicyData?.whoCanAccess === WhoCanAccessType.PasswordProtected) {
+      if (req.authType !== AuthType.Password) {
         return Response.error(
           "Organization policy requires Send access to be password protected. Use --password to set a password.",
         );
       }
+    }
+    // If org policy specifies a deletion date we comply with it, overriding what
+    // the user has specified. This matches the UI behavior, where users are
+    // barred from using other deletion dates when one is mandated by org policy.
+    const deletionDatePolicyData = policies.find((p) => p.data?.deletionHours)?.data as
+      | SendControlsPolicyData
+      | undefined;
+    if (deletionDatePolicyData?.deletionHours != null) {
+      const policyCompliantDeletionDate = new Date();
+      policyCompliantDeletionDate.setTime(
+        policyCompliantDeletionDate.getTime() + deletionDatePolicyData.deletionHours * 3600000, // ms per hour
+      );
+      req.deletionDate = policyCompliantDeletionDate;
     }
 
     return null;
