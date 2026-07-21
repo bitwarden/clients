@@ -140,7 +140,7 @@ export class ImportCommand {
           const details = skipped
             .map(
               (e) =>
-                `  - ${e.id != null && e.id.trim() !== "" ? e.id : "(unnamed item)"}: ${this.importErrorReasonText(e.reason)}`,
+                `  - ${e.id != null && e.id.trim() !== "" ? e.id : "(unidentified item)"}: ${this.importErrorReasonText(e.reason)}`,
             )
             .join("\n");
           const message = `${skipped.length} item(s) could not be imported and were skipped:\n${details}`;

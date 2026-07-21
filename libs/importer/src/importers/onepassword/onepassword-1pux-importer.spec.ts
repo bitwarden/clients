@@ -743,7 +743,7 @@ describe("1Password 1Pux Importer", () => {
     expect(result.success).toBe(true);
     // The unparseable SSH key is skipped rather than added as a broken cipher.
     expect(result.ciphers.some((c) => c.type === CipherType.SshKey)).toBe(false);
-    // ...and reported with its name + type so the UI/CLI can surface it.
+    // ...and reported as problematic
     expect(result.errors.length).toBe(1);
     // Identified by the item's non-sensitive UID, not its (encrypted) name.
     expect(result.errors[0].id).toEqual("kf7wevmfiqmbgyao42plvgrasy");
