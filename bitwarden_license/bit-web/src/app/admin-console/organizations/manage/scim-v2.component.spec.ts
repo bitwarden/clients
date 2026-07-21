@@ -145,13 +145,38 @@ describe("ScimV2Component", () => {
       expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
     }));
 
-    it("defaults inviteUsersAfterProvisioning to true when the connection config omits it", fakeAsync(() => {
+    it("defaults inviteUsersAfterProvisioning to true when an existing connection omits it", fakeAsync(() => {
       initComponent(mockConnection(true));
 
       void component.load();
       tick();
 
       expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to true for a new connection when the staged status flag is off", fakeAsync(() => {
+      initComponent({
+        id: null,
+        config: null,
+      } as unknown as OrganizationConnectionResponse<ScimConfigApi>);
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to false for a new connection when the staged status flag is on", fakeAsync(() => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      initComponent({
+        id: null,
+        config: null,
+      } as unknown as OrganizationConnectionResponse<ScimConfigApi>);
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
     }));
 
     it("does not open dialog on load", fakeAsync(() => {
@@ -384,6 +409,25 @@ describe("ScimV2Component", () => {
         variant: "success",
         message: "scimSettingsSaved",
       });
+    }));
+
+    it("submits inviteUsersAfterProvisioning false when creating a new connection", fakeAsync(() => {
+      ta(component).existingConnectionId.set(undefined);
+      ta(component).inviteUsersAfterProvisioning.setValue(false);
+      ta(component).enabled.setValue(true);
+      apiService.createOrganizationConnection.mockResolvedValue(
+        mockConnection(true, "connection-id", false),
+      );
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.createOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+        }),
+        ScimConfigApi,
+      );
     }));
 
     it("submits inviteUsersAfterProvisioning true by default", fakeAsync(() => {
