@@ -11,6 +11,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
@@ -129,6 +130,7 @@ export class CollectionDialogComponent implements OnInit {
 
   private readonly selectedOrgId$ = this.formGroup.controls.selectedOrg.valueChanges.pipe(
     startWith(this.params.organizationId),
+    distinctUntilChanged(),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -173,9 +175,11 @@ export class CollectionDialogComponent implements OnInit {
 
   protected readonly collection = toSignal(this.collection$);
 
-  private readonly groups$ = combineLatest([this.organization$, this.selectedOrgId$]).pipe(
-    switchMap(([organization, orgId]) =>
-      organization?.useGroups && orgId ? this.groupService.getAll(orgId) : of([] as GroupView[]),
+  private readonly groups$ = this.organization$.pipe(
+    switchMap((organization) =>
+      organization?.useGroups && organization.id
+        ? this.groupService.getAll(organization.id)
+        : of([] as GroupView[]),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -279,9 +283,11 @@ export class CollectionDialogComponent implements OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
 
-  private readonly orgExceedingCollectionLimit$ = this.organizationSelected.valueChanges.pipe(
+  private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
     filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
-    switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
+    switchMap(() =>
+      this.organizations$.pipe(getById(this.organizationSelected.value as OrganizationId)),
+    ),
     tap(() => {
       this.organizationSelected.markAsTouched();
       this.formGroup.updateValueAndValidity();
@@ -291,7 +297,7 @@ export class CollectionDialogComponent implements OnInit {
 
   private readonly orgExceedingCollectionLimit = toSignal(this.orgExceedingCollectionLimit$);
 
-  protected readonly loading = toSignal(this.allCollections$.pipe(map(() => false)), {
+  protected readonly loading = toSignal(this.accessItems$.pipe(map(() => false)), {
     initialValue: true,
   });
 
@@ -314,7 +320,7 @@ export class CollectionDialogComponent implements OnInit {
       this.showOrgSelector.set(true);
     }
 
-    this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
+    this.formGroup.patchValue({ selectedOrg: this.params.organizationId }, { emitEvent: false });
 
     this.organizationSelected.setAsyncValidators(
       freeOrgCollectionLimitValidator(
@@ -424,7 +430,7 @@ export class CollectionDialogComponent implements OnInit {
     this.close(CollectionDialogAction.Canceled);
   }
 
-  protected async submit() {
+  protected readonly submit = async () => {
     // Saving a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
@@ -512,9 +518,9 @@ export class CollectionDialogComponent implements OnInit {
     });
 
     this.close(CollectionDialogAction.Saved, collectionResponse);
-  }
+  };
 
-  protected async delete() {
+  protected readonly delete = async () => {
     // Deleting a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
@@ -527,7 +533,7 @@ export class CollectionDialogComponent implements OnInit {
       type: "warning",
     });
 
-    if (!confirmed && this.params.collectionId) {
+    if (!confirmed) {
       return false;
     }
 
@@ -544,7 +550,7 @@ export class CollectionDialogComponent implements OnInit {
     });
 
     this.close(CollectionDialogAction.Deleted, collection);
-  }
+  };
 
   private changePlan(org: Organization) {
     openChangePlanDialog(this.dialogService, {

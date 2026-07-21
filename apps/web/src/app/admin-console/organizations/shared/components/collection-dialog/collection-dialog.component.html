@@ -3,9 +3,7 @@
     @if (editMode) {
       {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}
       @if (!loading()) {
-        <span class="tw-text-sm tw-normal-case tw-text-muted">{{
-          (collection$ | async)?.name
-        }}</span>
+        <span class="tw-text-sm tw-normal-case tw-text-muted">{{ collection()?.name }}</span>
       }
     }
     @if (!editMode) {
@@ -80,13 +78,13 @@
                   {{ "grantManageCollectionWarning" | i18n }}
                 </bit-callout>
               }
-              @if ((organization$ | async)?.useGroups) {
+              @if (organization()?.useGroups) {
                 <span>{{ "grantCollectionAccess" | i18n }}</span>
               }
-              @if (!(organization$ | async)?.useGroups) {
+              @if (!organization()?.useGroups) {
                 <span>{{ "grantCollectionAccessMembersOnly" | i18n }}</span>
               }
-              @if ((organization$ | async)?.allowAdminAccessToAllCollectionItems) {
+              @if (organization()?.allowAdminAccessToAllCollectionItems) {
                 <span>
                   {{ " " + ("adminCollectionAccess" | i18n) }}
                 </span>
@@ -101,7 +99,7 @@
               <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
             </div>
           }
-          @if ((organization$ | async)?.useGroups) {
+          @if (organization()?.useGroups) {
             <bit-access-selector
               [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
               formControlName="access"
@@ -113,7 +111,7 @@
               [initialPermission]="initialPermission()"
             ></bit-access-selector>
           }
-          @if (!(organization$ | async)?.useGroups) {
+          @if (!organization()?.useGroups) {
             <bit-access-selector
               [permissionMode]="dialogReadonly ? PermissionMode.Readonly : PermissionMode.Edit"
               formControlName="access"
