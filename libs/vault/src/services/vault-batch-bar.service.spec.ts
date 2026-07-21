@@ -188,6 +188,17 @@ describe("VaultBatchBarService", () => {
     });
   });
 
+  describe("selection identity", () => {
+    it("recognises two VaultItem wrappers with the same cipher ID as the same selection", () => {
+      const item1: VaultItem<CipherView> = { cipher: makeCipher() };
+      const item2: VaultItem<CipherView> = { cipher: makeCipher() };
+
+      service.selection.select(item1);
+
+      expect(service.selection.isSelected(item2)).toBe(true);
+    });
+  });
+
   describe("selection helpers", () => {
     it("selected returns items in SelectionModel", () => {
       const item = makeCipherItem();
