@@ -27,25 +27,21 @@
     </ul>
   } @else {
     <p class="tw-text-muted">
-      @if (orgName) {
-        {{ transferWarningTextPre(personalItemsCount) }}
-        <span class="tw-italic">{{ orgName }}</span
-        >{{ transferWarningTextPost(personalItemsCount) }}
-        {{
-          (personalItemsCount === 1
-            ? "bulkVaultSharedFolderAssignmentDialogDescriptionSingular"
-            : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
-          ) | i18n
-        }}
-      } @else {
-        {{ transferWarningText(orgName, personalItemsCount) }}
-        {{
-          (personalItemsCount === 1
-            ? "bulkVaultSharedFolderAssignmentDialogDescriptionSingular"
-            : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
-          ) | i18n
-        }}
+      @if (personalItemsCount > 0) {
+        @if (orgName && showOrgSelector) {
+          {{ transferWarningTextPre(personalItemsCount) }}
+          <span class="tw-italic">{{ orgName }}</span
+          >{{ transferWarningTextPost(personalItemsCount) }}
+        } @else {
+          {{ transferWarningText(orgName, personalItemsCount) }}
+        }
       }
+      {{
+        (totalItemCount === 1
+          ? "bulkVaultSharedFolderAssignmentDialogDescriptionSingular"
+          : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
+        ) | i18n
+      }}
     </p>
   }
 
