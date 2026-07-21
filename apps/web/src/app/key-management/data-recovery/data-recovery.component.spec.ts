@@ -105,6 +105,7 @@ describe("DataRecoveryComponent", () => {
       expect(steps[3].title).toBe("recoveryStepFoldersTitle_used-i18n");
       expect(steps[4].title).toBe("recoveryStepFido2Title_used-i18n");
       expect(steps[5].title).toBe("recoveryStepCipherTitle_used-i18n");
+      expect(steps[6].title).toBe("recoveryStepAttachmentsTitle_used-i18n");
     });
   });
 
@@ -237,7 +238,7 @@ describe("DataRecoveryComponent", () => {
         fido2CorruptCipherIds: [],
       };
 
-      mockSteps = Array(6)
+      mockSteps = Array(7)
         .fill(null)
         .map(() => {
           const mockStep = mock<RecoveryStep>();
