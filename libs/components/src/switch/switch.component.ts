@@ -71,6 +71,8 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
 
   protected readonly trackClasses = computed(() =>
     [
+      // outline supports forced-colors mode
+      "tw-outline-none",
       "tw-flex",
       "tw-relative",
       "tw-shrink-0",
@@ -103,6 +105,8 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
 
   protected readonly thumbClasses = computed(() =>
     [
+      // outline supports forced-colors mode
+      "tw-outline-none",
       "tw-flex",
       "tw-items-center",
       "tw-justify-center",
