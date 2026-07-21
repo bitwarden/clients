@@ -161,7 +161,7 @@
     "wait-on": "9.0.3",
     "webpack": "5.106.2",
     "webpack-cli": "7.0.2",
-    "webpack-dev-server": "5.2.5",
+    "webpack-dev-server": "5.2.6",
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
