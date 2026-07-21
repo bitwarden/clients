@@ -13,6 +13,7 @@ import {
   signal,
 } from "@angular/core";
 
+import { measureWidth, revealForMeasurement } from "./measure";
 import { OverflowItemDirective } from "./overflow-item.directive";
 import { OverflowTriggerDirective } from "./overflow-trigger.directive";
 import { PackedItems, pack } from "./pack";
@@ -212,10 +213,6 @@ function indices(count: number): readonly number[] {
   return Array.from({ length: count }, (_, i) => i);
 }
 
-function measureWidth(el: HTMLElement): number {
-  return Math.ceil(el.getBoundingClientRect().width);
-}
-
 /**
  * Hide an element by both setting the `hidden` attribute and an inline
  * `display: none`. The attribute alone isn't enough: consumers commonly apply
@@ -225,19 +222,4 @@ function measureWidth(el: HTMLElement): number {
 function applyHide(el: HTMLElement, hide: boolean): void {
   el.hidden = hide;
   el.style.display = hide ? "none" : "";
-}
-
-/**
- * Temporarily unhide an element so its natural width can be read. Returns a
- * function that restores the prior `hidden` and inline `display` state.
- */
-function revealForMeasurement(el: HTMLElement): () => void {
-  const prevHidden = el.hidden;
-  const prevDisplay = el.style.display;
-  el.hidden = false;
-  el.style.display = "";
-  return () => {
-    el.hidden = prevHidden;
-    el.style.display = prevDisplay;
-  };
 }

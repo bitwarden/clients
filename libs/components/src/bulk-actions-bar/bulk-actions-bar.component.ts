@@ -27,6 +27,7 @@ import { MenuDividerComponent } from "../menu/menu-divider.component";
 import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
+import { measureWidth, revealForMeasurement } from "../overflow-list/measure";
 import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
@@ -260,7 +261,9 @@ export class BulkActionsBarComponent {
     // report zero from `getBoundingClientRect`. Reveal them for both passes
     // and restore on the way out; the directive re-applies the right hidden
     // states on the next reactive pass.
-    const restorePrimaries = primaries.map((btn) => reveal(btn.elementRef.nativeElement));
+    const restorePrimaries = primaries.map((btn) =>
+      revealForMeasurement(btn.elementRef.nativeElement),
+    );
 
     // Pass 1: compact shell width. With items revealed and the bar in its
     // natural (compact) state, the overflow host's content is `items_total`,
@@ -367,23 +370,4 @@ export class BulkActionsBarComponent {
     "after:tw-inset-y-0",
     "after:tw-my-auto",
   ];
-}
-
-function measureWidth(el: HTMLElement): number {
-  return Math.ceil(el.getBoundingClientRect().width);
-}
-
-/**
- * Temporarily unhide an element so its natural width can be read. Returns a
- * function that restores the prior `hidden` and inline `display` state.
- */
-function reveal(el: HTMLElement): () => void {
-  const prevHidden = el.hidden;
-  const prevDisplay = el.style.display;
-  el.hidden = false;
-  el.style.display = "";
-  return () => {
-    el.hidden = prevHidden;
-    el.style.display = prevDisplay;
-  };
 }
