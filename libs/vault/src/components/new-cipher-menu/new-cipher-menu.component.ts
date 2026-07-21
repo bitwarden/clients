@@ -21,6 +21,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -34,6 +36,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     I18nPipe,
     JslibModule,
     TooltipDirective,
+    Vfo1IconPipe,
   ],
 })
 export class NewCipherMenuComponent {
