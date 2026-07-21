@@ -1,5 +1,7 @@
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { IconProps } from "../common-types";
+
 const lightTheme = {
   transparent: {
     hover: `rgb(0 0 0 / 0.02)`,
@@ -173,6 +175,9 @@ type RuleName = (typeof ruleNames)[keyof typeof ruleNames];
 export const buildIconColorRule = (color: string, rule: RuleName = ruleNames.fill) => `
   ${rule}: ${color};
 `;
+
+export const resolveIconColor = ({ color, disabled, theme }: IconProps) =>
+  disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
 export const animations = {
   spin: `
