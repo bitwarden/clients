@@ -227,7 +227,7 @@ export class ImportCommand {
   private importErrorReasonText(reason: ImportRecordErrorReason): string {
     switch (reason) {
       case ImportRecordErrorReason.SshKeyParseFailed:
-        return "SSH key could not be parsed";
+        return "SSH key could not be imported";
       case ImportRecordErrorReason.UnsupportedType:
         return "unsupported item type";
       case ImportRecordErrorReason.UnsupportedFeature:
