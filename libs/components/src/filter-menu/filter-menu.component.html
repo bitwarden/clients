@@ -98,7 +98,7 @@
         <ng-container
           *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
         ></ng-container>
-        <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ nullLabel() ?? ("all" | i18n) }}</span>
+        <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
       </button>
     }
 

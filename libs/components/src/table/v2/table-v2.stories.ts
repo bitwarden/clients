@@ -187,7 +187,7 @@ type VaultFilters = {
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
 
-          <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
             @for (option of typeOptions(); track option.value) {
               <bit-filter-option [value]="option.value" [count]="option.count">
                 {{ option.label }}
@@ -319,7 +319,7 @@ class DemoFilterableTableComponent {
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
 
-          <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
             @for (option of typeOptions(); track option.value) {
               <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
             }

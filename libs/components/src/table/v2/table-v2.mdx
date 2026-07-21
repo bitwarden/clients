@@ -292,7 +292,7 @@ filter = (row: Member, f: Filters) =>
 ```html
 <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="{ type: 'login' }">
   <bit-table-toolbar>
-    <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
     </bit-filter-menu>
     <bit-filter-toggle

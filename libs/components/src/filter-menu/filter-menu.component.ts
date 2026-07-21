@@ -63,7 +63,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
  *
  * @example
  * ```html
- * <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+ * <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
  *   <bit-filter-option [value]="'login'">Login</bit-filter-option>
  * </bit-filter-menu>
  * ```
@@ -105,7 +105,7 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
    * Label shown after the prefix while inactive, e.g. "All" → "Type: All". Omit
    * to show just the prefix when nothing is selected.
    */
-  readonly nullLabel = input<string>();
+  readonly unsetLabel = input<string>();
 
   /** Multi-select (checkbox) when `true`; single-select (radio) when omitted. */
   readonly multiple = input(false, { transform: booleanAttribute });
@@ -150,7 +150,7 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     return this.multiple() ? Array.isArray(value) && value.length > 0 : value != null;
   });
 
-  /** The chip's display label: `prefix`, `prefix: nullLabel`, or (single-select) `prefix: selected`. */
+  /** The chip's display label: `prefix`, `prefix: unsetLabel`, or (single-select) `prefix: selected`. */
   protected readonly displayLabel = computed(() => {
     const prefix = this.placeholderText();
     // Single-select reflects the selected value in the label; multi-select doesn't.
@@ -160,8 +160,8 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     if (this.active()) {
       return prefix;
     }
-    const nullLabel = this.nullLabel();
-    return nullLabel ? `${prefix}: ${nullLabel}` : prefix;
+    const unsetLabel = this.unsetLabel();
+    return unsetLabel ? `${prefix}: ${unsetLabel}` : prefix;
   });
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */

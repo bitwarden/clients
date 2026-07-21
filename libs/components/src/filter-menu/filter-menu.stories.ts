@@ -18,7 +18,7 @@ import { FilterMenuModule } from "./filter-menu.module";
   imports: [FilterMenuModule],
   template: `
     <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
-      <bit-filter-menu key="type" placeholderText="Type" nullLabel="All">
+      <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
         <bit-filter-option [value]="'login'" [count]="12">Login</bit-filter-option>
         <bit-filter-option [value]="'card'" [count]="3">Card</bit-filter-option>
         <bit-filter-option [value]="'note'" [count]="5">Secure note</bit-filter-option>

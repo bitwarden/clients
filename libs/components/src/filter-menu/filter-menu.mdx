@@ -22,7 +22,7 @@ a `bit-table-v2`, add the `bitTableFilter` directive and the chip's value lands 
 A chip is single-select by default; add `multiple` for a checkbox-style multi-select.
 
 ```html
-<bit-filter-menu key="type" placeholderText="Type" nullLabel="All">
+<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
   <bit-filter-option [value]="'login'" [count]="12">Login</bit-filter-option>
   <bit-filter-option [value]="'card'" [count]="3">Card</bit-filter-option>
 </bit-filter-menu>
@@ -48,7 +48,7 @@ A chip is a named form control. It owns its selection — **no `ngModel`** — a
 `bit-filter-section`s for display; they all feed the chip's one selection.
 
 The chip builds its label from the selected options (`placeholderText`, or
-`placeholderText: nullLabel` while empty). While active it shows a clear (`x`) on the chip; a
+`placeholderText: unsetLabel` while empty). While active it shows a clear (`x`) on the chip; a
 `multiple` chip also gets a sticky **Clear** button pinned to the bottom of its menu. Both reset the
 selection.
 
@@ -67,7 +67,7 @@ matchers and no per-chip state — see
 [Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
 
 ```html
-<bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All" bitTableFilter>
   <bit-filter-option [value]="'login'">Login</bit-filter-option>
 </bit-filter-menu>
 ```
