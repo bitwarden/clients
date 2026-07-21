@@ -106,6 +106,11 @@ export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignme
 
 const MY_VAULT_ID = "MyVault";
 
+// Sentinel substituted for the organization name so a fully translated sentence can be split
+// around it, letting the org name be italicized in the template without embedding markup in (or
+// splitting up) the translated string.
+const ORG_NAME_TOKEN = "\uFFFC";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -235,22 +240,28 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       : this.i18nService.t("personalItemTransferWarningSingular");
   };
 
-  protected transferWarningTextPre = (itemsCount: number) => {
-    if (itemsCount > 1) {
-      return this.i18nService.t("personalItemsWithOrgTransferWarningPluralPre", itemsCount);
+  /**
+   * Breaks the transfer-warning sentence into display segments so the organization name can be
+   * italicized. A sentinel is substituted for the org name and the fully translated sentence is
+   * split around it, so word order stays correct in every language and the org name is always
+   * rendered as plain text rather than markup.
+   */
+  protected transferWarningSegments = (orgName: string, itemsCount: number) => {
+    if (!orgName) {
+      return { italicize: false as const, text: this.transferWarningText(orgName, itemsCount) };
     }
-    if (itemsCount === 1) {
-      return this.i18nService.t("personalItemWithOrgTransferWarningSingularPre");
-    }
-  };
 
-  protected transferWarningTextPost = (itemsCount: number) => {
-    if (itemsCount > 1) {
-      return this.i18nService.t("personalItemsWithOrgTransferWarningPluralPost");
-    }
-    if (itemsCount === 1) {
-      return this.i18nService.t("personalItemWithOrgTransferWarningSingularPost");
-    }
+    const sentence =
+      itemsCount > 1
+        ? this.i18nService.t(
+            "personalItemsWithOrgTransferWarningPlural",
+            itemsCount,
+            ORG_NAME_TOKEN,
+          )
+        : this.i18nService.t("personalItemWithOrgTransferWarningSingular", ORG_NAME_TOKEN);
+
+    const [before, after = ""] = sentence.split(ORG_NAME_TOKEN);
+    return { italicize: true as const, before, orgName, after };
   };
 
   private editableItems: CipherView[] = [];

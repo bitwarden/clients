@@ -12981,12 +12981,6 @@
       }
     }
   },
-  "personalItemWithOrgTransferWarningSingularPre": {
-    "message": "1 item will be permanently transferred to "
-  },
-  "personalItemWithOrgTransferWarningSingularPost": {
-    "message": ". You will no longer own this item."
-  },
   "personalItemsWithOrgTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
     "placeholders": {
@@ -12999,18 +12993,6 @@
         "example": "Organization name"
       }
     }
-  },
-  "personalItemsWithOrgTransferWarningPluralPre": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to ",
-    "placeholders": {
-      "personal_items_count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "personalItemsWithOrgTransferWarningPluralPost": {
-    "message": ". You will no longer own these items."
   },
   "data": {
     "message": "Data"

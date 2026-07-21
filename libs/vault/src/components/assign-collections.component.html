@@ -28,12 +28,12 @@
   } @else {
     <p class="tw-text-muted">
       @if (personalItemsCount > 0) {
-        @if (orgName && showOrgSelector) {
-          {{ transferWarningTextPre(personalItemsCount) }}
-          <span class="tw-italic">{{ orgName }}</span
-          >{{ transferWarningTextPost(personalItemsCount) }}
+        @let warning = transferWarningSegments(orgName, personalItemsCount);
+        @if (warning.italicize) {
+          {{ warning.before }}<span class="tw-italic">{{ warning.orgName }}</span
+          >{{ warning.after }}
         } @else {
-          {{ transferWarningText(orgName, personalItemsCount) }}
+          {{ warning.text }}
         }
       }
       {{

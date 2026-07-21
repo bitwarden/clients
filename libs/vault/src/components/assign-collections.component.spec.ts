@@ -248,28 +248,30 @@ describe("AssignCollectionsComponent", () => {
     });
   });
 
-  describe("transferWarningTextPre / transferWarningTextPost", () => {
-    it("returns the plural pre/post text when there are multiple items", () => {
-      expect(component["transferWarningTextPre"](3)).toBe(
-        "personalItemsWithOrgTransferWarningPluralPre 3",
-      );
-      expect(component["transferWarningTextPost"](3)).toBe(
-        "personalItemsWithOrgTransferWarningPluralPost",
-      );
+  describe("transferWarningSegments", () => {
+    it("splits the plural sentence around the org name so it can be italicized", () => {
+      expect(component["transferWarningSegments"]("Acme", 3)).toEqual({
+        italicize: true,
+        before: "personalItemsWithOrgTransferWarningPlural 3 ",
+        orgName: "Acme",
+        after: "",
+      });
     });
 
-    it("returns the singular pre/post text when there is a single item", () => {
-      expect(component["transferWarningTextPre"](1)).toBe(
-        "personalItemWithOrgTransferWarningSingularPre",
-      );
-      expect(component["transferWarningTextPost"](1)).toBe(
-        "personalItemWithOrgTransferWarningSingularPost",
-      );
+    it("splits the singular sentence around the org name so it can be italicized", () => {
+      expect(component["transferWarningSegments"]("Acme", 1)).toEqual({
+        italicize: true,
+        before: "personalItemWithOrgTransferWarningSingular ",
+        orgName: "Acme",
+        after: "",
+      });
     });
 
-    it("returns undefined when there are no items", () => {
-      expect(component["transferWarningTextPre"](0)).toBeUndefined();
-      expect(component["transferWarningTextPost"](0)).toBeUndefined();
+    it("returns a single plain segment when there is no org name", () => {
+      expect(component["transferWarningSegments"]("", 3)).toEqual({
+        italicize: false,
+        text: "personalItemsTransferWarningPlural 3",
+      });
     });
   });
 
