@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 import { AutofillCommandDefinition } from "../models/autofill-command";
@@ -107,6 +107,16 @@ export class DesktopAutofillMain {
     if (this.enabled) {
       this.logService.info("Native autofill is already enabled, ignoring enable request");
       return true;
+    }
+
+    if (process.platform === "win32") {
+      try {
+        passkey_authenticator.register();
+      } catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err);
+        this.enabled = false;
+        return false;
+      }
     }
 
     ipcMain.handle(
