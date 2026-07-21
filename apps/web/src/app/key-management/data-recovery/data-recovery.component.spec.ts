@@ -98,13 +98,14 @@ describe("DataRecoveryComponent", () => {
 
     it("should initialize steps in correct order", () => {
       const steps = component.steps();
-      expect(steps.length).toBe(6);
+      expect(steps.length).toBe(7);
       expect(steps[0].title).toBe("recoveryStepUserInfoTitle_used-i18n");
       expect(steps[1].title).toBe("recoveryStepSyncTitle_used-i18n");
       expect(steps[2].title).toBe("recoveryStepPrivateKeyTitle_used-i18n");
       expect(steps[3].title).toBe("recoveryStepFoldersTitle_used-i18n");
       expect(steps[4].title).toBe("recoveryStepFido2Title_used-i18n");
       expect(steps[5].title).toBe("recoveryStepCipherTitle_used-i18n");
+      expect(steps[6].title).toBe("recoveryStepAttachmentsTitle_used-i18n");
     });
   });
 
@@ -113,7 +114,7 @@ describe("DataRecoveryComponent", () => {
 
     beforeEach(() => {
       // Create mock steps
-      mockSteps = Array(6)
+      mockSteps = Array(7)
         .fill(null)
         .map(() => {
           const mockStep = mock<RecoveryStep>();
@@ -237,7 +238,7 @@ describe("DataRecoveryComponent", () => {
         fido2CorruptCipherIds: [],
       };
 
-      mockSteps = Array(6)
+      mockSteps = Array(7)
         .fill(null)
         .map(() => {
           const mockStep = mock<RecoveryStep>();

@@ -28,6 +28,7 @@ import {
   FolderStep,
   CipherStep,
   Fido2Step,
+  AttachmentStep,
 } from "./steps";
 
 export const StepStatus = Object.freeze({
@@ -78,6 +79,7 @@ export class DataRecoveryComponent {
     new FolderStep(this.folderApiService, this.dialogService),
     new Fido2Step(this.cipherEncryptService, this.apiService, this.dialogService),
     new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
+    new AttachmentStep(this.cipherEncryptService, this.apiService, this.dialogService),
   ];
   private workingData: RecoveryWorkingData | null = null;
 
