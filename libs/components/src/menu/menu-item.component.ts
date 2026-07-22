@@ -11,6 +11,46 @@ import {
 
 import { MenuCloseDirective } from "./menu-close.directive";
 
+/**
+ * Shared menu-item appearance — padding, rounding, focus ring, and disabled
+ * states — without a `display` utility, so it composes with `tw-block` (menu
+ * items) or `tw-flex` (e.g. `bit-filter-option`). Exported so the filter menu can
+ * match `bitMenuItem` exactly.
+ */
+export const menuItemBaseStyles = [
+  "tw-w-full",
+  "tw-p-2",
+  "tw-rounded-lg",
+  "!tw-no-underline",
+  "tw-cursor-pointer",
+  "tw-border-none",
+  "tw-bg-background",
+  "tw-text-left",
+  "focus-visible:tw-z-50",
+  "focus-visible:tw-outline-none",
+  "focus-visible:tw-ring-2",
+  "focus-visible:tw-rounded-lg",
+  "focus-visible:tw-ring-inset",
+  "focus-visible:tw-ring-border-focus",
+  "active:!tw-ring-0",
+  "active:!tw-ring-offset-0",
+  "disabled:hover:tw-bg-background",
+  "disabled:tw-cursor-default",
+  "disabled:!tw-text-fg-inactive",
+  "aria-disabled:hover:tw-bg-background",
+  "aria-disabled:tw-cursor-default",
+  "aria-disabled:!tw-text-fg-inactive",
+];
+
+/** The default (primary) menu-item text/hover colors. */
+export const menuItemPrimaryStyles = [
+  "tw-text-fg-body",
+  "hover:tw-text-fg-heading",
+  "hover:tw-bg-bg-brand-softer",
+  "focus-visible:tw-text-fg-heading",
+  "focus-visible:tw-bg-bg-brand-softer",
+];
+
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
@@ -29,13 +69,7 @@ export class MenuItemComponent implements FocusableOption {
   protected readonly computedStyles = computed(() => {
     switch (this.variant()) {
       case "primary":
-        return [
-          "tw-text-fg-body",
-          "hover:tw-text-fg-heading",
-          "hover:tw-bg-bg-brand-softer",
-          "focus-visible:tw-text-fg-heading",
-          "focus-visible:tw-bg-bg-brand-softer",
-        ];
+        return menuItemPrimaryStyles;
       case "danger":
         return [
           "tw-text-fg-danger",
@@ -51,28 +85,7 @@ export class MenuItemComponent implements FocusableOption {
 
   protected readonly classList = computed(() => [
     "tw-block",
-    "tw-w-full",
-    "tw-p-2",
-    "tw-rounded-lg",
-    "!tw-no-underline",
-    "tw-cursor-pointer",
-    "tw-border-none",
-    "tw-bg-background",
-    "tw-text-left",
-    "focus-visible:tw-z-50",
-    "focus-visible:tw-outline-none",
-    "focus-visible:tw-ring-2",
-    "focus-visible:tw-rounded-lg",
-    "focus-visible:tw-ring-inset",
-    "focus-visible:tw-ring-border-focus",
-    "active:!tw-ring-0",
-    "active:!tw-ring-offset-0",
-    "disabled:hover:tw-bg-background",
-    "disabled:tw-cursor-default",
-    "disabled:!tw-text-fg-inactive",
-    "aria-disabled:hover:tw-bg-background",
-    "aria-disabled:tw-cursor-default",
-    "aria-disabled:!tw-text-fg-inactive",
+    ...menuItemBaseStyles,
     ...this.computedStyles(),
   ]);
 
