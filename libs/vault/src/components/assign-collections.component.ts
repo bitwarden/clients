@@ -423,7 +423,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.editableItems = this.params.ciphers;
       this.editableItemCount = this.params.ciphers.length;
       this.personalItemsCount = this.params.ciphers.length;
-      this.editableItemCountChange.emit(this.editableItemCount);
+      // Using setTimeout to defer the call until the next event loop cycle
+      setTimeout(() => this.editableItemCountChange.emit(this.editableItemCount));
       return;
     }
 
