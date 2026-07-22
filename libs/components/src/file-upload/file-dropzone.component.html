@@ -2,10 +2,11 @@
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
   <div bitCustomInput>
-    <!-- Drag & drop area. Wrapping <label> (no [for]) triggers the descendant input on click;
-       bit-form-field renders the canonical <label [for]> targeting the input via [id]. -->
-    <label
+    <!-- Drag & drop area. The container forwards clicks to the (pointer-events-none) descendant
+       input; bit-form-field renders the sole canonical <label [for]> targeting the input via [id]. -->
+    <div
       [class]="dropzoneClasses()"
+      (click)="onDropzoneClick()"
       (dragenter)="onDragEnter($event)"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
@@ -15,7 +16,7 @@
         #fileInput
         [id]="inputId"
         type="file"
-        class="tw-sr-only"
+        class="tw-sr-only tw-pointer-events-none"
         [accept]="accept()"
         [multiple]="multiple()"
         [disabled]="disabled() || null"
@@ -57,7 +58,7 @@
       >
         {{ "chooseFiles" | i18n }}
       </button>
-    </label>
+    </div>
 
     <span [id]="statusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
 

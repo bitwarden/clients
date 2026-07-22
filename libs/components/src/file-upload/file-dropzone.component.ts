@@ -212,7 +212,21 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     this.onTouched()();
   }
 
+  /**
+   * Opens the file picker when the drop area is clicked. The input carries `pointer-events-none`,
+   * so a pointer click never lands on it directly and this handler always drives the picker.
+   */
+  protected onDropzoneClick(): void {
+    if (this.disabled()) {
+      return;
+    }
+    this.fileInput()?.nativeElement.click();
+  }
+
   protected onInputClick(event: MouseEvent): void {
+    // The programmatic click from `onDropzoneClick` dispatches a click on the input that would
+    // otherwise bubble back to the container handler and re-open the picker; stop it here.
+    event.stopPropagation();
     if (this.disabled()) {
       return;
     }

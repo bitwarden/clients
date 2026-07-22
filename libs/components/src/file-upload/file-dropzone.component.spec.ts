@@ -160,6 +160,37 @@ describe("FileDropzoneComponent", () => {
     expect(input.id).toBeTruthy();
   });
 
+  it("associates only a single label with the native file input", () => {
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+
+    // No wrapping <label> — the drop area is a plain container, so bit-form-field's
+    // <label for> is the only label associated with the input (avoids Axe multiple-labels).
+    expect(input.closest("label")).toBeNull();
+  });
+
+  it("opens the file picker when the drop area is clicked", () => {
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const clickSpy = jest.spyOn(input, "click");
+
+    const dropzone = fixture.debugElement.query(By.css("[bitCustomInput] > div")).nativeElement;
+    dropzone.click();
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not open the file picker when disabled", () => {
+    host.control.disable();
+    fixture.detectChanges();
+
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const clickSpy = jest.spyOn(input, "click");
+
+    const dropzone = fixture.debugElement.query(By.css("[bitCustomInput] > div")).nativeElement;
+    dropzone.click();
+
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
   it("shows an error once a required control is touched", () => {
     host.control.addValidators(Validators.required);
     host.control.updateValueAndValidity();
