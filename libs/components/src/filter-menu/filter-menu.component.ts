@@ -216,6 +216,33 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   protected readonly disabled = computed(() => this.baseChip.disabled());
 
   /**
+   * The count shown on each option row, keyed by the option: its explicit `count`
+   * if set, else the host's faceted count (this chip's `key` pinned to the option's
+   * value). Reads the host's signals, so it recomputes as the data and other filters
+   * change; gated on first render like {@link labels} to avoid reading options'
+   * required `value` input too early (NG0950).
+   */
+  protected readonly optionCounts = computed(() => {
+    const counts = new Map<FilterOptionComponent, number | undefined>();
+    if (!this.rendered()) {
+      return counts;
+    }
+    const host = this.filterHost;
+    const key = this.key();
+    const multiple = this.multiple();
+    for (const option of this.allOptions()) {
+      const explicit = option.count();
+      if (explicit != null) {
+        counts.set(option, explicit);
+        continue;
+      }
+      const pinned = multiple ? [option.value()] : option.value();
+      counts.set(option, host?.optionCount?.(key, pinned));
+    }
+    return counts;
+  });
+
+  /**
    * Gates the summary effect until after the first render, so it doesn't read the
    * projected options' required `value` input before Angular has set it (NG0950).
    */

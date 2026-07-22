@@ -72,8 +72,9 @@
       *ngTemplateOutlet="indicator; context: { $implicit: optionSelected }"
     ></ng-container>
     <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
-    @if (option.count() != null) {
-      <span class="tw-flex-none tw-text-muted">{{ option.count() }}</span>
+    @let count = optionCounts().get(option);
+    @if (count != null) {
+      <span class="tw-flex-none tw-text-muted">{{ count }}</span>
     }
   </button>
 </ng-template>

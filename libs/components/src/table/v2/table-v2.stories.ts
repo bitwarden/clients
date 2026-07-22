@@ -186,8 +186,8 @@ type VaultFilters = {
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
 
           <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
-            @for (option of typeOptions(); track option.value) {
-              <bit-filter-option [value]="option.value" [count]="option.count">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
                 {{ option.label }}
               </bit-filter-option>
             }
@@ -196,18 +196,18 @@ type VaultFilters = {
           <bit-filter-divider></bit-filter-divider>
 
           <bit-filter-menu key="vault" placeholderText="Vault" multiple>
-            @for (option of vaultOptions(); track option.value) {
-              <bit-filter-option [value]="option.value" [count]="option.count">
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
                 {{ option.label }}
               </bit-filter-option>
             }
           </bit-filter-menu>
 
           <bit-filter-menu key="collection" placeholderText="Collections" multiple>
-            @for (org of collectionOrgs(); track org.name) {
+            @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
-                  <bit-filter-option [value]="collection.id" [count]="collection.count">
+                  <bit-filter-option [value]="collection.id">
                     {{ collection.name }}
                   </bit-filter-option>
                 }
@@ -252,35 +252,20 @@ class DemoFilterableTableComponent {
     (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
     (!f.favorite || row.favorite);
 
-  protected readonly typeOptions = computed(() =>
-    (["login", "card", "note"] as const)
-      .map((value) => ({
-        value,
-        label: value,
-        count: this.data().filter((r) => r.type === value).length,
-      }))
-      .filter((option) => option.count > 0),
-  );
+  // Options carry no `count` — the table computes faceted counts automatically
+  // (rows matching each option given the other active filters).
+  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
+    value,
+    label: value,
+  }));
 
-  protected readonly vaultOptions = computed(() =>
-    VAULTS.map((vault) => ({
-      value: vault.id,
-      label: vault.name,
-      count: this.data().filter((r) => r.vault === vault.id).length,
-    })),
-  );
+  protected readonly vaultOptions = VAULTS.map((vault) => ({
+    value: vault.id,
+    label: vault.name,
+  }));
 
-  /** Collections grouped by org, with live counts. The in-menu search narrows them automatically. */
-  protected readonly collectionOrgs = computed(() => {
-    const rows = this.data();
-    return COLLECTION_ORGS.map((org) => ({
-      name: org.name,
-      collections: org.collections.map((c) => ({
-        ...c,
-        count: rows.filter((r) => r.collectionIds.includes(c.id)).length,
-      })),
-    }));
-  });
+  /** Collections grouped by org. The in-menu search narrows them automatically. */
+  protected readonly collectionOrgs = COLLECTION_ORGS;
 
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;

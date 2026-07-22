@@ -306,10 +306,13 @@ filter = (row: Member, f: Filters) =>
 </bit-table-v2>
 ```
 
-Each chip or toggle registers itself with the table when projected in. For **server-side**
-filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
-build your query, and feed the pre-filtered rows to `data`. See the
-[Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
+Each chip or toggle registers itself with the table when projected in. **Option counts are
+automatic**: with a client-side `[filter]`, each `bit-filter-option` shows a faceted count — how
+many rows it would match given the other active filters — recomputed as filters and data change. No
+`[count]` needed. For **server-side** filtering, omit `[filter]`, read `filterValues()` off a
+`#t="bitTableV2"` template reference to build your query, feed the pre-filtered rows to `data`, and
+set an explicit `[count]` on each option (the table can't compute it without the full dataset). See
+the [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
 (sections, in-menu search, radio + checkbox groups).
 
 <Canvas of={stories.Filterable} />

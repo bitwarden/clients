@@ -31,7 +31,11 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
   /** The value contributed to the chip's selection when chosen. */
   readonly value = input.required<T>();
 
-  /** Optional trailing count (e.g. how many rows match this option). */
+  /**
+   * Optional trailing count. Overrides the host's automatic faceted count (how many
+   * rows match this option given the other active filters) — set it for server-side
+   * filtering, where the host can't compute the count itself.
+   */
   readonly count = input<number>();
 
   /** Whether the option is selectable. */

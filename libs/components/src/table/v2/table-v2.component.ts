@@ -345,6 +345,22 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     this._filters.update((filters) => filters.filter((f) => f !== control));
   }
 
+  /**
+   * Faceted count for a chip option: rows matching {@link filter} with `key` pinned
+   * to `value` and every other active filter still applied. `undefined` with no
+   * `[filter]` (server-side) — the chip then shows an explicit `count` instead.
+   */
+  optionCount(key: string, value: unknown): number | undefined {
+    const filter = this.filter();
+    if (!filter) {
+      return undefined;
+    }
+    const values = { ...(this.filterValues() as Record<string, unknown>), [key]: value } as F;
+    return this.tableDef()
+      .data()
+      .filter((row) => filter(row, values)).length;
+  }
+
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
 
