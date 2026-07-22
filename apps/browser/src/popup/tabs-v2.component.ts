@@ -11,6 +11,8 @@ import {
   SendActive,
   SettingsInactive,
   SettingsActive,
+  HealthInactive,
+  HealthActive,
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -69,6 +71,13 @@ export class TabsV2Component {
               } as BottomNavigationButton,
             ]
           : []),
+        {
+          label: "health",
+          page: "/tabs/health",
+          icon: HealthInactive,
+          iconActive: HealthActive,
+          showBerry: true, // TODO: only show berry when the User has not yet run a health report (PM-39075)
+        },
         {
           label: "settings",
           page: "/tabs/settings",

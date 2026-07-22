@@ -67,6 +67,7 @@ import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-doma
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { HealthComponent } from "../dirt/health/components/health.component";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -769,6 +770,12 @@ const routes: Routes = [
       {
         path: "send",
         component: SendV2Component,
+        canActivate: [authGuard],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "health",
+        component: HealthComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
