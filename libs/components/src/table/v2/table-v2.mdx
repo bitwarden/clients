@@ -295,7 +295,12 @@ filter = (row: Member, f: Filters) =>
     <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
     </bit-filter-menu>
-    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      iconActive="bwi-star-f"
+    ></bit-filter-toggle>
   </bit-table-toolbar>
   <bit-column>...</bit-column>
 </bit-table-v2>
@@ -341,7 +346,12 @@ projected in, and a projected `<bit-search>` is adopted as the `search` filter (
     <button slot="end" bitButton buttonType="primary">New</button>
     <bit-filter-menu key="type" placeholderText="Type">...</bit-filter-menu>
     <bit-filter-divider></bit-filter-divider>
-    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      iconActive="bwi-star-f"
+    ></bit-filter-toggle>
   </bit-table-toolbar>
   <bit-column>...</bit-column>
 </bit-table-v2>

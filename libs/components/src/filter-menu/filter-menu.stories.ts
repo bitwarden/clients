@@ -39,7 +39,12 @@ import { FilterMenuModule } from "./filter-menu.module";
         </bit-filter-section>
       </bit-filter-menu>
 
-      <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+      <bit-filter-toggle
+        key="favorites"
+        label="Favorites"
+        icon="bwi-star"
+        iconActive="bwi-star-f"
+      ></bit-filter-toggle>
     </div>
   `,
 })

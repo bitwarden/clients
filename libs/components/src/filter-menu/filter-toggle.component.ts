@@ -26,15 +26,20 @@ import {
 
 /**
  * A single on/off filter chip — no menu. Use it when a filter is one element
- * rather than a category (e.g. "Favorites"). Clicking toggles it; its icon fills
- * while active. Its value is a boolean, exposed under its `key` via
+ * rather than a category (e.g. "Favorites"). Clicking toggles it; supply
+ * `iconActive` to swap the icon while active. Its value is a boolean, exposed under its `key` via
  * {@link FILTER_CONTROL}. Projected into a filterable surface (e.g. `bit-table-v2`)
  * it resolves the surface's {@link FILTER_HOST} by DI and self-registers, so its
  * value joins the host's `filterValues`; inert when there's no host.
  *
  * @example
  * ```html
- * <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+ * <bit-filter-toggle
+ *   key="favorites"
+ *   label="Favorites"
+ *   icon="bwi-star"
+ *   iconActive="bwi-star-f"
+ * ></bit-filter-toggle>
  * ```
  */
 @Component({
@@ -55,8 +60,15 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   /** The chip's label. */
   readonly label = input.required<string>();
 
-  /** Leading icon; shown filled (`-f` variant) while active when available. */
+  /** Leading icon, shown in both states unless {@link iconActive} overrides it while active. */
   readonly icon = input<BitwardenIcon>();
+
+  /**
+   * Icon shown while active — e.g. the filled `bwi-star-f` for an outline
+   * `bwi-star`. Falls back to {@link icon} when omitted, so the same icon is used
+   * in both states.
+   */
+  readonly iconActive = input<BitwardenIcon>();
 
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
@@ -78,14 +90,10 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   /** @see FilterPresenter.optionsTemplate — a toggle has no drill-in; it flips in place. */
   readonly optionsTemplate = computed<TemplateRef<unknown> | undefined>(() => undefined);
 
-  /** The displayed icon — the filled variant while active, when one is conventionally available. */
-  protected readonly displayIcon = computed<BitwardenIcon | undefined>(() => {
-    const icon = this.icon();
-    if (!icon) {
-      return undefined;
-    }
-    return this._value() ? ((icon + "-f") as BitwardenIcon) : icon;
-  });
+  /** The displayed icon — {@link iconActive} while active (if supplied), else {@link icon}. */
+  protected readonly displayIcon = computed<BitwardenIcon | undefined>(() =>
+    this._value() ? (this.iconActive() ?? this.icon()) : this.icon(),
+  );
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
 

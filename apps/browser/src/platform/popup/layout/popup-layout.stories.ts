@@ -544,7 +544,12 @@ type TableVaultFilters = {
               }
             </bit-filter-menu>
 
-            <bit-filter-toggle key="favorite" label="Favorites" icon="bwi-star"></bit-filter-toggle>
+            <bit-filter-toggle
+              key="favorite"
+              label="Favorites"
+              icon="bwi-star"
+              iconActive="bwi-star-f"
+            ></bit-filter-toggle>
           </bit-table-toolbar>
 
           <bit-row-group [match]="isFavorite" collapsible>
