@@ -36,13 +36,16 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -114,6 +117,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
+    private syncService: SyncService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -130,6 +135,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
+
+    await this.syncIfReturningFromCheckout();
+    window.addEventListener("focus", this.onWindowFocus);
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
@@ -295,8 +303,27 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener("focus", this.onWindowFocus);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private readonly onWindowFocus = (): void => {
+    void this.syncIfReturningFromCheckout();
+  };
+
+  private async syncIfReturningFromCheckout(): Promise<void> {
+    try {
+      const userId = await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$));
+      if (userId == null) {
+        return;
+      }
+      if (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId)) {
+        await this.syncService.fullSync(true);
+      }
+    } catch (e) {
+      this.logService.error("Failed to sync after returning from premium checkout", e);
+    }
   }
 
   getRouteElevation(outlet: RouterOutlet) {

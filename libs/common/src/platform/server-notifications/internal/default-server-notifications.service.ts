@@ -10,6 +10,7 @@ import {
   Observable,
   share,
   switchMap,
+  tap,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -127,6 +128,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       supportSwitch({
         supported: (service) => {
           this.logService.info("Using WebPush for server notifications");
+          // Catch up on anything missed before this stream was (re)established
+          // (e.g. an MV3 service worker suspension dropping earlier deliveries).
+          void this.syncOnConnected(userId);
           return service.notifications$.pipe(
             catchError((err: unknown) => {
               this.logService.warning("Issue with web push, falling back to SignalR", err);
@@ -144,9 +148,28 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
 
   private connectSignalR$(userId: UserId, notificationsUrl: string) {
     return this.signalRConnectionService.connect$(userId, notificationsUrl).pipe(
+      tap((n) => {
+        if (n.type === "Connected") {
+          void this.syncOnConnected(userId);
+        }
+      }),
       filter((n) => n.type === "ReceiveMessage"),
       map((n) => (n as ReceiveMessage).message),
     );
+  }
+
+  private async syncOnConnected(userId: UserId) {
+    try {
+      const activeAccountId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      if (activeAccountId !== userId) {
+        return;
+      }
+      await this.syncService.fullSync(false);
+    } catch (e) {
+      this.logService.error("Failed to catch-up sync after notifications connected", e);
+    }
   }
 
   private hasAccessToken$(userId: UserId) {

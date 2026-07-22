@@ -4,6 +4,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { firstValueFrom, of, throwError } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PremiumCheckoutSessionResponse } from "@bitwarden/common/billing/models/response/premium-checkout-session.response";
@@ -20,6 +22,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
@@ -37,6 +40,8 @@ describe("PremiumUpgradeDialogComponent", () => {
   let mockLogService: jest.Mocked<LogService>;
   let mockConfigService: jest.Mocked<ConfigService>;
   let mockBillingApiService: jest.Mocked<BillingApiServiceAbstraction>;
+  let mockAccountService: jest.Mocked<AccountService>;
+  let mockPremiumCheckoutPendingService: jest.Mocked<PremiumCheckoutPendingService>;
 
   const mockPremiumTier: PersonalSubscriptionPricingTier = {
     id: PersonalSubscriptionPricingTierIds.Premium,
@@ -109,6 +114,14 @@ describe("PremiumUpgradeDialogComponent", () => {
       createPremiumCheckoutSession: jest.fn(),
     } as any;
 
+    mockAccountService = {
+      activeAccount$: of({ id: "user-1" as UserId }),
+    } as any;
+
+    mockPremiumCheckoutPendingService = {
+      markCheckoutLaunched: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
       of([mockPremiumTier, mockFamiliesTier]),
     );
@@ -132,6 +145,11 @@ describe("PremiumUpgradeDialogComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: BillingApiServiceAbstraction, useValue: mockBillingApiService },
+        { provide: AccountService, useValue: mockAccountService },
+        {
+          provide: PremiumCheckoutPendingService,
+          useValue: mockPremiumCheckoutPendingService,
+        },
       ],
     }).compileComponents();
 
@@ -195,6 +213,14 @@ describe("PremiumUpgradeDialogComponent", () => {
         expect(mockDialogRef.close).toHaveBeenCalled();
       });
 
+      it("does NOT mark checkout pending on the web-vault fallback", async () => {
+        mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
+        await component["upgrade"]();
+
+        expect(mockPremiumCheckoutPendingService.markCheckoutLaunched).not.toHaveBeenCalled();
+      });
+
       it("should launch web vault URL on self-host even when flag is enabled", async () => {
         // Checkout flag on, QA bypass flag off: self-host must still fall back.
         mockConfigService.getFeatureFlag.mockImplementation((flag: FeatureFlag) =>
@@ -236,6 +262,36 @@ describe("PremiumUpgradeDialogComponent", () => {
           "https://checkout.stripe.com/c/pay/cs_123",
         );
         expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("marks checkout pending after launching external checkout", async () => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+
+        await component["upgrade"]();
+
+        expect(mockPremiumCheckoutPendingService.markCheckoutLaunched).toHaveBeenCalledWith(
+          "user-1" as UserId,
+        );
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+      });
+
+      it("still launches checkout and shows no error toast when marking pending fails", async () => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+        const error = new Error("state write failed");
+        mockPremiumCheckoutPendingService.markCheckoutLaunched.mockRejectedValue(error);
+
+        await component["upgrade"]();
+
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+        expect(mockToastService.showToast).not.toHaveBeenCalled();
+        expect(mockLogService.error).toHaveBeenCalledWith(
+          "Failed to mark premium checkout as pending; sync recovery on refocus may not fire",
+          error,
+        );
       });
 
       it("should call checkout API with desktop platform on desktop client", async () => {

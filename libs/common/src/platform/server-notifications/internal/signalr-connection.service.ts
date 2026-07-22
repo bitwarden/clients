@@ -20,10 +20,11 @@ const MIN_RECONNECT_TIME = 2 * 60 * 1000;
 // 5 Minutes
 const MAX_RECONNECT_TIME = 5 * 60 * 1000;
 
+export type Connected = { type: "Connected" };
 export type Heartbeat = { type: "Heartbeat" };
 export type ReceiveMessage = { type: "ReceiveMessage"; message: NotificationResponse };
 
-export type SignalRNotification = Heartbeat | ReceiveMessage;
+export type SignalRNotification = Connected | Heartbeat | ReceiveMessage;
 
 export type TimeoutManager = {
   setTimeout: (handler: TimerHandler, timeout: number) => number;
@@ -127,6 +128,7 @@ export class SignalRConnectionService {
             .start()
             .then(() => {
               reconnectSubscription = null;
+              subscriber.next({ type: "Connected" });
             })
             .catch(() => {
               scheduleReconnect();
@@ -143,9 +145,14 @@ export class SignalRConnectionService {
       });
 
       // Start connection
-      connection.start().catch(() => {
-        scheduleReconnect();
-      });
+      connection
+        .start()
+        .then(() => {
+          subscriber.next({ type: "Connected" });
+        })
+        .catch(() => {
+          scheduleReconnect();
+        });
 
       return () => {
         // Cancel any possible scheduled reconnects

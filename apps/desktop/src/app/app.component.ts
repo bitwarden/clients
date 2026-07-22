@@ -35,8 +35,9 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -182,6 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private accountDeletionService: AccountDeletionService,
+    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -432,6 +434,25 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             this.messagingService.send("scheduleNextSync");
             break;
+          case "windowIsFocused": {
+            if (message.windowIsFocused !== true) {
+              break;
+            }
+            try {
+              const userId = await firstValueFrom(
+                getOptionalUserId(this.accountService.activeAccount$),
+              );
+              if (
+                userId != null &&
+                (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId))
+              ) {
+                await this.syncService.fullSync(true);
+              }
+            } catch (e) {
+              this.logService.error("Failed to sync after returning from premium checkout", e);
+            }
+            break;
+          }
           case "importVault":
             await this.dialogService.open(ImportDesktopComponent);
             break;
