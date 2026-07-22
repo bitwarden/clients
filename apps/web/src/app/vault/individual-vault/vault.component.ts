@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
@@ -116,6 +124,7 @@ import {
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
   VaultOrganizationUserNotificationsComponent,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -179,6 +188,8 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
 
@@ -1260,7 +1271,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     const confirmed = await this.dialogService.openSimpleDialog({
       title: collection.name,
-      content: { key: "deleteCollectionConfirmation" },
+      content: {
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteSharedFolderConfirmation"
+          : "deleteCollectionConfirmation",
+      },
       type: "warning",
     });
     if (!confirmed) {
@@ -1280,7 +1295,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("deletedCollectionId", collection.name),
+        message: this.i18nService.t(
+          this.vfo1TerminologyService.enabled() ? "deletedSharedFolderId" : "deletedCollectionId",
+          collection.name,
+        ),
       });
       if (navigateAway) {
         await this.router.navigate([], {

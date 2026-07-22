@@ -33,7 +33,13 @@ import {
   SimpleDialogOptions,
   IconModule,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1I18nPipe,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -55,10 +61,13 @@ import { PipesModule } from "../pipes/pipes.module";
     NewCipherMenuComponent,
     CoachmarkComponent,
     IconModule,
+    Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   protected readonly Unassigned = Unassigned;
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
@@ -306,9 +315,13 @@ export class VaultHeaderComponent {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        organization.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
+        this.vfo1TerminologyService.enabled()
+          ? organization.canEditSubscription
+            ? "freeOrgMaxSharedFolderReachedManageBilling"
+            : "freeOrgMaxSharedFolderReachedNoManageBilling"
+          : organization.canEditSubscription
+            ? "freeOrgMaxCollectionReachedManageBilling"
+            : "freeOrgMaxCollectionReachedNoManageBilling",
         organization.maxCollections,
       ),
       type: "primary",

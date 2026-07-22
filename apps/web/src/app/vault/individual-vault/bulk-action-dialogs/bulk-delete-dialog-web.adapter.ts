@@ -11,6 +11,7 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
   BulkDeleteService,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
@@ -22,6 +23,7 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly bulkDelete = inject(BulkDeleteService);
+  private readonly vfo1Terminology = inject(Vfo1TerminologyService);
 
   async open(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult> {
     const batchBarEnabled = await this.configService.getFeatureFlag(
@@ -108,14 +110,26 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
   ): Promise<BulkDeleteDialogResult> {
     const collections = params.collections ?? [];
     const count = collections.length;
+    const sharedFolderTerminology = this.vfo1Terminology.enabled();
 
     const confirmed = await this.dialogService.openSimpleDialog({
       type: "danger",
       title:
         count === 1
-          ? { key: "deleteCollection" }
-          : { key: "deleteCollectionsCount", placeholders: [count] },
-      content: { key: count === 1 ? "deleteCollectionDesc" : "deleteCollectionsDesc" },
+          ? { key: sharedFolderTerminology ? "deleteSharedFolder" : "deleteCollection" }
+          : {
+              key: sharedFolderTerminology ? "deleteSharedFoldersCount" : "deleteCollectionsCount",
+              placeholders: [count],
+            },
+      content: {
+        key: sharedFolderTerminology
+          ? count === 1
+            ? "deleteSharedFolderDesc"
+            : "deleteSharedFoldersDesc"
+          : count === 1
+            ? "deleteCollectionDesc"
+            : "deleteCollectionsDesc",
+      },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
     });
@@ -128,7 +142,15 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(count === 1 ? "collectionDeleted" : "collectionsDeleted"),
+      message: this.i18nService.t(
+        sharedFolderTerminology
+          ? count === 1
+            ? "sharedFolderDeleted"
+            : "sharedFoldersDeleted"
+          : count === 1
+            ? "collectionDeleted"
+            : "collectionsDeleted",
+      ),
     });
 
     return BulkDeleteDialogResult.Deleted;
@@ -146,10 +168,16 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     const unassignedCiphers = params.unassignedCiphers ?? [];
     const collections = params.collections ?? [];
 
+    const sharedFolderTerminology = this.vfo1Terminology.enabled();
+
     const confirmed = await this.dialogService.openSimpleDialog({
       type: "danger",
       title: { key: "deleteSelection" },
-      content: { key: "deleteItemsAndCollectionsDesc" },
+      content: {
+        key: sharedFolderTerminology
+          ? "deleteItemsAndSharedFoldersDesc"
+          : "deleteItemsAndCollectionsDesc",
+      },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
     });
@@ -177,7 +205,13 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t(
-        collections.length === 1 ? "collectionDeleted" : "collectionsDeleted",
+        sharedFolderTerminology
+          ? collections.length === 1
+            ? "sharedFolderDeleted"
+            : "sharedFoldersDeleted"
+          : collections.length === 1
+            ? "collectionDeleted"
+            : "collectionsDeleted",
       ),
     });
 

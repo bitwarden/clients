@@ -40,7 +40,9 @@
           </th>
         }
         @if (showCollections) {
-          <th bitCell class="tw-w-2/5 tw-hidden xl:tw-table-cell">{{ "collections" | i18n }}</th>
+          <th bitCell class="tw-w-2/5 tw-hidden xl:tw-table-cell">
+            {{ "collections" | vfo1I18n: "sharedFolders" }}
+          </th>
         }
         @if (showGroups) {
           <th
@@ -88,7 +90,7 @@
               @if (bulkMoveAllowed) {
                 <button type="button" bitMenuItem (click)="bulkMoveToFolder()">
                   <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-                  {{ "addToFolder" | i18n }}
+                  {{ "addToFolder" | vfo1I18n: "addToMyFolder" }}
                 </button>
               }
               @if (showAdminActions && showBulkEditCollectionAccess) {
