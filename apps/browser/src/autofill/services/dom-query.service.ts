@@ -405,7 +405,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       return;
     }
     // Host check — `querySelectorAll("*")` excludes the scope element.
-    if (subtree instanceof Element) {
+    if (nodeIsElement(subtree)) {
       this.visitShadowHostCandidate(subtree, depth, scan);
     }
     // querySelectorAll doesn't pierce shadow boundaries — recurse per boundary.

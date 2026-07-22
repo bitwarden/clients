@@ -9,8 +9,7 @@ export type BitwardenJsonExport = BitwardenUnEncryptedJsonExport | BitwardenEncr
 
 // Decrypted
 export type BitwardenUnEncryptedJsonExport =
-  | BitwardenUnEncryptedIndividualJsonExport
-  | BitwardenUnEncryptedOrgJsonExport;
+  BitwardenUnEncryptedIndividualJsonExport | BitwardenUnEncryptedOrgJsonExport;
 
 export type BitwardenUnEncryptedIndividualJsonExport = {
   encrypted: false;
@@ -26,8 +25,7 @@ export type BitwardenUnEncryptedOrgJsonExport = {
 
 // Account-encrypted
 export type BitwardenEncryptedJsonExport =
-  | BitwardenEncryptedIndividualJsonExport
-  | BitwardenEncryptedOrgJsonExport;
+  BitwardenEncryptedIndividualJsonExport | BitwardenEncryptedOrgJsonExport;
 
 export type BitwardenEncryptedIndividualJsonExport = {
   encrypted: true;
