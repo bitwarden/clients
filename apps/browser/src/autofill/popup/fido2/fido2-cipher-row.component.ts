@@ -7,6 +7,7 @@ import {
   BadgeModule,
   ButtonModule,
   IconButtonModule,
+  IconModule,
   ItemModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -21,6 +22,7 @@ import { Vfo1IconPipe } from "@bitwarden/vault";
     ButtonModule,
     CommonModule,
     IconButtonModule,
+    IconModule,
     ItemModule,
     JslibModule,
     TypographyModule,

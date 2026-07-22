@@ -10,10 +10,11 @@
     <span data-testid="item-name">
       {{ cipher.name }}
       @if (cipher.organizationId) {
-        <i
+        <bit-icon
           [appA11yTitle]="'shared' | i18n"
-          class="bwi {{ 'bwi-collection-shared' | vfo1Icon }} tw-text-muted"
-        ></i>
+          class="tw-text-muted"
+          [name]="'bwi-collection-shared' | vfo1Icon"
+        />
       }
     </span>
     <ng-container slot="secondary">
