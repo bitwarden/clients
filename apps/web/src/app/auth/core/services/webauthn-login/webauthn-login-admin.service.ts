@@ -118,7 +118,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     };
     // TODO: Remove `any` when typescript typings add support for PRF
     nativeOptions.publicKey.extensions = {
-      prf: {},
+      prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
     } as any;
 
     try {
