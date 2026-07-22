@@ -98,13 +98,13 @@ export class ItemDetailsV2Component {
 
   getAriaLabel(item: Organization | CollectionView | FolderView): string {
     if (item instanceof Organization) {
-      return this.i18nService.t("owner") + item.name;
+      return `${this.i18nService.t("owner")} ${item.name}`;
     } else if (item instanceof CollectionView) {
-      return (
-        this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection") + item.name
-      );
+      const label = this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection");
+      return `${label} ${item.name}`;
     } else if (item instanceof FolderView) {
-      return this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder") + item.name;
+      const label = this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder");
+      return `${label} ${item.name}`;
     }
     return "";
   }
