@@ -2,6 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
 
+import { punycodeToUnicode } from "../../../autofill/utils/punycode";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
 import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
@@ -193,7 +194,19 @@ export class LoginUriView implements View {
   }
 
   private matchesDomain(targetUri: string, matchDomains: Set<string>) {
-    if (targetUri == null || this.domain == null || !matchDomains.has(this.domain)) {
+    if (targetUri == null || this.domain == null) {
+      return false;
+    }
+
+    // A saved URI and the target URI may express the same registrable domain in
+    // different forms; unicode ("测试.com") vs punycode ("xn--0zwm56d.com").
+    // Collapse both sides to their unicode form before comparing.
+    const normalizedDomain = punycodeToUnicode(this.domain);
+    const domainMatches = Array.from(matchDomains).some(
+      (matchDomain) => matchDomain != null && punycodeToUnicode(matchDomain) === normalizedDomain,
+    );
+
+    if (!domainMatches) {
       return false;
     }
 
