@@ -9,7 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -134,6 +134,126 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
       expect(request.useSecretsManager).toBe(false);
       expect(request.additionalServiceAccounts).toBeUndefined();
+    });
+  });
+
+  describe("server-sourced total (PM-40440)", () => {
+    let previewPlanChange: jest.Mock;
+
+    // These assertions exercise the component class directly (matching the rest of this spec).
+    // `estimatedTotal ?? total` is the exact expression both template total bindings now render.
+    beforeEach(() => {
+      previewPlanChange = (component as any).previewInvoiceClient
+        .previewTaxForOrganizationSubscriptionPlanChange;
+    });
+
+    const setupPlanChange = ({ percentOff }: { percentOff?: number } = {}) => {
+      component.organizationId = "organization-id";
+      component.organization = { useSecretsManager: false } as any;
+      component.selectedPlan = {
+        type: PlanType.EnterpriseAnnually,
+        productTier: ProductTierType.Enterprise,
+        PasswordManager: {
+          basePrice: 300,
+          hasAdditionalSeatsOption: false,
+          hasPremiumAccessOption: false,
+          hasAdditionalStorageOption: false,
+        },
+      } as any;
+      component.sub = { customerDiscount: percentOff ? { percentOff } : undefined } as any;
+      // A saved billing address lets refreshSalesTax() run past its early-return guard.
+      component.billingAddress = { country: "US", postalCode: "12345" } as any;
+    };
+
+    it("stores the server-computed total returned by the preview", async () => {
+      setupPlanChange();
+      previewPlanChange.mockResolvedValue({ tax: 10, total: 330 });
+
+      await (component as any).refreshSalesTax();
+
+      expect((component as any).estimatedTax).toBe(10);
+      expect((component as any).estimatedTotal).toBe(330);
+    });
+
+    it("displays the full server total for a migrating org, not the coupon-discounted client total", async () => {
+      // Org carries a leaked 20% migration coupon surfaced as customerDiscount.
+      setupPlanChange({ percentOff: 20 });
+      // The server preview returns the true, undiscounted Enterprise total.
+      previewPlanChange.mockResolvedValue({ tax: 0, total: 300 });
+
+      await (component as any).refreshSalesTax();
+
+      const displayedTotal = (component as any).estimatedTotal ?? component.total;
+      expect(displayedTotal).toBe(300);
+      expect(displayedTotal).not.toBe(component.total * 0.8);
+    });
+
+    it("keeps the displayed total equal to the client total for a non-discounted org", async () => {
+      setupPlanChange();
+      previewPlanChange.mockResolvedValue({ tax: 0, total: 300 });
+
+      await (component as any).refreshSalesTax();
+
+      const displayedTotal = (component as any).estimatedTotal ?? component.total;
+      expect(displayedTotal).toBe(component.total);
+      expect(displayedTotal).toBe(300);
+    });
+
+    it("falls back to the client total when the preview fails, without throwing", async () => {
+      setupPlanChange();
+      (component as any).estimatedTotal = 999;
+      // A current plan distinct from the selected plan lets selectPlan() reach refreshSalesTax().
+      component.currentPlan = { productTier: ProductTierType.Teams } as any;
+      previewPlanChange.mockRejectedValue(new Error("preview failed"));
+
+      await expect((component as any).selectPlan(component.selectedPlan)).resolves.toBeUndefined();
+
+      expect((component as any).estimatedTotal).toBeUndefined();
+      expect((component as any).estimatedTax).toBe(0);
+    });
+
+    it("no longer exposes the client-side applied-discount calculation the provider-discount rows used", () => {
+      expect((component as any).calculateTotalAppliedDiscount).toBeUndefined();
+    });
+  });
+
+  describe("isSecretsManagerTrial (PM-40440)", () => {
+    // Org carries a product-scoped discount whose `appliesTo` matches a live subscription product.
+    // Whether that reads as an SM trial now depends solely on where the discount originated.
+    const setupDiscount = (isFromSchedule: boolean) => {
+      component.selectedPlan = {
+        PasswordManager: { hasAdditionalSeatsOption: true, seatPrice: 4 },
+      } as any;
+      component.organization = { useSecretsManager: true } as any;
+      component.sub = {
+        seats: 10,
+        subscription: { items: [{ productId: "product-seat" }] },
+        customerDiscount: { appliesTo: ["product-seat"], isFromSchedule },
+      } as any;
+    };
+
+    it("still reports a genuine SM trial when the discount is not schedule-derived", () => {
+      setupDiscount(false);
+
+      expect(component.isSecretsManagerTrial()).toBe(true);
+      // Trial seat line shows "Free for 1 year"; passwordManagerSeatTotal is zeroed.
+      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(0);
+    });
+
+    it("does not report an SM trial for a deferred price-migration (schedule) discount", () => {
+      setupDiscount(true);
+
+      // Guard short-circuits even though appliesTo matches a subscription product.
+      expect(component.isSecretsManagerTrial()).toBe(false);
+      // Non-trial seat line renders the real seat total (10 seats × $4), not "Free for 1 year".
+      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(40);
+      // Template selects the non-trial summary layout, not the trial one.
+      expect(component.organization.useSecretsManager && !component.isSecretsManagerTrial()).toBe(
+        true,
+      );
+      expect(component.organization.useSecretsManager && component.isSecretsManagerTrial()).toBe(
+        false,
+      );
     });
   });
 });

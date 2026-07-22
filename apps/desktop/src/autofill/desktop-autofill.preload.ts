@@ -20,6 +20,8 @@ export const DesktopAutofillPreload = {
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
+  listenCancelRequest: makeListener(AutofillIpcChannelIncoming.CancelRequest),
+
   listenLockStatus: makeListener(
     AutofillIpcChannelIncoming.LockStatus,
     AutofillIpcChannelOutgoing.LockStatus,

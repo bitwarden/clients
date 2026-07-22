@@ -46,6 +46,7 @@ export class BillingCustomerDiscount extends BaseResponse {
   end?: string;
   durationInMonths?: number;
   appliesTo: string[];
+  isFromSchedule: boolean;
 
   constructor(response: any) {
     super(response);
@@ -56,5 +57,6 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.end = this.getResponseProperty("End");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.appliesTo = this.getResponseProperty("AppliesTo") || [];
+    this.isFromSchedule = this.getResponseProperty("IsFromSchedule") ?? false;
   }
 }

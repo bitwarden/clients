@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "账户限制"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「文件密码」与「确认文件密码」不一致。"
+  "filePasswordConfirmationMismatch": {
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "warning": {
     "message": "警告",
@@ -1469,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "确认密码库导出"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
@@ -1485,16 +1485,16 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共享的文件夹"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共享的文件夹"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "我的文件夹"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "我的文件夹"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden 商业版允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。"
@@ -1626,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "注册高级版成员资格并获得："
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "重启高级版"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "优先客户支持。"
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
@@ -1897,7 +1897,7 @@
     "message": "URI 匹配规则"
   },
   "neverMatch": {
-    "message": "永不匹配"
+    "message": "从不匹配"
   },
   "loginHasNoSiteSaved": {
     "message": "登录未保存任何站点"
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除生成器历史记录"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "back": {
@@ -3073,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "桌面应用程序登录到了不同的账户。请确保两个应用程序都登录到同一个账户。"
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "账户不匹配"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "生物识别密钥不匹配"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,17 +3112,17 @@
   "biometricsFailedDesc": {
     "message": "生物识别无法完成，请尝试使用主密码或注销。如果仍无法解决，请联系 Bitwarden 支持。"
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "未提供权限"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "由于没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "权限请求错误"
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出对话框中重试。"
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出面板中重试。"
   },
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
@@ -3930,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector 错误：请确保 Key Connector 可用且工作正常。"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
-  "linkedLabelHelpText": {
-    "message": "输入字段的 html id、名称、aria-label 或占位符。"
+  "linkedFieldLabelHelpText": {
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "editField": {
     "message": "编辑字段"
