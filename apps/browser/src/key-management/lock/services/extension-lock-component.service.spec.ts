@@ -10,6 +10,7 @@ import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/sh
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -39,6 +40,7 @@ describe("ExtensionLockComponentService", () => {
   let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
   let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
   let configService: MockProxy<ConfigService>;
+  let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -51,6 +53,7 @@ describe("ExtensionLockComponentService", () => {
     webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
     sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
     configService = mock<ConfigService>();
+    messageListener = mock<MessageListener>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -66,6 +69,7 @@ describe("ExtensionLockComponentService", () => {
               webAuthnPrfUnlockService,
               sharedUnlockSettingsService,
               configService,
+              messageListener,
             ),
         },
       ],
@@ -82,28 +86,6 @@ describe("ExtensionLockComponentService", () => {
     it("returns the previous URL", () => {
       routerService.getPreviousUrl.mockReturnValue("previousUrl");
       expect(service.getPreviousUrl()).toBe("previousUrl");
-    });
-  });
-
-  describe("getBiometricsError", () => {
-    it("returns a biometric error description when given a valid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "startDesktop",
-        }),
-      ).toBe("startDesktopDesc");
-    });
-
-    it("returns null when given an invalid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "invalidError",
-        }),
-      ).toBeNull();
-    });
-
-    it("returns null when given a null input", () => {
-      expect(service.getBiometricsError(null)).toBeNull();
     });
   });
 
@@ -420,7 +402,9 @@ describe("ExtensionLockComponentService", () => {
 
       // Shared unlock
       configService.getFeatureFlag$.mockReturnValue(of(false));
-      sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 

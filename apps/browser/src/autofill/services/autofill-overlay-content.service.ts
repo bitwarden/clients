@@ -63,6 +63,7 @@ import {
   loginQualifiers,
   cardQualifiers,
   identityQualifiers,
+  targetedFormCategoryFillTypes,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -288,6 +289,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
 
   getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  isElementInlineMenu = (element: Element): boolean =>
+    this.inlineMenuContentService?.isElementInlineMenu(element as HTMLElement) ?? false;
 
   getUnownedTopLayerItems = (includeCandidates?: boolean) =>
     this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
@@ -948,9 +952,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
-    const identityLoginFields: AutofillFieldQualifierType[] = [
+    // Identifier fields that double as the login username when saving a login.
+    // Heuristic (identity) and targeting-rule (email/phone) qualifiers both flow
+    // through here, so both namespaces are listed; targeting `username` already
+    // stores directly under the username key below.
+    const identityLoginFields: (AutofillFieldQualifierType | AutofillTargetingRuleType)[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
+      AutofillFieldQualifier.identityPhone,
+      AutofillTargetingRuleTypes.email,
+      AutofillTargetingRuleTypes.phone,
     ];
     if (!this.userFilledFields) {
       return;
@@ -1230,6 +1241,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (qualifier === AutofillTargetingRuleTypes.newPassword) {
       autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      return;
+    }
+
+    // The form category is authoritative for single-cipher-type forms, so it
+    // takes precedence over inferring the cipher type from the individual field
+    // qualifier. This is what routes an account-login form's email/phone field
+    // to Login rather than Identity. Categories needing qualifier-level fill
+    // sub-types fall through to the qualifier checks below.
+    const categoryFillType =
+      autofillFieldData.formCategory != null
+        ? targetedFormCategoryFillTypes[autofillFieldData.formCategory]
+        : undefined;
+
+    if (categoryFillType != null) {
+      autofillFieldData.inlineMenuFillType = categoryFillType;
       return;
     }
 

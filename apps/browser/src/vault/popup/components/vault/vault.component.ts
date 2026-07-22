@@ -213,6 +213,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected canCreateCipher$: Observable<boolean> =
+    this.vaultPopupItemsService.showDeactivatedOrg$.pipe(map((isDeactivated) => !isDeactivated));
+
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
 
@@ -345,7 +352,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.autoConfirmService.upsert(userId, newState);
+          await this.autoConfirmService.upsert(userId, newState);
+
+          if (result) {
+            await this.autoConfirmService.bulkAutoConfirmPendingUsers(userId);
+          }
         }),
         takeUntilDestroyed(this.destroyRef),
       )

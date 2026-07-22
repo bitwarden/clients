@@ -21,6 +21,40 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     private var connectionMonitorTimer: Timer?
     private var lastConnectionStatus: ConnectionStatus = .disconnected
 
+    // Correlation ID for the request currently being handled by the desktop app,
+    // if any. Used to cancel that request when this view controller is torn down
+    // before the request completes (e.g. the user dismisses the system UI).
+    // Guarded by `requestLock` because host callbacks fire on foreign threads
+    // while the view lifecycle runs on the main thread.
+    private let requestLock = NSLock()
+    private var inFlightRequestContext: String?
+
+    // Records that a request has been sent to the desktop app so that teardown
+    // can cancel it if it hasn't completed yet.
+    private func beginRequest(_ context: String) {
+        requestLock.lock()
+        inFlightRequestContext = context
+        requestLock.unlock()
+    }
+
+    // Marks the in-flight request as finished so teardown won't cancel it.
+    // Called from the completion/error callbacks.
+    private func finishRequest() {
+        requestLock.lock()
+        inFlightRequestContext = nil
+        requestLock.unlock()
+    }
+
+    // Atomically clears and returns the in-flight context, if any, so that the
+    // caller can cancel it exactly once.
+    private func takeInFlightContext() -> String? {
+        requestLock.lock()
+        defer { requestLock.unlock() }
+        let context = inFlightRequestContext
+        inFlightRequestContext = nil
+        return context
+    }
+
     // We changed the getClient method to be async, here's why:
     // This is so that we can check if the app is running, and launch it, without blocking the main thread
     // Blocking the main thread caused MacOS layouting to 'fail' or at least be very delayed, which caused our getWindowPositioning code to sent 0,0.
@@ -72,17 +106,29 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             try? await Task.sleep(nanoseconds: UInt64(100 * attempt + (delayMs * 1_000_000))) // Convert ms to nanoseconds
             let connectionStatus = newClient!.getConnectionStatus()
 
-            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            let statusString = switch connectionStatus {
+                case .connecting: "connecting"
+                case .connected: "connected"
+                case .disconnected: "disconnected"
+            }
+            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(statusString)")
 
             if connectionStatus == .connected {
                 logger.log("[autofill-extension] Successfully connected to Bitwarden (attempt \(attempt))")
                 break
-            } else {
-                if attempt < maxRetries {
-                    logger.log("[autofill-extension] Retrying connection")
-                } else {
-                    logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            } else if connectionStatus == .connecting {
+                // try to wait one more time while it's connecting
+                try? await Task.sleep(for: .milliseconds(100))
+                if newClient!.getConnectionStatus() == .connected {
+                    break
                 }
+            }
+
+            // client couldn't connect in deadline.
+            if attempt < maxRetries {
+                logger.log("[autofill-extension] Retrying connection")
+            } else {
+                logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(statusString)")
             }
         }
 
@@ -187,6 +233,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             attempts += 1
         }
 
+        let x, y: Int32
         let finalWindowFrame = self.view.window?.frame ?? .zero
         logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
 
@@ -195,15 +242,19 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
             logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
-            return WindowDetails(position: Position(x: centerX, y: centerY), handle: nil)
+            x = centerX
+            y = centerY
         } else {
             // Fallback to mouse position
             let mouseLocation = NSEvent.mouseLocation
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
-            return WindowDetails(position: Position(x: mouseX, y: mouseY), handle: nil)
+            x = mouseX
+            y = mouseY
         }
+        // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
+        return WindowDetails(position: Position(x: x + 100, y: y), handle: nil)
     }
 
     override func viewDidLoad() {
@@ -211,6 +262,22 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         // Initially hide the view
         self.view.isHidden = true
+    }
+
+    // Notify the desktop app that an unfinished request should be cancelled. `takeInFlightContext()` returns
+    // nil once a request has completed, so normal completion doesn't cancel.
+    //
+    // This method is called after `completeRequest` or `cancelRequest`, or if
+    // the system UI is torn down when the user dismisses the sheet. Because of
+    // that, this should be called at every terminal point in the extension's
+    // flow.
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+
+        if let context = takeInFlightContext() {
+            logger.log("[autofill-extension] View disappearing with in-flight request, cancelling \(context)")
+            self.client?.cancelRequest(context: context)
+        }
     }
 
     override func prepareInterfaceForExtensionConfiguration() {
@@ -260,13 +327,16 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     let ctx: ASCredentialProviderExtensionContext
                     let logger: Logger
                     let timeoutTimer: DispatchWorkItem
-                    required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem) {
+                    let onFinish: () -> Void
+                    required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
                         self.ctx = ctx
                         self.logger = logger
                         self.timeoutTimer = timeoutTimer
+                        self.onFinish = onFinish
                     }
 
                     func onComplete(credential: PasskeyAssertionResponse) {
+                        self.onFinish()
                         self.timeoutTimer.cancel()
                         ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
                             userHandle: credential.userHandle,
@@ -279,6 +349,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     }
 
                     func onError(error: BitwardenError) {
+                        self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
                         ctx.cancelRequest(withError: error)
@@ -299,6 +370,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 */
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyAssertionWithoutUserInterfaceRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -308,11 +380,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userName: passkeyIdentity.userName,
                         userHandle: passkeyIdentity.userHandle,
                         recordIdentifier: passkeyIdentity.recordIdentifier,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
-                    client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                    self.beginRequest(context)
+                    client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
                 }
                 return
             }
@@ -351,14 +424,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     let ctx: ASCredentialProviderExtensionContext
                     let timeoutTimer: DispatchWorkItem
                     let logger: Logger
+                    let onFinish: () -> Void
 
-                    required init(_ ctx: ASCredentialProviderExtensionContext, _ logger: Logger,_ timeoutTimer: DispatchWorkItem) {
+                    required init(_ ctx: ASCredentialProviderExtensionContext, _ logger: Logger,_ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
                         self.ctx = ctx
                         self.logger = logger
                         self.timeoutTimer = timeoutTimer
+                        self.onFinish = onFinish
                     }
 
                     func onComplete(credential: PasskeyRegistrationResponse) {
+                        self.onFinish()
                         self.timeoutTimer.cancel()
                         ctx.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
                             relyingParty: credential.rpId,
@@ -369,6 +445,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     }
 
                     func onError(error: BitwardenError) {
+                        self.onFinish()
                         logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                         self.timeoutTimer.cancel()
                         ctx.cancelRequest(withError: error)
@@ -396,6 +473,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyRegistrationRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -405,11 +483,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userHandle: passkeyIdentity.userHandle,
                         supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
                         excludedCredentials: excludedCredentialIds,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
-                    client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                    self.beginRequest(context)
+                    client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
                 }
                 return
             }
@@ -429,13 +508,16 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let ctx: ASCredentialProviderExtensionContext
             let timeoutTimer: DispatchWorkItem
             let logger: Logger
-            required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem) {
+            let onFinish: () -> Void
+            required init(_ ctx: ASCredentialProviderExtensionContext,_ logger: Logger, _ timeoutTimer: DispatchWorkItem, _ onFinish: @escaping () -> Void) {
                 self.ctx = ctx
                 self.logger = logger
                 self.timeoutTimer = timeoutTimer
+                self.onFinish = onFinish
             }
 
             func onComplete(credential: PasskeyAssertionResponse) {
+                self.onFinish()
                 self.timeoutTimer.cancel()
                 ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
                     userHandle: credential.userHandle,
@@ -448,6 +530,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             }
 
             func onError(error: BitwardenError) {
+                self.onFinish()
                 logger.error("[autofill-extension] OnError called, cancelling the request \(error)")
                 self.timeoutTimer.cancel()
                 ctx.cancelRequest(withError: error)
@@ -467,17 +550,19 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         Task {
             let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
             let req = PasskeyAssertionRequest(
                 rpId: requestParameters.relyingPartyIdentifier,
                 clientDataHash: requestParameters.clientDataHash,
                 userVerification: userVerification,
                 clientWindow: clientWindow,
                 allowedCredentials: requestParameters.allowedCredentials,
-                context: nil
+                context: context
             )
 
             let client = await getClient()
-            client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+            self.beginRequest(context)
+            client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer, { [weak self] in self?.finishRequest() }))
         }
         return
     }

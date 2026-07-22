@@ -1,5 +1,9 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
+import {
+  AutofillTargetingRuleType,
+  FormContent,
+  FormPurposeCategory,
+} from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -38,6 +42,17 @@ import { AutoFillConstants } from "./autofill-constants";
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
   fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
+};
+
+/**
+ * A single targeting-rule field whose selector crosses an iframe boundary and
+ * is routed to the sub-frame for local resolution. (mirrors {@link ResolveFieldTarget}).
+ */
+type IframeTargetedField = {
+  selector: string;
+  fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
 };
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
@@ -62,6 +77,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
+  private lastDetachedPurgeAt = -Infinity;
+  private readonly detachedPurgeThrottleMs = 1000;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
@@ -117,6 +134,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       // Safari doesn't seem to function properly with a threshold of 1.
       threshold: 0.9999,
     });
+
+    // Match owned inline-menu hosts by identity, not tag name — a tag-name match would
+    // over-exclude same-tag page elements and is spoofable by the page.
+    this.domQueryService.setOwnedShadowHostPredicate(
+      (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
+    );
   }
 
   /**
@@ -318,7 +341,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
       (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
         .filter(([, alternatives]) => alternatives?.length)
-        .map(([fieldType, selectorAlternatives]) => ({ fieldType, selectorAlternatives })),
+        .map(([fieldType, selectorAlternatives]) => ({
+          fieldType,
+          selectorAlternatives,
+          formCategory: form.category,
+        })),
     );
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -364,11 +391,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @param targetedFields - Selector/fieldType pairs resolved to this frame
    */
   async applyExternalTargetedFields(
-    targetedFields: { selector: string; fieldType: string }[],
+    targetedFields: { selector: string; fieldType: string; formCategory?: string }[],
   ): Promise<void> {
     const targets: ResolveFieldTarget[] = targetedFields.map((t) => ({
       selectorAlternatives: [t.selector],
       fieldType: t.fieldType as AutofillTargetingRuleType,
+      formCategory: t.formCategory as FormPurposeCategory,
     }));
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -417,20 +445,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private resolveTargetedFields(targets: ResolveFieldTarget[]): {
     localFields: AutofillField[];
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>;
+    iframeTargets: Map<string, IframeTargetedField[]>;
   } {
     const localFields: AutofillField[] = [];
     // Accumulates targets that live inside iframes, keyed by the iframe's URL.
     // These are routed to the iframe's own content script instead of being
     // collected here, so the existing sub-frame offset infrastructure handles
     // their positioning correctly.
-    const iframeTargets = new Map<
-      string,
-      { selector: string; fieldType: AutofillTargetingRuleType }[]
-    >();
+    const iframeTargets = new Map<string, IframeTargetedField[]>();
 
     for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
-      const { selectorAlternatives, fieldType } = targets[targetIndex];
+      const { selectorAlternatives, fieldType, formCategory } = targets[targetIndex];
       if (!selectorAlternatives?.length) {
         continue;
       }
@@ -454,6 +479,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             iframeTargets.get(iframeSrc)!.push({
               selector: innerSelector,
               fieldType,
+              formCategory,
             });
           }
           break;
@@ -470,6 +496,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             formFieldElement,
             fieldType,
             localFields.length,
+            formCategory,
           );
           localFields.push(autofillField);
           this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
@@ -495,9 +522,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * The receiving frame's `applyExternalTargetedFields` will resolve locally
    * or re-route onward, enabling multi-hop chains.
    */
-  private routeIframeTargets(
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
-  ): void {
+  private routeIframeTargets(iframeTargets: Map<string, IframeTargetedField[]>): void {
     for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
       void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
         iframeSrc,
@@ -520,6 +545,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     fieldType: AutofillTargetingRuleType,
     index: number,
+    formCategory?: FormPurposeCategory,
   ): AutofillField {
     const field = new AutofillField();
     field.opid = element.opid;
@@ -535,8 +561,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     field.title = element.getAttribute("title");
     field.tagName = element.tagName?.toLowerCase();
     field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
-    field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
+    field.fieldQualifier = fieldType;
     field.targeted = true;
+    field.formCategory = formCategory;
     return field;
   }
 
@@ -1396,6 +1423,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
+  private get hasPendingWork(): boolean {
+    return (
+      this.pendingAttributeMutations.size > 0 ||
+      this.pendingTopLayerTargets.size > 0 ||
+      this.pendingChildListUpdate
+    );
+  }
+
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1408,6 +1443,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
       return;
     }
+
+    // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
+    this.purgeDetachedNodesIfDue();
 
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
@@ -1437,22 +1475,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const shouldSchedule =
-      this.pendingAttributeMutations.size === 0 &&
-      this.pendingTopLayerTargets.size === 0 &&
-      !this.pendingChildListUpdate;
+    // Drain only when idle AND this batch added work; no-op drains are pure overhead.
+    const queueWasIdle = !this.hasPendingWork;
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType === 1 instead of `instanceof Element` — works across realms (adopted-from-iframe).
-        if (mutation.target.nodeType !== 1) {
+        if (!nodeIsElement(mutation.target)) {
           continue;
         }
         const attributeName = mutation.attributeName?.toLowerCase();
         if (!attributeName) {
           continue;
         }
-        const target = mutation.target as Element;
+        const target = mutation.target;
         let attributeNames = this.pendingAttributeMutations.get(target);
         if (!attributeNames) {
           attributeNames = new Set();
@@ -1463,20 +1498,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
-        this.pendingChildListUpdate = true;
+        // Gate the noFieldsFound-invalidating flag; skip the walk once it's set.
+        if (!this.pendingChildListUpdate && this.mutationAddsOrRemovesFormField(mutation)) {
+          this.pendingChildListUpdate = true;
+        }
         for (const node of mutation.addedNodes ?? []) {
-          if (node.nodeType !== 1) {
+          if (!nodeIsElement(node)) {
             continue;
           }
-          const element = node as Element;
-          if (this.shouldListenToTopLayerCandidate(element)) {
-            this.pendingTopLayerTargets.add(element);
+          if (this.shouldListenToTopLayerCandidate(node)) {
+            this.pendingTopLayerTargets.add(node);
           }
         }
       }
     }
 
-    if (shouldSchedule) {
+    if (queueWasIdle && this.hasPendingWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
     }
   };
@@ -1521,8 +1558,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    this.purgeDetachedFieldMetadata();
-    this.domQueryService.purgeDetachedShadowRoots();
+    // Drain-time purge: throttled, so this only does work when the window elapsed since the wake-purge.
+    this.purgeDetachedNodesIfDue();
 
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
       return;
@@ -1573,6 +1610,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         field,
       );
     }
+  }
+
+  // One sweep per throttle window; -Infinity start lets the first call always run.
+  private purgeDetachedNodesIfDue(): void {
+    const now = performance.now();
+    if (now - this.lastDetachedPurgeAt < this.detachedPurgeThrottleMs) {
+      return;
+    }
+    this.lastDetachedPurgeAt = now;
+    this.purgeDetachedFieldMetadata();
+    this.domQueryService.purgeDetachedShadowRoots();
   }
 
   private purgeDetachedFieldMetadata(): void {
@@ -1650,7 +1698,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
+  private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
+    return (
+      this.nodeListContainsFormField(mutation.addedNodes) ||
+      this.nodeListContainsFormField(mutation.removedNodes)
+    );
+  }
+
+  private nodeListContainsFormField(nodes: NodeList | undefined): boolean {
+    if (!nodes) {
+      return false;
+    }
+    for (const node of nodes) {
+      if (!nodeIsElement(node)) {
+        continue;
+      }
+      if (
+        node.matches(this.formFieldQueryString) ||
+        node.querySelector(this.formFieldQueryString) !== null
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private isShadowRootCandidate(node: Node): node is Element {
+    // FIXME (PM-39772): same-realm only — iframe-adopted (foreign-realm) hosts fall through here
+    // and are detected only later, not on insert.
     if (!(node instanceof Element)) {
       return false;
     }

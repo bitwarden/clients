@@ -987,10 +987,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Whether a cipher can be created in the currently selected organization/collection context.
+   * Returns `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected get canCreateCipher(): boolean {
+    const organizationId = this.addCipherOrganizationId();
+    const organization = this.allOrganizations?.find((o) => o.id === organizationId);
+    return !organization || organization.enabled;
+  }
+
+  /**
+   * Resolves the organization ID that a new cipher would be created under, based on the
+   * currently active filter or selected collection.
+   */
+  private addCipherOrganizationId(): OrganizationId | null {
+    if (this.selectedCollection?.node.organizationId) {
+      return this.selectedCollection.node.organizationId as OrganizationId;
+    }
+    return this.filter.organizationId !== "MyVault" && this.filter.organizationId != null
+      ? (this.filter.organizationId as OrganizationId)
+      : null;
+  }
+
+  /**
    * Opens the add-item type selection dialog and handles the result.
    */
   protected async openAddItemDialog(): Promise<void> {
     const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher: this.canCreateCipher,
       canCreateFolder: true,
       canCreateCollection: this.canCreateCollections,
       canCreateSshKey: true,
@@ -1032,6 +1056,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         organizationId = organizationIdFromCollection;
       }
     }
+
+    const organization = organizationId
+      ? this.allOrganizations?.find((o) => o.id === organizationId)
+      : undefined;
+    if (organization && !organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
+      return;
+    }
+
     cipherFormConfig.initialValues = {
       organizationId: organizationId as OrganizationId,
       collectionIds: [collectionId as CollectionId],
@@ -1692,9 +1725,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login.password;
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id) as CipherId),
+    );
+    return cipherView?.login.password;
   }
 }
 

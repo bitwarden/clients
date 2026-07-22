@@ -10,6 +10,7 @@ import {
   mergeMap,
   Subject,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -107,6 +108,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private activeAccountChange$ = new Subject<void>();
   protected loading = true;
 
   activeAccount: Account | null = null;
@@ -295,9 +297,19 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled(activeAccount.id);
     }
+
+    this.lockComponentService
+      .getExternalUnlock$(activeAccount.id)
+      .pipe(take(1), takeUntil(this.activeAccountChange$), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.ngZone.run((): void => {
+          void this.doContinue({});
+        });
+      });
   }
 
   private resetDataOnActiveAccountChange() {
+    this.activeAccountChange$.next();
     this.defaultUnlockOptionSetForUser = false;
     this.unlockOptions = null;
     this.activeUnlockOption = null;
@@ -432,41 +444,8 @@ export class LockComponent implements OnInit, OnDestroy {
         await this.setUserKeyAndContinue(userKey);
       }
     } catch (e) {
-      // Cancelling is a valid action.
-      if (e instanceof Error && e.message === "canceled") {
-        return;
-      }
-
-      this.logService.error("[LockComponent] Failed to unlock via biometrics.", e);
-
-      let biometricTranslatedErrorDesc;
-
-      if (this.clientType === "browser") {
-        const biometricErrorDescTranslationKey = this.lockComponentService.getBiometricsError(e);
-
-        if (biometricErrorDescTranslationKey) {
-          biometricTranslatedErrorDesc = this.i18nService.t(biometricErrorDescTranslationKey);
-        }
-      }
-
-      // if no translation key found, show generic error message
-      if (!biometricTranslatedErrorDesc) {
-        biometricTranslatedErrorDesc = this.i18nService.t("unexpectedError");
-      }
-
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "error" },
-        content: biometricTranslatedErrorDesc,
-        acceptButtonText: { key: "tryAgain" },
-        type: "danger",
-      });
-
-      if (confirmed) {
-        // try again
-        this.unlockingViaBiometrics = false;
-        await this.unlockViaBiometrics();
-        return;
-      }
+      // Biometrics may fail if the user does not accept or if the desktop app is disconnected.
+      this.logService.info("[LockComponent] Failed to unlock via biometrics.", e);
     } finally {
       this.unlockingViaBiometrics = false;
     }
