@@ -72,6 +72,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+import { hydrateCiphersWithLocalData } from "../utils/hydrate-ciphers-with-local-data";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -357,10 +358,25 @@ export class CipherService implements CipherServiceAbstraction {
       return decCiphers;
     }
 
+    // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
+    // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
+    // sees it, matching the legacy and list-view decryption paths.
+    // (Note, the cached views above are already hydrated)
+    let localData: Record<CipherId, LocalData> | undefined;
+
+    // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience
+    try {
+      localData = await firstValueFrom(this.localData$(userId));
+    } catch {
+      localData = undefined;
+    }
+
     try {
       const result = await this.cipherSdkService.getAllDecrypted(userId);
 
-      const sortedSuccesses = result.successes.sort(this.getLocaleSortingFunction());
+      const sortedSuccesses = hydrateCiphersWithLocalData(result.successes, localData).sort(
+        this.getLocaleSortingFunction(),
+      );
 
       await this.setDecryptedCipherCache(sortedSuccesses, userId);
       await this.setFailedDecryptedCiphers(result.failures, userId);
@@ -2057,15 +2073,13 @@ export class CipherService implements CipherServiceAbstraction {
         return null;
       }
 
+      // `getAllDecryptedForUrl` already hydrates localData at the source, but this path
+      // caches the result in `sortedCiphersCache` and is read immediately after a
+      // lastLaunched/lastUsed update before `cipherViews$` necessarily re-decrypts.
+      // Re-hydrate from the current localData$ so the correct cipher is selected
+      // regardless of that emission timing.
       const localData = await firstValueFrom(this.localData$(userId));
-      if (localData) {
-        for (const view of ciphers) {
-          const data = localData[view.id as CipherId];
-          if (data) {
-            view.localData = data;
-          }
-        }
-      }
+      ciphers = hydrateCiphersWithLocalData(ciphers, localData);
 
       if (autofillOnPageLoad) {
         const autofillOnPageLoadDefault = await this.getAutofillOnPageLoadDefault();
