@@ -22,7 +22,6 @@ import {
 } from "@bitwarden/components";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
-import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 type ActionDescriptor = {
   action: () => void;
@@ -46,7 +45,6 @@ const PRIMARY_ACTION_COUNT = 2;
 export class VaultBatchActionComponent implements OnDestroy {
   protected readonly service = inject(VaultBatchBarService);
   private readonly i18nService = inject(I18nService);
-  private readonly terminology = inject(Vfo1TerminologyService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly layoutFooter = inject(LayoutFooterService);
 

@@ -5,7 +5,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
-import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
 
@@ -30,7 +29,6 @@ describe("VaultBatchActionComponent", () => {
   const canDelete = signal(false);
   const inTrash = signal(false);
   const selectedCount = signal(0);
-  const vfo1Enabled = signal(false);
 
   const clearSpy = jest.fn();
   const bulkMoveToFolderSpy = jest.fn();
@@ -51,7 +49,6 @@ describe("VaultBatchActionComponent", () => {
     canDelete.set(false);
     inTrash.set(false);
     selectedCount.set(0);
-    vfo1Enabled.set(false);
     jest.clearAllMocks();
 
     await TestBed.configureTestingModule({
@@ -80,7 +77,6 @@ describe("VaultBatchActionComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => `translated-${key}` } },
-        { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
       ],
     }).compileComponents();
 
