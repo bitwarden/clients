@@ -64,8 +64,8 @@ export const FILTER_GROUP = new InjectionToken<FilterGroup>("FilterGroup");
  * How a filter (`bit-filter-menu` / `bit-filter-toggle`) presents itself in the
  * responsive filter dialog — the small-screen view where the chip row collapses
  * into a single trigger and each filter becomes a row that drills into its
- * options. The dialog reads these off the projected filters; the desktop chip row
- * doesn't use it.
+ * options. The dialog reads these off the projected filters; the wide-viewport
+ * chip row doesn't use it.
  */
 export interface FilterPresenter {
   /** Stable identity for the dialog's row list. */

@@ -197,7 +197,7 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /**
    * The menu body (search + options) as a template, so the responsive filter dialog
-   * can stamp the same options on a drill-in page. Also stamped in the popover on desktop.
+   * can stamp the same options on a drill-in page. Also stamped in the popover on wide viewports.
    */
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 
