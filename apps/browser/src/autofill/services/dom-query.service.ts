@@ -12,8 +12,14 @@ import {
   ShadowRootScanResult,
 } from "./abstractions/dom-query.service";
 
-// Bounds per-scan sink growth only; the persistent cap lives in the collector.
+// Per-scan cap; the persistent cap lives in the collector.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
+
+/** The two output bins a shadow-root scan fills: hosts to re-scan, and newly seen roots. */
+type ShadowScan = {
+  unresolvedHosts: Set<Element>;
+  discoveredRoots: Set<ShadowRoot>;
+};
 
 export class DomQueryService implements DomQueryServiceInterface {
   /** One-way ratchet — never reset; `resetObservedShadowRoots()` clears only the root set. */
@@ -111,8 +117,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     return this.pageContainsShadowDom;
   };
 
-  // User-initiated collection may be the page's first signal; scan while the latch
-  // is false so it can't depend on prior passive discovery (ratchet preserved).
+  // May be the page's first signal; scan while the latch is false (ratchet preserved).
   refreshShadowDomStateForUserRequest = (): void => {
     if (!this.pageContainsShadowDom) {
       this.updatePageContainsShadowDom();
@@ -144,37 +149,29 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Exhaustively scans candidate subtrees for unobserved shadow roots. `foundNewRoot`
-   * flips the latch on the first post-init() find; `unresolvedHosts` collects the
-   * still-shadow-less custom elements so the caller can re-scan them after hydration.
+   * Scans added subtrees for unobserved shadow roots, collecting still-shadow-less hosts
+   * so the caller can re-scan them after hydration.
    */
   checkForNewShadowRoots = (addedElements?: Element[]): ShadowRootScanResult => {
-    const unresolvedHosts = new Set<Element>();
+    const scan: ShadowScan = { unresolvedHosts: new Set(), discoveredRoots: new Set() };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
-      return { foundNewRoot: false, unresolvedHosts };
+      return { foundNewRoot: false, unresolvedHosts: scan.unresolvedHosts };
     }
-    const foundNewRoot = this.findNewShadowRootInBatch(addedElements, unresolvedHosts);
+    this.findNewShadowRootInBatch(addedElements, scan);
+    const foundNewRoot = scan.discoveredRoots.size > 0;
     if (foundNewRoot && !this.pageContainsShadowDom) {
       this.markShadowDomPresent();
     }
-    return { foundNewRoot, unresolvedHosts };
+    return { foundNewRoot, unresolvedHosts: scan.unresolvedHosts };
   };
 
-  private findNewShadowRootInBatch = (
-    elements: Element[],
-    unresolvedHosts: Set<Element>,
-  ): boolean => {
+  private findNewShadowRootInBatch = (elements: Element[], scan: ShadowScan): void => {
     // Drop descendants of other batch elements — same subtree, re-walked.
     const roots = this.suppressDescendantsInBatch(elements);
-    let foundNewRoot = false;
     for (const el of roots) {
-      // Exhaustive: keep scanning after a hit so `unresolvedHosts` stays complete.
-      if (this.scanForNewShadowRootInSubtree(el, 0, unresolvedHosts)) {
-        foundNewRoot = true;
-      }
+      this.scanForNewShadowRootInSubtree(el, 0, scan);
     }
-    return foundNewRoot;
   };
 
   /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
@@ -402,43 +399,38 @@ export class DomQueryService implements DomQueryServiceInterface {
   private scanForNewShadowRootInSubtree = (
     subtree: Element | ShadowRoot,
     depth: number,
-    unresolvedHosts: Set<Element>,
-  ): boolean => {
+    scan: ShadowScan,
+  ): void => {
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
-      return false;
+      return;
     }
-    let found = false;
     // Host check — `querySelectorAll("*")` excludes the scope element.
     if (subtree instanceof Element) {
-      if (this.visitShadowHostCandidate(subtree, depth, unresolvedHosts)) {
-        found = true;
-      }
+      this.visitShadowHostCandidate(subtree, depth, scan);
     }
     // querySelectorAll doesn't pierce shadow boundaries — recurse per boundary.
     for (const child of subtree.querySelectorAll("*")) {
-      if (this.visitShadowHostCandidate(child, depth, unresolvedHosts)) {
-        found = true;
-      }
+      this.visitShadowHostCandidate(child, depth, scan);
     }
-    return found;
   };
 
-  /** @returns true when the element hosts an unobserved root, directly or transitively. */
-  private visitShadowHostCandidate = (
-    element: Element,
-    depth: number,
-    unresolvedHosts: Set<Element>,
-  ): boolean => {
+  /** Sorts one candidate into the scan's bins, descending through any root to reach nested hosts. */
+  private visitShadowHostCandidate = (element: Element, depth: number, scan: ShadowScan): void => {
     const root = this.getShadowRoot(element);
     if (!root) {
-      if (unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS && element.tagName.includes("-")) {
-        unresolvedHosts.add(element);
+      if (
+        scan.unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
+        element.tagName.includes("-")
+      ) {
+        scan.unresolvedHosts.add(element);
       }
-      return false;
+      return;
     }
-    const foundNewRoot = !this.knownShadowRoots.has(root);
-    // Descend even into a new root: its own un-hydrated hosts belong in the set.
-    return this.scanForNewShadowRootInSubtree(root, depth + 1, unresolvedHosts) || foundNewRoot;
+    if (!this.knownShadowRoots.has(root)) {
+      scan.discoveredRoots.add(root);
+    }
+    // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
+    this.scanForNewShadowRootInSubtree(root, depth + 1, scan);
   };
 
   /**
@@ -602,8 +594,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       if (nodeIsElement(currentNode)) {
         const el = currentNode as Element;
         let nodeShadowRoot: ShadowRoot | null = null;
-        // Probe only when shadow DOM is known present: `el.shadowRoot` (open) then
-        // the extension API (chrome.dom.openOrClosedShadowRoot) for closed roots.
+        // Probe only when shadow DOM is known present: open root, then extension API for closed.
         if (this.pageContainsShadowDom) {
           nodeShadowRoot = el.shadowRoot ?? this.getShadowRoot(currentNode);
         }
