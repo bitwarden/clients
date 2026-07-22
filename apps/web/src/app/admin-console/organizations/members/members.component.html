@@ -462,7 +462,10 @@
                         bitMenuItem
                         (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
+                        <i
+                          aria-hidden="true"
+                          class="bwi {{ 'bwi-collection-shared' | vfo1Icon }}"
+                        ></i>
                         {{ "collections" | i18n }}
                       </button>
                       <bit-menu-divider></bit-menu-divider>
