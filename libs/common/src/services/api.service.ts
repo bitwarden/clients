@@ -459,7 +459,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<OptionalCipherResponse> {
     const response = await this.send(
       "PUT",
-      "/ciphers/" + id + "/collections_v2",
+      "/ciphers/" + id + "/shared-folders_v2",
       request,
       true,
       true,
@@ -468,7 +468,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
+    return this.send("PUT", "/ciphers/" + id + "/shared-folders-admin", request, true, true);
   }
 
   postPurgeCiphers(
