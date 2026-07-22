@@ -16,8 +16,8 @@ import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import {
+  AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
-  AccountRecoveryDialogV2Component,
 } from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
@@ -90,16 +90,25 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
+    const detailsTabEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM28365_ChangeMemberEmail,
+    );
+    const resolvedTab =
+      detailsTabEnabled && initialTab === MemberDialogTab.Role
+        ? MemberDialogTab.Details
+        : initialTab;
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: initialTab,
-        managedByOrganization: user.managedByOrganization,
+        initialTab: resolvedTab,
+        claimedByOrganization: user.claimedByOrganization,
       },
     });
 
@@ -111,7 +120,7 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const dialogRef = AccountRecoveryDialogV2Component.open(this.dialogService, {
+    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         email: user.email,

@@ -6,6 +6,7 @@ import {
   BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefinition {
@@ -15,6 +16,14 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   category = PolicyCategory.Authentication;
   priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
+  v2 = {
+    component: SimpleTogglePolicyComponent,
+    name: "blockClaimedDomainAccountCreation",
+    description: "blockClaimedDomainAccountCreationDescV2",
+    prerequisiteKey: "blockClaimedDomainAccountCreationPrerequisiteV2",
+    prerequisiteLinkHref: "https://bitwarden.com/help/claimed-domains/",
+    prerequisiteLinkTextKey: "blockClaimedDomainAccountCreationLearnMoreV2",
+  };
 }
 
 @Component({

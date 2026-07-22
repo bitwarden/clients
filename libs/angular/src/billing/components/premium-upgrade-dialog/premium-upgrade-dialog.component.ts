@@ -3,9 +3,9 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
 
-import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PremiumCheckoutSessionPlatform } from "@bitwarden/common/billing/models/request/premium-checkout-session.request";
@@ -30,6 +30,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { JslibModule } from "../../../jslib.module";
+import { SubscriptionPricingCardDetails } from "../../types/subscription-pricing-card-details";
 
 @Component({
   selector: "billing-premium-upgrade-dialog",
@@ -75,6 +78,8 @@ export class PremiumUpgradeDialogComponent {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
     private readonly billingApiService: BillingApiServiceAbstraction,
+    private readonly accountService: AccountService,
+    private readonly premiumCheckoutPendingService: PremiumCheckoutPendingService,
   ) {}
 
   protected async upgrade(): Promise<void> {
@@ -94,6 +99,9 @@ export class PremiumUpgradeDialogComponent {
         FeatureFlag.DebugDisableSelfHostPremiumCheck,
       );
       const platform = this.resolveCheckoutPlatform();
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
 
       if (
         checkoutFlagEnabled &&
@@ -104,6 +112,17 @@ export class PremiumUpgradeDialogComponent {
           platform,
         });
         this.platformUtilsService.launchUri(checkoutSessionUrl);
+
+        if (userId != null) {
+          try {
+            await this.premiumCheckoutPendingService.markCheckoutLaunched(userId);
+          } catch (error: unknown) {
+            this.logService.error(
+              "Failed to mark premium checkout as pending; sync recovery on refocus may not fire",
+              error,
+            );
+          }
+        }
       } else {
         const vaultUrl =
           environment.getWebVaultUrl() +

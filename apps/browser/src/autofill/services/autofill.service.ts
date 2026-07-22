@@ -19,6 +19,7 @@ import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
   CardExpiryDateDelimiters,
+  FormPurposeCategories,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -46,17 +47,18 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
+import { getWebExtSender } from "../../platform/utils/web-ext-sender";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   AutofillService as AutofillServiceInterface,
@@ -72,11 +74,24 @@ import {
   IdentityAutoFillConstants,
 } from "./autofill-constants";
 
+/**
+ * A Login cipher stores a single `login.username` that represents whatever the
+ * primary login identifier is (an actual username, an email, or a phone number).
+ * A targeting-rule `account-login` form may expose that identifier under any of
+ * these field types (and often has no `username` field at all). When filling a
+ * Login cipher, route `login.username` to the highest-priority identifier field
+ * present in the form, in this order, and skip the others.
+ */
+const loginIdentifierQualifierPriority: string[] = [
+  AutofillTargetingRuleTypes.username,
+  AutofillTargetingRuleTypes.email,
+  AutofillTargetingRuleTypes.phone,
+];
+
 export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce?: ReturnType<typeof setTimeout>;
   private currentlyOpeningPasswordRepromptPopout = false;
-  private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   enableInlineMenuAnimation$: Observable<boolean>;
   enableNotificationAnimation$: Observable<boolean>;
@@ -96,6 +111,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
+    private autofillLifecycleService: AutofillLifecycleService,
   ) {
     this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
     this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
@@ -120,20 +136,19 @@ export default class AutofillService implements AutofillServiceInterface {
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
             message.tab?.id === tab.id,
         ),
-        scan(
-          (acc: PageDetail[], message): PageDetail[] =>
-            message.webExtSender?.frameId === undefined
-              ? acc
-              : [
-                  ...acc,
-                  {
-                    frameId: message.webExtSender.frameId,
-                    tab: message.tab,
-                    details: message.details,
-                  },
-                ],
-          [] as PageDetail[],
-        ),
+        scan((acc: PageDetail[], message): PageDetail[] => {
+          const frameId = getWebExtSender(message)?.frameId;
+          return frameId === undefined
+            ? acc
+            : [
+                ...acc,
+                {
+                  frameId,
+                  tab: message.tab,
+                  details: message.details,
+                },
+              ];
+        }, [] as PageDetail[]),
       );
 
     void BrowserApi.tabSendMessage(
@@ -186,7 +201,6 @@ export default class AutofillService implements AutofillServiceInterface {
    * if the extension context has been disconnected.
    */
   async loadAutofillScriptsOnInstall() {
-    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     void this.injectAutofillScriptsInAllTabs();
 
     this.autofillSettingsService.inlineMenuVisibility$
@@ -215,11 +229,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * instances, and then re-injecting the autofill scripts into all tabs.
    */
   async reloadAutofillScripts() {
-    this.autofillScriptPortsSet.forEach((port) => {
-      port.disconnect();
-      this.autofillScriptPortsSet.delete(port);
-    });
-
+    this.autofillLifecycleService.retireAllFrames();
     void this.injectAutofillScriptsInAllTabs();
   }
 
@@ -277,6 +287,10 @@ export default class AutofillService implements AutofillServiceInterface {
         },
       });
     }
+
+    // Now that this frame's scripts are injected, hand off to the lifecycle
+    // service to begin monitoring it (when an account is logged in).
+    await this.autofillLifecycleService.startMonitoringFrame(tab, frameId);
   }
 
   /**
@@ -892,21 +906,42 @@ export default class AutofillService implements AutofillServiceInterface {
         ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
         .map((u) => u.uri!) ?? [];
 
-    // Note; targeted fields intentionally skip the untrusted iframe check. The
+    // Note, targeted fields intentionally skip the untrusted iframe check. The
     // presence of targeting rules represents explicit expectations of the target
+
+    // For a Login cipher, `login.username` fills only the single highest-priority
+    // identifier field present in an `account-login` form (see the priority list).
+    const isLoginCipher = cipher.type === CipherType.Login;
+    const loginIdentifierQualifier = isLoginCipher
+      ? this.resolveLoginIdentifierQualifier(pageDetails)
+      : null;
 
     for (const field of pageDetails.fields) {
       if (!field.targeted || !field.fieldQualifier) {
         continue;
       }
 
-      // Password-generation flow synthesizes a Login cipher whose `password`
-      // carries the generated value. The standard newPassword → null policy
-      // would suppress that fill, so override it here.
-      const value =
-        isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword
-          ? (cipher.login?.password ?? null)
-          : this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      let value: string | null;
+      if (isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword) {
+        // The Login cipher is a transient representation of the generated password
+        // value, so the usual logic skipping new password fills does not apply here
+        value = cipher.login?.password ?? null;
+      } else if (
+        isLoginCipher &&
+        field.formCategory === FormPurposeCategories.AccountLogin &&
+        loginIdentifierQualifierPriority.includes(field.fieldQualifier)
+      ) {
+        // The login identifier fills the winning identifier field only; sibling
+        // identifier fields are skipped. This presumes a _login_ form will not require
+        // more than one of a `loginIdentifierQualifierPriority` (e.g. only one of
+        // username, email, or phone number).
+        value =
+          field.fieldQualifier === loginIdentifierQualifier
+            ? (cipher.login?.username ?? null)
+            : null;
+      } else {
+        value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      }
 
       if (!value) {
         continue;
@@ -920,6 +955,31 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fillScript;
+  }
+
+  /**
+   * Determines which identifier field a Login cipher's `login.username` should
+   * fill, given the targeted fields present on `account-login` forms. Returns
+   * the highest-priority present qualifier (username > email > phone), or null
+   * when none are present.
+   */
+  private resolveLoginIdentifierQualifier(pageDetails: AutofillPageDetails): string | null {
+    const presentIdentifierQualifiers = new Set(
+      pageDetails.fields
+        .filter(
+          (field) =>
+            field.targeted &&
+            field.formCategory === FormPurposeCategories.AccountLogin &&
+            field.fieldQualifier != null,
+        )
+        .map((field) => field.fieldQualifier as string),
+    );
+
+    return (
+      loginIdentifierQualifierPriority.find((qualifier) =>
+        presentIdentifierQualifiers.has(qualifier),
+      ) ?? null
+    );
   }
 
   /**
@@ -3085,35 +3145,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     return false;
   }
-
-  /**
-   * Handles incoming long-lived connections from injected autofill scripts.
-   * Stores the port in a set to facilitate disconnecting ports if the extension
-   * needs to re-inject the autofill scripts.
-   *
-   * @param port - The port that was connected
-   */
-  private handleInjectedScriptPortConnection = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.add(port);
-    port.onDisconnect.addListener(this.handleInjectScriptPortOnDisconnect);
-  };
-
-  /**
-   * Handles disconnecting ports that relate to injected autofill scripts.
-
-   * @param port - The port that was disconnected
-   */
-  private handleInjectScriptPortOnDisconnect = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.delete(port);
-  };
 
   /**
    * Queries all open tabs in the user's browsing session

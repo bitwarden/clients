@@ -27,7 +27,7 @@ import { InviteMembersDialogComponent } from "./components/invite-members-dialog
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
-import { UserStatusPipe } from "./pipes";
+import { AvatarIdPipe, UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
@@ -50,17 +50,18 @@ import {
     IconModule,
     BerryComponent,
     TooltipDirective,
-  ],
-  declarations: [
+    AvatarIdPipe,
     BulkConfirmDialogComponent,
+    BulkDeleteDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
+  ],
+  declarations: [
     BulkProgressDialogComponent,
     BulkReinviteFailureDialogComponent,
     MembersComponent,
-    BulkDeleteDialogComponent,
     UserStatusPipe,
   ],
   providers: [

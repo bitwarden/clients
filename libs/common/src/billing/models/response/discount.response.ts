@@ -1,5 +1,6 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { Discount, DiscountType, DiscountTypes } from "@bitwarden/pricing";
+
+import { BaseResponse } from "../../../models/response/base.response";
 
 export class DiscountResponse extends BaseResponse implements Discount {
   type: DiscountType;

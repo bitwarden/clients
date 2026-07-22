@@ -2,8 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -19,6 +17,8 @@ import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-pa
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { LogService } from "../../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";

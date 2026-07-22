@@ -115,6 +115,7 @@ import {
   VaultBatchActionComponent,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -157,6 +158,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [
+    VaultOrganizationUserNotificationsComponent,
     VaultHeaderComponent,
     VaultOnboardingComponent,
     VaultBannersComponent,
@@ -214,6 +216,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   protected readonly vaultBatchBarFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 
@@ -980,10 +987,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Whether a cipher can be created in the currently selected organization/collection context.
+   * Returns `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected get canCreateCipher(): boolean {
+    const organizationId = this.addCipherOrganizationId();
+    const organization = this.allOrganizations?.find((o) => o.id === organizationId);
+    return !organization || organization.enabled;
+  }
+
+  /**
+   * Resolves the organization ID that a new cipher would be created under, based on the
+   * currently active filter or selected collection.
+   */
+  private addCipherOrganizationId(): OrganizationId | null {
+    if (this.selectedCollection?.node.organizationId) {
+      return this.selectedCollection.node.organizationId as OrganizationId;
+    }
+    return this.filter.organizationId !== "MyVault" && this.filter.organizationId != null
+      ? (this.filter.organizationId as OrganizationId)
+      : null;
+  }
+
+  /**
    * Opens the add-item type selection dialog and handles the result.
    */
   protected async openAddItemDialog(): Promise<void> {
     const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher: this.canCreateCipher,
       canCreateFolder: true,
       canCreateCollection: this.canCreateCollections,
       canCreateSshKey: true,
@@ -1025,6 +1056,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         organizationId = organizationIdFromCollection;
       }
     }
+
+    const organization = organizationId
+      ? this.allOrganizations?.find((o) => o.id === organizationId)
+      : undefined;
+    if (organization && !organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
+      return;
+    }
+
     cipherFormConfig.initialValues = {
       organizationId: organizationId as OrganizationId,
       collectionIds: [collectionId as CollectionId],
@@ -1124,11 +1164,32 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async addCollection(): Promise<void> {
+    const eligibleOrganizations = this.allOrganizations
+      .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
+
+    // Default to the organization from the active vault filter when one is selected and eligible,
+    // mirroring the behavior used when creating a new item.
+    let filterOrganizationId =
+      this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+        ? this.activeFilter.organizationId
+        : null;
+    // When filtering by a collection, derive the org from that collection.
+    if (!filterOrganizationId && this.activeFilter.collectionId != null) {
+      const orgIdFromCollection = this.allCollections.find(
+        (c) => c.id === this.activeFilter.collectionId,
+      )?.organizationId;
+      if (orgIdFromCollection) {
+        filterOrganizationId = orgIdFromCollection;
+      }
+    }
+    const defaultOrganizationId =
+      eligibleOrganizations.find((o) => o.id === filterOrganizationId)?.id ??
+      eligibleOrganizations[0].id;
+
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
-        organizationId: this.allOrganizations
-          .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
-          .sort(Utils.getSortFunction(this.i18nService, "name"))[0].id,
+        organizationId: defaultOrganizationId,
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
         limitNestedCollections: true,
@@ -1664,9 +1725,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login.password;
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id) as CipherId),
+    );
+    return cipherView?.login.password;
   }
 }
 
