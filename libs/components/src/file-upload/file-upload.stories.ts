@@ -49,12 +49,11 @@ export default {
 
 type Story = StoryObj<FileUploadComponent>;
 
-function createErroredControl(message: string): FormControl<File[]> {
+function createErroredControl(message: string): FormControl<File | null> {
   // Errors must come from a validator, not setErrors. Angular's setUpControl calls
   // updateValueAndValidity on mount, which re-runs validators and overwrites any errors set
   // directly via setErrors.
-  const control = new FormControl<File[]>([], {
-    nonNullable: true,
+  const control = new FormControl<File | null>(null, {
     validators: [() => ({ custom: { message } })],
   });
   control.markAsTouched();
@@ -68,9 +67,9 @@ function createMockFile(name: string, sizeBytes: number): File {
 
 export const Default: Story = {
   render: (args) => ({
-    props: { ...args, selectedFiles: [] as File[] },
+    props: { ...args, selectedFile: null as File | null },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFile">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -85,8 +84,7 @@ export const Required: Story = {
   render: (args) => ({
     props: {
       ...args,
-      requiredControl: new FormControl<File[]>([], {
-        nonNullable: true,
+      requiredControl: new FormControl<File | null>(null, {
         validators: [Validators.required],
       }),
     },
@@ -119,9 +117,9 @@ export const WithError: Story = {
 
 export const Disabled: Story = {
   render: (args) => ({
-    props: { ...args, selectedFiles: [] as File[] },
+    props: { ...args, selectedFile: null as File | null },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles" [disabled]="true">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFile" [disabled]="true">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -136,15 +134,13 @@ export const LongFileName: Story = {
   render: (args) => ({
     props: {
       ...args,
-      selectedFiles: [
-        createMockFile(
-          "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
-          2_400_000,
-        ),
-      ],
+      selectedFile: createMockFile(
+        "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
+        2_400_000,
+      ),
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFile">
         <bit-label>Upload file</bit-label>
       </bit-file-upload>
     `,

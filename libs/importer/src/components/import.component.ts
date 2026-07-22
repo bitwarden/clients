@@ -213,8 +213,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     targetSelector: [null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
-    file: [[] as File[]],
-    keyFile: [[] as File[]],
+    file: [null as File | null],
+    keyFile: [null as File | null],
     kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
@@ -712,7 +712,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       case CredentialKind.passwordWithKeyFile: {
         // KDBX collects the master password and optional key file inline in the main dialog.
-        const selectedKeyFile = this.formGroup.controls.keyFile.value?.[0];
+        const selectedKeyFile = this.formGroup.controls.keyFile.value;
         const keyFile = selectedKeyFile
           ? new Uint8Array(await selectedKeyFile.arrayBuffer())
           : null;
@@ -728,7 +728,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async getSelectedFileBytes(): Promise<Uint8Array | null> {
-    const file = this.formGroup.controls.file.value?.[0];
+    const file = this.formGroup.controls.file.value;
     if (file == null) {
       return null;
     }
@@ -813,7 +813,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       passwordControl.clearValidators();
       passwordControl.setValue("");
-      this.formGroup.controls.keyFile.setValue([]);
+      this.formGroup.controls.keyFile.setValue(null);
       this.showKeyFile = false;
     }
     passwordControl.updateValueAndValidity();
@@ -910,7 +910,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async setImportContents(): Promise<string> {
-    const selectedFile = this.formGroup.controls.file.value?.[0];
+    const selectedFile = this.formGroup.controls.file.value;
     let fileContents = this.formGroup.controls.fileContents.value;
 
     if (selectedFile != null) {

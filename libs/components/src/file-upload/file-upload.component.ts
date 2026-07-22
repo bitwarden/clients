@@ -28,7 +28,8 @@ let nextId = 0;
  * A single-file picker composed over `bit-form-field`. The component hosts
  * `BitFormFieldControlDirective` and is its own `ControlValueAccessor`, so it plugs into
  * `bit-form-field` through the normal control path and consumers bind it the standard way —
- * `formControlName` / `[formControl]` / `[(ngModel)]`. Its value is always a `File[]`.
+ * `formControlName` / `[formControl]` / `[(ngModel)]`. Its value is a single `File`, or `null` when
+ * nothing is selected. For multi-file selection use `bit-file-dropzone`, whose value is a `File[]`.
  *
  * @example
  * ```html
@@ -71,10 +72,10 @@ export class FileUploadComponent implements ControlValueAccessor {
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   private readonly hint = contentChild(BitHintDirective, { descendants: true });
 
-  private readonly _files = signal<File[]>([]);
+  private readonly _file = signal<File | null>(null);
   private readonly _disabledFromCva = signal(false);
 
-  private readonly onChange = signal<(value: File[]) => void>(() => {});
+  private readonly onChange = signal<(value: File | null) => void>(() => {});
   private readonly onTouched = signal<() => void>(() => {});
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
@@ -82,7 +83,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   protected readonly fileInputId = `${this.inputId}-input`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
-  protected readonly fileName = computed(() => this._files()[0]?.name);
+  protected readonly fileName = computed(() => this._file()?.name);
 
   /**
    * The projected hint id (queried here because `bit-form-field` can't see a hint we re-project
@@ -103,11 +104,11 @@ export class FileUploadComponent implements ControlValueAccessor {
     effect(() => this.formFieldControl.labelForId.set(this.inputId));
   }
 
-  writeValue(value: File[] | null): void {
-    this._files.set((value ?? []).slice(0, 1));
+  writeValue(value: File | null): void {
+    this._file.set(value ?? null);
   }
 
-  registerOnChange(fn: (value: File[]) => void): void {
+  registerOnChange(fn: (value: File | null) => void): void {
     this.onChange.set(fn);
   }
 
@@ -141,7 +142,7 @@ export class FileUploadComponent implements ControlValueAccessor {
       return;
     }
     this.onTouched()();
-    this._files.set([input.files[0]]);
-    this.onChange()(this._files());
+    this._file.set(input.files[0]);
+    this.onChange()(this._file());
   }
 }

@@ -75,8 +75,8 @@ Pass a comma-separated list of MIME types and/or file extensions to guide the br
 
 ### Binding the selected file
 
-Bind via Angular reactive forms. The form value is always `File[]` — a single-element array once a
-file is chosen, or an empty array when none is selected.
+Bind via Angular reactive forms. The form value is a single `File` once a file is chosen, or `null`
+when none is selected. For multi-file selection use `bit-file-dropzone`, whose value is a `File[]`.
 
 ```html
 <bit-file-upload formControlName="file">
@@ -86,7 +86,7 @@ file is chosen, or an empty array when none is selected.
 
 ```ts
 form = new FormGroup({
-  file: new FormControl<File[]>([], { nonNullable: true }),
+  file: new FormControl<File | null>(null),
 });
 ```
 

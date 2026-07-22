@@ -215,12 +215,12 @@ describe("CipherAttachmentsComponent", () => {
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
       // Set the file via the reactive form control (CVA writes it back to bit-file-upload)
-      component.attachmentForm.controls.file.setValue([file]);
+      component.attachmentForm.controls.file.setValue(file);
       fixture.detectChanges();
     });
 
     it("sets value of `file` control when input changes", () => {
-      expect(component.attachmentForm.controls.file.value[0]?.name).toEqual(file.name);
+      expect(component.attachmentForm.controls.file.value?.name).toEqual(file.name);
     });
 
     it("updates disabled state of submit button", () => {
@@ -241,11 +241,9 @@ describe("CipherAttachmentsComponent", () => {
       });
 
       it("shows error toast if file size is greater than 500MB", async () => {
-        component.attachmentForm.controls.file.setValue([
-          {
-            size: 524288001,
-          } as File,
-        ]);
+        component.attachmentForm.controls.file.setValue({
+          size: 524288001,
+        } as File);
 
         await component.submit();
 
@@ -274,12 +272,10 @@ describe("CipherAttachmentsComponent", () => {
 
         await waitForInitialization();
 
-        component.attachmentForm.controls.file.setValue([
-          {
-            name: "helloworld.txt",
-            size: 65,
-          } as File,
-        ]);
+        component.attachmentForm.controls.file.setValue({
+          name: "helloworld.txt",
+          size: 65,
+        } as File);
 
         await component.submit();
 
@@ -294,7 +290,7 @@ describe("CipherAttachmentsComponent", () => {
         await waitForInitialization();
 
         const file = { size: 100 } as File;
-        component.attachmentForm.controls.file.setValue([file]);
+        component.attachmentForm.controls.file.setValue(file);
 
         const serverError = new Error("Cipher has been modified by another client");
         saveAttachmentWithServer.mockRejectedValue(serverError);
@@ -311,7 +307,7 @@ describe("CipherAttachmentsComponent", () => {
         await waitForInitialization();
 
         const file = { size: 100 } as File;
-        component.attachmentForm.controls.file.setValue([file]);
+        component.attachmentForm.controls.file.setValue(file);
 
         saveAttachmentWithServer.mockRejectedValue({ code: "UNKNOWN_ERROR" });
 
@@ -327,7 +323,7 @@ describe("CipherAttachmentsComponent", () => {
         await waitForInitialization();
 
         const file = { size: 100 } as File;
-        component.attachmentForm.controls.file.setValue([file]);
+        component.attachmentForm.controls.file.setValue(file);
 
         saveAttachmentWithServer.mockRejectedValue("Network connection failed");
 
@@ -358,7 +354,7 @@ describe("CipherAttachmentsComponent", () => {
         fixture.detectChanges();
 
         await waitForInitialization();
-        component.attachmentForm.controls.file.setValue([file]);
+        component.attachmentForm.controls.file.setValue(file);
       }
 
       it("calls `saveAttachmentWithServer` with admin=false when admin permission is false for organization", async () => {
@@ -395,7 +391,7 @@ describe("CipherAttachmentsComponent", () => {
 
         await component.submit();
 
-        expect(component.attachmentForm.controls.file.value).toEqual([]);
+        expect(component.attachmentForm.controls.file.value).toBeNull();
       });
 
       it("shows success toast", async () => {
@@ -430,7 +426,7 @@ describe("CipherAttachmentsComponent", () => {
         fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
         fixture.detectChanges();
         await waitForInitialization();
-        component.attachmentForm.controls.file.setValue([{ size: 100 } as File]);
+        component.attachmentForm.controls.file.setValue({ size: 100 } as File);
       });
 
       it("sets uploadProgress to 0 when upload starts", async () => {

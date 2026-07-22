@@ -39,7 +39,7 @@ export class UpdateLicenseComponent implements OnInit {
   formPromise: Promise<void>;
   title: string = this.i18nService.t("updateLicense");
   updateLicenseForm = this.formBuilder.group({
-    file: [[] as File[]],
+    file: [null as File | null],
   });
   constructor(
     private apiService: ApiService,
@@ -61,7 +61,7 @@ export class UpdateLicenseComponent implements OnInit {
     if (this.updateLicenseForm.invalid) {
       return;
     }
-    const file = (this.updateLicenseForm.get("file").value as File[])?.[0];
+    const file = this.updateLicenseForm.get("file").value;
     if (file == null) {
       this.toastService.showToast({
         variant: "error",

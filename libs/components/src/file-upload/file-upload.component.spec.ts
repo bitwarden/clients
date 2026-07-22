@@ -22,7 +22,7 @@ import { FileUploadComponent } from "./file-upload.component";
   imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
 })
 class HostComponent {
-  control = new FormControl<File[]>([], { nonNullable: true });
+  control = new FormControl<File | null>(null);
   accept = "";
 }
 
@@ -67,24 +67,16 @@ describe("FileUploadComponent", () => {
   });
 
   it("writes the control value into the filename readout", () => {
-    host.control.setValue([makeFile("report.pdf")]);
+    host.control.setValue(makeFile("report.pdf"));
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("report.pdf");
   });
 
-  it("displays only the first file when the control holds several", () => {
-    host.control.setValue([makeFile("first.txt"), makeFile("second.txt")]);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain("first.txt");
-    expect(fixture.nativeElement.textContent).not.toContain("second.txt");
-  });
-
   it("updates the control when a file is selected", () => {
     selectFile(fixture, makeFile("chosen.txt"));
 
-    expect(host.control.value.map((f) => f.name)).toEqual(["chosen.txt"]);
+    expect(host.control.value?.name).toBe("chosen.txt");
     expect(fixture.nativeElement.textContent).toContain("chosen.txt");
   });
 

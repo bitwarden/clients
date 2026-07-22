@@ -57,7 +57,7 @@ import { TruncatedFilenameComponent } from "../../../components/truncated-filena
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
 type CipherAttachmentForm = FormGroup<{
-  file: FormControl<File[]>;
+  file: FormControl<File | null>;
 }>;
 
 @Component({
@@ -118,7 +118,10 @@ export class CipherAttachmentsComponent {
   protected readonly uploadProgress = signal<number | null>(null);
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
-    file: new FormControl<File[]>([], { nonNullable: true, validators: [Validators.required] }),
+    file: new FormControl<File | null>(null, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   private cipherDomain: Cipher | null = null;
@@ -201,7 +204,7 @@ export class CipherAttachmentsComponent {
 
     this.onUploadStarted.emit();
 
-    const file = this.attachmentForm.value.file?.[0];
+    const file = this.attachmentForm.value.file;
     if (file == null) {
       this.toastService.showToast({
         variant: "error",
@@ -261,7 +264,7 @@ export class CipherAttachmentsComponent {
       // re-decrypt the cipher to update the attachments
       this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
 
-      this.attachmentForm.controls.file.setValue([]);
+      this.attachmentForm.controls.file.setValue(null);
 
       this.toastService.showToast({
         variant: "success",

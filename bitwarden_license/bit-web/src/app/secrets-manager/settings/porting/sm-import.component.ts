@@ -29,7 +29,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected orgId: string = null;
   protected formGroup = new FormGroup({
-    file: new FormControl<File[]>([], { nonNullable: true }),
+    file: new FormControl<File | null>(null, { nonNullable: true }),
     pastedContents: new FormControl(""),
   });
 
@@ -56,7 +56,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     const importContents = await this.getImportContents(
-      this.formGroup.controls.file.value?.[0] ?? null,
+      this.formGroup.controls.file.value ?? null,
       this.formGroup.get("pastedContents").value.trim(),
     );
 
