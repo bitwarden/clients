@@ -99,8 +99,8 @@ export class PopoverComponent {
   protected readonly contentClasses = computed(() =>
     [
       "tw-ps-6",
-      !this.footer() && "tw-pb-6",
-      !this.title() && "tw-pt-6",
+      !this.footer() ? "tw-pb-6" : "",
+      !this.title() ? "tw-pt-6" : "",
       // When there's no title (and no header) to carry it, the content sits at the
       // top and must reserve room for the absolutely-positioned close button so its
       // first line doesn't run underneath it. Only needed while that button is shown.
