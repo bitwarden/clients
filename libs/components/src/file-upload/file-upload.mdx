@@ -29,6 +29,8 @@ For a drag-and-drop area that supports multiple files, use
 </bit-file-upload>
 ```
 
+A projected `<bit-label>` is **required** for accessibility — omitting it throws at runtime.
+
 The component is itself the form control — it wraps `<bit-form-field>` for the label, hint, and
 error chrome, is bound directly with `formControlName` / `[formControl]` / `[(ngModel)]`, and lays
 out the "Choose File" pill and filename readout inside the field container.

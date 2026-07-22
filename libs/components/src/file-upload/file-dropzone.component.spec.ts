@@ -31,6 +31,15 @@ class HostComponent {
   readonly maxFileSize = signal<number | undefined>(undefined);
 }
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<bit-file-dropzone [formControl]="control"></bit-file-dropzone>`,
+  imports: [FileDropzoneComponent, ReactiveFormsModule],
+})
+class NoLabelHostComponent {
+  control = new FormControl<File[]>([], { nonNullable: true });
+}
+
 const makeFile = (name = "a.txt") => new File(["x"], name);
 
 function selectFiles(fixture: ComponentFixture<HostComponent>, files: File[]): void {
@@ -210,5 +219,10 @@ describe("FileDropzoneComponent", () => {
 
     const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
     expect(input.disabled).toBe(true);
+  });
+
+  it("throws when no bit-label is projected", () => {
+    const noLabelFixture = TestBed.createComponent(NoLabelHostComponent);
+    expect(() => noLabelFixture.detectChanges()).toThrow();
   });
 });

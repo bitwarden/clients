@@ -19,6 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonComponent } from "../button/button.component";
 import { BitHintDirective } from "../form-control/hint.directive";
+import { BitLabelComponent } from "../form-control/label.component";
 import { BitCustomInputDirective } from "../form-field/custom-input.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
@@ -87,6 +88,8 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   private readonly fileList = viewChild(FileListComponent);
   private readonly hint = contentChild(BitHintDirective, { descendants: true });
+  // Enforce an accessible label; consumers must project a <bit-label>.
+  private readonly label = contentChild.required(BitLabelComponent);
 
   private readonly _files = signal<File[]>([]);
   readonly files = this._files.asReadonly();
@@ -172,7 +175,10 @@ export class FileDropzoneComponent implements ControlValueAccessor {
       this.ngControl.valueAccessor = this;
     }
     // Point the field's <label for> at the dropzone's internal file input.
-    effect(() => this.formFieldControl.labelForId.set(this.inputId));
+    effect(() => {
+      this.label(); // assert a <bit-label> was projected (NG0951 if missing)
+      this.formFieldControl.labelForId.set(this.inputId);
+    });
     // After a removal, restore focus to a sensible neighbor (the next delete button, or the
     // dropzone itself when the list is now empty).
     effect(() => {

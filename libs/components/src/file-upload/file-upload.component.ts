@@ -16,6 +16,7 @@ import { ControlValueAccessor, NgControl } from "@angular/forms";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitHintDirective } from "../form-control/hint.directive";
+import { BitLabelComponent } from "../form-control/label.component";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { BitPrefixDirective } from "../form-field/prefix.directive";
@@ -71,6 +72,8 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   private readonly hint = contentChild(BitHintDirective, { descendants: true });
+  // Enforce an accessible label; consumers must project a <bit-label>.
+  private readonly label = contentChild.required(BitLabelComponent);
 
   private readonly _file = signal<File | null>(null);
   private readonly _disabledFromCva = signal(false);
@@ -101,7 +104,10 @@ export class FileUploadComponent implements ControlValueAccessor {
       this.ngControl.valueAccessor = this;
     }
     // Point the field's <label for> at the focusable "Choose File" button rather than the host.
-    effect(() => this.formFieldControl.labelForId.set(this.inputId));
+    effect(() => {
+      this.label(); // assert a <bit-label> was projected (NG0951 if missing)
+      this.formFieldControl.labelForId.set(this.inputId);
+    });
   }
 
   writeValue(value: File | null): void {

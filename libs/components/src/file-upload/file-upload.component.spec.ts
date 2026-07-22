@@ -26,6 +26,15 @@ class HostComponent {
   accept = "";
 }
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<bit-file-upload [formControl]="control"></bit-file-upload>`,
+  imports: [FileUploadComponent, ReactiveFormsModule],
+})
+class NoLabelHostComponent {
+  control = new FormControl<File | null>(null);
+}
+
 const makeFile = (name = "a.txt") => new File(["x"], name);
 
 function selectFile(fixture: ComponentFixture<HostComponent>, file: File): void {
@@ -127,5 +136,10 @@ describe("FileUploadComponent", () => {
 
     const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
     expect(input.disabled).toBe(true);
+  });
+
+  it("throws when no bit-label is projected", () => {
+    const noLabelFixture = TestBed.createComponent(NoLabelHostComponent);
+    expect(() => noLabelFixture.detectChanges()).toThrow();
   });
 });
