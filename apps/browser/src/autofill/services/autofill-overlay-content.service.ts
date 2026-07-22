@@ -610,10 +610,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     // If the submit button is not a traditional button element, check for an anchor element that contains submission keywords.
-    const submitAnchorElement = await this.querySubmitButtonElement(
-      element,
-      "a",
-      (element) => elementIsAnchorElement(element),
+    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (element) =>
+      elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;

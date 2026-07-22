@@ -621,6 +621,6 @@ export class DomQueryService implements DomQueryServiceInterface {
           );
         }
       }
-    } while (treeWalker.nextNode())
+    } while (treeWalker.nextNode());
   }
 }
