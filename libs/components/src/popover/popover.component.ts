@@ -57,8 +57,8 @@ export class PopoverComponent {
   readonly showCloseButton = input(true, { transform: booleanAttribute });
 
   /**
-   * Tailwind max-height class constraining the popover content's height. When set, the
-   * content scrolls vertically once it exceeds this height. Must be a valid
+   * Tailwind max-height class constraining the popover body's height. When set, the
+   * body scrolls vertically once it exceeds this height. Must be a valid
    * Tailwind max-height utility (e.g. "tw-max-h-96", "tw-max-h-[25rem]").
    */
   readonly maxHeightClass = input<`tw-max-h-${string}`>();
