@@ -9,7 +9,7 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CheckboxModule, LinkModule, TableModule } from "@bitwarden/components";
+import { CheckboxModule, IconModule, LinkModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
@@ -31,6 +31,7 @@ import {
     OrganizationNameBadgeComponent,
     GetOrgNameFromIdPipe,
     CheckboxModule,
+    IconModule,
     Vfo1IconPipe,
   ],
 })

@@ -13,6 +13,7 @@ import {
   BitwardenIcon,
   ButtonModule,
   ButtonType,
+  IconModule,
   MenuModule,
   PopoverComponent,
   PopoverModule,
@@ -37,6 +38,7 @@ import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
     JslibModule,
     TooltipDirective,
     Vfo1IconPipe,
+    IconModule,
   ],
 })
 export class NewCipherMenuComponent {
