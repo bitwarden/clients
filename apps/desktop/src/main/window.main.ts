@@ -300,6 +300,35 @@ export class WindowMain {
     });
   }
 
+  /**
+   * Whether the URL is our own renderer bundle. Accepts both schemes {@link getWindowUrl} can
+   * emit (`file:` and `bw-desktop-file:`) so navigation guards need not know the active build mode.
+   */
+  private isLocalBundleUrl(url: string): boolean {
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return false;
+    }
+
+    if (parsedUrl.protocol === "file:") {
+      // TODO(PM-33211): remove this branch once the custom-scheme cutover lands. An app no longer
+      // served over file: would keep only a permissive file: attack surface here.
+      //
+      // Check the full path, not the filename: file://attacker.com/index.html would pass a suffix test.
+      // (Hash/query live outside pathname, so index.html#/passkeys still matches.)
+      const bundlePathname = pathToFileURL(path.join(__dirname, "/index.html")).pathname;
+      return parsedUrl.host === "" && parsedUrl.pathname === bundlePathname;
+    }
+
+    if (parsedUrl.protocol === `${customFileScheme}:`) {
+      return parsedUrl.hostname === customFileHost;
+    }
+
+    return false;
+  }
+
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
@@ -487,6 +516,24 @@ export class WindowMain {
       void this.shell.openExternal(url, UrlType.WebUrl);
 
       return { action: "deny" };
+    });
+
+    // The main window must only ever show the local bundle. Cancelling a
+    // foreign navigation stops the preload re-running and re-exposing
+    // main functions, like window.ipc, on the attacker's page.
+    this.win.webContents.on("will-navigate", (event, url) => {
+      if (!this.isLocalBundleUrl(url)) {
+        event.preventDefault();
+        void this.shell.openExternal(url, UrlType.WebUrl);
+      }
+    });
+
+    // Same purpose as above, but for server-issued redirects
+    this.win.webContents.on("will-redirect", (event, url) => {
+      if (!this.isLocalBundleUrl(url)) {
+        event.preventDefault();
+        void this.shell.openExternal(url, UrlType.WebUrl);
+      }
     });
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)

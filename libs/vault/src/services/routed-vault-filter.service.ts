@@ -10,6 +10,8 @@ import {
   RoutedVaultFilterModel,
 } from "../models/routed-vault-filter.model";
 
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
+
 /**
  * Injection token for the base route path used in vault filter navigation.
  */
@@ -26,6 +28,7 @@ export const VAULT_FILTER_BASE_ROUTE = new SafeInjectionToken<string>("VaultFilt
 export class RoutedVaultFilterService implements OnDestroy {
   private onDestroy = new Subject<void>();
   private baseRoute: string = inject(VAULT_FILTER_BASE_ROUTE, { optional: true }) ?? "";
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
    * Filter values extracted from the URL.
@@ -45,6 +48,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           organizationId:
             (params.get("organizationId") as OrganizationId) ??
             (queryParams.get("organizationId") as OrganizationId) ??
+            (queryParams.get("vaultId") as OrganizationId) ??
             undefined,
           organizationIdParamType:
             params.get("organizationId") != undefined ? ("path" as const) : ("query" as const),
@@ -72,12 +76,15 @@ export class RoutedVaultFilterService implements OnDestroy {
    */
   createRoute(filter: RoutedVaultFilterModel): [commands: any[], extras?: NavigationExtras] {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
+    const organizationId =
+      filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null);
     const extras: NavigationExtras = {
       queryParams: {
         collectionId: filter.collectionId ?? null,
         folderId: filter.folderId ?? null,
-        organizationId:
-          filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null),
+        ...(this.vfo1TerminologyService.enabled()
+          ? { vaultId: organizationId, organizationId: null }
+          : { organizationId, vaultId: null }),
         type: filter.type ?? null,
       },
       queryParamsHandling: "merge",
