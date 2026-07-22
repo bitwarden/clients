@@ -109,6 +109,19 @@ const mockPasskeyCiphers: InlineMenuCipherData[] = [
   },
 ];
 
+const mockPasskeysAndPasswords: InlineMenuCipherData[] = [
+  ...mockPasskeyCiphers,
+  {
+    id: "3",
+    name: "bitwarden.com",
+    type: 1,
+    favorite: false,
+    reprompt: 0,
+    icon: mockIcon,
+    login: { username: "password-user@bitwarden.com", passkey: null },
+  },
+];
+
 type ComponentAndControls = InlineMenuCipherListProps & { width: number };
 
 export default {
@@ -124,7 +137,15 @@ export default {
     ciphers: mockCiphers,
     theme: ThemeTypes.Dark,
     viewButtonText: mockI18n.view,
-    fillVerificationCodeText: "Fill verification code",
+    opensInANewWindowText: mockI18n.opensInANewWindow,
+    fillCredentialsForText: mockI18n.fillCredentialsFor,
+    logInWithPasskeyAriaLabel: mockI18n.logInWithPasskeyAriaLabel,
+    usernameText: mockI18n.username,
+    cardNumberEndsWithText: mockI18n.cardNumberEndsWith,
+    fillVerificationCodeText: mockI18n.fillVerificationCode,
+    totpCodeAria: mockI18n.totpCodeAria,
+    passkeysText: mockI18n.passkeys,
+    passwordsText: mockI18n.passwords,
     handleFillCipher: (cipher) => alert(`Fill ${cipher.name}`),
     handleViewCipher: (cipher) => alert(`View ${cipher.name}`),
     width: 280,
@@ -143,7 +164,14 @@ export const Default: StoryObj<ComponentAndControls> = {
 export const Totp: StoryObj<ComponentAndControls> = {
   args: {
     ciphers: [mockTotpCiphers[1]],
-    totpSecondsRemaining: 24,
+  },
+  render: Template,
+};
+
+export const TotpExpiring: StoryObj<ComponentAndControls> = {
+  args: {
+    ciphers: [mockTotpCiphers[1]],
+    totpSecondsRemaining: 7,
   },
   render: Template,
 };
@@ -151,7 +179,6 @@ export const Totp: StoryObj<ComponentAndControls> = {
 export const TotpMultiple: StoryObj<ComponentAndControls> = {
   args: {
     ciphers: mockTotpCiphers,
-    totpSecondsRemaining: 7,
   },
   render: Template,
 };
@@ -159,6 +186,13 @@ export const TotpMultiple: StoryObj<ComponentAndControls> = {
 export const Passkeys: StoryObj<ComponentAndControls> = {
   args: {
     ciphers: mockPasskeyCiphers,
+  },
+  render: Template,
+};
+
+export const PasskeysAndPasswords: StoryObj<ComponentAndControls> = {
+  args: {
+    ciphers: mockPasskeysAndPasswords,
   },
   render: Template,
 };
