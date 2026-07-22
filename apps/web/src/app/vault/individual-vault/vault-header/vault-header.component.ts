@@ -142,7 +142,7 @@ export class VaultHeaderComponent {
     private readonly dialogService: DialogService,
     private readonly router: Router,
     private readonly accountService: AccountService,
-  ) { }
+  ) {}
 
   /**
    * The id of the organization that is currently being filtered on.
