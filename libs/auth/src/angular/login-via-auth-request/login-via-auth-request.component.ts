@@ -65,8 +65,8 @@ const matchOptions: IsActiveMatchOptions = {
 })
 export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private authRequestKeyPair:
-    | { publicKey: Uint8Array | undefined; privateKey: Uint8Array | undefined }
-    | undefined = undefined;
+    { publicKey: Uint8Array | undefined; privateKey: Uint8Array | undefined } | undefined =
+    undefined;
   private accessCode: string | undefined = undefined;
   private authStatus: AuthenticationStatus | undefined = undefined;
   private showResendNotificationTimeoutSeconds = 12;

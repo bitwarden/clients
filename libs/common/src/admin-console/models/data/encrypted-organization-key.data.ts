@@ -1,6 +1,5 @@
 export type EncryptedOrganizationKeyData =
-  | OrganizationEncryptedOrganizationKeyData
-  | ProviderEncryptedOrganizationKeyData;
+  OrganizationEncryptedOrganizationKeyData | ProviderEncryptedOrganizationKeyData;
 
 type OrganizationEncryptedOrganizationKeyData = {
   type: "organization";
