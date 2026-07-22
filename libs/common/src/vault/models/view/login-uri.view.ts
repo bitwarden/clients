@@ -198,16 +198,20 @@ export class LoginUriView implements View {
       return false;
     }
 
-    // A saved URI and the target URI may express the same registrable domain in
-    // different forms; unicode ("测试.com") vs punycode ("xn--0zwm56d.com").
-    // Collapse both sides to their unicode form before comparing.
-    const normalizedDomain = punycodeToUnicode(this.domain);
-    const domainMatches = Array.from(matchDomains).some(
-      (matchDomain) => matchDomain != null && punycodeToUnicode(matchDomain) === normalizedDomain,
-    );
+    // Fast path: an exact match covers the common all-ASCII case without any
+    // punycode work. Fall back to normalized comparison only on a miss.
+    if (!matchDomains.has(this.domain)) {
+      // A saved URI and the target URI may express the same registrable domain in
+      // different forms; unicode ("测试.com") vs punycode ("xn--0zwm56d.com").
+      // Collapse both sides to their unicode form before comparing.
+      const normalizedDomain = punycodeToUnicode(this.domain);
+      const domainMatches = Array.from(matchDomains).some(
+        (matchDomain) => matchDomain != null && punycodeToUnicode(matchDomain) === normalizedDomain,
+      );
 
-    if (!domainMatches) {
-      return false;
+      if (!domainMatches) {
+        return false;
+      }
     }
 
     if (Utils.DomainMatchBlacklist.has(this.domain)) {
