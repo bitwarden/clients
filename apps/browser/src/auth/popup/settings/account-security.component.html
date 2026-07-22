@@ -110,6 +110,11 @@
                 </bit-hint>
               </bit-form-control>
             }
+            @if (unlockSharingDisabled()) {
+              <bit-hint class="tw-mt-2 tw-text-sm">
+                {{ "sharedUnlockUnavailableUntrustedDevice" | i18n }}
+              </bit-hint>
+            }
           }
         </bit-card>
       </bit-section>

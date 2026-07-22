@@ -133,6 +133,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly showSharedUnlockWithDesktop: boolean;
   // Firefox does not support sharing unlock state with the web vault.
   protected readonly showSharedUnlockWithWeb: boolean;
+  // True when the user declined to trust this TDE device, disabling shared unlock. The value cannot
+  // change while this page is open, so it is read once during init.
+  protected readonly unlockSharingDisabled = signal(false);
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -209,6 +212,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+
+    const unlockSharingDisabled = await firstValueFrom(
+      this.sharedUnlockSettingsService.unlockSharingDisabled$(activeAccount.id),
+    );
+    this.unlockSharingDisabled.set(unlockSharingDisabled);
+    if (unlockSharingDisabled) {
+      this.form.controls.allowSharingUnlockStateWithDesktop.disable({ emitEvent: false });
+      this.form.controls.allowSharingUnlockStateWithWeb.disable({ emitEvent: false });
+    }
+
     this.loading.set(false);
 
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();

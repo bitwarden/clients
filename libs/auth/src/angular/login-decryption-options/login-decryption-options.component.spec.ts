@@ -12,20 +12,18 @@ import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import {
-  LoginEmailServiceAbstraction,
-  LogoutService,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { SignedSecurityState } from "@bitwarden/common/key-management/types";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -55,7 +53,6 @@ describe("LoginDecryptionOptionsComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let keyService: MockProxy<KeyService>;
   let loginDecryptionOptionsService: MockProxy<LoginDecryptionOptionsService>;
-  let loginEmailService: MockProxy<LoginEmailServiceAbstraction>;
   let messagingService: MockProxy<MessagingService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let passwordResetEnrollmentService: MockProxy<PasswordResetEnrollmentServiceAbstraction>;
@@ -67,10 +64,11 @@ describe("LoginDecryptionOptionsComponent", () => {
   let validationService: MockProxy<ValidationService>;
   let logoutService: MockProxy<LogoutService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
-  let securityStateService: MockProxy<SecurityStateService>;
   let appIdService: MockProxy<AppIdService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<any>;
+  let authService: MockProxy<AuthService>;
+  let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
 
   const mockUserId = "user-id-123" as UserId;
   const mockEmail = "test@example.com";
@@ -87,7 +85,6 @@ describe("LoginDecryptionOptionsComponent", () => {
     i18nService = mock<I18nService>();
     keyService = mock<KeyService>();
     loginDecryptionOptionsService = mock<LoginDecryptionOptionsService>();
-    loginEmailService = mock<LoginEmailServiceAbstraction>();
     messagingService = mock<MessagingService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     passwordResetEnrollmentService = mock<PasswordResetEnrollmentServiceAbstraction>();
@@ -99,12 +96,17 @@ describe("LoginDecryptionOptionsComponent", () => {
     validationService = mock<ValidationService>();
     logoutService = mock<LogoutService>();
     registerSdkService = mock<RegisterSdkService>();
-    securityStateService = mock<SecurityStateService>();
     appIdService = mock<AppIdService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock();
+    authService = mock<AuthService>();
+    sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
 
     // Setup default mocks
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+    // takeUntilDestroyed short-circuits when destroyRef.destroyed is truthy; the auto-mock returns a
+    // truthy stub for it, so force it false to keep those streams alive during the test.
+    (destroyRef as { destroyed: boolean }).destroyed = false;
     accountService.activeAccount$ = new BehaviorSubject({
       id: mockUserId,
       email: mockEmail,
@@ -114,6 +116,8 @@ describe("LoginDecryptionOptionsComponent", () => {
     });
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
     deviceTrustService.getShouldTrustDevice.mockResolvedValue(true);
+    deviceTrustService.setShouldTrustDevice.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.setUnlockSharingDisabled.mockResolvedValue(undefined);
     i18nService.t.mockImplementation((key: string) => key);
 
     component = new LoginDecryptionOptionsComponent(
@@ -127,7 +131,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       i18nService,
       keyService,
       loginDecryptionOptionsService,
-      loginEmailService,
       messagingService,
       organizationApiService,
       passwordResetEnrollmentService,
@@ -139,10 +142,11 @@ describe("LoginDecryptionOptionsComponent", () => {
       validationService,
       logoutService,
       registerSdkService,
-      securityStateService,
       appIdService,
       configService,
       accountCryptographicStateService,
+      authService,
+      sharedUnlockSettingsService,
     );
   });
 
@@ -318,6 +322,57 @@ describe("LoginDecryptionOptionsComponent", () => {
       });
       expect(loginDecryptionOptionsService.handleCreateUserSuccess).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+      // Remember device defaults to true, so shared unlock is not disabled.
+      expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
+        mockUserId,
+        false,
+      );
+    });
+
+    it("should disable shared unlock when the user proceeds without trusting the device", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
+      router.navigate.mockResolvedValue(true);
+      appIdService.getAppId.mockResolvedValue("mock-app-id");
+      organizationApiService.getKeys.mockResolvedValue({
+        publicKey: "mock-org-public-key",
+        privateKey: "mock-org-private-key",
+      } as any);
+
+      component["formGroup"].controls.rememberDevice.setValue(false);
+
+      await component["createUser"]();
+
+      expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
+        mockUserId,
+        true,
+      );
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(false, mockUserId);
+      expect(sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb).toHaveBeenCalledWith(
+        false,
+        mockUserId,
+      );
+    });
+
+    it("does not clear the allow-sharing settings when the user trusts the device", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
+      router.navigate.mockResolvedValue(true);
+      appIdService.getAppId.mockResolvedValue("mock-app-id");
+      organizationApiService.getKeys.mockResolvedValue({
+        publicKey: "mock-org-public-key",
+        privateKey: "mock-org-private-key",
+      } as any);
+
+      // Remember device defaults to true.
+      await component["createUser"]();
+
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+      expect(sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb).not.toHaveBeenCalled();
     });
 
     it("should use legacy registration when feature flag is disabled", async () => {
@@ -367,6 +422,49 @@ describe("LoginDecryptionOptionsComponent", () => {
       // Verify navigation
       expect(loginDecryptionOptionsService.handleCreateUserSuccess).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+    });
+  });
+
+  describe("shared unlock bootstrap on existing untrusted device", () => {
+    beforeEach(() => {
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({
+          trustedDeviceOption: {
+            hasAdminApproval: true,
+            hasLoginApprovingDevice: false,
+            hasManageResetPasswordPermission: false,
+            isTdeOffboarding: false,
+          },
+          hasMasterPassword: true,
+          keyConnectorOption: undefined,
+        }),
+      );
+      deviceTrustService.trustDevice.mockResolvedValue(undefined);
+      router.navigate.mockResolvedValue(true);
+    });
+
+    it("trusts the device and navigates to the vault when the account is unlocked externally", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+      await component.ngOnInit();
+      // Allow the switchMap/defer async work to run.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(deviceTrustService.trustDevice).toHaveBeenCalledWith(mockUserId);
+      expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
+        mockUserId,
+        false,
+      );
+      expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+    });
+
+    it("does not trust the device while the account remains locked", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+
+      await component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(deviceTrustService.trustDevice).not.toHaveBeenCalled();
     });
   });
 });

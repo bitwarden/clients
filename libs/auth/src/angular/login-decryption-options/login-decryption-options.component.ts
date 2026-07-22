@@ -9,17 +9,18 @@ import {
   catchError,
   concatMap,
   defer,
+  filter,
   firstValueFrom,
   from,
   map,
   of,
   switchMap,
+  take,
   throwError,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  LoginEmailServiceAbstraction,
   LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
@@ -27,13 +28,15 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -123,7 +126,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private i18nService: I18nService,
     private keyService: KeyService,
     private loginDecryptionOptionsService: LoginDecryptionOptionsService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private passwordResetEnrollmentService: PasswordResetEnrollmentServiceAbstraction,
@@ -135,10 +137,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private validationService: ValidationService,
     private logoutService: LogoutService,
     private registerSdkService: RegisterSdkService,
-    private securityStateService: SecurityStateService,
     private appIdService: AppIdService,
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private authService: AuthService,
+    private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -177,6 +180,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         await this.loadNewUserData();
       } else {
         this.loadExistingUserUntrustedDeviceData(userDecryptionOptions);
+        this.observeSharedUnlockBootstrap();
       }
     } catch (err) {
       this.validationService.showError(err);
@@ -272,6 +276,61 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     this.canApproveWithMasterPassword = userDecryptionOptions?.hasMasterPassword || false;
   }
 
+  /**
+   * While the user sits on this screen, another of their clients may share its unlock state (the
+   * User Key) with this one via shared unlock. If this happens, we should trust the current device
+   * and auto-navigate.
+   */
+  private observeSharedUnlockBootstrap() {
+    this.authService
+      .authStatusFor$(this.activeAccountId)
+      .pipe(
+        filter((status) => status === AuthenticationStatus.Unlocked),
+        take(1),
+        switchMap(() => defer(() => this.handleSharedUnlockBootstrap())),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  private async handleSharedUnlockBootstrap() {
+    try {
+      await this.deviceTrustService.trustDevice(this.activeAccountId);
+      await this.sharedUnlockSettingsService.setUnlockSharingDisabled(this.activeAccountId, false);
+      await this.handleCreateUserSuccessNavigation();
+    } catch (err) {
+      this.validationService.showError(err);
+    }
+  }
+
+  /**
+   * Records the consequence of the user's trust choice for shared unlock: a TDE device the user
+   * declined to trust ("remember this device" unchecked) must not participate in shared unlock.
+   * Called when the user proceeds off this screen; trusting itself is handled by the existing
+   * shouldTrustDevice -> trustDeviceIfRequired paths after unlock.
+   */
+  private async persistUnlockSharingChoice() {
+    const trustDevice = this.rememberDeviceControl.value;
+
+    await this.sharedUnlockSettingsService.setUnlockSharingDisabled(
+      this.activeAccountId,
+      !trustDevice,
+    );
+
+    // An untrusted device must not share its unlock state with other clients, so turn both
+    // allow-sharing settings off.
+    if (!trustDevice) {
+      await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(
+        false,
+        this.activeAccountId,
+      );
+      await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(
+        false,
+        this.activeAccountId,
+      );
+    }
+  }
+
   protected createUser = async () => {
     if (this.state !== State.NewUser) {
       return;
@@ -347,6 +406,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
+      await this.persistUnlockSharingChoice();
+
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
       if (this.clientType === ClientType.Desktop) {
@@ -368,10 +429,12 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
+    await this.persistUnlockSharingChoice();
     await this.router.navigate(["/login-with-device"]);
   }
 
   protected async approveWithMasterPassword() {
+    await this.persistUnlockSharingChoice();
     await this.router.navigate(["/lock"], {
       queryParams: {
         from: "login-initiated",
@@ -380,6 +443,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
+    await this.persistUnlockSharingChoice();
     await this.router.navigate(["/admin-approval-requested"]);
   }
 

@@ -27,9 +27,19 @@ const ALLOW_SHARING_UNLOCK_STATE_WITH_WEB = new UserKeyDefinition<boolean>(
   },
 );
 
+const UNLOCK_SHARING_DISABLED = new UserKeyDefinition<boolean>(
+  SHARED_UNLOCK_SETTINGS_DISK,
+  "unlockSharingDisabled",
+  {
+    deserializer: (b) => b,
+    clearOn: ["logout"],
+  },
+);
+
 // Default off because of native messaging permission
 const DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP = false;
 const DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_WEB = true;
+const DEFAULT_UNLOCK_SHARING_DISABLED = false;
 
 export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsService {
   constructor(private stateProvider: StateProvider) {
@@ -58,5 +68,15 @@ export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsServ
     await this.stateProvider
       .getUser(userId, ALLOW_SHARING_UNLOCK_STATE_WITH_WEB)
       .update(() => value);
+  }
+
+  unlockSharingDisabled$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUserState$(UNLOCK_SHARING_DISABLED, userId)
+      .pipe(map((v) => v ?? DEFAULT_UNLOCK_SHARING_DISABLED));
+  }
+
+  async setUnlockSharingDisabled(userId: UserId, value: boolean): Promise<void> {
+    await this.stateProvider.getUser(userId, UNLOCK_SHARING_DISABLED).update(() => value);
   }
 }
