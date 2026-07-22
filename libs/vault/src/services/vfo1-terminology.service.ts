@@ -11,6 +11,7 @@ import { BitwardenIcon } from "@bitwarden/components";
  */
 const VFO1_ICON_MAP: Readonly<Partial<Record<BitwardenIcon, BitwardenIcon>>> = Object.freeze({
   "bwi-collection-shared": "bwi-shared-folder",
+  "bwi-collection": "bwi-shared-folder",
 });
 
 @Injectable({ providedIn: "root" })

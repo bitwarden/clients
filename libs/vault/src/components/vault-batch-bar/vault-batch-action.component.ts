@@ -88,7 +88,7 @@ export class VaultBatchActionComponent implements OnDestroy {
     if (this.service.canAssignToCollections()) {
       actions.push({
         action: this.service.bulkAssignToCollections.bind(this.service),
-        icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
+        icon: this.vfo1TerminologyService.iconClass("bwi-collection"),
         label: this.i18nService.t("assignToCollections"),
       });
     }
