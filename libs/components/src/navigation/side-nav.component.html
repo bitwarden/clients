@@ -39,7 +39,9 @@
             <div class="tw-w-full tw-bg-bg-nav">
               <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
             </div>
-            <ng-container *ngTemplateOutlet="navContent"></ng-container>
+            <div class="tw-flex tw-flex-col tw-gap-2">
+              <ng-container *ngTemplateOutlet="navContent"></ng-container>
+            </div>
           </nav>
           <div
             class="tw-w-full tw-bg-bg-nav tw-group [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"

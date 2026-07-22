@@ -27,6 +27,15 @@
   >
     @if (toggleInStartSlot()) {
       <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>
+    } @else {
+      <!--
+        Forwarded consumer content (e.g. a `bit-icon-tile`). Only available when the collapse
+        toggle is not occupying the start slot, i.e. v2 top-level groups. `[slot=start]` on v1
+        groups or v2 nested groups (treeDepth > 0) is intentionally ignored.
+      -->
+      <ng-container slot="start">
+        <ng-content select="[slot=start]"></ng-content>
+      </ng-container>
     }
     <ng-container slot="end">
       <ng-content select="[slot=end]"></ng-content>

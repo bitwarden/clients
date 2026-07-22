@@ -20,6 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   BerryComponent,
   I18nMockService,
+  IconTileComponent,
   LayoutComponent,
   NavigationModule,
   StorybookGlobalStateProvider,
@@ -143,6 +144,7 @@ export default {
         I18nPipe,
         NavigationProductSwitcherComponent,
         BerryComponent,
+        IconTileComponent,
       ],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
@@ -306,10 +308,13 @@ const RealisticTemplate: StoryObj<
           <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
           <bit-nav-item text="Vault" icon="bwi-lock" route="vault"></bit-nav-item>
           <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
-          <bit-nav-group text="All items" icon="bwi-cog" route="all" [open]="true">
-            <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
-            <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
-            <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+          <bit-nav-group text="All items" route="all" [open]="true">
+            <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+            <bit-nav-section label="Views">
+              <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
+              <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
+              <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+            </bit-nav-section>
             <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
               <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
               <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
@@ -327,9 +332,6 @@ const RealisticTemplate: StoryObj<
           </bit-nav-group>
           <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
           <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
-          <ng-container slot="footer">
-            <div class="tw-py-10">Footer stuff</div>
-          </ng-container>
           <ng-container slot="product-switcher">
             <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
@@ -356,7 +358,62 @@ export const RealisticSideNav = {
   ...RealisticTemplate,
 };
 
-export const RealisticSideNavV2 = {
-  ...RealisticTemplate,
+export const RealisticSideNavV2: Story = {
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo },
+    template: `
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
+          <bit-nav-group text="My vault" [open]="true">
+            <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
+            <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
+            <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
+            <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-section icon="bwi-sticky-note" label="Pinned">
+              <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
+              <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
+              <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
+            </bit-nav-group>
+            <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+              <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
+              <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
+            </bit-nav-group>
+            </bit-nav-section>
+            <bit-berry slot="end" variant="primary" [value]="1"></bit-berry>
+          </bit-nav-group>
+          <bit-nav-section label="Tools">
+            <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
+            <bit-nav-item text="Generator" route="generator"></bit-nav-item>
+            <bit-nav-item text="Import" route="import"></bit-nav-item>
+            <bit-nav-item text="Export" route="export"></bit-nav-item>
+          </bit-nav-section>
+          <bit-nav-section label="Manage">
+            <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
+            <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
+          </bit-nav-section>
+          <ng-container slot="footer">
+            <div class="tw-py-10 tw-px-4">Account section would go here</div>
+          </ng-container>
+          <ng-container slot="product-switcher">
+            <bit-nav-divider></bit-nav-divider>
+            <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
+          </ng-container>
+        </bit-side-nav>
+        <router-outlet></router-outlet>
+      </bit-layout>
+    `,
+  }),
+  args: {
+    mockOrgs: [
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+      },
+    ] as Organization[],
+    mockProviders: [{ id: "provider-a" }] as Provider[],
+  },
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };

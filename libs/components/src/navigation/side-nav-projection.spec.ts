@@ -20,6 +20,7 @@ import { SideNavService } from "./side-nav.service";
     <bit-side-nav>
       <bit-nav-logo [openIcon]="logo" route="." label="Home"></bit-nav-logo>
       <bit-nav-group text="Tools" icon="bwi-wrench" [open]="true">
+        <span slot="start">LEADING</span>
         <bit-nav-item text="Child A" route="a"></bit-nav-item>
         <bit-nav-item text="Child B" route="b"></bit-nav-item>
         <span slot="end">TRAILING</span>
@@ -122,6 +123,25 @@ describe("side-nav v1 content projection", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent as string).toContain("TRAILING");
+  });
+
+  // In v1 the collapse toggle owns the nav-group start slot, so consumer [slot=start] content
+  // has no outlet and must not render.
+  it("does not project nav-group [slot=start] content in v1", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent as string).not.toContain("LEADING");
+  });
+
+  // In v2 top-level groups the toggle moves to the end slot, freeing the start slot to forward
+  // consumer leading content (e.g. a bit-icon-tile).
+  it("projects nav-group [slot=start] content in v2 top-level groups", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent as string).toContain("LEADING");
   });
 
   it("renders the nav-group collapse arrow in v2", () => {

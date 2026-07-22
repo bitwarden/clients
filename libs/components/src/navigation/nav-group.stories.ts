@@ -11,6 +11,7 @@ import { enabledFlags } from "@bitwarden/storybook";
 import { BerryComponent } from "../berry";
 import { ChipActionComponent } from "../chips";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -40,6 +41,7 @@ export default {
         IconButtonModule,
         BerryComponent,
         ChipActionComponent,
+        IconTileComponent,
       ],
       providers: [
         {
@@ -252,6 +254,33 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child A" route="fa"></bit-nav-item>
           <bit-nav-item text="Child B" route="fb"></bit-nav-item>
           <span slot="end"> 12 </span>
+        </bit-nav-group>
+      </bit-side-nav>
+    `,
+  }),
+};
+
+/**
+ * A `bit-icon-tile` (or other leading content) can be projected into the `start` slot of a
+ * top-level nav group. The start slot is only available for v2 top-level groups (this story
+ * enables the VFO1Foundation flag) — the collapse toggle owns the start slot for v1 groups and
+ * v2 nested groups.
+ */
+export const WithStartSlot: StoryObj<NavGroupComponent> = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="With Icon Tile" [route]="['a']">
+          <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+          <bit-nav-item text="Child A" route="aa"></bit-nav-item>
+          <bit-nav-item text="Child B" route="ab"></bit-nav-item>
+        </bit-nav-group>
+        <bit-nav-group text="Alongside an icon" [route]="['b']" icon="bwi-filter">
+          <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
+          <bit-nav-item text="Child A" route="ba"></bit-nav-item>
+          <bit-nav-item text="Child B" route="bb"></bit-nav-item>
         </bit-nav-group>
       </bit-side-nav>
     `,
