@@ -258,6 +258,31 @@ describe("AutofillInlineMenuContentService", () => {
           autofillInlineMenuContentService["buttonElement"],
         );
       });
+
+      it("appends the inline menu element to a containing ARIA modal when the focused field is not inside a native dialog", async () => {
+        isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+        const ariaModalElement = document.createElement("div");
+        ariaModalElement.setAttribute("role", "dialog");
+        ariaModalElement.setAttribute("aria-modal", "true");
+        const ariaModalAppendSpy = jest.spyOn(ariaModalElement, "appendChild");
+        const inputElement = document.createElement("input");
+        ariaModalElement.appendChild(inputElement);
+        document.body.appendChild(ariaModalElement);
+        Object.defineProperty(document, "activeElement", {
+          value: inputElement,
+          writable: true,
+        });
+
+        sendMockExtensionMessage({
+          command: "appendAutofillInlineMenuToDom",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(ariaModalAppendSpy).toHaveBeenCalledWith(
+          autofillInlineMenuContentService["buttonElement"],
+        );
+      });
     });
   });
 

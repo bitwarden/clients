@@ -282,15 +282,40 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * @param element - The inline menu element to append to the menu container.
    */
   private appendInlineMenuElementToDom(element: HTMLElement) {
-    const parentDialogElement = globalThis.document.activeElement?.closest("dialog");
+    const containerElement = this.getInlineMenuContainerElement();
+    this.observeContainerElement(containerElement);
+    containerElement.appendChild(element);
+  }
+
+  /**
+   * Determines which element the inline menu should be appended to. When the
+   * focused field lives inside a modal, the menu must be appended within that
+   * modal so it shares the modal's DOM subtree. Modals commonly run a focus trap
+   * that forces focus back inside their subtree; a menu appended to
+   * `document.body` sits outside it, so the trap steals focus the moment the user
+   * interacts with the menu and both clicks and keyboard navigation fail.
+   * Both native top-layer `<dialog>` modals and ARIA modals
+   * (`role="dialog"`/`role="alertdialog"` with `aria-modal="true"`) are
+   * handled; otherwise the menu is appended to `document.body`.
+   */
+  private getInlineMenuContainerElement(): HTMLElement {
+    const activeElement = globalThis.document.activeElement;
+
+    const parentDialogElement = activeElement?.closest("dialog");
+
     if (parentDialogElement?.open && parentDialogElement.matches(":modal")) {
-      this.observeContainerElement(parentDialogElement);
-      parentDialogElement.appendChild(element);
-      return;
+      return parentDialogElement;
     }
 
-    this.observeContainerElement(globalThis.document.body);
-    globalThis.document.body.appendChild(element);
+    const parentAriaModalElement = activeElement?.closest<HTMLElement>(
+      '[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]',
+    );
+
+    if (parentAriaModalElement) {
+      return parentAriaModalElement;
+    }
+
+    return globalThis.document.body;
   }
 
   /**
