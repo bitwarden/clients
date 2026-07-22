@@ -1,6 +1,13 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, importProvidersFrom } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  importProvidersFrom,
+  input,
+  signal,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
@@ -20,8 +27,18 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import {
   AvatarModule,
   BannerModule,
+  BitCellComponent,
+  BitCellDefDirective,
+  BitColumnComponent,
+  BitHeaderCellComponent,
+  BitRowGroupComponent,
+  BitTableToolbarComponent,
+  BitTableV2Component,
   ChipActionComponent,
   ButtonModule,
+  type ColumnName,
+  defineTable,
+  FilterMenuModule,
   I18nMockService,
   IconButtonModule,
   ItemModule,
@@ -326,6 +343,356 @@ class MockSettingsPageComponent {}
 })
 class MockVaultSubpageComponent {}
 
+// --- Table V2 list-presentation exploration -------------------------------------
+// Duplicated from libs/components Table V2 "Filterable" story so we can iterate on
+// the responsive table/list presentation inside the real extension popup chrome.
+
+type TableVaultRow = {
+  id: number;
+  name: string;
+  type: "login" | "card" | "note";
+  vault: "mine" | "acme";
+  collectionIds: string[];
+  favorite: boolean;
+};
+
+const TABLE_VAULTS = [
+  { id: "mine", name: "My vault" },
+  { id: "acme", name: "Acme corporation" },
+] as const;
+
+const TABLE_COLLECTION_ORGS = [
+  {
+    name: "Acme corporation",
+    collections: [
+      { id: "eng", name: "Engineering" },
+      { id: "ops", name: "Operations" },
+      { id: "pm", name: "Project management" },
+    ],
+  },
+  {
+    name: "My vault",
+    collections: [
+      { id: "personal", name: "Personal" },
+      { id: "finance", name: "Finance" },
+    ],
+  },
+];
+
+const TABLE_VAULT_ROWS: TableVaultRow[] = [
+  { id: 1, name: "Acme", type: "login", vault: "acme", collectionIds: ["eng"], favorite: true },
+  { id: 2, name: "Amazon", type: "login", vault: "mine", collectionIds: [], favorite: false },
+  { id: 3, name: "Apple ID", type: "login", vault: "mine", collectionIds: [], favorite: true },
+  {
+    id: 4,
+    name: "Chase Bank",
+    type: "card",
+    vault: "acme",
+    collectionIds: ["ops"],
+    favorite: false,
+  },
+  {
+    id: 5,
+    name: "Corporate amex",
+    type: "card",
+    vault: "acme",
+    collectionIds: ["ops", "eng"],
+    favorite: true,
+  },
+  { id: 6, name: "Datadog", type: "login", vault: "acme", collectionIds: ["eng"], favorite: false },
+  {
+    id: 7,
+    name: "Docusign",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["ops"],
+    favorite: false,
+  },
+  {
+    id: 8,
+    name: "Recovery codes",
+    type: "note",
+    vault: "mine",
+    collectionIds: ["personal"],
+    favorite: false,
+  },
+  {
+    id: 9,
+    name: "Wifi password",
+    type: "note",
+    vault: "acme",
+    collectionIds: ["pm"],
+    favorite: false,
+  },
+  { id: 10, name: "Dropbox", type: "login", vault: "mine", collectionIds: [], favorite: false },
+  { id: 11, name: "Figma", type: "login", vault: "acme", collectionIds: ["eng"], favorite: true },
+  {
+    id: 12,
+    name: "GitHub",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["eng", "ops"],
+    favorite: true,
+  },
+  { id: 13, name: "Gmail", type: "login", vault: "mine", collectionIds: [], favorite: false },
+  {
+    id: 14,
+    name: "Mastercard",
+    type: "card",
+    vault: "mine",
+    collectionIds: ["finance"],
+    favorite: false,
+  },
+  { id: 15, name: "Netflix", type: "login", vault: "mine", collectionIds: [], favorite: true },
+  { id: 16, name: "Notion", type: "login", vault: "acme", collectionIds: ["pm"], favorite: false },
+  {
+    id: 17,
+    name: "Passport scan",
+    type: "note",
+    vault: "mine",
+    collectionIds: ["personal"],
+    favorite: false,
+  },
+  { id: 18, name: "Slack", type: "login", vault: "acme", collectionIds: ["eng"], favorite: false },
+  {
+    id: 19,
+    name: "Visa debit",
+    type: "card",
+    vault: "acme",
+    collectionIds: ["ops"],
+    favorite: true,
+  },
+];
+
+type TableVaultFilters = {
+  search?: string;
+  type?: TableVaultRow["type"];
+  vault?: string[];
+  collection?: string[];
+  favorite?: boolean;
+};
+
+@Component({
+  selector: "mock-vault-table-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockAddButtonComponent,
+    MockCurrentAccountComponent,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitRowGroupComponent,
+    BitTableToolbarComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    IconButtonModule,
+    ChipActionComponent,
+  ],
+  template: `
+    <popup-page hideOverflow>
+      <popup-header slot="header" pageTitle="Vault">
+        <ng-container slot="end">
+          <mock-add-button></mock-add-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+      </popup-header>
+
+      <!-- fill needs a bounded flex parent; popup-page's content slot isn't flex, so wrap it. -->
+      <div class="tw-flex tw-h-full tw-min-h-0 tw-flex-col">
+        <bit-table-v2
+          [tableDef]="table"
+          [filter]="filter"
+          [presentation]="presentation()"
+          [displayedColumns]="displayedColumns"
+          fill
+        >
+          <bit-table-toolbar>
+            <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+
+            <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+              @for (option of typeOptions(); track option.value) {
+                <bit-filter-option [value]="option.value" [count]="option.count">
+                  {{ option.label }}
+                </bit-filter-option>
+              }
+            </bit-filter-menu>
+
+            <bit-filter-divider></bit-filter-divider>
+
+            <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+              @for (option of vaultOptions(); track option.value) {
+                <bit-filter-option [value]="option.value" [count]="option.count">
+                  {{ option.label }}
+                </bit-filter-option>
+              }
+            </bit-filter-menu>
+
+            <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+              @for (org of collectionOrgs(); track org.name) {
+                <bit-filter-section [label]="org.name" collapsible>
+                  @for (collection of org.collections; track collection.id) {
+                    <bit-filter-option [value]="collection.id" [count]="collection.count">
+                      {{ collection.name }}
+                    </bit-filter-option>
+                  }
+                </bit-filter-section>
+              }
+            </bit-filter-menu>
+
+            <bit-filter-toggle
+              key="favorite"
+              label="Favorites"
+              icon="bwi-star"
+              iconActive="bwi-star-f"
+            ></bit-filter-toggle>
+          </bit-table-toolbar>
+
+          <bit-row-group [match]="isFavorite" collapsible>
+            Favorites
+            <!-- favorite logins/notes render flat first, then a "Cards" subgroup -->
+            <bit-row-group [match]="isCard">Cards</bit-row-group>
+          </bit-row-group>
+          <bit-row-group [match]="all" collapsible>
+            All items
+            <bit-row-group [match]="isLogin">Logins</bit-row-group>
+            <bit-row-group [match]="isCard">Cards</bit-row-group>
+            <bit-row-group [match]="isNote">Notes</bit-row-group>
+          </bit-row-group>
+
+          <bit-column sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">
+              <i
+                slot="start"
+                class="bwi bwi-globe tw-text-3xl tw-text-muted"
+                aria-hidden="true"
+              ></i>
+              {{ row.name }}
+              <span slot="secondary">{{ vaultName(row.vault) }}</span>
+            </bit-cell>
+          </bit-column>
+          <bit-column sortable width="120px">
+            <bit-header-cell>Type</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+          </bit-column>
+          <bit-column width="160px">
+            <bit-header-cell>Vault</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.vault; let row">{{
+              vaultName(row.vault)
+            }}</bit-cell>
+          </bit-column>
+          <bit-column width="auto">
+            <bit-header-cell></bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.actions; let row">
+              <button type="button" bit-chip-action variant="primary" label="Fill"></button>
+              <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
+              <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
+            </bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </div>
+    </popup-page>
+  `,
+})
+class MockVaultTablePageComponent {
+  readonly presentation = input<"table" | "list">("list");
+
+  protected readonly data = signal(TABLE_VAULT_ROWS);
+  protected readonly table = defineTable<TableVaultRow, "actions">(this.data);
+
+  // Predicate groups: favorites first, then everything else subgrouped by type.
+  protected readonly isFavorite = (row: TableVaultRow) => row.favorite;
+  protected readonly all = () => true;
+  protected readonly isLogin = (row: TableVaultRow) => row.type === "login";
+  protected readonly isCard = (row: TableVaultRow) => row.type === "card";
+  protected readonly isNote = (row: TableVaultRow) => row.type === "note";
+
+  /** Shows only the rich name column and the trailing actions column; Type and Vault are hidden. */
+  protected readonly displayedColumns: ColumnName<TableVaultRow, "actions">[] = ["name", "actions"];
+
+  protected readonly filter = (row: TableVaultRow, f: Partial<TableVaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.favorite || row.favorite);
+
+  protected readonly typeOptions = computed(() =>
+    (["login", "card", "note"] as const)
+      .map((value) => ({
+        value,
+        label: value,
+        count: this.data().filter((r) => r.type === value).length,
+      }))
+      .filter((option) => option.count > 0),
+  );
+
+  protected readonly vaultOptions = computed(() =>
+    TABLE_VAULTS.map((vault) => ({
+      value: vault.id,
+      label: vault.name,
+      count: this.data().filter((r) => r.vault === vault.id).length,
+    })),
+  );
+
+  protected readonly collectionOrgs = computed(() => {
+    const rows = this.data();
+    return TABLE_COLLECTION_ORGS.map((org) => ({
+      name: org.name,
+      collections: org.collections.map((c) => ({
+        ...c,
+        count: rows.filter((r) => r.collectionIds.includes(c.id)).length,
+      })),
+    }));
+  });
+
+  protected vaultName(id: string): string {
+    return TABLE_VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
+// Shared so it can be provided at BOTH the module level (page content) and the
+// application level — the responsive filter dialog opened via DialogService roots
+// its injector at the app injector, so it needs I18nService provided there too.
+const popupLayoutI18nProvider = {
+  provide: I18nService,
+  useFactory: () =>
+    new I18nMockService({
+      back: "Back",
+      loading: "Loading",
+      search: "Search",
+      vault: "Vault",
+      generator: "Generator",
+      send: "Send",
+      settings: "Settings",
+      labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
+      // Table V2 + filter-menu keys for the list-presentation exploration.
+      resetSearch: "Reset search",
+      removeItem: (name) => `Remove ${name}`,
+      viewItemsIn: (name) => `View items in ${name}`,
+      backTo: (name) => `Back to ${name}`,
+      selectPlaceholder: "-- Select --",
+      clearFilters: "Clear all filters",
+      filtersApplied: (count) => `${count} filters applied`,
+      nothingToShow: "Nothing to show",
+      noMatchingItems: "No matching items",
+      selectAllRows: "Select all rows",
+      selectRow: "Select row",
+      itemCount: (count) => `${count} items`,
+      all: "All",
+      filter: "Filter",
+      filters: "Filters",
+      done: "Done",
+      clearAll: "Clear all",
+      filtersSelected: (count) => `${count} selected`,
+    }),
+};
+
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
@@ -355,6 +722,7 @@ export default {
         MockGeneratorPageComponent,
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
+        MockVaultTablePageComponent,
         NoItemsModule,
         VaultComponent,
         ScrollingModule,
@@ -365,21 +733,7 @@ export default {
         VaultLoadingSkeletonComponent,
       ],
       providers: [
-        {
-          provide: I18nService,
-          useFactory: () => {
-            return new I18nMockService({
-              back: "Back",
-              loading: "Loading",
-              search: "Search",
-              vault: "Vault",
-              generator: "Generator",
-              send: "Send",
-              settings: "Settings",
-              labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
-            });
-          },
-        },
+        popupLayoutI18nProvider,
         {
           provide: PolicyService,
           useFactory: () => {
@@ -408,6 +762,7 @@ export default {
     }),
     applicationConfig({
       providers: [
+        popupLayoutI18nProvider,
         importProvidersFrom(
           RouterModule.forRoot(
             [
@@ -501,6 +856,28 @@ export const PopupPage: Story = {
     template: /* HTML */ `
       <extension-container>
         <mock-vault-page></mock-vault-page>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * Table V2 in `list` presentation inside the real popup chrome. Duplicated from the
+ * libs/components "Filterable" story; toggle `presentation` to compare table vs list.
+ * The table uses `fill`, so its toolbar/header stay pinned while the rows scroll.
+ */
+export const FilterableTableList: StoryObj = {
+  args: { presentation: "list", navButtons: navButtons() },
+  argTypes: {
+    presentation: { control: "inline-radio", options: ["table", "list"] },
+  },
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <mock-vault-table-page [presentation]="presentation"></mock-vault-table-page>
+        </popup-tab-navigation>
       </extension-container>
     `,
   }),

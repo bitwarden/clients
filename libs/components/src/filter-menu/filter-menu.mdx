@@ -1,0 +1,73 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./filter-menu.stories";
+
+<Meta of={stories} />
+
+# Filter Menu
+
+A composable family of filter chips for narrowing a list or table. A `bit-filter-menu` is a chip
+trigger with a popover menu of options (optionally grouped by sections). A `bit-filter-toggle` is a
+single on/off chip with no menu.
+
+The chips work like a reactive form: each chip has a `key`, owns its own selection, and reports its
+value up. The chips are **host-agnostic** — outside a table they just track their selection. Inside
+a `bit-table-v2`, a chip registers itself automatically and its value lands in
+`table.filterValues()` — see [Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
+
+<Canvas of={stories.Default} />
+
+## Composition
+
+A chip is single-select by default; add `multiple` for a checkbox-style multi-select.
+
+```html
+<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+  <bit-filter-option [value]="'login'" [count]="12">Login</bit-filter-option>
+  <bit-filter-option [value]="'card'" [count]="3">Card</bit-filter-option>
+</bit-filter-menu>
+
+<bit-filter-menu key="vault" placeholderText="Vault" multiple>
+  <bit-filter-option [value]="'mine'" [count]="20">My vault</bit-filter-option>
+  <bit-filter-option [value]="'acme'" [count]="11">Acme corporation</bit-filter-option>
+</bit-filter-menu>
+```
+
+| Component            | Purpose                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `bit-filter-menu`    | Chip trigger + popover; owns the selection (`multiple` for multi).                                           |
+| `bit-filter-toggle`  | Single on/off chip (no menu); boolean value; `iconActive` swaps the icon while active.                       |
+| `bit-filter-option`  | A selectable row with a radio/checkbox indicator; shows a faceted count in a table (or an explicit `count`). |
+| `bit-filter-section` | A labelled, optionally collapsible group of options; shows a count berry of its selected options.            |
+| `bit-filter-divider` | A vertical rule for separating groups of chips in the chip row.                                              |
+
+## Value
+
+A chip is a named form control. It owns its selection — **no `ngModel`** — and exposes it under its
+`key`: a single value for single-select, an array for `multiple`. Options may be grouped into
+`bit-filter-section`s for display; they all feed the chip's one selection.
+
+The chip builds its label from the selected options (`placeholderText`, or
+`placeholderText: unsetLabel` while empty). While active it shows a clear (`x`) on the chip; a
+`multiple` chip also gets a sticky **Clear** button pinned to the bottom of its menu. Both reset the
+selection.
+
+## In-menu search
+
+Once a chip has more than ten options it renders a `bit-search` at the top of its own menu — you
+never project a search field. It narrows the chip's options by their label: non-matching options
+hide, a `bit-filter-section` collapses when all of its options are hidden, and a "no matching items"
+message shows when nothing matches. The term resets when the menu closes.
+
+## Driving a table
+
+Project a chip into a `bit-table-v2` and it registers itself. The chip's value lands in
+`table.filterValues()` under its `key`; the table's `filter(row, values)` reads it. There are no
+matchers and no per-chip state — see
+[Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
+
+```html
+<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+  <bit-filter-option [value]="'login'">Login</bit-filter-option>
+</bit-filter-menu>
+```

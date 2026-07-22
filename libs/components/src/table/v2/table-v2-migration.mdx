@@ -1,0 +1,352 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Component Library/Table V2/Migrating from V1" />
+
+# Migrating from `bit-table` to `bit-table-v2`
+
+Convert one table at a time. `bit-table` declares headers and rows separately and iterates the data
+in the template (`*ngFor` / `rows$ | async`); `bit-table-v2` declares one `<bit-column>` per column
+— each pairing a `<bit-header-cell>` with a `*bitCellDef` cell template — and iterates the data
+itself.
+
+For the full v2 API, see the [Table V2 docs](?path=/docs/component-library-table-v2--docs). This
+page covers only the v1 → v2 mapping.
+
+## Pick the mode
+
+Do not mix modes in one table.
+
+| v1                                                       | v2 mode                                  |
+| -------------------------------------------------------- | ---------------------------------------- |
+| `[dataSource]`, `bitSortable`, filtering, or selection   | Column-def — a `<bit-column>` per column |
+| `bit-table-scroll` / `[rowSize]` / `bitRowDef`           | Column-def + `[virtualRowHeight]`        |
+| No data source, sort, filter, or selection — static rows | Manual — project `<bit-row>` directly    |
+
+Sort, filter, selection, and virtualization require column-def mode.
+
+## Replace the data source with a `TableDef`
+
+Build a `TableDef` with `defineTable` and bind it with `[tableDef]`. `data` is a `Signal<T[]>`; wrap
+a plain array in `signal(...)`. Type the row as a concrete `T` so `table.columns.*` resolves and
+`*bitCellDef` cells are typed.
+
+```ts
+// v1
+protected readonly dataSource = new TableDataSource<User>();
+
+// v2 — this.users: Signal<User[]>
+protected readonly table = defineTable<User>(this.users);
+```
+
+Sort and filter no longer live on the data source; they move to inputs (below).
+
+## Basic table
+
+Bind `[tableDef]` in place of `[dataSource]`. Replace the header/body blocks with one `<bit-column>`
+per column.
+
+**v1**
+
+```html
+<bit-table [dataSource]="dataSource">
+  <ng-container header>
+    <tr>
+      <th bitCell>Id</th>
+      <th bitCell>Name</th>
+    </tr>
+  </ng-container>
+  <ng-template body let-rows$>
+    <tr bitRow *ngFor="let r of rows$ | async">
+      <td bitCell>{{ r.id }}</td>
+      <td bitCell>{{ r.name }}</td>
+    </tr>
+  </ng-template>
+</bit-table>
+```
+
+**v2**
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-column>
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+  </bit-column>
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+- Remove the `*ngFor` / `rows$ | async`; the table stamps each `*bitCellDef` per row.
+- Columns render in declaration order. Add `[displayedColumns]` (ordered column keys) to reorder or
+  hide; omit it to show all.
+- `let row` is typed `T`.
+
+## Sortable headers
+
+`bitSortable="name"` splits into two parts: `sortable` on `<bit-column>`, and the field key in the
+`*bitCellDef` reference (sort reads that key).
+
+- `bitSortable="key"` → `sortable` on `<bit-column>` + `*bitCellDef="table.columns.key"`
+- `default` / `default="desc"` → `defaultSort="asc"` / `defaultSort="desc"`
+- `[fn]="sortFn"` → `[sortFn]="sortFn"`
+
+**v1**
+
+```html
+<th bitCell bitSortable="id" default>Id</th>
+<th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+```
+
+**v2**
+
+```html
+<bit-column sortable defaultSort="asc">
+  <bit-header-cell>Id</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+</bit-column>
+<bit-column sortable [sortFn]="sortFn">
+  <bit-header-cell>Other</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+</bit-column>
+```
+
+`<bit-header-cell>` adds the sort button, `aria-sort`, and `aria-pressed` when its column is
+`sortable` — remove any manual sort icon/button markup. `SortFn` signatures are unchanged. To read
+or set sort programmatically, bind `[(sort)]` to a `SortState` signal.
+
+## Virtual scrolling
+
+Replace `bit-table-scroll` + `rowSize` with `<bit-table-v2>` + `[virtualRowHeight]` (row height in
+px) and a bounded height (`[height]` — a row count or `"fill"`). Split the single `bitRowDef`
+template into one `<bit-cell>` per column.
+
+**v1**
+
+```html
+<bit-table-scroll [dataSource]="dataSource" rowSize="47">
+  <ng-container header>
+    <th bitCell bitSortable="id" default>Id</th>
+  </ng-container>
+  <ng-template bitRowDef let-row>
+    <td bitCell>{{ row.id }}</td>
+  </ng-template>
+</bit-table-scroll>
+```
+
+**v2**
+
+```html
+<bit-table-v2 [tableDef]="table" [virtualRowHeight]="47" [height]="6" [trackBy]="trackById">
+  <bit-column sortable defaultSort="asc" width="120px">
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+Give columns explicit `width="…"`; intrinsic keywords (`max-content`, `auto`) won't align across
+rows under virtualization. `[trackBy]` is optional.
+
+## Selection and bulk actions
+
+Pass a `[selection]` config; the table generates its own checkbox column. Delete any hand-rolled
+select-all header and per-row checkbox cell. Listen to `(selectedChange)`.
+
+```html
+<bit-table-v2
+  [tableDef]="table"
+  [selection]="{ multiple: true }"
+  (selectedChange)="onSelected($event)"
+>
+  …columns…
+</bit-table-v2>
+```
+
+Pass a stable selection config (a field or getter, not an inline literal). Add a `canSelect`
+predicate to the config to limit which rows are selectable.
+
+Move bulk actions into a projected `<bit-bulk-actions-bar>`; it reads the selection via DI, so no
+`[selectedCount]` / `(clear)` wiring is needed inside a table.
+
+```html
+<bit-table-v2 [tableDef]="table" [selection]="selectionConfig">
+  <bit-bulk-actions-bar>
+    <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
+  </bit-bulk-actions-bar>
+  …columns…
+</bit-table-v2>
+```
+
+## Filtering and search
+
+Replace `dataSource.filter = …` with a single `[filter]` fn `(row, values)`. Filter chips projected
+into `<bit-table-toolbar>` declare a `key` and own their selection. Annotate the fn's `values`
+parameter with your filter shape; seed initial values with `[filters]`.
+
+```ts
+type Filters = { type?: ItemType; favorites?: boolean };
+
+filter = (row: User, f: Filters) =>
+  (!f.type || row.type === f.type) && (!f.favorites || row.favorite);
+```
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter">
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star" iconActive="bwi-star-f" />
+  </bit-table-toolbar>
+  …columns…
+</bit-table-v2>
+```
+
+A projected `<bit-search>` is adopted as the `search` filter automatically; read its term in
+`filter` as `f.search`. For server-side filtering, omit `[filter]` and read `table.filterValues()`
+off a `#t="bitTableV2"` reference.
+
+## URL persistence
+
+Delete any bespoke URL sync — `ActivatedRoute.queryParams` subscriptions, `Router.navigate` calls,
+and the code that maps filter/sort/page state to and from query params. Bind `[queryParam]` to a
+namespace instead; the table mirrors its filters, sort, and pagination under that prefix and
+restores them on load.
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">…</bit-table-v2>
+<!-- ?items.type=login&items.sort=name&items.direction=asc&items.page=2 -->
+```
+
+On load, params win over `[filters]` and `defaultSort`. Each filter chip syncs under its own `key`;
+`sort`, `direction`, `page`, and `pageSize` are reserved within the namespace, so don't use them as
+chip keys. Use a distinct namespace per table on a page. Requires a router in context (no-op without
+one, e.g. in a dialog).
+
+## Cell layout
+
+Convert `td[bitCell]` to `<bit-cell>`. Map inner markup to slots where it fits: leading icon/avatar
+→ `slot="start"`, subtitle → `slot="secondary"`, trailing button/badge → `slot="end"`. The default
+slot holds the title. Drop the flex/gap utilities the slots replace; keep the `tw-` prefix on
+classes you carry over.
+
+**v1**
+
+```html
+<td bitCell class="tw-flex tw-gap-2 tw-items-center">
+  <bit-icon [name]="row.icon" class="bwi-lg"></bit-icon>
+  <div>
+    <span>{{ row.displayName }}</span>
+    <div class="tw-text-sm tw-text-muted">{{ row.email }}</div>
+  </div>
+</td>
+```
+
+**v2**
+
+```html
+<bit-cell *bitCellDef="table.columns.name; let row">
+  <bit-icon-tile slot="start" [icon]="row.icon" size="sm" />
+  {{ row.displayName }}
+  <span slot="secondary">{{ row.email }}</span>
+</bit-cell>
+```
+
+If the markup doesn't map to slots, keep it in the default slot. Set `[truncate]="false"` if the v1
+cell wrapped (truncation is on by default).
+
+## Action columns
+
+For columns with no field on `T` (action menus, expand toggles), declare a synthetic column via
+`defineTable`'s second type parameter and reference it like any other column. Give it an empty
+header.
+
+**v1**
+
+```html
+<th bitCell></th>
+<td bitCell>
+  <button bitIconButton="bwi-ellipsis-v" [bitMenuTriggerFor]="menu"></button>
+</td>
+```
+
+**v2**
+
+```ts
+protected readonly table = defineTable<User, "actions">(this.users);
+```
+
+```html
+<bit-column width="50px">
+  <bit-header-cell></bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.actions; let row">
+    <button bitIconButton="bwi-ellipsis-v" [bitMenuTriggerFor]="menu"></button>
+  </bit-cell>
+</bit-column>
+```
+
+Every column needs a `<bit-header-cell>`, even an empty one — screen readers rely on it.
+
+## Manual mode
+
+For static tables with no data source, sort, filter, or selection, skip the model and
+`<bit-column>`; project a `<bit-header-row>` and `<bit-row>`s directly.
+
+**v1**
+
+```html
+<bit-table>
+  <ng-container header>
+    <tr>
+      <th bitCell>Id</th>
+    </tr>
+  </ng-container>
+  <ng-template body>
+    <tr bitRow *ngFor="let r of items">
+      <td bitCell>{{ r.id }}</td>
+    </tr>
+  </ng-template>
+</bit-table>
+```
+
+**v2**
+
+```html
+<bit-table-v2>
+  <bit-header-row>
+    <bit-header-cell>Id</bit-header-cell>
+  </bit-header-row>
+  @for (r of items(); track r.id) {
+  <bit-row>
+    <bit-cell>{{ r.id }}</bit-cell>
+  </bit-row>
+  }
+</bit-table-v2>
+```
+
+Mode is automatic: any projected `<bit-column>` selects column-def mode; otherwise manual. Columns
+default to equal share (`1fr`). Switch to column-def mode if you need sort, filter, selection, or
+virtualization.
+
+## Imports
+
+Remove the v1 import (`TableModule` or whatever provided `bit-table`) and add the v2 standalone
+components used, all from `@bitwarden/components`:
+
+- Column-def: `BitTableV2Component`, `BitColumnComponent`, `BitHeaderCellComponent`,
+  `BitCellComponent`, `BitCellDefDirective` (plus `defineTable` / `TableDef` in the component).
+- Manual: `BitTableV2Component`, `BitHeaderRowComponent`, `BitRowComponent`,
+  `BitHeaderCellComponent`, `BitCellComponent`.
+
+Update the consuming component's `imports` array, or its NgModule's `imports`.
+
+## Verify
+
+1. Build the affected app/lib (e.g. `npx nx build components`).
+2. Lint both `.ts` and `.html` — the pre-commit hook lints only `.ts`; CI also lints `.html`.
+3. Confirm any Storybook story still renders.
+4. Check sort, filter, selection, and scrolling behave as before.
