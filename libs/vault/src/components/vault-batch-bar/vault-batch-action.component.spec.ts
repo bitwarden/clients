@@ -169,7 +169,7 @@ describe("VaultBatchActionComponent", () => {
       canAssignToCollections.set(true);
 
       const [action] = component["primaryActions"]();
-      expect(action.icon).toBe("bwi-collection-shared");
+      expect(action.icon).toBe("bwi-collection");
       expect(action.label).toBe("translated-assignToCollections");
     });
 
