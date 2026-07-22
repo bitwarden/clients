@@ -147,6 +147,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   protected estimatedTax: number = 0;
+  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -176,7 +177,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -333,9 +333,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -386,6 +383,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
+    // A schedule-derived discount (e.g. a deferred price-migration coupon) is not an SM trial,
+    // even when it applies to a subscription product.
+    if (this.sub?.customerDiscount?.isFromSchedule) {
+      return false;
+    }
+
     return (
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
@@ -509,12 +512,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
+    // Clear the previous plan's server total so the summary falls back to the client
+    // estimate for the newly selected plan until refreshSalesTax() resolves.
+    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
       await this.refreshSalesTax();
     } catch {
       this.estimatedTax = 0;
+      this.estimatedTotal = undefined;
     }
   }
 
@@ -974,10 +981,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1063,6 +1066,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
     this.estimatedTax = taxAmounts.tax;
+    this.estimatedTotal = taxAmounts.total;
   }
 
   protected canUpdatePaymentInformation(): boolean {
