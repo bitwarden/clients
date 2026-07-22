@@ -65,23 +65,27 @@ export function InlineMenuCipherItem({
           aria-label=${fillLabel}
           @click=${onFillCipher}
         >
-          ${isTotp
-            ? TotpCountdown({ theme, period, secondsRemaining })
-            : CipherIcon({
-                color: themes[theme].primary["600"],
-                size: `calc(${spacing["4"]} + ${spacing["2"]})`,
-                theme,
-                uri,
-              })}
-          ${isTotp
-            ? TotpCipherInfo({
-                theme,
-                heading: fillVerificationCodeText,
-                totp: cipher.login!.totp!,
-                username: showTotpUsername ? cipher.login?.username : undefined,
-                masked: !!cipher.reprompt,
-              })
-            : CipherDetails({ theme, cipher })}
+          ${
+            isTotp
+              ? TotpCountdown({ theme, period, secondsRemaining })
+              : CipherIcon({
+                  color: themes[theme].primary["600"],
+                  size: `calc(${spacing["4"]} + ${spacing["2"]})`,
+                  theme,
+                  uri,
+                })
+          }
+          ${
+            isTotp
+              ? TotpCipherInfo({
+                  theme,
+                  heading: fillVerificationCodeText,
+                  totp: cipher.login!.totp!,
+                  username: showTotpUsername ? cipher.login?.username : undefined,
+                  masked: !!cipher.reprompt,
+                })
+              : CipherDetails({ theme, cipher })
+          }
         </button>
         <button
           type="button"
@@ -109,20 +113,24 @@ function CipherDetails({ cipher, theme }: { cipher: InlineMenuCipherData; theme:
     return html`
       <div>
         <span title=${cipher.name} class=${primaryTextStyles(theme)}>${cipher.name}</span>
-        ${firstLine
-          ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
-              ${Passkey({
+        ${
+          firstLine
+            ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
+                ${Passkey({
                 theme,
                 color: themes[theme].text.muted,
               })}
-              ${firstLine}
-            </span>`
-          : nothing}
-        ${secondLine
-          ? html`<span title=${secondLine} class=${passkeySubtitleStyles(theme)}
-              >${secondLine}</span
-            >`
-          : nothing}
+                ${firstLine}
+              </span>`
+            : nothing
+        }
+        ${
+          secondLine
+            ? html`<span title=${secondLine} class=${passkeySubtitleStyles(theme)}
+                >${secondLine}</span
+              >`
+            : nothing
+        }
       </div>
     `;
   }
@@ -137,9 +145,11 @@ function CipherDetails({ cipher, theme }: { cipher: InlineMenuCipherData; theme:
   return html`
     <div>
       <span title=${cipher.name} class=${primaryTextStyles(theme)}>${cipher.name}</span>
-      ${subtitle
-        ? html`<span title=${subtitle} class=${secondaryTextStyles(theme)}>${subtitle}</span>`
-        : nothing}
+      ${
+        subtitle
+          ? html`<span title=${subtitle} class=${secondaryTextStyles(theme)}>${subtitle}</span>`
+          : nothing
+      }
     </div>
   `;
 }
@@ -203,9 +213,11 @@ function TotpCipherInfo({
   return html`
     <div>
       <span title=${heading} class=${primaryTextStyles(theme)}>${heading}</span>
-      ${username
-        ? html`<span title=${username} class=${secondaryTextStyles(theme)}>${username}</span>`
-        : nothing}
+      ${
+        username
+          ? html`<span title=${username} class=${secondaryTextStyles(theme)}>${username}</span>`
+          : nothing
+      }
       <span class=${totpCodeStyles(theme, masked)} data-testid="totp-code" title=${code}
         >${code}</span
       >
