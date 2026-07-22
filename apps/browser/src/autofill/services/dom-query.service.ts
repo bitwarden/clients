@@ -400,7 +400,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       return false;
     }
     // Host check — `querySelectorAll("*")` excludes the scope element.
-    if (subtree instanceof Element) {
+    if (nodeIsElement(subtree)) {
       const root = this.getShadowRoot(subtree);
       if (root) {
         if (!this.knownShadowRoots.has(root)) {

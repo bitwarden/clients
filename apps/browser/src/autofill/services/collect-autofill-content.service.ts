@@ -1730,9 +1730,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private isShadowRootCandidate(node: Node): node is Element {
-    // FIXME (PM-39772): same-realm only — iframe-adopted (foreign-realm) hosts fall through here
-    // and are detected only later, not on insert.
-    if (!(node instanceof Element)) {
+    if (!nodeIsElement(node)) {
       return false;
     }
     if (node.shadowRoot) {
