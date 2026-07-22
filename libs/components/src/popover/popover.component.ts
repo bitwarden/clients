@@ -8,6 +8,7 @@ import {
   contentChild,
   input,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
 
@@ -33,6 +34,11 @@ export class PopoverComponent {
   /** Reference to the popover content template */
   readonly templateRef = viewChild.required(TemplateRef);
 
+  /**
+   * Whether the scrollable content area has been scrolled away from the top
+   */
+  protected readonly bodyScrolled = signal(false);
+
   /** Optional title displayed in the popover header */
   readonly title = input("");
 
@@ -51,7 +57,7 @@ export class PopoverComponent {
   readonly showCloseButton = input(true, { transform: booleanAttribute });
 
   /**
-   * Tailwind max-height class constraining the popover's height. When set, the
+   * Tailwind max-height class constraining the popover content's height. When set, the
    * content scrolls vertically once it exceeds this height. Must be a valid
    * Tailwind max-height utility (e.g. "tw-max-h-96", "tw-max-h-[25rem]").
    */
@@ -71,35 +77,48 @@ export class PopoverComponent {
 
   protected readonly titleClasses = computed(() =>
     [
-      this.showCloseButton() && !this.header() ? "tw-pe-7" : "",
+      "tw-pt-6",
+      "tw-ps-6",
+      "tw-pb-3",
+      // Reserve room for the absolutely-positioned close button so the header doesn't run
+      // underneath it. Only needed while that button is shown.
+      this.showCloseButton() && !this.header() ? "tw-pe-12" : "tw-pe-6",
       "tw-text-fg-heading",
       "!tw-mb-0",
+      "tw-border-0",
+      "tw-border-b",
+      "tw-border-solid",
+      "tw-transition-colors",
+      "tw-duration-200",
+      this.bodyScrolled() ? "tw-border-border-base" : "tw-border-transparent",
     ].join(" "),
   );
 
-  // When there's no title (and no header) to carry it, the content sits at the
-  // top and must reserve room for the absolutely-positioned close button so its
-  // first line doesn't run underneath it. Only needed while that button is shown.
   protected readonly contentClasses = computed(() =>
     [
-      this.showCloseButton() && !this.title() && !this.header() ? "tw-pe-7" : "",
+      "tw-ps-6",
+      "tw-pb-6",
+      !this.title() ? "tw-pt-6" : "",
+      // When there's no title (and no header) to carry it, the content sits at the
+      // top and must reserve room for the absolutely-positioned close button so its
+      // first line doesn't run underneath it. Only needed while that button is shown.
+      this.showCloseButton() && !this.title() && !this.header() ? "tw-pe-12" : "tw-pe-6",
       "tw-text-fg-body",
-    ].join(" "),
-  );
-
-  protected readonly containerClasses = computed(() =>
-    [
-      "tw-overflow-y-auto",
-      "tw-rounded-xl",
-      "tw-shadow-md",
-      "tw-border",
-      "tw-border-border-base",
       this.maxHeightClass() ?? "",
       /**
        * tailwind's outline-none does not fully remove it because it supports forced colors mode, so
        * we need to do it manually
        */
       "[outline:none]",
+      "tw-overflow-auto",
     ].join(" "),
   );
+
+  protected onContentScroll(event: Event) {
+    this.bodyScrolled.set((event.target as HTMLElement).scrollTop !== 0);
+  }
+
+  resetScrollState() {
+    this.bodyScrolled.set(false);
+  }
 }

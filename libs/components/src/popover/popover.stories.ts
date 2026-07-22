@@ -117,6 +117,43 @@ export const Default: Story = {
   },
 };
 
+export const ScrollableOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[400px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      <bit-popover 
+        [title]="'We\\'ve just released a new dashboard'" 
+        #myPopover 
+        maxHeightClass="tw-max-h-[150px]"
+      >
+        A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+        voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </bit-popover>
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
+
 /**
  * Without a `title`, the popover omits the heading region entirely and renders
  * only the projected content. The content reserves room for the close button so

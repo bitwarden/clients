@@ -159,6 +159,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
     }
 
     this.popoverOpen.set(true);
+    // Clear any scrolled state left over from a previous open before showing the popover.
+    this.popover().resetScrollState();
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
     const templatePortal = new TemplatePortal(this.popover().templateRef(), this.viewContainerRef);

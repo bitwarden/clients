@@ -38,8 +38,7 @@ export type BadgeGroupItem = {
  * Badges are passed as data through the `badges` input; the group renders both
  * the row and the popover from that data, so variant, icon, and label are
  * described per-item rather than authored as markup. The first badge is pinned,
- * so at least one badge is always visible regardless of available width (matches
- * the "one full chip" minimum-width rule from the chip column spec).
+ * so at least one badge is always visible regardless of available width.
  *
  * Sizing is fully measurement-driven; the group does not take a `maxItems`
  * input. Resize the container and more or fewer badges become visible.
@@ -69,7 +68,7 @@ export class BadgeGroupComponent {
     const badges = this.badges();
     return this.overflow()
       .map((i) => badges[i])
-      .filter((badge): badge is BadgeGroupItem => badge != null);
+      .filter((badge) => badge != null);
   });
 
   constructor() {
