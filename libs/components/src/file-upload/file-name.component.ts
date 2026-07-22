@@ -25,7 +25,7 @@ const splitFilename = (name: string): { leading: string; middle: string; trailin
 @Component({
   selector: "bit-file-name",
   template: `
-    <span class="tw-contents" [attr.title]="name()">
+    <span class="tw-contents tw-text-sm" [attr.title]="name()">
       <span class="tw-flex-none">{{ parts().leading }}</span>
       <span class="tw-truncate tw-min-w-0">{{ parts().middle }}</span>
       <span class="tw-flex-none">{{ parts().trailing }}</span>
