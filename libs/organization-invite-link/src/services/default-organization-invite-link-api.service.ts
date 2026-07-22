@@ -105,11 +105,14 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkValidateEmailDomainResponse(r);
   }
 
-  async getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel> {
+  async getStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OrganizationInviteLinkStatusResponseModel> {
     const r = await this.apiService.send(
       "POST",
       `/organizations/invite-link/status`,
-      { code },
+      { organizationId, code },
       false,
       true,
     );

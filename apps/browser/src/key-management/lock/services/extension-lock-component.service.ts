@@ -74,12 +74,19 @@ export class ExtensionLockComponentService implements LockComponentService {
       combineLatest([
         this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
         this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
+        this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
         // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
         this.biometricStateService.biometricUnlockEnabled$(userId),
       ]).pipe(
         switchMap(
-          async ([sharedUnlockFeatureFlag, allowSharingWithDesktop, biometricUnlockEnabled]) =>
-            biometricUnlockEnabled || (sharedUnlockFeatureFlag && allowSharingWithDesktop)
+          async ([
+            sharedUnlockFeatureFlag,
+            allowSharingWithDesktop,
+            unlockSharingDisabled,
+            biometricUnlockEnabled,
+          ]) =>
+            biometricUnlockEnabled ||
+            (sharedUnlockFeatureFlag && allowSharingWithDesktop && !unlockSharingDisabled)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
         ),
