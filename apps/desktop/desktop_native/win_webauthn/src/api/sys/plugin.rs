@@ -277,6 +277,44 @@ pub(in crate::api) struct WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
     pub(in crate::api) pbOpSignPubKey: *mut u8,
 }
 
+/// Used when updating a Windows plugin authenticator.
+/// Header File Name: _WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS
+/// Header File Usage: WebAuthNPluginUpdateAuthenticatorDetails()
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub(in crate::api) struct WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS {
+    /// Authenticator Name
+    pub(in crate::api) pwszAuthenticatorName: *const u16,
+
+    /// Current Plugin COM ClsId
+    pub(in crate::api) rclsid: *const GUID,
+
+    /// New Plugin COM ClsId to set.
+    pub(in crate::api) rclsidNew: *const GUID,
+
+    /// Plugin Authenticator Logo for the Light themes.  base64-encoded SVG 1.1
+    ///
+    /// The data should be encoded as `UTF16(BASE64(UTF8(svg_text)))`.
+    pub(in crate::api) pwszLightThemeLogoSvg: *const u16,
+
+    /// Plugin Authenticator Logo for the Dark themes.  base64-encoded SVG 1.1
+    ///
+    /// The data should be encoded as `UTF16(BASE64(UTF8(svg_text)))`.
+    pub(in crate::api) pwszDarkThemeLogoSvg: *const u16,
+
+    /// CTAP CBOR-encoded authenticatorGetInfo response (size)
+    pub(in crate::api) cbAuthenticatorInfo: u32,
+    /// CTAP CBOR-encoded authenticatorGetInfo output
+    pub(in crate::api) pbAuthenticatorInfo: *const u8,
+
+    /// Count of supported RP IDs
+    pub(in crate::api) cSupportedRpIds: u32,
+    /// List of supported RP IDs (Relying Party IDs).
+    ///
+    /// Should be null if all RPs are supported.
+    pub(in crate::api) pbSupportedRpIds: *const *const u16,
+}
+
 #[repr(C)]
 pub(in crate::api) struct WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
     pub(in crate::api) transactionId: GUID,
@@ -452,6 +490,17 @@ webauthn_call!("WebAuthNPluginAddAuthenticator" as
 fn webauthn_plugin_add_authenticator(
     pPluginAddAuthenticatorOptions: *const WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
     ppPluginAddAuthenticatorResponse: *mut *mut WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE
+) -> HRESULT);
+
+webauthn_call!("WebAuthNPluginUpdateAuthenticatorDetails" as
+/// Register authenticator info for a plugin COM server.
+/// 
+/// Returns [S_OK](windows::Win32::Foundation::S_OK) on success.
+/// 
+/// # Arguments
+/// - `pPluginUpdateAuthenticatorDetails`: Details about the authenticator to update.
+fn webauthn_plugin_update_authenticator_details(
+    pPluginUpdateAuthenticatorDetails: *const WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS,
 ) -> HRESULT);
 
 webauthn_call!("WebAuthNPluginAuthenticatorAddCredentials" as
