@@ -129,7 +129,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
   private clearForm() {
     this.formGroup.reset({
-      file: [],
+      file: null,
       pastedContents: "",
     });
   }
