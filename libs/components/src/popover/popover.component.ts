@@ -17,6 +17,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { TypographyModule } from "../typography";
 
+import { PopoverFooterComponent } from "./popover-footer.component";
 import { PopoverHeaderComponent } from "./popover-header.component";
 
 /**
@@ -67,6 +68,7 @@ export class PopoverComponent {
   readonly closed = output();
 
   protected readonly header = contentChild(PopoverHeaderComponent);
+  protected readonly footer = contentChild(PopoverFooterComponent);
 
   /** The dialog's accessible name — the title when present, otherwise the explicit fallback. */
   protected readonly dialogLabel = computed(() => this.title() || this.accessibleName());
@@ -97,8 +99,8 @@ export class PopoverComponent {
   protected readonly contentClasses = computed(() =>
     [
       "tw-ps-6",
-      "tw-pb-6",
-      !this.title() ? "tw-pt-6" : "",
+      !this.footer() && "tw-pb-6",
+      !this.title() && "tw-pt-6",
       // When there's no title (and no header) to carry it, the content sits at the
       // top and must reserve room for the absolutely-positioned close button so its
       // first line doesn't run underneath it. Only needed while that button is shown.
