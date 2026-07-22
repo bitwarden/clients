@@ -93,7 +93,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
           .invite_link()
           .get_invite_key(asUuid<SdkOrganizationId>(orgId), inviteLink.invite);
       }),
-      switchMap((inviteKey) => this.buildInviteUrl(inviteLink.code, inviteKey)),
+      switchMap((inviteKey) => this.buildInviteUrl(orgId, inviteLink.code, inviteKey)),
     );
   }
 
@@ -111,9 +111,9 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
       .update((state) => (state == null ? state : { ...state, [orgId]: undefined }));
   }
 
-  private buildInviteUrl(code: string, keyB64: string): Observable<string> {
+  private buildInviteUrl(orgId: string, code: string, keyB64: string): Observable<string> {
     return this.environmentService.environment$.pipe(
-      map((env) => `${env.getWebVaultUrl()}/#/join/${code}?key=${keyB64}`),
+      map((env) => `${env.getWebVaultUrl()}/#/join/${orgId}/${code}?key=${keyB64}`),
     );
   }
 

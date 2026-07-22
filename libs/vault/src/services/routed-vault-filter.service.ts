@@ -28,7 +28,7 @@ export const VAULT_FILTER_BASE_ROUTE = new SafeInjectionToken<string>("VaultFilt
 export class RoutedVaultFilterService implements OnDestroy {
   private onDestroy = new Subject<void>();
   private baseRoute: string = inject(VAULT_FILTER_BASE_ROUTE, { optional: true }) ?? "";
-  private terminology = inject(Vfo1TerminologyService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
    * Filter values extracted from the URL.
@@ -51,6 +51,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           organizationId:
             (params.get("organizationId") as OrganizationId) ??
             (queryParams.get("organizationId") as OrganizationId) ??
+            (queryParams.get("vaultId") as OrganizationId) ??
             undefined,
           organizationIdParamType:
             params.get("organizationId") != undefined ? ("path" as const) : ("query" as const),
@@ -80,14 +81,17 @@ export class RoutedVaultFilterService implements OnDestroy {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
     // When the flag is on, write the new `sharedFolderId` param and clear the legacy
     // `collectionId` (queryParamsHandling: "merge" removes any param set to null).
-    const useSharedFolderParam = this.terminology.enabled();
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+    const organizationId =
+      filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null);
     const extras: NavigationExtras = {
       queryParams: {
-        collectionId: useSharedFolderParam ? null : (filter.collectionId ?? null),
-        sharedFolderId: useSharedFolderParam ? (filter.collectionId ?? null) : null,
+        collectionId: vfo1Enabled ? null : (filter.collectionId ?? null),
+        sharedFolderId: vfo1Enabled ? (filter.collectionId ?? null) : null,
         folderId: filter.folderId ?? null,
-        organizationId:
-          filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null),
+        ...(vfo1Enabled
+          ? { vaultId: organizationId, organizationId: null }
+          : { organizationId, vaultId: null }),
         type: filter.type ?? null,
       },
       queryParamsHandling: "merge",

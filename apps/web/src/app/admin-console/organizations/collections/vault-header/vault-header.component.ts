@@ -234,10 +234,19 @@ export class VaultHeaderComponent {
 
   protected readonly canCreateCipher = computed(() => {
     const org = this.organization();
+    if (org && !org.enabled) {
+      return false;
+    }
     if (org?.isProviderUser && !org?.isMember) {
       return false;
     }
     return true;
+  });
+
+  /** Whether the "New" button should be disabled because the organization is suspended. */
+  protected readonly isOrganizationSuspended = computed(() => {
+    const org = this.organization();
+    return !!org && !org.enabled;
   });
 
   handleDeleteCollection() {

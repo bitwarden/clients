@@ -3,6 +3,7 @@
   </popup-header>
   <section class="tw-px-3 tw-py-1">
     <vault-add-item-grid
+      [canCreateCipher]="canCreateCipher()"
       [canCreateFolder]="true"
       [canCreateCollection]="false"
       [canCreateSshKey]="true"
