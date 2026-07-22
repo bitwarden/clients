@@ -48,7 +48,7 @@ function buildNapiModule(target, release = true) {
 
 /**
  * Build a Rust binary with Cargo.
- * 
+ *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
  * binary is copied to the `dist` folder.
  * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
@@ -87,6 +87,14 @@ function cargoBuild(bin, target, release) {
 
 function buildProxyBin(target, release = true) {
     cargoBuild("desktop_proxy", target, release)
+}
+
+function buildWindowsPluginBin(target, release = true) {
+    // This is for windows, but we use effectivePlatform so we can
+    // cross-compile to Windows from other hosts.
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("windows_plugin_authenticator", target, release)
+    }
 }
 
 function buildImporterBinaries(target, release = true) {
@@ -130,6 +138,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildWindowsPluginBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
@@ -140,6 +149,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
     return;
@@ -159,6 +169,7 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
 });
