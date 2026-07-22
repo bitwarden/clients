@@ -117,9 +117,9 @@ function CipherDetails({ cipher, theme }: { cipher: InlineMenuCipherData; theme:
           firstLine
             ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
                 ${Passkey({
-                theme,
-                color: themes[theme].text.muted,
-              })}
+                  theme,
+                  color: themes[theme].text.muted,
+                })}
                 ${firstLine}
               </span>`
             : nothing
