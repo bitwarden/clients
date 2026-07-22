@@ -47,9 +47,7 @@ export type ProtonPassItemData = {
   platformSpecific?: any;
   type: "login" | "alias" | "creditCard" | "note" | "identity";
   content:
-    | ProtonPassLoginItemContent
-    | ProtonPassCreditCardItemContent
-    | ProtonPassIdentityItemContent;
+    ProtonPassLoginItemContent | ProtonPassCreditCardItemContent | ProtonPassIdentityItemContent;
 };
 
 export type ProtonPassItemMetadata = {

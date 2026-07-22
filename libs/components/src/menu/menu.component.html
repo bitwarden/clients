@@ -1,6 +1,6 @@
 <ng-template>
   <div
-    (click)="closed.emit()"
+    (click)="onContentClick($event)"
     class="tw-flex tw-shrink-0 tw-flex-col tw-rounded-xl tw-border tw-border-solid tw-border-border-light tw-bg-bg-primary tw-shadow-lg tw-bg-clip-padding tw-p-2 tw-overflow-y-auto"
     [attr.role]="ariaRole()"
     [attr.aria-label]="ariaLabel()"

@@ -75,7 +75,7 @@ import {
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -188,6 +188,8 @@ import {
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
+import { DefaultPasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/default-passkey-directory-api.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -556,6 +558,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: HibpApiService,
     useClass: HibpApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: PasskeyDirectoryApiService,
+    useClass: DefaultPasskeyDirectoryApiService,
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
@@ -1013,6 +1020,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountCryptographicStateService,
       V2UpgradeTokenStateService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1264,7 +1272,7 @@ const safeProviders: SafeProvider[] = [
         organizationService,
         accountService,
         newPolicyService,
-        () => injector.get(ConfigService),
+        () => injector.get(SdkService),
       ),
     deps: [
       StateProvider,
@@ -1280,17 +1288,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalNewPolicyService,
-    useFactory: (
-      stateProvider: StateProvider,
-      organizationService: OrganizationServiceAbstraction,
-      injector: Injector,
-    ) =>
-      new DefaultNewPolicyService(
-        stateProvider,
-        () => injector.get(SdkService),
-        organizationService,
-      ),
-    deps: [StateProvider, OrganizationServiceAbstraction, Injector],
+    useClass: DefaultNewPolicyService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PolicyApiServiceAbstraction,

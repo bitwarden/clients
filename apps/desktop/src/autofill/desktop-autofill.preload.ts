@@ -20,6 +20,15 @@ export const DesktopAutofillPreload = {
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
+  listenCancelRequest: makeListener(AutofillIpcChannelIncoming.CancelRequest),
+
+  listenLockStatus: makeListener(
+    AutofillIpcChannelIncoming.LockStatus,
+    AutofillIpcChannelOutgoing.LockStatus,
+  ),
+
+  listenNativeStatus: makeListener(AutofillIpcChannelIncoming.NativeStatus),
+
   listenPasskeyRegistration: makeListener(
     AutofillIpcChannelIncoming.PasskeyRegistration,
     AutofillIpcChannelOutgoing.PasskeyRegistration,
@@ -33,8 +42,6 @@ export const DesktopAutofillPreload = {
     AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
     AutofillIpcChannelOutgoing.PasskeyAssertion,
   ),
-
-  listenNativeStatus: makeListener(AutofillIpcChannelIncoming.NativeStatus),
 };
 
 function makeListener<K extends AutofillIpcChannelIncoming>(
