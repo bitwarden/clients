@@ -13,6 +13,7 @@ export type SharedDevFlags = {
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
   testPhishingUrls: string[];
+  managedSettingsDevSource: boolean;
 };
 
 function getFlags<T>(envFlags: string | T): T {
