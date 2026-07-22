@@ -327,6 +327,9 @@ const RealisticTemplate: StoryObj<
           </bit-nav-group>
           <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
           <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
+          <ng-container slot="footer">
+            <div class="tw-py-10">Footer stuff</div>
+          </ng-container>
           <ng-container slot="product-switcher">
             <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
