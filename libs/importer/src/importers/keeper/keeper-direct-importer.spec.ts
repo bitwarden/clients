@@ -9,13 +9,13 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
 import { ImportResult } from "../../models";
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import * as fixture from "../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { Vault } from "./access";
 import { SyncDownResponseSchema } from "./access/generated/sync-down_pb";
 import { VaultField, VaultItem, VaultRecordError, VaultRecordErrorReason } from "./access/models";
 import { KeeperDirectImporter } from "./keeper-direct-importer";
-import { ImportRecordError, ImportRecordErrorReason } from "./keeper-import-error";
 
 describe("Keeper Direct Importer", () => {
   let vault: Vault;

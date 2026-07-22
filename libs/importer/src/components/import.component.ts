@@ -93,6 +93,8 @@ import { ImportChromeComponent } from "./chrome";
 import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
+  ImportSkippedItemsDialogComponent,
+  ImportSkippedItemsDialogData,
   ImportSuccessDialogComponent,
   ImportSuccessDialogData,
 } from "./dialog";
@@ -620,16 +622,24 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       const result = await importFunc();
 
-      //No errors, display success message
       const returnDestination = this.returnTo()
         ? this.resolveReturnDestination(this.returnTo())
         : undefined;
-      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
-        data: {
-          importResult: result,
-          ...returnDestination,
-        },
-      });
+
+      if (result.errors != null && result.errors.length > 0) {
+        // Partial success: the valid items were imported; list the items that were skipped.
+        this.dialogService.open<boolean, ImportSkippedItemsDialogData>(
+          ImportSkippedItemsDialogComponent,
+          { data: { errors: result.errors, ...returnDestination } },
+        );
+      } else {
+        this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+          data: {
+            importResult: result,
+            ...returnDestination,
+          },
+        });
+      }
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

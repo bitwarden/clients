@@ -1,10 +1,7 @@
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import {
-  ImportRecordError,
-  ImportRecordErrorReason,
-} from "../../importers/keeper/keeper-import-error";
 import { ImportResult } from "../../models";
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 
 import { keeperImportGate, shouldSubmitAfterDialog } from "./keeper-import-gate";
 

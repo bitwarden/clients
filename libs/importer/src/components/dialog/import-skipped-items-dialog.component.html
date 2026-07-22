@@ -1,0 +1,52 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ titleKey | i18n: data.errors.length }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "importPartialErrorDescription" | i18n }}</p>
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "identifier" | i18n }}</th>
+          <th bitCell>{{ "description" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <!-- bit-table types its body context as `unknown`; $any wraps the whole iterable so @for
+        can consume it. -->
+        @for (r of $any((rows$ | async) ?? []); track $index) {
+          <tr bitRow>
+            <td bitCell>{{ r.id }}</td>
+            <td bitCell>{{ r.reason }}</td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (hasReturnDestination) {
+      <button
+        data-testid="return-button"
+        bitButton
+        buttonType="primary"
+        type="button"
+        endIcon="bwi-arrow-right"
+        (click)="navigateBack()"
+      >
+        {{ data.returnLabel }}
+      </button>
+    } @else {
+      <button
+        data-testid="ok-button"
+        bitButton
+        buttonType="primary"
+        type="button"
+        (click)="acknowledge()"
+      >
+        {{ "close" | i18n }}
+      </button>
+    }
+  </ng-container>
+</bit-dialog>
