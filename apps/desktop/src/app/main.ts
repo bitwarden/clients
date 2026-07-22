@@ -1,7 +1,7 @@
 import "core-js/proposals/explicit-resource-management";
 
 import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
-import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import { platformBrowser } from "@angular/platform-browser";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/styles.scss");
@@ -14,7 +14,7 @@ if (!ipc.platform.isDev) {
   enableProdMode();
 }
 
-void platformBrowserDynamic().bootstrapModule(AppModule, {
+void platformBrowser().bootstrapModule(AppModule, {
   applicationProviders: [provideZoneChangeDetection()],
 });
 

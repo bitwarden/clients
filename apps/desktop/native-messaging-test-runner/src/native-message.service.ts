@@ -180,8 +180,7 @@ export default class NativeMessageService {
 
   private async sendMessage(
     message:
-      | Omit<UnencryptedMessage, keyof MessageCommon>
-      | Omit<EncryptedMessage, keyof MessageCommon>,
+      Omit<UnencryptedMessage, keyof MessageCommon> | Omit<EncryptedMessage, keyof MessageCommon>,
     options: IPCOptions,
   ): Promise<EncryptedMessageResponse | UnencryptedMessageResponse> {
     // Attempt to connect before sending any messages. If the connection has already

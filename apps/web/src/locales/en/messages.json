@@ -2005,6 +2005,12 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
   },
@@ -4981,8 +4987,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5001,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -8453,6 +8459,9 @@
   },
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
+  },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
