@@ -10,7 +10,6 @@ export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 export { type ColumnRef, type ColumnName, type ColumnRefs } from "./column";
 export { type SortState, cycleSort } from "./sort-model";
-export { FILTER_HOST, type FilterHost } from "../../filter-menu/filter-tokens";
 export { TableDef, defineTable } from "./table-def";
 export { TableSelectionModel, type TableSelectionConfig } from "./table-selection-model";
 export { BitTableV2Component, type SelectionConfig } from "./table-v2.component";
