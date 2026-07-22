@@ -145,6 +145,7 @@ export const mockI18n = {
   notificationViewAria: `View $ITEMNAME$, opens in new window`,
   notificationNewItemAria: "New Item, opens in new window",
   opensInANewWindow: "Opens in a new window",
+  saveAction: "Save",
   saveAsNewLoginAction: "Save as new login",
   saveFailure: "Error saving",
   saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
