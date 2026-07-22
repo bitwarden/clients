@@ -3,13 +3,24 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Subject, from, map, of, pairwise, startWith, switchMap, takeUntil, tap } from "rxjs";
+import {
+  Observable,
+  Subject,
+  from,
+  map,
+  of,
+  pairwise,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
 import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/angular/auth/self-hosted-env-config-dialog";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
-  Environment,
   EnvironmentService,
   Region,
   RegionConfig,
@@ -48,7 +59,8 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
     return this.formGroup.get("selectedRegion") as FormControl;
   }
 
-  availableRegionConfigs: RegionConfig[] = this.environmentService.availableRegions();
+  availableRegionConfigs$: Observable<RegionConfig[]> =
+    this.availableRegionsService.availableRegions$;
 
   private selectedRegionFromEnv: RegionConfig | typeof Region.SelfHosted;
 
@@ -60,6 +72,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private environmentService: EnvironmentService,
+    private availableRegionsService: AvailableRegionsService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -84,11 +97,11 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   private async initSelectedRegionAndListenForEnvChanges() {
     this.environmentService.environment$
       .pipe(
-        map((env: Environment) => {
+        map((env) => {
           const region: Region = env.getRegion();
-          const regionConfig: RegionConfig = this.availableRegionConfigs.find(
-            (availableRegionConfig) => availableRegionConfig.key === region,
-          );
+          const regionConfig: RegionConfig | undefined = this.environmentService
+            .availableRegions()
+            .find((availableRegionConfig) => availableRegionConfig.key === region);
 
           if (regionConfig === undefined) {
             // Self hosted does not have a region config.

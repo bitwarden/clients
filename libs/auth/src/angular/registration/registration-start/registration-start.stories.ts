@@ -8,6 +8,7 @@ import { of, BehaviorSubject } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
   Environment,
   EnvironmentService,
@@ -87,6 +88,15 @@ const decorators = (options: {
             ],
             setEnvironment: (region: Region, urls?: Urls) => Promise.resolve({}),
           } as Partial<EnvironmentService>,
+        },
+        {
+          provide: AvailableRegionsService,
+          useValue: {
+            availableRegions$: of([
+              { key: Region.US, domain: "bitwarden.com", urls: {} },
+              { key: Region.EU, domain: "bitwarden.eu", urls: {} },
+            ]),
+          } as Partial<AvailableRegionsService>,
         },
         {
           provide: PlatformUtilsService,

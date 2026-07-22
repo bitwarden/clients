@@ -54,6 +54,7 @@ function makeDialogRef<T>(result: T): DialogRef<T> {
 function buildOrg(overrides: Partial<Organization> = {}): Organization {
   return {
     id: ORG_ID,
+    enabled: true,
     canEditAllCiphers: true,
     canEditAnyCollection: true,
     canEditUnassignedCiphers: true,
@@ -311,6 +312,14 @@ describe("VaultCipherActionsService", () => {
       await service.addCipher();
 
       expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith("add", undefined, null);
+    });
+
+    it("does not build a cipher form when the organization is suspended (disabled)", async () => {
+      initService(buildOrg({ enabled: false }));
+
+      await service.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
     });
   });
 

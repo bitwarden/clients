@@ -39,4 +39,16 @@ export class MenuComponent {
       }
     });
   }
+
+  /**
+   * Closes the menu when a click lands on an element marked with `bitMenuClose`
+   * (which `bitMenuItem` applies automatically). Clicks on other projected content —
+   * e.g. a filter chip's checkboxes, search field, or section headers — leave the
+   * menu open.
+   */
+  protected onContentClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement | null)?.closest("[data-bit-menu-close]")) {
+      this.closed.emit();
+    }
+  }
 }

@@ -18,6 +18,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrganizationUserView } from "../../../core";
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 
 export type BulkEnableSecretsManagerDialogData = {
   orgId: string;
@@ -31,6 +32,7 @@ export type BulkEnableSecretsManagerDialogData = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     DialogModule,

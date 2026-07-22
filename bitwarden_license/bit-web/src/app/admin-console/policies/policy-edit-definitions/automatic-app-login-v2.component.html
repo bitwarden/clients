@@ -1,0 +1,12 @@
+<bit-form-control>
+  <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <bit-form-field>
+    <bit-label>{{ "automaticAppLoginIdpHostLabel" | i18n }}</bit-label>
+    <input bitInput type="text" min="0" formControlName="idpHost" />
+    <bit-hint>{{ "automaticAppLoginIdpHostDesc" | i18n }}</bit-hint>
+  </bit-form-field>
+</div>

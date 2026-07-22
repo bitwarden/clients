@@ -12,7 +12,7 @@ import {
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -164,7 +164,7 @@ export class WebLoginComponentService
       return undefined;
     }
 
-    const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
+    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
 
     if (policies == null) {
       return undefined;

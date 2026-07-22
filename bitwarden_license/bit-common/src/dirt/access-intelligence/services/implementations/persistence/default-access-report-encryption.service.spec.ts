@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -12,6 +13,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   AccessReportSettingsData,
@@ -105,7 +107,12 @@ describe("DefaultAccessReportEncryptionService", () => {
 
     jest.clearAllMocks();
 
-    mockKeyGenerationService.createKey.mockResolvedValue(contentEncryptionKey);
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+    jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(contentEncryptionKey);
     mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
     mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
@@ -157,7 +164,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       );
 
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
-      expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(mockReportVersioningService.serialize).toHaveBeenCalledWith(mockV2Input.reportData);
       expect(mockSummaryVersioningService.serialize).toHaveBeenCalledWith(mockV2Input.summaryData);
       expect(mockApplicationVersioningService.serialize).toHaveBeenCalledWith(
@@ -194,7 +201,7 @@ describe("DefaultAccessReportEncryptionService", () => {
         service.encryptReport$({ organizationId: orgId, userId }, mockV2Input, mockKey),
       );
 
-      expect(mockKeyGenerationService.createKey).not.toHaveBeenCalled();
+      expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
     });
 
@@ -207,7 +214,9 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw if key operation fails", async () => {
-      mockKeyGenerationService.createKey.mockRejectedValue(new Error("Key generation failed"));
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockImplementation(() => {
+        throw new Error("Key generation failed");
+      });
 
       await expect(
         firstValueFrom(service.encryptReport$({ organizationId: orgId, userId }, mockV2Input)),
@@ -468,7 +477,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       );
 
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
-      expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(mockReportVersioningService.serialize).toHaveBeenCalledWith(mockV2Input.reportData);
       expect(mockEncryptService.encryptFileData).toHaveBeenCalledWith(
         expect.anything(),
@@ -515,7 +524,7 @@ describe("DefaultAccessReportEncryptionService", () => {
         service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input, mockKey),
       );
 
-      expect(mockKeyGenerationService.createKey).not.toHaveBeenCalled();
+      expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
     });
 
@@ -528,7 +537,9 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw if key operation fails", async () => {
-      mockKeyGenerationService.createKey.mockRejectedValue(new Error("Key generation failed"));
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockImplementation(() => {
+        throw new Error("Key generation failed");
+      });
 
       await expect(
         firstValueFrom(service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input)),

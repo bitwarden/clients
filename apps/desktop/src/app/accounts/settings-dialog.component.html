@@ -124,17 +124,6 @@
           </bit-form-control>
         }
 
-        <bit-form-control>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="enableBrowserIntegration"
-            (change)="saveBrowserIntegration()"
-          />
-          <bit-label>{{ "enableBrowserIntegration" | i18n }}</bit-label>
-          <bit-hint>{{ "enableBrowserIntegrationDesc1" | i18n }}</bit-hint>
-        </bit-form-control>
-
         @if (showEnableAutotype()) {
           <bit-form-control>
             <input

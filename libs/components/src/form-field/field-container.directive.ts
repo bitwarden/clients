@@ -26,7 +26,7 @@ export class BitFieldContainerDirective {
       "tw-border-border-strong",
       "tw-bg-bg-secondary",
       "tw-placeholder-fg-body-subtle",
-      "has-[input:disabled]:tw-border-border-base",
+      "has-[:is(input,textarea):disabled]:tw-border-border-base",
       "tw-transition-colors",
       "has-[:focus-visible]:tw-border-border-brand",
       "has-[.tw-test-focus-visible]:tw-border-border-brand",
@@ -35,6 +35,7 @@ export class BitFieldContainerDirective {
       "has-[:focus-visible]:tw-ring-1",
       "has-[.tw-test-focus-visible]:tw-ring-1",
       "tw-relative",
+      "has-[select]:after:tw-pointer-events-none",
       "has-[select]:after:tw-absolute",
       // spacing here to match visual spacing used by ng-select arrow
       "has-[select]:after:tw-end-[calc(theme(spacing.3)_+_2px)]",
@@ -68,8 +69,8 @@ export class BitFieldContainerDirective {
             "has-[.tw-test-focus-visible]:!tw-ring-border-focus",
           ]
         : [
-            "[&:not(:has(:focus-visible)):not(:has(input:disabled)):hover]:tw-bg-bg-quaternary",
-            "[&:not(:has(:focus-visible)):not(:has(.tw-test-focus-visible)):not(:has(input:disabled)).tw-test-hover]:tw-bg-bg-quaternary",
+            "[&:not(:has(:focus-visible)):not(:has(:is(input,textarea):disabled)):hover]:tw-bg-bg-quaternary",
+            "[&:not(:has(:focus-visible)):not(:has(.tw-test-focus-visible)):not(:has(:is(input,textarea):disabled)).tw-test-hover]:tw-bg-bg-quaternary",
           ]),
     ].join(" ");
   });

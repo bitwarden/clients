@@ -28,6 +28,7 @@
         <bit-toggle-group
           [selected]="selectedToggleValue"
           (selectedChange)="onToggleChange($event)"
+          [label]="'filterSends' | i18n"
         >
           <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
           <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>

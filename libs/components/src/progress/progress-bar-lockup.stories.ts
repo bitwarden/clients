@@ -2,8 +2,8 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { SpotReport } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { FormFieldModule } from "../form-field";
 import { SvgComponent } from "../svg/svg.component";
 import { I18nMockService } from "../utils/i18n-mock.service";

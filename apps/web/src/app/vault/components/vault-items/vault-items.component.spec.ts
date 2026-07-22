@@ -259,6 +259,18 @@ describe("VaultItemsComponent", () => {
     });
   });
 
+  describe("selection identity", () => {
+    it("keeps checkmarks after ciphers input is re-set with new object references", () => {
+      const mockCipher = cipher1 as CipherView;
+      component.ciphers = [mockCipher];
+      component["selection"].select(component.dataSource.data[0]);
+
+      component.ciphers = [mockCipher];
+
+      expect(component["selection"].isSelected(component.dataSource.data[0])).toBe(true);
+    });
+  });
+
   describe("filter change handling", () => {
     it("clears selection when routed filter changes", () => {
       const items: VaultItem<CipherView>[] = [

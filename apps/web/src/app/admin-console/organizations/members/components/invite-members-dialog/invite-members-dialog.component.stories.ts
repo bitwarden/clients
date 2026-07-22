@@ -112,8 +112,8 @@ const mockInviteLink: OrganizationInviteLink = Object.assign(
     code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    encryptedInviteKey: "enc-key",
-    encryptedOrgKey: undefined,
+    invite: "enc-key",
+    supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
   },
 );
@@ -162,7 +162,7 @@ type StoryArgs = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Invite Members Dialog",
+  title: "Admin Console/Organizations/Members/Invite Members Dialog/Invite Members Dialog",
   component: InviteMembersDialogComponent,
   args: {
     useInviteLinks: true,

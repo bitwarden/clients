@@ -92,6 +92,7 @@ class CurrentAccountStubComponent {}
 })
 class NewItemDropdownStubComponent {
   readonly initialValues = input();
+  readonly canCreateCipher = input();
 }
 
 @Component({

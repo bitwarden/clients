@@ -19,6 +19,13 @@ import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
+jest.mock("electron", () => ({
+  systemPreferences: {
+    canPromptTouchID: jest.fn(),
+    promptTouchID: jest.fn(),
+  },
+}));
+
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
     passwords: jest.fn(),
@@ -28,7 +35,7 @@ jest.mock("@bitwarden/desktop-napi", () => {
 jest.mock("./native-v2", () => ({
   LinuxBiometricsSystem: jest.fn(),
   WindowsBiometricsSystem: jest.fn(),
-  biometrics_v2: {
+  biometrics: {
     initBiometricSystem: jest.fn(),
   },
 }));

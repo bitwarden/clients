@@ -7,6 +7,7 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -135,6 +136,7 @@ describe("SendComponent", () => {
         },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ConfigService, useValue: configService },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         {
           provide: ActivatedRoute,
           useValue: {

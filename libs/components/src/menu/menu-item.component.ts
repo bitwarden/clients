@@ -9,10 +9,13 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 
+import { MenuCloseDirective } from "./menu-close.directive";
+
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [MenuCloseDirective],
   host: {
     "[class]": "classList()",
     role: "menuitem",

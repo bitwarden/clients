@@ -12,6 +12,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
@@ -27,6 +28,7 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
@@ -36,7 +38,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { CsprngArray } from "../../../types/csprng";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
@@ -50,7 +51,6 @@ import {
 describe("deviceTrustService", () => {
   let deviceTrustService: DeviceTrustService;
 
-  const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
@@ -325,16 +325,18 @@ describe("deviceTrustService", () => {
         const mockRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
         const mockDeviceKey = new SymmetricCryptoKey(mockRandomBytes) as DeviceKey;
 
-        const keyGenSvcGenerateKeySpy = jest
-          .spyOn(keyGenerationService, "createKey")
-          .mockResolvedValue(mockDeviceKey);
+        Object.defineProperty(SdkLoadService, "Ready", {
+          value: Promise.resolve(),
+          configurable: true,
+        });
+        jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+        jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(mockDeviceKey);
 
         // TypeScript will allow calling private methods if the object is of type 'any'
         // This is a hacky workaround, but it allows for cleaner tests
         const deviceKey = await (deviceTrustService as any).makeDeviceKey();
 
-        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledTimes(1);
-        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledWith(deviceKeyBytesLength * 8);
+        expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalledTimes(1);
 
         expect(deviceKey).not.toBeNull();
         expect(deviceKey).toBeInstanceOf(SymmetricCryptoKey);
@@ -917,7 +919,6 @@ describe("deviceTrustService", () => {
     userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(decryptionOptions);
 
     return new DeviceTrustService(
-      keyGenerationService,
       cryptoFunctionService,
       keyService,
       encryptService,

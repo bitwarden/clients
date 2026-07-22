@@ -9,10 +9,10 @@ publish = { workspace = true }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
-desktop_core = { path = "../core" }
 mockall = { workspace = true }
 rkyv = "=0.8.16"
 rsa = "0.9"
+secure_memory = { path = "../secure_memory" }
 sha2 = "=0.10.9"
 signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [

@@ -11,7 +11,6 @@
 pub mod autofill;
 #[allow(missing_docs)]
 pub mod autostart;
-pub mod biometric_v2;
 #[allow(missing_docs)]
 pub mod clipboard;
 pub mod error;
@@ -20,7 +19,6 @@ pub mod password;
 #[allow(missing_docs)]
 pub mod powermonitor;
 pub mod process_isolation;
-pub mod secure_memory;
 #[allow(missing_docs)] // staged to be removed
 pub mod ssh_agent;
 

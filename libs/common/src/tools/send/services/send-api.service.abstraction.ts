@@ -34,5 +34,17 @@ export abstract class SendApiService {
   ): Promise<SendFileDownloadDataResponse>;
   abstract removePassword(id: string): Promise<any>;
   abstract delete(id: string): Promise<any>;
-  abstract save(sendData: [Send, EncArrayBuffer]): Promise<Send>;
+  /**
+   * Persists a send.
+   *
+   * @param sendData The encrypted send and (for file sends) its encrypted file buffer.
+   * @param plaintextPassword The plaintext password the caller collected for this save, when the
+   *   user set or changed the password. `SendService.encrypt` consumes the plaintext to derive the
+   *   proof-of-knowledge `keyB64` on the domain `Send`, but does not retain the plaintext; the SDK
+   *   path needs it to derive that proof over the key it generates, so callers forward it here.
+   *   `undefined`/`null` means "no password change" — on an edit that preserves an existing
+   *   password. Protected Data: implementations must never log it or place it in error messages.
+   *   The legacy implementation ignores it (its behavior is unchanged).
+   */
+  abstract save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send>;
 }

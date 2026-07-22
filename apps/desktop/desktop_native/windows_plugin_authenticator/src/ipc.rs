@@ -24,7 +24,11 @@ pub(crate) trait IpcClient: Send + Sync {
     /// response arrives or `timeout` elapses.
     fn get_window_handle(&self, timeout: Duration) -> Result<WindowHandleQueryResponse, String>;
 
+    /// Request that the provider sync its credentials to the OS autofill store.
     fn send_native_status(&self, key: String, value: String);
+
+    /// Cancel an ongoing request.
+    fn cancel_request(&self, context: String);
 
     fn prepare_passkey_registration(
         &self,
@@ -77,6 +81,10 @@ impl IpcClient for RealIpcClient {
 
     fn send_native_status(&self, key: String, value: String) {
         self.0.send_native_status(key, value)
+    }
+
+    fn cancel_request(&self, context: String) {
+        self.0.cancel_request(context)
     }
 
     fn prepare_passkey_registration(

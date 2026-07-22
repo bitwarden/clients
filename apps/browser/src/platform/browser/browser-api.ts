@@ -919,6 +919,30 @@ export class BrowserApi {
   }
 
   /**
+   * Executes a self-contained function in the given tab and returns its result from the top frame.
+   * The function is serialized for injection, so it must not close over outer-scope variables.
+   *
+   * @param tabId - The id of the tab to execute the function in.
+   * @param func - The function to inject.
+   */
+  static async executeFunctionInTab<R>(tabId: number, func: () => R): Promise<R | undefined> {
+    if (BrowserApi.isManifestVersion(3)) {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId },
+        func,
+      });
+      return results?.[0]?.result as R | undefined;
+    }
+
+    // MV2 has no `func` parameter, so serialize the function source and inject it as code.
+    return new Promise((resolve) => {
+      chrome.tabs.executeScript(tabId, { code: `(${func.toString()})()` }, (results) =>
+        resolve(results?.[0] as R | undefined),
+      );
+    });
+  }
+
+  /**
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {

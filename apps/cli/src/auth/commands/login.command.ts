@@ -25,8 +25,8 @@ import {
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-login.request";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
@@ -36,11 +36,14 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
@@ -300,7 +303,7 @@ export class LoginCommand {
         }
 
         if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
-          const emailReq = new TwoFactorEmailRequest();
+          const emailReq = new TwoFactorEmailLoginRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           // if the user was logging in with SSO, we need to include the SSO session token
           if (response.ssoEmail2FaSessionToken != null) {
@@ -436,8 +439,9 @@ export class LoginCommand {
   }
 
   private async validatedParams() {
-    const key = await this.cryptoFunctionService.randomBytes(64);
-    process.env.BW_SESSION = Utils.fromBufferToB64(key);
+    await SdkLoadService.Ready;
+    const key = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    process.env.BW_SESSION = key.toBase64();
   }
 
   private async handleSuccessResponse(response: AuthResult): Promise<Response> {

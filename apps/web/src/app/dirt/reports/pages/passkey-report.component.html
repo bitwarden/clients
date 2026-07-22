@@ -1,0 +1,153 @@
+<app-header></app-header>
+
+<bit-container>
+  <p>
+    {{ "passkeyLoginReportDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/blog/how-do-passkeys-work/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "passkeyLoginReportHowTheyWork" | i18n }}
+    </a>
+    {{ "passkeyLoginReportAnd" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/storing-passkeys/" target="_blank" rel="noreferrer">
+      {{ "passkeyLoginReportHowToUse" | i18n }}
+    </a>
+  </p>
+  @if (loading()) {
+    <div>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></bit-icon>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </div>
+  } @else {
+    <div class="tw-mt-4">
+      @if (error()) {
+        <bit-callout type="danger">
+          {{ "reportError" | i18n }}
+        </bit-callout>
+      } @else if (!ciphers().length) {
+        <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
+          {{ "noPasskeyLogin" | i18n }}
+        </bit-callout>
+      } @else {
+        <bit-callout type="warning" title="{{ 'passkeyLoginFound' | i18n }}">
+          {{ reportDescriptionKey() | i18n: (ciphers().length | number) ?? "" }}
+        </bit-callout>
+        @if (showFilterToggle()) {
+          @if (canDisplayToggleGroup()) {
+            <bit-toggle-group
+              [selected]="currentFilterStatus()"
+              (selectedChange)="filterOrgToggle($event ?? 0)"
+              [attr.aria-label]="'addAccessFilter' | i18n"
+            >
+              @for (status of filterStatus(); track status) {
+                <bit-toggle [value]="status">
+                  {{ getName(status) }}
+                  <span bitBadge variant="info"> {{ getCount(status) }} </span>
+                </bit-toggle>
+              }
+            </bit-toggle-group>
+          } @else {
+            <bit-chip-filter
+              [placeholderText]="chipSelectOptions()[0].label"
+              [options]="chipSelectOptions()"
+              [ngModel]="selectedFilterChip"
+              (ngModelChange)="filterOrgToggleChipSelect($event)"
+              fullWidth="true"
+            ></bit-chip-filter>
+          }
+        }
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
+          <ng-container header>
+            <th bitCell class="tw-w-12"></th>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-1/6">{{ "type" | i18n }}</th>
+            <th bitCell class="tw-w-1/4">{{ "owner" | i18n }}</th>
+            <th bitCell class="tw-w-1/4"></th>
+          </ng-container>
+          <ng-template bitRowDef let-row>
+            <td bitCell>
+              <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+            </td>
+            <td bitCell class="tw-truncate tw-max-w-0">
+              <a
+                bitLink
+                href="#"
+                appStopClick
+                (click)="selectCipher(row.cipher)"
+                title="{{ 'editItemWithName' | i18n: row.cipher.name }}"
+                >{{ row.cipher.name }}</a
+              >
+              @if (row.cipher.organizationId) {
+                <bit-icon
+                  name="bwi-collection-shared"
+                  class="tw-ml-1"
+                  appStopProp
+                  title="{{ 'shared' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "shared" | i18n }}</span>
+              }
+              @if (row.cipher.hasAttachments) {
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="tw-ml-1"
+                  appStopProp
+                  title="{{ 'attachments' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+              }
+              <br />
+              <small>{{ row.cipher.subTitle }}</small>
+            </td>
+            <td bitCell>
+              @if (row.supportsPasskeyLogin) {
+                <bit-icon
+                  name="bwi-passkey"
+                  class="tw-mr-1"
+                  title="{{ 'passwordlessLogin' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "passwordlessLogin" | i18n }}</span>
+              }
+              @if (row.supportsPasskeyMfa) {
+                <bit-icon
+                  name="bwi-lock-encrypted"
+                  class="tw-mr-1"
+                  title="{{ 'multifactorAuthentication' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "multifactorAuthentication" | i18n }}</span>
+              }
+            </td>
+            <td bitCell>
+              <app-org-badge
+                [disabled]="true"
+                [organizationId]="row.cipher.organizationId"
+                [organizationName]="
+                  (row.cipher.organizationId | orgNameFromId: organizations() ?? []) ?? ''
+                "
+                appStopProp
+              />
+            </td>
+            <td bitCell class="tw-text-right">
+              @if (row.instructions) {
+                <a [href]="row.instructions" target="_blank" rel="noreferrer">
+                  <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
+                </a>
+              }
+            </td>
+          </ng-template>
+        </bit-table-scroll>
+      }
+    </div>
+  }
+</bit-container>

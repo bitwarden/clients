@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { BadgeComponent } from "./badge.component";
 

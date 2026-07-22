@@ -256,6 +256,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected readonly canCreateCipher$ = combineLatest([
+    this.routedVaultFilterService.filter$,
+    this.organizations$,
+  ]).pipe(
+    map(([filter, organizations]) => {
+      const selectedOrg = organizations?.find((org) => org.id === filter?.organizationId);
+      return !selectedOrg || selectedOrg.enabled;
+    }),
+  );
+
   protected deactivatedOrgIcon = DeactivatedOrg;
   protected emptyTrashIcon = EmptyTrash;
   protected favoritesIcon = FavoritesIcon;
@@ -785,6 +799,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       folderId = this.activeFilter.folderId;
     }
 
+    const organization = organizationId
+      ? this.allOrganizations?.find((o) => o.id === organizationId)
+      : undefined;
+    if (organization && !organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
+      return;
+    }
+
     const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
     formConfig.initialValues = {
       folderId,
@@ -966,7 +988,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   protected async openAddItemDialog(): Promise<void> {
+    const canCreateCipher = await firstValueFrom(this.canCreateCipher$);
     const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher,
       canCreateFolder: true,
       canCreateCollection: false,
       canCreateSshKey: true,

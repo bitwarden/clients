@@ -32,7 +32,12 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
+import {
+  compareVaultItems,
+  RoutedVaultFilterService,
+  VaultBatchBarService,
+  VaultItem,
+} from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -157,7 +162,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  private readonly _localSelection = new SelectionModel<VaultItem<C>>(true, [], true);
+  private readonly _localSelection = new SelectionModel<VaultItem<C>>(
+    true,
+    [],
+    true,
+    compareVaultItems,
+  );
   get selection(): SelectionModel<VaultItem<C>> {
     return this.batchBarService?.selection ?? this._localSelection;
   }

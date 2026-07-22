@@ -23,8 +23,15 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
@@ -96,6 +103,7 @@ async function createComponent(
   overrides: {
     userDetails?: OrganizationUserAdminView;
     orgOverrides?: Partial<Organization>;
+    detailsTabEnabled?: boolean;
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -112,6 +120,11 @@ async function createComponent(
     memberActionsService: MockProxy<MemberActionsService>;
     deleteManagedMemberWarningService: MockProxy<DeleteManagedMemberWarningService>;
     dialogService: MockProxy<DialogService>;
+    billingConstraint: MockProxy<BillingConstraintService>;
+    organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
+    configService: MockProxy<ConfigService>;
+    validationService: MockProxy<ValidationService>;
+    logService: MockProxy<LogService>;
   };
 }> {
   const accountService = mock<AccountService>();
@@ -125,6 +138,11 @@ async function createComponent(
   const memberActionsService = mock<MemberActionsService>();
   const deleteManagedMemberWarningService = mock<DeleteManagedMemberWarningService>();
   const dialogService = mock<DialogService>();
+  const billingConstraint = mock<BillingConstraintService>();
+  const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
+  const configService = mock<ConfigService>();
+  const validationService = mock<ValidationService>();
+  const logService = mock<LogService>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
   organizationService.organizations$ = jest
@@ -134,6 +152,16 @@ async function createComponent(
   userAdminService.get = jest.fn().mockResolvedValue(overrides.userDetails ?? buildUserDetails());
   userAdminService.saveV2 = jest.fn().mockResolvedValue(undefined);
   i18nService.t = jest.fn().mockReturnValue("translated");
+  organizationMetadataService.getOrganizationMetadata$ = jest
+    .fn()
+    .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
+  billingConstraint.seatLimitReached.mockResolvedValue(false);
+  configService.getFeatureFlag.mockImplementation((flag) => {
+    if (flag === FeatureFlag.PM28365_ChangeMemberEmail) {
+      return Promise.resolve(overrides.detailsTabEnabled ?? false);
+    }
+    return Promise.resolve(false);
+  });
 
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
@@ -150,6 +178,11 @@ async function createComponent(
       { provide: MemberActionsService, useValue: memberActionsService },
       { provide: DeleteManagedMemberWarningService, useValue: deleteManagedMemberWarningService },
       { provide: DialogService, useValue: dialogService },
+      { provide: BillingConstraintService, useValue: billingConstraint },
+      { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
+      { provide: ConfigService, useValue: configService },
+      { provide: ValidationService, useValue: validationService },
+      { provide: LogService, useValue: logService },
     ],
   }).compileComponents();
 
@@ -171,6 +204,11 @@ async function createComponent(
       memberActionsService,
       deleteManagedMemberWarningService,
       dialogService,
+      billingConstraint,
+      organizationMetadataService,
+      configService,
+      validationService,
+      logService,
     },
   };
 }
@@ -282,6 +320,147 @@ describe("EditMemberDialogComponent", () => {
       await component.submit();
 
       expect(mocks.dialogRef.close).toHaveBeenCalledWith(MemberDialogResult.Saved);
+    });
+  });
+
+  describe("restore", () => {
+    it("checks the seat limit and restores the user when there is no seat limit issue", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams());
+      mocks.memberActionsService.restoreUser.mockResolvedValue({ success: true });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.restore();
+
+      expect(mocks.organizationMetadataService.getOrganizationMetadata$).toHaveBeenCalledWith(
+        ORG_ID,
+      );
+      expect(mocks.billingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ORG_ID }),
+        expect.objectContaining({ organizationOccupiedSeats: 0 }),
+      );
+      expect(mocks.billingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        expect.objectContaining({ id: ORG_ID }),
+        "restore",
+      );
+      expect(mocks.memberActionsService.restoreUser).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ORG_ID }),
+        USER_ID,
+      );
+      expect(mocks.toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(mocks.dialogRef.close).toHaveBeenCalledWith(MemberDialogResult.Restored);
+    });
+
+    it("does not restore the user when the seat limit is reached", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams());
+      mocks.billingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.restore();
+
+      expect(mocks.memberActionsService.restoreUser).not.toHaveBeenCalled();
+      expect(mocks.toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(mocks.dialogRef.close).not.toHaveBeenCalledWith(MemberDialogResult.Restored);
+    });
+  });
+
+  describe("Details tab feature flag (PM28365_ChangeMemberEmail)", () => {
+    describe("flag ON", () => {
+      it("detailsTabEnabled() returns true", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Details }),
+          { detailsTabEnabled: true },
+        );
+
+        // Allow the flag Promise to resolve without triggering full template render
+        await Promise.resolve();
+
+        expect((component as any).detailsTabEnabled()).toBe(true);
+      });
+
+      it("formGroup has name and email controls", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Details }),
+          { detailsTabEnabled: true },
+        );
+
+        expect((component as any).formGroup.get("name")).not.toBeNull();
+        expect((component as any).formGroup.get("email")).not.toBeNull();
+      });
+
+      it("email control is disabled", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Details, email: "test@example.com" }),
+          { detailsTabEnabled: true },
+        );
+
+        expect((component as any).formGroup.controls.email.disabled).toBe(true);
+      });
+
+      it("patches email from params on load", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Details, email: "member@example.com" }),
+          { detailsTabEnabled: true },
+        );
+
+        // Wait for userService.get to resolve and form to be patched
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
+      });
+
+      it("patches name from params on load", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Details, name: "Test User" }),
+          { detailsTabEnabled: true },
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect((component as any).formGroup.controls.name.value).toBe("Test User");
+      });
+
+      it("submit error toast uses 'details' tab label when form invalid and not on Details tab", async () => {
+        const { component, mocks } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Groups }),
+          { detailsTabEnabled: true },
+        );
+
+        await Promise.resolve();
+
+        (component as any).formGroup.controls.type.setErrors({ required: true });
+        await component.submit();
+
+        expect(mocks.toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
+      });
+    });
+
+    describe("flag OFF", () => {
+      it("detailsTabEnabled() returns false", async () => {
+        const { component } = await createComponent(defaultParams(), {
+          detailsTabEnabled: false,
+        });
+
+        expect((component as any).detailsTabEnabled()).toBe(false);
+      });
+
+      it("initialTab defaults to Role (0)", async () => {
+        const { component } = await createComponent(
+          defaultParams({ initialTab: MemberDialogTab.Role }),
+          { detailsTabEnabled: false },
+        );
+        expect((component as any).tabIndex()).toBe(MemberDialogTab.Role);
+      });
     });
   });
 });

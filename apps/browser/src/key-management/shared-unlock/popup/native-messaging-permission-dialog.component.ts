@@ -77,8 +77,8 @@ export class NativeMessagingPermissionDialogComponent {
     } catch {
       if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
         await this.dialogService.openSimpleDialog({
-          title: { key: "nativeMessaginPermissionSidebarTitle" },
-          content: { key: "nativeMessaginPermissionSidebarDesc" },
+          title: { key: "nativeMessagingPermissionSidebarTitle" },
+          content: { key: "nativeMessagingPermissionSidebarDesc" },
           acceptButtonText: { key: "ok" },
           cancelButtonText: null,
           type: "info",

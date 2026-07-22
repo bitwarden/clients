@@ -195,37 +195,6 @@ describe("WebCrypto Function Service", () => {
     // Generating 4096 bit keys can be slow. Commenting it out to save CI.
     // testRsaGenerateKeyPair(4096);
   });
-
-  describe("randomBytes", () => {
-    it("should make a value of the correct length", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const randomData = await cryptoFunctionService.randomBytes(16);
-      expect(randomData.byteLength).toBe(16);
-    });
-
-    it("should not make the same value twice", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const randomData = await cryptoFunctionService.randomBytes(16);
-      const randomData2 = await cryptoFunctionService.randomBytes(16);
-      expect(
-        randomData.byteLength === randomData2.byteLength && randomData !== randomData2,
-      ).toBeTruthy();
-    });
-  });
-
-  describe("aesGenerateKey", () => {
-    it.each([128, 192, 256, 512])("Should make a key of %s bits long", async (length) => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const key = await cryptoFunctionService.aesGenerateKey(length);
-      expect(key.byteLength * 8).toBe(length);
-    });
-
-    it("should not repeat itself for 512 length special case", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const key = await cryptoFunctionService.aesGenerateKey(512);
-      expect(key.slice(0, 32)).not.toEqual(key.slice(32, 64));
-    });
-  });
 });
 
 function testPbkdf2(

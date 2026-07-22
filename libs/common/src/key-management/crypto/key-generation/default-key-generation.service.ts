@@ -4,7 +4,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "../../../platform/enums";
@@ -18,21 +18,17 @@ import { KeyGenerationService } from "./key-generation.service";
 export class DefaultKeyGenerationService implements KeyGenerationService {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
-  async createKey(bitLength: 256 | 512): Promise<SymmetricCryptoKey> {
-    const key = await this.cryptoFunctionService.aesGenerateKey(bitLength);
-    return new SymmetricCryptoKey(key);
-  }
-
   async createKeyWithPurpose(
     bitLength: 128 | 192 | 256 | 512,
     purpose: string,
     salt?: string,
   ): Promise<{ salt: string; material: CsprngArray; derivedKey: SymmetricCryptoKey }> {
+    await SdkLoadService.Ready;
     if (salt == null) {
-      const bytes = await this.cryptoFunctionService.randomBytes(32);
+      const bytes = new SdkRandomNumberClient().gen_bytes(32);
       salt = Utils.fromBufferToUtf8(bytes.buffer as ArrayBuffer);
     }
-    const material = await this.cryptoFunctionService.aesGenerateKey(bitLength);
+    const material = new SdkRandomNumberClient().gen_bytes(bitLength / 8) as CsprngArray;
     const key = await this.cryptoFunctionService.hkdf(material, salt, purpose, 64, "sha256");
     return { salt, material, derivedKey: new SymmetricCryptoKey(key) };
   }

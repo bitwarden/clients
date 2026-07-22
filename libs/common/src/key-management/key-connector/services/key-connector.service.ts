@@ -18,6 +18,7 @@ import {
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -29,6 +30,7 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -36,7 +38,6 @@ import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../p
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "../../crypto";
 import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
@@ -87,7 +88,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private tokenService: TokenService,
     private logService: LogService,
     private organizationService: OrganizationService,
-    private keyGenerationService: KeyGenerationService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
     private configService: ConfigService,
@@ -292,7 +292,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     keyConnectorUrl: string,
     ssoOrganizationIdentifier: string,
   ) {
-    const password = await this.keyGenerationService.createKey(512);
+    await SdkLoadService.Ready;
+    const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
     const masterKey = await this.keyService.makeMasterKey(
       password.keyB64,

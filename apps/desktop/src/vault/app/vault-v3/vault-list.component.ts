@@ -116,6 +116,11 @@ export class VaultListComponent<C extends CipherViewLike> {
     () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
   );
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
 

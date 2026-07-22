@@ -42,6 +42,7 @@ type GridItem = {
   imports: [CommonModule, I18nPipe, IconTileComponent, IconComponent, ItemModule, TypographyModule],
 })
 export class AddItemGridComponent {
+  readonly canCreateCipher = input(true);
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
@@ -54,18 +55,20 @@ export class AddItemGridComponent {
 
   readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
-    const items: GridItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
-      if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
-        return false;
-      }
-      return !restrictedTypes.some((r) => r.cipherType === item.type);
-    }).map((item) => ({
-      icon: item.icon as BitwardenIcon,
-      labelKey: item.labelKey,
-      subtitleKey: item.subtitleKey,
-      action: () =>
-        this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
-    }));
+    const items: GridItem[] = this.canCreateCipher()
+      ? DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
+          if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
+            return false;
+          }
+          return !restrictedTypes.some((r) => r.cipherType === item.type);
+        }).map((item) => ({
+          icon: item.icon as BitwardenIcon,
+          labelKey: item.labelKey,
+          subtitleKey: item.subtitleKey,
+          action: () =>
+            this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
+        }))
+      : [];
 
     if (this.canCreateFolder()) {
       items.push({

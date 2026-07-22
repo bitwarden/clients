@@ -35,7 +35,6 @@ export type UnlockOptions = {
  */
 export abstract class LockComponentService {
   // Extension
-  abstract getBiometricsError(error: any): string | null;
   abstract getPreviousUrl(): string | null;
   /**
    * Opens the current page in a popout window if not already in a popout or the sidebar.

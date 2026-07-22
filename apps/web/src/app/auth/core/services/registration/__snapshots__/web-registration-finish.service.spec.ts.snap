@@ -13,6 +13,7 @@ exports[`WebRegistrationFinishService finishRegistration() - SDK flow posts the 
   "organization_user_id": undefined,
   "provider_invite_token": undefined,
   "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
   "salt": "salt",
 }
 `;
@@ -30,6 +31,7 @@ exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers 
   "organization_user_id": undefined,
   "provider_invite_token": "providerInviteToken",
   "provider_user_id": "00000000-0000-0000-0000-000000000002",
+  "sales_assisted_token": undefined,
   "salt": "salt",
 }
 `;
@@ -47,6 +49,7 @@ exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers 
   "organization_user_id": undefined,
   "provider_invite_token": undefined,
   "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
   "salt": "salt",
 }
 `;
@@ -64,6 +67,7 @@ exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers 
   "organization_user_id": undefined,
   "provider_invite_token": undefined,
   "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
   "salt": "salt",
 }
 `;
@@ -81,6 +85,7 @@ exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers 
   "organization_user_id": "00000000-0000-0000-0000-000000000003",
   "provider_invite_token": undefined,
   "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
   "salt": "salt",
 }
 `;

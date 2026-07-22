@@ -8,10 +8,8 @@ import {
 import { BlockClaimedDomainAccountCreationPolicy } from "./block-claimed-domain-account-creation.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Block Claimed Domain Account Creation",
-    new BlockClaimedDomainAccountCreationPolicy(),
-  ),
+  ...policyDrawerMeta(new BlockClaimedDomainAccountCreationPolicy()),
+  title: "Admin Console/Organizations/Policies/Block Claimed Domain Account Creation",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

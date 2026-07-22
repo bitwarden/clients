@@ -5,10 +5,8 @@ import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Two Factor Authentication",
-    new TwoFactorAuthenticationPolicy(),
-  ),
+  ...policyDrawerMeta(new TwoFactorAuthenticationPolicy()),
+  title: "Admin Console/Organizations/Policies/Two Factor Authentication",
 };
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

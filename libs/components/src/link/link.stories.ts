@@ -1,6 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { LinkComponent, LinkTypes } from "./link.component";
 import { LinkModule } from "./link.module";

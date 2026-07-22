@@ -1,22 +1,33 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, FormControl } from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, PopoverModule, CalloutModule } from "@bitwarden/components";
+import {
+  A11yTitleDirective,
+  ButtonModule,
+  CalloutModule,
+  DialogService,
+  FormFieldModule,
+  LinkModule,
+  PopoverModule,
+  SelectModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   KdfConfigService,
   Argon2KdfConfig,
   PBKDF2KdfConfig,
   KdfType,
 } from "@bitwarden/key-management";
-
-import { SharedModule } from "../../shared";
+import { Kdf, PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ChangeKdfComponent } from "./change-kdf.component";
 
@@ -30,6 +41,8 @@ describe("ChangeKdfComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockI18nService: MockProxy<I18nService>;
   let accountService: FakeAccountService;
+  let mockSdkService: MockProxy<SdkService>;
+  let isKdfCompliant: jest.Mock<boolean, [Kdf]>;
   let formBuilder: FormBuilder;
 
   const mockUserId = "user-id" as UserId;
@@ -98,9 +111,27 @@ describe("ChangeKdfComponent", () => {
 
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
+    // Default to the standard cipher suite where every KDF is compliant.
+    isKdfCompliant = jest.fn<boolean, [Kdf]>().mockReturnValue(true);
+    mockSdkService = mock<SdkService>();
+    mockSdkService.client$ = of({
+      crypto_cipher_suite: () => ({ is_kdf_compliant: isKdfCompliant }),
+    } as unknown as PasswordManagerClient);
+
     TestBed.configureTestingModule({
       declarations: [ChangeKdfComponent],
-      imports: [SharedModule, PopoverModule, CalloutModule],
+      imports: [
+        ReactiveFormsModule,
+        A11yTitleDirective,
+        ButtonModule,
+        CalloutModule,
+        FormFieldModule,
+        I18nPipe,
+        LinkModule,
+        PopoverModule,
+        SelectModule,
+        TypographyModule,
+      ],
       providers: [
         { provide: DialogService, useValue: mockDialogService },
         { provide: KdfConfigService, useValue: mockKdfConfigService },
@@ -108,6 +139,7 @@ describe("ChangeKdfComponent", () => {
         { provide: FormBuilder, useValue: formBuilder },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: SdkService, useValue: mockSdkService },
       ],
     });
   });
@@ -133,7 +165,7 @@ describe("ChangeKdfComponent", () => {
         expect(kdfConfigFormGroup.controls.iterations.value).toBe(600_000);
         expect(kdfConfigFormGroup.controls.memory.value).toBeNull();
         expect(kdfConfigFormGroup.controls.parallelism.value).toBeNull();
-        expect(component.kdfConfig).toEqual(mockPBKDF2Config);
+        expect(component["kdfConfig"]()).toEqual(mockPBKDF2Config);
 
         // Assert validators
         expectPBKDF2Validation(
@@ -164,7 +196,7 @@ describe("ChangeKdfComponent", () => {
         expect(kdfConfigFormGroup.controls.iterations.value).toBe(3);
         expect(kdfConfigFormGroup.controls.memory.value).toBe(64);
         expect(kdfConfigFormGroup.controls.parallelism.value).toBe(4);
-        expect(component.kdfConfig).toEqual(mockArgon2Config);
+        expect(component["kdfConfig"]()).toEqual(mockArgon2Config);
 
         // Assert validators
         expectArgon2Validation(
@@ -360,6 +392,40 @@ describe("ChangeKdfComponent", () => {
         // Assert
         expect(mockDialogService.open).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("KDF options by cipher suite", () => {
+    it("offers PBKDF2 and Argon2id in the standard cipher suite", async () => {
+      // Arrange - standard cipher suite: every KDF is compliant.
+      isKdfCompliant.mockReturnValue(true);
+      mockKdfConfigService.getKdfConfig.mockResolvedValue(new PBKDF2KdfConfig(600_000));
+
+      // Act
+      fixture = TestBed.createComponent(ChangeKdfComponent);
+      component = fixture.componentInstance;
+      await component.ngOnInit();
+
+      // Assert
+      const optionValues = component["kdfOptions"]().map((option) => option.value);
+      expect(optionValues).toEqual([KdfType.PBKDF2_SHA256, KdfType.Argon2id]);
+      expect(component["argon2Available"]()).toBe(true);
+    });
+
+    it("offers only PBKDF2 in the FIPS cipher suite", async () => {
+      // Arrange - FIPS cipher suite: only PBKDF2 is compliant.
+      isKdfCompliant.mockImplementation((kdf) => "pBKDF2" in kdf);
+      mockKdfConfigService.getKdfConfig.mockResolvedValue(new PBKDF2KdfConfig(600_000));
+
+      // Act
+      fixture = TestBed.createComponent(ChangeKdfComponent);
+      component = fixture.componentInstance;
+      await component.ngOnInit();
+
+      // Assert
+      const optionValues = component["kdfOptions"]().map((option) => option.value);
+      expect(optionValues).toEqual([KdfType.PBKDF2_SHA256]);
+      expect(component["argon2Available"]()).toBe(false);
     });
   });
 });

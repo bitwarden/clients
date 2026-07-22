@@ -28,6 +28,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
+import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 
@@ -99,7 +100,11 @@ export class CreateCommand {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      const cipherView = CipherExport.toView(req);
+      const allowDerivedSshKeys = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM40201_DeriveSSHKeys),
+      );
+
+      const cipherView = CipherExport.toView(req, undefined, allowDerivedSshKeys);
 
       if (
         cipherView.type === CipherType.BankAccount ||
@@ -122,7 +127,7 @@ export class CreateCommand {
       }
 
       const newCipher = await this.cipherService.createWithServer(
-        CipherExport.toView(req),
+        CipherExport.toView(req, undefined, allowDerivedSshKeys),
         activeUserId,
       );
       const res = new CipherResponse(newCipher);
@@ -264,7 +269,13 @@ export class CreateCommand {
       });
       const response = await this.apiService.postCollection(req.organizationId, request);
       const view = CollectionExport.toView(req, response.id);
-      const res = new OrganizationCollectionResponse(view, groups, users);
+      const serverGroups = response.groups.map(
+        (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+      );
+      const serverUsers = response.users.map(
+        (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
+      );
+      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

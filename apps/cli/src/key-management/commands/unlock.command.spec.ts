@@ -3,14 +3,15 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { PureCrypto, SymmetricKey } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
@@ -24,7 +25,6 @@ describe("UnlockCommand", () => {
   let command: UnlockCommand;
 
   const accountService = mock<AccountService>();
-  const cryptoFunctionService = mock<CryptoFunctionService>();
   const logService = mock<ConsoleLogService>();
   const keyConnectorService = mock<KeyConnectorService>();
   const environmentService = mock<EnvironmentService>();
@@ -66,11 +66,18 @@ describe("UnlockCommand", () => {
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
     keyConnectorService.convertAccountRequired$ = of(false);
-    cryptoFunctionService.randomBytes.mockResolvedValue(mockSessionKey);
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      writable: true,
+      configurable: true,
+    });
+    jest
+      .spyOn(PureCrypto, "make_aes256_cbc_hmac_key")
+      .mockReturnValue(b64sessionKey as SymmetricKey);
 
     command = new UnlockCommand(
       accountService,
-      cryptoFunctionService,
       logService,
       keyConnectorService,
       environmentService,

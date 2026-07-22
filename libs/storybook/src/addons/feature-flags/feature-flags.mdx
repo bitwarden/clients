@@ -1,0 +1,56 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Feature Flags" />
+
+# Feature Flags
+
+The `@bitwarden/storybook` feature-flags addon lets you preview any story under different
+feature-flag states — interactively while developing, and as automated Chromatic snapshots. Both are
+driven by a mock `ConfigService` provided to every story.
+
+## Toggle flags interactively
+
+Open the **Feature Flags** panel (bottom tab, next to Controls). It lists every boolean flag from
+`FeatureFlag`. Ticking a flag reports it as `true` to the mock `ConfigService`; unticking returns it
+to its default value. Stories that read a flag via `getFeatureFlag$(...) | async` update live — no
+reload needed.
+
+## A flag on in one story, off in another
+
+To fix a flag's state per story — one story with it on, another with it off — set the story's
+`globals` with `enabledFlags`. The override takes precedence over whatever's toggled in the panel,
+so each story always renders in its own state:
+
+```ts
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { enabledFlags } from "@bitwarden/storybook";
+
+export const FlagOn: StoryObj<MyComponent> = {
+  globals: enabledFlags(FeatureFlag.MyFlag),
+};
+
+export const FlagOff: StoryObj<MyComponent> = {
+  globals: enabledFlags(),
+};
+```
+
+Pass multiple flags to enable them together: `enabledFlags(FlagA, FlagB)`.
+
+## Snapshot a story with a flag off and on
+
+Opt a story into Chromatic on/off snapshots with `featureFlagModes`:
+
+```ts
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { featureFlagModes } from "@bitwarden/storybook";
+
+export const Default: StoryObj<MyComponent> = {
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.MyFlag) },
+  },
+};
+```
+
+Chromatic then captures the story twice — once with the flag off, once on. Pass multiple flags to
+enable them together: `featureFlagModes(FlagA, FlagB)`. Stories that don't opt in keep their single
+flag-off snapshot.

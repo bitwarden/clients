@@ -3,7 +3,10 @@ import { BehaviorSubject } from "rxjs";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { UserId } from "../../types/guid";
+import { CipherType } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
+import { LoginView } from "../models/view/login.view";
 
 import { SearchService } from "./search.service";
 
@@ -11,6 +14,18 @@ function createCipherView(id: string, name: string): CipherView {
   const cipher = new CipherView();
   cipher.id = id;
   cipher.name = name;
+  return cipher;
+}
+
+function createLoginCipherView(id: string, name: string, uris: string[]): CipherView {
+  const cipher = createCipherView(id, name);
+  cipher.type = CipherType.Login;
+  cipher.login = new LoginView();
+  cipher.login.uris = uris.map((uri) => {
+    const uriView = new LoginUriView();
+    uriView.uri = uri;
+    return uriView;
+  });
   return cipher;
 }
 
@@ -98,6 +113,85 @@ describe("SearchService", () => {
       const result = await service.searchCiphers(userId, null, "密", ciphers);
 
       expect(result).toEqual([ciphers[0]]);
+    });
+
+    it("matches ciphers by notes", async () => {
+      const cipherWithNotes = createCipherView("cipher-1", "My Login");
+      cipherWithNotes.notes = "recovery code: abc123";
+      const cipherWithoutNotes = createCipherView("cipher-2", "Other Login");
+
+      const result = await service.searchCiphers(userId, null, "recovery", [
+        cipherWithNotes,
+        cipherWithoutNotes,
+      ]);
+
+      expect(result).toEqual([cipherWithNotes]);
+    });
+  });
+
+  describe("searchCiphersBasic", () => {
+    describe("multi-word queries", () => {
+      it("matches a cipher when terms appear non-contiguously in the name", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "dog vehicle")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "jump stream")).toHaveLength(1);
+        expect(service.searchCiphersBasic(ciphers, "dog stream")).toHaveLength(1);
+      });
+
+      it("requires all terms to match (AND logic)", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "dog foobar")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "dog.jump foobar")).toHaveLength(0);
+      });
+
+      it("returns no results when no term matches", () => {
+        const ciphers = [createCipherView("cipher-1", "dog.jump vehicle.stream")];
+
+        expect(service.searchCiphersBasic(ciphers, "foo bar")).toHaveLength(0);
+      });
+    });
+
+    describe("diacritic normalization", () => {
+      it("matches a cipher name containing diacritics when searching without diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Café Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "cafe")).toHaveLength(1);
+      });
+
+      it("matches a cipher name without diacritics when searching with diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Cafe Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "café")).toHaveLength(1);
+      });
+
+      it("matches a cipher name when both name and query contain diacritics", () => {
+        const ciphers = [createCipherView("cipher-1", "Ré Login")];
+
+        expect(service.searchCiphersBasic(ciphers, "ré")).toHaveLength(1);
+      });
+    });
+
+    describe("login URI matching", () => {
+      it("matches against the URI hostname", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "My Login", ["https://example.com/path"]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "example.com")).toHaveLength(1);
+      });
+
+      it("does not match against the URI path or query params", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "My Login", [
+            "https://example.com/secret-path?secretValue=hidden",
+          ]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "secret-path")).toHaveLength(0);
+        expect(service.searchCiphersBasic(ciphers, "secretvalue")).toHaveLength(0);
+      });
     });
   });
 });

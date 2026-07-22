@@ -261,6 +261,38 @@ describe("CipherAttachmentsComponent", () => {
         });
       });
 
+      it("shows error toast if file name matches an existing attachment", async () => {
+        const attachment = {
+          id: "1234-5678",
+          fileName: "helloworld.txt",
+          sizeName: "65 Bytes",
+        } as AttachmentView;
+
+        const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
+        cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
+
+        // Create fresh fixture to pick up the mock
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        fixture.detectChanges();
+
+        await waitForInitialization();
+
+        component.attachmentForm.controls.file.setValue({
+          name: "helloworld.txt",
+          size: 65,
+        } as File);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "errorOccurred",
+          message: "duplicateAttachmentNameError",
+        });
+      });
+
       it("shows error toast with server message when saveAttachmentWithServer fails", async () => {
         await waitForInitialization();
 

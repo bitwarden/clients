@@ -24,7 +24,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
-  OrganizationUserStatusType,
   OrganizationUserType,
   PolicyType,
   RevocationReasonMessageMap,
@@ -42,6 +41,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -162,6 +162,22 @@ export class MembersComponent {
       .subscribe(
         ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
       );
+
+    // The Staged toggle is the only status filter that is removed from the view when it has no
+    // members. If the last staged member is revoked or removed while the Staged view is selected,
+    // the toggle disappears but the filter stays stuck on Staged, stranding the user in a filterless
+    // view showing zero members. Fall back to the "All" view whenever that happens.
+    this.dataSource()
+      .usersUpdated()
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        if (
+          this.statusToggle.value === OrganizationUserStatusType.Staged &&
+          this.dataSource().stagedUserCount === 0
+        ) {
+          this.statusToggle.next(undefined);
+        }
+      });
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
@@ -291,6 +307,12 @@ export class MembersComponent {
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+      return;
+    }
+
     const result = await this.memberActionsService.restoreUser(organization, user.id);
     const sideEffect = async () => await this.load(organization);
     await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
@@ -382,6 +404,14 @@ export class MembersComponent {
   }
 
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
+    if (!isRevoking) {
+      const billingMetadata = await firstValueFrom(this.billingMetadata$);
+      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+      if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+        return;
+      }
+    }
+
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);

@@ -8,7 +8,7 @@ use std::sync::{
 };
 
 use anyhow::Result;
-use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
+use secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
 use crate::crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]

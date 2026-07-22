@@ -26,6 +26,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
+import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
@@ -262,7 +263,13 @@ export class EditCommand {
 
       const response = await this.apiService.putCollection(req.organizationId, id, request);
       const view = CollectionExport.toView(req, response.id);
-      const res = new OrganizationCollectionResponse(view, groups, users);
+      const serverGroups = response.groups.map(
+        (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+      );
+      const serverUsers = response.users.map(
+        (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
+      );
+      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

@@ -11,7 +11,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -60,7 +60,7 @@ export class WebRegistrationFinishService
       return null;
     }
 
-    const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
+    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
 
     if (policies == null) {
       return null;

@@ -93,7 +93,7 @@ export const AllSizes: Story = {
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
           <bit-icon-tile icon="bwi-star" variant="primary" size="base"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Base (36px)</span>
+          <span class="tw-text-sm tw-text-muted">Base (32px)</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
           <bit-icon-tile icon="bwi-star" variant="primary" size="lg"></bit-icon-tile>

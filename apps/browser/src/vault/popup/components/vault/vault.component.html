@@ -1,7 +1,10 @@
 <popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
-      <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
+      <app-new-item-dropdown
+        [initialValues]="newItemItemValues$ | async"
+        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+      ></app-new-item-dropdown>
 
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>

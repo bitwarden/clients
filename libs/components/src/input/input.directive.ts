@@ -57,6 +57,9 @@ export class BitInputDirective implements AfterViewInit {
       "focus:tw-outline-none",
       "tw-bg-transparent",
       "tw-text-fg-heading",
+      // native select options need non-transparent colors to work properly in windows dark mode
+      "[&_option]:tw-bg-background",
+      "[&_option]:tw-text-main",
       "[&:is(input,textarea):disabled]:tw-bg-bg-secondary",
       "[&:is(input,textarea):disabled]:!tw-placeholder-fg-inactive",
       "[&:is(input,textarea):disabled]:!tw-text-fg-inactive",

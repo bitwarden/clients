@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { SkeletonComponent } from "./skeleton.component";
 

@@ -1,6 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { RouterService } from "../../../../core/router.service";

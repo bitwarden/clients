@@ -14,7 +14,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { LegacyUsernameGenerationService } from "./legacy-username-generation.service";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
 
-const { PureCryptoRandomizer, UsernameRandomizer, EmailRandomizer, EmailCalculator } = engine;
+const { SdkRandomizer, UsernameRandomizer, EmailRandomizer, EmailCalculator } = engine;
 const DefaultGeneratorService = services.DefaultGeneratorService;
 const {
   CatchallGeneratorStrategy,
@@ -32,7 +32,7 @@ export function legacyUsernameGenerationServiceFactory(
   accountService: AccountService,
   stateProvider: StateProvider,
 ): UsernameGenerationServiceAbstraction {
-  const randomizer = new PureCryptoRandomizer();
+  const randomizer = new SdkRandomizer();
   const restClient = new RestClient(apiService, i18nService);
   const usernameRandomizer = new UsernameRandomizer(randomizer);
   const emailRandomizer = new EmailRandomizer(randomizer);

@@ -97,6 +97,8 @@ describe("NativeMessagingBackground", () => {
       biometricStateService,
       accountService,
     );
+    // The constructor starts a reconnection loop; stop it so tests can drive connect() explicitly.
+    sut.stopConnecting();
   });
 
   describe("constructor", () => {
@@ -108,14 +110,12 @@ describe("NativeMessagingBackground", () => {
   });
 
   describe("connect", () => {
-    it("logs warning and returns if native messaging permission is missing", async () => {
+    it("does not connect if native messaging permission is missing", async () => {
       (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(false);
 
       await sut.connect();
 
-      expect(logService.warning).toHaveBeenCalledWith(
-        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
-      );
+      expect(BrowserApi.connectNative).not.toHaveBeenCalled();
       expect(sut.connected).toBe(false);
     });
 
@@ -128,6 +128,106 @@ describe("NativeMessagingBackground", () => {
       expect(logService.info).toHaveBeenCalledWith(
         "[Native Messaging IPC] Connection to Safari swift module established!",
       );
+    });
+  });
+
+  describe("startConnecting / stopConnecting", () => {
+    let connectSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      connectSpy = jest.spyOn(sut, "connect").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      sut.stopConnecting();
+      jest.clearAllTimers();
+      jest.useRealTimers();
+    });
+
+    it("attempts to connect immediately", () => {
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("starts the reconnection loop on construction", () => {
+      const instance = new NativeMessagingBackground(
+        keyService,
+        encryptService,
+        cryptoFunctionService,
+        messagingService,
+        appIdService,
+        platformUtilsService,
+        logService,
+        biometricStateService,
+        accountService,
+      );
+      const instanceConnectSpy = jest.spyOn(instance, "connect").mockResolvedValue(undefined);
+
+      jest.advanceTimersByTime(0);
+
+      expect(instanceConnectSpy).toHaveBeenCalledTimes(1);
+
+      instance.stopConnecting();
+    });
+
+    it("retries every 10 seconds while not connected", () => {
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+      jest.advanceTimersByTime(10_000);
+      jest.advanceTimersByTime(10_000);
+
+      expect(connectSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it("does not attempt to connect while already connected", () => {
+      sut.connected = true;
+
+      sut.startConnecting();
+      jest.advanceTimersByTime(20_000);
+
+      expect(connectSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not attempt to connect while a connection is already in progress", () => {
+      (sut as any).connecting = true;
+
+      sut.startConnecting();
+      jest.advanceTimersByTime(20_000);
+
+      expect(connectSpy).not.toHaveBeenCalled();
+    });
+
+    it("is a no-op when the reconnection loop is already running", () => {
+      sut.startConnecting();
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("swallows connection errors so the loop keeps retrying", () => {
+      connectSpy.mockRejectedValue(new Error("startDesktop"));
+
+      sut.startConnecting();
+
+      expect(() => jest.advanceTimersByTime(20_000)).not.toThrow();
+      expect(connectSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it("stops attempting to connect after stopConnecting", () => {
+      sut.startConnecting();
+      jest.advanceTimersByTime(0);
+
+      sut.stopConnecting();
+      jest.advanceTimersByTime(30_000);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -350,11 +450,10 @@ describe("NativeMessagingBackground", () => {
         await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
 
-      it("rejects with an empty message when no error is present", async () => {
+      it("rejects with 'desktopIntegrationDisabled' even when no explicit error is present", async () => {
         disconnectListener({ error: { message: undefined } });
 
-        const err = await connectPromise.catch((e: Error) => e);
-        expect(err instanceof Error ? err.message : "").toBe("");
+        await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
     });
   });

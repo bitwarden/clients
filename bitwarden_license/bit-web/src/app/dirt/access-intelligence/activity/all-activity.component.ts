@@ -10,8 +10,6 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, PopoverModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -52,16 +50,13 @@ export class AllActivityComponent implements OnInit {
   totalApplicationCount = 0;
   newApplicationsCount = 0;
   newApplications: ApplicationHealthReportDetail[] = [];
-  extendPasswordChangeWidget = false;
   allAppsHaveReviewDate = false;
   isAllCaughtUp = false;
   hasLoadedApplicationData = false;
   showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
-  private configService = inject(ConfigService);
 
-  protected trendChartEnabled = false;
   protected ReportStatusEnum = ReportStatus;
 
   protected riskOverTimeData$ = this.riskOverTimeService.riskOverTimeData$;
@@ -79,17 +74,11 @@ export class AllActivityComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.trendChartEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.AccessIntelligenceTrendChart,
+    this.riskOverTimeService.initialize(
+      this.organizationId(),
+      DEFAULT_TIME_PERIOD,
+      TrendWidgetViewType.Applications,
     );
-
-    if (this.trendChartEnabled) {
-      this.riskOverTimeService.initialize(
-        this.organizationId(),
-        DEFAULT_TIME_PERIOD,
-        TrendWidgetViewType.Applications,
-      );
-    }
 
     this.allActivitiesService.reportSummary$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -112,12 +101,6 @@ export class AllActivityComponent implements OnInit {
         this.newApplicationsCount = newApps.length;
         this.updateIsAllCaughtUp();
         this.updateShowNeedsReviewState();
-      });
-
-    this.allActivitiesService.extendPasswordChangeWidget$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((hasProgressBar) => {
-        this.extendPasswordChangeWidget = hasProgressBar;
       });
 
     this.dataService.enrichedReportData$

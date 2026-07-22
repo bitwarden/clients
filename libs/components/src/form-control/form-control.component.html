@@ -1,6 +1,7 @@
 @let control = base.formControl();
+<!-- tw-outline-none supports forced colors mode; ring utility does not -->
 <label
-  class="tw-transition tw-items-start tw-gap-2 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-border-focus"
+  class="tw-transition tw-items-start tw-gap-2 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-border-focus has-[:focus-visible]:tw-outline-none"
   [class.tw-cursor-auto]="control.disabled"
   [class.tw-cursor-pointer]="!control.disabled"
 >

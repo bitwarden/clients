@@ -18,6 +18,7 @@ import {
   RemoveUnlockWithPinPolicy,
   RemoveUnlockWithPinPolicyComponent,
 } from "./remove-unlock-with-pin.component";
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 describe("RemoveUnlockWithPinPolicy", () => {
   const policy = new RemoveUnlockWithPinPolicy();
@@ -25,8 +26,15 @@ describe("RemoveUnlockWithPinPolicy", () => {
   it("should have correct attributes", () => {
     expect(policy.name).toEqual("removeUnlockWithPinPolicyTitle");
     expect(policy.description).toEqual("removeUnlockWithPinPolicyDesc");
+    expect(policy.v2?.description).toEqual("removeUnlockWithPinPolicyDescV2");
     expect(policy.type).toEqual(PolicyType.RemoveUnlockWithPin);
     expect(policy.component).toEqual(RemoveUnlockWithPinPolicyComponent);
+  });
+
+  describe("v2", () => {
+    it("should point to SimpleTogglePolicyComponent", () => {
+      expect(policy.v2?.component).toBe(SimpleTogglePolicyComponent);
+    });
   });
 });
 

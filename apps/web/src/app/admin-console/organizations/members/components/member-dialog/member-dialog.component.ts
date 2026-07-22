@@ -521,7 +521,7 @@ export class MemberDialogComponent implements OnDestroy {
     const userView = await this.getUserView();
 
     if (this.isEditDialogParams(this.params)) {
-      await this.handleEditUser(userView, this.params);
+      await this.handleEditUser(userView, this.params, organization);
     } else {
       await this.handleInviteUsers(userView);
     }
@@ -565,9 +565,10 @@ export class MemberDialogComponent implements OnDestroy {
   private async handleEditUser(
     userView: OrganizationUserAdminView,
     params: EditMemberDialogParams,
+    organization: Organization,
   ) {
     userView.id = params.organizationUserId;
-    await this.userService.save(userView);
+    await this.userService.save(userView, organization);
 
     this.toastService.showToast({
       variant: "success",

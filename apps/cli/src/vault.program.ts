@@ -491,6 +491,15 @@ export class VaultProgram extends BaseProgram {
       .description("Import vault data from a file.")
       .option("--formats", "List formats")
       .option("--organizationid <organizationid>", "ID of the organization to import to.")
+      .option("--keyfile <keyfile>", "Path to a key file used to unlock a KeePass (kdbx) database.")
+      .option(
+        "--passwordenv <passwordenv>",
+        "Environment variable storing the import file password.",
+      )
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing the import file password as its first line.",
+      )
       .on("--help", () => {
         writeLn("\n Examples:");
         writeLn("");
@@ -508,6 +517,8 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
+          this.serviceContainer.logService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);

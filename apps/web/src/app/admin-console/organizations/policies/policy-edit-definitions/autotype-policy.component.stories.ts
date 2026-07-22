@@ -5,10 +5,8 @@ import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Desktop Autotype Default Setting",
-    new DesktopAutotypeDefaultSettingPolicy(),
-  ),
+  ...policyDrawerMeta(new DesktopAutotypeDefaultSettingPolicy()),
+  title: "Admin Console/Organizations/Policies/Desktop Autotype Default Setting",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

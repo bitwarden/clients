@@ -59,7 +59,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";

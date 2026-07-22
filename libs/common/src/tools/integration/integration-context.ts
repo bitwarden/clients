@@ -64,7 +64,7 @@ export class IntegrationContext<Settings extends object> {
     // normalize `token` then assert it has a value
     let token = "token" in this.settings ? ((this.settings.token as string) ?? "") : "";
     if (token === "") {
-      const error = this.i18n.t("forwaderInvalidToken", this.metadata.name);
+      const error = this.i18n.t("forwarderInvalidToken", this.metadata.name);
       throw error;
     }
 

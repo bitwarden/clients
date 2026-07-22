@@ -1,0 +1,25 @@
+syntax = "proto3";
+package SsoCloud;
+
+message SsoCloudRequest {
+    bytes messageSessionUid = 1;
+    string clientVersion = 2;
+    bool embedded = 3;
+    bool json = 4;
+    string dest = 5;
+    string idpSessionId = 6;
+    bool forceLogin = 7;
+    string username = 8;
+    bool detached = 9;
+}
+
+message SsoCloudResponse {
+    string command = 1;
+    bytes messageSessionUid = 2;
+    string email = 3;
+    bytes encryptedLoginToken = 4;
+    string providerName = 5;
+    string idpSessionId = 6;
+    bytes encryptedSessionToken = 7;
+    string errorToken = 8;
+}

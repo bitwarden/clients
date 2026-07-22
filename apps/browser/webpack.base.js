@@ -51,7 +51,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building Manifest Version ${manifestVersion} app - ${params.configName} version`);
 
-  const envConfig = configurator.load(ENV);
+  const envConfig = configurator.load(ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const moduleRules = [

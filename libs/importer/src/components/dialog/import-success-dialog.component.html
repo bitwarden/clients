@@ -4,7 +4,7 @@
   </span>
 
   <div bitDialogContent>
-    <span>{{ "importSuccessNumberOfItems" | i18n: data.importResult.ciphers.length }}</span>
+    <span>{{ "importSuccessNumberOfItems" | i18n: totalImported }}</span>
     <bit-table [dataSource]="dataSource">
       <ng-container header>
         <tr>

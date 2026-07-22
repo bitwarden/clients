@@ -4,7 +4,6 @@ import { firstValueFrom, map } from "rxjs";
 import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { assertNonNullish } from "../../auth/utils";
-import { KdfRequest } from "../../models/request/kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
@@ -17,6 +16,7 @@ import {
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { ChangeKdfService } from "./change-kdf.service.abstraction";
+import { ChangeKdfRequest } from "./models/change-kdf.request";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(
@@ -58,8 +58,12 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       updateKdfResult.oldMasterPasswordAuthenticationData,
     );
 
-    const request = new KdfRequest(authenticationData, unlockData);
-    request.authenticateWith(oldAuthenticationData);
+    const request = new ChangeKdfRequest(
+      oldAuthenticationData.masterPasswordAuthenticationHash,
+      authenticationData,
+      unlockData,
+    );
+
     await this.changeKdfApiService.updateUserKdfParams(request);
 
     // Update the locally stored master key and hash, so that UV, etc. still works

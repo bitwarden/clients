@@ -31,6 +31,7 @@
         <label [for]="switchInputId">
           <span [id]="labelId" class="tw-sr-only">{{ "scim" | i18n }}</span>
           <bit-switch
+            #enabledSwitch
             [id]="switchId"
             [formControl]="enabled"
             (change)="submit()"
@@ -84,6 +85,37 @@
           ></button>
           <bit-hint>{{ "scimApiKeyHelperText" | i18n }}</bit-hint>
         </bit-form-field>
+        @if (stagedStatusEnabled()) {
+          <bit-form-control-card>
+            <bit-switch
+              [formControl]="inviteUsersAfterProvisioning"
+              (change)="submit()"
+            ></bit-switch>
+            <bit-label>
+              {{ "scimInviteUsersAfterProvisioning" | i18n }}
+              <button
+                type="button"
+                bitLink
+                startIcon="bwi-question-circle"
+                [bitPopoverTriggerFor]="inviteUsersHelpPopover"
+                position="below-center"
+                appA11yTitle="{{ 'scimInviteUsersAfterProvisioningHelpTitle' | i18n }}"
+              ></button>
+              <bit-popover
+                [title]="'scimInviteUsersAfterProvisioningHelpTitle' | i18n"
+                #inviteUsersHelpPopover
+              >
+                {{ "scimInviteUsersAfterProvisioningHelpBody" | i18n }}
+                <bit-popover-footer>
+                  <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/">
+                    {{ "learnMore" | i18n }}
+                  </a>
+                </bit-popover-footer>
+              </bit-popover>
+            </bit-label>
+            <bit-hint>{{ "scimInviteUsersAfterProvisioningHint" | i18n }}</bit-hint>
+          </bit-form-control-card>
+        }
       </div>
     </div>
   </bit-card>

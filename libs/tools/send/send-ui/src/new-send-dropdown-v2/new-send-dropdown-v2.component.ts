@@ -5,6 +5,8 @@ import { map, of, switchMap } from "rxjs";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
@@ -33,6 +35,12 @@ export class NewSendDropdownV2Component {
   private readonly accountService = inject(AccountService);
   private readonly sendPolicyService = inject(SendPolicyService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
     initialValue: [SendType.Text, SendType.File],

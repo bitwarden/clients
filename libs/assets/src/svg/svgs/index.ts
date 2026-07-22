@@ -4,6 +4,7 @@ export { default as AdminConsoleLogo } from "./admin-console";
 export * from "./auto-confirmation";
 export * from "./background-left-illustration";
 export * from "./background-right-illustration";
+export * from "./biometric-fingerprint";
 export * from "./bitwarden-icon";
 export * from "./bitwarden-logo.icon";
 export * from "./browser-extension";

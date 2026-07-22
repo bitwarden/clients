@@ -132,6 +132,7 @@ export const BITWARDEN_ICONS = [
   "bwi-settings",
   "bwi-settings-filled",
   "bwi-share",
+  "bwi-shared-folder",
   "bwi-shield",
   "bwi-sign-in",
   "bwi-sign-out",

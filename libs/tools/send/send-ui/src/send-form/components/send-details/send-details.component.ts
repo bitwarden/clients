@@ -22,11 +22,18 @@ import {
 } from "@angular/forms";
 import { combineLatest, map, startWith, switchMap, tap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import {
+  asDatePreset,
+  isDatePreset,
+  SendDeletionDatePreset,
+} from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -53,45 +60,6 @@ import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
-
-/** A preset duration (in hours) for deletion. */
-export const DatePreset = Object.freeze({
-  /** One-hour duration. */
-  OneHour: 1,
-  /** One-day duration (24 hours). */
-  OneDay: 24,
-  /** Two-day duration (48 hours). */
-  TwoDays: 48,
-  /** Three-day duration (72 hours). */
-  ThreeDays: 72,
-  /** Seven-day duration (168 hours). */
-  SevenDays: 168,
-  /** Fourteen-day duration (336 hours). */
-  FourteenDays: 336,
-  /** Thirty-day duration (720 hours). */
-  ThirtyDays: 720,
-} as const);
-
-/** A preset duration (in hours) for deletion. */
-export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
-
-const namesByDatePreset = new Map<DatePreset, keyof typeof DatePreset>(
-  Object.entries(DatePreset).map(([k, v]) => [v as DatePreset, k as keyof typeof DatePreset]),
-);
-
-/**
- * Runtime type guard to verify a value is a valid DatePreset.
- */
-export function isDatePreset(value: unknown): value is DatePreset {
-  return namesByDatePreset.has(value as DatePreset);
-}
-
-/**
- * Safe converter to DatePreset (numeric preset), returns undefined for invalid inputs.
- */
-export function asDatePreset(value: unknown): DatePreset | undefined {
-  return isDatePreset(value) ? (value as DatePreset) : undefined;
-}
 
 /** The types of authorization that Sends are able to use */
 const sendAuthTypes = Object.freeze([
@@ -135,7 +103,6 @@ export class AuthTypeNamePipe implements PipeTransform {
     IconButtonModule,
     CheckboxModule,
     CommonModule,
-    CommonModule,
     SelectModule,
     AsyncActionsModule,
     ButtonModule,
@@ -149,17 +116,18 @@ export class SendDetailsComponent implements OnInit {
 
   readonly openPasswordGenerator = output<void>();
 
-  datePresetOptions: Option<DatePreset | string>[] = [
-    { label: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
-    { label: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
-    { label: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
-    { label: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
-    { label: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
-    { label: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
-    { label: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+  datePresetOptions: Option<SendDeletionDatePreset | string>[] = [
+    { label: this.i18nService.t("oneHour"), value: SendDeletionDatePreset.OneHour },
+    { label: this.i18nService.t("oneDay"), value: SendDeletionDatePreset.OneDay },
+    { label: this.i18nService.t("days", "2"), value: SendDeletionDatePreset.TwoDays },
+    { label: this.i18nService.t("days", "3"), value: SendDeletionDatePreset.ThreeDays },
+    { label: this.i18nService.t("days", "7"), value: SendDeletionDatePreset.SevenDays },
+    { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
+    { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
   ];
   passwordRemoved = false;
   policyAllowedDomains: string[] | null = null;
+  policyDeletionHoursOrgName: string | null = null;
 
   hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -168,6 +136,7 @@ export class SendDetailsComponent implements OnInit {
   );
 
   private sendPolicyService = inject(SendPolicyService);
+  private orgService = inject(OrganizationService);
 
   availableAuthTypes$ = combineLatest([
     this.hasPremium$,
@@ -208,8 +177,9 @@ export class SendDetailsComponent implements OnInit {
 
   sendDetailsForm = this.formBuilder.group({
     name: new FormControl(this.sendFormService.updatedSendView()?.name ?? "", Validators.required),
-    selectedDeletionDatePreset: new FormControl<DatePreset | string>(
-      this.sendFormService.updatedSendView()?.deletionDate?.toString() ?? DatePreset.SevenDays,
+    selectedDeletionDatePreset: new FormControl<SendDeletionDatePreset | string>(
+      this.sendFormService.updatedSendView()?.deletionDate?.toString() ??
+        SendDeletionDatePreset.SevenDays,
       Validators.required,
     ),
     authType: new FormControl<AuthType>(
@@ -232,7 +202,6 @@ export class SendDetailsComponent implements OnInit {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     protected sendFormService: SendFormService,
   ) {
-    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
     // When we change editing state we want to update the password field's disabled status
     effect(() => {
       if (this.editing() && this.originalHadPassword) {
@@ -330,6 +299,34 @@ export class SendDetailsComponent implements OnInit {
       }
     });
 
+    combineLatest([
+      this.sendPolicyService.deletionDatePolicyInfo$,
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.orgService.organizations$(userId)),
+      ),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([policyInfo, organizations]) => {
+        const deletionDateControl = this.sendDetailsForm.get("selectedDeletionDatePreset");
+        if (policyInfo?.deletionHours != null) {
+          if (this.sendFormService.sendFormConfig?.mode === "add") {
+            deletionDateControl.patchValue(policyInfo.deletionHours);
+          }
+          deletionDateControl.disable();
+          const policyOrg = organizations.find((o) => o.id === policyInfo.orgId);
+          if (policyOrg) {
+            this.policyDeletionHoursOrgName = policyOrg.name;
+          }
+        } else {
+          if (this.sendFormService.sendFormConfig?.mode === "add") {
+            deletionDateControl.patchValue(SendDeletionDatePreset.SevenDays);
+          }
+          deletionDateControl.enable();
+          this.policyDeletionHoursOrgName = null;
+        }
+      });
+
     effect(() => {
       if (!this.editing()) {
         if (this.sendFormService.originalSendView()) {
@@ -348,7 +345,9 @@ export class SendDetailsComponent implements OnInit {
       this.sendDetailsForm.get("password")?.disable();
     }
 
-    if (updatedSendView.deletionDate) {
+    // The deletion date could be set by policy when we're creating a new Send; we
+    // only want to show the stringified deletion date if the Send is an existing one
+    if (updatedSendView.deletionDate && this.sendFormService.sendFormConfig?.mode !== "add") {
       this.datePresetOptions.unshift({
         label: this.datePipe.transform(updatedSendView.deletionDate, "short"),
         value: updatedSendView.deletionDate.toString(),
@@ -374,7 +373,7 @@ export class SendDetailsComponent implements OnInit {
     const now = new Date();
     const selectedValue = this.sendDetailsForm.controls.selectedDeletionDatePreset.value;
 
-    // The form allows for custom date strings, if such is used, return it without worrying about DatePreset validation
+    // The form allows for custom date strings, if such is used, return it without worrying about SendDeletionDatePreset validation
     if (typeof selectedValue === "string") {
       return selectedValue;
     }

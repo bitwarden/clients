@@ -4,9 +4,11 @@
     buttonType="primary"
     type="button"
     (click)="navigateToNewItemPage()"
+    [disabled]="!canCreateCipher()"
+    [bitTooltip]="!canCreateCipher() ? ('organizationIsDeactivated' | i18n) : ''"
     startIcon="bwi-plus"
   >
-    {{ "new" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
   </button>
 } @else {
   <button
@@ -15,8 +17,10 @@
     [bitMenuTriggerFor]="itemOptions"
     buttonType="primary"
     type="button"
+    [disabled]="!canCreateCipher()"
+    [bitTooltip]="!canCreateCipher() ? ('organizationIsDeactivated' | i18n) : ''"
   >
-    {{ "new" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
   </button>
   <bit-menu #itemOptions>
     @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {
@@ -25,7 +29,9 @@
         {{ menuItem.labelKey | i18n }}
       </a>
     }
-    <bit-menu-divider></bit-menu-divider>
+    @if ((cipherMenuItems$ | async)?.length) {
+      <bit-menu-divider></bit-menu-divider>
+    }
     <button type="button" bitMenuItem (click)="openFolderDialog()">
       <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
       {{ "folder" | i18n }}

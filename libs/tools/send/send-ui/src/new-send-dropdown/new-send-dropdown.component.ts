@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, inject, Input, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -8,6 +8,8 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, IconModule, MenuModule } from "@bitwarden/components";
@@ -40,6 +42,13 @@ export class NewSendDropdownComponent implements OnInit {
   sendType = SendType;
 
   hasNoPremium = false;
+
+  private readonly configService = inject(ConfigService);
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
     initialValue: [SendType.Text, SendType.File],

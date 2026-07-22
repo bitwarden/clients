@@ -107,9 +107,18 @@
                 <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
               </td>
               <td bitCell>
-                <span title="{{ e.userEmail }}">{{ e.userName }}</span>
+                @if (isSendAccessMemberLink(e)) {
+                  <a
+                    href="#"
+                    title="{{ e.userEmail }}"
+                    (click)="memberNameClicked($event, e.actingUserId)"
+                    >{{ e.userName }}</a
+                  >
+                } @else {
+                  <span title="{{ e.userEmail }}">{{ e.userName }}</span>
+                }
               </td>
-              <td bitCell [innerHTML]="e.message"></td>
+              <td bitCell [innerHTML]="e.message" (click)="onEventMessageClick($event)"></td>
             </tr>
           }
         </ng-template>

@@ -115,6 +115,8 @@
           [canCreateCipher]="true"
           [canCreateFolder]="true"
           [canCreateSshKey]="true"
+          [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+          [icon]="btnTextAddCreateFeatureFlag() ? undefined : 'bwi-plus'"
           (cipherAdded)="addCipher($event)"
           (folderAdded)="addFolder()"
           (onAddItemDialog)="onAddItemDialog.emit()"

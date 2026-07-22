@@ -13,7 +13,7 @@
     }
   </ng-container>
 
-  @if (policy.showEnabledBadge) {
+  @if (isV2()) {
     <ng-container bitDialogHeaderEnd>
       @if (!loading()) {
         @if (policyEnabled()) {
@@ -26,8 +26,8 @@
   }
 
   <ng-container bitDialogContent>
-    @if (policy.showDescription) {
-      <p bitTypography="body1">{{ policy.description | i18n }}</p>
+    @if (showDescription()) {
+      <p bitTypography="body1">{{ descriptionKey() | i18n }}</p>
     }
 
     @let bodyTemplate = policySteps()[currentStep()]?.bodyContent?.();
@@ -52,7 +52,7 @@
       >
         {{ (currentStep() === policySteps().length - 1 ? "save" : "next") | i18n }}
       </button>
-      @if (!policy.showEnabledBadge) {
+      @if (!isV2()) {
         <button bitButton buttonType="secondary" type="button" (click)="cancel()">
           {{ "cancel" | i18n }}
         </button>

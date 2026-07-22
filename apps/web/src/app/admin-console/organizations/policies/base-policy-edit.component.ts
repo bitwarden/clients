@@ -9,6 +9,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -132,6 +133,19 @@ export abstract class BasePolicyEditDefinition {
    */
   display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return of(true);
+  }
+
+  /**
+   * Logic for displaying the policy status in the Admin Console.
+   * If this returns true, the policy is shown as enabled. If false, it is shown as disabled.
+   * This uses the `policy.enabled` value by default, which is appropriate for most cases.
+   * You may wish to override this if the UI does not perfectly match the data model, e.g.
+   * you wish to determine policy status based on a `policy.data` value.
+
+   * Note: this only affects policy editing in Admin Console, it does not affect its enforcement.
+   */
+  enabled(policy: PolicyResponse): boolean {
+    return policy.enabled;
   }
 }
 

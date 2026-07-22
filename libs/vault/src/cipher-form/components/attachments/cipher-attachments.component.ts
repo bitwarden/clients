@@ -219,6 +219,7 @@ export class CipherAttachmentsComponent {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("selectFile"),
       });
+      this.onUploadFailed.emit();
       return;
     }
 
@@ -229,10 +230,22 @@ export class CipherAttachmentsComponent {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("maxFileSize"),
       });
+      this.onUploadFailed.emit();
       return;
     }
 
     if (!this.cipherDomain || !this.activeUserId) {
+      return;
+    }
+
+    if ((this.cipher()?.attachments ?? []).some((a) => (a.fileName ?? "") === file.name)) {
+      // File has the same name as an existing attachment
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("duplicateAttachmentNameError"),
+      });
+      this.onUploadFailed.emit();
       return;
     }
 

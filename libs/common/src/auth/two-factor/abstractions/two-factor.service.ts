@@ -1,27 +1,39 @@
 import { ListResponse } from "../../../models/response/list.response";
 import { KeyDefinition, TWO_FACTOR_MEMORY } from "../../../platform/state";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "../../models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "../../models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "../../models/request/update-two-factor-yubikey-otp.request";
 import { IdentityTwoFactorResponse } from "../../models/response/identity-two-factor.response";
-import { TwoFactorAuthenticatorResponse } from "../../models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../../models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
+import { TwoFactorAuthenticatorDeleteRequest } from "../request/two-factor-authenticator-delete.request";
+import { TwoFactorAuthenticatorUpdateRequest } from "../request/two-factor-authenticator-update.request";
+import { TwoFactorDuoDeleteRequest } from "../request/two-factor-duo-delete.request";
+import { TwoFactorDuoUpdateRequest } from "../request/two-factor-duo-update.request";
+import { TwoFactorEmailDeleteRequest } from "../request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "../request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "../request/two-factor-email-setup.request";
+import { TwoFactorEmailUpdateRequest } from "../request/two-factor-email-update.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "../request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnChallengeRequest } from "../request/two-factor-web-authn-challenge.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "../request/two-factor-web-authn-delete-all.request";
+import { TwoFactorWebAuthnDeleteRequest } from "../request/two-factor-web-authn-delete.request";
+import { TwoFactorWebAuthnUpdateRequest } from "../request/two-factor-web-authn-update.request";
+import { TwoFactorYubiKeyDeleteRequest } from "../request/two-factor-yubikey-delete.request";
+import { TwoFactorYubiKeyUpdateRequest } from "../request/two-factor-yubikey-update.request";
+import { TwoFactorAuthenticatorUpdateResponse } from "../response/two-factor-authenticator-update.response";
+import { TwoFactorAuthenticatorResponse } from "../response/two-factor-authenticator.response";
+import { TwoFactorDuoUpdateResponse } from "../response/two-factor-duo-update.response";
+import { TwoFactorDuoResponse } from "../response/two-factor-duo.response";
+import { TwoFactorEmailUpdateResponse } from "../response/two-factor-email-update.response";
+import { TwoFactorEmailResponse } from "../response/two-factor-email.response";
+import { TwoFactorOrganizationDuoUpdateResponse } from "../response/two-factor-organization-duo-update.response";
+import { TwoFactorOrganizationDuoResponse } from "../response/two-factor-organization-duo.response";
+import { TwoFactorProviderResponse } from "../response/two-factor-provider.response";
+import { TwoFactorRecoverResponse } from "../response/two-factor-recover.response";
+import { TwoFactorWebAuthnChallengeResponse } from "../response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnDeleteResponse } from "../response/two-factor-web-authn-delete.response";
+import { TwoFactorWebAuthnUpdateResponse } from "../response/two-factor-web-authn-update.response";
+import { TwoFactorWebAuthnResponse } from "../response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyUpdateResponse } from "../response/two-factor-yubi-key-update.response";
+import { TwoFactorYubiKeyResponse } from "../response/two-factor-yubi-key.response";
 
 /**
  * Metadata and display information for a two-factor authentication provider.
@@ -269,7 +281,7 @@ export abstract class TwoFactorService {
   abstract getTwoFactorOrganizationDuo(
     organizationId: string,
     request: SecretVerificationRequest,
-  ): Promise<TwoFactorDuoResponse>;
+  ): Promise<TwoFactorOrganizationDuoResponse>;
 
   /**
    * Gets the YubiKey OTP two-factor configuration for the current user from the API.
@@ -300,17 +312,17 @@ export abstract class TwoFactorService {
   /**
    * Gets a WebAuthn challenge for registering a new WebAuthn credential from the API.
    * This must be called before putTwoFactorWebAuthn to obtain the cryptographic challenge
-   * required for credential creation. The challenge is used by the browser's WebAuthn API.
-   * Requires user verification via master password or OTP.
+   * required for credential creation. Authorized by replaying the user-verification token
+   * minted by the prior getTwoFactorWebAuthn call (token-replay chain step); that same
+   * token stays valid for the subsequent PUT.
    * Used for settings management.
    *
-   * @param request The {@link SecretVerificationRequest} to prove authentication.
+   * @param request The {@link TwoFactorWebAuthnChallengeRequest} carrying the user-verification token.
    * @returns A promise that resolves to the credential creation options containing the challenge.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse>;
+    request: TwoFactorWebAuthnChallengeRequest,
+  ): Promise<TwoFactorWebAuthnChallengeResponse>;
 
   /**
    * Gets the recovery code configuration for the current user from the API.
@@ -332,26 +344,24 @@ export abstract class TwoFactorService {
    * The token must be generated by an authenticator app using the secret key.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorAuthenticatorRequest} to prove authentication.
+   * @param request The {@link TwoFactorAuthenticatorUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated authenticator configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract putTwoFactorAuthenticator(
-    request: UpdateTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorAuthenticatorResponse>;
+    request: TwoFactorAuthenticatorUpdateRequest,
+  ): Promise<TwoFactorAuthenticatorUpdateResponse>;
 
   /**
-   * Disables the authenticator (TOTP) two-factor provider for the current user.
-   * Requires user verification token to confirm the operation.
+   * Removes the authenticator (TOTP) two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation. Returns 204 No Content.
    * Used for settings management.
    *
-   * @param request The {@link DisableTwoFactorAuthenticatorRequest} to prove authentication.
-   * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
+   * @param request The {@link TwoFactorAuthenticatorDeleteRequest} containing the user verification token and key.
    */
   abstract deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
-  ): Promise<TwoFactorProviderResponse>;
+    request: TwoFactorAuthenticatorDeleteRequest,
+  ): Promise<void>;
 
   /**
    * Enables or updates the email two-factor provider for the current user.
@@ -359,11 +369,13 @@ export abstract class TwoFactorService {
    * The token must match the code sent to the specified email address.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorEmailRequest} to prove authentication.
+   * @param request The {@link TwoFactorEmailUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated email two-factor configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse>;
+  abstract putTwoFactorEmail(
+    request: TwoFactorEmailUpdateRequest,
+  ): Promise<TwoFactorEmailUpdateResponse>;
 
   /**
    * Enables or updates the Duo two-factor provider for the current user.
@@ -371,11 +383,11 @@ export abstract class TwoFactorService {
    * Requires user verification and an active premium subscription.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorDuoRequest} to prove authentication.
+   * @param request The {@link TwoFactorDuoUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated Duo configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract putTwoFactorDuo(request: UpdateTwoFactorDuoRequest): Promise<TwoFactorDuoResponse>;
+  abstract putTwoFactorDuo(request: TwoFactorDuoUpdateRequest): Promise<TwoFactorDuoUpdateResponse>;
 
   /**
    * Enables or updates the Duo two-factor provider for an organization.
@@ -384,14 +396,14 @@ export abstract class TwoFactorService {
    * Used for settings management.
    *
    * @param organizationId The ID of the organization.
-   * @param request The {@link UpdateTwoFactorDuoRequest} to prove authentication.
+   * @param request The {@link TwoFactorDuoUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated organization Duo configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract putTwoFactorOrganizationDuo(
     organizationId: string,
-    request: UpdateTwoFactorDuoRequest,
-  ): Promise<TwoFactorDuoResponse>;
+    request: TwoFactorDuoUpdateRequest,
+  ): Promise<TwoFactorOrganizationDuoUpdateResponse>;
 
   /**
    * Enables or updates the YubiKey OTP two-factor provider for the current user.
@@ -400,13 +412,13 @@ export abstract class TwoFactorService {
    * Requires user verification and an active premium subscription.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorYubikeyOtpRequest} to prove authentication.
+   * @param request The {@link TwoFactorYubiKeyUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated YubiKey configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract putTwoFactorYubiKey(
-    request: UpdateTwoFactorYubikeyOtpRequest,
-  ): Promise<TwoFactorYubiKeyResponse>;
+    request: TwoFactorYubiKeyUpdateRequest,
+  ): Promise<TwoFactorYubiKeyUpdateResponse>;
 
   /**
    * Registers a new WebAuthn (FIDO2) credential for two-factor authentication for the current user.
@@ -415,13 +427,13 @@ export abstract class TwoFactorService {
    * Requires user verification via master password or OTP.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorWebAuthnRequest} to prove authentication.
+   * @param request The {@link TwoFactorWebAuthnUpdateRequest} to prove authentication.
    * @returns A promise that resolves to the updated WebAuthn configuration with the new credential.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract putTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnRequest,
-  ): Promise<TwoFactorWebAuthnResponse>;
+    request: TwoFactorWebAuthnUpdateRequest,
+  ): Promise<TwoFactorWebAuthnUpdateResponse>;
 
   /**
    * Removes a specific WebAuthn (FIDO2) credential from the user's account.
@@ -430,43 +442,67 @@ export abstract class TwoFactorService {
    * Requires user verification via master password or OTP.
    * Used for settings management.
    *
-   * @param request The {@link UpdateTwoFactorWebAuthnDeleteRequest} to prove authentication.
+   * @param request The {@link TwoFactorWebAuthnDeleteRequest} to prove authentication.
    * @returns A promise that resolves to the updated WebAuthn configuration.
    * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract deleteTwoFactorWebAuthn(
-    request: UpdateTwoFactorWebAuthnDeleteRequest,
-  ): Promise<TwoFactorWebAuthnResponse>;
+    request: TwoFactorWebAuthnDeleteRequest,
+  ): Promise<TwoFactorWebAuthnDeleteResponse>;
 
   /**
-   * Disables a specific two-factor provider for the current user.
-   * The provider will no longer be required or usable for authentication.
-   * Requires user verification via master password or OTP.
+   * Removes the YubiKey two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation. Returns 204 No Content.
+   * Does NOT require premium — deletion must always be available even if premium has lapsed.
    * Used for settings management.
    *
-   * @param request The {@link TwoFactorProviderRequest} to prove authentication.
-   * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
+   * @param request The {@link TwoFactorYubiKeyDeleteRequest} containing the user verification token.
    */
-  abstract putTwoFactorDisable(
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse>;
+  abstract deleteTwoFactorYubiKey(request: TwoFactorYubiKeyDeleteRequest): Promise<void>;
 
   /**
-   * Disables a specific two-factor provider for an organization.
-   * The provider will no longer be available for organization members.
-   * Requires user verification and organization policy management permissions.
+   * Removes the Duo two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation. Returns 204 No Content.
+   * Does NOT require premium — deletion must always be available even if premium has lapsed.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorDuoDeleteRequest} containing the user verification token.
+   */
+  abstract deleteTwoFactorDuo(request: TwoFactorDuoDeleteRequest): Promise<void>;
+
+  /**
+   * Removes the email two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation. Returns 204 No Content.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorEmailDeleteRequest} containing the user verification token.
+   */
+  abstract deleteTwoFactorEmail(request: TwoFactorEmailDeleteRequest): Promise<void>;
+
+  /**
+   * Removes the Duo two-factor enrollment for an organization. Returns 204 No Content.
+   * Requires a user verification token to confirm the operation and
+   * organization policy management permissions.
    * Used for settings management.
    *
    * @param organizationId The ID of the organization.
-   * @param request The {@link TwoFactorProviderRequest} to prove authentication.
-   * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
+   * @param request The {@link TwoFactorOrganizationDuoDeleteRequest} containing the user verification token.
    */
-  abstract putTwoFactorOrganizationDisable(
+  abstract deleteTwoFactorOrganizationDuo(
     organizationId: string,
-    request: TwoFactorProviderRequest,
-  ): Promise<TwoFactorProviderResponse>;
+    request: TwoFactorOrganizationDuoDeleteRequest,
+  ): Promise<void>;
+
+  /**
+   * Removes the entire WebAuthn (FIDO2) two-factor enrollment for the current user — all
+   * credentials are deleted in a single round-trip. Returns 204 No Content. The only path
+   * that can clear the last registered credential, since per-credential delete refuses by
+   * design.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorWebAuthnDeleteAllRequest} containing the user verification token.
+   */
+  abstract deleteTwoFactorWebAuthnAll(request: TwoFactorWebAuthnDeleteAllRequest): Promise<void>;
 
   /**
    * Initiates email two-factor setup by sending a verification code to the specified email address.
@@ -476,11 +512,10 @@ export abstract class TwoFactorService {
    * Requires user verification via master password or OTP.
    * Used for settings management.
    *
-   * @param request The {@link TwoFactorEmailRequest} to prove authentication.
+   * @param request The {@link TwoFactorEmailSetupRequest} to prove authentication.
    * @returns A promise that resolves when the verification email has been sent.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmailSetup(request: TwoFactorEmailSetupRequest): Promise<any>;
 
   /**
    * Sends a two-factor authentication code via email during the login flow.
@@ -489,9 +524,8 @@ export abstract class TwoFactorService {
    * May be called without authentication for login scenarios.
    * Used during authentication flows.
    *
-   * @param request The {@link TwoFactorEmailRequest} to prove authentication.
+   * @param request The {@link TwoFactorEmailLoginRequest} to prove authentication.
    * @returns A promise that resolves when the authentication email has been sent.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmail(request: TwoFactorEmailLoginRequest): Promise<any>;
 }

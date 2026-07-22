@@ -5,7 +5,8 @@ import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { RequireSsoPolicy } from "./require-sso.component";
 
 export default {
-  ...policyDrawerMeta("Admin Console/Organizations/Policies/Require SSO", new RequireSsoPolicy()),
+  ...policyDrawerMeta(new RequireSsoPolicy()),
+  title: "Admin Console/Organizations/Policies/Require SSO",
 };
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

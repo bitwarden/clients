@@ -174,7 +174,6 @@ describe("SettingsComponent", () => {
     desktopSettingsService.minimizeOnCopy$ = of(false);
     desktopSettingsService.runInBackground$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
-    desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);

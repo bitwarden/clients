@@ -10,11 +10,14 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
+  BitwardenIcon,
   ButtonModule,
+  ButtonType,
   MenuModule,
   PopoverComponent,
   PopoverModule,
   PositionIdentifier,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -23,13 +26,29 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "vault-new-cipher-menu",
   templateUrl: "new-cipher-menu.component.html",
-  imports: [ButtonModule, CommonModule, MenuModule, PopoverModule, I18nPipe, JslibModule],
+  imports: [
+    ButtonModule,
+    CommonModule,
+    MenuModule,
+    PopoverModule,
+    I18nPipe,
+    JslibModule,
+    TooltipDirective,
+  ],
 })
 export class NewCipherMenuComponent {
   readonly canCreateCipher = input(false);
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
+  readonly icon = input<BitwardenIcon>("bwi-plus");
+  readonly buttonType = input<ButtonType>("primary");
+
+  /**
+   * When `true`, the "New" button is rendered in a disabled state, e.g. because the
+   * organization is suspended and nothing can be created until it's reinstated.
+   */
+  readonly disabled = input(false);
 
   /** Optional popover to anchor to the "New" button for coachmark tours */
   readonly coachmarkPopover = input<PopoverComponent>();
@@ -102,7 +121,11 @@ export class NewCipherMenuComponent {
     }
 
     if (btnTextAddCreateFeatureFlag) {
-      return "add";
+      if (this.buttonType() === "secondary") {
+        return "addItem";
+      } else {
+        return "add";
+      }
     } else {
       return "new";
     }
