@@ -14,7 +14,12 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
+import {
+  PasswordManagerClient,
+  ClientSettings,
+  ManagedSettingsClient,
+  TokenProvider,
+} from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -64,9 +69,12 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
+      // Registration is a pre-login, ephemeral flow that consumes no managed settings, so it
+      // receives a fresh empty handle rather than the host-owned singleton.
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
+        new ManagedSettingsClient(),
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -139,9 +147,12 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             }
 
             const settings = await this.toSettings(env);
+            // Registration consumes no managed settings; a fresh empty handle satisfies the
+            // client constructor without sharing the host-owned singleton.
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
+              new ManagedSettingsClient(),
             );
 
             // Initialize the client managed repositories.
