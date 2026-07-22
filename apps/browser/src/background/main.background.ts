@@ -397,6 +397,7 @@ import { BrowserTaskSchedulerService } from "../platform/services/abstractions/b
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -554,6 +555,7 @@ export default class MainBackground {
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   managedSettingsService: ManagedSettingsService;
+  managedConfigReader: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -942,6 +944,10 @@ export default class MainBackground {
     this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
       ? new DevManagedSettingsService()
       : new DefaultManagedSettingsService();
+    this.managedConfigReader = new BrowserManagedConfigReader(
+      this.managedSettingsService,
+      this.logService,
+    );
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -1801,6 +1807,9 @@ export default class MainBackground {
     this.containerService.attachToGlobal(self);
 
     await this.sdkLoadService.loadAndInit();
+    // Acquire administrator-managed configuration as early as possible so a forced region or
+    // self-host URL is available before login.
+    await this.managedConfigReader.start();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 

@@ -1,6 +1,7 @@
 import { ManagementProfile } from "@bitwarden/sdk-internal";
 
 import { DefaultManagedSettingsService } from "./default-managed-settings.service";
+import { flattenSettings } from "./flatten-settings";
 
 /**
  * Development-only {@link ManagedSettingsService} that can be fed a profile from code, so managed
@@ -16,35 +17,12 @@ export class DevManagedSettingsService extends DefaultManagedSettingsService {
    * equivalent {@link updateProfile} would store.
    */
   pushExplicit(map: Record<string, unknown>): void {
-    const settings = new Map<string, string>();
-    this.flatten("", map, settings);
-
     const profile: ManagementProfile = {
       version: 1,
       updatedAt: Math.floor(Date.now() / 1000),
-      settings,
+      settings: flattenSettings(map),
     };
 
     this.updateProfile(profile);
-  }
-
-  private flatten(prefix: string, value: unknown, settings: Map<string, string>): void {
-    if (this.isPlainObject(value)) {
-      for (const [key, child] of Object.entries(value)) {
-        this.flatten(prefix === "" ? key : `${prefix}.${key}`, child, settings);
-      }
-      return;
-    }
-
-    settings.set(prefix, JSON.stringify(value));
-  }
-
-  private isPlainObject(value: unknown): value is Record<string, unknown> {
-    return (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value) &&
-      Object.getPrototypeOf(value) === Object.prototype
-    );
   }
 }
