@@ -4,10 +4,12 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkInviteRequest } from "../models/requests/organization-invite-link-invite.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateSupportConfirmationRequest } from "../models/requests/organization-invite-link-update-support-confirmation.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
+import { OrganizationInviteLinkInviteResponse } from "../models/responses/organization-invite-link-invite.response";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
@@ -127,5 +129,18 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       true,
       false,
     );
+  }
+
+  async getInvite(
+    request: OrganizationInviteLinkInviteRequest,
+  ): Promise<OrganizationInviteLinkInviteResponse> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/users/invite-link/invite",
+      request,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkInviteResponse(r);
   }
 }
