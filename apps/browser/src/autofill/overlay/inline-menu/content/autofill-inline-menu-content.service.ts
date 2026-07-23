@@ -149,8 +149,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Checks if the inline menu button is visible at the top frame.
    */
   private async isInlineMenuButtonVisible() {
+    // `isConnected` check for extra defensiveness in cases where the host element is disconnected
     return (
-      !!this.buttonElement &&
+      !!this.buttonElement?.isConnected &&
       (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true
     );
   }
@@ -159,8 +160,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Checks if the inline menu list if visible at the top frame.
    */
   private async isInlineMenuListVisible() {
+    // `isConnected` check for extra defensiveness in cases where the host element is disconnected
     return (
-      !!this.listElement &&
+      !!this.listElement?.isConnected &&
       (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true
     );
   }

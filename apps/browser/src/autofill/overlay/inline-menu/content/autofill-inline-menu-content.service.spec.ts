@@ -84,6 +84,52 @@ describe("AutofillInlineMenuContentService", () => {
     });
   });
 
+  describe("inline menu element visibility checks", () => {
+    beforeEach(() => {
+      // Background reports the element as visible; the DOM-connectivity guard is
+      // what these tests exercise.
+      sendExtensionMessageSpy.mockResolvedValue(true);
+    });
+
+    it("treats a detached button element as not visible so it is re-appended", async () => {
+      const detachedButton = document.createElement("div");
+      autofillInlineMenuContentService["buttonElement"] = detachedButton;
+
+      await expect(autofillInlineMenuContentService["isInlineMenuButtonVisible"]()).resolves.toBe(
+        false,
+      );
+    });
+
+    it("treats a connected, background-visible button element as visible", async () => {
+      const connectedButton = document.createElement("div");
+      document.body.appendChild(connectedButton);
+      autofillInlineMenuContentService["buttonElement"] = connectedButton;
+
+      await expect(autofillInlineMenuContentService["isInlineMenuButtonVisible"]()).resolves.toBe(
+        true,
+      );
+    });
+
+    it("treats a detached list element as not visible so it is re-appended", async () => {
+      const detachedList = document.createElement("div");
+      autofillInlineMenuContentService["listElement"] = detachedList;
+
+      await expect(autofillInlineMenuContentService["isInlineMenuListVisible"]()).resolves.toBe(
+        false,
+      );
+    });
+
+    it("treats a connected, background-visible list element as visible", async () => {
+      const connectedList = document.createElement("div");
+      document.body.appendChild(connectedList);
+      autofillInlineMenuContentService["listElement"] = connectedList;
+
+      await expect(autofillInlineMenuContentService["isInlineMenuListVisible"]()).resolves.toBe(
+        true,
+      );
+    });
+  });
+
   describe("extension message handlers", () => {
     describe("closeAutofillInlineMenu message handler", () => {
       beforeEach(() => {
