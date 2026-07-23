@@ -6186,8 +6186,8 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
-  "successfullyAssignedSharedFolders": {
-    "message": "Successfully assigned shared folders"
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
   },
   "itemMovedToCollection": {
     "message": "Item moved to collection"

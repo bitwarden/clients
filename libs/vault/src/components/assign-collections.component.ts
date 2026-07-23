@@ -395,7 +395,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       } else {
         assignedMessageKey = this.vfo1TerminologyService.enabled()
-          ? "successfullyAssignedSharedFolders"
+          ? "successfullyAddedSharedFolders"
           : "successfullyAssignedCollections";
       }
       const assignedMessage = this.i18nService.t(assignedMessageKey);
