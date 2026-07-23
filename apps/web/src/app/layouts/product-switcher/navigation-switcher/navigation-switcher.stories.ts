@@ -18,6 +18,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
+  BadgeComponent,
   BerryComponent,
   I18nMockService,
   IconTileComponent,
@@ -143,6 +144,7 @@ export default {
         LayoutComponent,
         I18nPipe,
         NavigationProductSwitcherComponent,
+        BadgeComponent,
         BerryComponent,
         IconTileComponent,
       ],
@@ -385,11 +387,13 @@ export const RealisticSideNavV2: Story = {
           <bit-nav-section label="Tools">
             <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
             <bit-nav-item text="Generator" route="generator"></bit-nav-item>
-            <bit-nav-item text="Import" route="import"></bit-nav-item>
-            <bit-nav-item text="Export" route="export"></bit-nav-item>
+            <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
           </bit-nav-section>
           <bit-nav-section label="Manage">
-            <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
+            <bit-nav-item text="My tags" icon="bwi-tag"></bit-nav-item>
+            <bit-nav-item text="Archive" icon="bwi-archive">
+              <bit-badge slot="end" startIcon="bwi-premium" size="small" variant="primary">Premium</bit-badge>
+            </bit-nav-item>
             <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
           </bit-nav-section>
           <ng-container slot="footer">
