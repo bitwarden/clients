@@ -209,6 +209,25 @@ describe("IntegrationContext", () => {
       expect(result).toBe("invalid-url");
     });
 
+    it("extracts the origin when extractOrigin is true", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website(
+        { website: "https://www.example.com/path" },
+        { extractOrigin: true },
+      );
+
+      expect(result).toBe("https://www.example.com");
+    });
+
+    it("falls back to the full URL when Utils.getUrl cannot extract the origin", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "invalid-url" }, { extractOrigin: true });
+
+      expect(result).toBe("invalid-url");
+    });
+
     it("truncates the website to maxLength", () => {
       const context = new IntegrationContext(EXAMPLE_META, null, i18n);
 

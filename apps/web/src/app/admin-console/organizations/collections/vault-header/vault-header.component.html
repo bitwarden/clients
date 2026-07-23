@@ -113,6 +113,7 @@
       <vault-new-cipher-menu
         [canCreateCipher]="canCreateCipher()"
         [canCreateCollection]="canCreateCollection()"
+        [disabled]="isOrganizationSuspended()"
         (cipherAdded)="handleAddCipher($event)"
         (collectionAdded)="handleAddCollection()"
         (onAddItemDialog)="openAddItemDialog()"

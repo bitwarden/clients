@@ -66,7 +66,7 @@ export class IntegrationContext<Settings extends object> {
     // normalize `token` then assert it has a value
     let token = "token" in this.settings ? ((this.settings.token as string) ?? "") : "";
     if (token === "") {
-      const error = this.i18n.t("forwaderInvalidToken", this.metadata.name);
+      const error = this.i18n.t("forwarderInvalidToken", this.metadata.name);
       throw error;
     }
 
@@ -83,16 +83,19 @@ export class IntegrationContext<Settings extends object> {
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, tries to extract the hostname from the website URL, returns full URL otherwise
+   *  @param options.extractOrigin when `true`, tries to extract the origin (scheme + host) from the website URL, returns full URL otherwise
    *  @param options.maxLength limits the length of the return value
    *  @returns The website or an empty string if a website isn't available
    *  @remarks `website` is usually supplied when generating a credential from the vault
    */
   website(
     request: IntegrationRequest,
-    options?: { extractHostname?: boolean; maxLength?: number },
+    options?: { extractHostname?: boolean; extractOrigin?: boolean; maxLength?: number },
   ) {
     let url = request.website ?? "";
-    if (options?.extractHostname) {
+    if (options?.extractOrigin) {
+      url = Utils.getUrl(url)?.origin ?? url;
+    } else if (options?.extractHostname) {
       url = Utils.getHost(url) ?? url;
     }
     return url.slice(0, options?.maxLength);

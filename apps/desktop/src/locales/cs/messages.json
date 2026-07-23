@@ -104,6 +104,18 @@
   "shared": {
     "message": "Sdílené"
   },
+  "sharedFolder": {
+    "message": "Sdílená složka"
+  },
+  "sharedFolders": {
+    "message": "Sdílené složky"
+  },
+  "myFolder": {
+    "message": "Moje složka"
+  },
+  "myFolders": {
+    "message": "Moje složky"
+  },
   "share": {
     "message": "Sdílet"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "Heslová fráze"
   },
+  "passwordAnnounceSpace": {
+    "message": "mezera",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Upravit položku"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopírovat webovou stránku"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopírovat $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -851,7 +867,7 @@
     "message": "Smazat webovou stránku"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Smazat $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Upravit pole"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Upravit $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -901,8 +917,8 @@
   "linkedHelpText": {
     "message": "Použijte propojené pole, pokud máte problémy s automatickým vyplňováním na konkrétní webové stránce."
   },
-  "linkedLabelHelpText": {
-    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak pole."
+  "linkedFieldLabelHelpText": {
+    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak."
   },
   "folder": {
     "message": "Složka"
@@ -2098,7 +2114,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Vymazat historii generátoru"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Pokud budete pokračovat, všechny položky budou trvale smazány z historie generátoru. Jste si jisti, že chcete pokračovat?"
   },
   "clear": {
@@ -2374,7 +2390,7 @@
   "restrictCardTypeImportDesc": {
     "message": "Zásady nastavené 1 nebo více organizací Vám brání v importu karet do Vašeho trezoru."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
   },
   "done": {
@@ -2387,7 +2403,7 @@
   "confirmVaultExport": {
     "message": "Potvrdit export trezoru"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Tento export obsahuje data Vašeho trezoru v nezašifrovaném formátu. Soubor s exportem byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití."
   },
   "encExportKeyWarningDesc": {
@@ -3502,7 +3518,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Neplatný token API $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3512,7 +3528,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3526,7 +3542,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3536,7 +3552,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3610,7 +3626,7 @@
   "apiKey": {
     "message": "Klíč API"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Je vyžadováno předplatné Premium"
   },
   "organizationIsDisabled": {
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Potvrzení hesla souboru"
+  },
+  "keePassMasterPassword": {
+    "message": "Hlavní heslo KeePass"
+  },
+  "addKeyFile": {
+    "message": "Přidat soubor s klíčem"
+  },
+  "keyFileUpload": {
+    "message": "Nahrát soubor s klíčem"
+  },
+  "kdbxFileUpload": {
+    "message": "Nahrát soubor KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Povolené formáty: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tento soubor není platnou databází KeePass (.kdbx). Vyberte soubor s příponou .kdbx a zkuste to znovu."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Tato databáze KeePass je pro import příliš velká."
   },
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
