@@ -1,0 +1,34 @@
+# Inert publish shim for @bitwarden/cli.
+#
+# This workflow exists ONLY to publish @bitwarden/cli to npm with provenance from the
+# public source repo. Provenance is attributed to bitwarden/clients only when the publish
+# runs here, so the publish logic lives in the shared, locked bitwarden/gh-actions repo and
+# is referenced @main (not SHA-pinned) so CD can iterate independently of the CI-built,
+# QA-tested artifact.
+#
+# Do NOT add logic to this file. It is inert by intent: the trust boundaries live outside it
+#   - the release decision + this file's blessed checksum in bitwarden/deploy (trust root),
+#   - the `npm-release` environment (deployment branches = publish-release/**) here,
+#   - the `publish-release/**` branch ruleset (bot-only create/update) here,
+#   - the npm trusted-publisher binding (repo=clients, workflow=publish-cli.yml, env=npm-release).
+# Any change to this file invalidates the deploy checksum and blocks publishing (fail-closed).
+#
+# Takes no inputs by design. The published version is derived from apps/cli/package.json at
+# the dispatched commit (the publish-release/<version> branch deploy cuts from the release
+# commit) — the code is the single source of truth, and npm publishes that version
+# regardless. deploy resolves + human-approves the version before dispatch; the reusable
+# workflow re-derives it independently.
+
+name: "CLI: Publish"
+on:
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Publish @bitwarden/cli to npm
+    permissions:
+      contents: read
+      id-token: write
+    uses: bitwarden/gh-actions/.github/workflows/_publish-cli-npm.yml@main
