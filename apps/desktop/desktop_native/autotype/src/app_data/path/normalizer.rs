@@ -32,7 +32,7 @@ impl PathNormalizer {
             .collect();
 
         // Longest resolved path first
-        mappings.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+        mappings.sort_by_key(|b| std::cmp::Reverse(b.0.len()));
 
         Self { mappings, policy }
     }
