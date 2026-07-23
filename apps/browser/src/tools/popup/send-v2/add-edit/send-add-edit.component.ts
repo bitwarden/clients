@@ -235,6 +235,9 @@ export class SendAddEditComponent {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,
       );
+      const showMakeCopyButton =
+        sendDisabledReason !== SendDisabledReason.None &&
+        this.config.originalSend.type === SendType.Text;
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
           title:
@@ -242,17 +245,19 @@ export class SendAddEditComponent {
               ? "orgDoesNotAllowTextSends"
               : "orgDoesNotAllowFileSends",
           message: "sendWillAutomaticallyExpire",
-          showMakeCopyButton: false,
+          showMakeCopyButton,
         });
       } else if (sendDisabledReason === SendDisabledReason.Other) {
         this.disabledSendConfig.set({
           title: "sendNotCompliantWithYourOrgsPolicy",
           message: "sendDisabledNonCompliantBannerMessage",
-          showMakeCopyButton: true,
+          showMakeCopyButton,
         });
       } else {
         this.disabledSendConfig.set(null);
       }
+    } else {
+      this.disabledSendConfig.set(null);
     }
   }
 
@@ -332,6 +337,7 @@ export class SendAddEditComponent {
               : AuthType.None,
       },
     };
+    await this.setSendDisabledConfig();
     this.editSend();
   }
 }

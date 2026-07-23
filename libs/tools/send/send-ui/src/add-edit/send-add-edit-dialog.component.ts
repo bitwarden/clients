@@ -169,15 +169,20 @@ export class SendAddEditDialogComponent {
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
   ) {
+    // We only want to load from the input params the first time the component opens,
+    // since the makeCopy function works by replacing the config object and re-initializing
+    this.config = this.params.formConfig;
     void this.init();
   }
 
   async init() {
-    this.config = this.params.formConfig;
     if (this.config.originalSend) {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,
       );
+      const showMakeCopyButton =
+        sendDisabledReason !== SendDisabledReason.None &&
+        this.config.originalSend.type === SendType.Text;
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
           title:
@@ -185,17 +190,19 @@ export class SendAddEditDialogComponent {
               ? "orgDoesNotAllowTextSends"
               : "orgDoesNotAllowFileSends",
           message: "sendWillAutomaticallyExpire",
-          showMakeCopyButton: false,
+          showMakeCopyButton,
         });
       } else if (sendDisabledReason === SendDisabledReason.Other) {
         this.disabledSendConfig.set({
           title: "sendNotCompliantWithYourOrgsPolicy",
           message: "sendDisabledNonCompliantBannerMessage",
-          showMakeCopyButton: true,
+          showMakeCopyButton,
         });
       } else {
         this.disabledSendConfig.set(null);
       }
+    } else {
+      this.disabledSendConfig.set(null);
     }
     this.editing.set(this.config.mode === "add");
     this.showCopyButton.set(
