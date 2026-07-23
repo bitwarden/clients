@@ -280,3 +280,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.mcp.json                          @bitwarden/team-ai-sme
