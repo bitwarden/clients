@@ -9,24 +9,18 @@ import {
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BadgeModule, BadgeVariant } from "../badge";
+import { BadgeComponent, BadgeModule } from "../badge";
 import { ChipActionComponent } from "../chips";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
 import { PopoverModule } from "../popover";
-import { BitwardenIcon } from "../shared/icon";
 
 /** A single badge rendered by {@link BadgeGroupComponent}. */
 export type BadgeGroupItem = {
   /** Text shown inside the badge. */
   label: string;
-  /**
-   * Visual variant that determines the badge's color scheme.
-   * @default "primary"
-   */
-  variant?: BadgeVariant;
-  /** Optional leading icon. */
-  startIcon?: BitwardenIcon | null;
+} & {
+  [K in "variant" | "startIcon"]?: ReturnType<BadgeComponent[K]>;
 };
 
 /**
