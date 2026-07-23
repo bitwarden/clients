@@ -7298,6 +7298,14 @@
   "expired": {
     "message": "Expired"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Search Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
