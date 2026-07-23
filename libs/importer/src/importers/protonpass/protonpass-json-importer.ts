@@ -56,6 +56,19 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     super();
   }
 
+  private processExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[] = []) {
+    for (const extraField of extraFields) {
+      this.processKvp(
+        cipher,
+        extraField.fieldName,
+        extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
+        extraField.type == "hidden" || extraField.type == "totp"
+          ? FieldType.Hidden
+          : FieldType.Text,
+      );
+    }
+  }
+
   private processIdentityItemUnmappedAndExtraFields(
     cipher: CipherView,
     identityItem: ProtonPassIdentityItemContent,
@@ -79,28 +92,14 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             key as keyof ProtonPassIdentityItemContent
           ] as ProtonPassItemExtraField[];
 
-          extraFields?.forEach((extraField) => {
-            this.processKvp(
-              cipher,
-              extraField.fieldName,
-              extraField.data.content,
-              extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
-            );
-          });
+          this.processExtraFields(cipher, extraFields);
         } else {
           const extraSections = identityItem[
             key as keyof ProtonPassIdentityItemContent
           ] as ProtonPassIdentityItemExtraSection[];
 
           extraSections?.forEach((extraSection) => {
-            extraSection.sectionFields?.forEach((extraField) => {
-              this.processKvp(
-                cipher,
-                extraField.fieldName,
-                extraField.data.content,
-                extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
-              );
-            });
+            this.processExtraFields(cipher, extraSection.sectionFields);
           });
         }
       }
@@ -147,20 +146,14 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
 
             cipher.login.password = this.getValueOrDefault(loginContent.password);
             cipher.login.totp = this.getValueOrDefault(loginContent.totpUri);
-            for (const extraField of item.data.extraFields) {
-              this.processKvp(
-                cipher,
-                extraField.fieldName,
-                extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
-                extraField.type == "text" ? FieldType.Text : FieldType.Hidden,
-              );
-            }
+            this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
           case "note":
             cipher.type = CipherType.SecureNote;
             cipher.secureNote = new SecureNoteView();
             cipher.secureNote.type = SecureNoteType.Generic;
+            this.processExtraFields(cipher, item.data.extraFields);
             break;
           case "creditCard": {
             const creditCardContent = item.data.content as ProtonPassCreditCardItemContent;
@@ -181,6 +174,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
               this.processKvp(cipher, "PIN", creditCardContent.pin, FieldType.Hidden);
             }
 
+            this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
           case "identity": {
@@ -216,15 +210,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             cipher.identity.postalCode = this.getValueOrDefault(identityContent.zipOrPostalCode);
             cipher.identity.country = this.getValueOrDefault(identityContent.countryOrRegion);
             this.processIdentityItemUnmappedAndExtraFields(cipher, identityContent);
-
-            for (const extraField of item.data.extraFields) {
-              this.processKvp(
-                cipher,
-                extraField.fieldName,
-                extraField.data.content,
-                extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
-              );
-            }
+            this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
           default:
