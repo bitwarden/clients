@@ -343,11 +343,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     await this.keyService.setUserKey(userKey, userId);
   }
 
-  protected override async setAccountCryptographicState(
-    tokenResponse: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {}
-
   exportCache(): CacheData {
     return {
       sso: this.cache.value,
