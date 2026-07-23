@@ -1,0 +1,615 @@
+import { Meta, Canvas, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./table-v2.stories";
+
+<Meta of={stories} />
+
+# Table V2
+
+`bit-table-v2` renders tabular data with sorting, filtering, selection, pagination, loading and
+empty states, and virtual scrolling built in. You declare each column once — its header and its
+per-row cell — and the table handles the rest.
+
+Use `bit-table-v2` for new tables. The legacy `bit-table` is deprecated — see
+[Migrating from V1](?path=/docs/component-library-table-v2-migrating-from-v1--docs) to move an
+existing table over.
+
+<Primary />
+
+## Quick start
+
+Define the table in your component with `defineTable`, passing a signal (or plain array) of rows:
+
+```ts
+type User = { id: number; name: string; email: string };
+
+class UserListComponent {
+  protected readonly table = defineTable<User>(this.users);
+  // ...
+}
+```
+
+Then declare a `<bit-column>` per column, each with a header cell and a `*bitCellDef` cell template:
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-column sortable defaultSort="asc">
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+  </bit-column>
+  <bit-column sortable>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+  <bit-column>
+    <bit-header-cell>Email</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+`table.columns.X` is a typed reference to a column. Autocomplete lists every field of `User`, a typo
+fails to compile, and `let row` inside each cell is typed as `User` — `row.email` autocompletes,
+`row.emial` won't build.
+
+## The table model
+
+`defineTable<T>(data)` returns the model you bind with `[tableDef]`. It gives you two things:
+
+- **`columns`** — the typed column references you pass to `*bitCellDef` (`table.columns.name`,
+  etc.).
+- **`data`** — the row data, as a `Signal<T[]>`.
+
+Pass a **writable signal** for data you'll change and call `.set()` to update the table; wrap a
+static array in `signal(...)`. The table re-renders whenever the signal changes — you own the
+signal, there's no `setData`.
+
+```ts
+const table = defineTable<User>(users);
+```
+
+Everything else — sorting, displayed columns, loading, filtering, selection, pagination — is
+configured with **inputs** on the table and its helper components, covered in the sections below:
+
+| Input / helper                              | Purpose                                                                 |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `[displayedColumns]`                        | Columns to show, in order. Omit to show all in declaration order.       |
+| `[(sort)]`                                  | Active sort (`{ column, direction }`); header clicks cycle it.          |
+| `[loading]`                                 | Show skeleton rows in place of data.                                    |
+| `[filter]`                                  | Client-side row test `(row, filterValues) => boolean`.                  |
+| `[selection]`                               | Selection config (`{ multiple, canSelect }`); `(selectedChange)` emits. |
+| `<bit-table-paginator>`                     | Projected; owns page state and pages the rows.                          |
+| `table.filterValues()` / `table.filtered()` | Read current filter/row state off a `#t="bitTableV2"` ref.              |
+
+## Columns
+
+Each column is a `<bit-column>` wrapping a `<bit-header-cell>` (the header) and a `*bitCellDef` cell
+template (the per-row content). Column-level options go on `<bit-column>`:
+
+| Input         | Type                | Notes                                                                   |
+| ------------- | ------------------- | ----------------------------------------------------------------------- |
+| `sortable`    | `boolean`           | Enable click-to-sort on the header. See [Sorting](#sorting).            |
+| `defaultSort` | `"asc"` \| `"desc"` | Initial sort direction. First column with this set wins.                |
+| `sortFn`      | `SortFn`            | Custom comparator. See [Sorting](#sorting).                             |
+| `width`       | `string`            | Column width. See [Column sizing](#column-sizing). Defaults to `"1fr"`. |
+
+### The cell template
+
+`*bitCellDef` marks a `<bit-cell>` as a column's per-row template. Pass the column reference from
+the model; `let row` gives you the typed row:
+
+```html
+<bit-column>
+  <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+</bit-column>
+```
+
+### The header cell
+
+The header is a plain `<bit-header-cell>` child of the column — no directive needed:
+
+```html
+<bit-column sortable>
+  <bit-header-cell><i class="bwi bwi-envelope tw-me-1"></i> Email</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+</bit-column>
+```
+
+When the column is `sortable`, the header cell shows a sort button automatically and wires up its
+click behavior and `aria-sort` for you.
+
+### Column sizing
+
+Set a column's width with `width` on `<bit-column>`. Use content-independent widths so columns stay
+aligned across every row:
+
+- **`"1fr"`** (default) — an equal share of the leftover space. Omit `width` to get this.
+- **a fixed length** — `"120px"`, `"20rem"`.
+- **`minmax(min, max)`** — bound a fluid column, e.g. `"minmax(240px, 1fr)"`.
+
+Mix them freely: `fr` columns split whatever the fixed columns leave. Cells truncate by default, so
+a narrow `1fr` column shows an ellipsis rather than widening the table. If the fixed widths add up
+to more than the table can show, it scrolls horizontally (see
+[Scrolling and the sticky header](#scrolling-and-the-sticky-header)).
+
+<Canvas of={stories.ColumnSizing} />
+
+**Avoid `max-content`, `min-content`, and `auto`.** Content-based widths are measured per row, so
+the columns drift out of alignment, and they don't work with [virtual scrolling](#virtual-scrolling)
+at all. Stick to `px` / `fr` / `minmax`.
+
+The selection checkbox column is a fixed `40px` and isn't configurable.
+
+### Columns without a data field
+
+For columns that don't map to a field on your row type — action buttons, expand/collapse, and the
+like — declare a name via the model's second type parameter, then reference it like any other
+column:
+
+```ts
+const table = defineTable<User, "actions">(users);
+```
+
+```html
+<bit-column>
+  <bit-header-cell></bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.actions; let row">
+    <button bitIconButton="bwi-ellipsis-v">Actions</button>
+  </bit-cell>
+</bit-column>
+```
+
+`let row` is still typed as `User`.
+
+### Reordering and hiding columns
+
+`[displayedColumns]` is the ordered list of columns to show — each column renders only if listed, at
+the position it's listed. Bind a signal to reorder or hide columns at runtime. **Omit the input to
+show every column in declaration order.**
+
+```html
+<bit-table-v2 [tableDef]="table" [displayedColumns]="['name', 'id']">
+  <bit-column>
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+  </bit-column>
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+  <bit-column>
+    <bit-header-cell>Email (not displayed)</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+### Reusable columns
+
+You can move a column into its own component — a `<bit-column>` finds its table even from inside
+another component's template. Pass the model in for the typed references:
+
+```ts
+@Component({
+  selector: "demo-status-column",
+  imports: [BitColumnComponent, BitCellDefDirective, BitHeaderCellComponent, BitCellComponent],
+  template: `
+    <bit-column sortable>
+      <bit-header-cell>Status</bit-header-cell>
+      <bit-cell *bitCellDef="table().columns.status; let row">
+        <span class="…">{{ row.status }}</span>
+      </bit-cell>
+    </bit-column>
+  `,
+})
+class DemoStatusColumnComponent {
+  readonly table = input.required<TableDef<User>>();
+}
+```
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+  <demo-status-column [table]="table" />
+</bit-table-v2>
+```
+
+## Cell content layout
+
+`<bit-cell>` offers named slots for richer cells: a leading icon or tile (`slot="start"`), the title
+(default slot), a subtitle (`slot="secondary"`), and a trailing affordance (`slot="end"`). A plain
+cell uses only the default slot.
+
+```html
+<bit-column sortable defaultSort="asc">
+  <bit-header-cell>Name</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.name; let row">
+    <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
+    {{ row.name }}
+    <span slot="secondary">{{ row.email }}</span>
+  </bit-cell>
+</bit-column>
+```
+
+Set `truncate` (default `true`) to `false` to let the title and subtitle wrap instead of showing an
+ellipsis. The `secondary` and `end` slots are hidden when empty.
+
+## Sorting
+
+Add `sortable` to a `<bit-column>` to enable click-to-sort. Clicks cycle unsorted → ascending →
+descending → ascending. Set an initial sort with `defaultSort`:
+
+```html
+<bit-column sortable defaultSort="asc">
+  <bit-header-cell>Name</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+</bit-column>
+```
+
+For anything beyond a default comparison, pass a `sortFn` that returns the **ascending** comparison
+— the table applies the active direction:
+
+```ts
+sortByName = (a: User, b: User) => a.name.localeCompare(b.name);
+```
+
+```html
+<bit-column sortable [sortFn]="sortByName">
+  <bit-header-cell>Name</bit-header-cell>
+  <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+</bit-column>
+```
+
+Bind `[(sort)]` to a `SortState` signal (`{ column, direction }`) to read the current sort or set it
+programmatically — for example, to persist and restore it:
+
+```html
+<bit-table-v2 [tableDef]="table" [(sort)]="sort">…</bit-table-v2>
+```
+
+## Filtering
+
+Filtering works like a reactive form. Filter controls — `bit-filter-menu`, `bit-filter-toggle`, and
+a `bit-search` — go in the toolbar, each with a `key`. The table collects their values into
+**`table.filterValues()`** (a `{ key: value }` object). You supply one **`[filter]`** function
+`(row, values)`, and the table derives everything from it: the visible rows, the select-all scope,
+the paginator count, and a "no matches" empty state.
+
+Annotate the function's `values` parameter with your filter shape — `filterValues()` is typed to
+match. Seed initial values with `[filters]`.
+
+```ts
+type Filters = { type?: ItemType; favorites?: boolean };
+
+const table = defineTable<Member, "actions">(members);
+filter = (row: Member, f: Filters) =>
+  (!f.type || row.type === f.type) && (!f.favorites || row.favorite);
+```
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="{ type: 'login' }">
+  <bit-table-toolbar>
+    <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+      <bit-filter-option [value]="'login'">Login</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      iconActive="bwi-star-f"
+    ></bit-filter-toggle>
+  </bit-table-toolbar>
+  <bit-column>...</bit-column>
+</bit-table-v2>
+```
+
+Each chip or toggle registers itself with the table when projected in. **Option counts are
+automatic**: with a client-side `[filter]`, each `bit-filter-option` shows a faceted count — how
+many rows it would match given the other active filters — recomputed as filters and data change. No
+`[count]` needed. For **server-side** filtering, omit `[filter]`, read `filterValues()` off a
+`#t="bitTableV2"` template reference to build your query, feed the pre-filtered rows to `data`, and
+set an explicit `[count]` on each option (the table can't compute it without the full dataset). See
+the [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
+(sections, in-menu search, radio + checkbox groups).
+
+<Canvas of={stories.Filterable} />
+
+### Search
+
+A `<bit-search>` in the toolbar is adopted automatically as a filter under the `search` key — no
+`key`, no `ngModel`. Read its term in your `filter` alongside the other keys:
+
+```ts
+filter: (row, f) =>
+  (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+  (!f.type || row.type === f.type),
+```
+
+## Toolbar
+
+`<bit-table-toolbar>` renders above the header row and lays out in two rows:
+
+- **Top row** — the `<bit-search>` (capped at ~400px) and any `slot="end"` controls (buttons, etc.),
+  right-aligned.
+- **Filter row** — the filter chips, with a live "N items" count at the end. Separate groups of
+  chips with `<bit-filter-divider>`. On small screens this row collapses into a single trigger and
+  dialog.
+
+The toolbar holds no filter state itself — chips register with the table automatically when
+projected in, and a projected `<bit-search>` is adopted as the `search` filter (see
+[Search](#search)).
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
+    <button slot="end" bitButton buttonType="primary">New</button>
+    <bit-filter-menu key="type" placeholderText="Type">...</bit-filter-menu>
+    <bit-filter-divider></bit-filter-divider>
+    <bit-filter-toggle
+      key="favorites"
+      label="Favorites"
+      icon="bwi-star"
+      iconActive="bwi-star-f"
+    ></bit-filter-toggle>
+  </bit-table-toolbar>
+  <bit-column>...</bit-column>
+</bit-table-v2>
+```
+
+## Selection
+
+Pass a `[selection]` config to add a checkbox column, and listen to `(selectedChange)` for the
+selected rows:
+
+```html
+<bit-table-v2
+  [tableDef]="table"
+  [selection]="{ multiple: true }"
+  (selectedChange)="onSelected($event)"
+>
+  …columns…
+</bit-table-v2>
+```
+
+The header checkbox selects the currently filtered rows, and selected rows pick up a soft
+background. Pass a **stable** config reference — a field or getter, not an inline object literal —
+so selection isn't rebuilt on every change.
+
+### Selecting a subset of rows
+
+To make only some rows selectable, add a `canSelect` predicate. The table shows a checkbox only for
+selectable rows, scopes select-all and the indeterminate state to them, and enforces the predicate
+even when selecting programmatically:
+
+```html
+<bit-table-v2 [tableDef]="table" [selection]="{ multiple: true, canSelect: canManage }"
+  >…</bit-table-v2
+>
+```
+
+### Bulk actions
+
+Project a `<bit-bulk-actions-bar>` inside the table and it reads the selected count from the
+selection automatically — its clear button also clears the selection:
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-bulk-actions-bar>
+    <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
+    <bit-bulk-action [action]="onArchive" icon="bwi-archive" label="Archive" />
+  </bit-bulk-actions-bar>
+
+  …columns…
+</bit-table-v2>
+```
+
+See [Bulk Actions Bar](?path=/docs/component-library-bulk-actions-bar--docs) for its standalone API.
+
+## Pagination
+
+Project a `<bit-table-paginator>` to page the rows. It owns its page state (`[(pageIndex)]`,
+`[pageSize]`, `[pageSizeOptions]`) and renders the row range, a page-size select, prev/next
+controls, and a page input:
+
+```html
+<bit-table-v2 [tableDef]="table">
+  …columns…
+  <bit-table-paginator [pageSize]="10" [pageSizeOptions]="[10, 25, 50, 100]" />
+</bit-table-v2>
+```
+
+<Canvas of={stories.Pagination} />
+
+Pagination is **client-side** by default: the table pages its filtered and sorted rows, and the
+total ("of N") is the filtered row count. Bind `[(pageIndex)]` / `[(pageSize)]` to persist or
+restore the page.
+
+For **server-side** pagination, give the paginator an explicit `[length]` (the total count). The
+table then stops slicing — `data()` should hold only the current page, fetched using the paginator's
+`pageIndex` / `pageSize`:
+
+```html
+<bit-table-paginator [length]="totalCount" [(pageIndex)]="page" [pageSize]="10" />
+```
+
+Pagination and [virtual scrolling](#virtual-scrolling) are mutually exclusive — virtualization
+already handles large sets.
+
+## Loading
+
+Bind `[loading]` (e.g. a resource's `isLoading()`) to show skeleton rows instead of data, and set
+`[loadingRows]` (default 3) for the count. Give a column a custom skeleton with a `*bitCellLoading`
+template; columns without one get a default skeleton. Loading takes precedence over the empty state.
+
+```html
+<bit-table-v2 [tableDef]="table" [loading]="usersResource.isLoading()" [loadingRows]="5">
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+    <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-3/4" /></bit-cell>
+  </bit-column>
+</bit-table-v2>
+```
+
+## Empty state
+
+When no rows render — empty data, or a filter that excluded everything — the table shows a default
+`<bit-no-items>` message below the header. Override it by projecting `slot="empty"`:
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <div slot="empty" class="tw-p-10 tw-text-center tw-text-muted">No items found</div>
+  <bit-column>…</bit-column>
+</bit-table-v2>
+```
+
+## URL sync
+
+Set `[queryParam]` to a namespace and the table mirrors its filters, sort, and pagination to the URL
+query string under that prefix — so a filtered/sorted/paged view is shareable and survives a reload.
+On load, the URL restores the state (winning over `[filters]` and `defaultSort`); default or
+inactive facets leave no param behind, so the URL stays clean.
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">…</bit-table-v2>
+<!-- ?items.type=login&items.favorite=true&items.sort=name&items.direction=asc&items.page=2 -->
+```
+
+<Canvas of={stories.UrlSync} />
+
+Each filter chip syncs under its own `key`; sort, direction, page, and pageSize use those reserved
+keys within the namespace — so don't give a chip one of those keys. Give each table on a page a
+distinct prefix. Values are read back by shape (`true`/`false` → boolean, integers → number, a
+repeated key → array), which is lossy at the edges (a literal `"true"` string, a numeric-string id)
+— the trade for readable URLs. URL sync needs a router in context; without one (e.g. in a dialog)
+it's a no-op.
+
+## List presentation
+
+> **Beta — work in progress.** List presentation and grouping are new and still stabilizing; the API
+> and visuals may change, and there are known gaps. Prefer the default `table` presentation for
+> production tables for now.
+
+`[presentation]` switches how rows are drawn — the data engine (sorting, filtering, selection,
+pagination) is identical either way. It defaults to `"table"` (the bordered column grid); set it to
+`"list"` to drop the table chrome and render each row as a standalone `bit-item`-style card. The
+column header row is kept for assistive tech but visually hidden.
+
+```html
+<bit-table-v2 [tableDef]="table" presentation="list">…columns…</bit-table-v2>
+```
+
+<Canvas of={stories.List} />
+
+Reach for `list` where an item-style list fits better than a dense grid (e.g. a vault list). The
+cell slots ([Cell content layout](#cell-content-layout)) give you the same leading-icon / title /
+subtitle / trailing layout `bit-item` provides.
+
+### Grouping
+
+Project `<bit-row-group>`s to partition rows into labeled sections. Each group takes a `[match]`
+predicate; a row joins the first group whose predicate returns `true`, in declaration order. The
+projected content is the header label, and the row count is appended automatically:
+
+```html
+<bit-table-v2 [tableDef]="table" presentation="list">
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+
+  <bit-row-group [match]="isLogin">Logins</bit-row-group>
+  <bit-row-group [match]="isCard">Cards</bit-row-group>
+</bit-table-v2>
+```
+
+- **First-match-wins**, in declaration order. Rows no group claims render in a trailing headerless
+  block; empty groups render nothing.
+- **`collapsible`** turns the header into a toggle that hides the group's rows (open by default).
+- **One level of nesting** — a `<bit-row-group>` inside another sub-partitions its parent's rows;
+  deeper nesting is ignored (and warns).
+
+Grouping requires `list` presentation (it's ignored, with a warning, in `table`) and can't be
+combined with a paginator. It composes with [virtual scrolling](#virtual-scrolling): a single
+viewport renders the interleaved headers and rows.
+
+<Canvas of={stories.GroupedVirtualized} />
+
+## Scrolling and the sticky header
+
+By default the table grows to fit its rows and scrolls with the page. To bound it — so the body
+scrolls and the header stays pinned — set `[height]`:
+
+- **`height="fill"`** — fill the height of a bounded, full-height container. This is the idiomatic
+  way to make a table fill the main content area, inside the body of a
+  [`bit-page`](?path=/docs/component-library-layout-page--docs):
+
+  ```html
+  <bit-page>
+    <bit-table-v2 [tableDef]="table" height="fill">…columns…</bit-table-v2>
+  </bit-page>
+  ```
+
+- **`[height]="N"`** — cap the body at `N` rows (minimum 4), then scroll. This needs a known row
+  height, so it applies only to [virtualized](#virtual-scrolling) tables and is a no-op otherwise.
+
+For a non-virtualized table that needs a fixed bound, use `height="fill"` inside a
+height-constrained container (or size that container with CSS).
+
+## Virtual scrolling
+
+For large datasets, set `[virtualRowHeight]` (the row height in px) so the table only renders the
+visible rows. Virtualization scrolls the table itself, so it needs a bounded height — set `[height]`
+to a row count or `"fill"`:
+
+```html
+<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [height]="6" [trackBy]="trackById">
+  …columns…
+</bit-table-v2>
+```
+
+Give columns fixed `width` values for stable layout, and set `[trackBy]` (recommended) for stable
+row identity across data updates.
+
+## Presentational tables
+
+For a simple table with no sort, filter, selection, or virtualization, skip the model and columns
+and project the rows directly:
+
+```html
+<bit-table-v2>
+  <bit-header-row>
+    <bit-header-cell>Id</bit-header-cell>
+    <bit-header-cell>Name</bit-header-cell>
+  </bit-header-row>
+  @for (r of items(); track r.id) {
+  <bit-row>
+    <bit-cell>{{ r.id }}</bit-cell>
+    <bit-cell>{{ r.name }}</bit-cell>
+  </bit-row>
+  }
+</bit-table-v2>
+```
+
+Project one `<bit-header-row>` and any number of `<bit-row>` components, iterating your own data.
+Columns default to an equal share of the width.
+
+The table picks its mode automatically: any `<bit-column>` you project switches it to the full
+column-driven table; otherwise your `<bit-header-row>`/`<bit-row>` render directly. Don't mix the
+two in one table — if you need sort, selection, or any other built-in feature, use columns.
+
+## Accessibility
+
+- Always include a header for each column; screen readers use it to give cell data context. A column
+  with no visible header (e.g. an actions column) should still carry screenreader-accessible text
+  rather than being truly empty.
+- Avoid spanning data across cells.
+- Give repeating row actions a specific label — `aria-label="Edit Netflix"` rather than a bare
+  "Edit".
+- Sort buttons expose `aria-sort` on the header and `aria-pressed` on the button.
+- The select-all and row checkboxes are labelled for screen readers; override the label via the cell
+  template if a row needs richer context.
