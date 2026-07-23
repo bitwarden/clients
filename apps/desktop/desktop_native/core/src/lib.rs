@@ -11,7 +11,6 @@
 pub mod autofill;
 #[allow(missing_docs)]
 pub mod autostart;
-pub mod biometric_v2;
 #[allow(missing_docs)]
 pub mod clipboard;
 pub mod error;
@@ -23,7 +22,10 @@ pub mod process_isolation;
 #[allow(missing_docs)] // staged to be removed
 pub mod ssh_agent;
 
+#[cfg(not(target_os = "windows"))]
 use zeroizing_alloc::ZeroAlloc;
 
+// On windows we import bitwarden-crypto which has a global allocator.
+#[cfg(not(target_os = "windows"))]
 #[global_allocator]
 static ALLOC: ZeroAlloc<std::alloc::System> = ZeroAlloc(std::alloc::System);

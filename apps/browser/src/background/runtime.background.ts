@@ -33,9 +33,11 @@ import { AutofillLifecycleService } from "../autofill/services/abstractions/auto
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { getWebExtSender } from "../platform/utils/web-ext-sender";
 
 import MainBackground from "./main.background";
 
@@ -435,6 +437,16 @@ export default class RuntimeBackground {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
       }
+      case "reloadExtension": {
+        // Close any open popups first so the runtime reload doesn't strand them with an
+        // invalidated context. The popup closes itself upon receiving this message; poll to
+        // confirm before reloading. Unlike process reload (which is skipped while the vault is
+        // unlocked), this reload must always run — e.g. to register the native messaging host
+        // after the nativeMessaging permission is granted from the unlocked settings page.
+        await BrowserPopupUtils.waitForAllPopupsClose();
+        BrowserApi.reloadExtension();
+        break;
+      }
     }
   }
 
@@ -445,9 +457,7 @@ export default class RuntimeBackground {
    * @returns true if message fails validation
    */
   private async executeMessageActionOrOpenPopup(
-    message: {
-      webExtSender: chrome.runtime.MessageSender;
-    },
+    message: Record<PropertyKey, unknown>,
     messageAction: () => Promise<void>,
   ): Promise<boolean> {
     const hasAccounts = await firstValueFrom(
@@ -461,7 +471,7 @@ export default class RuntimeBackground {
     }
 
     const isValidVaultReferrer = await this.isValidVaultReferrer(
-      Utils.getHostname(message?.webExtSender?.origin),
+      Utils.getHostname(getWebExtSender(message)?.origin),
     );
 
     // When the referrer is not a known vault and the message is external, reject the message
