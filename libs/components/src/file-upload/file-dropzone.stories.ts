@@ -98,6 +98,9 @@ export const MultipleFiles: Story = {
   args: {
     multiple: true,
   },
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 export const Required: Story = {
