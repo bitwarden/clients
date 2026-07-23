@@ -5,15 +5,6 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
-[target.'cfg(windows)'.dependencies]
-itertools.workspace = true
-tracing.workspace = true
-windows = { workspace = true, features = [
-    "Win32_UI_Input_KeyboardAndMouse",
-    "Win32_UI_WindowsAndMessaging",
-] }
-windows-core = { workspace = true }
-
 [target.'cfg(windows)'.dev-dependencies]
 mockall.workspace = true
 serial_test.workspace = true
@@ -27,6 +18,16 @@ windows = { workspace = true, features = [
 
 [dependencies]
 anyhow = { workspace = true }
+tracing = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+dirs = { workspace = true }
+itertools.workspace = true
+windows = { workspace = true, features = [
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
+windows-core = { workspace = true }
 
 [lints]
 workspace = true
