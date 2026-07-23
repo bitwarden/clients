@@ -21,6 +21,16 @@ export class SideNavService {
   readonly MIN_OPEN_WIDTH = 15;
   readonly MAX_OPEN_WIDTH = 24;
 
+  /**
+   * Width of the collapsed nav (icon strip / siderail).
+   *
+   * Applied explicitly when closed because the v2 layout's content lives inside a
+   * `container-type: size` element, which reports zero intrinsic width and would
+   * otherwise let the nav collapse to nothing. Matches the siderail width the layout
+   * reserves for the closed nav.
+   */
+  readonly CLOSED_WIDTH = 3.75;
+
   private rootFontSizePx: number;
 
   readonly version = signal<SideNavVersion>("1");

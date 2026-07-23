@@ -4,7 +4,7 @@ import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
-import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { PasswordManagerLogo, SideNavLogo } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -20,6 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   BadgeComponent,
   BerryComponent,
+  CalloutComponent,
   I18nMockService,
   IconTileComponent,
   LayoutComponent,
@@ -147,6 +148,7 @@ export default {
         BadgeComponent,
         BerryComponent,
         IconTileComponent,
+        CalloutComponent,
       ],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
@@ -362,17 +364,20 @@ export const RealisticSideNav = {
 
 export const RealisticSideNavV2: Story = {
   render: (args) => ({
-    props: { ...args, logo: PasswordManagerLogo },
+    props: { ...args, logo: SideNavLogo },
     template: `
       <bit-layout>
         <bit-side-nav>
           <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
+          <ng-container slot="product-switcher">
+            <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
+          </ng-container>
           <bit-nav-group text="My vault" [open]="true">
             <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
             <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-section icon="bwi-sticky-note" label="Pinned">
+            <bit-nav-section icon="bwi-pin" label="Pinned">
               <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
               <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
               <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
@@ -396,12 +401,13 @@ export const RealisticSideNavV2: Story = {
             </bit-nav-item>
             <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
           </bit-nav-section>
-          <ng-container slot="footer">
-            <div class="tw-py-10 tw-px-4">Account section would go here</div>
+          <ng-container slot="callout">
+            <div class="tw-px-3">
+              <bit-callout icon="bwi-premium" type="info" title="Info">Some promo callout content here</bit-callout>
+            </div>
           </ng-container>
-          <ng-container slot="product-switcher">
-            <bit-nav-divider></bit-nav-divider>
-            <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
+          <ng-container slot="account">
+            <div class="tw-py-10 tw-px-4">Account section would go here</div>
           </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
