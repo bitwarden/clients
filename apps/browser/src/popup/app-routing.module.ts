@@ -776,7 +776,7 @@ const routes: Routes = [
       {
         path: "health",
         component: HealthComponent,
-        canActivate: [authGuard],
+        canActivate: [authGuard, canAccessFeature(FeatureFlag.BrowserExtensionHealthReport)],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],

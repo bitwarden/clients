@@ -17,6 +17,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 
@@ -29,6 +31,7 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 })
 export class TabsV2Component {
   private sendPolicyService = inject(SendPolicyService);
+  private configService = inject(ConfigService);
 
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
@@ -43,11 +46,16 @@ export class TabsV2Component {
     map((disableSend) => !disableSend),
   );
 
+  private healthEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.BrowserExtensionHealthReport,
+  );
+
   protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
+    this.healthEnabled$.pipe(startWith(false)),
   ]).pipe(
-    map(([showBerry, sendEnabled]) => {
+    map(([showBerry, sendEnabled, healthEnabled]) => {
       const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
@@ -71,13 +79,17 @@ export class TabsV2Component {
               } as BottomNavigationButton,
             ]
           : []),
-        {
-          label: "health",
-          page: "/tabs/health",
-          icon: HealthInactive,
-          iconActive: HealthActive,
-          showBerry: true, // TODO: only show berry when the User has not yet run a health report (PM-39075)
-        },
+        ...(healthEnabled
+          ? [
+              {
+                label: "health",
+                page: "/tabs/health",
+                icon: HealthInactive,
+                iconActive: HealthActive,
+                showBerry: true, // TODO: only show berry when the User has not yet run a health report (PM-39075)
+              } as BottomNavigationButton,
+            ]
+          : []),
         {
           label: "settings",
           page: "/tabs/settings",
