@@ -279,18 +279,6 @@ export class WindowMain {
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
-    // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
-    // We have it disabled by default until self-hosted users are updated to maintain compatibility.
-    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
-    if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
-      return url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-        ...partial,
-      });
-    }
-
     return url.format({
       protocol: customFileScheme,
       host: customFileHost,
@@ -301,8 +289,8 @@ export class WindowMain {
   }
 
   /**
-   * Whether the URL is our own renderer bundle. Accepts both schemes {@link getWindowUrl} can
-   * emit (`file:` and `bw-desktop-file:`) so navigation guards need not know the active build mode.
+   * Whether the URL is our own renderer bundle, served over the custom {@link customFileScheme}
+   * protocol by {@link getWindowUrl}.
    */
   private isLocalBundleUrl(url: string): boolean {
     let parsedUrl: URL;
@@ -312,21 +300,7 @@ export class WindowMain {
       return false;
     }
 
-    if (parsedUrl.protocol === "file:") {
-      // TODO(PM-33211): remove this branch once the custom-scheme cutover lands. An app no longer
-      // served over file: would keep only a permissive file: attack surface here.
-      //
-      // Check the full path, not the filename: file://attacker.com/index.html would pass a suffix test.
-      // (Hash/query live outside pathname, so index.html#/passkeys still matches.)
-      const bundlePathname = pathToFileURL(path.join(__dirname, "/index.html")).pathname;
-      return parsedUrl.host === "" && parsedUrl.pathname === bundlePathname;
-    }
-
-    if (parsedUrl.protocol === `${customFileScheme}:`) {
-      return parsedUrl.hostname === customFileHost;
-    }
-
-    return false;
+    return parsedUrl.protocol === `${customFileScheme}:` && parsedUrl.hostname === customFileHost;
   }
 
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
