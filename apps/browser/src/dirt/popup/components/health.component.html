@@ -1,3 +1,8 @@
-<div>
-  <h1>Health</h1>
-</div>
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'health' | i18n">
+    <ng-container slot="end">
+      <app-pop-out />
+      <app-current-account />
+    </ng-container>
+  </popup-header>
+</popup-page>
