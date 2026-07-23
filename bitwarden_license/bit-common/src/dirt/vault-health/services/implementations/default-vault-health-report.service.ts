@@ -1,0 +1,108 @@
+import { Observable, from, map, switchMap } from "rxjs";
+
+import { CipherRiskResult } from "@bitwarden/sdk-internal";
+
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { UserId } from "@bitwarden/common/types/guid";
+
+import { CipherHealthView } from "../../../access-intelligence/models";
+import { RiskCategory } from "../../models/risk-category";
+import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
+import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
+
+export class DefaultVaultHealthReportService implements VaultHealthReportService {
+  constructor(
+    private cipherService: CipherService,
+    private cipherRiskService: CipherRiskService,
+  ) {}
+
+  vaultHealthReport$(userId: UserId): Observable<VaultHealthReportView> {
+    return this.cipherService.cipherViews$(userId).pipe(
+      map((ciphers) => this.filterScopedLogins(ciphers)),
+      switchMap((logins) => from(this.buildReport(logins, userId))),
+    );
+  }
+
+  /**
+   * Personal-vault logins with a password: Login type, no organization,
+   * not deleted, non-empty password. A superset of the SDK's own predicate,
+   * so every login passed to the risk service qualifies.
+   */
+  private filterScopedLogins(ciphers: CipherView[] | null): CipherView[] {
+    return (ciphers ?? []).filter(
+      (c) =>
+        c.type === CipherType.Login &&
+        c.organizationId == null &&
+        !c.isDeleted &&
+        (c.login?.password ?? "") !== "",
+    );
+  }
+
+  private async buildReport(logins: CipherView[], userId: UserId): Promise<VaultHealthReportView> {
+    const totalCount = logins.length;
+    if (totalCount === 0) {
+      return new VaultHealthReportView();
+    }
+
+    // Pre-build the reuse map so reuse_count is populated, then compute risk
+    // with exposed (HIBP) checking enabled. Errors propagate to the caller.
+    const passwordMap = await this.cipherRiskService.buildPasswordReuseMap(logins, userId);
+    const risks = await this.cipherRiskService.computeRiskForCiphers(logins, userId, {
+      passwordMap,
+      checkExposed: true,
+    });
+
+    // Each CipherRiskResult carries its own `id`, so map results to per-login
+    // views directly by id (no reliance on array position).
+    const cipherHealth = risks.map((risk) => this.toCipherHealthView(risk));
+    const atRisk = cipherHealth.filter((health) => health.isAtRisk());
+
+    const categoryCounts: Record<RiskCategory, number> = { exposed: 0, weak: 0, reused: 0 };
+    const categoryItems: Record<RiskCategory, CipherHealthView[]> = {
+      exposed: [],
+      weak: [],
+      reused: [],
+    };
+
+    for (const health of atRisk) {
+      const category = this.highestRiskCategory(health);
+      categoryCounts[category] += 1;
+      categoryItems[category].push(health);
+    }
+
+    return new VaultHealthReportView({
+      totalCount,
+      atRiskCount: atRisk.length,
+      score: atRisk.length / totalCount,
+      categoryCounts,
+      categoryItems,
+      cipherHealth,
+    });
+  }
+
+  private toCipherHealthView(risk: CipherRiskResult): CipherHealthView {
+    const exposedCount = risk.exposed_result.type === "Found" ? risk.exposed_result.value : 0;
+    return new CipherHealthView({
+      cipherId: risk.id as string,
+      hasExposedPassword: exposedCount > 0,
+      hasWeakPassword: risk.password_strength < 3,
+      hasReusedPassword: (risk.reuse_count ?? 1) > 1,
+      exposedCount,
+      weakPasswordScore: risk.password_strength,
+    });
+  }
+
+  /** Highest-risk-wins: Exposed > Weak > Reused. Only called for at-risk logins. */
+  private highestRiskCategory(health: CipherHealthView): RiskCategory {
+    if (health.hasExposedPassword) {
+      return RiskCategory.Exposed;
+    }
+    if (health.hasWeakPassword) {
+      return RiskCategory.Weak;
+    }
+    return RiskCategory.Reused;
+  }
+}
