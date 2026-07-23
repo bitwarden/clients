@@ -408,10 +408,10 @@ describe("AssignCollectionsComponent", () => {
     });
 
     it.each([
-      [1, 1, "itemMovedToSharedFolder"],
-      [1, 2, "itemMovedToSharedFolders"],
-      [2, 1, "itemsMovedToSharedFolder"],
-      [2, 2, "itemsMovedToSharedFolders"],
+      [1, 1, "itemAddedToSharedFolder"],
+      [1, 2, "itemAddedToSharedFolders"],
+      [2, 1, "itemsAddedToSharedFolder"],
+      [2, 2, "itemsAddedToSharedFolders"],
     ])(
       "collectionAssignmentToastKey maps %i ciphers / %i collections to %s",
       (ciphers, collections, key) => {
