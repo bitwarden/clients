@@ -42,6 +42,9 @@
           : "bulkVaultSharedFolderAssignmentDialogDescriptionPlural"
         ) | i18n
       }}
+      @if (readonlyItemCount > 0) {
+        {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
+      }
     </p>
   }
 
