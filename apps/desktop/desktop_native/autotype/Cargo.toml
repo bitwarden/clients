@@ -7,8 +7,6 @@ publish.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 itertools.workspace = true
-mockall.workspace = true
-serial_test.workspace = true
 tracing.workspace = true
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
@@ -16,10 +14,9 @@ windows = { workspace = true, features = [
 ] }
 windows-core = { workspace = true }
 
-[dependencies]
-anyhow = { workspace = true }
-
 [target.'cfg(windows)'.dev-dependencies]
+mockall.workspace = true
+serial_test.workspace = true
 windows = { workspace = true, features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
@@ -27,6 +24,9 @@ windows = { workspace = true, features = [
     "Win32_System_LibraryLoader",
     "Win32_Graphics_Gdi",
 ] }
+
+[dependencies]
+anyhow = { workspace = true }
 
 [lints]
 workspace = true
