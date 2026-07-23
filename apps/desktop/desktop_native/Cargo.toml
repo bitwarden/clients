@@ -30,6 +30,9 @@ arboard = { version = "=3.6.1", default-features = false }
 ashpd = "=0.13.11"
 async-trait = "=0.1.89"
 base64 = "=0.22.1"
+bitwarden-crypto = { git = "https://github.com/bitwarden/sdk-internal", rev = "f76b51450582cff9be767c9d9f454c42a84a56c1" }
+bitwarden-random = { git = "https://github.com/bitwarden/sdk-internal", rev = "f76b51450582cff9be767c9d9f454c42a84a56c1" }
+bitwarden-sensitive-value = { git = "https://github.com/bitwarden/sdk-internal", rev = "f76b51450582cff9be767c9d9f454c42a84a56c1" }
 byteorder = "=1.5.0"
 bytes = "=1.11.1"
 cbc = "=0.1.2"
@@ -53,6 +56,9 @@ napi-derive = "=3.5.4"
 oo7 = "=0.5.0"
 pin-project = "=1.1.10"
 rand = "=0.9.3"
+# rand_core 0.10 (a distinct major from `rand` 0.9) provides the `Rng` trait needed to draw bytes
+# from `bitwarden_random::rng()`, whose RNG type is built on the 0.10 rand-core traits.
+rand_core = "=0.10.1"
 scopeguard = "=1.2.0"
 secmem-proc = "=0.3.7"
 security-framework = "=3.7.0"
