@@ -75,25 +75,12 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     // This login strategy does not use a master key
   }
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
     // Establish trust if required after setting user key
     await this.deviceTrustService.trustDeviceIfRequired(userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   exportCache(): CacheData {
