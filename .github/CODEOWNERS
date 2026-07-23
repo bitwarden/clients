@@ -254,6 +254,7 @@ apps/web/src/locales/en/messages.json
 .github/workflows/retrieve-current-desktop-rollout.yml  @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop.yml         @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop-signal.yml  @bitwarden/dept-bre
+.github/workflows/publish-cli.yml                       @bitwarden/dept-bre
 
 ## Docker-related files
 **/Dockerfile          @bitwarden/team-appsec  @bitwarden/dept-bre
