@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+#[cfg(feature = "napi")]
+use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use serde_with::{
     base64::{Base64, Standard},
@@ -12,6 +14,7 @@ use crate::{BitwardenError, Callback, TimedCallback};
 /// Response to window handle request.
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
 #[serde(rename_all = "camelCase")]
 pub struct WindowHandleQueryResponse {
     /// Whether the desktop client is currently visible.

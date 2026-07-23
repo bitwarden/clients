@@ -29,12 +29,15 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
@@ -137,9 +140,19 @@ describe("LoginCommand", () => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     encryptedMigrator = mock<EncryptedMigrator>();
 
+    // Session key is generated via the SDK: SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key()).
+    // Stub the SDK load gate and key generation so validatedParams() produces a deterministic session key.
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+    jest
+      .spyOn(SymmetricCryptoKey, "fromSdk")
+      .mockReturnValue({ toBase64: () => B64_SESSION_KEY } as SymmetricCryptoKey);
+
     // Default mock behaviors for a successful password login
     i18nService.t.mockImplementation((key: string) => key);
-    cryptoFunctionService.randomBytes.mockResolvedValue(MOCK_SESSION_KEY);
     loginStrategyService.logIn.mockResolvedValue(mockSuccessAuthResult());
     keyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
     masterPasswordService.forceSetPasswordReason$.mockReturnValue(of(ForceSetPasswordReason.None));

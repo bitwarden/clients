@@ -57,7 +57,11 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   @HostBinding("class")
   protected inputClasses = [
     "tw-appearance-none",
-    "tw-outline-none",
+    /**
+     * tailwind's outline-none does not fully remove it because it supports forced colors mode, so
+     * we need to do it manually
+     */
+    "focus-visible:[outline:none]",
     "tw-relative",
     "tw-transition",
     "tw-cursor-pointer",
@@ -81,6 +85,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-2",
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-offset-2",
     "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:before:tw-ring-border-focus",
+    // use outline instead of unsupported ring for forced colors mode
+    "[&:not(bit-form-control_*,bit-form-control-card_*)]:focus-visible:forced-colors:tw-outline-none",
 
     "tw-transition-colors",
     "before:tw-content-['']",
@@ -113,6 +119,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "checked:focus-visible:tw-bg-transparent",
 
     "checked:after:tw-bg-bg-brand",
+    // forced-colors strips the background; use CanvasText so the svg stays visible
+    "forced-colors:checked:after:tw-bg-[CanvasText]",
 
     "checked:before:tw-border-2",
     "checked:before:tw-border-border-brand",

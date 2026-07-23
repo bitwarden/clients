@@ -126,6 +126,10 @@
                 [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
                 type="button"
                 [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
+                [disabled]="organization && !organization.enabled"
+                [bitTooltip]="
+                  organization && !organization.enabled ? ('organizationIsSuspended' | i18n) : ''
+                "
               >
                 {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
               </button>

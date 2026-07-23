@@ -3,14 +3,14 @@
   class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
   [bitPopoverTriggerFor]="fillAssistPopover"
   position="above-center"
-  [appA11yTitle]="'aboutFillAssist' | i18n"
+  [appA11yTitle]="'aboutFillAssistLabel' | i18n"
   bitLink
   startIcon="bwi-question-circle"
 ></button>
 
-<bit-popover [title]="'aboutFillAssist' | i18n" #fillAssistPopover>
+<bit-popover [title]="'aboutFillAssistLabel' | i18n" #fillAssistPopover>
   <p>
-    {{ "enableFillAssistDescription" | i18n }}
+    {{ "activateFillAssistDescription" | i18n }}
   </p>
   <div class="tw-flex tw-gap-1.5 tw-items-center">
     <a bitLink href="#" (click)="openLearnMore($event)" class="tw-flex">
