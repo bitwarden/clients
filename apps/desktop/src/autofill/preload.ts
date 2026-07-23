@@ -4,7 +4,7 @@ import { DesktopAutofillPreload } from "./desktop-autofill.preload";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
 const sshAgent = {
   init: async (useV2: boolean) => {
@@ -39,10 +39,10 @@ export default {
 
   // Autotype methods
   configureAutotype: (config: AutotypeConfig) => {
-    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.CONFIGURE, config);
+    ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, config);
   },
   toggleAutotype: (enable: boolean) => {
-    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.TOGGLE, enable);
+    ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE, enable);
   },
   listenAutotypeRequest: (
     fn: (
@@ -51,7 +51,7 @@ export default {
     ) => void,
   ) => {
     ipcRenderer.on(
-      AUTOTYPE_IPC_CHANNELS.LISTEN,
+      AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
       (
         _event,
         data: {
@@ -66,12 +66,12 @@ export default {
               windowTitle,
               errorMessage: error.message,
             };
-            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, matchError);
+            ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR, matchError);
             return;
           }
 
           if (vaultData !== null) {
-            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
+            ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE, vaultData);
           }
         });
       },

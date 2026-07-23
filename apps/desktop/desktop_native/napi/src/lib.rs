@@ -10,7 +10,7 @@ mod registry;
 // namespace.
 pub mod autofill;
 pub mod autostart;
-pub mod autotype;
+pub mod autotype_mvp;
 pub mod biometrics;
 pub mod chromium_importer;
 pub mod clipboards;

@@ -1,11 +1,9 @@
-export const AUTOTYPE_IPC_CHANNELS = {
-  INIT: "autofill.initAutotype",
-  INITIALIZED: "autofill.autotypeIsInitialized",
-  TOGGLE: "autofill.toggleAutotype",
-  CONFIGURE: "autofill.configureAutotype",
-  LISTEN: "autofill.listenAutotypeRequest",
-  EXECUTION_ERROR: "autofill.autotypeExecutionError",
-  EXECUTE: "autofill.executeAutotype",
+export const AUTOTYPE_MVP_IPC_CHANNELS = {
+  TOGGLE: "autofill.toggleAutotypeMvp",
+  CONFIGURE: "autofill.configureAutotypeMvp",
+  LISTEN: "autofill.listenAutotypeRequestMvp",
+  EXECUTION_ERROR: "autofill.autotypeExecutionErrorMvp",
+  EXECUTE: "autofill.executeAutotypeMvp",
 } as const;
 
 export const SSH_AGENT_IPC_CHANNELS = {

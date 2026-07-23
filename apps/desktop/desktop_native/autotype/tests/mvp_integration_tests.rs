@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use autotype::{get_foreground_window_title, type_input};
+use autotype::mvp::{get_foreground_window_title, type_input};
 use serial_test::serial;
 use tracing::debug;
 use windows::Win32::{
