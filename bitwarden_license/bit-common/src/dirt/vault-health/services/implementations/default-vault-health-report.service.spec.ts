@@ -254,4 +254,34 @@ describe("DefaultVaultHealthReportService", () => {
     expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["b"]);
     expect(result.categoryItems.reused.map((h) => h.cipherId)).toEqual(["c"]);
   });
+
+  it("does not recompute when only non-scoped items change (identical scoped set)", async () => {
+    const a = login("a");
+    riskById.set("a", risk("a"));
+    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    const sub = service.vaultHealthReport$(userId).subscribe();
+    cipherViews$.next([a, login("card1", { type: CipherType.Card })]);
+    await tick();
+    // Same scoped login set (a); only the ignored card changed.
+    cipherViews$.next([a, login("card2", { type: CipherType.Card })]);
+    await tick();
+    sub.unsubscribe();
+
+    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
+  });
+
+  it("recomputes when a scoped login's password changes", async () => {
+    riskById.set("a", risk("a"));
+    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    const sub = service.vaultHealthReport$(userId).subscribe();
+    cipherViews$.next([login("a", { password: "pw1" })]);
+    await tick();
+    cipherViews$.next([login("a", { password: "pw2" })]);
+    await tick();
+    sub.unsubscribe();
+
+    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(2);
+  });
 });

@@ -1,4 +1,4 @@
-import { Observable, from, map, switchMap } from "rxjs";
+import { Observable, distinctUntilChanged, from, map, switchMap } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -21,6 +21,11 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   vaultHealthReport$(userId: UserId): Observable<VaultHealthReportView> {
     return this.cipherService.cipherViews$(userId).pipe(
       map((ciphers) => this.filterScopedLogins(ciphers)),
+      // cipherViews$ re-emits on any vault change, including edits to items this
+      // report ignores (cards, org items, deleted items). Only recompute when the
+      // scoped login set actually changes, so we don't fire a fresh HIBP request
+      // for an identical set. Still re-emits whenever the vault changes (the AC).
+      distinctUntilChanged((prev, curr) => this.scopeSignature(prev) === this.scopeSignature(curr)),
       switchMap((logins) => from(this.buildReport(logins, userId))),
     );
   }
@@ -37,6 +42,19 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
         c.organizationId == null &&
         !c.isDeleted &&
         (c.login?.password ?? "") !== "",
+    );
+  }
+
+  /**
+   * A stable signature of the inputs that affect the report: each login's id,
+   * username, and password (the same fields the SDK risk computation consumes).
+   * Two scoped sets with an equal signature produce an identical report, so the
+   * recompute (and its HIBP call) can be skipped. Uses a structural JSON encoding
+   * so a space in a username/password cannot collide two distinct sets.
+   */
+  private scopeSignature(logins: CipherView[]): string {
+    return JSON.stringify(
+      logins.map((c) => [c.id, c.login?.username ?? "", c.login?.password ?? ""]),
     );
   }
 
