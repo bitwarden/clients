@@ -97,15 +97,19 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
 @Component({
   selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
-  // OverflowItemDirective is applied to every badge so wrappers like
-  // `bit-badge-group` can let `bitOverflowList` measure and hide them. None
-  // of its inputs/outputs are exposed — `pinned` is internal-only, set
-  // programmatically by the wrapper.
-  //
-  // TooltipDirective surfaces the badge's text (or the `title` override) as a
-  // styled tooltip in place of the native `title` attribute; the content is
-  // wired up below from `titleContent()`.
-  hostDirectives: [OverflowItemDirective, TooltipDirective],
+  hostDirectives: [
+    // OverflowItemDirective is applied to every badge so wrappers like
+    // `bit-badge-group` can let `bitOverflowList` measure and hide them. None
+    // of its inputs/outputs are exposed — `pinned` is internal-only, set
+    // programmatically by the wrapper.
+    OverflowItemDirective,
+    {
+      directive: TooltipDirective,
+      // Override the default badge tooltip content by providing content to [bitTooltip] directly
+      inputs: ["tooltipPosition", "bitTooltip"],
+    },
+  ],
+
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
@@ -113,26 +117,25 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent {
-  private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly tooltip = inject(TooltipDirective);
 
   constructor() {
-    // Drive the host tooltip from the computed title content, suppressing it
-    // entirely when there's nothing to show so a badge with no title doesn't
-    // open a blank tooltip on hover.
+    /**
+     * Set the tooltip content to the badge's content, unless there is already custom tooltip
+     * content provided by the consumer
+     */
     effect(() => {
-      const content = this.titleContent();
-      this.tooltip.tooltipContent.set(content ?? "");
-      this.tooltip.suppressed.set(!content);
+      const tooltipContent = this.tooltip.tooltipContent();
+      if (tooltipContent.length > 0) {
+        return;
+      }
+
+      const content = this.defaultTooltipContent();
+
+      this.tooltip.tooltipContent.set(content);
     });
   }
-
-  /**
-   * Optional override for the tooltip content when content overflows.
-   * When overflow is detected and this is not provided, the badge will automatically
-   * use its text content as the tooltip.
-   */
-  readonly title = input<string>();
 
   /**
    * Visual variant that determines the badge's color scheme.
@@ -186,16 +189,10 @@ export class BadgeComponent {
   ]);
 
   /**
-   * Computed tooltip content — the custom `title` override when provided,
-   * otherwise the badge's own text while truncation is enabled.
+   * The badge's HTML content as a string if the badge has the potential to truncate, to display
+   * in the tooltip
    */
-  protected readonly titleContent = computed(() => {
-    // Use custom title if provided, otherwise use text content
-    const customTitle = this.title();
-    if (customTitle !== undefined) {
-      return customTitle;
-    }
-
-    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : undefined;
+  protected readonly defaultTooltipContent = computed(() => {
+    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : "";
   });
 }
