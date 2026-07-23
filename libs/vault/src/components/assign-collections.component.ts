@@ -601,18 +601,18 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (ciphersCount === 1) {
       return collectionsCount === 1
         ? this.vfo1TerminologyService.enabled()
-          ? "itemMovedToSharedFolder"
+          ? "itemAddedToSharedFolder"
           : "itemMovedToCollection"
         : this.vfo1TerminologyService.enabled()
-          ? "itemMovedToSharedFolders"
+          ? "itemAddedToSharedFolders"
           : "itemMovedToCollections";
     }
     return collectionsCount === 1
       ? this.vfo1TerminologyService.enabled()
-        ? "itemsMovedToSharedFolder"
+        ? "itemsAddedToSharedFolder"
         : "itemsMovedToCollection"
       : this.vfo1TerminologyService.enabled()
-        ? "itemsMovedToSharedFolders"
+        ? "itemsAddedToSharedFolders"
         : "itemsMovedToCollections";
   }
 

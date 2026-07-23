@@ -6192,26 +6192,26 @@
   "itemMovedToCollection": {
     "message": "Item moved to collection"
   },
-  "itemMovedToSharedFolder": {
-    "message": "Item moved to shared folder"
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
-  "itemMovedToSharedFolders": {
-    "message": "Item moved to shared folders"
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
   },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
-  "itemsMovedToSharedFolder": {
-    "message": "Items moved to shared folder"
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
   },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
   },
-  "itemsMovedToSharedFolders": {
-    "message": "Items moved to shared folders"
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
