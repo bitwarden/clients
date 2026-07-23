@@ -141,4 +141,8 @@ export const CustomTooltip = {
     bitTooltip: "Different text than badge text",
     tooltipPosition: "below-center",
   },
+  parameters: {
+    // Snapshot does not provide any value in this story since the tooltip is the purpose
+    chromatic: { disableSnapshot: true },
+  },
 };

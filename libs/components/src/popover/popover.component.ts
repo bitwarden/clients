@@ -84,7 +84,7 @@ export class PopoverComponent {
       "tw-pb-3",
       // Reserve room for the absolutely-positioned close button so the header doesn't run
       // underneath it. Only needed while that button is shown.
-      this.showCloseButton() && !this.header() ? "tw-pe-12" : "tw-pe-6",
+      this.showCloseButton() && !this.header() ? "tw-pe-13" : "tw-pe-6",
       "tw-text-fg-heading",
       "!tw-mb-0",
       "tw-border-0",
@@ -104,7 +104,7 @@ export class PopoverComponent {
       // When there's no title (and no header) to carry it, the content sits at the
       // top and must reserve room for the absolutely-positioned close button so its
       // first line doesn't run underneath it. Only needed while that button is shown.
-      this.showCloseButton() && !this.title() && !this.header() ? "tw-pe-12" : "tw-pe-6",
+      this.showCloseButton() && !this.title() && !this.header() ? "tw-pe-13" : "tw-pe-6",
       "tw-text-fg-body",
       this.maxHeightClass() ?? "",
       /**
