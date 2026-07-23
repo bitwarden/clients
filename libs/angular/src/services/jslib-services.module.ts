@@ -167,12 +167,14 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { DefaultPremiumCheckoutPendingService } from "@bitwarden/common/billing/services/account/default-premium-checkout-pending.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization/organization-metadata.service";
@@ -1697,6 +1699,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: PremiumCheckoutPendingService,
+    useClass: DefaultPremiumCheckoutPendingService,
     deps: [StateProvider],
   }),
   safeProvider({

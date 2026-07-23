@@ -33,7 +33,12 @@ import {
   SimpleDialogOptions,
   IconModule,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -65,6 +70,7 @@ export class VaultHeaderComponent {
   protected readonly CipherType = CipherType;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /** Computed signal for add item coachmark open state */
   protected readonly addItemCoachmarkOpen = computed(
@@ -154,6 +160,23 @@ export class VaultHeaderComponent {
   protected get activeOrganization() {
     const organizationId = this.activeOrganizationId;
     return this.organizations?.find((org) => org.id === organizationId);
+  }
+
+  /**
+   * Query params for the organization breadcrumb. Mirrors the param-swap logic
+   * in {@link RoutedVaultFilterService.createRoute}: with the VFO1 flag enabled
+   * the organization is stored as `vaultId`, otherwise as `organizationId`. The
+   * opposite key is nulled so `queryParamsHandling="merge"` cannot leave a stale
+   * param behind.
+   */
+  protected get organizationBreadcrumbQueryParams() {
+    const organizationId = this.activeOrganizationId ?? null;
+    return {
+      ...(this.vfo1TerminologyService.enabled()
+        ? { vaultId: organizationId, organizationId: null }
+        : { organizationId, vaultId: null }),
+      collectionId: this.All,
+    };
   }
 
   protected get showBreadcrumbs() {
