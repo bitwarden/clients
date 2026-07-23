@@ -8,12 +8,15 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   Importer,
+  ImportRecordError,
+  ImportRecordErrorReason,
   ImportResult,
   ImportServiceAbstraction,
   SdkImportSummary,
 } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
+import { MessageResponse } from "../models/response/message.response";
 import { CliUtils } from "../utils";
 
 import { ImportCommand } from "./import.command";
@@ -168,5 +171,23 @@ describe("ImportCommand", () => {
 
     expect(readFileSpy).toHaveBeenCalledWith("data.csv");
     expect(importService.importWithSdk).not.toHaveBeenCalled();
+  });
+
+  it("reports skipped items on a partial success and still succeeds", async () => {
+    jest.spyOn(CliUtils, "readFile").mockResolvedValue("name,login\n");
+    importService.getImporter.mockReturnValue(importerStub());
+    const result = successResult();
+    result.errors = [
+      new ImportRecordError("ssh-key-uuid", ImportRecordErrorReason.SshKeyParseFailed),
+    ];
+    importService.import.mockResolvedValue(result);
+
+    const response = await command.run("bitwardencsv", "data.csv", {});
+
+    expect(response.success).toBe(true);
+    const message = (response.data as MessageResponse).message;
+    expect(message).toContain("1 item(s) could not be imported and were skipped");
+    expect(message).toContain("ssh-key-uuid");
+    expect(message).toContain("SSH key could not be imported");
   });
 });
