@@ -27,6 +27,12 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/JZf3F2PRqB7HhflAybw2Xe/Premium-end-user-health?node-id=734-8655",
     },
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
   },
   args: {
     value: 37,
