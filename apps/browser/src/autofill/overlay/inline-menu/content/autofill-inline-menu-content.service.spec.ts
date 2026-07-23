@@ -329,6 +329,51 @@ describe("AutofillInlineMenuContentService", () => {
           autofillInlineMenuContentService["buttonElement"],
         );
       });
+
+      it("appends the inline menu element to a containing ARIA `alertdialog` modal", async () => {
+        isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+        const ariaModalElement = document.createElement("div");
+        ariaModalElement.setAttribute("role", "alertdialog");
+        ariaModalElement.setAttribute("aria-modal", "true");
+        const ariaModalAppendSpy = jest.spyOn(ariaModalElement, "appendChild");
+        const inputElement = document.createElement("input");
+        ariaModalElement.appendChild(inputElement);
+        document.body.appendChild(ariaModalElement);
+        Object.defineProperty(document, "activeElement", {
+          value: inputElement,
+          writable: true,
+        });
+
+        sendMockExtensionMessage({
+          command: "appendAutofillInlineMenuToDom",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(ariaModalAppendSpy).toHaveBeenCalledWith(
+          autofillInlineMenuContentService["buttonElement"],
+        );
+      });
+
+      it("appends the inline menu element to `document.body` when the focused field is not inside a modal", async () => {
+        isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+        const inputElement = document.createElement("input");
+        document.body.appendChild(inputElement);
+        Object.defineProperty(document, "activeElement", {
+          value: inputElement,
+          writable: true,
+        });
+
+        sendMockExtensionMessage({
+          command: "appendAutofillInlineMenuToDom",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(
+          autofillInlineMenuContentService["buttonElement"],
+        );
+      });
     });
   });
 
