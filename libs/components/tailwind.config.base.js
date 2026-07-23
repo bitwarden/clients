@@ -330,6 +330,9 @@ module.exports = {
       ...theme("colors"),
     }),
     extend: {
+      spacing: {
+        13: "3.25rem",
+      },
       width: {
         "50vw": "50vw",
         "75vw": "75vw",
