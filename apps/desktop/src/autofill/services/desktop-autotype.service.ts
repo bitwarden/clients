@@ -115,7 +115,7 @@ export class DesktopAutotypeService implements OnDestroy {
       return;
     }
 
-    ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
+    ipc.autofill.listenAutotypeRequestMvp(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
       const [error, vaultData] = getAutotypeVaultData(firstCipher);
@@ -152,7 +152,7 @@ export class DesktopAutotypeService implements OnDestroy {
           const config: AutotypeConfig = {
             keyboardShortcut,
           };
-          ipc.autofill.configureAutotype(config);
+          ipc.autofill.configureAutotypeMvp(config);
         }),
         takeUntil(this.destroy$),
       )
@@ -161,7 +161,7 @@ export class DesktopAutotypeService implements OnDestroy {
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
-          ipc.autofill.toggleAutotype(enabled);
+          ipc.autofill.toggleAutotypeMvp(enabled);
         }),
         takeUntil(this.destroy$),
       )

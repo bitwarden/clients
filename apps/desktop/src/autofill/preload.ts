@@ -38,13 +38,13 @@ export default {
   sshAgent,
 
   // Autotype methods
-  configureAutotype: (config: AutotypeConfig) => {
+  configureAutotypeMvp: (config: AutotypeConfig) => {
     ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, config);
   },
-  toggleAutotype: (enable: boolean) => {
+  toggleAutotypeMvp: (enable: boolean) => {
     ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE, enable);
   },
-  listenAutotypeRequest: (
+  listenAutotypeRequestMvp: (
     fn: (
       windowTitle: string,
       completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
