@@ -87,10 +87,10 @@ fn match_prefix<'a>(path: &'a str, prefix: &str, policy: &PlatformPolicy) -> Opt
 
     let (head, rest) = path.split_at(prefix.len());
 
-    let matched = if policy.case_insensitive {
-        head.eq_ignore_ascii_case(prefix)
-    } else {
+    let matched = if policy.case_sensitive {
         head == prefix
+    } else {
+        head.eq_ignore_ascii_case(prefix)
     };
 
     if !matched {

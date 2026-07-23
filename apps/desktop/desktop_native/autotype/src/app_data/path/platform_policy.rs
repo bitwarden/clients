@@ -7,15 +7,15 @@ pub struct PlatformPolicy {
     pub canonical_sep: char,
     /// Characters treated as path separators.
     pub separators: &'static [char],
-    /// Whether prefix matching ignores ASCII case or not.
-    pub case_insensitive: bool,
+    /// Whether prefix matching is case-sensitive.
+    pub case_sensitive: bool,
 }
 
 impl PlatformPolicy {
     pub const WINDOWS: Self = Self {
         canonical_sep: '\\',
         separators: &['\\', '/'],
-        case_insensitive: true,
+        case_sensitive: false,
     };
 
     /// Rewrite every recognized separator in `s` to `canonical_sep`.
