@@ -73,6 +73,7 @@ import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/v
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import {
   NewItemDropdownComponent,
   NewItemInitialValues,
@@ -96,6 +97,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
   templateUrl: "vault.component.html",
   imports: [
     BlockedInjectionBanner,
+    FillAssistActiveBannerComponent,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,

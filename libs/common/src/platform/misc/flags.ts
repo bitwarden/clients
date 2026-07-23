@@ -12,6 +12,7 @@ export type SharedDevFlags = {
   skipWelcomeOnInstall: boolean;
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
+  fillAssistDevTools: boolean;
   testPhishingUrls: string[];
 };
 

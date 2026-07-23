@@ -53,6 +53,7 @@ import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-passw
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
@@ -110,6 +111,14 @@ class PopOutStubComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class BlockedInjectionBannerStubComponent {}
+
+@Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -332,6 +341,7 @@ describe("VaultComponent", () => {
           NewItemDropdownComponent,
           PopOutComponent,
           BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
@@ -349,6 +359,7 @@ describe("VaultComponent", () => {
           NewItemDropdownStubComponent,
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
