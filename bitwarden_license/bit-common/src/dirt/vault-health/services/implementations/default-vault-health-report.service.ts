@@ -1,14 +1,13 @@
 import { Observable, from, map, switchMap } from "rxjs";
 
-import { CipherRiskResult } from "@bitwarden/sdk-internal";
-
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
-import { CipherHealthView } from "../../../access-intelligence/models";
+import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "../../models/risk-category";
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
@@ -86,7 +85,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   private toCipherHealthView(risk: CipherRiskResult): CipherHealthView {
     const exposedCount = risk.exposed_result.type === "Found" ? risk.exposed_result.value : 0;
     return new CipherHealthView({
-      cipherId: risk.id as string,
+      cipherId: String(risk.id),
       hasExposedPassword: exposedCount > 0,
       hasWeakPassword: risk.password_strength < 3,
       hasReusedPassword: (risk.reuse_count ?? 1) > 1,

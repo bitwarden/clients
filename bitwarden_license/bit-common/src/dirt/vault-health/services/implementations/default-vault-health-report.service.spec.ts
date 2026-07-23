@@ -1,14 +1,13 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import type { CipherRiskResult } from "@bitwarden/sdk-internal";
-
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { UserId } from "@bitwarden/common/types/guid";
+import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
 
@@ -170,7 +169,7 @@ describe("DefaultVaultHealthReportService", () => {
   });
 
   it("excludes org items, deleted items, non-logins, and passwordless logins from scope", async () => {
-    const personal = login("personal", { strength: 1 });
+    const personal = login("personal");
     riskById.set(personal.id, risk("personal", { strength: 1 }));
     cipherViews$.next([
       personal,
@@ -224,10 +223,14 @@ describe("DefaultVaultHealthReportService", () => {
 
     await report();
 
-    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledWith(expect.any(Array), userId, {
-      passwordMap: reuseMap,
-      checkExposed: true,
-    });
+    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledWith(
+      expect.any(Array),
+      userId,
+      {
+        passwordMap: reuseMap,
+        checkExposed: true,
+      },
+    );
   });
 
   it("maps each result to its cipher by id, not by array position", async () => {
