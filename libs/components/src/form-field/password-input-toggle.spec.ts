@@ -8,7 +8,7 @@ import { IconButtonModule } from "../icon-button";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { BitFormFieldControl } from "./form-field-control";
+import { BitFormFieldControlDirective } from "./form-field-control.directive";
 import { BitFormFieldComponent } from "./form-field.component";
 import { FormFieldModule } from "./form-field.module";
 import { BitPasswordInputToggleDirective } from "./password-input-toggle.directive";
@@ -39,7 +39,7 @@ class TestFormFieldComponent {}
 describe("PasswordInputToggle", () => {
   let fixture: ComponentFixture<TestFormFieldComponent>;
   let button: BitIconButtonComponent;
-  let input: BitFormFieldControl;
+  let input: BitFormFieldControlDirective;
   let toggle: DebugElement;
 
   beforeEach(async () => {

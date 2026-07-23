@@ -651,7 +651,7 @@ export class RiskInsightsOrchestratorService {
       catchError((error: unknown) => {
         this.logService.error("[RiskInsightsOrchestratorService] Failed to fetch report", error);
         return of({
-          status: ReportStatus.Error,
+          status: ReportStatus.LoadError,
           error: "Failed to fetch report",
           data: null,
           organizationId,

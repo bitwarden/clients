@@ -74,7 +74,13 @@ describe("SendListItemsContainerComponent", () => {
     environmentService = mock<EnvironmentService>();
     Object.defineProperty(environmentService, "environment$", {
       configurable: true,
-      get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
+      get: () =>
+        of(
+          new SelfHostedEnvironment({
+            webVault: "https://example.com",
+            base: "https://example.com",
+          }),
+        ),
     });
 
     deleteFn.mockClear();

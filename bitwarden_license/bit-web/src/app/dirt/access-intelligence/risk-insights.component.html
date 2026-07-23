@@ -51,6 +51,10 @@
             }
             <div
               class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-flex-wrap tw-items-center tw-gap-2"
+              [bitPopoverAnchorFor]="runReportCoachmark.popover()"
+              [popoverOpen]="runReportOpen()"
+              [position]="'below-center'"
+              [spotlight]="true"
             >
               <bit-icon
                 name="bwi-exclamation-triangle"
@@ -75,37 +79,60 @@
                 </button>
               </span>
             </div>
+            <dirt-ai-coachmark #runReportCoachmark stepId="runReport"></dirt-ai-coachmark>
           </div>
 
           <div class="tw-flex-1 tw-flex tw-flex-col">
             <bit-tab-group [(selectedIndex)]="tabIndex" (selectedIndexChange)="onTabChange($event)">
-              <bit-tab label="{{ 'activity' | i18n }}">
+              <bit-tab
+                label="{{ 'activity' | i18n }}"
+                [bitPopoverAnchorFor]="activityCoachmark.popover()"
+                [popoverOpen]="monitorActivityOpen()"
+                [position]="'below-start'"
+                [spotlight]="true"
+              >
                 <dirt-all-activity [organizationId]="this.organizationId"></dirt-all-activity>
               </bit-tab>
+              <dirt-ai-coachmark #activityCoachmark stepId="monitorActivity"></dirt-ai-coachmark>
               @if (milestone11Enabled) {
                 <bit-tab label="{{ 'applications' | i18n }}">
                   <dirt-applications></dirt-applications>
                 </bit-tab>
               } @else {
-                <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount }}">
+                <bit-tab label="{{ 'allApplications' | i18n }}" [berryValue]="appsCount">
                   <dirt-all-applications></dirt-all-applications>
                 </bit-tab>
-                <bit-tab>
-                  <ng-template bitTabLabel>
-                    <bit-icon name="bwi-star"></bit-icon>
-                    {{
-                      "criticalApplicationsWithCount"
-                        | i18n
-                          : (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
-                    }}
-                  </ng-template>
+                <bit-tab
+                  label="{{ 'criticalApplications' | i18n }}"
+                  startIcon="bwi-star"
+                  [berryValue]="
+                    (dataService.criticalReportResults$ | async)?.reportData?.length ?? 0
+                  "
+                  [bitPopoverAnchorFor]="criticalAppsCoachmark.popover()"
+                  [popoverOpen]="criticalApplicationsOpen()"
+                  [position]="'below-start'"
+                  [spotlight]="true"
+                >
                   <dirt-critical-applications></dirt-critical-applications>
                 </bit-tab>
+                <dirt-ai-coachmark
+                  #criticalAppsCoachmark
+                  stepId="criticalApplications"
+                ></dirt-ai-coachmark>
               }
             </bit-tab-group>
           </div>
         </div>
       }
     }
+  }
+
+  @if (isDevMode || adoptionUxImprovementsEnabled) {
+    <dirt-dev-menu
+      (beginPostImportTour)="beginPostImportTour()"
+      (beginNewAdminWelcomeTour)="beginNewAdminWelcomeTour()"
+      (beginCoachmarksTour)="beginCoachmarksTour()"
+      (importData)="goToImportPage()"
+    ></dirt-dev-menu>
   }
 </ng-container>

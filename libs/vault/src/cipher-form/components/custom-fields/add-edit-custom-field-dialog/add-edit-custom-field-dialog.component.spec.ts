@@ -73,30 +73,14 @@ describe("AddEditCustomFieldDialogComponent", () => {
     expect(removeField).toHaveBeenCalledWith(2);
   });
 
-  it('filters out "Linked" field type for SecureNote cipher type', () => {
-    dialogData.cipherType = CipherType.SecureNote;
-
-    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
-    component = fixture.componentInstance;
-
-    expect(component.fieldTypeOptions).not.toContainEqual(
-      expect.objectContaining({ value: FieldType.Linked }),
-    );
-  });
-
-  it('filters out "Linked" field type for Passport cipher type', () => {
-    dialogData.cipherType = CipherType.Passport;
-
-    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
-    component = fixture.componentInstance;
-
-    expect(component.fieldTypeOptions).not.toContainEqual(
-      expect.objectContaining({ value: FieldType.Linked }),
-    );
-  });
-
-  it('filters out "Linked" field type for Drivers License cipher type', () => {
-    dialogData.cipherType = CipherType.DriversLicense;
+  it.each([
+    ["SecureNote", CipherType.SecureNote],
+    ["SshKey", CipherType.SshKey],
+    ["BankAccount", CipherType.BankAccount],
+    ["DriversLicense", CipherType.DriversLicense],
+    ["Passport", CipherType.Passport],
+  ])('filters out "Linked" field type for %s cipher type', (_, cipherType) => {
+    dialogData.cipherType = cipherType;
 
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;

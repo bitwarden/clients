@@ -2,17 +2,13 @@ import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/servi
 
 /**
  * Base member data included in drawer content.
- * Represents a member with their at-risk password count.
+ * Represents a member with the count of at-risk applications they are in.
  */
 export interface DrawerMemberData {
   /** Member's email address */
   email: string;
-  /** Member's display name */
-  userName: string;
-  /** Organization user ID (userGuid) */
-  userGuid: string;
-  /** Number of at-risk passwords for this member */
-  atRiskPasswordCount: number;
+  /** Number of at-risk applications this member is in */
+  atRiskApplicationCount: number;
 }
 
 /**

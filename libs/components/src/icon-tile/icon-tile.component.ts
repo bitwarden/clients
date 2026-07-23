@@ -3,13 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 import { BitwardenIcon } from "../shared/icon";
 
 export type IconTileVariant =
-  | "primary"
-  | "success"
-  | "danger"
-  | "warning"
-  | "subtle"
-  | "dark"
-  | "contrast";
+  "primary" | "success" | "danger" | "warning" | "subtle" | "dark" | "contrast";
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
@@ -20,29 +14,29 @@ const variantStyles: Record<IconTileVariant, string[]> = {
   warning: ["tw-bg-bg-warning-medium", "tw-border-border-warning-soft", "tw-text-fg-warning"],
   subtle: ["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"],
   dark: ["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"],
-  contrast: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-dark"],
+  contrast: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-heading"],
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
   xs: {
-    container: ["tw-w-4", "tw-h-4"],
-    icon: ["tw-text-xs", "tw-leading-[0]"],
+    container: ["tw-size-4"],
+    icon: ["tw-text-[.625rem]", "tw-leading-[0]"],
   },
   sm: {
-    container: ["tw-w-6", "tw-h-6"],
-    icon: ["tw-text-sm", "tw-leading-[0]"],
+    container: ["tw-size-6"],
+    icon: ["tw-text-base", "tw-leading-[0]"],
   },
   base: {
-    container: ["tw-w-9", "tw-h-9"],
-    icon: ["tw-text-lg"],
+    container: ["tw-size-8"],
+    icon: ["tw-text-xl"],
   },
   lg: {
-    container: ["tw-w-12", "tw-h-12"],
-    icon: ["tw-text-2xl"],
+    container: ["tw-size-12"],
+    icon: ["tw-text-[1.75rem]"],
   },
   xl: {
-    container: ["tw-w-16", "tw-h-16"],
-    icon: ["tw-text-3xl"],
+    container: ["tw-size-16"],
+    icon: ["tw-text-4xl"],
   },
 };
 

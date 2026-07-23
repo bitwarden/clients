@@ -21,6 +21,7 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected secretsManager = false;
   protected plan: PlanType = PlanType.Free;
   protected productTier: ProductTierType = ProductTierType.Free;
+  protected trialLength?: number;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -49,6 +50,8 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
       }
 
       this.secretsManager = qParams.product == ProductType.SecretsManager;
+
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : undefined;
     });
   }
 

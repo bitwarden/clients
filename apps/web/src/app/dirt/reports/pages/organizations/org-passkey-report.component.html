@@ -1,0 +1,112 @@
+<app-header></app-header>
+
+<bit-container>
+  <p>
+    {{ "passkeyLoginReportDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/blog/how-do-passkeys-work/"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "passkeyLoginReportHowTheyWork" | i18n }}
+    </a>
+    {{ "passkeyLoginReportAnd" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/storing-passkeys/" target="_blank" rel="noreferrer">
+      {{ "passkeyLoginReportHowToUse" | i18n }}
+    </a>
+  </p>
+  @if (loading()) {
+    <div>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></bit-icon>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </div>
+  } @else {
+    <div class="tw-mt-4">
+      @if (error()) {
+        <bit-callout type="danger">
+          {{ "reportError" | i18n }}
+        </bit-callout>
+      } @else if (!ciphers().length) {
+        <bit-callout type="success" title="{{ 'goodNews' | i18n }}">
+          {{ "noPasskeyLogin" | i18n }}
+        </bit-callout>
+      } @else {
+        <bit-callout type="warning" title="{{ 'passkeyLoginFound' | i18n }}">
+          {{ "passkeyLoginFoundReportDesc" | i18n: (ciphers().length | number) }}
+        </bit-callout>
+        <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
+          <ng-container header>
+            <th bitCell class="tw-w-12"></th>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-1/6">{{ "type" | i18n }}</th>
+            <th bitCell class="tw-w-1/4"></th>
+          </ng-container>
+          <ng-template bitRowDef let-row>
+            <td bitCell>
+              <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+            </td>
+            <td bitCell class="tw-truncate tw-max-w-0">
+              @if (canManageCipher(row.cipher)) {
+                <a
+                  bitLink
+                  href="#"
+                  appStopClick
+                  (click)="selectCipher(row.cipher)"
+                  title="{{ 'editItemWithName' | i18n: row.cipher.name }}"
+                  >{{ row.cipher.name }}</a
+                >
+              } @else {
+                <span title="{{ row.cipher.name }}">{{ row.cipher.name }}</span>
+              }
+              @if (row.cipher.hasAttachments) {
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="tw-ml-1"
+                  appStopProp
+                  title="{{ 'attachments' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+              }
+              <br />
+              <small>{{ row.cipher.subTitle }}</small>
+            </td>
+            <td bitCell>
+              @if (row.supportsPasskeyLogin) {
+                <bit-icon
+                  name="bwi-passkey"
+                  class="tw-mr-1"
+                  title="{{ 'passwordlessLogin' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "passwordlessLogin" | i18n }}</span>
+              }
+              @if (row.supportsPasskeyMfa) {
+                <bit-icon
+                  name="bwi-lock-encrypted"
+                  class="tw-mr-1"
+                  title="{{ 'multifactorAuthentication' | i18n }}"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-sr-only">{{ "multifactorAuthentication" | i18n }}</span>
+              }
+            </td>
+            <td bitCell class="tw-text-right">
+              @if (row.instructions) {
+                <a [href]="row.instructions" target="_blank" rel="noreferrer">
+                  <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
+                </a>
+              }
+            </td>
+          </ng-template>
+        </bit-table-scroll>
+      }
+    </div>
+  }
+</bit-container>

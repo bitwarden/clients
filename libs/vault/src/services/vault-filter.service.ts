@@ -44,13 +44,14 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
+
 import {
   VaultFilterServiceAbstraction,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "@bitwarden/vault";
+} from "..";
 
 const NestingDelimiter = "/";
 
@@ -78,7 +79,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       ),
     ),
   ]).pipe(
-    switchMap(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
+    map(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, organizationDataOwnershipPolicy),
     ),
   );
@@ -173,7 +174,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
                   id: "passport",
                   name: this.i18nService.t("typePassport"),
                   type: CipherType.Passport,
-                  icon: "bwi-globe",
+                  icon: "bwi-passport",
                 } as CipherTypeFilter,
               ]
             : []),
@@ -250,11 +251,11 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     await this.setCollapsedFilterNodes(collapsedFilterNodes, userId);
   }
 
-  protected async buildOrganizationTree(
+  protected buildOrganizationTree(
     orgs: Organization[],
     singleOrgPolicy: boolean,
     organizationDataOwnershipPolicy: boolean,
-  ): Promise<TreeNode<OrganizationFilter>> {
+  ): TreeNode<OrganizationFilter> {
     const headNode = this.getOrganizationFilterHead();
     if (!organizationDataOwnershipPolicy) {
       const myVaultNode = this.getOrganizationFilterMyVault();

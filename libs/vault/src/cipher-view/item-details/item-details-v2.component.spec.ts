@@ -1,18 +1,14 @@
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -22,8 +18,6 @@ describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
   let fixture: ComponentFixture<ItemDetailsV2Component>;
   let componentRef: ComponentRef<ItemDetailsV2Component>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
-  let desktopMilestone3Flag$: BehaviorSubject<boolean>;
 
   const cipher = {
     id: "cipher1",
@@ -54,24 +48,11 @@ describe("ItemDetailsV2Component", () => {
   } as FolderView;
 
   beforeEach(async () => {
-    mockPlatformUtilsService = mock<PlatformUtilsService>();
-    mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
-    desktopMilestone3Flag$ = new BehaviorSubject<boolean>(false);
-
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: (flag: FeatureFlag) =>
-              flag === FeatureFlag.DesktopUiMigrationMilestone3
-                ? desktopMilestone3Flag$.asObservable()
-                : of(false),
-          },
-        },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           provide: EnvironmentService,
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
@@ -113,39 +94,5 @@ describe("ItemDetailsV2Component", () => {
 
     const owner = fixture.debugElement.query(By.css('[data-testid="owner"]'));
     expect(owner).toBeNull();
-  });
-
-  describe("showArchiveBadge", () => {
-    it("is true when cipher is archived on Desktop and DesktopUiMigrationMilestone3 is off", () => {
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-      desktopMilestone3Flag$.next(false);
-      componentRef.setInput("cipher", { ...cipher, isArchived: true });
-
-      expect((component as any).showArchiveBadge()).toBe(true);
-    });
-
-    it("is false when DesktopUiMigrationMilestone3 is on (dialog renders its own badge)", () => {
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-      desktopMilestone3Flag$.next(true);
-      componentRef.setInput("cipher", { ...cipher, isArchived: true });
-
-      expect((component as any).showArchiveBadge()).toBe(false);
-    });
-
-    it("is false when cipher is not archived", () => {
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-      desktopMilestone3Flag$.next(false);
-      componentRef.setInput("cipher", { ...cipher, isArchived: false });
-
-      expect((component as any).showArchiveBadge()).toBe(false);
-    });
-
-    it("is false when client is not Desktop", () => {
-      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
-      desktopMilestone3Flag$.next(false);
-      componentRef.setInput("cipher", { ...cipher, isArchived: true });
-
-      expect((component as any).showArchiveBadge()).toBe(false);
-    });
   });
 });

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -19,6 +19,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -26,22 +27,17 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
-import {
-  BiometricStateService,
-  BiometricsService,
-  BiometricsStatus,
-  KeyService,
-} from "@bitwarden/key-management";
+import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
+import { NativeMessagingPermissionDialogComponent } from "../../../key-management/shared-unlock/popup/native-messaging-permission-dialog.component";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -77,7 +73,6 @@ describe("AccountSecurityComponent", () => {
   const apiService = mock<ApiService>();
   const billingService = mock<BillingAccountProfileStateService>();
   const biometricStateService = mock<BiometricStateService>();
-  const biometricsService = mock<BiometricsService>();
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
@@ -86,9 +81,9 @@ describe("AccountSecurityComponent", () => {
   const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
   const platformUtilsService = mock<PlatformUtilsService>();
-  const validationService = mock<ValidationService>();
   const vaultNudgesService = mock<NudgesService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
   const mockI18nService = mock<I18nService>();
 
   // Mock subjects to control the phishing detection observables
@@ -100,13 +95,17 @@ describe("AccountSecurityComponent", () => {
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: AccountSecurityComponent, useValue: mock<AccountSecurityComponent>() },
-        { provide: ActivatedRoute, useValue: mock<ActivatedRoute>() },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: { get: (): null => null } },
+          } as unknown as ActivatedRoute,
+        },
         { provide: ApiService, useValue: apiService },
         {
           provide: BillingAccountProfileStateService,
           useValue: billingService,
         },
-        { provide: BiometricsService, useValue: biometricsService },
         { provide: BiometricStateService, useValue: biometricStateService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
@@ -131,13 +130,13 @@ describe("AccountSecurityComponent", () => {
         { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
-        { provide: ValidationService, useValue: validationService },
         { provide: LockService, useValue: lockService },
         {
           provide: AutomaticUserConfirmationService,
           useValue: mock<AutomaticUserConfirmationService>(),
         },
         { provide: ConfigService, useValue: configService },
+        { provide: SharedUnlockSettingsService, useValue: sharedUnlockSettingsService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
       ],
     })
@@ -160,11 +159,18 @@ describe("AccountSecurityComponent", () => {
       }),
     );
     vaultNudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
-    biometricStateService.promptAutomatically$ = of(false);
+    biometricStateService.promptAutomatically$.mockReturnValue(of(false));
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
+    platformUtilsService.isSafari.mockReturnValue(false);
+    platformUtilsService.isFirefox.mockReturnValue(false);
+    sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 
@@ -341,12 +347,21 @@ describe("AccountSecurityComponent", () => {
   });
 
   describe("updateBiometric", () => {
-    let browserApiSpy: jest.SpyInstance;
+    let permissionsGrantedSpy: jest.SpyInstance;
+    let openDialogSpy: jest.SpyInstance;
+    let popoutSpy: jest.SpyInstance;
+    let closePopoutSpy: jest.SpyInstance;
 
     beforeEach(() => {
       policyService.policiesByType$.mockReturnValue(of([null]));
-      browserApiSpy = jest.spyOn(BrowserApi, "requestPermission");
-      browserApiSpy.mockResolvedValue(true);
+      permissionsGrantedSpy = jest.spyOn(BrowserApi, "permissionsGranted");
+      openDialogSpy = jest.spyOn(NativeMessagingPermissionDialogComponent, "open");
+      popoutSpy = jest
+        .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
+        .mockResolvedValue(undefined);
+      closePopoutSpy = jest
+        .spyOn(BrowserPopupUtils, "closeCurrentPopupOrPopout")
+        .mockResolvedValue(undefined);
     });
 
     describe("updating to false", () => {
@@ -354,235 +369,202 @@ describe("AccountSecurityComponent", () => {
         await component.ngOnInit();
         await component.updateBiometric(false);
 
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(false);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
         expect(biometricStateService.setFingerprintValidated).toHaveBeenCalledWith(false);
       });
     });
 
     describe("updating to true", () => {
-      let trySetupBiometricsSpy: jest.SpyInstance;
-
-      beforeEach(() => {
-        trySetupBiometricsSpy = jest.spyOn(component, "trySetupBiometrics");
-      });
-
-      it("displays permission error dialog when nativeMessaging permission is not granted", async () => {
-        browserApiSpy.mockResolvedValue(false);
+      it("persists the setting without prompting when the permission is already granted", async () => {
+        permissionsGrantedSpy.mockResolvedValue(true);
 
         await component.ngOnInit();
         await component.updateBiometric(true);
 
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: { key: "nativeMessaginPermissionErrorTitle" },
-          content: { key: "nativeMessaginPermissionErrorDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-        expect(component.form.controls.biometric.value).toBe(false);
-        expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-      });
-
-      it("displays a specific sidebar dialog when nativeMessaging permissions throws an error on firefox + sidebar", async () => {
-        browserApiSpy.mockRejectedValue(new Error("Permission denied"));
-        platformUtilsService.isFirefox.mockReturnValue(true);
-        jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(true);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-          title: { key: "nativeMessaginPermissionSidebarTitle" },
-          content: { key: "nativeMessaginPermissionSidebarDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "info",
-        });
-        expect(component.form.controls.biometric.value).toBe(false);
-        expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-      });
-
-      test.each([
-        [false, false],
-        [false, true],
-        [true, false],
-      ])(
-        "displays a generic dialog when nativeMessaging permissions throws an error and isFirefox is %s and onSidebar is %s",
-        async (isFirefox, inSidebar) => {
-          browserApiSpy.mockRejectedValue(new Error("Permission denied"));
-          platformUtilsService.isFirefox.mockReturnValue(isFirefox);
-          jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(inSidebar);
-
-          await component.ngOnInit();
-          await component.updateBiometric(true);
-
-          expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-            title: { key: "nativeMessaginPermissionErrorTitle" },
-            content: { key: "nativeMessaginPermissionErrorDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "danger",
-          });
-          expect(component.form.controls.biometric.value).toBe(false);
-          expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
-        },
-      );
-
-      it("refreshes additional keys and attempts to setup biometrics when enabled with nativeMessaging permission", async () => {
-        const setupBiometricsResult = true;
-        trySetupBiometricsSpy.mockResolvedValue(setupBiometricsResult);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(openDialogSpy).not.toHaveBeenCalled();
+        expect(popoutSpy).not.toHaveBeenCalled();
         expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
-          setupBiometricsResult,
+          true,
+          mockUserId,
         );
-        expect(component.form.controls.biometric.value).toBe(setupBiometricsResult);
+        expect(component.messagingService.send).not.toHaveBeenCalledWith("reloadExtension");
       });
 
-      it("handles failed biometrics setup", async () => {
-        const setupBiometricsResult = false;
-        trySetupBiometricsSpy.mockResolvedValue(setupBiometricsResult);
+      it("pops out to request the permission when not granted and not in a popout", async () => {
+        permissionsGrantedSpy.mockResolvedValue(false);
+        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
 
         await component.ngOnInit();
         await component.updateBiometric(true);
 
+        expect(popoutSpy).toHaveBeenCalled();
+        expect(openDialogSpy).not.toHaveBeenCalled();
+        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
+      });
+
+      it("persists and reloads when the permission dialog grants the permission in a popout", async () => {
+        permissionsGrantedSpy.mockResolvedValue(false);
+        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+        openDialogSpy.mockReturnValue({ closed: of(true) } as unknown as DialogRef<boolean>);
+
+        await component.ngOnInit();
+        await component.updateBiometric(true);
+
+        expect(openDialogSpy).toHaveBeenCalled();
         expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
-          setupBiometricsResult,
+          true,
+          mockUserId,
         );
-        expect(biometricStateService.setFingerprintValidated).toHaveBeenCalledWith(
-          setupBiometricsResult,
-        );
-        expect(component.form.controls.biometric.value).toBe(setupBiometricsResult);
+        expect(component.messagingService.send).toHaveBeenCalledWith("reloadExtension");
+        expect(closePopoutSpy).toHaveBeenCalled();
       });
 
-      it("handles error during biometrics setup", async () => {
-        // Simulate an error during biometrics setup
-        keyService.refreshAdditionalKeys.mockRejectedValue(new Error("UserId is required"));
+      it("reverts the toggle when the permission dialog does not grant the permission", async () => {
+        permissionsGrantedSpy.mockResolvedValue(false);
+        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+        openDialogSpy.mockReturnValue({ closed: of(false) } as unknown as DialogRef<boolean>);
 
         await component.ngOnInit();
         await component.updateBiometric(true);
 
-        expect(validationService.showError).toHaveBeenCalledWith(new Error("UserId is required"));
         expect(component.form.controls.biometric.value).toBe(false);
-        expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
+        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
       });
     });
   });
 
-  describe("biometrics polling timer", () => {
-    let browserApiSpy: jest.SpyInstance;
+  describe("updateAllowSharingUnlockStateWithDesktop", () => {
+    let permissionsGrantedSpy: jest.SpyInstance;
+    let openDialogSpy: jest.SpyInstance;
+    let popoutSpy: jest.SpyInstance;
+    let closePopoutSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      browserApiSpy = jest.spyOn(BrowserApi, "permissionsGranted");
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      permissionsGrantedSpy = jest.spyOn(BrowserApi, "permissionsGranted");
+      openDialogSpy = jest.spyOn(NativeMessagingPermissionDialogComponent, "open");
+      popoutSpy = jest
+        .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
+        .mockResolvedValue(undefined);
+      closePopoutSpy = jest
+        .spyOn(BrowserPopupUtils, "closeCurrentPopupOrPopout")
+        .mockResolvedValue(undefined);
     });
 
-    afterEach(() => {
-      component.ngOnDestroy();
+    it("persists the setting without prompting when the permission is already granted", async () => {
+      permissionsGrantedSpy.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(openDialogSpy).not.toHaveBeenCalled();
+      expect(popoutSpy).not.toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
     });
 
-    it("disables biometric control when canEnableBiometricUnlock is false", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
+    it("persists the setting when disabled", async () => {
+      permissionsGrantedSpy.mockResolvedValue(true);
 
       await component.ngOnInit();
-      tick();
+      await component.updateAllowSharingUnlockStateWithDesktop(false);
 
-      expect(component.form.controls.biometric.disabled).toBe(true);
-    }));
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(false, mockUserId);
+    });
 
-    it("enables biometric control when canEnableBiometricUnlock is true", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-
-      await component.ngOnInit();
-      tick();
-
-      expect(component.form.controls.biometric.disabled).toBe(false);
-    }));
-
-    it("skips status check when nativeMessaging permission is not granted and not Safari", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(false);
-      platformUtilsService.isSafari.mockReturnValue(false);
+    it("pops out to request the permission when not granted and not in a popout", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
 
       await component.ngOnInit();
-      tick();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
 
-      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
-      expect(component.biometricUnavailabilityReason).toBeUndefined();
-    }));
+      expect(popoutSpy).toHaveBeenCalled();
+      expect(openDialogSpy).not.toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
 
-    it("checks biometrics status when nativeMessaging permission is granted", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(true);
-      platformUtilsService.isSafari.mockReturnValue(false);
-      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
-        BiometricsStatus.DesktopDisconnected,
-      );
-
-      await component.ngOnInit();
-      tick();
-
-      expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
-    }));
-
-    it("should check status on Safari", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(false);
-      platformUtilsService.isSafari.mockReturnValue(true);
-      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
-        BiometricsStatus.DesktopDisconnected,
-      );
+    it("persists and reloads when the permission dialog grants the permission in a popout", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      openDialogSpy.mockReturnValue({ closed: of(true) } as unknown as DialogRef<boolean>);
 
       await component.ngOnInit();
-      tick();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
 
-      expect(biometricsService.getBiometricsStatusForUser).toHaveBeenCalledWith(mockUserId);
-    }));
+      expect(openDialogSpy).toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
+      expect(component.messagingService.send).toHaveBeenCalledWith("reloadExtension");
+      expect(closePopoutSpy).toHaveBeenCalled();
+    });
 
-    test.each([
-      [
-        BiometricsStatus.DesktopDisconnected,
-        "biometricsStatusHelptextDesktopDisconnected-used-i18n",
-      ],
-      [
-        BiometricsStatus.NotEnabledInConnectedDesktopApp,
-        "biometricsStatusHelptextNotEnabledInDesktop-used-i18n",
-      ],
-      [
-        BiometricsStatus.HardwareUnavailable,
-        "biometricsStatusHelptextHardwareUnavailable-used-i18n",
-      ],
-    ])(
-      "sets expected unavailability reason for %s status when biometric not available",
-      fakeAsync(async (biometricStatus: BiometricsStatus, expected: string) => {
-        biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
-        browserApiSpy.mockResolvedValue(true);
-        platformUtilsService.isSafari.mockReturnValue(false);
-        biometricsService.getBiometricsStatusForUser.mockResolvedValue(biometricStatus);
-
-        await component.ngOnInit();
-        tick();
-
-        expect(component.biometricUnavailabilityReason).toBe(expected);
-      }),
-    );
-
-    it("should not set unavailability reason for error statuses when biometric is available", fakeAsync(async () => {
-      biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(true);
-      platformUtilsService.isSafari.mockReturnValue(false);
-      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
-        BiometricsStatus.DesktopDisconnected,
-      );
+    it("reverts the toggle when the permission dialog does not grant the permission", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      openDialogSpy.mockReturnValue({ closed: of(false) } as unknown as DialogRef<boolean>);
 
       await component.ngOnInit();
-      tick();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
 
-      // Status is DesktopDisconnected but biometric IS available, so don't show error
-      expect(component.biometricUnavailabilityReason).toBe("");
-      component.ngOnDestroy();
-    }));
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.value).toBe(false);
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlock sharing disabled for untrusted device", () => {
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      // The shared unlock feature flag is read in the constructor, so rebuild the fixture with it on.
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+    });
+
+    it("disables the shared unlock toggles and shows the message", async () => {
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(AccountSecurityComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(true);
+      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(true);
+      expect(
+        fixture.nativeElement.textContent.includes(
+          "sharedUnlockUnavailableUntrustedDevice-used-i18n",
+        ),
+      ).toBe(true);
+    });
+
+    it("leaves the toggles enabled when sharing is not disabled", async () => {
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
+
+      fixture = TestBed.createComponent(AccountSecurityComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
+      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
+    });
   });
 });

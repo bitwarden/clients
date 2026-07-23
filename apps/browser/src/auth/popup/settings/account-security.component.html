@@ -24,54 +24,98 @@
           <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
-          <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
-            <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
-            <bit-label for="biometric" class="tw-whitespace-normal">
-              {{ "unlockWithBiometrics" | i18n }}
-            </bit-label>
-            <bit-hint *ngIf="biometricUnavailabilityReason">
-              {{ biometricUnavailabilityReason }}
-            </bit-hint>
-          </bit-form-control>
-          <bit-form-control
-            class="tw-pl-5"
-            [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
-            *ngIf="this.form.value.biometric"
-          >
-            <input
-              bitCheckbox
-              id="autoBiometricsPrompt"
-              type="checkbox"
-              formControlName="enableAutoBiometricsPrompt"
-            />
-            <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">
-              {{ "enableAutoBiometricsPrompt" | i18n }}
-            </bit-label>
-          </bit-form-control>
-          <bit-form-control
-            [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
-            *ngIf="(pinEnabled$ | async) || this.form.value.pin"
-          >
-            <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
-            <bit-label for="pin" class="tw-whitespace-normal">{{
-              "unlockWithPin" | i18n
-            }}</bit-label>
-          </bit-form-control>
-          <bit-form-control
-            class="tw-pl-5"
-            disableMargin
-            *ngIf="this.form.value.pin && showMasterPasswordOnClientRestartOption"
-          >
-            <input
-              bitCheckbox
-              id="pinEphemeral"
-              type="checkbox"
-              formControlName="pinLockWithMasterPassword"
-            />
-            <bit-label for="pinEphemeral" class="tw-whitespace-normal">
-              {{ "lockWithMasterPassOnRestart1" | i18n }}
-            </bit-label>
-          </bit-form-control>
+          @if (!(sharedUnlockFeatureEnabled$ | async)) {
+            <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
+              <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
+              <bit-label for="biometric" class="tw-whitespace-normal">
+                {{ "unlockWithBiometrics" | i18n }}
+              </bit-label>
+            </bit-form-control>
+          }
+          @if (this.form.value.biometric && !(sharedUnlockFeatureEnabled$ | async)) {
+            <bit-form-control
+              class="tw-pl-5"
+              [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
+            >
+              <input
+                bitCheckbox
+                id="autoBiometricsPrompt"
+                type="checkbox"
+                formControlName="enableAutoBiometricsPrompt"
+              />
+              <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">
+                {{ "enableAutoBiometricsPrompt" | i18n }}
+              </bit-label>
+            </bit-form-control>
+          }
+          @if ((pinEnabled$ | async) || this.form.value.pin) {
+            <bit-form-control
+              [disableMargin]="
+                !(this.form.value.pin && showMasterPasswordOnClientRestartOption) &&
+                !(sharedUnlockFeatureEnabled$ | async)
+              "
+            >
+              <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
+              <bit-label for="pin" class="tw-whitespace-normal">{{
+                "unlockWithPin" | i18n
+              }}</bit-label>
+            </bit-form-control>
+          }
+          @if (this.form.value.pin && showMasterPasswordOnClientRestartOption) {
+            <bit-form-control
+              class="tw-pl-5"
+              [disableMargin]="!(sharedUnlockFeatureEnabled$ | async)"
+            >
+              <input
+                bitCheckbox
+                id="pinEphemeral"
+                type="checkbox"
+                formControlName="pinLockWithMasterPassword"
+              />
+              <bit-label for="pinEphemeral" class="tw-whitespace-normal">
+                {{ "lockWithMasterPassOnRestart1" | i18n }}
+              </bit-label>
+            </bit-form-control>
+          }
+          @if (sharedUnlockFeatureEnabled$ | async) {
+            @if (showSharedUnlockWithDesktop) {
+              <bit-form-control [disableMargin]="!showSharedUnlockWithWeb">
+                <input
+                  bitCheckbox
+                  id="allowSharingUnlockStateWithDesktop"
+                  type="checkbox"
+                  formControlName="allowSharingUnlockStateWithDesktop"
+                />
+                <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
+                  {{ "sharedUnlockWithDesktop" | i18n }}
+                </bit-label>
+                <bit-hint class="tw-text-sm">
+                  {{ "sharedUnlockWithDesktopDescription" | i18n }}
+                </bit-hint>
+              </bit-form-control>
+            }
+            @if (showSharedUnlockWithWeb) {
+              <bit-form-control [disableMargin]="true">
+                <input
+                  bitCheckbox
+                  id="allowSharingUnlockStateWithWeb"
+                  type="checkbox"
+                  formControlName="allowSharingUnlockStateWithWeb"
+                />
+                <bit-label for="allowSharingUnlockStateWithWeb" class="tw-whitespace-normal">
+                  {{ "sharedUnlockWithWeb" | i18n }}
+                </bit-label>
+                <bit-hint class="tw-text-sm">
+                  {{ "sharedUnlockWithWebDescription" | i18n }}
+                </bit-hint>
+              </bit-form-control>
+            }
+            @if (unlockSharingDisabled()) {
+              <bit-hint class="tw-mt-2 tw-text-sm">
+                {{ "sharedUnlockUnavailableUntrustedDevice" | i18n }}
+              </bit-hint>
+            }
+          }
         </bit-card>
       </bit-section>
 
@@ -99,19 +143,25 @@
         </bit-item>
       </bit-section>
 
-      <bit-section *ngIf="phishingDetectionAvailable$ | async">
-        <bit-section-header>
-          <h2 bitTypography="h6">{{ "phishingBlocker" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <bit-switch formControlName="enablePhishingDetection" id="phishingDetectionAction">
-            <bit-label for="phishingDetectionAction">{{
-              "enablePhishingDetection" | i18n
-            }}</bit-label>
-            <bit-hint>{{ "enablePhishingDetectionDesc" | i18n }}</bit-hint>
-          </bit-switch>
-        </bit-card>
-      </bit-section>
+      @if (phishingDetectionAvailable$ | async) {
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h6">{{ "phishingBlocker" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-form-control disableMargin>
+              <bit-switch
+                formControlName="enablePhishingDetection"
+                id="phishingDetectionAction"
+              ></bit-switch>
+              <bit-label for="phishingDetectionAction">{{
+                "enablePhishingDetection" | i18n
+              }}</bit-label>
+              <bit-hint>{{ "enablePhishingDetectionDesc" | i18n }}</bit-hint>
+            </bit-form-control>
+          </bit-card>
+        </bit-section>
+      }
 
       <bit-section disableMargin>
         <bit-section-header>
@@ -128,16 +178,18 @@
             <bit-icon slot="end" name="bwi-external-link"></bit-icon>
           </button>
         </bit-item>
-        <bit-item *ngIf="showChangeMasterPass">
-          <button bit-item-content type="button" appStopClick (click)="changePassword()">
-            {{ "changeMasterPassword" | i18n }}
-            @if (multiClientPasswordManagement$ | async) {
-              <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
-            } @else {
-              <bit-icon slot="end" name="bwi-external-link"></bit-icon>
-            }
-          </button>
-        </bit-item>
+        @if (showChangeMasterPass) {
+          <bit-item>
+            <button bit-item-content type="button" appStopClick (click)="changePassword()">
+              {{ "changeMasterPassword" | i18n }}
+              @if (multiClientPasswordManagement$ | async) {
+                <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
+              } @else {
+                <bit-icon slot="end" name="bwi-external-link"></bit-icon>
+              }
+            </button>
+          </bit-item>
+        }
       </bit-section>
     </div>
   }

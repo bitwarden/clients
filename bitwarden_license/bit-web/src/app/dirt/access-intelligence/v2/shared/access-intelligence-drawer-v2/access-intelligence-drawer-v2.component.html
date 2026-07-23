@@ -1,11 +1,11 @@
 <!-- Organization-wide At-Risk Members -->
 @if (data.type === DrawerType.OrgAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
-      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+      <span bitTypography="body2" class="tw-text-muted">{{
         (data.members?.length > 0 ? "atRiskMemberDescription" : "atRiskMembersDescriptionNone")
           | i18n
       }}</span>
@@ -22,17 +22,17 @@
         </button>
         <ng-container>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "email" | i18n }}
             </div>
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "atRiskApplications" | i18n }}
             </div>
           </div>
           @for (member of data.members; track member.email) {
             <div class="tw-flex tw-justify-between tw-mt-2">
               <div>{{ member.email }}</div>
-              <div>{{ member.atRiskPasswordCount }}</div>
+              <div>{{ member.atRiskApplicationCount }}</div>
             </div>
           }
         </ng-container>
@@ -43,7 +43,7 @@
 
 <!-- Application-specific At-Risk Members -->
 @if (data.type === DrawerType.AppAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ data.applicationName }}</span>
     </ng-container>
@@ -51,7 +51,7 @@
       <div bitTypography="body1" class="tw-mb-2">
         {{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}
       </div>
-      <div bitTypography="body1" class="tw-text-muted tw-text-sm tw-mb-2">
+      <div bitTypography="body2" class="tw-text-muted tw-mb-2">
         {{
           (data.members?.length > 0
             ? "atRiskMembersDescriptionWithApp"
@@ -70,12 +70,12 @@
 
 <!-- Organization-wide At-Risk Applications -->
 @if (data.type === DrawerType.OrgAtRiskApps) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
-      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+      <span bitTypography="body2" class="tw-text-muted">{{
         (data.applications?.length > 0
           ? "atRiskApplicationsDescription"
           : "atRiskApplicationsDescriptionNone"
@@ -93,10 +93,10 @@
             {{ "downloadCSV" | i18n }}
           </button>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "application" | i18n }}
             </div>
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "atRiskPasswords" | i18n }}
             </div>
           </div>
@@ -114,16 +114,14 @@
 
 <!-- Critical Applications' At-Risk Members -->
 @if (data.type === DrawerType.CriticalAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
-      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
-        (data.members?.length > 0
-          ? "criticalAtRiskMembersDescription"
-          : "criticalAtRiskMembersDescriptionNone"
-        ) | i18n
+      <span bitTypography="body2" class="tw-text-muted">{{
+        (data.members?.length > 0 ? "atRiskMemberDescription" : "atRiskMembersDescriptionNone")
+          | i18n
       }}</span>
 
       @if (data.members?.length > 0) {
@@ -138,17 +136,17 @@
         </button>
         <ng-container>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "email" | i18n }}
             </div>
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "atRiskApplications" | i18n }}
             </div>
           </div>
           @for (member of data.members; track member.email) {
             <div class="tw-flex tw-justify-between tw-mt-2">
               <div>{{ member.email }}</div>
-              <div>{{ member.atRiskPasswordCount }}</div>
+              <div>{{ member.atRiskApplicationCount }}</div>
             </div>
           }
         </ng-container>
@@ -159,15 +157,15 @@
 
 <!-- Critical Applications' At-Risk Apps -->
 @if (data.type === DrawerType.CriticalAtRiskApps) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
-      <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
+      <span bitTypography="body2" class="tw-text-muted">{{
         (data.applications?.length > 0
-          ? "criticalAtRiskApplicationsDescription"
-          : "criticalAtRiskApplicationsDescriptionNone"
+          ? "atRiskApplicationsDescription"
+          : "atRiskApplicationsDescriptionNone"
         ) | i18n
       }}</span>
       @if (data.applications?.length > 0) {
@@ -182,10 +180,10 @@
             {{ "downloadCSV" | i18n }}
           </button>
           <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "application" | i18n }}
             </div>
-            <div bitTypography="body2" class="tw-text-sm tw-font-bold">
+            <div bitTypography="body2" class="tw-font-bold">
               {{ "atRiskPasswords" | i18n }}
             </div>
           </div>

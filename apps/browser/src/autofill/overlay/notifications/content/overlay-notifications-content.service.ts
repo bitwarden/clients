@@ -81,7 +81,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     if (!message.data) {
       return;
     }
-    const { type, typeData, params } = message.data;
+    const { type, typeData, params, isConfirmation, confirmationData } = message.data;
 
     if (!typeData) {
       return;
@@ -100,6 +100,8 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       launchTimestamp: typeData.launchTimestamp,
       showAnimations: typeData.showAnimations,
       params,
+      isConfirmation,
+      confirmationData,
     };
 
     if (globalThis.document.readyState === "loading") {

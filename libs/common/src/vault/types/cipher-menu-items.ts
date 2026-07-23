@@ -59,7 +59,7 @@ const bankAccountItem: CipherMenuItem = {
 
 const passportItem: CipherMenuItem = {
   type: CipherType.Passport,
-  icon: "bwi-globe",
+  icon: "bwi-passport",
   labelKey: "typePassport",
   subtitleKey: "typePassportSubtitle",
 };
@@ -97,5 +97,13 @@ export const DIALOG_CIPHER_MENU_ITEMS = [
       icon: "bwi-user",
     };
   }
+
+  if (item.type === CipherType.SecureNote) {
+    return {
+      ...item,
+      labelKey: "typeSecureNote",
+    };
+  }
+
   return item;
 });

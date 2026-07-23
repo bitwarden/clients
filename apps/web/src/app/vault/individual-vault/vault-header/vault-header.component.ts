@@ -31,8 +31,14 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -53,6 +59,7 @@ import { PipesModule } from "../pipes/pipes.module";
     JslibModule,
     NewCipherMenuComponent,
     CoachmarkComponent,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -63,6 +70,7 @@ export class VaultHeaderComponent {
   protected readonly CipherType = CipherType;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /** Computed signal for add item coachmark open state */
   protected readonly addItemCoachmarkOpen = computed(
@@ -152,6 +160,23 @@ export class VaultHeaderComponent {
   protected get activeOrganization() {
     const organizationId = this.activeOrganizationId;
     return this.organizations?.find((org) => org.id === organizationId);
+  }
+
+  /**
+   * Query params for the organization breadcrumb. Mirrors the param-swap logic
+   * in {@link RoutedVaultFilterService.createRoute}: with the VFO1 flag enabled
+   * the organization is stored as `vaultId`, otherwise as `organizationId`. The
+   * opposite key is nulled so `queryParamsHandling="merge"` cannot leave a stale
+   * param behind.
+   */
+  protected get organizationBreadcrumbQueryParams() {
+    const organizationId = this.activeOrganizationId ?? null;
+    return {
+      ...(this.vfo1TerminologyService.enabled()
+        ? { vaultId: organizationId, organizationId: null }
+        : { organizationId, vaultId: null }),
+      collectionId: this.All,
+    };
   }
 
   protected get showBreadcrumbs() {
@@ -248,7 +273,17 @@ export class VaultHeaderComponent {
   }
 
   get canCreateCipher(): boolean {
-    return !this.activeOrganization?.isProviderUser || this.activeOrganization?.isMember;
+    const activeOrganization = this.activeOrganization;
+    if (activeOrganization && !activeOrganization.enabled) {
+      return false;
+    }
+    return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
+  }
+
+  /** Whether the "New" button should be disabled because the active organization is suspended. */
+  get isOrganizationSuspended(): boolean {
+    const activeOrganization = this.activeOrganization;
+    return !!activeOrganization && !activeOrganization.enabled;
   }
 
   deleteCollection() {

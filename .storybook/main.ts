@@ -1,11 +1,17 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
+import { createRequire } from "node:module";
 import { dirname, join } from "path";
 
 import { StorybookConfig } from "@storybook/angular";
 import remarkGfm from "remark-gfm";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
+const require = createRequire(import.meta.url);
+
 const config: StorybookConfig = {
   stories: [
+    "../libs/storybook/src/**/*.mdx",
+    "../libs/storybook/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/auth/src/**/*.mdx",
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",

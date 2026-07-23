@@ -1,4 +1,5 @@
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 
@@ -49,6 +50,7 @@ type ExistingSendConfig = BaseSendFormConfig & {
  */
 type CreateNewSendConfig = BaseSendFormConfig & {
   mode: "add";
+  presetSendFields?: Partial<SendView>;
 };
 
 type CombinedAddEditConfig = ExistingSendConfig | CreateNewSendConfig;
