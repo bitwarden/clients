@@ -22,6 +22,8 @@ allow = [
   "BSD-2-Clause",
   "BSD-3-Clause",
   "BSL-1.0",
+  # Necesarry for webpki-roots
+  "CDLA-Permissive-2.0",
   "ISC",
   "MIT",
   "MPL-2.0",
@@ -36,6 +38,9 @@ allow = [
 # To see how to mark a crate as unpublished (to the official registry),
 # visit https://doc.rust-lang.org/cargo/reference/manifest.html#the-publish-field.
 ignore = true
+# First-party Bitwarden crates pulled from sdk-internal ship without license
+# metadata, so treat that git source as private and skip license checking.
+ignore-sources = ["https://github.com/bitwarden/sdk-internal"]
 
 # This section is considered when running `cargo deny check bans`.
 # More documentation about the 'bans' section can be found here:
