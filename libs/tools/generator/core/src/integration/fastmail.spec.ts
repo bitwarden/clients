@@ -115,6 +115,7 @@ describe("Fastmail forwarder", () => {
     describe("body", () => {
       it("creates a request body", () => {
         context.website.mockReturnValue("website");
+        context.prefix.mockReturnValue("prefix");
         const request = { accountId: "accountId", website: "" };
 
         const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
@@ -122,6 +123,7 @@ describe("Fastmail forwarder", () => {
 
         expect(methodCall.accountId).toEqual("accountId");
         expect(methodCall.create["new-masked-email"].forDomain).toEqual("website");
+        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("prefix");
       });
     });
 
