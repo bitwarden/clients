@@ -1089,7 +1089,7 @@
     "message": "تم نسخ كلمة المرور"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "مسافة",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "الحساب مقيد"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"كلمة مرور الملف\" و\"تأكيد كلمة مرور الملف\" غير متطابقين."
+  "filePasswordConfirmationMismatch": {
+    "message": "\"كلمة مرور الملف\" و\"تأكيد كلمة مرور الملف\" غير متطابقتين."
   },
   "warning": {
     "message": "تحذير",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "تأكيد تصدير الخزنة"
   },
-  "exportWarningDesc": {
-    "message": "يحتوي هذا التصدير على بيانات خزنتك بصيغة غير مشفرة. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه فوراً بعد الانتهاء من استخدامه."
+  "exportUnencryptedWarningDesc": {
+    "message": "يحتوي هذا التصدير على بيانات خزنتك بصيغة غير مشفرة. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه فورا بعد الانتهاء من استخدامه."
   },
   "encExportKeyWarningDesc": {
     "message": "يشفر هذا التصدير بياناتك باستخدام مفتاح تشفير حسابك. إذا قمت بتدوير مفتاح تشفير حسابك في أي وقت، فيجب عليك التصدير مجدداً لأنك لن تتمكن من فك تشفير ملف التصدير هذا."
@@ -1485,16 +1485,16 @@
     "message": "مشترك"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "المجلد المشترك"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "المجلدات المشتركة"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "مجلدي"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "مجلداتي"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "يتيح لك Bitwarden for Business مشاركة عناصر خزنتك مع الآخرين بواسطة إنشاء منظمة. تعرف على المزيد على موقع bitwarden.com."
@@ -1626,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "أنشئ حسابا لعضوية باقة Premium واحصل على:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "مساحة تخزين مشفرة بمقدار 1 جيغابايت لمرفقات الملفات."
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1653,16 @@
   "restartPremium": {
     "message": "إعادة تشغيل باقة Premium"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "سلامة كلمات المرور وصحة الحساب وتقارير تسريبات البيانات للحفاظ على أمان خزنتك."
   },
-  "ppremiumSignUpTotp": {
-    "message": "مولد رموز التحقق TOTP للتحقق بخطوتين لحسابات الدخول في خزنتك."
+  "premiumSignUpTotp": {
+    "message": "مولد رموز التحقق TOTP للتحقق بخطوتين (2FA) لحسابات الدخول في خزنتك."
   },
-  "ppremiumSignUpSupport": {
-    "message": "أولوية دعم العملاء."
+  "premiumSignUpSupport": {
+    "message": "خدمة عملاء ذات أولوية."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "جميع ميزات الباقة Premium المستقبلية. المزيد قادم قريبا!"
   },
   "premiumPurchase": {
@@ -2064,7 +2064,7 @@
     "message": "النقر خارج النافذة المنبثقة للتحقق من بريدك الإلكتروني للحصول على رمز التحقق سيؤدي إلى إغلاقها. هل تريد فتح هذه النافذة المنبثقة في نافذة جديدة حتى لا تغلق؟"
   },
   "showIconsChangePasswordUrls": {
-    "message": "عرض أيقونات المواقع واسترداد روابط تغيير كلمة المرور"
+    "message": "إظهار أيقونات المواقع واسترداد روابط تغيير كلمة المرور"
   },
   "cardholderName": {
     "message": "اسم حامل البطاقة"
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "مسح سجل المولد"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "إذا تابعت، سيتم حذف جميع الإدخالات نهائيا من سجل المولد. هل أنت متأكد من أنك تريد المتابعة؟"
   },
   "back": {
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "تم تسجيل دخول تطبيق سطح المكتب إلى حساب مختلف. الرجاء التأكد من تسجيل دخول كلا التطبيقين إلى نفس الحساب."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "عدم تطابق الحساب"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "عدم تطابق المصادقة البيومترية"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "عدم تطابق مفتاح المصادقة البيومترية"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "فشل فتح القفل بالمصادقة البيومترية. فشل المفتاح السري للمصادقة البيومترية في فتح الخزنة. الرجاء محاولة إعداد المصادقة البيومترية مرة أخرى."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "لا يمكن إكمال المصادقة البيومترية، فكر في استخدام كلمة مرور رئيسية أو تسجيل الخروج. إذا استمر ذلك، يرجى الاتصال بدعم Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "تعذر الحصول على الإذن"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "دون الحصول على إذن للتواصل مع تطبيق سطح المكتب لـ Bitwarden لا يمكن توفير البيانات البيومترية في إضافة المتصفح. يرجى المحاولة مرة أخرى."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "خطأ في طلب الإذن"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "لا يمكن تنفيذ هذا الإجراء في الشريط الجانبي. يرجى محاولة تنفيذه في النافذة المنبثقة أو المستقلة."
   },
   "personalOwnershipSubmitError": {
@@ -3930,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "رمز API لـ $SERVICENAME$ غير صالح",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "رمز API لـ $SERVICENAME$ غير صالح: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "رفض $SERVICENAME$ طلبك. يرجى التواصل مع مزود الخدمة للحصول على المساعدة.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "رفض $SERVICENAME$ طلبك:$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "خطأ في Key Connector: تأكد من أن Key Connector متاح ويعمل بشكل صحيح."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "الاشتراك في الباقة Premium مطلوب"
   },
   "organizationIsDisabled": {
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "استخدم حقلا مرتبطا عند مواجهة مشكلات في الملء التلقائي لموقع ويب معين."
   },
-  "linkedLabelHelpText": {
-    "message": "أدخل معرف html للحقل، أو الاسم، أو aria-label، أو النص المؤقت."
+  "linkedFieldLabelHelpText": {
+    "message": "أدخل معرف HTML الخاص بالحقل، أو اسمه، أو aria-label، أو النص النائب."
   },
   "editField": {
     "message": "تعديل الحقل"

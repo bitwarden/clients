@@ -117,7 +117,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
 
   private sshImportErrorVariantToI18nKey(variant: string): string {
     switch (variant) {
-      case "ParsingError":
+      case "Parsing":
         return "invalidSshKey";
       case "UnsupportedKeyType":
         return "sshKeyTypeUnsupported";
