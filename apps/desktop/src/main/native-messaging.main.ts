@@ -10,7 +10,7 @@ import { Subject } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
-import { isDev } from "../utils";
+import { isDev, isMacAppStore } from "../utils";
 
 import { WindowMain } from "./window.main";
 
@@ -287,7 +287,7 @@ export class NativeMessagingMain {
     const manifest = {
       name: "com.8bit.bitwarden",
       description: "Bitwarden desktop <-> DuckDuckGo bridge",
-      path: this.binaryPath(),
+      path: this.manifestBinaryPath(),
       type: "stdio",
     };
 
@@ -539,6 +539,16 @@ export class NativeMessagingMain {
     }
 
     return Array.from(ids);
+  }
+
+  // The executable the browser native-messaging manifest should point at.
+  // On the sandboxed Mac App Store build, DuckDuckGo must launch the app itself so entry.ts can
+  // spawn desktop_proxy.inherit, which inherits the app's sandbox and App Group access and can
+  // therefore reach the App Group IPC socket. A bare desktop_proxy launched directly by the
+  // browser runs outside our sandbox and cannot open that socket. Non-MAS builds are unsandboxed
+  // and use the proxy binary directly.
+  private manifestBinaryPath() {
+    return isMacAppStore() ? this.exePath : this.binaryPath();
   }
 
   private binaryPath() {
