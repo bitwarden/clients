@@ -15,6 +15,7 @@ import {
 } from "@bitwarden/vault";
 
 import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
+import { openDeleteSharedFolderDialog } from "./delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 
 @Injectable()
 export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
@@ -112,27 +113,35 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     const count = collections.length;
     const sharedFolderTerminology = this.vfo1Terminology.enabled();
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      type: "danger",
-      title:
-        count === 1
-          ? { key: sharedFolderTerminology ? "deleteSharedFolder" : "deleteCollection" }
-          : {
-              key: sharedFolderTerminology ? "deleteSharedFoldersCount" : "deleteCollectionsCount",
-              placeholders: [count],
+    // A single shared folder uses a dedicated dialog so its name can be shown, italicized, in the body.
+    const confirmed =
+      sharedFolderTerminology && count === 1
+        ? ((await lastValueFrom(
+            openDeleteSharedFolderDialog(this.dialogService, collections[0].name).closed,
+          )) ?? false)
+        : await this.dialogService.openSimpleDialog({
+            type: "danger",
+            title:
+              count === 1
+                ? { key: sharedFolderTerminology ? "deleteSharedFolder" : "deleteCollection" }
+                : {
+                    key: sharedFolderTerminology
+                      ? "deleteSharedFoldersCount"
+                      : "deleteCollectionsCount",
+                    placeholders: [count],
+                  },
+            content: {
+              key: sharedFolderTerminology
+                ? count === 1
+                  ? "deleteSharedFolderDesc"
+                  : "deleteSharedFoldersDesc"
+                : count === 1
+                  ? "deleteCollectionDesc"
+                  : "deleteCollectionsDesc",
             },
-      content: {
-        key: sharedFolderTerminology
-          ? count === 1
-            ? "deleteSharedFolderDesc"
-            : "deleteSharedFoldersDesc"
-          : count === 1
-            ? "deleteCollectionDesc"
-            : "deleteCollectionsDesc",
-      },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-    });
+            acceptButtonText: { key: "delete" },
+            cancelButtonText: { key: "cancel" },
+          });
 
     if (!confirmed) {
       return BulkDeleteDialogResult.Canceled;

@@ -1216,7 +1216,7 @@
     "message": "Search shared folder"
   },
   "searchMyFolder": {
-    "message": "Search my folder"
+    "message": "Search My folders"
   },
   "addToMyFolder": {
     "message": "Add to my folder"
@@ -1253,6 +1253,15 @@
   },
   "deleteSharedFolderDesc": {
     "message": "This shared folder will be permanently deleted."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
   },
   "deleteSharedFoldersDesc": {
     "message": "These shared folders will be permanently deleted."
@@ -1309,7 +1318,7 @@
     }
   },
   "coachmarkShareWithSharedFoldersDescription": {
-    "message": "By moving an item into a shared folder, you can securely share it with other people in your organization."
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
   "attachments": {
     "message": "Attachments"
