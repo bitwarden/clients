@@ -169,7 +169,7 @@ export class SendAddEditDialogComponent {
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
   ) {
-    // We only want to load from the input params the first time the component opens,
+    // We only want to load from the input params the first time the component initializes,
     // since the makeCopy function works by replacing the config object and re-initializing
     this.config = this.params.formConfig;
     void this.init();
