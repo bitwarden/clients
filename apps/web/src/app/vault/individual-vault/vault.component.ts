@@ -143,6 +143,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -1269,15 +1270,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.showMissingPermissionsError();
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: collection.name,
-      content: {
-        key: this.vfo1TerminologyService.enabled()
-          ? "deleteSharedFolderConfirmation"
-          : "deleteCollectionConfirmation",
-      },
-      type: "warning",
-    });
+    const confirmed = this.vfo1TerminologyService.enabled()
+      ? ((await lastValueFrom(
+          openDeleteSharedFolderDialog(this.dialogService, collection.name).closed,
+        )) ?? false)
+      : await this.dialogService.openSimpleDialog({
+          title: collection.name,
+          content: { key: "deleteCollectionConfirmation" },
+          type: "warning",
+        });
     if (!confirmed) {
       return;
     }
@@ -1295,10 +1296,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t(
-          this.vfo1TerminologyService.enabled() ? "deletedSharedFolderId" : "deletedCollectionId",
-          collection.name,
-        ),
+        message: this.vfo1TerminologyService.enabled()
+          ? this.i18nService.t("sharedFolderDeleted")
+          : this.i18nService.t("deletedCollectionId", collection.name),
       });
       if (navigateAway) {
         await this.router.navigate([], {

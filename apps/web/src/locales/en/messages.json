@@ -1305,18 +1305,6 @@
       }
     }
   },
-  "deleteSharedFolderConfirmation": {
-    "message": "Are you sure you want to delete this shared folder?"
-  },
-  "deletedSharedFolderId": {
-    "message": "Deleted shared folder $ID$.",
-    "placeholders": {
-      "id": {
-        "content": "$1",
-        "example": "Shared folder 1"
-      }
-    }
-  },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
