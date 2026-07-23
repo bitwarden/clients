@@ -27,16 +27,20 @@ export function CipherDetails({ cipher, theme }: CipherDetailsProps) {
     return html`
       <div>
         ${name}
-        ${firstLine
-          ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
-              ${Passkey({ theme, color: themes[theme].text.muted })} ${firstLine}
-            </span>`
-          : nothing}
-        ${secondLine
-          ? html`<span title=${secondLine} class=${passkeySubtitleStyles(theme)}
-              >${secondLine}</span
-            >`
-          : nothing}
+        ${
+          firstLine
+            ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
+                ${Passkey({ theme, color: themes[theme].text.muted })} ${firstLine}
+              </span>`
+            : nothing
+        }
+        ${
+          secondLine
+            ? html`<span title=${secondLine} class=${passkeySubtitleStyles(theme)}
+                >${secondLine}</span
+              >`
+            : nothing
+        }
       </div>
     `;
   }
@@ -51,9 +55,11 @@ export function CipherDetails({ cipher, theme }: CipherDetailsProps) {
   return html`
     <div>
       ${name}
-      ${subtitle
-        ? html`<span title=${subtitle} class=${secondaryTextStyles(theme)}>${subtitle}</span>`
-        : nothing}
+      ${
+        subtitle
+          ? html`<span title=${subtitle} class=${secondaryTextStyles(theme)}>${subtitle}</span>`
+          : nothing
+      }
     </div>
   `;
 }

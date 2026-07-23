@@ -88,29 +88,33 @@ export function InlineMenuCipherItem({
           @click=${onFillCipher}
           @keyup=${handleFillCipherKeyUp}
         >
-          ${isTotp
-            ? TotpCountdown({
-                theme,
-                period,
-                secondsRemaining: totpSecondsRemaining,
-                onPeriodElapsed: onTotpPeriodElapsed,
-              })
-            : CipherIcon({
-                color: themes[theme].primary["600"],
-                size: `calc(${spacing["4"]} + ${spacing["2"]})`,
-                theme,
-                uri,
-              })}
-          ${isTotp
-            ? TotpCipherInfo({
-                theme,
-                heading: fillVerificationCodeText ?? "",
-                totp: cipher.login!.totp!,
-                totpCodeAria,
-                username: showTotpUsername ? cipher.login?.username : undefined,
-                masked: !!cipher.reprompt,
-              })
-            : CipherDetails({ theme, cipher })}
+          ${
+            isTotp
+              ? TotpCountdown({
+                  theme,
+                  period,
+                  secondsRemaining: totpSecondsRemaining,
+                  onPeriodElapsed: onTotpPeriodElapsed,
+                })
+              : CipherIcon({
+                  color: themes[theme].primary["600"],
+                  size: `calc(${spacing["4"]} + ${spacing["2"]})`,
+                  theme,
+                  uri,
+                })
+          }
+          ${
+            isTotp
+              ? TotpCipherInfo({
+                  theme,
+                  heading: fillVerificationCodeText ?? "",
+                  totp: cipher.login!.totp!,
+                  totpCodeAria,
+                  username: showTotpUsername ? cipher.login?.username : undefined,
+                  masked: !!cipher.reprompt,
+                })
+              : CipherDetails({ theme, cipher })
+          }
         </button>
         <button
           type="button"
