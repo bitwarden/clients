@@ -8,6 +8,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AppRoutingModule as OssRoutingModule } from "@bitwarden/browser/popup/app-routing.module";
 import { AppModule as OssModule } from "@bitwarden/browser/popup/app.module";
 // import { WildcardRoutingModule } from "@bitwarden/browser/popup/wildcard-routing.module";
+import {
+  DefaultVaultHealthReportService,
+  VaultHealthReportService,
+} from "@bitwarden/bit-common/dirt/vault-health/services";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -35,5 +42,12 @@ import { AppComponent } from "./app.component";
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
+  providers: [
+    safeProvider({
+      provide: VaultHealthReportService,
+      useClass: DefaultVaultHealthReportService,
+      deps: [CipherService, CipherRiskService],
+    }),
+  ],
 })
 export class AppModule {}
