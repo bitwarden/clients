@@ -213,7 +213,6 @@ export type InlineMenuCipherData = {
     fullName: string;
     username?: string;
   };
-  sshKey?: string;
 };
 
 export type BuildCipherDataParams = {

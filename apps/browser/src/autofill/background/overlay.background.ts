@@ -54,6 +54,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -118,7 +119,7 @@ import {
 } from "./abstractions/overlay.background";
 
 // Non-login cipher types that are fetched and cached for the inline menu regardless of URL match.
-const cardAndIdentityCipherType: CipherType[] = [
+const nonLoginInlineCipherType: CipherType[] = [
   CipherType.Card,
   CipherType.Identity,
   CipherType.SshKey,
@@ -598,7 +599,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        cardAndIdentityCipherType.includes(cipherView.type)
+        nonLoginInlineCipherType.includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
@@ -902,7 +903,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (cipher.type === CipherType.SshKey) {
-      inlineMenuData.sshKey = cipher.sshKey?.keyFingerprint;
       return inlineMenuData;
     }
 
@@ -1960,8 +1960,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     // Cap the height used for sizing the button so tall fields (e.g. textareas for SSH public
-    // keys) don't scale the icon up. Single-line inputs are at or under this cap and unaffected.
-    const sizingHeight = Math.min(height, 64);
+    // keys) produce a button comparable to a normal single-line input rather than scaling the
+    // icon up. Typical single-line inputs are under this cap and unaffected.
+    const sizingHeight = Math.min(height, 40);
 
     let elementOffset = sizingHeight * 0.37;
     if (sizingHeight >= 35) {
@@ -2785,6 +2786,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Identifies if the current add new item data is for adding a new identity.
+   */
+  private isAddingNewSshKey() {
+    return this.currentAddNewItemData?.addNewCipherType === CipherType.SshKey;
+  }
+
+  /**
    * Updates the current add new item data with the provided login data. If the
    * login data is already present, the data will be merged with the existing data.
    *
@@ -2923,6 +2931,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       login,
       card,
       identity,
+      addNewCipherType,
     });
 
     if (!cipherView) {
@@ -2966,6 +2975,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     login,
     card,
     identity,
+    addNewCipherType,
   }: OverlayAddNewItemMessage): CipherView | undefined {
     if (login && this.isAddingNewLogin()) {
       return this.buildLoginCipherView(login);
@@ -2978,6 +2988,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (identity && this.isAddingNewIdentity()) {
       return this.buildIdentityCipherView(identity);
     }
+
+    if (this.isAddingNewSshKey()) {
+      return this.buildSshKeyCipherView();
+    }
+  }
+
+  /**
+   * Builds a new, empty SSH key cipher view. SSH keys cannot be captured from the page, so
+   * the add/edit popout is opened with a blank item for the user to fill in.
+   */
+  private buildSshKeyCipherView() {
+    const cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = undefined;
+    cipherView.type = CipherType.SshKey;
+    cipherView.sshKey = new SshKeyView();
+
+    return cipherView;
   }
 
   /**
