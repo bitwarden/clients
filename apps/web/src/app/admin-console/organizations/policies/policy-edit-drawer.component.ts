@@ -153,7 +153,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;
     this.policyComponent.set(component);
-    this.policyEnabled.set(policyResponse.enabled);
+    this.policyEnabled.set(this.data.policy.enabled(policyResponse));
 
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
