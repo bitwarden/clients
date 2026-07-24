@@ -878,6 +878,24 @@
   "owner": {
     "message": "Owner"
   },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "Add field"
   },
