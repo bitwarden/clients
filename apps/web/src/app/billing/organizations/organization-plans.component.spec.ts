@@ -15,7 +15,7 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
@@ -982,6 +982,49 @@ describe("OrganizationPlansComponent", () => {
         message: "organizationReadyToGo",
       });
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("defaults the create request to the in-product initiation path", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.NewOrganizationCreationInProduct,
+        }),
+      );
+    });
+
+    it("sends the provided initiation path on the create request", async () => {
+      fixture.componentRef.setInput(
+        "initiationPath",
+        InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+      );
+
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+        }),
+      );
     });
 
     it("should emit onSuccess after successful creation", async () => {
