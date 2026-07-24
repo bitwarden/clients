@@ -29,6 +29,7 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
+import { ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -46,6 +47,7 @@ import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
+import { MainBiometricsUnlockDriver } from "./key-management/biometrics/main-biometrics-unlock.driver";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MainUserKeyStateIpcListener } from "./key-management/user-key-state/main-user-key-state-ipc.listener";
 import { MainUserKeyStateService } from "./key-management/user-key-state/main-user-key-state.service";
@@ -85,6 +87,7 @@ export class Main {
   govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
+  biometricsUnlockDriver: MainBiometricsUnlockDriver;
   userKeyStateService: MainUserKeyStateService;
   mainUserKeyStateIpcListener: MainUserKeyStateIpcListener;
   desktopSettingsService: DesktopSettingsService;
@@ -338,6 +341,11 @@ export class Main {
       this.windowMain,
     );
 
+    this.biometricsUnlockDriver = new MainBiometricsUnlockDriver(
+      this.biometricsService,
+      accountService,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -462,6 +470,15 @@ export class Main {
 
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+
+        // Register the biometrics SDK driver on the main-process IPC client so browser
+        // extension biometric-unlock requests are handled entirely in main, without a
+        // renderer round-trip. Must run after `ipcService.init()` sets up the client.
+        try {
+          await ipcRegisterBiometricsHandlers(this.ipcService.client, this.biometricsUnlockDriver);
+        } catch (e) {
+          this.logService.error("[IPC] Failed to register biometrics handlers", e);
+        }
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

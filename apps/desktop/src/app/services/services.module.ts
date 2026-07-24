@@ -216,12 +216,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, BiometricStateService, IpcService],
+    deps: [TokenService, BiometricStateService],
   }),
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
