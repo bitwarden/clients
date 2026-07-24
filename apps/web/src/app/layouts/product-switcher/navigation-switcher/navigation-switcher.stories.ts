@@ -403,11 +403,11 @@ export const RealisticSideNavV2: Story = {
           </bit-nav-section>
           <ng-container slot="callout">
             <div class="tw-px-3">
-              <bit-callout icon="bwi-premium" type="info" title="Info">Some promo callout content here</bit-callout>
+              <bit-callout class="[&_aside]:!tw-m-0" icon="bwi-premium" type="info" title="Info">Some promo callout content here</bit-callout>
             </div>
           </ng-container>
           <ng-container slot="account">
-            <div class="tw-py-10 tw-px-4">Account section would go here</div>
+            <div class="tw-p-3">Account section would go here</div>
           </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
