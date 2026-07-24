@@ -373,6 +373,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       };
 
       await this.sendExtensionMessage(command, { addNewCipherType, identity });
+
+      return;
+    }
+
+    if (addNewCipherType === CipherType.SshKey) {
+      // SSH keys cannot be captured from the page, so open a blank add/edit item.
+      await this.sendExtensionMessage(command, { addNewCipherType });
     }
   }
 
