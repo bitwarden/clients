@@ -293,6 +293,22 @@ describe("IntegrationContext", () => {
 
       expect(result).toBe("");
     });
+
+    it("returns the second-level domain for a ccSLD domain", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://example.co.uk/path" });
+
+      expect(result).toBe("example");
+    });
+
+    it("returns prefix with underscore for a subdomain under a ccSLD", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://foo.example.co.uk/path" });
+
+      expect(result).toBe("foo_example");
+    });
   });
 
   describe("generatedBy", () => {
