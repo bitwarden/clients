@@ -30,20 +30,21 @@ export class HealthAccessService {
     return combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.BrowserExtensionHealthReport),
       of(userId).pipe(
-        switchMap(
-          (userId) =>
-            !this.organizationService.hasOrganizations(userId) ||
-            this.organizationService
-              .organizations$(userId)
-              .pipe(
-                map((orgs) =>
-                  orgs.every(
-                    (org) =>
-                      org.productTierType === ProductTierType.Free ||
-                      org.productTierType === ProductTierType.Families,
-                  ),
-                ),
-              ),
+        switchMap((userId) =>
+          this.organizationService.organizations$(userId).pipe(
+            map((orgs) => {
+              // Users with personal accounts (i.e. no Organization membership)
+              if (!orgs || orgs.length === 0) {
+                return true;
+              }
+
+              return orgs.every(
+                (org) =>
+                  org.productTierType === ProductTierType.Free ||
+                  org.productTierType === ProductTierType.Families,
+              );
+            }),
+          ),
         ),
       ),
     ]).pipe(
