@@ -193,7 +193,7 @@ jobs:
           zip -r browser-source.zip browser-source
 
       - name: Upload browser source
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
@@ -244,26 +244,30 @@ jobs:
         browser:
           - name: "chrome"
             npm_command_suffix: "chrome"
-            archive_stub: "dist-chrome"
-            artifact_stub: "dist-chrome-MV3"
-            artifact_stub_dev: "dev-chrome-MV3"
-            archive_stub_dev: "dev-chrome"
+            archive_name: "dist-chrome"
+            artifact_name: "dist-chrome-MV3"
+            artifact_name_dev: "dev-chrome-MV3"
+            archive_name_dev: "dev-chrome"
+          - name: "chrome-beta"
+            npm_command_suffix: "beta:chrome"
+            archive_name: "dist-chrome"
+            artifact_name: "dist-chrome-MV3-beta"
           - name: "edge"
             npm_command_suffix: "edge"
-            archive_stub: "dist-edge"
-            artifact_stub: "dist-edge-MV3"
+            archive_name: "dist-edge"
+            artifact_name: "dist-edge-MV3"
           - name: "firefox"
             npm_command_suffix: "firefox"
-            archive_stub: "dist-firefox"
-            artifact_stub: "dist-firefox"
+            archive_name: "dist-firefox"
+            artifact_name: "dist-firefox"
           - name: "firefox-mv3"
             npm_command_suffix: "firefox:mv3"
-            archive_stub: "dist-firefox"
-            artifact_stub: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
+            archive_name: "dist-firefox"
+            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
           - name: "opera-mv3"
             npm_command_suffix: "opera:mv3"
-            archive_stub: "dist-opera"
-            artifact_stub: "dist-opera-MV3"
+            archive_name: "dist-opera"
+            artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -284,7 +288,7 @@ jobs:
           npm --version
 
       - name: Download browser source
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
@@ -366,23 +370,23 @@ jobs:
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_stub }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_stub }}${{ matrix.release_type.suffix }}.zip
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}${{ matrix.release_type.suffix }}.zip
           if-no-files-found: error
 
       - name: Package dev extension
-        if: ${{ matrix.browser.archive_stub_dev != '' }}
+        if: ${{ matrix.browser.archive_name_dev != '' }}
         run: npm run ${{ matrix.license_type.npm_package_dev_prefix_stub }}${{ matrix.release_type.dev_infix }}dev:${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload dev extension artifact
-        if: ${{ matrix.browser.archive_stub_dev != '' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ matrix.browser.archive_name_dev != '' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_stub_dev }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_stub_dev }}${{ matrix.release_type.suffix }}.zip
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}${{ matrix.release_type.suffix }}.zip
           if-no-files-found: error
 
   build-safari:
@@ -558,7 +562,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/${{matrix.license_type.archive_name_prefix}}dist-safari.zip

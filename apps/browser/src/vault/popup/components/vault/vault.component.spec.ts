@@ -53,6 +53,7 @@ import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-passw
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
@@ -92,6 +93,7 @@ class CurrentAccountStubComponent {}
 })
 class NewItemDropdownStubComponent {
   readonly initialValues = input();
+  readonly canCreateCipher = input();
 }
 
 @Component({
@@ -109,6 +111,14 @@ class PopOutStubComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class BlockedInjectionBannerStubComponent {}
+
+@Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -253,6 +263,7 @@ describe("VaultComponent", () => {
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
     upsert: jest.fn().mockResolvedValue(undefined),
     autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+    bulkAutoConfirmPendingUsers: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -330,6 +341,7 @@ describe("VaultComponent", () => {
           NewItemDropdownComponent,
           PopOutComponent,
           BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
@@ -347,6 +359,7 @@ describe("VaultComponent", () => {
           NewItemDropdownStubComponent,
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
@@ -821,6 +834,46 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls bulkAutoConfirmPendingUsers when user enables auto-confirm via setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(expect.any(String));
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when user dismisses setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
     }));
   });
 });

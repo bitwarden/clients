@@ -28,7 +28,7 @@ import {
   LockService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
@@ -75,7 +75,9 @@ import {
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { DefaultPremiumCheckoutPendingService } from "@bitwarden/common/billing/services/account/default-premium-checkout-pending.service";
 import {
   EventUploadService as EventUploadServiceAbstraction,
   EventCollectionService as EventCollectionServiceAbstraction,
@@ -116,12 +118,14 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -135,7 +139,9 @@ import { AppIdService } from "@bitwarden/common/platform/services/app-id.service
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -332,6 +338,8 @@ export class ServiceContainer {
   authRequestApiService: AuthRequestApiServiceAbstraction;
   configApiService: ConfigApiServiceAbstraction;
   configService: ConfigService;
+  availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -344,6 +352,7 @@ export class ServiceContainer {
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
   billingAccountProfileStateService: BillingAccountProfileStateService;
+  premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
@@ -489,7 +498,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -554,17 +562,13 @@ export class ServiceContainer {
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      () => this.sdkService,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
       this.newPolicyService,
-      () => this.configService,
+      () => this.sdkService,
     );
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
@@ -622,6 +626,13 @@ export class ServiceContainer {
       this.authService,
     );
 
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
+    );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
+
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
       this.policyService,
@@ -654,6 +665,25 @@ export class ServiceContainer {
       this.fileUploadService,
       this.sendService,
     );
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
+      this.accountCryptographicStateService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+      this.v2UpgradeTokenStateService,
+      customUserAgent,
+    );
+
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
       legacySendApiService,
@@ -677,25 +707,6 @@ export class ServiceContainer {
       this.newPolicyService,
       this.apiService,
       this.accountService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new CliSdkLoadService();
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      customUserAgent,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -754,7 +765,6 @@ export class ServiceContainer {
       this.tokenService,
       this.logService,
       this.organizationService,
-      this.keyGenerationService,
       logoutCallback,
       this.stateProvider,
       this.configService,
@@ -796,12 +806,14 @@ export class ServiceContainer {
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
     );
+    this.premiumCheckoutPendingService = new DefaultPremiumCheckoutPendingService(
+      this.stateProvider,
+    );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.keyService,
       this.encryptService,
@@ -821,7 +833,12 @@ export class ServiceContainer {
       this.apiService,
       this.environmentService,
     );
-    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+    this.passwordPreloginService = new DefaultPasswordPreloginService(
+      passwordPreloginApiService,
+      this.sdkService,
+      this.environmentService,
+      this.configService,
+    );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
       this.globalStateProvider,
@@ -1012,6 +1029,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);
@@ -1045,6 +1063,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.sdkService,
     );
 
     this.individualExportService = new IndividualVaultExportService(
@@ -1053,7 +1072,6 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
@@ -1068,7 +1086,6 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
       this.restrictedItemTypesService,

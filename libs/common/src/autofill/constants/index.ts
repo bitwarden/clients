@@ -127,10 +127,10 @@ export const BrowserShortcutsUris = {
 } as const;
 
 export const DisablePasswordManagerUris = {
-  Chrome: "chrome://settings/autofill",
+  Chrome: "chrome://password-manager/settings",
   Firefox: "https://bitwarden.com/help/disable-browser-autofill/",
   Opera: "opera://settings/autofill",
-  Edge: "edge://settings/passwords",
+  Edge: "edge://settings/autofill/passwords/settings",
   Vivaldi: "vivaldi://settings/autofill",
   Unknown: "https://bitwarden.com/help/disable-browser-autofill/",
 } as const;

@@ -22,7 +22,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -231,6 +231,7 @@ export default {
           provide: PlatformUtilsService,
           useValue: {
             getClientType: () => ClientType.Browser,
+            getDevice: () => DeviceType.ChromeExtension,
           },
         },
         {

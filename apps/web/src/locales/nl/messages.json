@@ -65,6 +65,9 @@
   "riskOverTime": {
     "message": "Risico na verloop van tijd"
   },
+  "filterRiskOverTime": {
+    "message": "Filter risico na verloop van tijd"
+  },
   "passwordsAtRisk": {
     "message": "Risicovolle wachtwoorden"
   },
@@ -646,11 +649,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website toegevoegd"
   },
   "addWebsite": {
     "message": "Website toevoegen"
+  },
+  "addWebsiteOrApp": {
+    "message": "Website of app toevoegen"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website verwijderen"
@@ -967,6 +989,9 @@
   "save": {
     "message": "Opslaan"
   },
+  "saveAndContinue": {
+    "message": "Opslaan en doorgaan"
+  },
   "cancel": {
     "message": "Annuleren"
   },
@@ -978,6 +1003,9 @@
   },
   "close": {
     "message": "Sluiten"
+  },
+  "done": {
+    "message": "Klaar"
   },
   "delete": {
     "message": "Verwijderen"
@@ -1166,6 +1194,18 @@
   "shared": {
     "message": "Gedeeld"
   },
+  "sharedFolder": {
+    "message": "Gedeelde map"
+  },
+  "sharedFolders": {
+    "message": "Gedeelde mappen"
+  },
+  "myFolder": {
+    "message": "Mijn map"
+  },
+  "myFolders": {
+    "message": "Mijn mappen"
+  },
   "attachments": {
     "message": "Bijlagen"
   },
@@ -1187,6 +1227,42 @@
   "viewItem": {
     "message": "Item weergeven"
   },
+  "addItemHeaderLogin": {
+    "message": "Login toevoegen",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kaart toevoegen",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Identiteit toevoegen",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Notitie toevoegen",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Veilige notitie toevoegen",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH-sleutel toevoegen",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bankrekening toevoegen",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Rijbewijs toevoegen",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Paspoort toevoegen",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nieuwe login",
     "description": "Header for new login item type"
@@ -1202,6 +1278,10 @@
   "newItemHeaderNote": {
     "message": "Nieuwe notitie",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "Nieuwe veilige notitie",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "Nieuwe SSH-sleutel",
@@ -1240,6 +1320,26 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Veilige notitie bewerken",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
     "message": "Notitie bewerken",
     "description": "Header for edit note item type"
   },
@@ -1283,6 +1383,10 @@
     "message": "Notitie bekijken",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Veilige notitie weergeven",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "SSH-sleutel bekijken",
     "description": "Header for view SSH key item type"
@@ -1298,6 +1402,26 @@
   "viewItemHeaderPassport": {
     "message": "Paspoort weergeven",
     "description": "Header for view passport item type"
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Login weergeven",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Kaart weergeven",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Identiteit weergeven",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Notitie weergeven",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Aanmaken",
+    "description": "for adding new items"
   },
   "new": {
     "message": "Nieuw",
@@ -1352,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "Wachtwoord gekopieerd"
+  },
+  "passwordAnnounceSpace": {
+    "message": "spatie",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren",
@@ -1573,6 +1701,9 @@
   "file": {
     "message": "Bestand"
   },
+  "photo": {
+    "message": "Foto"
+  },
   "selectFile": {
     "message": "Selecteer een bestand."
   },
@@ -1619,6 +1750,45 @@
   "deleteItem": {
     "message": "Item verwijderen"
   },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
+  },
   "deleteFolder": {
     "message": "Map verwijderen"
   },
@@ -1651,6 +1821,9 @@
   },
   "deletedItems": {
     "message": "Items zijn verwijderd"
+  },
+  "movedItem": {
+    "message": "Item verplaatst"
   },
   "movedItems": {
     "message": "Item is verplaatst"
@@ -2111,6 +2284,9 @@
   "newOrganization": {
     "message": "Nieuwe organisatie"
   },
+  "newVault": {
+    "message": "Nieuwe kluis"
+  },
   "noOrganizationsList": {
     "message": "Je behoort niet tot een organisatie. Via organisaties deel je je items veilig met andere gebruikers."
   },
@@ -2280,6 +2456,24 @@
   "deleteSelectedConfirmation": {
     "message": "Weet je zeker dat je wilt doorgaan?"
   },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
   "moveSelectedItemsDesc": {
     "message": "Kies een map waaraan je de $COUNT$ geselecteerde item(s) wilt toevoegen.",
     "placeholders": {
@@ -2313,7 +2507,7 @@
   "confirmSecretsExport": {
     "message": "Geheimen exporteren bevestigen"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Deze export bevat jouw kluisgegevens in een niet-versleutelde opmaak. Je moet het geëxporteerde bestand niet opslaan of verzenden over onbeveiligde kanalen (zoals e-mail). Verwijder het exportbestand direct na gebruik."
   },
   "exportSecretsWarningDesc": {
@@ -2354,6 +2548,30 @@
   "confirmFilePassword": {
     "message": "Bestandswachtwoord bevestigen"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "accountRestrictedOptionDescription": {
     "message": "Gebruik de encryptiesleutel van je account, afgeleid van je gebruikersnaam en hoodfwachtwoord, om de export te versleutelen en importeren te beperken tot het huidige Bitwarden-account."
   },
@@ -2369,7 +2587,7 @@
   "passwordProtected": {
     "message": "Beveiligd met wachtwoord"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Bestandswachtwoord\" en \"Bestandswachtwoord bevestigen\" komen niet overeen."
   },
   "confirmVaultImport": {
@@ -2408,6 +2626,9 @@
   "minSpecial": {
     "message": "Minimum aantal speciale tekens",
     "description": "Minimum special characters"
+  },
+  "minSpecialCharacters": {
+    "message": "Minimaal aantal speciale tekens"
   },
   "ambiguous": {
     "message": "Dubbelzinnige tekens vermijden",
@@ -2464,7 +2685,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generatorgeschiedenis wissen"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Als je doorgaat, wis je definitief de geschiedenis van de generator. Weet je zeker dat je wilt doorgaan?"
   },
   "noPasswordsInList": {
@@ -2732,6 +2953,54 @@
   "importNothingError": {
     "message": "Er is niets geïmporteerd."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items worden overgeslagen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "De volgende items konden niet worden gelezen en zullen niet worden meegenomen met je import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Lidmaatschap"
+  },
+  "passport": {
+    "message": "Paspoort"
+  },
+  "driverLicense": {
+    "message": "Rijbewijs"
+  },
+  "ssnCard": {
+    "message": "Identiteitsbewijs"
+  },
+  "birthCertificate": {
+    "message": "Geboorteakte"
+  },
+  "databaseCredentials": {
+    "message": "Database-inloggegevens"
+  },
+  "serverCredentials": {
+    "message": "Server-inloggegevens"
+  },
+  "softwareLicense": {
+    "message": "Softwarelicentie"
+  },
+  "healthInsurance": {
+    "message": "Zorgverzekering"
+  },
+  "wifiCredentials": {
+    "message": "WiFi-inloggegevens"
+  },
+  "general": {
+    "message": "Algemeen"
+  },
   "importEncKeyError": {
     "message": "Fout bij het decoderen van het geëxporteerde bestand. Je encryptiesleutel komt niet overeen met de gebruikte sleutel waarmee de gegevens zijn geëxporteerd."
   },
@@ -2832,6 +3101,9 @@
   "newCustomDomain": {
     "message": "Nieuw aangepast domein"
   },
+  "addCustomDomain": {
+    "message": "Eigen domeinnaam toevoegen"
+  },
   "newCustomDomainDesc": {
     "message": "Voer een lijst in met domeinen door komma's. Alleen basisdomeinen zijn toegestaan. Voer geen subdomeinen in. Gebruik bijvoorbeeld \"google.com\" in plaats van \"www.google.com\". Je kunt ook \"androidapp://package.name\" invoeren om een Android-app aan andere websitedomeinen te koppelen."
   },
@@ -2880,6 +3152,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Leden niet toestaan om kaartitemtypes te maken. Bestaande kaarten wordek automatisch verwijderd."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Sta niet toe dat leden creditcarditems in hun kluis opslaan en aanmaken. Wanneer dit beleid is ingeschakeld, worden bestaande kaarten automatisch verborgen."
   },
   "restrictCardTypeImport": {
     "message": "Kan kaart item types niet importeren"
@@ -3221,8 +3496,56 @@
   "noInactive2fa": {
     "message": "Er zijn geen websites in je kluis gevonden waarin tweestapsaanmelding ontbreekt."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey-login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke van je accounts deze ondersteunen."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke accounts in je kluis ondersteuning hebben voor passkeys voor een eenvoudigere, wachtwoordloze aanmeldervaring. Lees"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "hoe passkeys werken"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "en "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "hoe ze te gebruiken in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins die passkeys ondersteunen"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We hebben $COUNT$ login(s) in je kluis gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We hebben $COUNT$ login(s) in je kluizen gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Er zijn geen accounts in je kluis gevonden die passkeys ondersteunen zonder dat er al een is geconfigureerd."
+  },
   "instructions": {
     "message": "Instructies"
+  },
+  "passwordlessLogin": {
+    "message": "Wachtwoordloze login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor-authenticatie"
   },
   "exposedPasswordsReport": {
     "message": "Gelekte wachtwoorden"
@@ -4558,52 +4881,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Nieuwe tekst-Send aangemaakt"
+  "createdTextSendV2": {
+    "message": "Text-Send aangemaakt$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Tekst-Send met e-mailverificatie aangemaakt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Text-Send aangemaakt$SENDID$ met e-mailverificatie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Tekst-Send met wachtwoord aangemaakt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Text-Send aangemaakt$SENDID$ met wachtwoord",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Nieuwe bestand-Send aangemaakt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Bestand-Send aangemaakt$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Bestand-Send met e-mailverificatie aangemaakt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Bestand-Send aangemaakt$SENDID$ met e-mailverificatie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Bestand-Send met wachtwoord aangemaakt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Bestand-Send aangemaakt$SENDID$ met wachtwoord",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Send (tekst) bewerkt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Tekst-Send bewerkt$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Send (bestand) bewerkt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Bestand-Send bewerkt$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Send (tekst) verwijderd",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Tekst-Send verwijderd$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Send (bestand) verwijderd",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Bestand-Send verwijderd$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Send (tekst) geopend",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Tekst-Send$SENDID$ aangemaakt door $ID$ geopend.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Send (bestand) geopend",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Bestand-Send$SENDID$ aangemaakt door $ID$ geopend.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Extern"
+  },
+  "sendAccessExternalDomain": {
+    "message": "Extern ($DOMAIN$ domein)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "Send $ID$ weergeven",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "Lid $ID$ weergeven",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Item $ID$ naar een organisatie verplaatst.",
@@ -4866,6 +5302,12 @@
   "deletedCollections": {
     "message": "Verwijderde collecties"
   },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
   "deletedCollectionId": {
     "message": "Verzameling verwijderd $ID$.",
     "placeholders": {
@@ -4952,6 +5394,15 @@
   },
   "revokedUserId": {
     "message": "Toegang tot de organisatie ingetrokken voor $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "stagedUserId": {
+    "message": "Gefaseerde gebruiker $ID$ toegevoegd.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5178,7 +5629,7 @@
   "needsApproval": {
     "message": "Heeft goedkeuring nodig"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Probeer je in te loggen?"
   },
   "logInAttemptBy": {
@@ -5816,6 +6267,15 @@
       }
     }
   },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "reorderToggleButton": {
     "message": "$LABEL$ herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen.",
     "placeholders": {
@@ -5972,6 +6432,18 @@
   "and": {
     "message": "en"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "Log in met je hoofdwachtwoord om deze uitnodiging te accepteren."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "Je kunt niet inloggen met SSO voordat je een uitnodiging voor $ORGANIZATION_NAME$ hebt geaccepteerd.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "Door dit vakje aan te vinken ga je akkoord met het volgende:"
   },
@@ -6061,6 +6533,10 @@
   },
   "selected": {
     "message": "Geselecteerd"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Aanbevolen"
@@ -6198,6 +6674,27 @@
   "masterPassPolicyDesc": {
     "message": "Minimale eisen voor de sterkte van het hoofdwachtwoord instellen."
   },
+  "enablePolicy": {
+    "message": "Beleid activeren"
+  },
+  "minCharacterLength": {
+    "message": "Minimum aantal tekens"
+  },
+  "characterRequirements": {
+    "message": "Vereiste aan tekens"
+  },
+  "specialCharactersPolicy": {
+    "message": "Speciale tekens (bijv. !, @, $)"
+  },
+  "uppercasePolicy": {
+    "message": "Hoofdletters"
+  },
+  "lowercasePolicy": {
+    "message": "Kleine letters"
+  },
+  "numbersPolicy": {
+    "message": "Cijfers"
+  },
   "passwordStrengthScore": {
     "message": "Score wachtwoordsterkte $SCORE$",
     "placeholders": {
@@ -6213,14 +6710,29 @@
   "twoStepLoginPolicyDesc": {
     "message": "Vereis tweestapsaanmelding op het persoonlijke account van gebruikers."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Vereis het instellen van tweestapsaanmelding van leden. Dit beleid zal niet worden afgedwongen voor eigenaren en beheerders."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Organisatieleden die geen eigenaren of beheerders zijn en geen tweestapsaanmelding hebben ingeschakeld voor hun persoonlijke account worden verwijderd uit de organisatie en ontvangen een e-mail waarin ze worden geïnformeerd over de wijziging."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Het inschakelen van dit beleid trekt het account in van gebruikers die geen tweestapsaanmelding hebben ingeschakeld. Getroffen gebruikers worden per e-mail op de hoogte gesteld."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Je bent lid van een organisatie die tweestapsaanmelding vereist op je persoonlijke account. Als je tweestapsaanmelding uitschakelt verlaat je automatisch deze organisaties."
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Stel minimale vereisten in voor de configuratie van het wachtwoord generator."
+  },
+  "passwordGeneratorPolicyDescV2": {
+    "message": "Selecteer een reeks minimumeisen voor alle door leden gegenereerde wachtwoorden."
+  },
+  "generatedPassword": {
+    "message": "Gegenereerd wachtwoord"
+  },
+  "generatedPassphrase": {
+    "message": "Gegenereerde wachtwoordzin"
   },
   "masterPasswordPolicyInEffect": {
     "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
@@ -6470,6 +6982,9 @@
   "singleOrgPolicyDesc": {
     "message": "Beperk leden in het aansluiten bij andere organisaties. Dit beleid is vereist voor organisaties die domeinverificatie hebben ingeschakeld."
   },
+  "singleOrgPolicyDescV2": {
+    "message": "Leden van deze organisatie kunnen zich niet aansluiten bij andere organisaties. Van bestaande leden die tot andere organisaties behoren, wordt de toegang ingetrokken wanneer dit beleid is ingeschakeld. Dit beleid zal niet worden toegepast op eigenaren en beheerders."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Jouw huidige organisatie heeft een beleid dat je niet toestaat om deel te nemen aan meer dan één organisatie. Neem contact op met de beheerders van jouw organisatie of meld je aan met een ander Bitwarden-account."
   },
@@ -6482,11 +6997,20 @@
   "requireSsoPolicyDesc": {
     "message": "Verplicht gebruikers om in te loggen met de Enterprise Single Sign-On methode."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Single sign-on (SSO) vereisen"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Vereis dat leden inloggen met SSO. Dit beleid zal niet worden afgedwongen voor eigenaren en beheerders."
+  },
   "prerequisite": {
     "message": "Vereisten"
   },
   "requireSsoPolicyReq": {
     "message": "Voordat je dit beleid kunt activeren moet je eerst het Enkele organisatie-bedrijfsbeleid inschakelen."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "Je moet het enkelvoudige organisatiebeleid activeren voordat je deze inschakelt."
   },
   "requireSsoPolicyReqError": {
     "message": "Enkele Organisatie-beleid is niet ingeschakeld."
@@ -6526,6 +7050,10 @@
   },
   "createSend": {
     "message": "Nieuwe Send aanmaken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -6621,6 +7149,12 @@
   "accepted": {
     "message": "Geaccepteerd"
   },
+  "staged": {
+    "message": "Gefaseerd"
+  },
+  "stagedMemberTooltip": {
+    "message": "Uitnodiging in behandeling"
+  },
   "sendLink": {
     "message": "Send-koppeling",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6643,6 +7177,9 @@
   },
   "allSends": {
     "message": "Alle Sends"
+  },
+  "filterSends": {
+    "message": "Filter Sends"
   },
   "maxAccessCountReached": {
     "message": "Maximum aantal keren benaderd",
@@ -6887,6 +7424,15 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Leden worden gevraagd om hun items over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "Alle items van het lid zullen eigendom en beheerd worden door de organisatie. Dit beleid zal niet worden geforceerd voor eigenaren en admins. Meer informatie over "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Geef alle gebruikers een eigen \"Mijn Items\"-ruimte voor het beheren van hun eigen inloggegevens."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Vraag gebruikers om hun individuele kluisitems naar de organisatie te verplaatsen"
+  },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
   },
@@ -6992,6 +7538,30 @@
   "autoConfirmDisabledByPortal": {
     "message": "Automatisch gebruikersbevestigingsbeleid verwijderd"
   },
+  "inviteLinkEventCreated": {
+    "message": "Uitnodigingslink aangemaakt"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Gewijzigde toegestane domeinen voor uitnodigingslink bewerkt"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Uitnodigingslink verwijderd"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Uitnodigingslink gekopieerd"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Uitnodigingslink opnieuw gegenereerd"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Lid $ID$ heeft een uitnodiging via uitnodigingslink geaccepteerd",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Systeem"
   },
@@ -7010,9 +7580,15 @@
   "desktopAutotypePolicy": {
     "message": "Standaardinstelling Desktop Autotype"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Standaardinstelling Desktop autotype"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Desktop Autotype standaard inschakelen voor leden. Leden kunnen Autotype uitzetten in de Desktop client.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Desktop autotype voor leden inschakelen. Leden kunnen autotype handmatig uitschakelen in de desktopclient."
   },
   "disableSend": {
     "message": "Send uitschakelen"
@@ -7036,12 +7612,20 @@
     "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+  "orgDoesNotAllowTextSends": {
+    "message": "Tekst-Sends zijn niet toegestaan voor jouw organisatie",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
+  "orgDoesNotAllowFileSends": {
+    "message": "Bestand-Sends zijn niet toegestaan voor jouw organisatie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Deze Send vervalt automatisch op de ingestelde verwijderingsdatum",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -7050,12 +7634,16 @@
   "sendControls": {
     "message": "Send-instellingen"
   },
+  "manageSend": {
+    "message": "Send beheren",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "Instellingen voor het aanmaken en bewerken van Sends, inclusief de mogelijkheid tot het verwijderen van Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV2": {
-    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
+  "sendControlsPolicyDescV4": {
+    "message": "Beheer hoe leden Send gebruiken. Dit beleid is van toepassing op Sends die zijn aangemaakt nadat je dit  beleid inschakelt. Beheerders en eigenaren zijn vrijgesteld.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7078,6 +7666,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Bepaal wanneer logins voor autofill worden voorgesteld. Beheerders en eigenaren zijn vrijgesteld van dit beleid."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Stel een standaard in voor welke delen van een website adres (URI) moeten overeenkomen met Bitwarden om een login voor automatisch invullen voor te stellen. Dit beleid zal niet worden gehandhaafd voor eigenaren en beheerders."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Standaard URI-overeenkomstdetectie"
@@ -7441,6 +8032,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "e-mailadres $ID$ bijgewerkt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ heeft voor de eerste keer ingelogd met Sso",
     "placeholders": {
@@ -7482,6 +8082,18 @@
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Het enkele organisatie beleid moet aangezet zijn voordat dit beleid geactiveerd kan worden."
+  },
+  "accountRecoveryPolicySingleOrgReqV2": {
+    "message": "Je moet het enkelvoudige organisatiebeleid activeren voordat je deze inschakelt."
+  },
+  "accountRecoveryPolicyDescV3Part1": {
+    "message": "Beheerders toestaan om leden weer toegang tot hun accounts te geven wanneer ze zijn ingeschreven "
+  },
+  "accountRecoveryDescLinkText": {
+    "message": "accountherstel"
+  },
+  "accountRecoveryPolicyDescV3Part2": {
+    "message": ". Zodra dit beleid is ingeschakeld, kunnen bestaande leden inschrijven en, als je ervoor kiest, zullen nieuwe leden automatisch worden ingeschreven."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische inschrijving"
@@ -7842,6 +8454,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Wanneer gebruikers een app van je identiteitsprovider starten, worden de inloggegevens automatisch ingevuld en verstuurd, wat veilig inloggen met één klik bewerkstelligt."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identiteitsproviderhost"
   },
@@ -7969,6 +8584,9 @@
   "disablePersonalVaultExportDescription": {
     "message": "Exporteren van gegevens uit hun individuele kluis niet toestaan."
   },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Sta niet toe dat leden gegevens exporteren uit hun individuele kluizen. Dit beleid zal niet worden afgedwongen voor eigenaren en beheerders."
+  },
   "vaultExportDisabled": {
     "message": "Kluis exporteren uitgeschakeld"
   },
@@ -7978,8 +8596,17 @@
   "activateAutofillPolicy": {
     "message": "Automatisch invullen activeren"
   },
+  "enableAutofillOnPageLoad": {
+    "message": "Automatisch invullen bij laden van pagina inschakelen"
+  },
   "activateAutofillPolicyDescription": {
     "message": "Activeer de \"automatisch invullen wanneer de pagina geladen is\"-instelling in de browserextensie voor alle bestaande en nieuwe gebruikers."
+  },
+  "activateAutofillPolicyDescV2": {
+    "message": "Schakel automatisch invullen in voor pagina-laadinstellingen in de browserextensie voor alle bestaande en nieuwe leden. Houd er rekening mee dat gecompromitteerde of onbetrouwbare websites "
+  },
+  "exploitAutofillOnPageLoad": {
+    "message": "automatisch invullen bij laden van pagina's kunnen exploiteren"
   },
   "autofillOnPageLoadExploitWarning": {
     "message": "Gehackte of onbetrouwbare websites kunnen automatisch invullen tijdens het laden van de pagina misbruiken."
@@ -8116,7 +8743,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Geen gesponsorde families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -8858,7 +9485,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Ongeldig $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -8868,7 +9495,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Ongeldige $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -8882,7 +9509,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd. Neem contact op met je serviceprovider voor hulp.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -8892,7 +9519,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -8981,7 +9608,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium-abonnement vereist"
   },
   "scim": {
@@ -9016,6 +9643,20 @@
   },
   "scimApiKeyHelperText": {
     "message": "Deze API-sleutel heeft toegang tot het beheer van gebruikers binnen je organisatie. Het moet geheim blijven."
+  },
+  "scimInviteUsersAfterProvisioning": {
+    "message": "Automatisch e-mailuitnodigingen versturen"
+  },
+  "scimInviteUsersAfterProvisioningHint": {
+    "message": "E-mailuitnodigingen direct verzenden wanneer gebruikers worden geregistreerd via SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimInviteUsersAfterProvisioningHelpTitle": {
+    "message": "Over e-mailuitnodigingen"
+  },
+  "scimInviteUsersAfterProvisioningHelpBody": {
+    "message": "Wanneer deze optie is ingeschakeld, ontvangen leden die via SCIM zijn aangemaakt een e-mailbericht en verschijnen als uitgenodigd op de ledenpagina. Wanneer het uitgeschakeld is, verschijnen leden als gefaseerd en moeten ze handmatig worden uitgenodigd door een beheerder of door een uitnodigingslink.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
     "message": "Kopieer de SCIM API-sleutel naar je klembord",
@@ -9746,6 +10387,15 @@
   "removeMember": {
     "message": "Lid verwijderen"
   },
+  "revokeMember": {
+    "message": "Lid intrekken"
+  },
+  "restoreMember": {
+    "message": "Lid herstellen"
+  },
+  "deleteMember": {
+    "message": "Lid verwijderen"
+  },
   "collection": {
     "message": "Collectie"
   },
@@ -9769,6 +10419,9 @@
   },
   "newDomain": {
     "message": "Nieuw domein"
+  },
+  "addDomain": {
+    "message": "Domein toevoegen"
   },
   "noDomains": {
     "message": "Geen domeinen"
@@ -9914,6 +10567,15 @@
   "memberRole": {
     "message": "Rol van lid"
   },
+  "moreActions": {
+    "message": "Meer acties"
+  },
+  "emailUpdateOnSave": {
+    "message": "E-mail wordt bijgewerkt bij opslaan"
+  },
+  "createdDate": {
+    "message": "Datum aangemaakt"
+  },
   "moreSettings": {
     "message": "Meer instellingen"
   },
@@ -9952,6 +10614,42 @@
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
     "message": "Teams Starter-plannen gaan tot $SEATCOUNT$ leden. Neem contact op met de eigenaar van je organisatie voor het uitbreiden van je abonnement voor het uitnodigen van meer leden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Gratis organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Upgrade naar een betaald abonnement om de toegang van dit lid te herstellen.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Gratis organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Neem contact op met de eigenaar van je organisatie om te upgraden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Teams Starter-plannen kunnen maximaal $SEATCOUNT$ leden hebben. Bred je abonnement uit voor het herstellen van de toegang van dit lid.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Teams Starter-plannen kunnen maximaal $SEATCOUNT$ leden hebben. Neem contact op met de eigenaar van je organisatie voor het uitbreiden van je abonnement en het herstellen van de toegang van dit lid.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10944,6 +11642,15 @@
   "editedCollections": {
     "message": "Bewerkte collecties"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
+  "collectionEdited": {
+    "message": "Collectie bewerkt"
+  },
+  "collectionsEdited": {
+    "message": "Collecties bewerkt"
+  },
   "baseUrl": {
     "message": "Server-URL"
   },
@@ -11323,6 +12030,24 @@
   "successfullyAssignedCollections": {
     "message": "Succesvol toegewezen collecties"
   },
+  "itemMovedToCollection": {
+    "message": "Item naar collectie verplaatst"
+  },
+  "itemMovedToCollections": {
+    "message": "Item naar collecties verplaatst"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items naar collectie verplaatst"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items naar collecties verplaatst"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
+  },
   "bulkCollectionAssignmentWarning": {
     "message": "Je hebt $TOTAL_COUNT$ items geselecteerd. Je kunt $READONLY_COUNT$ items niet bijwerken omdat je geen bewerkrechten hebt.",
     "placeholders": {
@@ -11443,6 +12168,10 @@
   },
   "newMachineAccount": {
     "message": "Nieuw machine-account",
+    "description": "Title for creating a new machine account."
+  },
+  "addMachineAccount": {
+    "message": "Machine-account toevoegen",
     "description": "Title for creating a new machine account."
   },
   "machineAccountsNoItemsMessage": {
@@ -11566,6 +12295,15 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "graceMachineAccounts": {
+    "message": "Je hebt $COUNT$ machine-accounts van je vorige abonnement.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
       }
     }
   },
@@ -11834,6 +12572,9 @@
   },
   "selectAPlan": {
     "message": "Selecteer een plan"
+  },
+  "planBillingInterval": {
+    "message": "Factureringsinterval plannen"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% korting"
@@ -12325,6 +13066,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Familie-organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Upgrade naar een betaald abonnement om de toegang van dit lid te herstellen.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Familie-organisaties kunnen maximaal $SEATCOUNT$ leden hebben. Neem contact op met de eigenaar van je organisatie om te upgraden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "Wijzig je abonnement voor het uitnodigen van leden en gebruikmaken van krachtige beveiligingsfuncties."
   },
@@ -12473,7 +13232,7 @@
   "linkedHelpText": {
     "message": "Gebruik een gekoppeld veld als je problemen ervaart met het automatisch invullen voor een specifieke website."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Html-id, naam, aria-label of placeholder van het veld invullen."
   },
   "uppercaseDescription": {
@@ -12622,8 +13381,14 @@
   "freeFamiliesSponsorship": {
     "message": "Gratis Bitwarden Families-sponsoring verwijderen"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Gesponsord Familie-abonnement verwijderen"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Sta leden niet toe om een familieplan te verzilveren via deze organisatie."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Sta leden niet toe om een familieplan te verzilveren via jouw organisatie."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Voer de code van het bankafschrift uit deze storting in op de factuurpagina van de organisatie om de bankrekening te verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
@@ -12734,7 +13499,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
-    "message": "Als je $EMAIL$ verwijdert, eindigt de sponsoring voor dit Familie-plan en brengen we $DATE$ $40 + belasting in rekening. Je kunt geen nieuwe sponsoring inwisselen tot $DATE$. Weet je zeker dat u wilt doorgaan?",
+    "message": "Als je $EMAIL$ verwijdert, eindigt de sponsoring voor dit Familie-plan en brengen we $DATE$ $40 + belasting in rekening. Je kunt geen nieuwe sponsoring inwisselen tot $DATE$. Weet je zeker dat je wilt doorgaan?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -12742,6 +13507,23 @@
       },
       "date": {
         "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "revokeSponsorshipAcceptedWithPriceConfirmation": {
+    "message": "Als je $EMAIL$ verwijdert, eindigt de sponsoring voor dit Familie-plan en brengen we $PRICE$ + belasting in rekening op $DATE$. Je kunt geen nieuwe sponsoring inwisselen tot $DATE$. Weet je zeker dat je wilt doorgaan?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "price": {
+        "content": "$2",
+        "example": "$40"
+      },
+      "date": {
+        "content": "$3",
         "example": "12/10/2024"
       }
     }
@@ -13052,6 +13834,9 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
   },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Leden mogen hun account niet ontgrendelen met een pincode."
+  },
   "upgradeForFullEventsMessage": {
     "message": "We slaan geen eventlogs op voor jouw organisatie. Upgrade naar een Teams- of Enterprise-plan om volledige toegang te krijgen tot organisatie-eventlogs."
   },
@@ -13112,8 +13897,35 @@
     "message": "Item archiveren",
     "description": "Verb"
   },
+  "archiveItemsPlural": {
+    "message": "$NUM$ items archiveren",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Item archiveren",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsSingular": {
+    "message": "$NUM$ item archiveren",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "archiveItemDialogContent": {
     "message": "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Eenmaal gearchiveerd worden deze items uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
   },
   "archiveBulkItems": {
     "message": "Items archiveren",
@@ -13371,7 +14183,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Abonneren op $PLAN$",
     "placeholders": {
       "plan": {
@@ -13705,8 +14517,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Voorkom dat gebruikers buiten je organisatie accounts aanmaken met behulp van e-mailadressen van geclaimde domeinen."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Leden blokkeren om je geclaimde domein te gebruiken om Bitwarden-accounts buiten je organisatie te maken."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Voordat je dit beleid inschakelt, moet je een domein claimen."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Meer informatie over geclaimde domeinen"
   },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
@@ -14347,7 +15168,17 @@
     "message": "Vernieuw regelmatig rapporten en inzichten om nieuwe risico's op te vangen en de nieuwste statistieken te zien naarmate je organisatie groeit."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ van $TOTAL$"
+    "message": "$CURRENT$ van $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Stap $CURRENT$ van $TOTAL$",
@@ -14362,6 +15193,210 @@
       }
     }
   },
+  "keeperEmail": {
+    "message": "E-mailadres Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Locatie datacenter"
+  },
+  "keeperMasterPassword": {
+    "message": "Hoofdwachtwoord Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Voer je hoofdwachtwoord van Keeper in"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Vul de code van je tweestapsaanmelding in"
+  },
+  "totpCodePrompt": {
+    "message": "Voer de code van je authenticator-app in"
+  },
+  "smsCodePrompt": {
+    "message": "Voer de per sms verzonden code in"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Voer de code van je Keeper DNA-app in"
+  },
+  "adminApproval": {
+    "message": "Goedkeuring door beheerder"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We hebben een goedkeuringsverzoek gestuurd naar je beheerder"
+  },
+  "method": {
+    "message": "Methode"
+  },
+  "directImporter": {
+    "message": "Rechtstreekse import"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO-inloggen vereist"
+  },
+  "keeperSsoDesc": {
+    "message": "Je Keeper-account vereist SSO-verificatie. Voltooi de aanmelding in het browservenster dat werd geopend en plak vervolgens de token die op de pagina wordt weergegeven."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Voltooi de aanmelding op het tabblad van de browser dat werd geopend. Het token zal automatisch worden vastgelegd."
+  },
+  "ssoToken": {
+    "message": "SSO-token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper-inloggegevens vereist"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper-apparaatgoedkeuring vereist"
+  },
+  "selectApprovalMethod": {
+    "message": "Methode van goedkeuring"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Apparaatgoedkeuring vereist"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Keur dit apparaat goed door hieronder een methode te selecteren"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Methoden voor tweestapsaanmelding"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Controleer je e-mail en voer hieronder de verificatiecode in"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push-melding verzonden naar goedgekeurd apparaat"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push verzonden"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Goedkeuringsverzoek zal worden geannuleerd"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Weet je zeker dat je wilt vertrekken? Je aanvraag voor goedkeuring van de admin zal worden geannuleerd."
+  },
+  "cancelRequest": {
+    "message": "Aanvraag annuleren"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper-tweestapsaanmelding vereist"
+  },
+  "mfaPushDesc": {
+    "message": "Keur de aanmeldingsaanvraag goed in je verificatie-app. Deze dialoog wordt automatisch afgesloten."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Tweestapsaanmeldingsmethode selecteren"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Kies hoe je je identiteit wilt verifiëren."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticatie-app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Tekstbericht (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Herstelcodes"
+  },
+  "securityKeyU2f": {
+    "message": "Beveiligingssleutel (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Beveiligingssleutel (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA-verificatie"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Keeper DNA-melding op je apparaat goedkeuren "
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Keeper DNA-methode selecteren"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Kies hoe je je identiteit wilt verifiëren met Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Pushbericht"
+  },
+  "enterCodeManually": {
+    "message": "Code handmatig invoeren"
+  },
+  "twoFactorAuthentication": {
+    "message": "Tweestapsaanmelding"
+  },
+  "unknownMethod": {
+    "message": "Onbekende methode"
+  },
+  "selectDuoMethod": {
+    "message": "Duo-methode selecteren"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Kies hoe je je identiteit wilt verifiëren met Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Telefoongesprek"
+  },
+  "duoVerification": {
+    "message": "Duo-verificatie"
+  },
+  "duoPushWaiting": {
+    "message": "Duo pushmelding op je apparaat goedkeuren."
+  },
+  "duoSmsWaiting": {
+    "message": "Er is een tekstbericht naar je telefoon verstuurd. Voer de code in de Duo-app in om door te gaan."
+  },
+  "duoVoiceWaiting": {
+    "message": "Beantwoord het telefoongesprek van Duo en volg de instructies."
+  },
+  "tryAnotherMethod": {
+    "message": "Andere methode proberen"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Je Keeper account vereist een tweestapsaanmeldingsmethode die momenteel niet wordt ondersteund door rechtstreeks importeren."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Multifactor-authenticatie geannuleerd"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Multifactor-authenticatie mislukt"
+  },
+  "keeperConnectionError": {
+    "message": "Er was een probleem met het communiceren met Keeper. Probeer de import opnieuw."
+  },
+  "importingYourAccount": {
+    "message": "Account importeren..."
+  },
+  "passcode": {
+    "message": "Passcode"
+  },
   "multipleInputDomainsInvalid": {
     "message": "One or more domains are invalid"
   },
@@ -14375,6 +15410,10 @@
   },
   "sendControlsEnableDescription": {
     "message": "Control whether members can use Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypes": {
+    "message": "Send-types",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
@@ -14467,8 +15506,8 @@
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendControlsPolicySwitchLabel": {
-    "message": "Enable Send controls",
+  "sendControlsPolicySwitchLabelV2": {
+    "message": "Send inschakelen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
@@ -14485,6 +15524,12 @@
   },
   "sendAccessOptionAnyoneWithAPassword": {
     "message": "Password set by member"
+  },
+  "enforceDeletionDate": {
+    "message": "Verwijderingsdatum afdwingen"
+  },
+  "sendDeletionDate": {
+    "message": "Verwijderingsdatum"
   },
   "hideMyEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
@@ -14536,12 +15581,12 @@
     "message": "Opmerking",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Kluisbannerknop aangeklikt"
+  },
   "progressBar": {
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "emailVerification": {
-    "message": "Email verification"
   },
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
@@ -14597,7 +15642,50 @@
   "copy": {
     "message": "Kopiëren"
   },
+  "paymentSuccessful": {
+    "message": "Betaling succesvol"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Je upgrade wordt verwerkt. Het kan een paar minuten duren voordat je de Premium-functies in Bitwarden ziet."
+  },
+  "planPurchased": {
+    "message": "Abonnement aangeschaft"
+  },
+  "renewalDate": {
+    "message": "Verlengingdsdatum"
+  },
+  "upgradeStatus": {
+    "message": "Upgradestatus"
+  },
+  "processing": {
+    "message": "Bezig met verwerken"
+  },
+  "managePlanInWebApp": {
+    "message": "Abonnement in webapp beheren"
+  },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Kan het item niet opslaan. Voor het opslaan van items moet het bevestigd zijn dat je bij de organisatie hoort."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items kunnen niet meerdere bijlagen met dezelfde bestandsnaam hebben"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ heeft deze verwijderingsdatum ingesteld",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nieuwe melding",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

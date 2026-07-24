@@ -35,6 +35,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [],
       success: false,
       errorMessage: "",
@@ -49,6 +50,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -70,6 +72,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -94,6 +97,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -128,6 +132,7 @@ describe("processFolder method", () => {
       ],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [
         { name: "cipher1", id: "cipher1" } as CipherView,
         { name: "cipher2", id: "cipher2" } as CipherView,
@@ -198,7 +203,7 @@ describe("BaseImporter class", () => {
       ["5/21", "5", "2021"],
       ["10/2100", "10", "2100"],
     ])(
-      "sets ciper card expYear & expMonth and returns true",
+      "sets cipher card expYear & expMonth and returns true",
       (expiration, expectedMonth, expectedYear) => {
         const result = importer.setCardExpiration(cipher, expiration);
         expect(cipher.card.expMonth).toBe(expectedMonth);

@@ -91,12 +91,17 @@ export class PoliciesComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
+  private readonly policyEditDefinitionsDict = Object.fromEntries(
+    this.policyListService.getPolicies().map((p) => [p.type, p]),
+  ) as Record<PolicyType, BasePolicyEditDefinition>;
+
   protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
     this.orgPolicies$.pipe(
       map((orgPolicies) => {
         const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
         orgPolicies.forEach((op) => {
-          policiesEnabledMap.set(op.type, op.enabled);
+          const showEnabled = this.policyEditDefinitionsDict[op.type]?.enabled(op) ?? op.enabled;
+          policiesEnabledMap.set(op.type, showEnabled);
         });
         return policiesEnabledMap;
       }),
@@ -199,7 +204,15 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
-        await lastValueFrom(ref.closed);
+        try {
+          await lastValueFrom(ref.closed);
+        } finally {
+          // Once closed, this ref is permanently spent (DrawerRef.close() short-circuits to
+          // `{ closed: false }` on a ref that's already closed). Clear it so canDeactivate()
+          // doesn't try to re-close a stale ref and incorrectly block navigation away from
+          // this page after a save/cancel.
+          this.drawerRef.set(undefined);
+        }
         if (triggerEl?.isConnected) {
           triggerEl.focus();
         }
