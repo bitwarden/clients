@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Alles selecteren"
   },
+  "selectAllRows": {
+    "message": "Alle rijen selecteren"
+  },
+  "selectRow": {
+    "message": "Rij selecteren"
+  },
+  "showingItemRange": {
+    "message": "Toont $START$ - $END$ van $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rijen per pagina"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rijen per pagina",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Alles wissen"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ geselecteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Vorige pagina"
+  },
+  "nextPage": {
+    "message": "Volgende pagina"
+  },
+  "goToPage": {
+    "message": "Ga naar pagina"
+  },
+  "ofPageCount": {
+    "message": "van $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Geen overeenkomende items"
+  },
   "deselectAll": {
     "message": "Selectie ongedaan maken"
   },
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "Passkey verwijderen"
+  },
+  "deletePasskey": {
+    "message": "Passkey verwijderen"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Deze passkey zal permanent worden verwijderd uit je inlogitem. Je kunt dit niet ongedaan maken."
   },
   "removePasskeyInfo": {
     "message": "Als je alle passkeys verwijdert, heb je je hoofdwachtwoord nodig om op nieuwe apparaten in te loggen."
@@ -2962,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "De volgende items konden niet worden gelezen en zullen niet worden meegenomen met je import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "Contact"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Abonnement opzeggen"
+  },
+  "completeCancellation": {
+    "message": "Annulering afronden"
+  },
+  "helpUsImprove": {
+    "message": "Help ons verbeteren. Waarom annuleer je?"
+  },
+  "additionalDetails": {
+    "message": "Aanvullende details"
   },
   "subscriptionExpiration": {
     "message": "Abonnement vervaldatum"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Tekst-Send$SENDID$ aangemaakt door $ID$ geopend.",
+  "accessedTextSendV3": {
+    "message": "Tekst-Send$SENDID$ aangemaakt door $ID$ geopend",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Bestand-Send$SENDID$ aangemaakt door $ID$ geopend.",
+  "accessedFileSendV3": {
+    "message": "Bestand-Send$SENDID$ aangemaakt door $ID$ geopend",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -7193,6 +7303,14 @@
   },
   "expired": {
     "message": "Verlopen"
+  },
+  "expiringSoon": {
+    "message": "Vervalt binnenkort",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Actief",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
     "message": "Sends zoeken",
@@ -11934,7 +12052,7 @@
     "message": "Ontbrekende functies of functionaliteit",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
+  "cancelSurveyMissingFeaturesHintV2": {
     "message": "Iets wat we nodig hadden was niet beschikbaar",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11942,33 +12060,45 @@
     "message": "Te moeilijk om in te stellen of te beheren",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We krijgen niet genoeg waarde voor het geld",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Kosten waren te hoog",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "De prijs komt niet overeen met wat we eruit krijgen",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "De prijs komt niet overeen met wat we eruit krijgen.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Niet genoeg gebruik door ons team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We konden mensen er niet toe zetten het echt te gebruiken",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We konden mensen er niet toe zetten het echt te gebruiken.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Onze behoeften zijn veranderd",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Slechte klantenservice",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We hebben niet de hulp gekregen die we nodig hadden van support of klantenservice.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Beschrijf je reden voor annulering",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "1 jaar gratis"

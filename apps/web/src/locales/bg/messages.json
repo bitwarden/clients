@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Избиране на всичко"
   },
+  "selectAllRows": {
+    "message": "Избиране на всички редове"
+  },
+  "selectRow": {
+    "message": "Избиране на реда"
+  },
+  "showingItemRange": {
+    "message": "Показани: $START$ – $END$ от $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Редове на страница"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ реда на страница",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ избрани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предходна страница"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Към страница"
+  },
+  "ofPageCount": {
+    "message": "от $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Няма съвпадащи елементи"
+  },
   "deselectAll": {
     "message": "Отмяна на избора"
   },
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "Премахване на секретния ключ"
+  },
+  "deletePasskey": {
+    "message": "Изтриване на секретния ключ"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Секретният ключ ще бъде изтрит завинаги от записа за вписване. Това действие е необратимо."
   },
   "removePasskeyInfo": {
     "message": "Ако всички секретни ключове бъдат премахнати, няма да можете да се впишете в нови устройства без главната си парола."
@@ -2962,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ елемент ще бъде пропуснат",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Следните елементи не могат да бъдат прочетени и няма да бъдат включени при внасянето:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Този SSH ключ не може да бъде внесен"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдържан вид елемент"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Този елемент не може да бъде внесен"
   },
   "contact": {
     "message": "Контакт"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Прекратяване на абонамента"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Изтичане на абонамента"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Осъществен е достъп до текстово изпращане $SENDID$ създадено чрез $ID$.",
+  "accessedTextSendV3": {
+    "message": "Осъществен е достъп до текстово изпращане $SENDID$ създадено чрез $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Осъществен е достъп до файлово изпращане $SENDID$ създадено чрез $ID$.",
+  "accessedFileSendV3": {
+    "message": "Осъществен е достъп до файлово изпращане $SENDID$ създадено чрез $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -7193,6 +7303,14 @@
   },
   "expired": {
     "message": "Изтекъл"
+  },
+  "expiringSoon": {
+    "message": "Изтича скоро",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Активно",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
     "message": "Търсене в изпратените",
@@ -11934,41 +12052,53 @@
     "message": "Липсващи функционалности",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Нещо, което ни е необходимо, не беше налично",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Твърде сложно за настройка или управление",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Обучението, администрирането или начина на ползване беше твърде сложен",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Не получаваме достатъчно стойност за цената",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "Цената не отговаря на това, което получаваме",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Не се използва достатъчно от екипа ни",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "Не успяхме да накараме хората наистина да го ползват",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Нуждите ни се промениха",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Реорганизация, сливане, промяна в приоритетите или просто вече не ни трябва управител на пароли",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Безплатно за 1 година"

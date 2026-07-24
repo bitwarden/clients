@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Označit vše"
   },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
+  },
   "deselectAll": {
     "message": "Odznačit vše"
   },
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
+  },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
   },
   "removePasskeyInfo": {
     "message": "Pokud budou odebrány všechny přístupové klíče, nebudete se moci přihlásit do nových zařízení bez hlavního hesla."
@@ -2962,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
   },
   "contact": {
     "message": "Kontakt"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Zrušit předplatné"
+  },
+  "completeCancellation": {
+    "message": "Dokončit zrušení"
+  },
+  "helpUsImprove": {
+    "message": "Pomozte nám se zlepšit. Proč rušíte?"
+  },
+  "additionalDetails": {
+    "message": "Další podrobnosti"
   },
   "subscriptionExpiration": {
     "message": "Předplatné vypršelo"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$.",
+  "accessedTextSendV3": {
+    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$.",
+  "accessedFileSendV3": {
+    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -7194,6 +7304,14 @@
   "expired": {
     "message": "Vypršela platnost"
   },
+  "expiringSoon": {
+    "message": "Brzy vyprší",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Aktivní",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Prohledat Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8455,7 +8573,7 @@
     "message": "Rozšiřte zabezpečení a pohodlí SSO i na nespravované aplikace. Když uživatelé spustí aplikaci od Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se vytvoří bezpečný tok od poskytovatele identit k aplikaci jedním klepnutím."
   },
   "automaticAppLoginWithSSODescV2": {
-    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+    "message": "Když uživatelé spustí aplikaci z Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se zajistí bezpečné přihlášení jedním klepnutím."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hostitel poskytovatele identity"
@@ -11934,7 +12052,7 @@
     "message": "Chybějící funkce nebo funkčnost",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
+  "cancelSurveyMissingFeaturesHintV2": {
     "message": "Něco, co jsme potřebovali, nebylo k dispozici",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11942,15 +12060,15 @@
     "message": "Příliš obtížné vytvořit nebo spravovat",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
+  "cancelSurveyTooComplexHintV2": {
     "message": "Onboarding, správa nebo každodenní používání bylo příliš složité",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Poměr cena/výkon není dostatečný",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cena byla příliš vysoká",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
+  "cancelSurveyNotEnoughValueHintV2": {
     "message": "Cena neodpovídá tomu, co za ni dostaneme",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11958,7 +12076,7 @@
     "message": "V našem týmu nevyužijeme",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
+  "cancelSurveyNotEnoughUsageHintV2": {
     "message": "Nemohli jsme přesvědčit lidi, aby jej skutečně používali",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11966,9 +12084,21 @@
     "message": "Naše potřeby se změnily",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
+  "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Špatný zákaznický servis",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "Od technické podpory ani od zákaznického servisu jsme nedostali potřebnou pomoc",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Popište svůj důvod pro zrušení",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"

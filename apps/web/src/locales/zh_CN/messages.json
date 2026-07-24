@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "全选"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "取消全选"
   },
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "移除通行密钥"
+  },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
   },
   "removePasskeyInfo": {
     "message": "如果所有通行密钥被移除，没有主密码您将无法登录新的设备。"
@@ -2430,7 +2513,7 @@
     "message": "组织"
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "collectionsDesc": {
     "message": "编辑与其共享此项目的集合。只有具有这些集合访问权限的组织用户才能看到此项目。"
@@ -2962,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "联系人"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "取消订阅"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "订阅过期"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "访问了由 $ID$ 创建的文本 Send$SENDID$。",
+  "accessedTextSendV3": {
+    "message": "访问了由 $ID$ 创建的文本 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "访问了由 $ID$ 创建的文件 Send$SENDID$。",
+  "accessedFileSendV3": {
+    "message": "访问了由 $ID$ 创建的文件 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -7194,6 +7304,14 @@
   "expired": {
     "message": "已到期"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "搜索 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8455,7 +8573,7 @@
     "message": "将 SSO 的安全性和便捷性扩展到非托管 App。当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现从身份提供程序到 App 的一键式安全流程。"
   },
   "automaticAppLoginWithSSODescV2": {
-    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+    "message": "当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现一键式安全登录。"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供程序主机"
@@ -8792,7 +8910,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "收回了免费版方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -11934,41 +12052,53 @@
     "message": "缺少某些功能或特性",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "未提供我们需要的某些功能",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "设置或管理起来太难了",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "上手、管理或日常使用过于复杂",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "我们没有获得足够的与成本对应的价值",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "定价与我们获得的价值不匹配",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "我们团队的使用率不高",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "我们无法让人们真正使用它",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "我们的需求发生变化",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "重组、并购、优先级调整，或我们已不再需要密码管理器",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "免费 1 年"
