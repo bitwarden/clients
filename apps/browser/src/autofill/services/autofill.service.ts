@@ -2029,7 +2029,7 @@ export default class AutofillService implements AutofillServiceInterface {
           value
             .trim()
             .toLowerCase()
-            .replace(/[^a-zA-Z0-9]+/g, ""),
+            .replace(/[^a-z0-9]+/gi, ""),
         );
       }
     }
