@@ -75,47 +75,56 @@ export class WindowMain {
     private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
+  /**
+   * Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
+   * cleared, as the process itself will be completely garbage collected.
+   *
+   * Safe to call from the main process directly (e.g. after a browser-initiated biometric unlock) as well as from
+   * the renderer via the "reload-process" IPC channel.
+   */
+  async reloadProcess(): Promise<void> {
+    if (isDev()) {
+      this.logService.info("Process reload requested, but skipping in development mode");
+      return;
+    }
+
+    // LockService can fire reload-process concurrently for each user account.
+    // Skip duplicates so we don't race the crash + reload sequence with itself.
+    if (this.isReloading) {
+      this.logService.info("Reload already in progress, skipping duplicate request");
+      return;
+    }
+    this.isReloading = true;
+    try {
+      this.logService.info("Reloading render process");
+      // User might have changed theme, ensure the window is updated.
+      this.win.setBackgroundColor(await this.getBackgroundColor());
+
+      // By default some linux distro collect core dumps on crashes which gets written to disk.
+      if (this.enableRendererProcessForceCrashReload) {
+        const crashEvent = once(this.win.webContents, "render-process-gone");
+        this.win.webContents.forcefullyCrashRenderer();
+        await crashEvent;
+
+        // Workaround for electron/electron#48661: yielding one event-loop tick
+        // before reloading lets the crashed renderer fully tear down so the
+        // subsequent reloadIgnoringCache() reliably spawns a new renderer.
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+
+      this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.session.clearCache();
+      this.logService.info("Render process reloaded");
+    } finally {
+      this.isReloading = false;
+    }
+  }
+
   init(show: boolean = true): Promise<any> {
-    // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
-    // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
-      if (isDev()) {
-        this.logService.info("Process reload requested, but skipping in development mode");
-        return;
-      }
-
-      // LockService can fire reload-process concurrently for each user account.
-      // Skip duplicates so we don't race the crash + reload sequence with itself.
-      if (this.isReloading) {
-        this.logService.info("Reload already in progress, skipping duplicate request");
-        return;
-      }
-      this.isReloading = true;
-      try {
-        this.logService.info("Reloading render process");
-        // User might have changed theme, ensure the window is updated.
-        this.win.setBackgroundColor(await this.getBackgroundColor());
-
-        // By default some linux distro collect core dumps on crashes which gets written to disk.
-        if (this.enableRendererProcessForceCrashReload) {
-          const crashEvent = once(this.win.webContents, "render-process-gone");
-          this.win.webContents.forcefullyCrashRenderer();
-          await crashEvent;
-
-          // Workaround for electron/electron#48661: yielding one event-loop tick
-          // before reloading lets the crashed renderer fully tear down so the
-          // subsequent reloadIgnoringCache() reliably spawns a new renderer.
-          await new Promise((resolve) => setImmediate(resolve));
-        }
-
-        this.win.webContents.reloadIgnoringCache();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.session.clearCache();
-        this.logService.info("Render process reloaded");
-      } finally {
-        this.isReloading = false;
-      }
+      await this.reloadProcess();
     });
 
     ipcMain.on("window-focus", () => {

@@ -41,6 +41,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
+  MainProcessBiometricMessageHandler = "desktop-main-process-biometric-message-handler",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -159,6 +160,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
+  [FeatureFlag.MainProcessBiometricMessageHandler]: FALSE,
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,

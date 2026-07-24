@@ -12,6 +12,7 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
@@ -72,6 +73,7 @@ import { ElectronLogMainService } from "./platform/services/electron-log.main.se
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
+import { BiometricMessageHandlerMain } from "./services/biometric-message-handler.main";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
@@ -88,6 +90,8 @@ export class Main {
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   biometricsUnlockDriver: MainBiometricsUnlockDriver;
+  biometricMessageHandlerMain: BiometricMessageHandlerMain;
+  private mainProcessBiometricHandlerEnabled = false;
   userKeyStateService: MainUserKeyStateService;
   mainUserKeyStateIpcListener: MainUserKeyStateIpcListener;
   desktopSettingsService: DesktopSettingsService;
@@ -164,6 +168,24 @@ export class Main {
       // Ignore errors
     }
     this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
+
+    // Same rationale as the cache flag above: the main process cannot easily reach ConfigService
+    // this early, so read the raw feature flag to decide whether the legacy biometric native
+    // messaging protocol is handled here (main) or in the renderer.
+    try {
+      this.mainProcessBiometricHandlerEnabled = Object.values(
+        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
+      ).some(
+        (s: any) =>
+          s?.featureStates?.[FeatureFlag.MainProcessBiometricMessageHandler] === true,
+      );
+    } catch {
+      // Ignore errors
+    }
+    this.logService.info(
+      `Main process biometric message handler enabled: ${this.mainProcessBiometricHandlerEnabled}`,
+    );
+
     this.storageService = new ElectronStorageService(
       isCacheEnabled ? cachedBackend : electronStoreBackend,
     );
@@ -346,6 +368,17 @@ export class Main {
       accountService,
     );
 
+    this.biometricMessageHandlerMain = new BiometricMessageHandlerMain(
+      this.mainCryptoFunctionService,
+      new EncryptServiceImplementation(this.mainCryptoFunctionService, this.logService, false),
+      this.logService,
+      this.biometricsService,
+      accountService,
+      this.userKeyStateService,
+      this.nativeMessagingMain,
+      this.windowMain,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -441,6 +474,12 @@ export class Main {
           await this.nativeMessagingMain.listen();
         } catch (err) {
           this.logService.error("Error while setting up native messaging:", err);
+        }
+
+        // When enabled, the legacy biometric native-messaging protocol is handled in the main
+        // process. The renderer skips its biometric branch based on the same feature flag.
+        if (this.mainProcessBiometricHandlerEnabled) {
+          this.biometricMessageHandlerMain.init();
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");
