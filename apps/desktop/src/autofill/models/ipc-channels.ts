@@ -17,4 +17,8 @@ export const SSH_AGENT_IPC_CHANNELS = {
   SIGN_REQUEST_RESPONSE: "sshagent.signrequestresponse",
   LIST_KEYS_REQUEST: "sshagent.listkeysrequest",
   LIST_KEYS_RESPONSE: "sshagent.listkeysresponse",
+  // Main-process-orchestrated approval path (distinct from the renderer-handled channels above so
+  // both can coexist behind the FeatureFlag.MainProcessSshAgent gate).
+  APPROVAL_REQUEST: "sshagent.approvalrequest",
+  APPROVAL_RESPONSE: "sshagent.approvalresponse",
 } as const;

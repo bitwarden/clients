@@ -18,6 +18,13 @@ const sshAgent = {
   listRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE, { requestId, accepted });
   },
+  // Reply to a main-process-orchestrated approval request (FeatureFlag.MainProcessSshAgent).
+  approvalResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.APPROVAL_RESPONSE, {
+      requestId,
+      response: accepted,
+    });
+  },
   // V1, delete with PM-30758
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");

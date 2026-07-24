@@ -11,6 +11,7 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
+import { DDG_IPC_CHANNELS } from "../models/native-messaging/duckduckgo-ipc-channels";
 import {
   EnvAccessTokenLocation,
   accessTokenLocation,
@@ -80,6 +81,14 @@ const nativeMessaging = {
     generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
       ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
   },
+};
+
+// Renderer replies for main-process-orchestrated DuckDuckGo work (FeatureFlag.MainProcessDuckDuckGo).
+const duckduckgo = {
+  verifyResponse: (requestId: number, accepted: boolean): Promise<void> =>
+    ipcRenderer.invoke(DDG_IPC_CHANNELS.VERIFY_RESPONSE, { requestId, response: accepted }),
+  commandResponse: (requestId: number, response: unknown): Promise<void> =>
+    ipcRenderer.invoke(DDG_IPC_CHANNELS.COMMAND_RESPONSE, { requestId, response }),
 };
 
 const ipcService = {
@@ -184,6 +193,7 @@ export default {
   clipboard,
   powermonitor,
   nativeMessaging,
+  duckduckgo,
   crypto,
   ephemeralStore,
   localhostCallbackService,

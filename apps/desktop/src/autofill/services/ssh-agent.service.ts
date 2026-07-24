@@ -86,6 +86,45 @@ export class SshAgentService implements OnDestroy {
     }
 
     await this.initListeners(useV2);
+
+    // When SSH agent orchestration runs in the main process, main handles the sign/list decisions
+    // and only delegates the approval dialog back to the renderer over the APPROVAL_REQUEST channel.
+    const useMainOrchestration = await this.configService.getFeatureFlag(
+      FeatureFlag.MainProcessSshAgent,
+    );
+    if (useMainOrchestration) {
+      this.initMainOrchestrationApprovalShim();
+    }
+  }
+
+  private initMainOrchestrationApprovalShim() {
+    this.messageListener
+      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.APPROVAL_REQUEST))
+      .pipe(
+        concatMap(async (message) => {
+          const requestId = message.requestId as number;
+          let application = message.application as string;
+          if (application == null || application === "") {
+            application = this.i18nService.t("unknownApplication");
+          }
+          ipc.platform.focusWindow();
+          const dialogRef = ApproveSshRequestComponent.open(
+            this.dialogService,
+            message.cipherName as string,
+            application,
+            message.isAgentForwarding as boolean,
+            message.namespace as string,
+          );
+          const approved = (await firstValueFrom(dialogRef.closed)) === true;
+          await ipc.autofill.sshAgent.approvalResponse(requestId, approved);
+        }),
+        catchError((error: unknown, source) => {
+          this.logService.error("Error handling main-orchestrated SSH approval request", error);
+          return source;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   private async initListeners(useV2: boolean) {

@@ -15,6 +15,8 @@ export class NativeMessagingService {
   // When enabled, the legacy biometric protocol is handled in the main process
   // (see BiometricMessageHandlerMain), so the renderer must not also handle it.
   private biometricHandledInMainProcess = false;
+  // Likewise for the DuckDuckGo protocol (see DuckDuckGoMessageHandlerMain).
+  private duckduckgoHandledInMainProcess = false;
 
   constructor(
     private duckduckgoMessageHandler: DuckDuckGoMessageHandlerService,
@@ -26,6 +28,9 @@ export class NativeMessagingService {
     this.configService
       .getFeatureFlag$(FeatureFlag.MainProcessBiometricMessageHandler)
       .subscribe((enabled) => (this.biometricHandledInMainProcess = enabled));
+    this.configService
+      .getFeatureFlag$(FeatureFlag.MainProcessDuckDuckGo)
+      .subscribe((enabled) => (this.duckduckgoHandledInMainProcess = enabled));
     ipc.platform.nativeMessaging.onMessage((message) => this.messageHandler(message));
   }
 
@@ -39,6 +44,9 @@ export class NativeMessagingService {
 
     if (outerMessage.version) {
       // If there is a version, it is a using the protocol created for the DuckDuckGo integration
+      if (this.duckduckgoHandledInMainProcess) {
+        return;
+      }
       await this.duckduckgoMessageHandler.handleMessage(outerMessage);
       return;
     } else {

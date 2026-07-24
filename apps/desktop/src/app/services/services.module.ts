@@ -163,9 +163,9 @@ import { DesktopFido2UserInterfaceService } from "../../autofill/services/deskto
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
-import { RendererUserKeyStateService } from "../../key-management/user-key-state/renderer-user-key-state.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
+import { RendererUserKeyStateService } from "../../key-management/user-key-state/renderer-user-key-state.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
@@ -191,6 +191,7 @@ import { DesktopCredentialGenerationService } from "../../services/desktop-ciphe
 import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
 import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
+import { DuckDuckGoOrchestrationShimService } from "../../services/duckduckgo-orchestration-shim.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
@@ -373,6 +374,16 @@ const safeProviders: SafeProvider[] = [
       EncryptedMessageHandlerService,
       DialogService,
       DesktopAutofillSettingsService,
+    ],
+  }),
+  safeProvider({
+    provide: DuckDuckGoOrchestrationShimService,
+    deps: [
+      MessageListener,
+      DialogService,
+      EncryptedMessageHandlerService,
+      ConfigService,
+      LogServiceAbstraction,
     ],
   }),
   safeProvider({

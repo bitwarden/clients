@@ -44,6 +44,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
+import { MainSshAgentOrchestrator } from "./autofill/main/main-ssh-agent-orchestrator.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -64,6 +65,8 @@ import { WindowMain } from "./main/window.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { createMainSdkService } from "./platform/main/main-sdk.service";
+import { RendererUiRequestService } from "./platform/main/renderer-ui-request.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -74,9 +77,11 @@ import { EphemeralValueStorageService } from "./platform/services/ephemeral-valu
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { BiometricMessageHandlerMain } from "./services/biometric-message-handler.main";
+import { DuckDuckGoMessageHandlerMain } from "./services/duckduckgo-message-handler.main";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
+import { MainVaultDecryptionService } from "./vault/main/main-vault-decryption.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -92,6 +97,14 @@ export class Main {
   biometricsUnlockDriver: MainBiometricsUnlockDriver;
   biometricMessageHandlerMain: BiometricMessageHandlerMain;
   private mainProcessBiometricHandlerEnabled = false;
+  private mainProcessSshAgentEnabled = false;
+  private mainProcessDuckDuckGoEnabled = false;
+  // Set up in the constructor (capturing the state services); invoked in bootstrap when the
+  // MainProcessSshAgent flag is enabled. Builds the SDK + vault-decryption + orchestrator graph and
+  // enables main-process handling of the SSH agent v2 sign/list flows.
+  private enableSshAgentMainOrchestration?: () => Promise<void>;
+  private rendererUiRequestService: RendererUiRequestService;
+  private duckDuckGoMessageHandlerMain: DuckDuckGoMessageHandlerMain;
   userKeyStateService: MainUserKeyStateService;
   mainUserKeyStateIpcListener: MainUserKeyStateIpcListener;
   desktopSettingsService: DesktopSettingsService;
@@ -176,14 +189,35 @@ export class Main {
       this.mainProcessBiometricHandlerEnabled = Object.values(
         (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
       ).some(
-        (s: any) =>
-          s?.featureStates?.[FeatureFlag.MainProcessBiometricMessageHandler] === true,
+        (s: any) => s?.featureStates?.[FeatureFlag.MainProcessBiometricMessageHandler] === true,
       );
     } catch {
       // Ignore errors
     }
     this.logService.info(
       `Main process biometric message handler enabled: ${this.mainProcessBiometricHandlerEnabled}`,
+    );
+
+    try {
+      this.mainProcessSshAgentEnabled = Object.values(
+        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
+      ).some((s: any) => s?.featureStates?.[FeatureFlag.MainProcessSshAgent] === true);
+    } catch {
+      // Ignore errors
+    }
+    this.logService.info(
+      `Main process SSH agent orchestration enabled: ${this.mainProcessSshAgentEnabled}`,
+    );
+
+    try {
+      this.mainProcessDuckDuckGoEnabled = Object.values(
+        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
+      ).some((s: any) => s?.featureStates?.[FeatureFlag.MainProcessDuckDuckGo] === true);
+    } catch {
+      // Ignore errors
+    }
+    this.logService.info(
+      `Main process DuckDuckGo handler enabled: ${this.mainProcessDuckDuckGoEnabled}`,
     );
 
     this.storageService = new ElectronStorageService(
@@ -291,6 +325,9 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
+    // Shared main->renderer request/response helper (used by SSH-agent orchestration and DuckDuckGo).
+    this.rendererUiRequestService = new RendererUiRequestService(this.messagingService);
+
     this.trayMain = new TrayMain(
       this.windowMain,
       this.i18nService,
@@ -381,10 +418,53 @@ export class Main {
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
+    this.duckDuckGoMessageHandlerMain = new DuckDuckGoMessageHandlerMain(
+      new EncryptServiceImplementation(this.mainCryptoFunctionService, this.logService, false),
+      this.mainCryptoFunctionService,
+      this.messagingService,
+      this.desktopAutofillSettingsService,
+      this.nativeMessagingMain,
+      this.rendererUiRequestService,
+      this.logService,
+    );
+
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+
+    // Captures the state services (constructor locals) so the async SDK graph can be built later in
+    // bootstrap when the MainProcessSshAgent flag is enabled. Inert until then.
+    this.enableSshAgentMainOrchestration = async () => {
+      const { cipherSdkService } = await createMainSdkService({
+        logService: this.logService,
+        cryptoFunctionService: this.mainCryptoFunctionService,
+        storageService: this.storageService,
+        accountService,
+        stateProvider,
+        singleUserStateProvider,
+        globalStateProvider,
+        environmentService: this.environmentService,
+        biometricStateService,
+        messagingService: this.messagingService,
+        userKeyStateService: this.userKeyStateService,
+      });
+      const vaultDecryptionService = new MainVaultDecryptionService(
+        cipherSdkService,
+        this.logService,
+      );
+      const orchestrator = new MainSshAgentOrchestrator(
+        vaultDecryptionService,
+        this.rendererUiRequestService,
+        this.desktopSettingsService,
+        this.logService,
+      );
+      this.sshAgentService.enableMainOrchestration(
+        orchestrator,
+        async () => (await firstValueFrom(accountService.activeAccount$))?.id ?? null,
+        async (userId) => (await this.userKeyStateService.getUserKey(userId)) != null,
+      );
+    };
 
     new EphemeralValueStorageService();
 
@@ -517,6 +597,22 @@ export class Main {
           await ipcRegisterBiometricsHandlers(this.ipcService.client, this.biometricsUnlockDriver);
         } catch (e) {
           this.logService.error("[IPC] Failed to register biometrics handlers", e);
+        }
+
+        // Enable main-process SSH agent orchestration when flagged. Runs after the SDK is loaded so
+        // the per-user crypto client can be constructed. Must precede the renderer's `sshagent.init`.
+        if (this.mainProcessSshAgentEnabled && this.enableSshAgentMainOrchestration != null) {
+          try {
+            await this.enableSshAgentMainOrchestration();
+          } catch (e) {
+            this.logService.error("Failed to enable main process SSH agent orchestration", e);
+          }
+        }
+
+        // DuckDuckGo integration is macOS-only. When flagged, handle its protocol in the main
+        // process (consuming the native-messaging stream directly).
+        if (this.mainProcessDuckDuckGoEnabled && process.platform === "darwin") {
+          this.duckDuckGoMessageHandlerMain.init();
         }
       },
       (e: any) => {

@@ -5,9 +5,12 @@ import { concatMap, delay, filter, firstValueFrom, from, race, take, timer } fro
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { sshagent, sshagent_v2 } from "@bitwarden/desktop-napi";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+
+import { MainSshAgentOrchestrator } from "./main-ssh-agent-orchestrator.service";
 
 // V1, delete with PM-30758
 class AgentResponse {
@@ -40,11 +43,32 @@ export class MainSshAgentService {
   private agentStateV2: sshagent_v2.SshAgentState;
   private v2HandlersRegistered = false;
 
+  // Optional main-process orchestration (FeatureFlag.MainProcessSshAgent). When set, the native
+  // sign/list callbacks resolve in the main process — decrypting keys and prompting for approval
+  // via the orchestrator — instead of round-tripping the whole decision through the renderer.
+  private mainOrchestrator?: MainSshAgentOrchestrator;
+  private activeUserIdProvider?: () => Promise<UserId | null>;
+  private isUserUnlockedProvider?: (userId: UserId) => Promise<boolean>;
+
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
   ) {
     this.registerIpcHandlers();
+  }
+
+  /**
+   * Enable main-process orchestration of the v2 sign/list flows. Must be called before `initV2`
+   * (i.e. before the native agent starts firing callbacks) to take effect for a session.
+   */
+  enableMainOrchestration(
+    orchestrator: MainSshAgentOrchestrator,
+    activeUserIdProvider: () => Promise<UserId | null>,
+    isUserUnlockedProvider: (userId: UserId) => Promise<boolean>,
+  ) {
+    this.mainOrchestrator = orchestrator;
+    this.activeUserIdProvider = activeUserIdProvider;
+    this.isUserUnlockedProvider = isUserUnlockedProvider;
   }
 
   private registerIpcHandlers() {
@@ -210,6 +234,10 @@ export class MainSshAgentService {
   }
 
   private requestListKeys(): Promise<boolean> {
+    if (this.mainOrchestrator != null) {
+      return this.handleListKeysWithOrchestrator();
+    }
+
     const id = ++this.requestId;
     return new Promise((resolve) => {
       this.pendingRequests.set(id, resolve);
@@ -218,6 +246,10 @@ export class MainSshAgentService {
   }
 
   private requestSign(data: sshagent_v2.SignRequestData): Promise<boolean> {
+    if (this.mainOrchestrator != null) {
+      return this.handleSignWithOrchestrator(data);
+    }
+
     const id = ++this.requestId;
     return new Promise((resolve) => {
       this.pendingRequests.set(id, resolve);
@@ -231,5 +263,46 @@ export class MainSshAgentService {
         hostFingerprint: data.signRequest.hostFingerprint,
       });
     });
+  }
+
+  private async handleSignWithOrchestrator(data: sshagent_v2.SignRequestData): Promise<boolean> {
+    try {
+      const userId = await this.activeUserIdProvider();
+      if (userId == null || !(await this.isUserUnlockedProvider(userId))) {
+        // Vault-unlock wait for the main-orchestrated path is a follow-up; for now a locked vault
+        // denies the sign rather than prompting.
+        return false;
+      }
+      return await this.mainOrchestrator.handleSignRequest(
+        {
+          cipherId: data.cipherId,
+          processName: data.signRequest.processName,
+          isAgentForwarding: data.signRequest.isForwarding,
+          namespace: data.signRequest.namespace,
+          hostFingerprint: data.signRequest.hostFingerprint,
+        },
+        userId,
+      );
+    } catch (e) {
+      this.logService.error("SSH sign request via main orchestrator failed: ", e);
+      return false;
+    }
+  }
+
+  private async handleListKeysWithOrchestrator(): Promise<boolean> {
+    try {
+      const userId = await this.activeUserIdProvider();
+      if (userId == null || !(await this.isUserUnlockedProvider(userId))) {
+        return false;
+      }
+      const keys = await this.mainOrchestrator.getAgentKeysForUser(userId);
+      if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
+        this.agentStateV2.replace(keys);
+      }
+      return true;
+    } catch (e) {
+      this.logService.error("SSH list keys request via main orchestrator failed: ", e);
+      return false;
+    }
   }
 }
