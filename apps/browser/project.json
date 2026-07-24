@@ -176,16 +176,6 @@
             "NODE_ENV": "development"
           }
         },
-        "safari-qa": {
-          "mode": "production",
-          "outputPath": "dist/apps/browser/safari-qa",
-          "env": {
-            "BROWSER": "safari",
-            "MANIFEST_VERSION": "3",
-            "NODE_ENV": "production",
-            "ENV": "qa"
-          }
-        },
         "safari-mv2": {
           "mode": "production",
           "outputPath": "dist/apps/browser/safari-mv2",
@@ -202,16 +192,6 @@
             "BROWSER": "safari",
             "MANIFEST_VERSION": "2",
             "NODE_ENV": "development"
-          }
-        },
-        "safari-mv2-qa": {
-          "mode": "production",
-          "outputPath": "dist/apps/browser/safari-mv2-qa",
-          "env": {
-            "BROWSER": "safari",
-            "MANIFEST_VERSION": "2",
-            "NODE_ENV": "production",
-            "ENV": "qa"
           }
         },
         "commercial-chrome": {
@@ -423,19 +403,6 @@
             "NODE_ENV": "development"
           }
         },
-        "commercial-safari-qa": {
-          "mode": "production",
-          "outputPath": "dist/apps/browser/commercial-safari-qa",
-          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
-          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
-          "env": {
-            "BROWSER": "safari",
-            "MANIFEST_VERSION": "3",
-            "NODE_ENV": "production",
-            "ENV": "qa"
-          }
-        },
         "commercial-safari-mv2": {
           "mode": "production",
           "outputPath": "dist/apps/browser/commercial-safari-mv2",
@@ -458,19 +425,6 @@
             "BROWSER": "safari",
             "MANIFEST_VERSION": "2",
             "NODE_ENV": "development"
-          }
-        },
-        "commercial-safari-mv2-qa": {
-          "mode": "production",
-          "outputPath": "dist/apps/browser/commercial-safari-mv2-qa",
-          "webpackConfig": "bitwarden_license/bit-browser/webpack.config.js",
-          "main": "bitwarden_license/bit-browser/src/popup/main.ts",
-          "tsConfig": "bitwarden_license/bit-browser/tsconfig.json",
-          "env": {
-            "BROWSER": "safari",
-            "MANIFEST_VERSION": "2",
-            "NODE_ENV": "production",
-            "ENV": "qa"
           }
         }
       }

@@ -49,7 +49,6 @@
     "build:bit:qa:opera": "cross-env ENV=qa npm run build:bit:prod:opera",
     "build:prod:safari": "cross-env NODE_ENV=production npm run build:safari",
     "build:bit:prod:safari": "cross-env NODE_ENV=production npm run build:bit:safari",
-    "build:bit:qa:safari": "cross-env ENV=qa npm run build:bit:prod:safari",
     "build:beta:chrome": "cross-env CHANNEL=beta npm run build:prod:chrome",
     "build:bit:beta:chrome": "cross-env CHANNEL=beta npm run build:bit:prod:chrome",
     "build:qa:beta:chrome": "cross-env ENV=qa npm run build:beta:chrome",
