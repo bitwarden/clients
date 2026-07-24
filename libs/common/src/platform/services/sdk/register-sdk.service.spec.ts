@@ -11,6 +11,7 @@ import {
   mockAccountInfoWith,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
+import { DefaultUserKeyStateService } from "../../../key-management/user-key-state";
 import { UserId } from "../../../types/guid";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -66,6 +67,7 @@ describe("DefaultRegisterSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
+        new DefaultUserKeyStateService(),
       );
     });
 

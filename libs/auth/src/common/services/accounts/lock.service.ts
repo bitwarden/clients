@@ -6,6 +6,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -53,6 +54,7 @@ export class DefaultLockService implements LockService {
     private readonly processReloadService: ProcessReloadServiceAbstraction,
     private readonly logService: LogService,
     private readonly keyService: KeyService,
+    private readonly userKeyStateService: UserKeyStateService,
   ) {}
 
   registerOnLockAction(action: (userId: UserId) => Promise<void>): void {
@@ -134,7 +136,10 @@ export class DefaultLockService implements LockService {
     // Clear CLI unlock state
     await this.keyService.clearStoredUserKey(userId);
 
-    // This will clear ephemeral state such as the user's user key based on the key definition's clear-on
+    // Clear the in-memory user key; this is what transitions the user to the locked state
+    await this.userKeyStateService.setUserKey(userId, null);
+
+    // This will clear ephemeral state based on the key definitions' clear-on
     await this.stateEventRunnerService.handleEvent("lock", userId);
   }
 

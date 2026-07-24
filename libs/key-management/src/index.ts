@@ -9,6 +9,10 @@ export * from "./biometrics/biometric.state";
 
 export { CipherDecryptionKeys, KeyService } from "./abstractions/key.service";
 export { DefaultKeyService } from "./key.service";
+export {
+  UserKeyStateService,
+  DefaultUserKeyStateService,
+} from "@bitwarden/common/key-management/user-key-state";
 export { UserKeyRotationDataProvider } from "./abstractions/user-key-rotation-data-provider.abstraction";
 export { UserKeyRotationKeyRecoveryProvider } from "./abstractions/user-key-rotation-key-recovery-provider.abstraction";
 export {

@@ -374,6 +374,7 @@ import { PhishingDetectionService } from "../dirt/phishing-detection/services/ph
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { SHARED_UNLOCK_EXTERNAL } from "../key-management/shared-unlock-messages";
+import { BackgroundUserKeyStateService } from "../key-management/user-key-state/background-user-key-state.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -430,6 +431,7 @@ export default class MainBackground {
   logService: LogServiceAbstraction;
   keyGenerationService: KeyGenerationService;
   keyService: KeyServiceAbstraction;
+  userKeyStateService: BackgroundUserKeyStateService;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
   masterPasswordUnlockService: MasterPasswordUnlockService;
@@ -800,6 +802,11 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
+    this.userKeyStateService = new BackgroundUserKeyStateService(
+      this.logService,
+      BrowserApi.isManifestVersion(3) ? this.memoryStorageForStateProviders : null,
+    );
+
     this.keyService = new DefaultKeyService(
       this.masterPasswordService,
       this.keyGenerationService,
@@ -812,6 +819,7 @@ export default class MainBackground {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.userKeyStateService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
@@ -945,6 +953,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.userKeyStateService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -955,6 +964,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.userKeyStateService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
@@ -1514,6 +1524,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.userKeyStateService,
       this,
     );
 

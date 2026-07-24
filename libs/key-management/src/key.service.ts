@@ -31,6 +31,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
+import { UserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -44,10 +45,7 @@ import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
-import {
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
@@ -67,8 +65,6 @@ import {
   KeyService as KeyServiceAbstraction,
 } from "./abstractions/key.service";
 import { KdfConfig } from "./models/kdf-config";
-
-const USER_KEY_STATE_KEY: string = "";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
@@ -92,6 +88,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
     protected accountCryptographyStateService: AccountCryptographicStateService,
+    protected userKeyStateService: UserKeyStateService,
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
@@ -109,18 +106,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No userId provided.");
     }
 
-    // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
+    // setUserKey resolves only once the key is observable by subsequent callers
+    await this.userKeyStateService.setUserKey(userId, key);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
-
-    // Await the key actually being set. This ensures that any subsequent callers know the key is already in state.
-    // There were bugs related to the stateprovider observables in the past that caused issues around this.
-    const userKey = await firstValueFrom(this.userKey$(userId).pipe(filter((k) => k != null)));
-    if (userKey == null) {
-      throw new Error("Failed to set user key");
-    }
   }
 
   async refreshAdditionalKeys(userId: UserId): Promise<void> {
@@ -143,17 +133,18 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider
-      .getUserState$(USER_KEY, userId)
-      .pipe(map((userKey) => this.stateObjectToUserKey(userKey)));
+    return this.userKeyStateService.userKey$(userId);
   }
 
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
   async getUserKey(userId?: UserId): Promise<UserKey | null> {
-    const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
-    return this.stateObjectToUserKey(userKey);
+    userId ??= (await firstValueFrom(this.stateProvider.activeUserId$)) ?? undefined;
+    if (userId == null) {
+      return null;
+    }
+    return await this.userKeyStateService.getUserKey(userId);
   }
 
   async getUserKeyFromStorage(
@@ -181,7 +172,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       return false;
     }
 
-    return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
+    return (await this.userKeyStateService.getUserKey(userId)) != null;
   }
 
   async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
@@ -203,8 +194,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       // nothing to do
       return;
     }
-    // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, null, userId);
+    await this.userKeyStateService.setUserKey(userId, null);
     await this.clearAllStoredUserKeys(userId);
   }
 
@@ -640,9 +630,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider
-      .getUser(userId, USER_KEY)
-      .state$.pipe(map((key) => (key != null ? (key[""] as UserKey) : null)));
+    return this.userKeyStateService.userKey$(userId);
   }
 
   userPublicKey$(userId: UserId) {
@@ -920,19 +908,5 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
       }),
     );
-  }
-
-  private userKeyToStateObject(userKey: UserKey | null): Record<string, UserKey> | null {
-    if (userKey == null) {
-      return null;
-    }
-    return { [USER_KEY_STATE_KEY]: userKey };
-  }
-
-  private stateObjectToUserKey(stateObject: Record<string, UserKey> | null): UserKey | null {
-    if (stateObject == null) {
-      return null;
-    }
-    return stateObject[USER_KEY_STATE_KEY] ?? null;
   }
 }

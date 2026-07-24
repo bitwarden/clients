@@ -17,6 +17,7 @@ import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultUserKeyStateService } from "../../../key-management/user-key-state";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -86,6 +87,7 @@ describe("DefaultSdkService", () => {
         fakeStateProvider,
         configService,
         upgradeTokenStateService,
+        new DefaultUserKeyStateService(),
       );
     });
 

@@ -5,6 +5,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -41,6 +42,7 @@ describe("DefaultLockService", () => {
   const processReloadService = mock<ProcessReloadServiceAbstraction>();
   const logService = mock<LogService>();
   const keyService = mock<KeyService>();
+  const userKeyStateService = mock<UserKeyStateService>();
   const sut = new DefaultLockService(
     accountService,
     biometricsService,
@@ -57,6 +59,7 @@ describe("DefaultLockService", () => {
     processReloadService,
     logService,
     keyService,
+    userKeyStateService,
   );
 
   describe("lockAll", () => {
@@ -76,6 +79,7 @@ describe("DefaultLockService", () => {
       processReloadService,
       logService,
       keyService,
+      userKeyStateService,
     );
 
     it("locks the active account last", async () => {
@@ -133,6 +137,7 @@ describe("DefaultLockService", () => {
       vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
       await sut.lock(userId);
       expect(logoutService.logout).not.toHaveBeenCalled();
+      expect(userKeyStateService.setUserKey).toHaveBeenCalledWith(userId, null);
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", userId);
     });
   });

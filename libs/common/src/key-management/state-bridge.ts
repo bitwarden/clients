@@ -13,7 +13,6 @@ import { UserId } from "@bitwarden/user-core";
 
 import { compareValues } from "../platform/misc/compare-values";
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
-import { USER_KEY } from "../platform/services/key-state/user-key.state";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
 import { UserKey } from "../types/key";
 
@@ -26,6 +25,7 @@ import {
   USER_KEY_ENCRYPTED_PIN,
 } from "./pin/pin.state";
 import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
+import { UserKeyStateService } from "./user-key-state";
 
 // Helper functions to work around unreliable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.
@@ -77,6 +77,7 @@ export class JsWasmStateBridge implements WasmStateBridge {
   constructor(
     private stateProvider: StateProvider,
     private userId: UserId,
+    private userKeyStateService: UserKeyStateService,
   ) {}
 
   async set_v2_upgrade_token(value: V2UpgradeToken): Promise<void> {
@@ -122,22 +123,19 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_user_key(userKey: SymmetricKey): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, USER_KEY, {
-      "": SymmetricCryptoKey.fromSdk(userKey) as UserKey,
-    });
+    await this.userKeyStateService.setUserKey(
+      this.userId,
+      SymmetricCryptoKey.fromSdk(userKey) as UserKey,
+    );
   }
 
   async get_user_key(): Promise<SymmetricKey | null> {
-    const key = await readAtomic(this.stateProvider, this.userId, USER_KEY);
-    if (key != null) {
-      return key[""].toSdk();
-    } else {
-      return null;
-    }
+    const key = await this.userKeyStateService.getUserKey(this.userId);
+    return key?.toSdk() ?? null;
   }
 
   async clear_user_key(): Promise<void> {
-    await deleteAtomic(this.stateProvider, this.userId, USER_KEY);
+    await this.userKeyStateService.setUserKey(this.userId, null);
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {

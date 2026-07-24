@@ -53,6 +53,7 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
   private isReloading = false;
+  private runInBackground = false;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -154,6 +155,12 @@ export class WindowMain {
       )
       .subscribe();
 
+    // Cache the setting so window-all-closed can decide synchronously whether closing the
+    // last window should quit the app or keep it resident in the background/tray.
+    this.desktopSettingsService.runInBackground$.subscribe((runInBackground) => {
+      this.runInBackground = runInBackground;
+    });
+
     this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
       if (this.win == null) {
         return;
@@ -243,9 +250,7 @@ export class WindowMain {
 
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
-          // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q
-          if (!isMac() || this.isQuitting || isMacAppStore()) {
+          if (this.shouldQuitOnAllWindowsClosed()) {
             app.quit();
           }
         });
@@ -268,6 +273,25 @@ export class WindowMain {
         reject(e);
       }
     });
+  }
+
+  /**
+   * Decides whether closing the last window should quit the app.
+   * - Explicit quit (tray "Exit", Cmd+Q / before-quit) or Mac App Store: always quit.
+   * - Running in the background: stay resident on every platform (the tray keeps the app
+   *   alive and a fresh window is created on the next activation).
+   * - Otherwise: quit on Windows/Linux, stay resident on macOS (standard macOS behavior).
+   */
+  private shouldQuitOnAllWindowsClosed(): boolean {
+    if (this.isQuitting || isMacAppStore()) {
+      return true;
+    }
+
+    if (this.runInBackground) {
+      return false;
+    }
+
+    return !isMac();
   }
 
   /// Show the window with main window styles
@@ -593,6 +617,15 @@ export class WindowMain {
       return;
     }
 
+    // Capture the synchronous window queries up front. Closing while running in the
+    // background destroys the window, so reading these after the awaits below could hit an
+    // already-destroyed window.
+    const bounds = win.getBounds();
+    const isMaximized = win.isMaximized();
+    const isMinimized = win.isMinimized();
+    const isFullScreen = win.isFullScreen();
+    const zoomFactor = win.webContents.zoomFactor;
+
     const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
 
     if (modalMode.isModalModeActive) {
@@ -600,8 +633,6 @@ export class WindowMain {
     }
 
     try {
-      const bounds = win.getBounds();
-
       if (this.windowStates[configKey] == null) {
         this.windowStates[configKey] = await firstValueFrom(this.desktopSettingsService.window$);
         if (this.windowStates[configKey] == null) {
@@ -610,14 +641,14 @@ export class WindowMain {
       }
 
       // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
-      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
+      this.windowStates[configKey].isMaximized = isMaximized || isFullScreen;
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
 
       // Maybe store these as well?
       // win.isFocused();
       // win.isVisible();
 
-      if (!win.isMaximized() && !win.isMinimized() && !win.isFullScreen()) {
+      if (!isMaximized && !isMinimized && !isFullScreen) {
         this.windowStates[configKey].x = bounds.x;
         this.windowStates[configKey].y = bounds.y;
         this.windowStates[configKey].width = bounds.width;
@@ -625,7 +656,7 @@ export class WindowMain {
       }
 
       if (this.isClosing) {
-        this.windowStates[configKey].zoomFactor = win.webContents.zoomFactor;
+        this.windowStates[configKey].zoomFactor = zoomFactor;
       }
 
       await this.desktopSettingsService.setWindow(this.windowStates[configKey]);

@@ -6,6 +6,12 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 
+import {
+  UserKeyStateAction,
+  UserKeyStateMessage,
+  UserKeyStateUpdate,
+} from "./user-key-state/user-key-state-message";
+
 const biometric = {
   authenticateWithBiometrics: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
@@ -63,6 +69,24 @@ const biometric = {
     } satisfies BiometricMessage),
 };
 
+const userKeyState = {
+  get: (userId: string): Promise<string | null> =>
+    ipcRenderer.invoke("userKeyState", {
+      action: UserKeyStateAction.Get,
+      userId: userId,
+    } satisfies UserKeyStateMessage),
+  set: (userId: string, keyB64: string | null): Promise<void> =>
+    ipcRenderer.invoke("userKeyState", {
+      action: UserKeyStateAction.Set,
+      userId: userId,
+      key: keyB64,
+    } satisfies UserKeyStateMessage),
+  onUpdate: (callback: (update: UserKeyStateUpdate) => void) => {
+    ipcRenderer.on("userKeyState.update", (_event, update: UserKeyStateUpdate) => callback(update));
+  },
+};
+
 export default {
   biometric,
+  userKeyState,
 };

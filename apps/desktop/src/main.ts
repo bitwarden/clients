@@ -47,6 +47,8 @@ import { DesktopAutofillSettingsService } from "./autofill/services/desktop-auto
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { MainUserKeyStateIpcListener } from "./key-management/user-key-state/main-user-key-state-ipc.listener";
+import { MainUserKeyStateService } from "./key-management/user-key-state/main-user-key-state.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -83,6 +85,8 @@ export class Main {
   govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
+  userKeyStateService: MainUserKeyStateService;
+  mainUserKeyStateIpcListener: MainUserKeyStateIpcListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: NodeCryptoFunctionService;
   migrationRunner: MigrationRunner;
@@ -311,6 +315,12 @@ export class Main {
       this.logService,
     );
 
+    this.userKeyStateService = new MainUserKeyStateService(this.windowMain);
+    this.mainUserKeyStateIpcListener = new MainUserKeyStateIpcListener(
+      this.userKeyStateService,
+      this.logService,
+    );
+
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
 
     this.nativeMessagingMain = new NativeMessagingMain(
@@ -363,6 +373,7 @@ export class Main {
   bootstrap() {
     this.desktopCredentialStorageListener.init();
     this.mainBiometricsIpcListener.init();
+    this.mainUserKeyStateIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

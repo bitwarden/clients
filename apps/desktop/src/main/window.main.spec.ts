@@ -9,6 +9,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isMac, isMacAppStore } from "../utils";
 
 // window.main.ts registers a privileged scheme at module load time, which
 // requires the electron runtime. Mock the surface the module touches on
@@ -32,6 +33,14 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     isCoreDumpingDisabled: jest.fn(),
     disableCoredumps: jest.fn(),
   },
+}));
+
+// Platform helpers are simple functions over process.platform; mock them so tests can
+// exercise the platform-specific branches deterministically.
+jest.mock("../utils", () => ({
+  ...jest.requireActual("../utils"),
+  isMac: jest.fn(),
+  isMacAppStore: jest.fn(),
 }));
 
 import { WindowMain } from "./window.main";
@@ -104,6 +113,75 @@ describe("WindowMain", () => {
 
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
+    });
+  });
+
+  describe("shouldQuitOnAllWindowsClosed", () => {
+    let sut: WindowMain;
+    let shouldQuitOnAllWindowsClosed: () => boolean;
+
+    const setRunInBackground = (value: boolean) => ((sut as any).runInBackground = value);
+
+    beforeEach(() => {
+      jest.mocked(isMac).mockReturnValue(false);
+      jest.mocked(isMacAppStore).mockReturnValue(false);
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        mock<DesktopSettingsService>(),
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      shouldQuitOnAllWindowsClosed = () => (sut as any).shouldQuitOnAllWindowsClosed();
+    });
+
+    it("quits when explicitly quitting, regardless of platform or background setting", () => {
+      jest.mocked(isMac).mockReturnValue(true);
+      sut.isQuitting = true;
+      setRunInBackground(true);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(true);
+    });
+
+    it("quits on the Mac App Store even when running in the background", () => {
+      jest.mocked(isMac).mockReturnValue(true);
+      jest.mocked(isMacAppStore).mockReturnValue(true);
+      setRunInBackground(true);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(true);
+    });
+
+    it("stays resident when running in the background on Windows/Linux", () => {
+      jest.mocked(isMac).mockReturnValue(false);
+      setRunInBackground(true);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(false);
+    });
+
+    it("stays resident when running in the background on macOS", () => {
+      jest.mocked(isMac).mockReturnValue(true);
+      setRunInBackground(true);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(false);
+    });
+
+    it("quits on Windows/Linux when not running in the background", () => {
+      jest.mocked(isMac).mockReturnValue(false);
+      setRunInBackground(false);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(true);
+    });
+
+    it("stays resident on macOS when not running in the background", () => {
+      jest.mocked(isMac).mockReturnValue(true);
+      setRunInBackground(false);
+
+      expect(shouldQuitOnAllWindowsClosed()).toBe(false);
     });
   });
 });

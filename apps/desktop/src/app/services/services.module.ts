@@ -130,6 +130,7 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricStateService,
   BiometricsService,
+  UserKeyStateService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
@@ -162,6 +163,7 @@ import { DesktopFido2UserInterfaceService } from "../../autofill/services/deskto
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
+import { RendererUserKeyStateService } from "../../key-management/user-key-state/renderer-user-key-state.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -379,6 +381,11 @@ const safeProviders: SafeProvider[] = [
     deps: [WINDOW],
   }),
   safeProvider({
+    provide: UserKeyStateService,
+    useClass: RendererUserKeyStateService,
+    deps: [],
+  }),
+  safeProvider({
     provide: KeyServiceAbstraction,
     useClass: ElectronKeyService,
     deps: [
@@ -395,6 +402,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({

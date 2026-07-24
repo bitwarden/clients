@@ -205,6 +205,8 @@ import {
   DefaultKeyService as KeyService,
   BiometricStateService,
   DefaultBiometricStateService,
+  DefaultUserKeyStateService,
+  UserKeyStateService,
 } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
@@ -273,6 +275,7 @@ export class ServiceContainer {
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
   keyService: KeyService;
+  userKeyStateService: UserKeyStateService;
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
@@ -525,6 +528,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.userKeyStateService = new DefaultUserKeyStateService();
+
     this.keyService = new KeyService(
       this.masterPasswordService,
       this.keyGenerationService,
@@ -537,6 +542,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.userKeyStateService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
@@ -681,6 +687,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.userKeyStateService,
       customUserAgent,
     );
 
@@ -717,6 +724,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.userKeyStateService,
       customUserAgent,
     );
 
@@ -984,6 +992,7 @@ export class ServiceContainer {
       processReloadService,
       this.logService,
       this.keyService,
+      this.userKeyStateService,
     );
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(

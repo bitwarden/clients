@@ -169,6 +169,7 @@ import {
   DefaultKeyService,
   KdfConfigService,
   KeyService,
+  UserKeyStateService,
 } from "@bitwarden/key-management";
 import {
   LockComponentService,
@@ -206,6 +207,7 @@ import { ForegroundBrowserBiometricsService } from "../../key-management/biometr
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { ForegroundUserKeyStateService } from "../../key-management/user-key-state/foreground-user-key-state.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -309,6 +311,11 @@ const safeProviders: SafeProvider[] = [
     deps: [LogService, PlatformUtilsService],
   }),
   safeProvider({
+    provide: UserKeyStateService,
+    useClass: ForegroundUserKeyStateService,
+    deps: [],
+  }),
+  safeProvider({
     provide: KeyService,
     useFactory: (
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -322,6 +329,7 @@ const safeProviders: SafeProvider[] = [
       stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
       accountCryptographicStateService: AccountCryptographicStateService,
+      userKeyStateService: UserKeyStateService,
     ) => {
       const keyService = new DefaultKeyService(
         masterPasswordService,
@@ -335,6 +343,7 @@ const safeProviders: SafeProvider[] = [
         stateProvider,
         kdfConfigService,
         accountCryptographicStateService,
+        userKeyStateService,
       );
       new ContainerService(keyService, encryptService).attachToGlobal(self);
       return keyService;
@@ -351,6 +360,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
       AccountCryptographicStateService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({

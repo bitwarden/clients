@@ -4,6 +4,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -32,6 +33,7 @@ export class ExtensionLockService extends DefaultLockService {
     processReloadService: ProcessReloadServiceAbstraction,
     logService: LogService,
     keyService: KeyService,
+    userKeyStateService: UserKeyStateService,
     private readonly main: MainBackground,
   ) {
     super(
@@ -50,6 +52,7 @@ export class ExtensionLockService extends DefaultLockService {
       processReloadService,
       logService,
       keyService,
+      userKeyStateService,
     );
   }
 

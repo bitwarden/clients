@@ -5,6 +5,7 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { DefaultUserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -65,6 +66,7 @@ describe("ElectronKeyService", () => {
       kdfConfigService,
       biometricService,
       accountCryptographicStateService,
+      new DefaultUserKeyStateService(),
     );
   });
 

@@ -13,6 +13,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
+import { DefaultUserKeyStateService } from "@bitwarden/common/key-management/user-key-state";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,10 +25,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
-import {
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
   awaitAsync,
@@ -66,6 +64,7 @@ describe("keyService", () => {
   const kdfConfigService = mock<KdfConfigService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   let stateProvider: FakeStateProvider;
+  let userKeyStateService: DefaultUserKeyStateService;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -75,6 +74,7 @@ describe("keyService", () => {
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
+    userKeyStateService = new DefaultUserKeyStateService();
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
 
@@ -95,13 +95,13 @@ describe("keyService", () => {
       stateProvider,
       kdfConfigService,
       accountCryptographicStateService,
+      userKeyStateService,
     );
   });
 
   const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
-    stateProvider.singleUser
-      .getFake(userId, USER_KEY)
-      .nextState(userKey == null ? null : ({ "": userKey } as Record<string, UserKey>));
+    // DefaultUserKeyStateService applies the value synchronously
+    void userKeyStateService.setUserKey(userId, userKey);
   };
 
   afterEach(() => {
@@ -150,9 +150,11 @@ describe("keyService", () => {
     });
 
     it("retrieves the key state of the requested user", async () => {
+      const getUserKeySpy = jest.spyOn(userKeyStateService, "getUserKey");
+
       await keyService.getUserKey(mockUserId);
 
-      expect(stateProvider.mock.getUserState$).toHaveBeenCalledWith(USER_KEY, mockUserId);
+      expect(getUserKeySpy).toHaveBeenCalledWith(mockUserId);
     });
 
     it("returns the User Key if available", async () => {
@@ -355,7 +357,7 @@ describe("keyService", () => {
       },
     );
 
-    describe.each([USER_ENCRYPTED_ORGANIZATION_KEYS, USER_ENCRYPTED_PROVIDER_KEYS, USER_KEY])(
+    describe.each([USER_ENCRYPTED_ORGANIZATION_KEYS, USER_ENCRYPTED_PROVIDER_KEYS])(
       "key removal",
       (key: UserKeyDefinition<unknown>) => {
         it(`clears ${key.key} for the specified user when specified`, async () => {
@@ -368,6 +370,15 @@ describe("keyService", () => {
         });
       },
     );
+
+    it("clears the user key for the specified user", async () => {
+      const userId = "someOtherUser" as UserId;
+      setUserKeyState(userId, makeSymmetricCryptoKey<UserKey>(64));
+
+      await keyService.clearKeys(userId);
+
+      expect(await userKeyStateService.getUserKey(userId)).toBeNull();
+    });
   });
 
   describe("userPrivateKey$", () => {
@@ -903,14 +914,11 @@ describe("keyService", () => {
     };
 
     function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
-      const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
       const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
-      userKeyState.nextState(null);
+      setUserKeyState(mockUserId, null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(
-        fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
-      );
+      setUserKeyState(mockUserId, fakeUserKey);
       return [fakeUserKey, fakeMasterKey];
     }
 

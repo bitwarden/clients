@@ -4,7 +4,8 @@ import { Repository, StateClient } from "@bitwarden/sdk-internal";
 
 import { EphemeralPinEnvelopeMapper } from "../../../key-management/ephemeral-pin-envelope-mapper";
 import { LocalUserDataKeyRecordMapper } from "../../../key-management/local-user-data-key-mapper";
-import { UserKeyRecordMapper } from "../../../key-management/user-key-mapper";
+import { UserKeyRepository } from "../../../key-management/user-key-repository";
+import { UserKeyStateService } from "../../../key-management/user-key-state";
 import { SendRecordMapper } from "../../../tools/send/models/domain/send-sdk-mapper";
 import { UserId } from "../../../types/guid";
 import { CipherRecordMapper } from "../../../vault/models/domain/cipher-sdk-mapper";
@@ -14,11 +15,12 @@ export async function initializeClientManagedState(
   userId: UserId,
   stateClient: StateClient,
   stateProvider: StateProvider,
+  userKeyStateService: UserKeyStateService,
 ): Promise<void> {
   stateClient.register_client_managed_repositories({
     cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper(), true),
     folder: null,
-    user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
+    user_key_state: new UserKeyRepository(userId, userKeyStateService),
     local_user_data_key_state: new RepositoryRecord(
       userId,
       stateProvider,

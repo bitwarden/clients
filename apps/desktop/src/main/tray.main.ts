@@ -96,9 +96,10 @@ export class TrayMain {
       }
 
       if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
-        // Keep running in the background: closing the window hides it to the tray.
-        e.preventDefault();
-        this.hideToTray();
+        // Keep running in the background: allow the window to be destroyed (freeing the
+        // renderer process) while the tray keeps the app resident. A fresh window is
+        // created on the next activation (tray click, dock, or second instance).
+        this.showTray();
       } else {
         // Not running in the background: closing the window quits the application.
         // Setting isQuitting ensures macOS also quits via the window-all-closed handler.

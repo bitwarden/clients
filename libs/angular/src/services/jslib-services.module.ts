@@ -384,10 +384,12 @@ import {
   DefaultKeyService,
   DefaultUserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationService,
+  DefaultUserKeyStateService,
   KdfConfigService,
   KeyService,
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
+  UserKeyStateService,
 } from "@bitwarden/key-management";
 import {
   DefaultOrganizationInviteLinkApiService,
@@ -860,6 +862,11 @@ const safeProviders: SafeProvider[] = [
     deps: [CryptoFunctionServiceAbstraction],
   }),
   safeProvider({
+    provide: UserKeyStateService,
+    useClass: DefaultUserKeyStateService,
+    deps: [],
+  }),
+  safeProvider({
     provide: KeyService,
     useClass: DefaultKeyService,
     deps: [
@@ -874,6 +881,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
       AccountCryptographicStateService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({
@@ -1862,6 +1870,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({
@@ -1879,6 +1888,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       V2UpgradeTokenStateService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({
@@ -2057,6 +2067,7 @@ const safeProviders: SafeProvider[] = [
       ProcessReloadServiceAbstraction,
       LogService,
       KeyService,
+      UserKeyStateService,
     ],
   }),
   safeProvider({
