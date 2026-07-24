@@ -9,9 +9,12 @@
           <bit-label>{{ "maxAccessCount" | i18n }}</bit-label>
           <input
             bitInput
+            type="number"
+            step="1"
+            min="1"
             formControlName="maxAccessCount"
             [readonly]="!editing()"
-            id="maxAccessCountInput"
+            id="send-options_input_max-access-count"
           />
           @if (editing()) {
             <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
