@@ -14,15 +14,13 @@ import {
   HealthInactive,
   HealthActive,
 } from "@bitwarden/assets/svg";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+
+import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -33,8 +31,7 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 })
 export class TabsV2Component {
   private sendPolicyService = inject(SendPolicyService);
-  private configService = inject(ConfigService);
-  private organizationService = inject(OrganizationService);
+  private healthAccessService = inject(HealthAccessService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   private hasActiveBadges$ = this.userId$.pipe(
@@ -50,28 +47,8 @@ export class TabsV2Component {
     map((disableSend) => !disableSend),
   );
 
-  // health feature only available to Users with personal accounts or belonging to free/family organizations.
-  private healthEnabled$ = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.BrowserExtensionHealthReport),
-    this.userId$.pipe(
-      switchMap(
-        (userId) =>
-          !this.organizationService.hasOrganizations(userId) ||
-          this.organizationService
-            .organizations$(userId)
-            .pipe(
-              map((orgs) =>
-                orgs.every(
-                  (org) =>
-                    org.productTierType === ProductTierType.Free ||
-                    org.productTierType === ProductTierType.Families,
-                ),
-              ),
-            ),
-      ),
-    ),
-  ]).pipe(
-    map(([healthFlagEnabled, userHasHealthAccess]) => healthFlagEnabled && userHasHealthAccess),
+  private healthEnabled$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthEnabled$(userId)),
   );
 
   protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
