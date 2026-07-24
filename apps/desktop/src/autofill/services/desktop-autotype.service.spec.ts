@@ -139,9 +139,9 @@ describe("DesktopAutotypeService", () => {
     // Mock ipc (global)
     global.ipc = {
       autofill: {
-        listenAutotypeRequest: jest.fn(),
-        configureAutotype: jest.fn(),
-        toggleAutotype: jest.fn(),
+        listenAutotypeRequestMvp: jest.fn(),
+        configureAutotypeMvp: jest.fn(),
+        toggleAutotypeMvp: jest.fn(),
       },
     } as any;
 
@@ -186,7 +186,7 @@ describe("DesktopAutotypeService", () => {
     it("should register autotype request listener on Windows", async () => {
       await service.init();
 
-      expect(global.ipc.autofill.listenAutotypeRequest).toHaveBeenCalled();
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).toHaveBeenCalled();
     });
 
     it("should not initialize on non-Windows platforms", async () => {
@@ -194,7 +194,7 @@ describe("DesktopAutotypeService", () => {
 
       await service.init();
 
-      expect(global.ipc.autofill.listenAutotypeRequest).not.toHaveBeenCalled();
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
     });
 
     it("should configure autotype when keyboard shortcut changes", async () => {
@@ -203,7 +203,7 @@ describe("DesktopAutotypeService", () => {
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.configureAutotype).toHaveBeenCalled();
+      expect(global.ipc.autofill.configureAutotypeMvp).toHaveBeenCalled();
     });
 
     it("should toggle autotype when feature enabled state changes", async () => {
@@ -214,7 +214,7 @@ describe("DesktopAutotypeService", () => {
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.toggleAutotype).toHaveBeenCalled();
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalled();
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {

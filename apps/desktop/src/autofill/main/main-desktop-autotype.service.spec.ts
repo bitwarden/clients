@@ -3,7 +3,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ipcMain, globalShortcut } from "electron";
 
-import { autotype } from "@bitwarden/desktop-napi";
+import { autotype_mvp } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
@@ -33,7 +33,7 @@ jest.mock("electron", () => ({
 
 // Mock desktop-napi
 jest.mock("@bitwarden/desktop-napi", () => ({
-  autotype: {
+  autotype_mvp: {
     getForegroundWindowTitle: jest.fn(),
     typeInput: jest.fn(),
   },
@@ -246,7 +246,11 @@ describe("MainDesktopAutotypeService", () => {
       const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       await executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).toHaveBeenCalledWith(expect.any(Array), ["Control", "Alt", "B"]);
+      expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expect.any(Array), [
+        "Control",
+        "Alt",
+        "B",
+      ]);
     });
 
     it("should not execute autotype with empty username", () => {
@@ -258,7 +262,7 @@ describe("MainDesktopAutotypeService", () => {
       const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).not.toHaveBeenCalled();
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
     });
 
     it("should not execute autotype with empty password", () => {
@@ -270,7 +274,7 @@ describe("MainDesktopAutotypeService", () => {
       const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).not.toHaveBeenCalled();
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
     });
 
     it("should format input with tab separator", () => {
@@ -294,7 +298,7 @@ describe("MainDesktopAutotypeService", () => {
       const expectedPattern = "user\tpass";
       const expectedArray = Array.from(expectedPattern).map((c) => c.charCodeAt(0));
 
-      expect(autotype.typeInput).toHaveBeenCalledWith(expectedArray, ["Control", "Alt", "B"]);
+      expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expectedArray, ["Control", "Alt", "B"]);
     });
   });
 
@@ -393,7 +397,7 @@ describe("MainDesktopAutotypeService", () => {
     });
 
     it("should send window title to renderer on shortcut activation", () => {
-      (autotype.getForegroundWindowTitle as jest.Mock).mockReturnValue("Notepad");
+      (autotype_mvp.getForegroundWindowTitle as jest.Mock).mockReturnValue("Notepad");
 
       const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
       toggleHandler({}, true);
@@ -402,7 +406,7 @@ describe("MainDesktopAutotypeService", () => {
       const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
       registeredCallback();
 
-      expect(autotype.getForegroundWindowTitle).toHaveBeenCalled();
+      expect(autotype_mvp.getForegroundWindowTitle).toHaveBeenCalled();
       expect(mockWindowMain.win.webContents.send).toHaveBeenCalledWith(
         AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
         { windowTitle: "Notepad" },
