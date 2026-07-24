@@ -41,7 +41,7 @@
       <ng-content select="[slot=end]"></ng-content>
       @if (!toggleInStartSlot()) {
         <bit-icon
-          class="tw-ms-auto"
+          class="tw-pointer-events-none"
           [class]="open() ? 'tw-transform tw-transition-transform tw-rotate-180' : ''"
           name="bwi-angle-down"
           aria-hidden="true"
