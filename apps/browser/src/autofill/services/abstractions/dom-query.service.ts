@@ -16,7 +16,10 @@ export interface DomQueryService {
   updatePageContainsShadowDom(): boolean;
   refreshShadowDomStateForUserRequest(): void;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
-  checkForNewShadowRoots(addedElements?: Element[]): ShadowRootScanResult;
+  checkForNewShadowRoots(
+    addedElements?: Element[],
+    mutationObserver?: MutationObserver,
+  ): ShadowRootScanResult;
   setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;

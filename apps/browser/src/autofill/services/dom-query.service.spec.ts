@@ -389,6 +389,36 @@ describe("DomQueryService", () => {
       expect(result.foundNewRoot).toBe(true);
     });
 
+    it("enrolls the discovered root when an observer is supplied (observe + known, paired)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      document.body.appendChild(customElement);
+      const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+      const result = domQueryService.checkForNewShadowRoots([customElement], mutationObserver);
+
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(shadowRoot)).toBe(true);
+      expect(observeSpy).toHaveBeenCalledWith(
+        shadowRoot,
+        expect.objectContaining({ attributes: true, childList: true, subtree: true }),
+      );
+    });
+
+    it("detects but does not enroll a discovered root when no observer is supplied", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      document.body.appendChild(customElement);
+
+      const result = domQueryService.checkForNewShadowRoots([customElement]);
+
+      // Detection still fires, but without an observer to pair it with, the root stays unknown.
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(shadowRoot)).toBe(false);
+    });
+
     it("returns false when the batched element's root is already observed", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
@@ -620,14 +650,21 @@ describe("DomQueryService", () => {
         const hydrated = document.createElement("ready-widget");
         const hydratedRoot = hydrated.attachShadow({ mode: "open" });
         document.body.append(pending, hydrated);
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
 
         const { unresolvedHosts } = domQueryService.queryWithUnresolvedShadowHosts(
           document.documentElement,
           () => false,
+          mutationObserver,
         );
 
         expect(unresolvedHosts).toEqual(new Set([pending]));
+        // A root is recorded as known only paired with an observer watching it.
         expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
+        expect(observeSpy).toHaveBeenCalledWith(
+          hydratedRoot,
+          expect.objectContaining({ attributes: true, childList: true, subtree: true }),
+        );
       });
     });
 

@@ -1730,7 +1730,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(batch);
+    const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(
+      batch,
+      this.mutationObserver,
+    );
     if (foundNewRoot) {
       this.debouncedRequirePageDetailsUpdate();
     }

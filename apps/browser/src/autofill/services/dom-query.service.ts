@@ -15,10 +15,22 @@ import {
 // Per-scan cap; the persistent cap lives in the collector.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-/** The two output bins a shadow-root scan fills: hosts to re-scan, and newly seen roots. */
+// Every shadow root we observe is watched the same way; shared so the three observe sites can't drift.
+const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
+  attributes: true,
+  childList: true,
+  subtree: true,
+};
+
+/**
+ * The two output bins a shadow-root scan fills: hosts to re-scan, and newly seen roots.
+ * When `observer` is supplied, the scan also enrolls each newly discovered root (observe + add
+ * to knownShadowRoots) as it finds it, instead of leaving that to a later collection walk.
+ */
 type ShadowScan = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
+  observer?: MutationObserver;
 };
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -152,8 +164,15 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Scans added subtrees for unobserved shadow roots, collecting still-shadow-less hosts
    * so the caller can re-scan them after hydration.
    */
-  checkForNewShadowRoots = (addedElements?: Element[]): ShadowRootScanResult => {
-    const scan: ShadowScan = { unresolvedHosts: new Set(), discoveredRoots: new Set() };
+  checkForNewShadowRoots = (
+    addedElements?: Element[],
+    mutationObserver?: MutationObserver,
+  ): ShadowRootScanResult => {
+    const scan: ShadowScan = {
+      unresolvedHosts: new Set(),
+      discoveredRoots: new Set(),
+      observer: mutationObserver,
+    };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
       return { foundNewRoot: false, unresolvedHosts: scan.unresolvedHosts };
@@ -370,13 +389,8 @@ export class DomQueryService implements DomQueryServiceInterface {
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
 
       if (mutationObserver) {
-        mutationObserver.observe(shadowRoot, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
+        this.enrollShadowRoot(shadowRoot, mutationObserver);
       }
-      this.knownShadowRoots.add(shadowRoot);
     }
 
     return elements;
@@ -428,9 +442,23 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
     if (!this.knownShadowRoots.has(root)) {
       scan.discoveredRoots.add(root);
+      // With an observer in hand, enroll here rather than re-finding the root in a later walk.
+      if (scan.observer) {
+        this.enrollShadowRoot(root, scan.observer);
+      }
     }
     // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
     this.scanForNewShadowRootInSubtree(root, depth + 1, scan);
+  };
+
+  /**
+   * Observes a shadow root and records it as known — always both, in that order, so
+   * `knownShadowRoots` never holds a root we aren't watching. Callers with no observer to pair
+   * the entry with simply don't enroll (a later walk that supplies one will).
+   */
+  private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
+    observer.observe(root, SHADOW_ROOT_OBSERVE_OPTIONS);
+    this.knownShadowRoots.add(root);
   };
 
   /**
@@ -600,13 +628,8 @@ export class DomQueryService implements DomQueryServiceInterface {
         }
         if (nodeShadowRoot) {
           if (mutationObserver) {
-            mutationObserver.observe(nodeShadowRoot, {
-              attributes: true,
-              childList: true,
-              subtree: true,
-            });
+            this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
           }
-          this.knownShadowRoots.add(nodeShadowRoot);
 
           this.buildTreeWalkerNodesQueryResults(
             nodeShadowRoot,
