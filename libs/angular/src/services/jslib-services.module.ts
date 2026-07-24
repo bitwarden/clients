@@ -206,8 +206,6 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
-import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DefaultKeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/services/default-key-connector-api.service";
@@ -585,10 +583,9 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultEncryptedMigrator,
     deps: [
       KdfConfigService,
-      ChangeKdfService,
       LogService,
       ConfigService,
-      MasterPasswordServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
       SyncService,
       KeyService,
       BiometricsService,
@@ -1534,11 +1531,6 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AccountServiceAbstraction,
     ],
-  }),
-  safeProvider({
-    provide: ChangeKdfService,
-    useClass: DefaultChangeKdfService,
-    deps: [SdkService, InternalMasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,

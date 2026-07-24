@@ -6,6 +6,9 @@ import { UserId } from "@bitwarden/user-core";
 import { assertNonNullish } from "../auth/utils";
 import { SdkService } from "../platform/abstractions/sdk/sdk.service";
 
+import { EncString } from "./crypto/models/enc-string";
+import { InternalMasterPasswordServiceAbstraction } from "./master-password/abstractions/master-password.service.abstraction";
+
 export async function firstValueFromOrThrow<T>(
   value: Observable<T | null>,
   name: string,
@@ -37,6 +40,29 @@ export async function withPasswordManagerSdk<TResult>(
         return await passedInFunction(ref.value);
       }),
     ),
+  );
+}
+
+/**
+ * Keeps the legacy locally-cached master key and master-key-wrapped user key in sync with the
+ * persisted master-password unlock data, so that master-key based unlock verification etc. keeps
+ * working after the SDK re-derives them (e.g. on a KDF change). The SDK has already written the new
+ * unlock data to state, so we read it back to derive the master key.
+ *
+ * TODO: Drop this helper and all of its callers once key connector runs via the SDK, at which point
+ * ownership of this state moves into the SDK and it no longer needs to be mirrored client-side.
+ */
+export async function syncLegacyMasterKeyState(
+  userId: UserId,
+  masterPassword: string,
+  masterPasswordService: InternalMasterPasswordServiceAbstraction,
+): Promise<void> {
+  const unlockData = await firstValueFrom(masterPasswordService.masterPasswordUnlockData$(userId));
+  assertNonNullish(unlockData, "unlockData");
+  await masterPasswordService.setLegacyMasterKeyFromUnlockData(masterPassword, unlockData, userId);
+  await masterPasswordService.setMasterKeyEncryptedUserKey(
+    new EncString(unlockData.masterKeyWrappedUserKey),
+    userId,
   );
 }
 
