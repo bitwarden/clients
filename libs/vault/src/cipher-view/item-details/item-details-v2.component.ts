@@ -23,6 +23,7 @@ import {
 } from "@bitwarden/components";
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
+import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -38,10 +39,13 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
     OrgIconDirective,
     FormFieldModule,
     LinkComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class ItemDetailsV2Component {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
+
   readonly hideOwner = input<boolean>(false);
   readonly cipher = input.required<CipherView>();
   readonly organization = input<Organization | undefined>();
@@ -97,7 +101,8 @@ export class ItemDetailsV2Component {
 
   getAriaLabel(item: Organization | CollectionView | FolderView): string {
     if (item instanceof Organization) {
-      return this.i18nService.t("owner") + item.name;
+      const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
       return this.i18nService.t("collection") + item.name;
     } else if (item instanceof FolderView) {
