@@ -479,11 +479,11 @@ jobs:
           - name: "prod"
             readable: "Production"
             build_command: "build"
-            installer_artifact_suffix: ""
+            installer_qa_segment: ""
           - name: "qa"
             readable: "QA Cloud-Region"
             build_command: "build:qa"
-            installer_artifact_suffix: "-QA"
+            installer_qa_segment: "-QA"
     defaults:
       run:
         shell: pwsh
@@ -658,7 +658,7 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Installer${{ matrix.build_type.installer_artifact_suffix }}-${{ env._PACKAGE_VERSION }}.exe
+          name: Bitwarden-Installer${{ matrix.build_type.installer_qa_segment }}-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
@@ -1251,11 +1251,11 @@ jobs:
           - name: "prod"
             readable: "GitHub Release Assets"
             build_command: "build"
-            dmg_infix: ""
+            dmg_qa_segment: ""
           - name: "qa"
             readable: "QA Cloud-Region Build"
             build_command: "build:qa"
-            dmg_infix: "-QA"
+            dmg_qa_segment: "-QA"
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1406,7 +1406,7 @@ jobs:
           $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
           $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
           $package | ConvertTo-Json -Depth 32 | Set-Content -Path electron-builder.json
-          Write-Output "### MacOS build number: $env:BUILD_NUMBER"
+          Write-Output "### MacOS GitHub build number: $env:BUILD_NUMBER"
 
       - name: Install Node dependencies
         run: npm ci
@@ -1502,7 +1502,7 @@ jobs:
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden${{ matrix.build_type.dmg_infix }}-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: Bitwarden${{ matrix.build_type.dmg_qa_segment }}-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
