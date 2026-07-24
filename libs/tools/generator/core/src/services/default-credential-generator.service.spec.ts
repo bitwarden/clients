@@ -2,7 +2,7 @@
 import { TextEncoder, TextDecoder } from "util";
 Object.assign(global, { TextDecoder, TextEncoder });
 
-import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, ReplaySubject, Subject, catchError, firstValueFrom, of } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
@@ -167,6 +167,62 @@ describe("DefaultCredentialGeneratorService", () => {
       expect(result$.value?.credential).toBe("generatedPassword");
       expect(result$.value?.category).toBe(Type.password);
       expect(providers.metadata!.metadata).toHaveBeenCalledWith("testAlgorithm");
+    });
+
+    it("uses the selected forwarder's settings after a failed generation", async () => {
+      const firstAlgorithm = { forwarder: Vendor.addyio } as ForwarderExtensionId;
+      const secondAlgorithm = { forwarder: Vendor.simplelogin } as ForwarderExtensionId;
+      const firstSettings = new ReplaySubject<{ token: string }>(1);
+      const secondSettings = new ReplaySubject<{ token: string }>(1);
+      const firstEngine = {
+        generate: jest.fn().mockRejectedValue("Invalid Addy.io API token"),
+      };
+      const secondEngine = {
+        generate: jest.fn((_request: GenerateRequest, settings: { token: string }) =>
+          Promise.resolve(
+            new GeneratedCredential(settings.token, Type.email, Date.now(), "unit test"),
+          ),
+        ),
+      };
+      const firstMetadata = {
+        id: firstAlgorithm,
+        engine: { create: jest.fn().mockReturnValue(firstEngine) },
+      } as unknown as GeneratorMetadata<{ token: string }>;
+      const secondMetadata = {
+        id: secondAlgorithm,
+        engine: { create: jest.fn().mockReturnValue(secondEngine) },
+      } as unknown as GeneratorMetadata<{ token: string }>;
+
+      providers.metadata!.metadata = jest.fn((algorithm: CredentialAlgorithm) =>
+        algorithm === firstAlgorithm ? firstMetadata : secondMetadata,
+      );
+      service = createService({
+        settings: jest.fn((metadata: GeneratorMetadata<{ token: string }>) =>
+          metadata === firstMetadata ? firstSettings : secondSettings,
+        ),
+      });
+      const on$ = new Subject<GenerateRequest>();
+      const account$ = new BehaviorSubject(account);
+      const result$ = new BehaviorSubject<GeneratedCredential | null>(null);
+
+      service
+        .generate$({ on$, account$ })
+        .pipe(catchError((_: unknown, generator) => generator))
+        .subscribe(result$);
+
+      on$.next({ algorithm: firstAlgorithm });
+      firstSettings.next({ token: "" });
+      await awaitAsync();
+
+      on$.next({ algorithm: secondAlgorithm });
+      secondSettings.next({ token: "valid-token" });
+      await awaitAsync();
+
+      expect(secondEngine.generate).toHaveBeenCalledWith(
+        expect.objectContaining({ algorithm: secondAlgorithm }),
+        { token: "valid-token" },
+      );
+      expect(result$.value?.credential).toBe("valid-token");
     });
   });
 
