@@ -1,7 +1,10 @@
 import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { KDF_CONFIG, fromSdkKdfConfig } from "@bitwarden/key-management";
 import {
   EncString,
+  Kdf as SdkKdf,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
@@ -194,5 +197,18 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_encrypted_pin(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ENCRYPTED_PIN);
+  }
+
+  async set_kdf_config(value: SdkKdf): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, KDF_CONFIG, fromSdkKdfConfig(value));
+  }
+
+  async get_kdf_config(): Promise<SdkKdf | null> {
+    const config = await readAtomic(this.stateProvider, this.userId, KDF_CONFIG);
+    return config == null ? null : config.toSdkConfig();
+  }
+
+  async clear_kdf_config(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, KDF_CONFIG);
   }
 }

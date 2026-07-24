@@ -1,37 +1,31 @@
 import { firstValueFrom, map } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import { assertNonNullish } from "../../auth/utils";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
-import {
-  fromSdkAuthenticationData,
-  MasterPasswordAuthenticationData,
-  MasterPasswordUnlockData,
-} from "../master-password/types/master-password.types";
 
-import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { ChangeKdfService } from "./change-kdf.service.abstraction";
-import { ChangeKdfRequest } from "./models/change-kdf.request";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(
-    private changeKdfApiService: ChangeKdfApiService,
     private sdkService: SdkService,
-    private keyService: KeyService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private kdfConfigService: KdfConfigService,
   ) {}
 
   async updateUserKdfParams(masterPassword: string, kdf: KdfConfig, userId: UserId): Promise<void> {
     assertNonNullish(masterPassword, "masterPassword");
     assertNonNullish(kdf, "kdf");
     assertNonNullish(userId, "userId");
-    const updateKdfResult = await firstValueFrom(
+
+    // The SDK re-derives the master-password authentication and unlock data for the new KDF,
+    // posts the change to the server, and persists the new unlock data and KDF config to state
+    // via the state bridge.
+    await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -40,44 +34,27 @@ export class DefaultChangeKdfService implements ChangeKdfService {
 
           using ref = sdk.take();
 
-          const updateKdfResponse = ref.value
-            .crypto()
-            .make_update_kdf(masterPassword, kdf.toSdkConfig());
-          return await updateKdfResponse;
+          await ref.value.user_crypto_management().change_kdf(masterPassword, kdf.toSdkConfig());
         }),
       ),
     );
 
-    const authenticationData: MasterPasswordAuthenticationData = fromSdkAuthenticationData(
-      updateKdfResult.masterPasswordAuthenticationData,
+    // Keep the legacy locally-cached master key and master-key-wrapped user key in sync so that
+    // unlock verification etc. still works. Ownership of this state is not yet migrated to the SDK,
+    // so it stays client-side. The SDK has already written the new unlock data to state, so we read
+    // it back to derive the master key.
+    const unlockData = await firstValueFrom(
+      this.masterPasswordService.masterPasswordUnlockData$(userId),
     );
-    const unlockData: MasterPasswordUnlockData = MasterPasswordUnlockData.fromSdk(
-      updateKdfResult.masterPasswordUnlockData,
-    );
-    const oldAuthenticationData: MasterPasswordAuthenticationData = fromSdkAuthenticationData(
-      updateKdfResult.oldMasterPasswordAuthenticationData,
-    );
-
-    const request = new ChangeKdfRequest(
-      oldAuthenticationData.masterPasswordAuthenticationHash,
-      authenticationData,
-      unlockData,
-    );
-
-    await this.changeKdfApiService.updateUserKdfParams(request);
-
-    // Update the locally stored master key and hash, so that UV, etc. still works
-    const masterKey = await this.keyService.makeMasterKey(
+    assertNonNullish(unlockData, "unlockData");
+    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
       masterPassword,
-      unlockData.salt,
-      unlockData.kdf,
+      unlockData,
+      userId,
     );
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(
       new EncString(unlockData.masterKeyWrappedUserKey),
       userId,
     );
-    await this.kdfConfigService.setKdfConfig(userId, kdf);
   }
 }
