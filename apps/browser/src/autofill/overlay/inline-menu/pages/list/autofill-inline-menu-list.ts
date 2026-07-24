@@ -1526,10 +1526,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return cipher.card;
     }
 
-    if (cipher.sshKey) {
-      return cipher.sshKey;
-    }
-
     return "";
   }
 
