@@ -688,7 +688,7 @@ dependencies = [
 name = "bitwarden_chromium_import_helper"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "base64",
  "chacha20poly1305 0.10.1",
@@ -955,7 +955,7 @@ name = "chromium_importer"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "async-trait",
  "base64",
@@ -1512,7 +1512,7 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
@@ -4456,7 +4456,7 @@ dependencies = [
 name = "secure_memory"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "linux-keyutils",
  "memsec",
  "rand 0.9.3",
