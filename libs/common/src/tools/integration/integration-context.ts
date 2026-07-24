@@ -81,16 +81,19 @@ export class IntegrationContext<Settings extends object> {
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, tries to extract the hostname from the website URL, returns full URL otherwise
+   *  @param options.extractOrigin when `true`, tries to extract the origin (scheme + host) from the website URL, returns full URL otherwise
    *  @param options.maxLength limits the length of the return value
    *  @returns The website or an empty string if a website isn't available
    *  @remarks `website` is usually supplied when generating a credential from the vault
    */
   website(
     request: IntegrationRequest,
-    options?: { extractHostname?: boolean; maxLength?: number },
+    options?: { extractHostname?: boolean; extractOrigin?: boolean; maxLength?: number },
   ) {
     let url = request.website ?? "";
-    if (options?.extractHostname) {
+    if (options?.extractOrigin) {
+      url = Utils.getUrl(url)?.origin ?? url;
+    } else if (options?.extractHostname) {
       url = Utils.getHost(url) ?? url;
     }
     return url.slice(0, options?.maxLength);
@@ -114,5 +117,39 @@ export class IntegrationContext<Settings extends object> {
     const description = this.i18n.t(descriptionId, website);
 
     return description.slice(0, options?.maxLength);
+  }
+
+  /** transform a domain into a valid prefifx
+   * for example, "example.com" becomes "example", "foo.example.com" becomes "foo_example"
+   * @param request supplies information about the state of the extension site
+   * @returns prefix derived from the website URL or an empty string if a website isn't available
+   * */
+  prefix(request: IntegrationRequest) {
+    const website = this.website(request);
+
+    // Validate that the URL is actually valid before extracting hostname
+    if (!Utils.getUrl(website)) {
+      return "";
+    }
+
+    const hostname = Utils.getHostname(website) ?? "";
+    if (hostname === "") {
+      return "";
+    }
+
+    const parts = hostname.split(".");
+    if (parts.length <= 1) {
+      return hostname;
+    }
+
+    // For second-level domains (example.com), return just the domain name
+    if (parts.length === 2) {
+      return parts[0];
+    }
+
+    // For subdomains (foo.example.com), return "foo_example"
+    // We take all parts except the TLD and join them with underscore
+    const partsWithoutTld = parts.slice(0, parts.length - 1);
+    return partsWithoutTld.join("_");
   }
 }
