@@ -670,6 +670,7 @@ export class ServiceContainer {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
+    const cliManagedSettingsService = new DefaultManagedSettingsService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -682,7 +683,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
-      new DefaultManagedSettingsService(),
+      cliManagedSettingsService,
       customUserAgent,
     );
 
@@ -719,6 +720,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      cliManagedSettingsService,
       customUserAgent,
     );
 

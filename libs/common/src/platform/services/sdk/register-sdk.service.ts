@@ -14,12 +14,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import {
-  PasswordManagerClient,
-  ClientSettings,
-  ManagedSettingsClient,
-  TokenProvider,
-} from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -32,6 +27,7 @@ import { RegisterSdkService } from "../../abstractions/sdk/register-sdk.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { toSdkDevice, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { ManagedSettingsService } from "../../managed-settings";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
@@ -69,12 +65,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
-      // Registration is a pre-login, ephemeral flow that consumes no managed settings, so it
-      // receives a fresh empty handle rather than the host-owned singleton.
+      const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
-        new ManagedSettingsClient(),
+        managedSettings,
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -90,6 +85,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
+    private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
 
@@ -147,12 +143,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             }
 
             const settings = await this.toSettings(env);
-            // Registration consumes no managed settings; a fresh empty handle satisfies the
-            // client constructor without sharing the host-owned singleton.
+            const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
-              new ManagedSettingsClient(),
+              managedSettings,
             );
 
             // Initialize the client managed repositories.

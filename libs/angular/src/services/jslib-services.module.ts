@@ -1867,6 +1867,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      ManagedSettingsService,
     ],
   }),
   safeProvider({
