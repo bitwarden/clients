@@ -1026,7 +1026,6 @@ export class IdentityAutoFillConstants {
 export class SshKeyAutoFillConstants {
   /** Field attributes scanned to gather matching keywords. */
   static readonly SshKeyAttributes: string[] = [
-    "autoCompleteType",
     "htmlName",
     "htmlID",
     "htmlClass",
