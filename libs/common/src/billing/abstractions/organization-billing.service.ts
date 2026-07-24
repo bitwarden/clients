@@ -1,8 +1,7 @@
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
-import { InitiationPath } from "../../models/request/reference-event.request";
-import { PaymentMethodType, PlanType } from "../enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "../enums";
 
 export type OrganizationInformation = {
   name: string;
