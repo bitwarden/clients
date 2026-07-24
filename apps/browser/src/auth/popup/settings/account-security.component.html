@@ -182,11 +182,7 @@
           <bit-item>
             <button bit-item-content type="button" appStopClick (click)="changePassword()">
               {{ "changeMasterPassword" | i18n }}
-              @if (multiClientPasswordManagement$ | async) {
-                <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
-              } @else {
-                <bit-icon slot="end" name="bwi-external-link"></bit-icon>
-              }
+              <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
             </button>
           </bit-item>
         }

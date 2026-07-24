@@ -33,7 +33,6 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -127,7 +126,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
   protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
-  protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   // Native messaging with the desktop app is unavailable on Safari.
   protected readonly showSharedUnlockWithDesktop: boolean;
@@ -153,7 +151,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private lockService: LockService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     public messagingService: MessagingService,
-    private environmentService: EnvironmentService,
     private keyService: KeyService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
@@ -164,10 +161,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
-    this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM32413_MultiClientPasswordManagement,
-    );
-
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
     this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
@@ -494,26 +487,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async changePassword() {
-    const multiClientPasswordManagementFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM32413_MultiClientPasswordManagement,
-    );
-
-    if (multiClientPasswordManagementFlagEnabled) {
-      await this.router.navigate(["/" + AuthExtensionRoute.SettingsPassword]);
-      return;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "continueToWebApp" },
-      content: { key: "changeMasterPasswordOnWebConfirmation" },
-      type: "info",
-      acceptButtonText: { key: "continue" },
-      cancelButtonText: { key: "cancel" },
-    });
-    if (confirmed) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      await BrowserApi.createNewTab(env.getWebVaultUrl());
-    }
+    await this.router.navigate(["/" + AuthExtensionRoute.SettingsPassword]);
   }
 
   async twoStep() {

@@ -305,12 +305,7 @@ const routes: Routes = [
   {
     path: AuthExtensionRoute.SettingsPassword,
     component: ChangePasswordPageComponent,
-    canActivate: [
-      // TODO: PM-32419 - remove feature flag check
-      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
-      authGuard,
-      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
-    ],
+    canActivate: [authGuard, hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`])],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {

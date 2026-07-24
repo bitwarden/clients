@@ -331,9 +331,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
-  },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
