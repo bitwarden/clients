@@ -1944,7 +1944,7 @@
   "showInlineMenuCardsLabel": {
     "message": "Display cards as suggestions"
   },
-  "showInlineMenuSshKeysLabel": {
+  "showInlineMenuSSHKeysLabel": {
     "message": "Display SSH keys as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
