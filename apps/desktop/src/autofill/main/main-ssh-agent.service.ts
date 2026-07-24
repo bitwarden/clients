@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ipcMain } from "electron";
+import * as path from "path";
+
+import { app, ipcMain } from "electron";
 import { concatMap, delay, filter, firstValueFrom, from, race, take, timer } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -134,7 +136,15 @@ export class MainSshAgentService {
   private registerV1IpcHandlers() {
     ipcMain.handle(
       SSH_AGENT_IPC_CHANNELS.REPLACE,
-      async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
+      async (
+        event: any,
+        {
+          keys,
+        }: {
+          keys: { name: string; privateKey: string; cipherId: string }[];
+          accountEmail: string;
+        },
+      ) => {
         if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
           sshagent.setKeys(this.agentState, keys);
         }
@@ -164,9 +174,23 @@ export class MainSshAgentService {
   private registerV2IpcHandlers() {
     ipcMain.handle(
       SSH_AGENT_IPC_CHANNELS.REPLACE,
-      async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
+      async (
+        _,
+        {
+          keys,
+          accountEmail,
+        }: {
+          keys: {
+            name: string;
+            privateKey: string;
+            cipherId: string;
+            vaultName: string;
+          }[];
+          accountEmail: string;
+        },
+      ) => {
         if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
-          this.agentStateV2.replace(keys);
+          this.agentStateV2.replace(keys, accountEmail);
         }
       },
     );
@@ -201,8 +225,9 @@ export class MainSshAgentService {
     const signCb = (_err: Error | null, data: sshagent_v2.SignRequestData) =>
       this.requestSign(data);
     const listCb = (_err: Error | null) => this.requestListKeys();
+    const configPath = path.join(app.getPath("userData"), "ssh-agent.toml");
     try {
-      this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb, listCb);
+      this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb, listCb, configPath);
       this.logService.info("SSH agent v2 started");
     } catch (e: unknown) {
       this.logService.error("SSH agent v2 encountered an error: ", e);

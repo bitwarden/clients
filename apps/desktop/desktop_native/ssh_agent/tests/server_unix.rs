@@ -1,6 +1,10 @@
 #![cfg(unix)]
 
-use std::{os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{
+    os::unix::fs::PermissionsExt,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 use serial_test::serial;
 use tokio::{io::AsyncWriteExt, net::UnixStream};
@@ -15,7 +19,7 @@ use common::{
     test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
     test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
-use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
+use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore, SshAgentConfig};
 
 fn test_socket_path() -> PathBuf {
     std::env::temp_dir().join("bw-ssh-agent-test.sock")
@@ -553,7 +557,12 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
         })
         .returning(|_| Ok(true));
 
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    let mut agent = BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    );
     agent.replace(vec![test_ed25519_key()]).unwrap();
     agent.start().unwrap();
 
@@ -595,7 +604,12 @@ async fn test_list_request_initialized_keystore_skips_callback() {
         .expect_request_sign_approval()
         .returning(|_| Ok(true));
 
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    let mut agent = BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    );
     // replace() marks the keystore as initialized; the callback must not fire.
     agent.replace(vec![test_ed25519_key()]).unwrap();
     agent.start().unwrap();
@@ -633,7 +647,12 @@ async fn test_list_request_uninitialized_keystore_calls_callback_once() {
         .returning(|| Ok(true));
 
     // No replace() called — keystore is uninitialized; the callback must fire exactly once.
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    let mut agent = BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    );
     agent.start().unwrap();
 
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
@@ -671,7 +690,12 @@ async fn test_list_request_uninitialized_keystore_denied_returns_failure() {
         .returning(|| Ok(false));
 
     // No replace() called — keystore is uninitialized; the denied callback must yield FAILURE.
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    let mut agent = BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    );
     agent.start().unwrap();
 
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();

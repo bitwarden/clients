@@ -25,6 +25,7 @@
 mod agent;
 mod approval;
 mod authorization;
+pub mod config;
 mod crypto;
 mod server;
 mod storage;
@@ -33,6 +34,7 @@ mod storage;
 pub use agent::BitwardenSSHAgent;
 pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
 pub use authorization::BitwardenAuthPolicy;
+pub use config::{KeyMeta, SshAgentConfig};
 pub use crypto::PublicKey;
 pub use server::{
     AuthRequest, ConnectionContext, SIGNamespace, SessionBindContext, SignFlags, SignRequest,

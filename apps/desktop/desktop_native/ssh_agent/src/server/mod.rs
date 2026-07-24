@@ -10,7 +10,7 @@ mod peer_info;
 mod protocol;
 mod session_bind;
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
@@ -23,7 +23,7 @@ use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info, warn};
 
-use crate::KeyStore;
+use crate::{config::SshAgentConfig, KeyStore};
 
 /// Buffer accepted connections pending dispatch to handler tasks.
 const CONNECTION_CHANNEL_CAPACITY: usize = 32;
@@ -40,6 +40,10 @@ pub struct SSHAgentServer<K, A> {
     keystore: Arc<K>,
     /// The authenticator policy to invoke for operations that require authorization
     auth_policy: Arc<A>,
+    /// Parsed SSH agent config, shared with each connection handler for key filtering.
+    config: Arc<SshAgentConfig>,
+    /// Email of the currently active Bitwarden account, shared with each connection handler.
+    active_account_email: Arc<RwLock<String>>,
     /// Async task coordination to use when asked to stop. Is `None` when not running.
     cancellation_token: Option<CancellationToken>,
     /// Task handle for the accept loop. Is `None` when not running.
@@ -52,10 +56,17 @@ where
     A: AuthPolicy + 'static,
 {
     /// Creates a new [`SSHAgentServer`]
-    pub(crate) fn new(keystore: Arc<K>, auth_policy: Arc<A>) -> Self {
+    pub(crate) fn new(
+        keystore: Arc<K>,
+        auth_policy: Arc<A>,
+        config: Arc<SshAgentConfig>,
+        active_account_email: Arc<RwLock<String>>,
+    ) -> Self {
         Self {
             keystore,
             auth_policy,
+            config,
+            active_account_email,
             cancellation_token: None,
             accept_handle: None,
         }
@@ -87,6 +98,8 @@ where
             self.keystore.clone(),
             self.auth_policy.clone(),
             cancel_token.clone(),
+            self.config.clone(),
+            self.active_account_email.clone(),
         ));
 
         self.accept_handle = Some(accept_handle);
@@ -125,6 +138,8 @@ where
         keystore: Arc<K>,
         auth_policy: Arc<A>,
         cancel_token: CancellationToken,
+        config: Arc<SshAgentConfig>,
+        active_account_email: Arc<RwLock<String>>,
     ) where
         L: Listener + 'static,
         L::Stream: 'static,
@@ -153,6 +168,8 @@ where
                         auth_policy.clone(),
                         connection,
                         cancel_token.clone(),
+                        config.clone(),
+                        active_account_email.clone(),
                     );
                     tokio::spawn(async move { handler.handle().await });
                 } else {
@@ -307,7 +324,12 @@ mod tests {
     }
 
     fn make_server() -> SSHAgentServer<MockKeyStore, AlwaysAllowPolicy> {
-        SSHAgentServer::new(Arc::new(MockKeyStore::new()), Arc::new(AlwaysAllowPolicy))
+        SSHAgentServer::new(
+            Arc::new(MockKeyStore::new()),
+            Arc::new(AlwaysAllowPolicy),
+            Arc::new(crate::config::SshAgentConfig::default()),
+            Arc::new(std::sync::RwLock::new(String::new())),
+        )
     }
 
     #[tokio::test]

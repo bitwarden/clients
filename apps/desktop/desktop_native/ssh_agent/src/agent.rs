@@ -1,14 +1,14 @@
 //! Provides an orchestration between the underlying ssh agent server, the keystore
 //! and the upstream approver of server requests.
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use anyhow::Result;
 use tracing::{debug, info};
 
 use crate::{
-    approval::ApprovalRequester, authorization::BitwardenAuthPolicy, server::SSHAgentServer,
-    storage::keystore::KeyStore,
+    approval::ApprovalRequester, authorization::BitwardenAuthPolicy, config::SshAgentConfig,
+    server::SSHAgentServer, storage::keystore::KeyStore,
 };
 
 /// - contains the [`KeyStore`] of ssh keys
@@ -23,6 +23,9 @@ where
     keystore: Arc<K>,
     // the agent's server
     server: SSHAgentServer<K, BitwardenAuthPolicy<K, H>>,
+    /// Email of the currently active Bitwarden account, shared with the authorization policy and
+    /// connection handlers so config account-scoping stays current across account switches.
+    active_account_email: Arc<RwLock<String>>,
 }
 
 impl<K, H> BitwardenSSHAgent<K, H>
@@ -31,12 +34,38 @@ where
     H: ApprovalRequester + 'static,
 {
     /// Creates a new [`BitwardenSSHAgent`]
-    pub fn new(keystore: K, approval_handler: H) -> Self {
+    pub fn new(
+        keystore: K,
+        approval_handler: H,
+        config: Arc<SshAgentConfig>,
+        active_account_email: Arc<RwLock<String>>,
+    ) -> Self {
         let keystore = Arc::new(keystore);
-        let auth_policy = Arc::new(BitwardenAuthPolicy::new(keystore.clone(), approval_handler));
-        let server = SSHAgentServer::new(keystore.clone(), auth_policy);
+        let auth_policy = Arc::new(BitwardenAuthPolicy::new(
+            keystore.clone(),
+            approval_handler,
+            config.clone(),
+            active_account_email.clone(),
+        ));
+        let server = SSHAgentServer::new(
+            keystore.clone(),
+            auth_policy,
+            config,
+            active_account_email.clone(),
+        );
 
-        Self { keystore, server }
+        Self {
+            keystore,
+            server,
+            active_account_email,
+        }
+    }
+
+    /// Updates the active Bitwarden account email used for config account-scoping.
+    pub fn set_active_account_email(&self, email: &str) {
+        if let Ok(mut current) = self.active_account_email.write() {
+            *current = email.to_string();
+        }
     }
 
     /// Starts the ssh agent server

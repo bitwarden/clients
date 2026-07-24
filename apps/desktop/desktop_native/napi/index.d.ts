@@ -446,11 +446,12 @@ export declare namespace sshagent_v2 {
      *
      * * `sign_callback` - Allows agent to get approval for sign requests
      * * `list_callback` - Allows agent to get approval for list key requests
+     * * `config_path` - Absolute path to the `ssh-agent.toml` config file, if any
      */
-    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>)): Promise<SshAgentState>
+    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>), configPath?: string | undefined | null): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
-    replace(newKeys: Array<SshKeyData>): void
+    replace(newKeys: Array<SshKeyData>, accountEmail: string): void
   }
   export type SSHAgentState = SshAgentState
   /** SSH public key data */
@@ -482,6 +483,7 @@ export declare namespace sshagent_v2 {
     privateKey: string
     name: string
     cipherId: string
+    vaultName: string
   }
 }
 

@@ -6,7 +6,7 @@
 use ssh_key::Signature;
 use tracing::warn;
 
-use crate::crypto::PublicKey;
+use crate::{config::KeyMeta, crypto::PublicKey};
 
 /// `SSH_AGENT_FAILURE`
 pub(super) const FAILURE: u8 = 5;
@@ -139,20 +139,20 @@ pub(super) fn read_ssh_string(data: &[u8]) -> Option<(&[u8], &[u8])> {
     Some((&data[4..4 + len], &data[4 + len..]))
 }
 
-/// Builds an SSH `AGENT_IDENTITIES_ANSWER` message from a list of public keys and names.
-pub(super) fn build_identities_answer(keys: Vec<(PublicKey, String)>) -> Vec<u8> {
+/// Builds an SSH `AGENT_IDENTITIES_ANSWER` message from a list of key metadata entries.
+pub(super) fn build_identities_answer(keys: Vec<KeyMeta>) -> Vec<u8> {
     let mut msg = Vec::new();
     msg.push(IDENTITIES_ANSWER);
 
     let count = u32::try_from(keys.len()).expect("key count to fit in u32::MAX");
     msg.extend_from_slice(&count.to_be_bytes());
 
-    for (public_key, name) in keys {
-        let blob = public_key.blob();
+    for key in keys {
+        let blob = key.public_key.blob();
         let blob_len_bytes = u32::try_from(blob.len())
             .expect("key blob length to fit in u32::MAX")
             .to_be_bytes();
-        let name_bytes = name.as_bytes();
+        let name_bytes = key.name.as_bytes();
 
         let name_len_bytes = u32::try_from(name_bytes.len())
             .expect("key name length to fit in u32::MAX")
@@ -291,11 +291,21 @@ pub(super) fn detect_namespace(data: &[u8]) -> Option<SIGNamespace> {
 mod tests {
     use super::*;
     use crate::{
+        config::KeyMeta,
         crypto::PublicKey,
         server::test_common::{make_minimal_ed25519_blob, make_sign_request_msg},
     };
 
     const TEST_DATA: &[u8] = b"test data";
+
+    fn key_meta(public_key: PublicKey, name: &str) -> KeyMeta {
+        KeyMeta {
+            public_key,
+            name: name.to_string(),
+            cipher_id: "cipher".to_string(),
+            vault_name: "My vault".to_string(),
+        }
+    }
 
     fn make_sshsig_blob(namespace: &str) -> Vec<u8> {
         let mut v = Vec::new();
@@ -340,7 +350,7 @@ mod tests {
             blob: blob.clone(),
         };
 
-        let msg = build_identities_answer(vec![(key, name.to_string())]);
+        let msg = build_identities_answer(vec![key_meta(key, name)]);
 
         assert_eq!(msg[0], IDENTITIES_ANSWER);
         assert_eq!(u32::from_be_bytes(msg[1..5].try_into().unwrap()), 1);
@@ -370,10 +380,8 @@ mod tests {
             blob: vec![3, 4, 5],
         };
 
-        let msg = build_identities_answer(vec![
-            (key1, "Key One".to_string()),
-            (key2, "Key Two".to_string()),
-        ]);
+        let msg =
+            build_identities_answer(vec![key_meta(key1, "Key One"), key_meta(key2, "Key Two")]);
 
         assert_eq!(msg[0], IDENTITIES_ANSWER);
         assert_eq!(u32::from_be_bytes(msg[1..5].try_into().unwrap()), 2);

@@ -38,6 +38,9 @@ pub struct SSHKeyData {
     pub(super) name: String,
     /// Vault cipher ID associated with the key pair
     pub(super) cipher_id: String,
+    /// Display name of the vault that owns this key ("My vault" for personal, org name for org
+    /// vaults)
+    pub(super) vault_name: String,
 }
 
 impl SSHKeyData {
@@ -49,18 +52,22 @@ impl SSHKeyData {
     /// * `public_key` - The public key component
     /// * `name` - A human-readable name for the key
     /// * `cipher_id` - The vault cipher identifier associated with this key
+    /// * `vault_name` - Display name of the vault ("My vault" for personal, org name for org
+    ///   vaults)
     #[must_use]
     pub fn new(
         private_key: PrivateKey,
         public_key: PublicKey,
         name: String,
         cipher_id: String,
+        vault_name: String,
     ) -> Self {
         Self {
             private_key,
             public_key,
             name,
             cipher_id,
+            vault_name,
         }
     }
 
@@ -70,7 +77,12 @@ impl SSHKeyData {
     ///
     /// Returns an error if the PEM string cannot be parsed, the public key blob cannot be
     /// encoded, or the key algorithm is unsupported.
-    pub fn from_private_key_pem(pem: &str, name: String, cipher_id: String) -> Result<Self> {
+    pub fn from_private_key_pem(
+        pem: &str,
+        name: String,
+        cipher_id: String,
+        vault_name: String,
+    ) -> Result<Self> {
         let ssh_key = ssh_key::PrivateKey::from_openssh(pem)
             .map_err(|e| anyhow!("Failed to parse private key: {e}"))?;
 
@@ -87,6 +99,7 @@ impl SSHKeyData {
             PublicKey { alg, blob },
             name,
             cipher_id,
+            vault_name,
         ))
     }
 
@@ -96,6 +109,14 @@ impl SSHKeyData {
     #[must_use]
     pub fn private_key(&self) -> &PrivateKey {
         &self.private_key
+    }
+
+    /// # Returns
+    ///
+    /// Display name of the vault that owns this key.
+    #[must_use]
+    pub fn vault_name(&self) -> &str {
+        &self.vault_name
     }
 }
 
@@ -203,6 +224,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
             TEST_SK_ED25519_PEM,
             "sk-test".to_string(),
             "cipher-sk-1".to_string(),
+            "My vault".to_string(),
         );
 
         assert!(result.is_err(), "sk-ssh-ed25519 key type must be rejected");
@@ -210,35 +232,61 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
 
     #[test]
     fn from_private_key_pem_ed25519_sets_correct_algorithm_string() {
-        let data =
-            SSHKeyData::from_private_key_pem(TEST_ED25519_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(
+            TEST_ED25519_PEM,
+            "k".into(),
+            "id".into(),
+            "My vault".to_string(),
+        )
+        .unwrap();
         assert_eq!(data.public_key().alg(), "ssh-ed25519");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p256_sets_correct_algorithm_string() {
-        let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P256_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(
+            TEST_ECDSA_P256_PEM,
+            "k".into(),
+            "id".into(),
+            "My vault".to_string(),
+        )
+        .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp256");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p384_sets_correct_algorithm_string() {
-        let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P384_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(
+            TEST_ECDSA_P384_PEM,
+            "k".into(),
+            "id".into(),
+            "My vault".to_string(),
+        )
+        .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp384");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p521_sets_correct_algorithm_string() {
-        let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P521_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(
+            TEST_ECDSA_P521_PEM,
+            "k".into(),
+            "id".into(),
+            "My vault".to_string(),
+        )
+        .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp521");
     }
 
     #[test]
     fn from_private_key_pem_rsa_sets_correct_algorithm_string() {
-        let data = SSHKeyData::from_private_key_pem(TEST_RSA_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(
+            TEST_RSA_PEM,
+            "k".into(),
+            "id".into(),
+            "My vault".to_string(),
+        )
+        .unwrap();
         assert_eq!(data.public_key().alg(), "ssh-rsa");
     }
 }

@@ -5,7 +5,11 @@
 
 #[napi]
 pub mod sshagent_v2 {
-    use std::{sync::Arc, time::Duration};
+    use std::{
+        path::{Path, PathBuf},
+        sync::{Arc, RwLock},
+        time::Duration,
+    };
 
     use async_trait::async_trait;
     use napi::{
@@ -15,6 +19,7 @@ pub mod sshagent_v2 {
     use ssh_agent::{
         ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
         SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
+        SshAgentConfig,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -29,6 +34,7 @@ pub mod sshagent_v2 {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
+        pub vault_name: String,
     }
 
     /// SSH public key data
@@ -111,6 +117,27 @@ pub mod sshagent_v2 {
         agent: BitwardenSSHAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
     }
 
+    /// Returns the platform-appropriate `known_hosts` file paths, in read order.
+    fn known_hosts_paths() -> Vec<PathBuf> {
+        let home = dirs::home_dir();
+
+        #[cfg(windows)]
+        {
+            home.map(|home| vec![home.join(".ssh").join("known_hosts")])
+                .unwrap_or_default()
+        }
+
+        #[cfg(unix)]
+        {
+            let mut paths = Vec::new();
+            if let Some(home) = home {
+                paths.push(home.join(".ssh").join("known_hosts"));
+            }
+            paths.push(PathBuf::from("/etc/ssh/ssh_known_hosts"));
+            paths
+        }
+    }
+
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
         sign_callback: Arc<ThreadsafeFunction<SignRequestData, Promise<bool>>>,
@@ -170,11 +197,13 @@ pub mod sshagent_v2 {
         ///
         /// * `sign_callback` - Allows agent to get approval for sign requests
         /// * `list_callback` - Allows agent to get approval for list key requests
+        /// * `config_path` - Absolute path to the `ssh-agent.toml` config file, if any
         #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
             sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
             list_callback: ThreadsafeFunction<(), Promise<bool>>,
+            config_path: Option<String>,
         ) -> napi::Result<Self> {
             debug!("Creating agent and starting server.");
 
@@ -185,7 +214,22 @@ pub mod sshagent_v2 {
 
             let keystore = InMemoryEncryptedKeyStore::default();
 
-            let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
+            let config = match config_path {
+                Some(path) => {
+                    let mut config = SshAgentConfig::load(Path::new(&path));
+                    config.resolve_hostnames(&known_hosts_paths());
+                    config
+                }
+                None => SshAgentConfig::default(),
+            };
+            let active_account_email = Arc::new(RwLock::new(String::new()));
+
+            let mut agent = ssh_agent::BitwardenSSHAgent::new(
+                keystore,
+                approval_handler,
+                Arc::new(config),
+                active_account_email,
+            );
 
             // TODO after PM-31827 is merged, can use simplified error conversion
             agent.start().map_err(|error| {
@@ -209,12 +253,23 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
+        pub fn replace(
+            &mut self,
+            new_keys: Vec<SSHKeyData>,
+            account_email: String,
+        ) -> napi::Result<()> {
+            self.agent.set_active_account_email(&account_email);
+
             let parsed = new_keys
                 .into_iter()
                 .map(|k| {
-                    ssh_agent::SSHKeyData::from_private_key_pem(&k.private_key, k.name, k.cipher_id)
-                        .map_err(|e| napi::Error::from_reason(e.to_string()))
+                    ssh_agent::SSHKeyData::from_private_key_pem(
+                        &k.private_key,
+                        k.name,
+                        k.cipher_id,
+                        k.vault_name,
+                    )
+                    .map_err(|e| napi::Error::from_reason(e.to_string()))
                 })
                 .collect::<napi::Result<Vec<_>>>()?;
 

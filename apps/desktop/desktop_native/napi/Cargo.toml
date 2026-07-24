@@ -21,6 +21,7 @@ autotype = { path = "../autotype" }
 biometric = { path = "../biometric" }
 chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }
+dirs = { workspace = true }
 napi = { workspace = true, features = ["async", "anyhow"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

@@ -10,9 +10,12 @@ use std::sync::{
 use anyhow::Result;
 use secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use crate::crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]
 use crate::storage::keydata::MockQueryableKeyData;
+use crate::{
+    config::KeyMeta,
+    crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData},
+};
 
 /// Securely store and retrieve SSH key data.
 ///
@@ -49,6 +52,12 @@ pub trait KeyStore: Send + Sync {
     ///
     /// A vector of tuples containing each key's public key and human-readable name.
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
+
+    /// # Returns
+    ///
+    /// [`KeyMeta`] for every stored key: public key, name, cipher id, and organization id. No
+    /// private key material is included.
+    fn get_all_key_meta(&self) -> Result<Vec<KeyMeta>>;
 
     /// Atomically replaces all keys in the keystore.
     fn replace(&self, keys: Vec<Self::KeyData>) -> Result<()>;
@@ -125,6 +134,23 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .collect::<Result<Vec<_>, _>>()
     }
 
+    fn get_all_key_meta(&self) -> Result<Vec<KeyMeta>> {
+        self.secure_memory
+            .lock()
+            .expect("Mutex is not poisoned")
+            .to_vec()?
+            .into_iter()
+            .map(|bytes| {
+                SSHKeyData::try_from(bytes).map(|key_data| KeyMeta {
+                    public_key: key_data.public_key().clone(),
+                    name: key_data.name().clone(),
+                    cipher_id: key_data.cipher_id().clone(),
+                    vault_name: key_data.vault_name().to_string(),
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()
+    }
+
     fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>> {
         Ok(self.get(public_key)?.map(|kd| kd.private_key().clone()))
     }
@@ -191,6 +217,7 @@ mod tests {
             },
             name.to_string(),
             cipher_id.to_string(),
+            "My vault".to_string(),
         )
     }
 
@@ -209,6 +236,7 @@ mod tests {
             },
             name.to_string(),
             cipher_id.to_string(),
+            "My vault".to_string(),
         )
     }
 
@@ -251,6 +279,7 @@ mod tests {
             public_key.clone(),
             "updated-name".to_string(),
             "updated-cipher".to_string(),
+            "My vault".to_string(),
         );
 
         // insert second key with same public key
@@ -417,5 +446,41 @@ mod tests {
         assert!(public_keys.contains(&pub_key1));
         assert!(public_keys.contains(&pub_key2));
         assert!(public_keys.contains(&pub_key3));
+    }
+
+    #[test]
+    fn test_get_all_key_meta_includes_vault_name() {
+        let ks = InMemoryEncryptedKeyStore::new();
+
+        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ssh_key = ssh_key::PrivateKey::new(
+            ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
+            "",
+        )
+        .unwrap();
+        let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
+        let org_key = SSHKeyData::new(
+            PrivateKey::Ed25519(ed25519_keypair),
+            PublicKey {
+                alg: "ssh-ed25519".to_string(),
+                blob: public_key_bytes,
+            },
+            "org-key".to_string(),
+            "cipher-org".to_string(),
+            "Acme Corp".to_string(),
+        );
+        let personal_key = create_test_keydata_ed25519("personal-key", "cipher-personal");
+
+        ks.replace(vec![org_key, personal_key]).unwrap();
+
+        let meta = ks.get_all_key_meta().unwrap();
+        assert_eq!(meta.len(), 2);
+
+        let org = meta.iter().find(|m| m.name == "org-key").unwrap();
+        assert_eq!(org.vault_name, "Acme Corp");
+        assert_eq!(org.cipher_id, "cipher-org");
+
+        let personal = meta.iter().find(|m| m.name == "personal-key").unwrap();
+        assert_eq!(personal.vault_name, "My vault");
     }
 }

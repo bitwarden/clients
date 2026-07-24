@@ -1,5 +1,6 @@
 import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -26,7 +27,7 @@ const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
 describe("SshAgentService", () => {
   let service: SshAgentService;
 
-  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let accountSubject: BehaviorSubject<{ id: UserId; email?: string } | null>;
   let enabledSubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
   let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
@@ -47,7 +48,7 @@ describe("SshAgentService", () => {
   }
 
   beforeEach(async () => {
-    accountSubject = new BehaviorSubject<{ id: UserId } | null>(null);
+    accountSubject = new BehaviorSubject<{ id: UserId; email?: string } | null>(null);
     enabledSubject = new BehaviorSubject<boolean>(false);
     cipherViewsSubject = new BehaviorSubject<CipherView[] | null>(null);
     authStatusPerUser = new Map();
@@ -97,6 +98,9 @@ describe("SshAgentService", () => {
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
     const mockConfigService = { getFeatureFlag: jest.fn().mockResolvedValue(true) };
+    const mockOrganizationService: Partial<OrganizationService> = {
+      organizations$: jest.fn().mockReturnValue(of([])),
+    };
 
     service = new SshAgentService(
       mockCipherService as any,
@@ -109,6 +113,7 @@ describe("SshAgentService", () => {
       mockDesktopSettingsService as any,
       mockAccountService as any,
       mockConfigService as any,
+      mockOrganizationService as any,
     );
 
     await service.init();
@@ -121,20 +126,21 @@ describe("SshAgentService", () => {
 
   it("when vault unlocks with feature enabled, starts server and sets keys", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "My Key", "pem")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
     expect(mockInit).toHaveBeenCalledWith(true);
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "My Key", privateKey: "pem", cipherId: "c1" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "My Key", privateKey: "pem", cipherId: "c1", vaultName: "My vault" }],
+      "user1@example.com",
+    );
   });
 
   it("when vault re-locks, retains keys in the agent (no stop)", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -150,7 +156,7 @@ describe("SshAgentService", () => {
   it("when feature is disabled, stops the agent server", async () => {
     mockIsLoaded.mockResolvedValue(true);
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
@@ -164,7 +170,7 @@ describe("SshAgentService", () => {
   });
 
   it("when feature is re-enabled with vault unlocked, restarts server and pushes keys", async () => {
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
@@ -182,7 +188,7 @@ describe("SshAgentService", () => {
   it("when all accounts log out, stops the agent server", async () => {
     mockIsLoaded.mockResolvedValue(true);
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
@@ -197,7 +203,7 @@ describe("SshAgentService", () => {
 
   it("when switching to an unlocked account, replaces keys atomically", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "User1 Key", "pem1")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -206,17 +212,18 @@ describe("SshAgentService", () => {
 
     cipherViewsSubject.next([makeSshCipher("c2", "User2 Key", "pem2")]);
     authSubjectFor("user-2").next(AuthenticationStatus.Unlocked);
-    accountSubject.next({ id: "user-2" as UserId });
+    accountSubject.next({ id: "user-2" as UserId, email: "user2@example.com" });
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "User2 Key", privateKey: "pem2", cipherId: "c2" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "User2 Key", privateKey: "pem2", cipherId: "c2", vaultName: "My vault" }],
+      "user2@example.com",
+    );
   });
 
   it("when switching to a locked account, does not clear or replace keys", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -227,7 +234,7 @@ describe("SshAgentService", () => {
     // Simulate locked vault: the real cipherViews$ emits null when locked.
     cipherViewsSubject.next(null);
     // user-2 is locked by default in authStatusPerUser
-    accountSubject.next({ id: "user-2" as UserId });
+    accountSubject.next({ id: "user-2" as UserId, email: "user2@example.com" });
     await flush();
 
     expect(mockStop.mock.calls.length).toBe(stopBefore);
@@ -236,7 +243,7 @@ describe("SshAgentService", () => {
 
   it("when an SSH key cipher is added, updates the agent keystore", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -249,15 +256,18 @@ describe("SshAgentService", () => {
     ]);
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
-      { name: "Key B", privateKey: "pem2", cipherId: "c2" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [
+        { name: "Key A", privateKey: "pem1", cipherId: "c1", vaultName: "My vault" },
+        { name: "Key B", privateKey: "pem2", cipherId: "c2", vaultName: "My vault" },
+      ],
+      "user1@example.com",
+    );
   });
 
   it("when an SSH key cipher is deleted, updates the agent keystore", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([
       makeSshCipher("c1", "Key A", "pem1"),
       makeSshCipher("c2", "Key B", "pem2"),
@@ -270,14 +280,15 @@ describe("SshAgentService", () => {
     cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "Key A", privateKey: "pem1", cipherId: "c1", vaultName: "My vault" }],
+      "user1@example.com",
+    );
   });
 
   it("when an SSH key cipher is archived, updates the agent keystore", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([
       makeSshCipher("c1", "Key A", "pem1"),
       makeSshCipher("c2", "Key B", "pem2"),
@@ -293,14 +304,15 @@ describe("SshAgentService", () => {
     ]);
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "Key A", privateKey: "pem1", cipherId: "c1", vaultName: "My vault" }],
+      "user1@example.com",
+    );
   });
 
   it("when all SSH key ciphers are archived, clears the keystore", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -310,12 +322,12 @@ describe("SshAgentService", () => {
     cipherViewsSubject.next([{ ...makeSshCipher("c1", "Key A", "pem1"), isArchived: true }]);
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([]);
+    expect(mockReplace).toHaveBeenCalledWith([], "user1@example.com");
   });
 
   it("when an SSH key cipher is renamed, updates the agent keystore", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "Original Name", "pem1")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -325,14 +337,15 @@ describe("SshAgentService", () => {
     cipherViewsSubject.next([makeSshCipher("c1", "New Name", "pem1")]);
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "New Name", privateKey: "pem1", cipherId: "c1" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "New Name", privateKey: "pem1", cipherId: "c1", vaultName: "My vault" }],
+      "user1@example.com",
+    );
   });
 
   it("when identical key data is re-emitted, does not re-push keys", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
@@ -347,7 +360,7 @@ describe("SshAgentService", () => {
 
   it("when service is destroyed, resets in-memory approval state", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
@@ -362,7 +375,7 @@ describe("SshAgentService", () => {
   it("when server is already loaded, does not call init again on unlock", async () => {
     mockIsLoaded.mockResolvedValue(true);
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
@@ -371,25 +384,25 @@ describe("SshAgentService", () => {
 
   it("when the active account changes with feature enabled, resets in-memory approval state", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
     (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
 
-    accountSubject.next({ id: "user-2" as UserId });
+    accountSubject.next({ id: "user-2" as UserId, email: "user2@example.com" });
     await flush();
 
     expect((service as any).authorizedKeys).toEqual(new Map());
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     await flush();
 
     (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
 
-    accountSubject.next({ id: "user-2" as UserId });
+    accountSubject.next({ id: "user-2" as UserId, email: "user2@example.com" });
     await flush();
 
     expect((service as any).authorizedKeys).toEqual(new Map());
@@ -397,13 +410,13 @@ describe("SshAgentService", () => {
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
     enabledSubject.next(true);
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     await flush();
 
     const seeded = new Map([["cipher-abc", new Set(["local"])]]);
     (service as any).authorizedKeys = seeded;
 
-    accountSubject.next({ id: "user-1" as UserId });
+    accountSubject.next({ id: "user-1" as UserId, email: "user1@example.com" });
     await flush();
 
     expect((service as any).authorizedKeys).toBe(seeded);
@@ -418,7 +431,7 @@ describe("SshAgentService – sign request authorization", () => {
   let signRequestSubject: Subject<Record<string, unknown>>;
   let promptBehaviorSubject: BehaviorSubject<SshAgentPromptType>;
   let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
-  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let accountSubject: BehaviorSubject<{ id: UserId; email?: string } | null>;
   let mockSignRequestResponse: jest.Mock;
   let mockDialogOpen: jest.Mock;
 
@@ -426,7 +439,10 @@ describe("SshAgentService – sign request authorization", () => {
     signRequestSubject = new Subject();
     promptBehaviorSubject = new BehaviorSubject<SshAgentPromptType>(SshAgentPromptType.Always);
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
-    accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
+    accountSubject = new BehaviorSubject<{ id: UserId; email?: string } | null>({
+      id: "user-1" as UserId,
+      email: "user1@example.com",
+    });
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
     mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
 
@@ -465,6 +481,7 @@ describe("SshAgentService – sign request authorization", () => {
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { organizations$: jest.fn().mockReturnValue(of([])) } as any,
     );
 
     await service.init();
@@ -622,7 +639,7 @@ describe("SshAgentService – sign request authorization", () => {
     mockSignRequestResponse.mockClear();
 
     // Switch account — should clear the cache
-    accountSubject.next({ id: "user-2" as UserId });
+    accountSubject.next({ id: "user-2" as UserId, email: "user2@example.com" });
     await flush();
 
     // Same cipher must prompt again under the new account
@@ -664,7 +681,7 @@ describe("SshAgentService – list keys request", () => {
   let service: SshAgentService;
   let listKeysRequestSubject: Subject<Record<string, unknown>>;
   let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
-  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let accountSubject: BehaviorSubject<{ id: UserId; email?: string } | null>;
   let mockListRequestResponse: jest.Mock;
   let mockReplace: jest.Mock;
   let mockFocusWindow: jest.Mock;
@@ -673,7 +690,10 @@ describe("SshAgentService – list keys request", () => {
   beforeEach(async () => {
     listKeysRequestSubject = new Subject();
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
-    accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
+    accountSubject = new BehaviorSubject<{ id: UserId; email?: string } | null>({
+      id: "user-1" as UserId,
+      email: "user1@example.com",
+    });
     mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
     mockReplace = jest.fn().mockResolvedValue(undefined);
     mockFocusWindow = jest.fn();
@@ -722,6 +742,7 @@ describe("SshAgentService – list keys request", () => {
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { organizations$: jest.fn().mockReturnValue(of([])) } as any,
     );
 
     await service.init();
@@ -740,9 +761,10 @@ describe("SshAgentService – list keys request", () => {
     sendListRequest();
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([
-      { name: "My Key", privateKey: "pem", cipherId: "c1" },
-    ]);
+    expect(mockReplace).toHaveBeenCalledWith(
+      [{ name: "My Key", privateKey: "pem", cipherId: "c1", vaultName: "My vault" }],
+      "user1@example.com",
+    );
     expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
   });
 
@@ -863,8 +885,9 @@ describe("SshAgentService – concurrent sign requests", () => {
         // Never: no dialog shown, signRequestResponse called immediately after decrypt.
         sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
       } as any,
-      { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      { activeAccount$: of({ id: "user-1" as UserId, email: "user1@example.com" }) } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { organizations$: jest.fn().mockReturnValue(of([])) } as any,
     );
 
     await service.init();
@@ -969,8 +992,9 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgentEnabled$: of(true),
         sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
       } as any,
-      { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      { activeAccount$: of({ id: "user-1" as UserId, email: "user1@example.com" }) } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { organizations$: jest.fn().mockReturnValue(of([])) } as any,
     );
 
     await service.init();

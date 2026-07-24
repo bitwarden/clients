@@ -12,6 +12,9 @@ jest.mock("electron", () => ({
   ipcMain: {
     handle: jest.fn(),
   },
+  app: {
+    getPath: jest.fn().mockReturnValue("/mock/user/data"),
+  },
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
@@ -141,6 +144,7 @@ describe("MainSshAgentService", () => {
         expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledWith(
           expect.any(Function),
           expect.any(Function),
+          expect.any(String),
         );
       });
 
@@ -245,20 +249,23 @@ describe("MainSshAgentService", () => {
     });
 
     describe("sshagent.replace IPC handler", () => {
-      const keys = [{ name: "My Key", privateKey: "key-data", cipherId: "cipher-1" }];
+      const keys = [
+        { name: "My Key", privateKey: "key-data", cipherId: "cipher-1", vaultName: "My vault" },
+      ];
+      const accountEmail = "user@example.com";
 
-      it("should call replace with the provided keys", async () => {
+      it("should call replace with the provided keys and account email", async () => {
         const handler = ipcHandlers.get("sshagent.replace")!;
-        await handler({}, keys);
+        await handler({}, { keys, accountEmail });
 
-        expect(mockAgentStateV2.replace).toHaveBeenCalledWith(keys);
+        expect(mockAgentStateV2.replace).toHaveBeenCalledWith(keys, accountEmail);
       });
 
       it("should not call replace when agent is not running", async () => {
         mockAgentStateV2.isRunning.mockReturnValue(false);
 
         const handler = ipcHandlers.get("sshagent.replace")!;
-        await handler({}, keys);
+        await handler({}, { keys, accountEmail });
 
         expect(mockAgentStateV2.replace).not.toHaveBeenCalled();
       });

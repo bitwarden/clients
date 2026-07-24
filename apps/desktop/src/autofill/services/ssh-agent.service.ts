@@ -23,6 +23,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -66,6 +67,7 @@ export class SshAgentService implements OnDestroy {
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private organizationService: OrganizationService,
   ) {}
 
   async init() {
@@ -174,7 +176,14 @@ export class SshAgentService implements OnDestroy {
 
           // V1, delete with PM-30758: isListRequest is not present in v2.
           if (isListRequest) {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
+            const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+            const orgNameById = activeAccount
+              ? await this.buildOrgNameMap(activeAccount.id)
+              : new Map<string, string>();
+            await ipc.autofill.sshAgent.replace(
+              this.toAgentKeys(ciphers, orgNameById),
+              activeAccount?.email ?? "",
+            );
             await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             return;
           }
@@ -290,7 +299,8 @@ export class SshAgentService implements OnDestroy {
               return;
             }
 
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
+            const orgNameById = await this.buildOrgNameMap(activeAccount.id);
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers, orgNameById), activeAccount.email);
           }),
           takeUntil(this.destroy$),
         )
@@ -340,7 +350,14 @@ export class SshAgentService implements OnDestroy {
           ),
           concatMap(async ([message, ciphers]) => {
             const requestId = message.requestId as number;
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+            const orgNameById = activeAccount
+              ? await this.buildOrgNameMap(activeAccount.id)
+              : new Map<string, string>();
+            await ipc.autofill.sshAgent.replace(
+              this.toAgentKeys(ciphers ?? [], orgNameById),
+              activeAccount?.email ?? "",
+            );
             await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
           }),
           catchError((error: unknown, source) => {
@@ -395,7 +412,13 @@ export class SshAgentService implements OnDestroy {
                   // Skip emissions before cipher data is available (e.g. during initial decrypt).
                   filter((views) => views != null),
                   // Project to the SSH key fields needed by the agent.
-                  map((views) => this.toAgentKeys(views)),
+                  switchMap((views) =>
+                    from(
+                      this.buildOrgNameMap(account.id).then((orgNameById) =>
+                        this.toAgentKeys(views, orgNameById),
+                      ),
+                    ),
+                  ),
                   // Skip re-push when the SSH key set hasn't actually changed.
                   distinctUntilChanged((prev, curr) => {
                     // if the length is different, replace keys
@@ -412,7 +435,7 @@ export class SshAgentService implements OnDestroy {
                     });
                   }),
                   concatMap(async (keys) => {
-                    await ipc.autofill.sshAgent.replace(keys);
+                    await ipc.autofill.sshAgent.replace(keys, account.email);
                   }),
                 );
               }),
@@ -440,12 +463,23 @@ export class SshAgentService implements OnDestroy {
     }
   }
 
+  private async buildOrgNameMap(userId: UserId): Promise<Map<string, string>> {
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
+    return new Map(orgs.map((o) => [o.id, o.name]));
+  }
+
   private toAgentKeys(
     ciphers: CipherView[],
-  ): { name: string; privateKey: string; cipherId: string }[] {
+    orgNameById: Map<string, string>,
+  ): { name: string; privateKey: string; cipherId: string; vaultName: string }[] {
     return ciphers
       .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
-      .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
+      .map((c) => ({
+        name: c.name,
+        privateKey: c.sshKey.privateKey,
+        cipherId: c.id,
+        vaultName: c.organizationId ? (orgNameById.get(c.organizationId) ?? c.organizationId) : "My vault",
+      }));
   }
 
   private async rememberAuthorization(

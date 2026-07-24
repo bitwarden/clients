@@ -1,13 +1,13 @@
 //! Bitwarden's auth policy for SSH agent operations.
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use thiserror::Error;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use crate::{
     approval::{ApprovalError, ApprovalRequester, SignApprovalRequest},
-    crypto::QueryableKeyData,
+    config::SshAgentConfig,
     server::{AuthPolicy, AuthRequest},
     storage::keystore::KeyStore,
 };
@@ -40,6 +40,8 @@ where
 {
     keystore: Arc<K>,
     approval_handler: H,
+    config: Arc<SshAgentConfig>,
+    active_account_email: Arc<RwLock<String>>,
 }
 
 impl<K, H> BitwardenAuthPolicy<K, H>
@@ -47,10 +49,17 @@ where
     K: KeyStore,
     H: ApprovalRequester,
 {
-    pub fn new(keystore: Arc<K>, approval_handler: H) -> Self {
+    pub fn new(
+        keystore: Arc<K>,
+        approval_handler: H,
+        config: Arc<SshAgentConfig>,
+        active_account_email: Arc<RwLock<String>>,
+    ) -> Self {
         Self {
             keystore,
             approval_handler,
+            config,
+            active_account_email,
         }
     }
 }
@@ -82,15 +91,52 @@ where
                 }
             }
             AuthRequest::Sign(sign_request) => {
-                let cipher_id = match self.keystore.get(&sign_request.public_key) {
-                    Ok(Some(key_data)) => Some(key_data.cipher_id().clone()),
-                    Ok(None) => {
-                        return Err(AuthError::KeyNotFound);
-                    }
-                    Err(error) => {
-                        return Err(AuthError::KeystoreError(error));
-                    }
+                let all_keys = self
+                    .keystore
+                    .get_all_key_meta()
+                    .map_err(AuthError::KeystoreError)?;
+
+                let Some(requested) = all_keys
+                    .iter()
+                    .find(|key| key.public_key == sign_request.public_key)
+                else {
+                    return Err(AuthError::KeyNotFound);
                 };
+                let cipher_id = Some(requested.cipher_id.clone());
+
+                // Sign-time guard: if the config does not permit this key for the connection's
+                // host and active account, deny without prompting the user.
+                let host_fingerprint = sign_request
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .map(|bind| bind.host_fingerprint.as_str());
+                let active_account_email = self
+                    .active_account_email
+                    .read()
+                    .map(|email| email.clone())
+                    .unwrap_or_default();
+                debug!(
+                    cipher_id = %requested.cipher_id,
+                    ?host_fingerprint,
+                    "checking config filter for sign request"
+                );
+                let permitted = self.config.filter_keys(
+                    all_keys.clone(),
+                    host_fingerprint,
+                    &active_account_email,
+                );
+                if !permitted
+                    .iter()
+                    .any(|key| key.public_key == sign_request.public_key)
+                {
+                    info!(
+                        public_key = %sign_request.public_key,
+                        "Sign request for key not permitted by config; denying without prompt."
+                    );
+                    return Ok(false);
+                }
+
                 info!(?sign_request, "Requesting sign approval.");
 
                 self.approval_handler
@@ -114,14 +160,26 @@ where
 #[cfg(test)]
 mod tests {
     use anyhow::anyhow;
-    use mockall::predicate::*;
 
     use super::*;
     use crate::{
         approval::{ApprovalError, MockApprovalRequester},
+        config::KeyMeta,
         server::{ConnectionContext, SIGNamespace, SessionBindContext},
-        storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
+        storage::keystore::MockKeyStore,
     };
+
+    fn make_policy<K: KeyStore, H: ApprovalRequester>(
+        keystore: K,
+        approval_handler: H,
+    ) -> BitwardenAuthPolicy<K, H> {
+        BitwardenAuthPolicy::new(
+            Arc::new(keystore),
+            approval_handler,
+            Arc::new(SshAgentConfig::default()),
+            Arc::new(RwLock::new(String::new())),
+        )
+    }
 
     fn create_stub_public_key() -> crate::crypto::PublicKey {
         crate::crypto::PublicKey {
@@ -160,15 +218,15 @@ mod tests {
     ) {
         let cipher_id = cipher_id.to_string();
         keystore
-            .expect_get()
-            .with(eq(public_key))
+            .expect_get_all_key_meta()
             .times(1)
-            .returning(move |_| {
-                let mut mock_key_data = MockQueryableKeyData::new();
-                mock_key_data
-                    .expect_cipher_id()
-                    .return_const(cipher_id.clone());
-                Ok(Some(mock_key_data))
+            .returning(move || {
+                Ok(vec![KeyMeta {
+                    public_key: public_key.clone(),
+                    name: "Test Key".to_string(),
+                    cipher_id: cipher_id.clone(),
+                    vault_name: "My vault".to_string(),
+                }])
             });
     }
 
@@ -181,7 +239,7 @@ mod tests {
         // Approval handler must NOT be called when keystore is already initialized.
         let approval_handler = MockApprovalRequester::new();
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let result = policy.authorize(&AuthRequest::List).await;
 
@@ -201,7 +259,7 @@ mod tests {
             .once()
             .returning(|| Ok(true));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let result = policy.authorize(&AuthRequest::List).await;
 
@@ -221,7 +279,7 @@ mod tests {
             .once()
             .returning(|| Ok(false));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let result = policy.authorize(&AuthRequest::List).await;
 
@@ -239,12 +297,11 @@ mod tests {
         let test_pub_key = create_stub_public_key();
 
         keystore
-            .expect_get()
-            .with(eq(test_pub_key.clone()))
+            .expect_get_all_key_meta()
             .times(1)
-            .returning(|_| Ok(None));
+            .returning(|| Ok(vec![]));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_default_test_sign_request(test_pub_key);
         let result = policy.authorize(&request).await;
@@ -263,12 +320,11 @@ mod tests {
         let test_pub_key = create_stub_public_key();
 
         keystore
-            .expect_get()
-            .with(eq(test_pub_key.clone()))
+            .expect_get_all_key_meta()
             .times(1)
-            .returning(|_| Err(anyhow!("Keystore error")));
+            .returning(|| Err(anyhow!("Keystore error")));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_default_test_sign_request(test_pub_key);
         let result = policy.authorize(&request).await;
@@ -294,7 +350,7 @@ mod tests {
             .times(1)
             .returning(|_| Ok(true));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_default_test_sign_request(test_pub_key);
         let result = policy.authorize(&request).await;
@@ -319,7 +375,7 @@ mod tests {
             .times(1)
             .returning(|_| Ok(false));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_default_test_sign_request(test_pub_key);
         let result = policy.authorize(&request).await;
@@ -344,7 +400,7 @@ mod tests {
             .times(1)
             .returning(|_| Err(ApprovalError::HandlerFailed(anyhow!("Handler failed"))));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_default_test_sign_request(test_pub_key);
         let result = policy.authorize(&request).await;
@@ -367,13 +423,7 @@ mod tests {
 
         let test_pub_key = create_stub_public_key();
 
-        keystore.expect_get().times(1).returning(|_| {
-            let mut mock_key_data = MockQueryableKeyData::new();
-            mock_key_data
-                .expect_cipher_id()
-                .return_const("cipher-123".to_string());
-            Ok(Some(mock_key_data))
-        });
+        setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
 
         approval_handler
             .expect_request_sign_approval()
@@ -390,7 +440,7 @@ mod tests {
             .times(1)
             .returning(|_| Ok(true));
 
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+        let policy = make_policy(keystore, approval_handler);
 
         let request = create_test_sign_request(
             test_pub_key,
@@ -406,5 +456,35 @@ mod tests {
         let result = policy.authorize(&request).await;
 
         assert!(matches!(result, Ok(true)), "Should pass context correctly");
+    }
+
+    #[tokio::test]
+    async fn test_authorize_sign_denied_by_config_without_prompt() {
+        let mut keystore = MockKeyStore::new();
+        // The approval handler must NOT be called when the config disallows the key.
+        let approval_handler = MockApprovalRequester::new();
+
+        let test_pub_key = create_stub_public_key();
+        setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
+
+        // identities_only with no matching host rule and no defaults => nothing permitted.
+        let config: SshAgentConfig = toml::from_str(
+            "[[account]]\n[account.settings]\nidentities_only = true\n[[account.hosts]]\nfingerprint = \"SHA256:other\"\nkeys = [\"Something\"]\n",
+        )
+        .unwrap();
+        let policy = BitwardenAuthPolicy::new(
+            Arc::new(keystore),
+            approval_handler,
+            Arc::new(config),
+            Arc::new(RwLock::new(String::new())),
+        );
+
+        let request = create_default_test_sign_request(test_pub_key);
+        let result = policy.authorize(&request).await;
+
+        assert!(
+            matches!(result, Ok(false)),
+            "Config-disallowed key should be denied without prompting"
+        );
     }
 }

@@ -1,6 +1,6 @@
 //! SSH agent client connection and connection handler
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio_util::sync::CancellationToken;
@@ -16,7 +16,10 @@ use super::{
     session_bind::SessionBindState,
     KeyStore,
 };
-use crate::crypto::{PublicKey, SignablePrivateKey};
+use crate::{
+    config::SshAgentConfig,
+    crypto::{PublicKey, SignablePrivateKey},
+};
 
 // Guards against oversized allocations from untrusted length prefixes on the socket.
 const MAX_MESSAGE_LEN: usize = 256 * 1024;
@@ -37,6 +40,8 @@ pub(crate) struct ConnectionHandler<K, A, S> {
     auth_policy: Arc<A>,
     connection: Connection<S>,
     token: CancellationToken,
+    config: Arc<SshAgentConfig>,
+    active_account_email: Arc<RwLock<String>>,
 }
 
 impl<K, A, S> ConnectionHandler<K, A, S>
@@ -51,12 +56,16 @@ where
         auth_policy: Arc<A>,
         connection: Connection<S>,
         token: CancellationToken,
+        config: Arc<SshAgentConfig>,
+        active_account_email: Arc<RwLock<String>>,
     ) -> Self {
         Self {
             keystore,
             auth_policy,
             connection,
             token,
+            config,
+            active_account_email,
         }
     }
 
@@ -104,12 +113,19 @@ where
             let response = if msg.first() == Some(&EXTENSION) {
                 handle_extension_message(&msg[1..], &mut session_bind_state)
             } else {
+                let active_account_email = self
+                    .active_account_email
+                    .read()
+                    .map(|email| email.clone())
+                    .unwrap_or_default();
                 handle_message(
                     &msg,
                     self.connection.peer_info.as_ref(),
                     &session_bind_state,
                     &self.keystore,
                     &self.auth_policy,
+                    &self.config,
+                    &active_account_email,
                 )
                 .await
             };
@@ -175,12 +191,15 @@ fn handle_session_bind(payload: &[u8], session_bind_state: &mut SessionBindState
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn handle_message<K: KeyStore, A: AuthPolicy>(
     msg: &[u8],
     peer_info: Option<&PeerInfo>,
     session_bind_state: &SessionBindState,
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
+    config: &Arc<SshAgentConfig>,
+    active_account_email: &str,
 ) -> Vec<u8> {
     let Some(message) = parse_message(msg) else {
         error!("Received malformed message");
@@ -188,7 +207,16 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
     };
 
     match message {
-        AgentMessage::RequestIdentities => handle_list_request(keystore, auth_policy).await,
+        AgentMessage::RequestIdentities => {
+            handle_list_request(
+                keystore,
+                auth_policy,
+                session_bind_state,
+                config,
+                active_account_email,
+            )
+            .await
+        }
         AgentMessage::SignRequest {
             public_key,
             data,
@@ -215,6 +243,9 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
 async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
+    session_bind_state: &SessionBindState,
+    config: &Arc<SshAgentConfig>,
+    active_account_email: &str,
 ) -> Vec<u8> {
     debug!("handling list request");
 
@@ -231,8 +262,23 @@ async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
         return failure();
     }
 
-    match keystore.get_all_public_keys_and_names() {
-        Ok(keys) => build_identities_answer(keys),
+    match keystore.get_all_key_meta() {
+        Ok(keys) => {
+            let total_count = keys.len();
+            let host_fingerprint = if session_bind_state.host_fingerprint.is_empty() {
+                None
+            } else {
+                Some(session_bind_state.host_fingerprint.as_str())
+            };
+            let filtered = config.filter_keys(keys, host_fingerprint, active_account_email);
+            debug!(
+                total_count,
+                offered_count = filtered.len(),
+                ?host_fingerprint,
+                "list request: offering keys to client"
+            );
+            build_identities_answer(filtered)
+        }
         Err(error) => {
             error!(%error, "Failed to retrieve keys from keystore");
             failure()
@@ -307,12 +353,36 @@ mod tests {
 
     use mockall::predicate::eq;
 
+    use super::{PeerInfo, SshAgentConfig};
     use crate::{
         authorization::AuthError,
+        config::KeyMeta,
         crypto::{PrivateKey, PublicKey},
         server::{session_bind::SessionBindState, AuthPolicy, AuthRequest},
-        storage::keystore::MockKeyStore,
+        storage::keystore::{KeyStore, MockKeyStore},
     };
+
+    // Dispatches a message with a default (all-keys) config and no scoped account, matching the
+    // pre-config behaviour these tests were written against.
+    async fn dispatch<K: KeyStore, A: AuthPolicy>(
+        msg: &[u8],
+        peer_info: Option<&PeerInfo>,
+        session_bind_state: &SessionBindState,
+        keystore: &Arc<K>,
+        auth_policy: &Arc<A>,
+    ) -> Vec<u8> {
+        super::handle_message(
+            msg,
+            peer_info,
+            session_bind_state,
+            keystore,
+            auth_policy,
+            &Arc::new(SshAgentConfig::default()),
+            "",
+        )
+        .await
+    }
+
     const FAILURE: u8 = 5;
     const SUCCESS: u8 = 6;
     const REQUEST_IDENTITIES: u8 = 11;
@@ -376,7 +446,7 @@ mod tests {
         let keystore = Arc::new(MockKeyStore::new());
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &[99u8],
             None,
             &SessionBindState::default(),
@@ -391,21 +461,20 @@ mod tests {
     #[tokio::test]
     async fn list_request_when_authorized_returns_identities_answer() {
         let mut keystore = MockKeyStore::new();
-        keystore
-            .expect_get_all_public_keys_and_names()
-            .once()
-            .returning(|| {
-                Ok(vec![(
-                    PublicKey {
-                        alg: "ssh-ed25519".to_string(),
-                        blob: vec![1, 2, 3],
-                    },
-                    "Test Key".to_string(),
-                )])
-            });
+        keystore.expect_get_all_key_meta().once().returning(|| {
+            Ok(vec![KeyMeta {
+                public_key: PublicKey {
+                    alg: "ssh-ed25519".to_string(),
+                    blob: vec![1, 2, 3],
+                },
+                name: "Test Key".to_string(),
+                cipher_id: "cipher-1".to_string(),
+                vault_name: "My vault".to_string(),
+            }])
+        });
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &[REQUEST_IDENTITIES],
             None,
             &SessionBindState::default(),
@@ -419,11 +488,68 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn list_request_filters_to_config_permitted_keys() {
+        let allowed_blob = vec![10u8, 20, 30];
+        let blocked_blob = vec![40u8, 50, 60];
+
+        let mut keystore = MockKeyStore::new();
+        let allowed = allowed_blob.clone();
+        let blocked = blocked_blob.clone();
+        keystore
+            .expect_get_all_key_meta()
+            .once()
+            .returning(move || {
+                Ok(vec![
+                    KeyMeta {
+                        public_key: PublicKey {
+                            alg: "ssh-ed25519".to_string(),
+                            blob: allowed.clone(),
+                        },
+                        name: "Allowed".to_string(),
+                        cipher_id: "cipher-allowed".to_string(),
+                        vault_name: "My vault".to_string(),
+                    },
+                    KeyMeta {
+                        public_key: PublicKey {
+                            alg: "ssh-ed25519".to_string(),
+                            blob: blocked.clone(),
+                        },
+                        name: "Blocked".to_string(),
+                        cipher_id: "cipher-blocked".to_string(),
+                        vault_name: "My vault".to_string(),
+                    },
+                ])
+            });
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+
+        let mut config: SshAgentConfig =
+            toml::from_str("[[account]]\n[account.defaults]\nkeys = [\"Allowed\"]\n").unwrap();
+        config.resolve_hostnames(&[]);
+
+        let response = super::handle_message(
+            &[REQUEST_IDENTITIES],
+            None,
+            &SessionBindState::default(),
+            &Arc::new(keystore),
+            &auth_policy,
+            &Arc::new(config),
+            "user@example.com",
+        )
+        .await;
+
+        assert_eq!(response[0], IDENTITIES_ANSWER);
+        assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
+
+        let blob_len = u32::from_be_bytes(response[5..9].try_into().unwrap()) as usize;
+        assert_eq!(&response[9..9 + blob_len], allowed_blob.as_slice());
+    }
+
+    #[tokio::test]
     async fn list_request_when_denied_returns_failure() {
         let keystore = MockKeyStore::new();
         let auth_policy = Arc::new(AlwaysDenyPolicy);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &[REQUEST_IDENTITIES],
             None,
             &SessionBindState::default(),
@@ -439,12 +565,12 @@ mod tests {
     async fn list_request_when_keystore_errors_returns_failure() {
         let mut keystore = MockKeyStore::new();
         keystore
-            .expect_get_all_public_keys_and_names()
+            .expect_get_all_key_meta()
             .once()
             .returning(|| Err(anyhow::anyhow!("keystore error")));
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &[REQUEST_IDENTITIES],
             None,
             &SessionBindState::default(),
@@ -478,7 +604,7 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -497,7 +623,7 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -516,7 +642,7 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -540,7 +666,7 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -564,7 +690,7 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -599,7 +725,7 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", 0); // no flags → would imply SHA-1
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -638,7 +764,7 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", RSA_SHA2_256);
 
-        let response = super::handle_message(
+        let response = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -759,8 +885,7 @@ mod tests {
             captured: std::sync::Mutex::new(None),
         });
 
-        let _ =
-            super::handle_message(&msg, None, &state, &Arc::new(keystore), &capturing_policy).await;
+        let _ = dispatch(&msg, None, &state, &Arc::new(keystore), &capturing_policy).await;
 
         let captured = capturing_policy.captured.lock().unwrap();
         if let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() {
@@ -803,8 +928,7 @@ mod tests {
             captured: std::sync::Mutex::new(None),
         });
 
-        let _ =
-            super::handle_message(&msg, None, &state, &Arc::new(keystore), &capturing_policy).await;
+        let _ = dispatch(&msg, None, &state, &Arc::new(keystore), &capturing_policy).await;
 
         let captured = capturing_policy.captured.lock().unwrap();
         if let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() {
@@ -837,7 +961,7 @@ mod tests {
             captured: std::sync::Mutex::new(None),
         });
 
-        let _ = super::handle_message(
+        let _ = dispatch(
             &msg,
             None,
             &SessionBindState::default(),
@@ -875,6 +999,8 @@ mod tests {
                 peer_info: None,
             },
             token,
+            Arc::new(SshAgentConfig::default()),
+            Arc::new(std::sync::RwLock::new(String::new())),
         );
 
         // Send a length one byte over the 256 KiB cap

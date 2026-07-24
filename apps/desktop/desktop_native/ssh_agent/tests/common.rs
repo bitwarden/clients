@@ -1,8 +1,10 @@
 //! Shared helpers for integration tests
 
+use std::sync::{Arc, RwLock};
+
 use ssh_agent::{
     ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore, SSHKeyData,
-    SignApprovalRequest,
+    SignApprovalRequest, SshAgentConfig,
 };
 
 // Unencrypted Ed25519 test key for testing only
@@ -93,7 +95,12 @@ pub fn always_approving_agent(
     requester
         .expect_request_list_approval()
         .returning(|| Ok(true));
-    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
+    BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    )
 }
 
 pub fn agent_with_keys(
@@ -109,6 +116,7 @@ pub fn test_ed25519_key() -> SSHKeyData {
         TEST_ED25519_PEM,
         "Test Key".to_string(),
         "cipher-test-1".to_string(),
+        "My vault".to_string(),
     )
     .expect("test PEM should be valid")
 }
@@ -127,6 +135,7 @@ pub fn test_rsa_key() -> SSHKeyData {
         TEST_RSA_PEM,
         "Test RSA Key".to_string(),
         "cipher-rsa-1".to_string(),
+        "My vault".to_string(),
     )
     .expect("test RSA PEM should be valid")
 }
@@ -145,6 +154,7 @@ pub fn test_ecdsa_p256_key() -> SSHKeyData {
         TEST_ECDSA_P256_PEM,
         "Test ECDSA P-256 Key".to_string(),
         "cipher-ecdsa-p256".to_string(),
+        "My vault".to_string(),
     )
     .expect("test ECDSA P-256 PEM should be valid")
 }
@@ -163,6 +173,7 @@ pub fn test_ecdsa_p384_key() -> SSHKeyData {
         TEST_ECDSA_P384_PEM,
         "Test ECDSA P-384 Key".to_string(),
         "cipher-ecdsa-p384".to_string(),
+        "My vault".to_string(),
     )
     .expect("test ECDSA P-384 PEM should be valid")
 }
@@ -181,6 +192,7 @@ pub fn test_ecdsa_p521_key() -> SSHKeyData {
         TEST_ECDSA_P521_PEM,
         "Test ECDSA P-521 Key".to_string(),
         "cipher-ecdsa-p521".to_string(),
+        "My vault".to_string(),
     )
     .expect("test ECDSA P-521 PEM should be valid")
 }
@@ -248,7 +260,12 @@ pub fn always_denying_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, Mo
     requester
         .expect_request_list_approval()
         .returning(|| Ok(false));
-    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
+    BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        Arc::new(SshAgentConfig::default()),
+        Arc::new(RwLock::new(String::new())),
+    )
 }
 
 /// Reads a single length-prefixed response frame from any async reader.

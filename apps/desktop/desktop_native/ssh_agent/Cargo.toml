@@ -9,10 +9,13 @@ publish = { workspace = true }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
+hmac = "=0.12.1"
 mockall = { workspace = true }
 rkyv = "=0.8.16"
 rsa = "0.9"
 secure_memory = { path = "../secure_memory" }
+serde = { workspace = true, features = ["derive"] }
+sha1 = "=0.10.7"
 sha2 = "=0.10.9"
 signature = "=2.2.0"
 ssh-key = { version = "=0.6.7", features = [
@@ -26,9 +29,11 @@ ssh-key = { version = "=0.6.7", features = [
 ] }
 sysinfo = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync"] }
 tokio-util = { workspace = true }
+toml = "=0.9.12"
 tracing = { workspace = true }
+uuid = "=1.23.4"
 
 [target.'cfg(unix)'.dependencies]
 homedir = { workspace = true }
