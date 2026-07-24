@@ -1051,13 +1051,7 @@ export class SshKeyAutoFillConstants {
     "sk-ecdsa-sha2-",
   ];
 
-  static readonly PublicKeyFieldNames: string[] = [
-    "key",
-    "public-key",
-    "publickey",
-    "ssh-key",
-    "sshkey",
-  ];
+  static readonly PublicKeyFieldNames: string[] = ["public-key", "publickey", "ssh-key", "sshkey"];
 
   static readonly TitleFieldNames: string[] = ["title", "label", "name", "description"];
 
