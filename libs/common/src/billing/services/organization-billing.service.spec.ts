@@ -21,7 +21,7 @@ import {
   PaymentInformation,
   SubscriptionInformation,
 } from "../abstractions";
-import { PaymentMethodType, PlanType } from "../enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "../enums";
 
 import { OrganizationBillingService } from "./organization-billing.service";
 
@@ -282,7 +282,7 @@ describe("OrganizationBillingService", () => {
         name: "Test Org",
         businessName: "Test Business",
         billingEmail: "test@example.com",
-        initiationPath: "Registration form",
+        initiationPath: InitiationPath.RegistrationForm,
       },
       plan: {
         type: 0, // Free plan
@@ -297,7 +297,7 @@ describe("OrganizationBillingService", () => {
       name: "Test Org",
       businessName: "Test Business",
       billingEmail: "test@example.com",
-      initiationPath: "Registration form",
+      initiationPath: InitiationPath.RegistrationForm,
       planType: 0,
       key: organizationKeys.publicKeyEncapsulatedOrgKey.encryptedString,
       keys: new OrganizationKeysRequest(

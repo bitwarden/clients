@@ -112,7 +112,16 @@ export class IdentityTokenResponse extends BaseResponse {
   }
 
   canUnlockWithKeyConnector(): boolean {
-    return this.userDecryptionOptions?.keyConnectorOption != null;
+    // A key connector option may be present if the user has not yet enrolled into key-connector, but is supposed
+    // to enroll, just after key-connector has been enabled for the organization. Thus, we need to check that the
+    // master password is also not present. Upon migration, the master-password will be removed from the user.
+    //
+    // Ideally, the server would track key connector enrollment, and deliver a status indicating whether the user
+    // is enrolled fully, or needs migration, but this is currently not present.
+    return (
+      this.userDecryptionOptions?.keyConnectorOption != null &&
+      this.userDecryptionOptions.hasMasterPassword == false
+    );
   }
 
   intoKeyConnectorUnlockData(): KeyConnectorUnlockData {
