@@ -5858,6 +5858,24 @@
   "owner": {
     "message": "Owner"
   },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "selfOwnershipLabel": {
     "message": "You",
     "description": "Used as a label to indicate that the user is the owner of an item."

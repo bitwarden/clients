@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
@@ -23,6 +23,8 @@ import {
 } from "@bitwarden/components";
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
+import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -37,9 +39,13 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     OrgIconDirective,
     FormFieldModule,
     LinkComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class ItemDetailsV2Component {
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
+
   readonly hideOwner = input<boolean>(false);
   readonly cipher = input.required<CipherView>();
   readonly organization = input<Organization | undefined>();
@@ -95,7 +101,8 @@ export class ItemDetailsV2Component {
 
   getAriaLabel(item: Organization | CollectionView | FolderView): string {
     if (item instanceof Organization) {
-      return this.i18nService.t("owner") + item.name;
+      const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
       return this.i18nService.t("collection") + item.name;
     } else if (item instanceof FolderView) {
