@@ -19,14 +19,17 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { CopyCipherFieldService } from "@bitwarden/vault";
 
 import {
   convertToPermission,
@@ -147,6 +150,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
+    private copyCipherFieldService: CopyCipherFieldService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
@@ -514,5 +518,39 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     if (!this.disabled && this.menuTrigger) {
       this.menuTrigger.toggleMenuOnRightClick(event);
     }
+  }
+
+  @HostListener("dblclick")
+  protected async onDoubleClick() {
+    if (
+      this.disabled ||
+      !this.isLoginCipher ||
+      !this.cipher.viewPassword ||
+      !CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")
+    ) {
+      return;
+    }
+
+    const password = await this.getPasswordToCopy();
+    await this.copyCipherFieldService.copy(password ?? "", "password", this.cipher);
+  }
+
+  private async getPasswordToCopy(): Promise<string | null | undefined> {
+    let cipher: CipherView;
+
+    if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
+      const activeAccountId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(getUserId),
+      );
+      const encryptedCipher = await this.cipherService.get(
+        uuidAsString(this.cipher.id!),
+        activeAccountId,
+      );
+      cipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
+    } else {
+      cipher = this.cipher as CipherView;
+    }
+
+    return cipher.login?.password;
   }
 }
