@@ -1190,7 +1190,7 @@ describe("BrowserApi", () => {
         jest.restoreAllMocks();
       });
 
-      describe.each([BrowserApi.getTabFromCurrentWindow, BrowserApi.getTabFromCurrentWindowId])(
+      describe.each([BrowserApi.getTabFromCurrentWindow])(
         "%p",
         (getCurrTabFn) => {
           it("returns the first tab when the query result has one tab", async () => {
@@ -1249,6 +1249,119 @@ describe("BrowserApi", () => {
       );
     },
   );
+
+  describe("getTabFromCurrentWindowId (Safari path regression guard)", () => {
+    let originalIsSafariApi = BrowserApi.isSafariApi;
+    const expectedWindowId = 10;
+    const wrongWindowId = expectedWindowId + 1;
+
+    const resolvedTabsQueryResult = [
+      mock<chrome.tabs.Tab>({
+        title: "tab[0] is a pinned tab from another window",
+        pinned: true,
+        windowId: wrongWindowId,
+      }),
+      mock<chrome.tabs.Tab>({
+        title: "tab[1] is the tab with the correct foreground window",
+        windowId: expectedWindowId,
+      }),
+    ];
+
+    beforeEach(() => {
+      originalIsSafariApi = BrowserApi.isSafariApi;
+      BrowserApi.isSafariApi = true;
+      jest
+        .spyOn(BrowserApi, "getCurrentWindow")
+        .mockResolvedValue(mock<chrome.windows.Window>({ id: expectedWindowId }));
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue(resolvedTabsQueryResult);
+    });
+
+    afterEach(() => {
+      BrowserApi.isSafariApi = originalIsSafariApi;
+      jest.restoreAllMocks();
+    });
+
+    it("returns the tab matching the current window ID", async () => {
+      const actualTab = await BrowserApi.getTabFromCurrentWindowId();
+      expect(actualTab.windowId).toBe(expectedWindowId);
+    });
+
+  });
+
+  describe("getTabFromCurrentWindowId (non-Safari getLastFocused path)", () => {
+    let originalIsSafariApi = BrowserApi.isSafariApi;
+    const focusedWindowId = 42;
+
+    const activeTabInFocusedWindow = mock<chrome.tabs.Tab>({
+      title: "active tab in the OS-focused window",
+      windowId: focusedWindowId,
+    });
+
+    beforeEach(() => {
+      originalIsSafariApi = BrowserApi.isSafariApi;
+      BrowserApi.isSafariApi = false;
+    });
+
+    afterEach(() => {
+      BrowserApi.isSafariApi = originalIsSafariApi;
+      jest.restoreAllMocks();
+    });
+
+    it("returns the active tab from the last-focused window", async () => {
+      jest
+        .spyOn(BrowserApi, "getLastFocusedWindow")
+        .mockResolvedValue(mock<chrome.windows.Window>({ id: focusedWindowId }));
+      const tabsQueryFirstSpy = jest
+        .spyOn(BrowserApi, "tabsQueryFirst")
+        .mockResolvedValue(activeTabInFocusedWindow);
+
+      const actualTab = await BrowserApi.getTabFromCurrentWindowId();
+
+      expect(tabsQueryFirstSpy).toHaveBeenCalledWith({
+        active: true,
+        windowId: focusedWindowId,
+      });
+      expect(actualTab).toBe(activeTabInFocusedWindow);
+    });
+
+    it.each([
+      ["null", null],
+      ["a window with no id", mock<chrome.windows.Window>({ id: undefined })],
+    ])(
+      "falls back to a currentWindow query when getLastFocused returns %s",
+      async (_label, focusedWindow) => {
+        jest.spyOn(BrowserApi, "getLastFocusedWindow").mockResolvedValue(focusedWindow);
+        const tabsQueryFirstSpy = jest
+          .spyOn(BrowserApi, "tabsQueryFirst")
+          .mockResolvedValue(activeTabInFocusedWindow);
+
+        const actualTab = await BrowserApi.getTabFromCurrentWindowId();
+
+        expect(tabsQueryFirstSpy).toHaveBeenCalledWith({
+          active: true,
+          currentWindow: true,
+        });
+        expect(actualTab).toBe(activeTabInFocusedWindow);
+      },
+    );
+  });
+
+  describe("getLastFocusedWindow", () => {
+    it("calls chrome.windows.getLastFocused without populating tabs", async () => {
+      const focusedWindow = mock<chrome.windows.Window>({ id: 7 });
+      (chrome.windows.getLastFocused as jest.Mock).mockImplementation((_options, callback) =>
+        callback(focusedWindow),
+      );
+
+      const result = await BrowserApi.getLastFocusedWindow();
+
+      expect(chrome.windows.getLastFocused).toHaveBeenCalledWith(
+        { populate: false },
+        expect.anything(),
+      );
+      expect(result).toBe(focusedWindow);
+    });
+  });
 
   describe("isSidePanelApiSupported", () => {
     it("returns true when chrome.sidePanel is defined", () => {

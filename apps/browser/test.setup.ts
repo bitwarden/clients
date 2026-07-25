@@ -86,6 +86,7 @@ const windows = {
   create: jest.fn(),
   get: jest.fn(),
   getCurrent: jest.fn(),
+  getLastFocused: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
   onFocusChanged: {

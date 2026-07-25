@@ -138,6 +138,20 @@ export class BrowserApi {
   }
 
   /**
+   * Gets the browser window that was most recently focused at the OS level.
+   *
+   * Unlike {@link chrome.windows.WINDOW_ID_CURRENT}, which resolves to the extension
+   * context's "current" window (undefined from a background service worker when
+   * multiple windows exist), this resolves to the window the user last interacted with.
+   * This is the correct target for keyboard-shortcut-driven actions.
+   */
+  static async getLastFocusedWindow(): Promise<chrome.windows.Window> {
+    return new Promise((resolve) =>
+      chrome.windows.getLastFocused({ populate: false }, (window) => resolve(window)),
+    );
+  }
+
+  /**
    * Gets the window with the given id.
    *
    * @param windowId - The id of the window to get.
@@ -212,10 +226,19 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
-      active: true,
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
-    });
+    if (BrowserApi.isSafariApi) {
+      return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
+        active: true,
+        windowId: chrome.windows.WINDOW_ID_CURRENT,
+      });
+    }
+
+    const lastFocusedWindow = await BrowserApi.getLastFocusedWindow();
+    if (lastFocusedWindow?.id == null) {
+      return await BrowserApi.tabsQueryFirst({ active: true, currentWindow: true });
+    }
+
+    return await BrowserApi.tabsQueryFirst({ active: true, windowId: lastFocusedWindow.id });
   }
 
   static getBrowserClientVendor(clientWindow: Window): BrowserClientVendor {
