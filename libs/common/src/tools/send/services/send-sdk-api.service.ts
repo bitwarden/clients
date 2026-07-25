@@ -306,7 +306,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       hideEmail: sendView.hideEmail,
       deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
-      auth: this.buildSendAuth(sendView, plaintextPassword, existingPassword),
+      // HACK DO NOT COMMIT
+      auth: { type: "preserve" }, //this.buildSendAuth(sendView, plaintextPassword, existingPassword),
     };
   }
 
