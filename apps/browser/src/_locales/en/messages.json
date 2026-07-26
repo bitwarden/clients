@@ -1980,6 +1980,9 @@
   "commandGeneratePasswordDesc": {
     "message": "Generate and copy a new random password to the clipboard"
   },
+  "commandGenerateUsernameDesc": {
+    "message": "Generate and copy a new random username to the clipboard"
+  },
   "commandLockVaultDesc": {
     "message": "Lock the vault"
   },

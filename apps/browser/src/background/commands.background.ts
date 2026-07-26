@@ -26,6 +26,7 @@ export default class CommandsBackground {
     private platformUtilsService: PlatformUtilsService,
     private authService: AuthService,
     private generatePasswordToClipboard: () => Observable<string>,
+    private generateUsernameToClipboard: () => Observable<string>,
     private accountService: AccountService,
     private lockService: LockService,
   ) {
@@ -54,6 +55,9 @@ export default class CommandsBackground {
     switch (command) {
       case ExtensionCommand.GeneratePassword:
         await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
+        break;
+      case ExtensionCommand.GenerateUsername:
+        await firstValueFrom(this.generateUsernameToClipboard(), { defaultValue: undefined });
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(

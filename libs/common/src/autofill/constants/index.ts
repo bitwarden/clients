@@ -139,6 +139,7 @@ export const ExtensionCommand = {
   AutofillLogin: "autofill_login",
   OpenAutofillOverlay: "open_autofill_overlay",
   GeneratePassword: "generate_password",
+  GenerateUsername: "generate_username",
   OpenPopup: "open_popup",
   LockVault: "lock_vault",
   NoopCommand: "noop",

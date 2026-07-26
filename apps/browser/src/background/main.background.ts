@@ -1532,6 +1532,7 @@ export default class MainBackground {
       this.platformUtilsService,
       this.authService,
       () => this.generatePasswordToClipboard(),
+      () => this.generateUsernameToClipboard(),
       this.accountService,
       this.lockService,
     );
@@ -2309,6 +2310,36 @@ export default class MainBackground {
       .generate$({
         on$: concat(
           of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.password }),
+          NEVER,
+        ),
+        account$: this.accountService.activeAccount$,
+      })
+      .pipe(
+        concatMap(async (generated) => {
+          this.platformUtilsService.copyToClipboard(generated.credential);
+          try {
+            await trackGeneratedCredential(
+              this.generatorHistoryService,
+              this.accountService.activeAccount$,
+              generated,
+            );
+          } catch (e) {
+            this.logService.error(e);
+          }
+          return generated.credential;
+        }),
+      );
+  };
+
+  generateUsernameToClipboard = () => {
+    if (!this.credentialGeneratorService || !this.generatorHistoryService) {
+      return EMPTY;
+    }
+
+    return this.credentialGeneratorService
+      .generate$({
+        on$: concat(
+          of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.username }),
           NEVER,
         ),
         account$: this.accountService.activeAccount$,
