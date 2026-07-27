@@ -104,11 +104,11 @@ export class ItemDetailsV2Component {
       const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      const label = this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
-      return `${label} ${item.name}`;
+      const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof FolderView) {
-      const label = this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
-      return `${label} ${item.name}`;
+      const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
+      return this.i18nService.t(key, item.name);
     }
     return "";
   }

@@ -109,12 +109,12 @@ describe("ItemDetailsV2Component", () => {
         organizationId: "org1" as OrganizationId,
         name: "Collection 1",
       });
-      expect(component.getAriaLabel(col)).toBe("collection Collection 1");
+      expect(component.getAriaLabel(col)).toBe("collectionAriaLabel Collection 1");
     });
 
     it("separates the label and name with a space for folders", () => {
       const folderView = Object.assign(new FolderView(), { name: "Folder 1" });
-      expect(component.getAriaLabel(folderView)).toBe("folder Folder 1");
+      expect(component.getAriaLabel(folderView)).toBe("folderAriaLabel Folder 1");
     });
   });
 
