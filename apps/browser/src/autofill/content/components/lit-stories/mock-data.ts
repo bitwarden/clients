@@ -102,7 +102,10 @@ export const mockTasks = [
 ];
 
 export const mockI18n = {
-  addNewLoginItemAria: "Add new login item",
+  addNewLoginItemAria: "Add new vault login item, opens in a new window",
+  addNewCardItemAria: "Add new vault card item, opens in a new window",
+  addNewIdentityItemAria: "Add new vault identity item, opens in a new window",
+  addNewVaultItem: "Add new vault item",
   appName: "Bitwarden",
   atRiskPassword: "At-risk password",
   atRiskNavigatePromptV2:
@@ -131,6 +134,8 @@ export const mockI18n = {
   nextSecurityTaskAction: "Change next password",
   newItem: "New item",
   newLogin: "New login",
+  newCard: "New card",
+  newIdentity: "New identity",
   never: "Never",
   noItemsToShow: "No items to show",
   myVault: "My vault",
