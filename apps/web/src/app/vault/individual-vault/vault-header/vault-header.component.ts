@@ -38,6 +38,7 @@ import {
   NewCipherMenuComponent,
   All,
   RoutedVaultFilterModel,
+  Vfo1I18nPipe,
   Vfo1TerminologyService,
   Vfo1IconPipe,
 } from "@bitwarden/vault";
@@ -62,18 +63,20 @@ import { PipesModule } from "../pipes/pipes.module";
     NewCipherMenuComponent,
     CoachmarkComponent,
     IconModule,
+    Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   protected readonly Unassigned = Unassigned;
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly CipherType = CipherType;
 
   protected readonly coachmarkService = inject(CoachmarkService);
-  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /** Computed signal for add item coachmark open state */
   protected readonly addItemCoachmarkOpen = computed(
@@ -332,9 +335,13 @@ export class VaultHeaderComponent {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        organization.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
+        this.vfo1TerminologyService.enabled()
+          ? organization.canEditSubscription
+            ? "freeOrgMaxSharedFolderReachedManageBilling"
+            : "freeOrgMaxSharedFolderReachedNoManageBilling"
+          : organization.canEditSubscription
+            ? "freeOrgMaxCollectionReachedManageBilling"
+            : "freeOrgMaxCollectionReachedNoManageBilling",
         organization.maxCollections,
       ),
       type: "primary",

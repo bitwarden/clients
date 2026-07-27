@@ -1215,6 +1215,102 @@
   "newSharedFolder": {
     "message": "New shared folder"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "addToMyFolder": {
+    "message": "Add to my folder"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Select shared folder item"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "This shared folder is only accessible from the admin console"
+  },
+  "editSharedFolder": {
+    "message": "Edit shared folder"
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "This shared folder will be permanently deleted."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "These shared folders will be permanently deleted."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ shared folder(s) will be permanently deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
+  "deletedSharedFolders": {
+    "message": "Deleted shared folders"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
   "attachments": {
     "message": "Attachments"
   },
