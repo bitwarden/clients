@@ -32,12 +32,14 @@ import {
   MenuModule,
   SimpleDialogOptions,
   IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import {
   NewCipherMenuComponent,
   All,
   RoutedVaultFilterModel,
   Vfo1TerminologyService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
@@ -60,6 +62,7 @@ import { PipesModule } from "../pipes/pipes.module";
     NewCipherMenuComponent,
     CoachmarkComponent,
     IconModule,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -214,7 +217,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"

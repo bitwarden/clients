@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
 
 import {
@@ -41,6 +42,7 @@ describe("AddItemDialogComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$ },
         },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
   });
