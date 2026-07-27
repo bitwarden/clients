@@ -70,8 +70,8 @@ const mockNestedCollection = Object.assign(
 );
 
 const mockGroups: GroupView[] = [
-  Object.assign(new GroupView(), { id: "grp-1", name: "Admins" }),
-  Object.assign(new GroupView(), { id: "grp-2", name: "Developers" }),
+  new GroupView({ id: "grp-1", organizationId: ORG_ID, name: "Admins" }),
+  new GroupView({ id: "grp-2", organizationId: ORG_ID, name: "Developers" }),
 ];
 
 const mockUsers = {
