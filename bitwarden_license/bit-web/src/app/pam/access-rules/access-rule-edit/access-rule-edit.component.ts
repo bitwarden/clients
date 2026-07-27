@@ -29,22 +29,24 @@ import {
   TypographyModule,
   ContainerComponent,
 } from "@bitwarden/components";
-import type { CollectionId as SdkCollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
-  AccessRuleAddEditRequest,
+  AccessRuleId,
   AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
-  AccessRuleSdkService,
   accessRuleErrorMessage,
+  accessRuleToFormValue,
+  AccessRuleSdkService,
+  DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
+  EXTENSION_DURATION_OPTIONS,
+  formValueToRequest,
   isAccessRuleNotFound,
-  isHumanApproval,
   isIpAllowlist,
   isKnownAccessCondition,
+  NO_DURATION_CAP,
   snapToNearestAccessRuleDuration,
-  snapToNearestDuration,
 } from "../..";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
@@ -59,21 +61,6 @@ import {
 } from "./ip-allowlist/ip-allowlist-editor.component";
 
 const NAME_MAX_LENGTH = 256;
-
-/** The "no maximum" option in the max-duration picker; never constrains the default. */
-const NO_DURATION_CAP = 0;
-
-/** Admin-selectable maximum extension lengths, in seconds (30m–8h). */
-const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
-  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
-  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
-  { seconds: 2 * 60 * 60, labelKey: "pamAccessRuleDuration2h" },
-  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-];
-
-/** Default maximum extension length offered when a rule first enables extensions (1h). */
-const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
 
 /**
  * Routed page for creating or editing a PAM access rule. Edit mode is entered via the
@@ -119,7 +106,8 @@ export class AccessRuleEditComponent {
   private readonly cidrValidation = inject(CidrValidationService);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly accessRuleId = this.route.snapshot.params.accessRuleId as string | undefined;
+  private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
+    AccessRuleId | undefined;
 
   protected readonly editing = this.accessRuleId != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
@@ -227,29 +215,7 @@ export class AccessRuleEditComponent {
 
   private applyRule(rule: AccessRuleView): void {
     this.unknownConditions.set(rule.conditions?.filter((c) => !isKnownAccessCondition(c)) ?? []);
-    this.formGroup.patchValue({
-      name: rule.name,
-      description: rule.description ?? "",
-      defaultLeaseDurationSeconds: snapToNearestAccessRuleDuration(
-        rule.defaultLeaseDurationSeconds,
-      ),
-      // Snap max/extension to their pickers' options too (like the default), so a
-      // value persisted outside the option set renders against an option rather
-      // than leaving the select blank.
-      maxLeaseDurationSeconds:
-        rule.maxLeaseDurationSeconds == null
-          ? NO_DURATION_CAP
-          : snapToNearestAccessRuleDuration(rule.maxLeaseDurationSeconds),
-      singleActiveLease: rule.singleActiveLease,
-      enabled: rule.enabled,
-      allowsExtensions: rule.allowsExtensions,
-      maxExtensionDurationSeconds:
-        rule.maxExtensionDurationSeconds == null
-          ? DEFAULT_MAX_EXTENSION_DURATION_SECONDS
-          : snapToNearestDuration(rule.maxExtensionDurationSeconds, EXTENSION_DURATION_OPTIONS),
-      humanApprovalEnabled: rule.conditions?.some(isHumanApproval) ?? false,
-      ipAllowlistEnabled: rule.conditions?.some(isIpAllowlist) ?? false,
-    });
+    this.formGroup.patchValue(accessRuleToFormValue(rule));
     // Seed the CIDR rows separately: a FormArray can't be resized via patchValue.
     this.setIpAllowlistCidrs(rule.conditions?.find(isIpAllowlist)?.cidrs ?? []);
   }
@@ -367,51 +333,12 @@ export class AccessRuleEditComponent {
       return;
     }
 
-    const value = this.formGroup.getRawValue();
-    const conditions: AccessCondition[] = [];
-
-    if (value.humanApprovalEnabled) {
-      conditions.push({ kind: "human_approval" });
-    }
-
-    if (value.ipAllowlistEnabled) {
-      conditions.push({
-        kind: "ip_allowlist",
-        cidrs: value.ipAllowlistCidrs.map((c) => c.trim()).filter((c) => c !== ""),
-      });
-    }
-
-    // Carry forward any condition kinds this client doesn't model (e.g. the
-    // server's `time_of_day`) so editing an unrelated field on the rule doesn't
-    // silently delete them. See `unknownConditions` for why this is additive
-    // rather than round-tripping the whole array.
-    conditions.push(...this.unknownConditions());
-
-    // No runtime UUID validation here (unlike the SDK-boundary code in
-    // `AccessRulesSdkService`) — this is just a type-level bridge from the
-    // multi-select's plain string ids to the SDK's branded `CollectionId`.
-    const request: AccessRuleAddEditRequest = {
-      name: value.name,
-      description: value.description.length === 0 ? undefined : value.description,
-      conditions,
-      collections: value.collections.map((i) => i.id as unknown as SdkCollectionId),
-      defaultLeaseDurationSeconds: value.defaultLeaseDurationSeconds,
-      maxLeaseDurationSeconds:
-        value.maxLeaseDurationSeconds === NO_DURATION_CAP
-          ? undefined
-          : value.maxLeaseDurationSeconds,
-      singleActiveLease: value.singleActiveLease,
-      enabled: value.enabled,
-      allowsExtensions: value.allowsExtensions,
-      maxExtensionDurationSeconds: value.allowsExtensions
-        ? value.maxExtensionDurationSeconds
-        : undefined,
-    };
+    const request = formValueToRequest(this.formGroup.getRawValue(), this.unknownConditions());
 
     try {
       const existing = this.existing();
       if (existing != null) {
-        await this.pamApi.updateAccessRule(this.organizationId, uuidAsString(existing.id), request);
+        await this.pamApi.updateAccessRule(this.organizationId, existing.id, request);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessRuleUpdated"),
