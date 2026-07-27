@@ -4,14 +4,17 @@ import * as stories from "./table-v2.stories";
 
 <Meta of={stories} />
 
-# Table V2
+# Table V2 (Beta)
+
+> **Beta — not yet approved for production.** `bit-table-v2` is still stabilizing; its still getting
+> some polish. Do not adopt it in production without approval from the UI Foundation team.
 
 `bit-table-v2` renders tabular data with sorting, filtering, selection, pagination, loading and
 empty states, and virtual scrolling built in. You declare each column once — its header and its
 per-row cell — and the table handles the rest.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` is deprecated — see
-[Migrating from V1](?path=/docs/component-library-table-v2-migrating-from-v1--docs) to move an
+[Migrating from V1](?path=/docs/component-library-table-v2-beta-migrating-from-v1--docs) to move an
 existing table over.
 
 <Primary />
@@ -544,15 +547,18 @@ viewport renders the interleaved headers and rows.
 By default the table grows to fit its rows and scrolls with the page. To bound it — so the body
 scrolls and the header stays pinned — set `[height]`:
 
-- **`height="fill"`** — fill the height of a bounded, full-height container. This is the idiomatic
-  way to make a table fill the main content area, inside the body of a
-  [`bit-page`](?path=/docs/component-library-layout-page--docs):
+- **`height="fill"`** — fill the height of the parent. The parent **must have a resolved height** of
+  its own; without one the table has nothing to fill and collapses. The typical such parent is the
+  body of a [`bit-page`](?path=/docs/component-library-layout-page--docs), which is the idiomatic
+  way to make a table fill the main content area:
 
   ```html
   <bit-page>
     <bit-table-v2 [tableDef]="table" height="fill">…columns…</bit-table-v2>
   </bit-page>
   ```
+
+  <Canvas of={stories.FillPage} />
 
 - **`[height]="N"`** — cap the body at `N` rows (minimum 4), then scroll. This needs a known row
   height, so it applies only to [virtualized](#virtual-scrolling) tables and is a no-op otherwise.

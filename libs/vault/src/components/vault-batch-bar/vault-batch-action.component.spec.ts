@@ -80,7 +80,10 @@ describe("VaultBatchActionComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => `translated-${key}` } },
-        { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: vfo1Enabled },
+        },
       ],
     }).compileComponents();
 

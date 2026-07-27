@@ -29,6 +29,7 @@ import {
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
   Vfo1I18nPipe,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "./vault-item-event";
@@ -59,6 +60,7 @@ interface CopyFieldConfig {
     IconModule,
     CheckboxModule,
     Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
