@@ -26,8 +26,16 @@ const TOKEN_FILE: &str = "remote_desktop_portal_token";
 /// Whether the portal-based clipboard fallback should be used when the direct `arboard` access
 /// fails.
 pub(crate) fn should_use_portal() -> bool {
-    let clipboard_works = super::arboard_backend::read().is_ok();
-    !clipboard_works
+    match super::arboard_backend::read() {
+        Ok(_) => false,
+        // An empty clipboard, or one holding non-text content, reports `ContentNotAvailable`.
+        // That is a successful read of nothing rather than a broken backend, so it must not
+        // trigger the portal fallback.
+        Err(err) => !matches!(
+            err.downcast_ref::<arboard::Error>(),
+            Some(arboard::Error::ContentNotAvailable)
+        ),
+    }
 }
 
 /// Set the clipboard to `text` via the Clipboard portal over a RemoteDesktop session.
