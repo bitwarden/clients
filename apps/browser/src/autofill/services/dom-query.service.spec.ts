@@ -548,6 +548,21 @@ describe("DomQueryService", () => {
         expect(unresolvedHosts).toEqual(new Set([lazyHost]));
       });
 
+      it("excludes the extension's own hyphenated hosts from the sink", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const wrapper = document.createElement("div");
+        // Owned inline-menu elements are hyphenated custom elements with no shadow root; without
+        // the ownership gate they would be re-scanned for their whole tracked lifetime.
+        const ownedHost = document.createElement("bw-inline-menu");
+        wrapper.appendChild(ownedHost);
+        document.body.appendChild(wrapper);
+        domQueryService.setOwnedShadowHostPredicate((el) => el === ownedHost);
+
+        const { unresolvedHosts } = domQueryService.checkForNewShadowRoots([wrapper]);
+
+        expect(unresolvedHosts.has(ownedHost)).toBe(false);
+      });
+
       it("collects un-hydrated custom elements nested inside an already-known root", () => {
         domQueryService["pageContainsShadowDom"] = true;
         const outerHost = document.createElement("global-login");

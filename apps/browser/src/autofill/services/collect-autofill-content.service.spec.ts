@@ -3396,6 +3396,32 @@ describe("CollectAutofillContentService", () => {
         document.body.removeChild(slowHost);
       });
 
+      it("expires a parked host whose definition never lands so the retry timer settles", () => {
+        const ghostHost = document.createElement("never-defined-widget");
+        document.body.appendChild(ghostHost);
+
+        collectAutofillContentService["handleMutationObserverMutation"]([
+          buildMutation([ghostHost]),
+        ]);
+        jest.advanceTimersByTime(500);
+
+        // Parked, waiting on a definition that never comes.
+        expect(
+          collectAutofillContentService["hostsAwaitingDefinition"].get("never-defined-widget"),
+        ).toEqual(new Set([ghostHost]));
+
+        // Past the 60s park deadline: a retry sweep evicts + tombstones it and stops re-arming.
+        jest.advanceTimersByTime(65000);
+
+        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
+        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(ghostHost)).toBe(
+          true,
+        );
+        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
+
+        document.body.removeChild(ghostHost);
+      });
+
       it("enrolls pre-existing un-hydrated hosts during collection and recovers without any mutations", async () => {
         customElements.define("preexisting-login", class extends HTMLElement {});
         jest

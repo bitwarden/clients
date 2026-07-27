@@ -106,6 +106,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   // Undefined-tag hosts park here scan-free until customElements.whenDefined fires.
   private hostsAwaitingDefinition: Map<string, Set<Element>> = new Map();
   private readonly awaitingDefinitionCap = 64;
+  // Per-host park deadline. Longer than the host lifetime so a slow-loading definition still
+  // upgrades, but finite so a tag that never registers can't keep the retry timer alive forever.
+  private parkedHostDeadlines = new WeakMap<Element, number>();
+  private readonly awaitingDefinitionLifetimeMs = 60000;
   private hookedCustomElementTags: Set<string> = new Set();
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
@@ -1818,12 +1822,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           hosts.delete(element);
           continue;
         }
-        if (!element.matches(":defined")) {
+        if (element.matches(":defined")) {
+          hosts.delete(element);
+          enrolled = true;
+          this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
           continue;
         }
-        hosts.delete(element);
-        enrolled = true;
-        this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
+        // Still undefined past its park deadline: give up and tombstone, so the tag can't
+        // re-park and the retry timer can eventually settle.
+        const parkDeadline = this.parkedHostDeadlines.get(element);
+        if (parkDeadline !== undefined && now >= parkDeadline) {
+          hosts.delete(element);
+          this.expiredShadowHostCandidates.add(element);
+        }
       }
       if (hosts.size === 0) {
         this.hostsAwaitingDefinition.delete(tagName);
@@ -1847,7 +1858,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       hosts = new Set();
       this.hostsAwaitingDefinition.set(tagName, hosts);
     }
-    hosts.add(element);
+    if (!hosts.has(element)) {
+      hosts.add(element);
+      // Stamp once — re-parking on later scans must not refresh the deadline, or a tag that
+      // never defines would postpone expiry forever.
+      this.parkedHostDeadlines.set(element, Date.now() + this.awaitingDefinitionLifetimeMs);
+    }
     this.hookCustomElementDefinition(tagName);
   }
 

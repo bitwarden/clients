@@ -434,7 +434,8 @@ export class DomQueryService implements DomQueryServiceInterface {
     if (!root) {
       if (
         scan.unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
-        element.tagName.includes("-")
+        element.tagName.includes("-") &&
+        !this.isOwnedShadowHost(element)
       ) {
         scan.unresolvedHosts.add(element);
       }
@@ -642,7 +643,8 @@ export class DomQueryService implements DomQueryServiceInterface {
         } else if (
           unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
           el.tagName.includes("-") &&
-          !el.shadowRoot
+          !el.shadowRoot &&
+          !this.isOwnedShadowHost(el)
         ) {
           // Only enrollment source for hosts that predate observer attachment.
           unresolvedHosts.add(el);
