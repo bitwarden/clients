@@ -169,8 +169,9 @@ where
 
     debug!("Google ABE {} detected: {:?} {:?}", version, iv, ciphertext);
 
+    let iv = iv.try_into()?;
     let decrypted = cipher
-        .decrypt(iv.into(), ciphertext)
+        .decrypt(iv, ciphertext)
         .map_err(|e| anyhow!("Failed to decrypt v20 key with {}: {}", version, e))?;
 
     Ok(decrypted)
@@ -217,7 +218,8 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
         .collect();
 
     // Decrypt the actual ABE key with the decrypted AES key
-    let cipher = Aes256Gcm::new(aes_key.as_slice().into());
+    let key = aes_key.as_slice().try_into()?;
+    let cipher = Aes256Gcm::new(key);
     let key = cipher
         .decrypt((&iv).into(), ciphertext.as_ref())
         .map_err(|e| anyhow!("Failed to decrypt v20 key with AES-GCM: {}", e))?;

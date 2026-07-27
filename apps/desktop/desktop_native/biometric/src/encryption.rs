@@ -8,7 +8,6 @@
 //! The Windows Hello API calls that produce the signature, and the keychain persistence of the
 //! entries defined here, live in the parent module (`windows.rs`).
 
-use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
 use bitwarden_crypto::{
     key_slot_ids,
@@ -19,7 +18,7 @@ use bitwarden_crypto::{
     BitwardenLegacyKeyBytes, KeyStore, SymmetricCryptoKey,
 };
 use bitwarden_sensitive_value::{Sensitive, SensitiveSlice};
-use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
+use chacha20poly1305::{aead::Aead, KeyInit, XChaCha20Poly1305, XNonce};
 use rand_core::Rng;
 use sha2::{Digest, Sha256};
 
@@ -209,7 +208,8 @@ impl WindowsHelloKeychainEntryV1 {
 
     /// Unseal the user key
     pub(super) fn unseal(&self, windows_hello_key: &WindowsHelloPrf) -> Result<SymmetricCryptoKey> {
-        let cipher = XChaCha20Poly1305::new(windows_hello_key.as_bytes().into());
+        let key: &[u8; 32] = windows_hello_key.as_bytes().try_into()?;
+        let cipher = XChaCha20Poly1305::new_from_slice(key)?;
         let decrypted = cipher
             .decrypt(XNonce::from_slice(&self.nonce), self.wrapped_key.as_slice())
             .map_err(|e| anyhow!(e))?;
@@ -220,9 +220,9 @@ impl WindowsHelloKeychainEntryV1 {
 
 #[cfg(test)]
 mod tests {
-    use aes::cipher::KeyInit;
+    use aes_gcm::aead::AeadInOut;
     use bitwarden_crypto::{BitwardenLegacyKeyBytes, SymmetricCryptoKey, SymmetricKeyAlgorithm};
-    use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
+    use chacha20poly1305::{aead::Aead, KeyInit, XChaCha20Poly1305, XNonce};
 
     use super::{
         Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1,
@@ -289,7 +289,8 @@ mod tests {
 
         // V1 wraps the user key directly with XChaCha20Poly1305. `seal` picks a random nonce, so
         // build the entry with the pinned `TEST_VECTOR_NONCE` to keep the recorded vector stable.
-        let cipher = XChaCha20Poly1305::new(windows_hello_key.as_bytes().into());
+        let key: &[u8; 32] = windows_hello_key.as_bytes().try_into().unwrap();
+        let cipher = XChaCha20Poly1305::new_from_slice(key).unwrap();
         let wrapped_key = cipher
             .encrypt(
                 XNonce::from_slice(&TEST_VECTOR_NONCE),

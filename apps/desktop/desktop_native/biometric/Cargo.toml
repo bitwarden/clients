@@ -17,6 +17,7 @@ zbus_polkit = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 aes = { workspace = true }
+aes-gcm = { workspace = true }
 bitwarden-crypto = { workspace = true }
 bitwarden-random = { workspace = true }
 bitwarden-sensitive-value = { workspace = true }
