@@ -324,6 +324,10 @@ export class ItemMoreOptionsComponent {
   }
 
   async shareViaLink() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
     await this.router.navigate(["/share-item"], {
       queryParams: { cipherId: this.cipher.id },
     });
