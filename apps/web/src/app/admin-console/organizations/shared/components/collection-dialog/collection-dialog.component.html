@@ -47,14 +47,14 @@
             <bit-option
               *ngIf="deletedParentName"
               disabled
-              icon="bwi-collection-shared"
+              [icon]="'bwi-collection-shared' | vfo1Icon"
               [value]="deletedParentName"
               label="{{ deletedParentName }} ({{ 'deleted' | i18n }})"
             >
             </bit-option>
             <bit-option
               *ngFor="let collection of nestOptions"
-              icon="bwi-collection-shared"
+              [icon]="'bwi-collection-shared' | vfo1Icon"
               [value]="collection.name"
               [label]="collection.name"
             >
