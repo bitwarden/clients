@@ -1,6 +1,6 @@
 import { CommonModule, Location } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormControl,
@@ -12,7 +12,6 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, switchMap } from "rxjs";
-
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -196,10 +195,7 @@ export class ShareItemComponent {
     oneTimeShare: new FormControl(false, { nonNullable: true }),
   });
 
-  protected readonly CipherType = CipherType;
-
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-  protected readonly activeUserId = toSignal(this.activeUserId$);
 
   constructor() {
     this.route.queryParams
@@ -253,25 +249,6 @@ export class ShareItemComponent {
         this.refreshActiveLinks(currentCipher.id as CipherId);
       }
     });
-  }
-
-  protected getCipherTypeName(): string {
-    const currentCipher = this.cipher();
-    if (!currentCipher) {
-      return "";
-    }
-    switch (currentCipher.type) {
-      case CipherType.Login:
-        return this.i18nService.t("typeLogin");
-      case CipherType.Card:
-        return this.i18nService.t("typeCard");
-      case CipherType.Identity:
-        return this.i18nService.t("typeIdentity");
-      case CipherType.SecureNote:
-        return this.i18nService.t("typeSecureNote");
-      default:
-        return "";
-    }
   }
 
   protected async copyLink(link: ShareLink): Promise<void> {
