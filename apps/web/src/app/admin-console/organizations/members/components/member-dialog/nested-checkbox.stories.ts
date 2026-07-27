@@ -9,7 +9,7 @@ import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { NestedCheckboxComponent } from "./nested-checkbox.component";
 
 export default {
-  title: "Web/Organizations/Members/Nested Checkbox",
+  title: "Admin Console/Organizations/Members/Nested Checkbox",
   decorators: [
     moduleMetadata({
       imports: [NestedCheckboxComponent, ReactiveFormsModule, CheckboxModule, FormFieldModule],

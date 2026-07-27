@@ -1,22 +1,28 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  WritableSignal,
+  inject,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
   of,
   shareReplay,
-  Subject,
+  startWith,
   switchMap,
-  takeUntil,
   tap,
   filter,
+  take,
 } from "rxjs";
-import { first } from "rxjs/operators";
 
 import {
   CollectionAdminService,
@@ -24,10 +30,7 @@ import {
   OrganizationUserUserMiniResponse,
   CollectionService,
 } from "@bitwarden/admin-console/common";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionAccessSelectionView,
   CollectionAdminView,
@@ -69,77 +72,44 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionDialogTabType {
-  Info = 0,
-  Access = 1,
-}
+import {
+  CollectionDialogAction,
+  CollectionDialogParams,
+  CollectionDialogResult,
+  CollectionDialogTabType,
+} from "./collection-dialog.models";
 
-/**
- * Enum representing button labels for the "Add New Collection" dialog.
- *
- * @readonly
- * @enum {string}
- */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum ButtonType {
+const ButtonType = Object.freeze({
   /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
-  Upgrade = "upgrade",
+  Upgrade: "upgrade",
   /** Displayed when the user can still add more collections within the allowed limit. */
-  Save = "save",
-}
+  Save: "save",
+} as const);
+type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 
-export interface CollectionDialogParams {
-  collectionId?: CollectionId;
-  organizationId: OrganizationId;
-  initialTab?: CollectionDialogTabType;
-  parentCollectionId?: string;
-  showOrgSelector?: boolean;
-  initialPermission?: CollectionPermission;
-  /**
-   * Flag to limit the nested collections to only those the user has explicit CanManage access too.
-   */
-  limitNestedCollections?: boolean;
-  readonly?: boolean;
-  isAddAccessCollection?: boolean;
-  isAdminConsoleActive?: boolean;
-}
-
-export interface CollectionDialogResult {
-  action: CollectionDialogAction;
-  collection: CollectionResponse | CollectionView;
-}
-
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionDialogAction {
-  Saved = "saved",
-  Canceled = "canceled",
-  Deleted = "deleted",
-  Upgrade = "upgrade",
-}
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
   imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CollectionDialogComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  protected organizations$: Observable<Organization[]>;
+export class CollectionDialogComponent implements OnInit {
+  private readonly params = inject<CollectionDialogParams>(DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly dialogRef = inject<DialogRef<CollectionDialogResult>>(DialogRef);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly groupService = inject(GroupApiService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly i18nService = inject(I18nService);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly dialogService = inject(DialogService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
+  private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected tabIndex: CollectionDialogTabType;
-  protected loading = true;
-  protected organization?: Organization;
-  protected collection?: CollectionAdminView;
-  protected nestOptions: CollectionView[] = [];
-  protected accessItems: AccessItemView[] = [];
-  protected deletedParentName: string | undefined;
-  protected showOrgSelector = false;
-  protected formGroup = this.formBuilder.group({
+  protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
     // set to readonly in the template
     externalId: { value: "", disabled: false },
@@ -147,59 +117,211 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     access: [[] as AccessItemValue[]],
     selectedOrg: "" as OrganizationId,
   });
-  protected PermissionMode = PermissionMode;
-  protected showDeleteButton = false;
-  protected showAddAccessWarning = false;
-  protected buttonDisplayName: ButtonType = ButtonType.Save;
-  protected initialPermission: CollectionPermission;
+
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected readonly organizations$: Observable<Organization[]> = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+    map((orgs) =>
+      orgs
+        .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+        .sort(Utils.getSortFunction(this.i18nService, "name")),
+    ),
+  );
+
+  private readonly selectedOrgId$ = this.formGroup.controls.selectedOrg.valueChanges.pipe(
+    startWith(this.params.organizationId),
+    distinctUntilChanged(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly organization$ = this.selectedOrgId$.pipe(
+    switchMap((orgId) =>
+      orgId
+        ? this.activeUserId$.pipe(
+            switchMap((userId) => this.organizationService.organizations$(userId)),
+            map((orgs) => orgs.find((o) => o.id === orgId)),
+          )
+        : of(undefined),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly organization = toSignal(this.organization$);
+
+  private readonly allCollections$ = this.selectedOrgId$.pipe(
+    switchMap((orgId) =>
+      orgId
+        ? this.activeUserId$.pipe(
+            switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+          )
+        : of([]),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly collection$ = this.allCollections$.pipe(
+    map((collections) => {
+      if (!this.params.collectionId) {
+        return undefined;
+      }
+      const found = collections.find((c) => c.id === this.params.collectionId);
+      if (!found) {
+        throw new Error("Could not find collection to edit.");
+      }
+      return found;
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly collection = toSignal(this.collection$);
+
+  private readonly groups$ = this.organization$.pipe(
+    switchMap((organization) =>
+      organization?.useGroups && organization.id
+        ? this.groupService.getAll(organization.id)
+        : of([] as GroupView[]),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly users$ = this.selectedOrgId$.pipe(
+    switchMap((orgId) =>
+      orgId ? this.organizationUserApiService.getAllMiniUserDetails(orgId) : of({ data: [] }),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly accessItems$ = combineLatest([
+    this.groups$,
+    this.users$,
+    this.collection$,
+  ]).pipe(
+    map(([groups, users, collection]) =>
+      ([] as AccessItemView[]).concat(
+        groups.map((group) => mapGroupToAccessItemView(group, collection)),
+        users.data.map((user) => mapUserToAccessItemView(user, collection)),
+      ),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly nestOptionsState$ = combineLatest({
+    allCollections: this.allCollections$,
+    collection: this.collection$,
+    organization: this.organization$,
+  }).pipe(
+    map(({ allCollections, collection, organization }) => {
+      let nestOptions: CollectionView[] = this.params.limitNestedCollections
+        ? allCollections.filter((c) => c.manage)
+        : allCollections;
+
+      let deletedParentName: string | undefined = undefined;
+
+      if (collection) {
+        nestOptions = nestOptions.filter((c) => c.id !== this.params.collectionId);
+
+        const { parent: parentName } = parseName(collection);
+
+        if (parentName !== undefined) {
+          if (
+            organization?.canViewAllCollections &&
+            !allCollections.find((c) => c.name === parentName)
+          ) {
+            deletedParentName = parentName;
+          } else if (!nestOptions.find((c) => c.name === parentName)) {
+            nestOptions = [{ name: parentName } as CollectionView, ...nestOptions];
+          }
+        }
+      }
+
+      return { nestOptions, deletedParentName };
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly nestOptions = toSignal(
+    this.nestOptionsState$.pipe(map((s) => s.nestOptions)),
+    { initialValue: [] as CollectionView[] },
+  );
+
+  protected readonly deletedParentName = toSignal(
+    this.nestOptionsState$.pipe(map((s) => s.deletedParentName)),
+  );
+
+  protected readonly tabIndex: WritableSignal<number> = signal(
+    this.params.initialTab ?? CollectionDialogTabType.Info,
+  );
+
+  protected readonly showDeleteButton = toSignal(
+    combineLatest([this.collection$, this.organization$]).pipe(
+      map(
+        ([collection, organization]) =>
+          !this.dialogReadonly &&
+          !!collection &&
+          !!organization &&
+          collection.canDelete(organization),
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly buttonDisplayName$ = this.formGroup.controls.selectedOrg.statusChanges.pipe(
+    startWith(null),
+    map(() =>
+      this.formGroup.controls.selectedOrg.errors?.cannotCreateCollections
+        ? ButtonType.Upgrade
+        : ButtonType.Save,
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly initialPermission = signal(
+    this.params.initialPermission ?? CollectionPermission.View,
+  );
+
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
-  private orgExceedingCollectionLimit!: Organization;
 
-  constructor(
-    @Inject(DIALOG_DATA) private params: CollectionDialogParams,
-    private formBuilder: FormBuilder,
-    private dialogRef: DialogRef<CollectionDialogResult>,
-    private organizationService: OrganizationService,
-    private groupService: GroupApiService,
-    private collectionAdminService: CollectionAdminService,
-    private i18nService: I18nService,
-    private organizationUserApiService: OrganizationUserApiService,
-    private dialogService: DialogService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private accountService: AccountService,
-    private toastService: ToastService,
-    private collectionService: CollectionService,
-    private configService: ConfigService,
-  ) {
-    this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
-    this.initialPermission = params.initialPermission ?? CollectionPermission.View;
-  }
+  private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
+    filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
+    switchMap(() =>
+      this.organizations$.pipe(getById(this.organizationSelected.value as OrganizationId)),
+    ),
+    tap(() => {
+      this.organizationSelected.markAsTouched();
+      this.formGroup.updateValueAndValidity();
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly orgExceedingCollectionLimit = toSignal(this.orgExceedingCollectionLimit$);
+
+  protected readonly loading = toSignal(this.accessItems$.pipe(map(() => false)), {
+    initialValue: true,
+  });
+
+  protected readonly showAddAccessWarning = toSignal(
+    this.organization$.pipe(
+      map(
+        (org) => !org?.allowAdminAccessToAllCollectionItems && !!this.params.isAddAccessCollection,
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly showOrgSelector = signal(false);
+
+  protected readonly PermissionMode = PermissionMode;
 
   async ngOnInit() {
-    // Opened from the individual vault
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(this.activeUserId$);
     if (this.params.showOrgSelector) {
-      this.showOrgSelector = true;
-      this.formGroup.controls.selectedOrg.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((id) => this.loadOrg(id));
-      this.organizations$ = this.organizationService.organizations$(userId).pipe(
-        first(),
-        map((orgs) =>
-          orgs
-            .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
-            .sort(Utils.getSortFunction(this.i18nService, "name")),
-        ),
-      );
-      // patchValue will trigger a call to loadOrg() in this case, so no need to call it again here
-      this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
-    } else {
-      // Opened from the org vault
-      this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
-      await this.loadOrg(this.params.organizationId);
+      this.showOrgSelector.set(true);
     }
+
+    this.formGroup.patchValue({ selectedOrg: this.params.organizationId }, { emitEvent: false });
 
     this.organizationSelected.setAsyncValidators(
       freeOrgCollectionLimitValidator(
@@ -210,113 +332,56 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.i18nService,
       ),
     );
+
     this.formGroup.updateValueAndValidity();
 
-    this.organizationSelected.valueChanges
+    this.organization$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((organization) => {
+      if (!organization) {
+        return;
+      }
+      if (!organization.allowAdminAccessToAllCollectionItems) {
+        this.formGroup.controls.access.addValidators(validateCanManagePermission);
+      } else {
+        this.formGroup.controls.access.removeValidators(validateCanManagePermission);
+      }
+      this.formGroup.controls.access.updateValueAndValidity();
+    });
+
+    combineLatest([this.collection$, this.organization$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.handleFormGroupReadonly(this.dialogReadonly));
+
+    this.selectedOrgId$
       .pipe(
-        tap((_) => {
-          if (this.organizationSelected.errors?.cannotCreateCollections) {
-            this.buttonDisplayName = ButtonType.Upgrade;
-          } else {
-            this.buttonDisplayName = ButtonType.Save;
-          }
-        }),
-        filter(() => this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
-        takeUntil(this.destroy$),
+        switchMap(() =>
+          combineLatest({
+            organization: this.organization$,
+            collection: this.collection$,
+            allCollections: this.allCollections$,
+            users: this.users$,
+          }).pipe(take(1)),
+        ),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((org) => {
-        this.orgExceedingCollectionLimit = org;
-        this.organizationSelected.markAsTouched();
-        this.formGroup.updateValueAndValidity();
-      });
-  }
-
-  async loadOrg(orgId: string) {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const organization$ = this.organizationService
-      .organizations$(userId)
-      .pipe(getOrganizationById(orgId))
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-    const groups$ = organization$.pipe(
-      switchMap((organization) => {
-        if (!organization.useGroups) {
-          return of([] as GroupView[]);
+      .subscribe(({ organization, collection, allCollections, users }) => {
+        if (!organization) {
+          return;
         }
 
-        return this.groupService.getAll(orgId);
-      }),
-    );
-
-    const collections = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
-    );
-
-    combineLatest({
-      organization: organization$,
-      collections,
-      groups: groups$,
-      users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
-    })
-      .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
-      .subscribe(({ organization, collections: allCollections, groups, users }) => {
-        this.organization = organization;
-
-        if (this.params.collectionId) {
-          this.collection = allCollections.find((c) => c.id === this.collectionId);
-
-          if (!this.collection) {
-            throw new Error("Could not find collection to edit.");
-          }
-        }
-
-        this.accessItems = [].concat(
-          groups.map((group) => mapGroupToAccessItemView(group, this.collection)),
-          users.data.map((user) => mapUserToAccessItemView(user, this.collection)),
-        );
-
-        // Force change detection to update the access selector's items
-        this.changeDetectorRef.detectChanges();
-
-        this.nestOptions = this.params.limitNestedCollections
-          ? allCollections.filter((c) => c.manage)
-          : allCollections;
-
-        if (this.collection) {
-          // Ensure we don't allow nesting the current collection within itself
-          this.nestOptions = this.nestOptions.filter((c) => c.id !== this.collectionId);
-
-          // Parse the name to find its parent name
-          const { name, parent: parentName } = parseName(this.collection);
-
-          // Determine if the user can see/select the parent collection
-          if (parentName !== undefined) {
-            if (
-              this.organization.canViewAllCollections &&
-              !allCollections.find((c) => c.name === parentName)
-            ) {
-              // The user can view all collections, but the parent was not found -> assume it has been deleted
-              this.deletedParentName = parentName;
-            } else if (!this.nestOptions.find((c) => c.name === parentName)) {
-              // We cannot find the current parent collection in our list of options, so add a placeholder
-              this.nestOptions.unshift({ name: parentName } as CollectionView);
-            }
-          }
-
-          const accessSelections = mapToAccessSelections(this.collection);
+        if (collection) {
+          const { name, parent: parentName } = parseName(collection);
           this.formGroup.patchValue({
             name,
-            externalId: this.collection.externalId,
+            externalId: collection.externalId,
             parent: parentName,
-            access: accessSelections,
+            access: mapToAccessSelections(collection),
           });
-          this.showDeleteButton = !this.dialogReadonly && this.collection.canDelete(organization);
         } else {
-          const parent = this.nestOptions.find((c) => c.id === this.params.parentCollectionId);
-          const currentOrgUserId = users.data.find(
-            (u) => u.userId === this.organization?.userId,
-          )?.id;
+          const nestOptions: CollectionView[] = this.params.limitNestedCollections
+            ? allCollections.filter((c) => c.manage)
+            : allCollections;
+          const parent = nestOptions.find((c) => c.id === this.params.parentCollectionId);
+          const currentOrgUserId = users.data.find((u) => u.userId === organization.userId)?.id;
           const initialSelection: AccessItemValue[] =
             currentOrgUserId !== undefined
               ? [
@@ -333,18 +398,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             access: initialSelection,
           });
         }
-
-        if (!organization.allowAdminAccessToAllCollectionItems) {
-          this.formGroup.controls.access.addValidators(validateCanManagePermission);
-        } else {
-          this.formGroup.controls.access.removeValidators(validateCanManagePermission);
-        }
-        this.formGroup.controls.access.updateValueAndValidity();
-
-        this.handleFormGroupReadonly(this.dialogReadonly);
-
-        this.loading = false;
-        this.showAddAccessWarning = this.handleAddAccessWarning();
       });
   }
 
@@ -353,7 +406,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get isExternalIdVisible(): boolean {
-    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+    return !!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
   }
 
   protected get collectionId() {
@@ -378,7 +431,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     this.close(CollectionDialogAction.Canceled);
   }
 
-  protected submit = async () => {
+  protected readonly submit = async () => {
     // Saving a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
@@ -386,16 +439,19 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.formGroup.markAllAsTouched();
 
-    if (this.buttonDisplayName == ButtonType.Upgrade) {
+    if (this.organizationSelected.errors?.cannotCreateCollections) {
       this.close(CollectionDialogAction.Upgrade);
-      this.changePlan(this.orgExceedingCollectionLimit);
+      const org = this.orgExceedingCollectionLimit();
+      if (org !== undefined) {
+        this.changePlan(org);
+      }
       return;
     }
 
     if (this.formGroup.invalid) {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
-      if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
+      if (this.tabIndex() === CollectionDialogTabType.Access && !accessTabError) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(
@@ -403,7 +459,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             this.i18nService.t("collectionInfo"),
           ),
         });
-      } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
+      } else if (this.tabIndex() === CollectionDialogTabType.Info && accessTabError) {
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
@@ -411,9 +467,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       }
       return;
     }
+    const collection = this.collection();
     if (
       this.editMode &&
-      !this.collection?.canEditName(this.organization) &&
+      this.organization() !== undefined &&
+      !collection?.canEditName(this.organization()!) &&
       this.formGroup.controls.name.dirty
     ) {
       throw new Error("Cannot change readonly field: Name");
@@ -428,23 +486,25 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         organizationId: "" as OrganizationId,
         name: "",
       }),
-      this.collection,
+      collection,
     );
 
     collectionView.name = parent
-      ? `${parent}/${this.formGroup.controls.name.value}`
-      : this.formGroup.controls.name.value;
+      ? `${parent}/${this.formGroup.controls.name.value ?? ""}`
+      : (this.formGroup.controls.name.value ?? "");
     collectionView.id = this.params.collectionId as CollectionId;
-    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
-    collectionView.externalId = this.formGroup.controls.externalId.value;
-    collectionView.groups = this.formGroup.controls.access.value
+    collectionView.organizationId =
+      this.formGroup.controls.selectedOrg.value ?? ("" as OrganizationId);
+    collectionView.externalId = this.formGroup.controls.externalId.value ?? undefined;
+    const accessValue = this.formGroup.controls.access.value ?? [];
+    collectionView.groups = accessValue
       .filter((v) => v.type === AccessItemType.Group)
       .map(convertToSelectionView);
-    collectionView.users = this.formGroup.controls.access.value
+    collectionView.users = accessValue
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.activeUserId$);
 
     const collectionResponse = this.editMode
       ? await this.collectionAdminService.update(collectionView, userId)
@@ -461,56 +521,46 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     this.close(CollectionDialogAction.Saved, collectionResponse);
   };
 
-  protected delete = async () => {
+  protected readonly delete = async () => {
     // Deleting a collection is prohibited while in read only mode
     if (this.dialogReadonly) {
       return;
     }
 
+    const collection = this.collection();
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: this.collection?.name,
+      title: collection?.name ?? "",
       content: { key: "deleteCollectionConfirmation" },
       type: "warning",
     });
 
-    if (!confirmed && this.params.collectionId) {
+    if (!confirmed) {
       return false;
     }
 
-    await this.collectionAdminService.delete(this.params.organizationId, this.params.collectionId);
+    if (this.params.collectionId !== undefined) {
+      await this.collectionAdminService.delete(
+        this.params.organizationId,
+        this.params.collectionId,
+      );
+    }
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("deletedCollectionId", this.collection?.name),
+      message: this.i18nService.t("deletedCollectionId", collection?.name),
     });
 
-    this.close(CollectionDialogAction.Deleted, this.collection);
+    this.close(CollectionDialogAction.Deleted, collection);
   };
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   private changePlan(org: Organization) {
     openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: org.id,
-        subscription: null,
+        subscription: undefined,
         productTierType: org.productTierType,
       },
     });
-  }
-
-  private handleAddAccessWarning(): boolean {
-    if (
-      !this.organization?.allowAdminAccessToAllCollectionItems &&
-      this.params.isAddAccessCollection
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   private handleFormGroupReadonly(readonly: boolean) {
@@ -529,7 +579,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const canEditName = this.collection.canEditName(this.organization);
+    const collection = this.collection();
+    if (!collection || !this.organization()) {
+      return;
+    }
+    const canEditName = collection.canEditName(this.organization()!);
     this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
     this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
   }
@@ -540,18 +594,20 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 }
 
 function parseName(collection: CollectionView) {
-  const nameParts = collection.name?.split("/");
+  const nameParts = collection.name.split("/");
   const name = nameParts[nameParts.length - 1];
   const parent = nameParts.length > 1 ? nameParts.slice(0, -1).join("/") : undefined;
 
   return { name, parent };
 }
 
-function mapToAccessSelections(collectionDetails: CollectionAdminView): AccessItemValue[] {
-  if (collectionDetails == undefined) {
+function mapToAccessSelections(
+  collectionDetails: CollectionAdminView | undefined,
+): AccessItemValue[] {
+  if (collectionDetails === undefined) {
     return [];
   }
-  return [].concat(
+  return ([] as AccessItemValue[]).concat(
     collectionDetails.groups.map<AccessItemValue>((selection) => ({
       id: selection.id,
       type: AccessItemType.Group,
@@ -583,7 +639,7 @@ function validateCanManagePermission(control: AbstractControl) {
  */
 function mapGroupToAccessItemView(
   group: GroupView,
-  collection: CollectionAdminView,
+  collection: CollectionAdminView | undefined,
 ): AccessItemView {
   return {
     id: group.id,
@@ -606,7 +662,7 @@ function mapGroupToAccessItemView(
  */
 function mapUserToAccessItemView(
   user: OrganizationUserUserMiniResponse,
-  collection: CollectionAdminView,
+  collection: CollectionAdminView | undefined,
 ): AccessItemView {
   return {
     id: user.id,
