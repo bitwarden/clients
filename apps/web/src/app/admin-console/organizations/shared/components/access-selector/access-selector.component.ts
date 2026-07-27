@@ -35,6 +35,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   AccessItemType,
@@ -93,6 +94,7 @@ export enum PermissionMode {
 export class AccessSelectorComponent implements ControlValueAccessor {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   private readonly notifyOnChange = signal<((v: unknown) => void) | null>(null);
   private readonly notifyOnTouch = signal<(() => void) | null>(null);
@@ -398,7 +400,7 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   protected itemIcon(item: AccessItemView) {
     switch (item.type) {
       case AccessItemType.Collection:
-        return "bwi-collection-shared";
+        return this.vfo1TerminologyService.iconClass("bwi-collection-shared");
       case AccessItemType.Group:
         return "bwi-users";
       case AccessItemType.Member:

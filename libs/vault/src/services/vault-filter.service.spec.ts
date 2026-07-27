@@ -55,7 +55,7 @@ describe("vault filter service", () => {
   let autoConfirmPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
-  let vfo1Terminology: MockProxy<Vfo1TerminologyService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -72,8 +72,8 @@ describe("vault filter service", () => {
     i18nService.collator = new Intl.Collator("en-US");
     collectionService = mock<CollectionService>();
     configService = mock<ConfigService>();
-    vfo1Terminology = mock<Vfo1TerminologyService>();
-    vfo1Terminology.enabled.mockReturnValue(false);
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
+    vfo1TerminologyService.iconClass.mockImplementation((icon) => icon);
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
@@ -108,7 +108,7 @@ describe("vault filter service", () => {
       collectionService,
       accountService,
       configService,
-      vfo1Terminology,
+      vfo1TerminologyService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
@@ -116,14 +116,14 @@ describe("vault filter service", () => {
 
   describe("shared-folder terminology filter heads", () => {
     it("uses collection/folder head names when the flag is off", () => {
-      vfo1Terminology.enabled.mockReturnValue(false);
+      vfo1TerminologyService.enabled.mockReturnValue(false);
 
       expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("collections");
       expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("folders");
     });
 
     it("uses shared-folder/my-folder head names when the flag is on", () => {
-      vfo1Terminology.enabled.mockReturnValue(true);
+      vfo1TerminologyService.enabled.mockReturnValue(true);
 
       expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("sharedFolders");
       expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("myFolders");
@@ -403,7 +403,7 @@ describe("vault filter service", () => {
           collectionService,
           accountService,
           configService,
-          vfo1Terminology,
+          vfo1TerminologyService,
         );
       });
 

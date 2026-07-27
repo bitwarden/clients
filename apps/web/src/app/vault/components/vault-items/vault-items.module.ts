@@ -14,6 +14,7 @@ import {
   CopyCipherFieldDirective,
   VaultItemCopyActionsComponent,
   Vfo1I18nPipe,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
@@ -44,6 +45,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     PremiumBadgeComponent,
     IconModule,
     Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],

@@ -13,6 +13,7 @@ import {
   BitwardenIcon,
   ButtonModule,
   ButtonType,
+  IconModule,
   MenuModule,
   PopoverComponent,
   PopoverModule,
@@ -22,6 +23,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
+import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -38,6 +40,8 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
     JslibModule,
     Vfo1I18nPipe,
     TooltipDirective,
+    Vfo1IconPipe,
+    IconModule,
   ],
 })
 export class NewCipherMenuComponent {
