@@ -30,6 +30,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { GroupApiService, GroupView } from "../../core";
 import { AccessItemType, CollectionPermission } from "../../shared/components/access-selector";
@@ -150,6 +151,7 @@ async function createComponent(options: CreateOptions = {}): Promise<{
       { provide: CollectionAdminService, useValue: collectionAdminService },
       { provide: ToastService, useValue: toastService },
       { provide: ConfigService, useValue: configService },
+      { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
     ],
   }).compileComponents();
 

@@ -19,7 +19,7 @@
             >
             <ng-container *ngIf="currentCipher.organizationId">
               <bit-icon
-                name="bwi-collection-shared"
+                [name]="'bwi-collection-shared' | vfo1Icon"
                 class="tw-ml-1"
                 appStopProp
                 [ariaLabel]="'shared' | i18n"
