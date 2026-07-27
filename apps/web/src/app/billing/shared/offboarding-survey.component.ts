@@ -1,9 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CurrencyPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  OnInit,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -44,7 +48,7 @@ export enum OffboardingSurveyDialogResultType {
 }
 
 type Reason = {
-  value: string;
+  value: string | null;
   text: string;
 };
 
@@ -71,7 +75,7 @@ export const openOffboardingSurvey = (
   providers: [CurrencyPipe],
 })
 export class OffboardingSurveyComponent implements OnInit {
-  protected ResultType = OffboardingSurveyDialogResultType;
+  protected readonly ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
   protected readonly reasons: Reason[] = [];
@@ -80,27 +84,32 @@ export class OffboardingSurveyComponent implements OnInit {
     {
       value: "missing_features",
       labelKey: "cancelSurveyMissingFeaturesLabel",
-      hintKey: "cancelSurveyMissingFeaturesHint",
+      hintKey: "cancelSurveyMissingFeaturesHintV2",
     },
     {
       value: "switched_service",
       labelKey: "cancelSurveyTooComplexLabel",
-      hintKey: "cancelSurveyTooComplexHint",
+      hintKey: "cancelSurveyTooComplexHintV2",
     },
     {
       value: "too_complex",
-      labelKey: "cancelSurveyNotEnoughValueLabel",
-      hintKey: "cancelSurveyNotEnoughValueHint",
+      labelKey: "cancelSurveyNotEnoughValueLabelV2",
+      hintKey: "cancelSurveyNotEnoughValueHintV2",
     },
     {
       value: "unused",
       labelKey: "cancelSurveyNotEnoughUsageLabel",
-      hintKey: "cancelSurveyNotEnoughUsageHint",
+      hintKey: "cancelSurveyNotEnoughUsageHintV2",
     },
     {
       value: "too_expensive",
       labelKey: "cancelSurveyNeedsChangedLabel",
-      hintKey: "cancelSurveyNeedsChangedHint",
+      hintKey: "cancelSurveyNeedsChangedHintV2",
+    },
+    {
+      value: "customer_service",
+      labelKey: "cancelSurveyPoorServiceLabel",
+      hintKey: "cancelSurveyPoorServiceHint",
     },
     {
       value: "other",
@@ -111,31 +120,38 @@ export class OffboardingSurveyComponent implements OnInit {
 
   protected readonly isBusiness: boolean;
 
-  protected annualUpgradeOffer: AnnualUpgradeOfferResponseModel | null = null;
+  protected readonly annualUpgradeOffer = signal<AnnualUpgradeOfferResponseModel | null>(null);
   // The business-reason `value` strings are legacy backend cancellation codes that do
-  // not line up with their labels: value "too_complex" is the "We're not getting enough
-  // value for the cost" option (value "too_expensive" is "Our needs changed"). The
-  // annual-upgrade callout attaches to the cost option.
+  // not line up with their labels: value "too_complex" is the "Cost was too high"
+  // option (value "too_expensive" is "Our needs changed"). The annual-upgrade callout
+  // attaches to the cost option.
   protected readonly annualOfferReasonValue = "too_complex";
-  protected annualUpgradeRedeemLoading = false;
-  protected annualUpgradeRedeemError: string | null = null;
+  protected readonly annualUpgradeRedeemLoading = signal(false);
+  protected readonly annualUpgradeRedeemError = signal<string | null>(null);
 
-  protected formGroup = this.formBuilder.group({
-    reason: [null, [Validators.required]],
+  protected readonly formGroup = this.formBuilder.group({
+    reason: [null as string | null],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
+    otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
+  protected readonly reason = toSignal(this.formGroup.controls.reason.valueChanges, {
+    initialValue: this.formGroup.controls.reason.value,
+  });
+
+  protected readonly isOtherReason = computed(() => this.reason() === "other");
+
   constructor(
-    @Inject(DIALOG_DATA) private dialogParams: OffboardingSurveyDialogParams,
-    private dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
-    private formBuilder: FormBuilder,
-    private billingApiService: BillingApiService,
-    private organizationBillingClient: OrganizationBillingClient,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
-    private logService: LogService,
-    private currencyPipe: CurrencyPipe,
+    @Inject(DIALOG_DATA) private readonly dialogParams: OffboardingSurveyDialogParams,
+    private readonly dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
+    private readonly formBuilder: FormBuilder,
+    private readonly billingApiService: BillingApiService,
+    private readonly organizationBillingClient: OrganizationBillingClient,
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly toastService: ToastService,
+    private readonly logService: LogService,
+    private readonly currencyPipe: CurrencyPipe,
   ) {
     this.isBusiness = this.isBusinessPlan();
 
@@ -178,8 +194,10 @@ export class OffboardingSurveyComponent implements OnInit {
     // Best-effort: the offer is a bonus prompt, so a failure to load it is logged and
     // swallowed, leaving the survey fully usable without the offer.
     try {
-      this.annualUpgradeOffer = await this.organizationBillingClient.getAnnualUpgradeOffer(
-        organizationId as OrganizationId,
+      this.annualUpgradeOffer.set(
+        await this.organizationBillingClient.getAnnualUpgradeOffer(
+          organizationId as OrganizationId,
+        ),
       );
     } catch (e) {
       this.logService.error(e);
@@ -193,13 +211,13 @@ export class OffboardingSurveyComponent implements OnInit {
     return this.currencyPipe.transform(amount, "$", "symbol", digitsInfo) ?? `$${amount}`;
   }
 
-  switchToAnnualBilling = async () => {
+  readonly switchToAnnualBilling = async () => {
     if (this.dialogParams.type !== "Organization") {
       return;
     }
 
-    this.annualUpgradeRedeemLoading = true;
-    this.annualUpgradeRedeemError = null;
+    this.annualUpgradeRedeemLoading.set(true);
+    this.annualUpgradeRedeemError.set(null);
 
     try {
       await this.organizationBillingClient.redeemAnnualUpgradeOffer(
@@ -208,29 +226,33 @@ export class OffboardingSurveyComponent implements OnInit {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("switchedToAnnualBilling"),
       });
 
       await this.dialogRef.close(this.ResultType.Submitted);
     } catch (e) {
       this.logService.error(e);
-      this.annualUpgradeRedeemError = this.i18nService.t("unexpectedError");
+      this.annualUpgradeRedeemError.set(this.i18nService.t("unexpectedError"));
     } finally {
-      this.annualUpgradeRedeemLoading = false;
+      this.annualUpgradeRedeemLoading.set(false);
     }
   };
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
       return;
     }
 
+    const feedbackParts = this.isOtherReason()
+      ? [this.formGroup.value.otherFeedback, this.formGroup.value.feedback]
+      : [this.formGroup.value.feedback];
+
     const request = {
-      reason: this.formGroup.value.reason,
-      feedback: this.formGroup.value.feedback,
+      reason: this.formGroup.value.reason!,
+      feedback: feedbackParts.filter(Boolean).join("\n"),
     };
 
     this.dialogParams.type === "Organization"
@@ -239,7 +261,7 @@ export class OffboardingSurveyComponent implements OnInit {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("canceledSubscription"),
     });
 
