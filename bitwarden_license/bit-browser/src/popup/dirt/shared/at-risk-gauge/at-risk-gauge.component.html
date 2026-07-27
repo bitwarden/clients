@@ -1,0 +1,52 @@
+<div
+  class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-size-36"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-valuenow]="percentage()"
+  [attr.aria-valuetext]="accessibleValueText()"
+  [attr.aria-label]="accessibleNameComputed()"
+>
+  <!-- 270° arc gauge. The ring circumference is ~100 (r=15.9155); the arc spans 75
+       units (270°) with a 25-unit (90°) gap centered at the bottom. Rotating the
+       group by 135° places that gap at the bottom and starts the sweep at the
+       lower-left, filling clockwise. -->
+  <svg class="tw-size-full" viewBox="0 0 36 36" aria-hidden="true">
+    <g transform="rotate(135 18 18)">
+      <!-- Track: light green when clean, light red when at risk -->
+      <circle
+        class="tw-fill-none"
+        [class]="trackStrokeClass()"
+        cx="18"
+        cy="18"
+        r="15.9155"
+        stroke-width="3.35"
+        stroke-linecap="round"
+        stroke-dasharray="75 25"
+      ></circle>
+      <!-- Fill: solid red arc sized to the at-risk proportion of the 270° sweep.
+           Omitted when clean so a round line-cap can't leave a stray dot. -->
+      @if (fillFraction() > 0) {
+        <circle
+          class="tw-fill-none tw-stroke-danger-600"
+          cx="18"
+          cy="18"
+          r="15.9155"
+          stroke-width="3.35"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="fillDashArray()"
+        ></circle>
+      }
+    </g>
+  </svg>
+
+  <!-- Centered percentage + label overlay -->
+  <div class="tw-absolute tw-flex tw-flex-col tw-items-center tw-justify-center tw-leading-none">
+    <span class="tw-text-2xl tw-font-medium" [class]="percentageTextClass()"
+      >{{ percentage() }}%</span
+    >
+    <span bitTypography="body2" class="tw-font-semibold tw-text-fg-dark">{{
+      "atRisk" | i18n
+    }}</span>
+  </div>
+</div>
