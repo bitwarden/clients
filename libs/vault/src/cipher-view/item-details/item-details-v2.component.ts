@@ -53,8 +53,6 @@ export class ItemDetailsV2Component {
   readonly collections = input<CollectionView[] | undefined>();
   readonly showAllDetails = signal(false);
 
-  private readonly terminology = inject(Vfo1TerminologyService);
-
   readonly showOwnership = computed(() => {
     return this.cipher().organizationId && this.organization() && !this.hideOwner();
   });
@@ -106,10 +104,10 @@ export class ItemDetailsV2Component {
       const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      const label = this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection");
+      const label = this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
       return `${label} ${item.name}`;
     } else if (item instanceof FolderView) {
-      const label = this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder");
+      const label = this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
       return `${label} ${item.name}`;
     }
     return "";
@@ -128,9 +126,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection");
+      return this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder");
+      return this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
     }
     return "";
   }
