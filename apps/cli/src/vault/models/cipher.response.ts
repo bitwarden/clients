@@ -30,7 +30,11 @@ export class CipherResponse extends CipherWithIdExport implements BaseResponse {
       this.creationDate = o.creationDate;
     }
     this.deletedDate = o.deletedDate;
-    if (o.passwordHistory != null && o.viewPassword !== false) {
+    // `build()` unconditionally copies password history from the view, so it must be
+    // explicitly cleared here when the user doesn't have permission to view passwords.
+    if (o.viewPassword === false) {
+      this.passwordHistory = undefined;
+    } else if (o.passwordHistory != null) {
       this.passwordHistory = o.passwordHistory.map((h) => new PasswordHistoryResponse(h));
     }
     if (o.type === CipherType.Login && o.login != null) {
