@@ -122,6 +122,7 @@ const translations: Record<string, string> = {
   moreFromBitwarden: "More from Bitwarden",
   secureYourInfrastructure: "Secure your infrastructure",
   protectYourFamilyOrBusiness: "Protect your family or business",
+  switchProducts: "Switch products",
   skipToContent: "Skip to content",
   toggleSideNavigation: "Toggle side navigation",
   resizeSideNavigation: "Resize side navigation",
