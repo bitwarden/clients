@@ -61,6 +61,7 @@ jobs:
               - "package.json"
               - ".storybook/**"
               - "apps/browser/src/autofill/content/components/**"
+              - ".github/workflows/chromatic.yml"
 
       - name: Get Node version
         id: retrieve-node-version
