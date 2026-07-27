@@ -13,6 +13,7 @@ import {
   output,
   ViewChild,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -131,6 +132,14 @@ const ORG_NAME_TOKEN = "\uFFFC";
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
   protected vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  /**
+   * The terminology flag resolves asynchronously, so track it as a stream rather than reading it
+   * once. The submit button label is re-emitted whenever it changes (see `ngOnInit`), keeping the
+   * host's button in step with the reactively-rendered dialog body.
+   */
+  private vfo1Enabled$ = toObservable(this.vfo1TerminologyService.enabled);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
@@ -290,7 +299,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.showOrgSelector = true;
     }
 
-    this.submitButtonTextChange.emit(this.submitButtonText);
+    // Re-emit the label whenever the terminology flag resolves so it can't be snapshotted stale.
+    this.vfo1Enabled$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.submitButtonTextChange.emit(this.submitButtonText));
 
     await this.initializeItems(this.selectedOrgId);
 
