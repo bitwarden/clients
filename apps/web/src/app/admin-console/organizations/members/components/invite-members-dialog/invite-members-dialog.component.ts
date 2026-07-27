@@ -59,6 +59,7 @@ import {
 } from "../../../shared/components/access-selector";
 import { MemberActionsService } from "../../services";
 import { MemberDialogResult } from "../member-dialog/member-dialog.types";
+import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.component";
 import { commaSeparatedEmails } from "../member-dialog/validators/comma-separated-emails.validator";
 import {
   getEmailBatchLimit,
@@ -95,6 +96,7 @@ export interface InviteMembersDialogParams {
     FormFieldModule,
     I18nPipe,
     LinkModule,
+    NestedCheckboxComponent,
     NgTemplateOutlet,
     RadioButtonModule,
     ReactiveFormsModule,
