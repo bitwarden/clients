@@ -176,6 +176,11 @@ export class EditMemberDialogComponent {
       new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
       email_already_in_use: "emailErrorAlreadyInUse",
       email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      member_has_master_password: "emailErrorHasMasterPassword",
+      email_change_failed: "emailErrorChangeFailed",
+    },
+    name: {
+      name_member_not_claimed: "nameErrorNotClaimed",
     },
   };
 
@@ -272,6 +277,10 @@ export class EditMemberDialogComponent {
     this.formGroup.controls.email.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.formGroup.controls.email.setErrors(null));
+
+    this.formGroup.controls.name.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.name.setErrors(null));
 
     this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
       if (restrictEditingSelf) {

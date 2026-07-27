@@ -595,6 +595,54 @@ describe("EditMemberDialogComponent", () => {
       ).toBeDefined();
     });
 
+    it.each([
+      ["member_has_master_password", "email"],
+      ["email_change_failed", "email"],
+    ])(
+      "sets inline error and stays open for %s server error on field %s",
+      async (errorType, field) => {
+        const error = new ProblemDetailsErrorResponse(
+          { errors: { [field]: [{ type: errorType, detail: "..." }] } },
+          400,
+        );
+        const { component, mocks } = await createComponent(
+          defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+          { detailsTabEnabled: true },
+        );
+
+        mocks.userAdminService.saveV2.mockRejectedValue(error);
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        await component.submit();
+
+        expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+        expect(
+          (component as any).formGroup.controls[field].errors?.serverError?.message,
+        ).toBeDefined();
+      },
+    );
+
+    it("sets inline name error and stays open on name validation error from server", async () => {
+      const nameError = new ProblemDetailsErrorResponse(
+        { errors: { name: [{ type: "name_member_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(nameError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect((component as any).formGroup.controls.name.errors?.serverError?.message).toBeDefined();
+    });
+
     it("re-throws non-email errors so the generic toast path runs", async () => {
       const genericError = new Error("Unexpected server error");
       const { component, mocks } = await createComponent(

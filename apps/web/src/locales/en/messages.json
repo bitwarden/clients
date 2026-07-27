@@ -10537,6 +10537,15 @@
   "emailErrorClaimedByOrg": {
     "message": "Email is already in use. You can invite them to your organization instead."
   },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
   "createdDate": {
     "message": "Created date"
   },
