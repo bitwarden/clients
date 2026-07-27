@@ -3278,6 +3278,10 @@
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
     "placeholders": {
