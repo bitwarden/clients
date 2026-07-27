@@ -137,15 +137,13 @@ div:not(.modal)::-webkit-scrollbar-thumb,
   }
 }
 
-#bit-side-nav::-webkit-scrollbar-thumb {
+#bit-side-nav--scroll::-webkit-scrollbar-thumb {
+  border-inline-end: 2px solid transparent;
+  border-inline-start: 2px solid transparent;
+  border-radius: 4px;
+  background-clip: padding-box;
   @include themify($themes) {
     background-color: themed("scrollbarColorNav");
-  }
-
-  &:hover {
-    @include themify($themes) {
-      background-color: themed("scrollbarHoverColorNav");
-    }
   }
 }
 
