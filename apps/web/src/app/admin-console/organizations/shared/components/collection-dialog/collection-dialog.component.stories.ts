@@ -24,13 +24,9 @@ import { GroupApiService, GroupView } from "../../../core";
 import { CollectionDialogComponent } from "./collection-dialog.component";
 import { CollectionDialogParams, CollectionDialogTabType } from "./collection-dialog.models";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const ORG_ID = "org-1" as OrganizationId;
 const COLLECTION_ID = "col-1" as CollectionId;
 const USER_ID = "user-1" as UserId;
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
   return Object.assign(new Organization(), {
@@ -99,8 +95,6 @@ const mockUsers = {
   ],
 };
 
-// ─── Service mocks ────────────────────────────────────────────────────────────
-
 const mockDialogRef = { close: () => {} };
 
 const mockDialogService = {
@@ -141,8 +135,6 @@ function makeCollectionAdminService(collection?: CollectionAdminView) {
   return { collectionAdminViews$: () => cols$.asObservable() };
 }
 
-// ─── Meta ─────────────────────────────────────────────────────────────────────
-
 export default {
   title: "Admin Console/Organizations/Collections/Collection Dialog",
   component: CollectionDialogComponent,
@@ -168,8 +160,6 @@ export default {
 
 type Story = StoryObj<CollectionDialogComponent>;
 
-// ─── Render factory ───────────────────────────────────────────────────────────
-
 function makeRender(
   params: CollectionDialogParams,
   org: Organization,
@@ -186,8 +176,6 @@ function makeRender(
     template: `<app-collection-dialog></app-collection-dialog>`,
   });
 }
-
-// ─── Stories ──────────────────────────────────────────────────────────────────
 
 /** New collection opened from the org vault. */
 export const CreateCollection: Story = {
