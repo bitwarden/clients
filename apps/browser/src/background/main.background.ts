@@ -750,10 +750,14 @@ export default class MainBackground {
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
+    this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
+      ? new DevManagedSettingsService()
+      : new DefaultManagedSettingsService();
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
       this.stateProvider,
       this.accountService,
+      this.managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
@@ -941,9 +945,6 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-    this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
-      ? new DevManagedSettingsService()
-      : new DefaultManagedSettingsService();
     this.managedConfigReader = new BrowserManagedConfigReader(
       this.managedSettingsService,
       this.logService,
