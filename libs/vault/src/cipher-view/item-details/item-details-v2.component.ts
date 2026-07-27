@@ -43,7 +43,7 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
   ],
 })
 export class ItemDetailsV2Component {
-  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
   readonly hideOwner = input<boolean>(false);
@@ -104,18 +104,20 @@ export class ItemDetailsV2Component {
       const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      return this.i18nService.t("collection") + item.name;
+      const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder") + item.name;
+      const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
+      return this.i18nService.t(key, item.name);
     }
     return "";
   }
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return item.type === CollectionTypes.DefaultUserCollection
-        ? "bwi-user"
-        : "bwi-collection-shared";
+      return this.vfo1TerminologyService.iconClass(
+        item.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+      );
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }
@@ -124,9 +126,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t("collection");
+      return this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder");
+      return this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
     }
     return "";
   }

@@ -59,7 +59,8 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest?: PasskeyRegistrationRequest;
-  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
+  private featureFlag?:
+    typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
   private isEnabled: boolean = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
 
@@ -75,6 +76,8 @@ export class DesktopAutofillService implements OnDestroy {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
       this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    } else if (deviceType === DeviceType.WindowsDesktop) {
+      this.featureFlag = FeatureFlag.WindowsNativeCredentialSync;
     }
   }
 
@@ -84,6 +87,18 @@ export class DesktopAutofillService implements OnDestroy {
     }
     this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
     if (!this.isEnabled) {
+      return;
+    }
+
+    // Signal the main process to register the native OS credential provider and start the autofill
+    // IPC server. Gated here because the main process cannot evaluate the feature flag itself.
+    const ipcServerStarted = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!ipcServerStarted) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to start native autofill; aborting init",
+      );
+      this.isEnabled = false;
       return;
     }
 
