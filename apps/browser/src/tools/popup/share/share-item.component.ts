@@ -1,6 +1,6 @@
 import { CommonModule, Location } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormControl,
@@ -11,7 +11,8 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { switchMap } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
+
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -25,6 +26,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AccordionComponent,
   ButtonModule,
@@ -142,13 +144,13 @@ export class ShareItemComponent {
   });
 
   protected readonly expiryOptions: ExpiryChoice[] = [
-    { label: "1 hour", value: ExpiryOption.OneHour },
-    { label: "1 day", value: ExpiryOption.OneDay },
-    { label: "2 days", value: ExpiryOption.TwoDays },
-    { label: "3 days", value: ExpiryOption.ThreeDays },
-    { label: "7 days", value: ExpiryOption.SevenDays },
-    { label: "14 days", value: ExpiryOption.FourteenDays },
-    { label: "30 days", value: ExpiryOption.ThirtyDays },
+    { label: this.i18nService.t("expiryOneHour"), value: ExpiryOption.OneHour },
+    { label: this.i18nService.t("expiryOneDay"), value: ExpiryOption.OneDay },
+    { label: this.i18nService.t("expiryTwoDays"), value: ExpiryOption.TwoDays },
+    { label: this.i18nService.t("expiryThreeDays"), value: ExpiryOption.ThreeDays },
+    { label: this.i18nService.t("expirySevenDays"), value: ExpiryOption.SevenDays },
+    { label: this.i18nService.t("expiryFourteenDays"), value: ExpiryOption.FourteenDays },
+    { label: this.i18nService.t("expiryThirtyDays"), value: ExpiryOption.ThirtyDays },
   ];
 
   private readonly emailListValidator: ValidatorFn = (
@@ -217,28 +219,32 @@ export class ShareItemComponent {
         }
       });
 
-    this.activeUserId$
-      .pipe(
-        takeUntilDestroyed(),
+    const cipher$ = toObservable(this.cipher).pipe(filterOutNullish());
+
+    combineLatest([
+      cipher$,
+      this.activeUserId$.pipe(
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
-      )
-      .subscribe((allCollections) => {
-        const cipher = this.cipher();
-        if (cipher?.collectionIds?.length) {
-          this.collections.set(allCollections.filter((c) => cipher.collectionIds.includes(c.id)));
-        }
+      ),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([cipher, allCollections]) => {
+        this.collections.set(
+          cipher.collectionIds?.length
+            ? allCollections.filter((c) => cipher.collectionIds.includes(c.id))
+            : [],
+        );
       });
 
-    this.activeUserId$
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((userId) => this.folderService.folderViews$(userId)),
-      )
-      .subscribe((allFolders) => {
-        const cipher = this.cipher();
-        if (cipher?.folderId) {
-          this.folder.set(allFolders.find((f) => f.id === cipher.folderId) ?? null);
-        }
+    combineLatest([
+      cipher$,
+      this.activeUserId$.pipe(switchMap((userId) => this.folderService.folderViews$(userId))),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([cipher, allFolders]) => {
+        this.folder.set(
+          cipher.folderId ? (allFolders.find((f) => f.id === cipher.folderId) ?? null) : null,
+        );
       });
 
     this.shareLinkService.links$.pipe(takeUntilDestroyed()).subscribe(() => {

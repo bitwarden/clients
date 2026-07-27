@@ -1,7 +1,7 @@
 <popup-page>
   <popup-header
     slot="header"
-    pageTitle="Share"
+    [pageTitle]="'share' | i18n"
     showBackButton
     [backAction]="onBackClick.bind(this)"
   ></popup-header>
@@ -64,7 +64,7 @@
               <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
               <select bitInput id="share-item_select_expiry" formControlName="expiryHours">
                 @for (option of expiryOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
+                  <option [ngValue]="option.value">{{ option.label }}</option>
                 }
               </select>
             </bit-form-field>
