@@ -34,12 +34,12 @@ use std::{
     time::{Duration, Instant},
 };
 
-use aes::cipher::KeyInit;
+mod encryption;
+
 use anyhow::{anyhow, Result};
-use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
+use bitwarden_crypto::{BitwardenLegacyKeyBytes, SymmetricCryptoKey};
 use desktop_core::password::{self, PASSWORD_NOT_FOUND};
 use secure_memory::*;
-use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 use tracing::{debug, warn};
 use windows::{
@@ -61,21 +61,14 @@ use windows::{
 };
 use windows_future::IAsyncOperation;
 
+use self::encryption::{
+    Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV2, WindowsHelloPrf,
+};
 use super::windows_focus::{focus_security_prompt, restore_focus};
 
 const AUTHENTICATE_AVAILABLE_CACHE_TTL: Duration = Duration::from_secs(30);
 const KEYCHAIN_SERVICE_NAME: &str = "BitwardenBiometricsV2";
 const CREDENTIAL_NAME: &HSTRING = h!("BitwardenBiometricsV2");
-const CHALLENGE_LENGTH: usize = 16;
-const XCHACHA20POLY1305_NONCE_LENGTH: usize = 24;
-const XCHACHA20POLY1305_KEY_LENGTH: usize = 32;
-
-#[derive(serde::Serialize, serde::Deserialize)]
-struct WindowsHelloKeychainEntry {
-    nonce: [u8; XCHACHA20POLY1305_NONCE_LENGTH],
-    challenge: [u8; CHALLENGE_LENGTH],
-    wrapped_key: Vec<u8>,
-}
 
 /// The Windows OS implementation of the biometric trait.
 pub struct BiometricLockSystem {
@@ -151,28 +144,23 @@ impl super::BiometricTrait for BiometricLockSystem {
 
     async fn enroll_persistent(&self, user_id: &str, key: &[u8]) -> Result<()> {
         // Enrollment works by first generating a random challenge unique to the user / enrollment.
-        // Then, with the challenge and a Windows-Hello prompt, the "windows hello key" is
-        // derived. The windows hello key is used to encrypt the key to store with
-        // XChaCha20Poly1305. The bundle of nonce, challenge and wrapped-key are stored to
-        // the keychain
+        // Then, with the challenge and a Windows-Hello prompt, the "windows hello prf" is derived.
+        // The windows hello prf is used as the high-entropy secret to seal the user key into a
+        // `SecretProtectedKeyEnvelope`. The bundle of challenge and serialized envelope are stored
+        // to the keychain.
 
-        // Each enrollment (per user) has a unique challenge, so that the windows-hello key is
+        let user_key = SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(key.to_vec()))
+            .map_err(|e| anyhow!("Failed to parse user key: {e}"))?;
+
+        // Each enrollment (per user) has a unique challenge, so that the windows-hello prf is
         // unique
-        let challenge: [u8; CHALLENGE_LENGTH] = rand::random();
+        let challenge = Challenge::make();
 
-        // This key is unique to the challenge
+        // This prf is unique to the challenge
         let windows_hello_key = windows_hello_authenticate_with_crypto(&challenge).await?;
-        let (wrapped_key, nonce) = encrypt_data(&windows_hello_key, key)?;
+        let entry = WindowsHelloKeychainEntryV2::seal(challenge, &windows_hello_key, &user_key)?;
 
-        set_keychain_entry(
-            user_id,
-            &WindowsHelloKeychainEntry {
-                nonce,
-                challenge,
-                wrapped_key,
-            },
-        )
-        .await?;
+        set_keychain_entry(user_id, &entry).await?;
 
         self.has_keychain_entry_cache
             .lock()
@@ -198,37 +186,71 @@ impl super::BiometricTrait for BiometricLockSystem {
             }
         });
 
-        let mut secure_memory = self.secure_memory.lock().await;
         // If the key is held ephemerally, always use UV API. Only use signing API if the key is not
         // held ephemerally but the keychain holds it persistently.
-        if secure_memory.has(user_id) {
+        if self.secure_memory.lock().await.has(user_id) {
             if windows_hello_authenticate("Unlock your vault".to_string()).await? {
-                secure_memory
+                self.secure_memory
+                    .lock()
+                    .await
                     .get(user_id)?
                     .ok_or_else(|| anyhow!("No key found for user"))
             } else {
                 Err(anyhow!("Authentication failed"))
             }
         } else {
-            let keychain_entry = get_keychain_entry(user_id).await?;
-            let windows_hello_key =
-                windows_hello_authenticate_with_crypto(&keychain_entry.challenge).await?;
-            let decrypted_key = decrypt_data(
-                &windows_hello_key,
-                &keychain_entry.wrapped_key,
-                &keychain_entry.nonce,
-            )?;
+            // Re-derive the PRF via Windows Hello and unseal the persisted user key. Legacy (V1)
+            // entries are migrated on unlock to the V2 format.
+            let user_key = match get_keychain_entry(user_id).await? {
+                WindowsHelloKeychainEntry::V2(entry) => {
+                    let windows_hello_key =
+                        windows_hello_authenticate_with_crypto(&entry.challenge).await?;
+                    entry.unseal(&windows_hello_key)?
+                }
+                WindowsHelloKeychainEntry::V1(entry) => {
+                    let windows_hello_key =
+                        windows_hello_authenticate_with_crypto(&entry.challenge).await?;
+                    let user_key = entry.unseal(&windows_hello_key)?;
+
+                    // Lazily migrate the legacy entry to the envelope format. The same challenge is
+                    // reused, so no additional Windows Hello prompt is required. A migration
+                    // failure must not fail the unlock - the key was already
+                    // recovered above.
+                    match WindowsHelloKeychainEntryV2::seal(
+                        entry.challenge,
+                        &windows_hello_key,
+                        &user_key,
+                    ) {
+                        Ok(migrated_entry) => {
+                            if let Err(e) = set_keychain_entry(user_id, &migrated_entry).await {
+                                warn!(
+                                    "[Windows Hello] Failed to persist migrated keychain entry: {e}"
+                                );
+                            }
+                        }
+                        Err(e) => {
+                            warn!("[Windows Hello] Failed to re-seal keychain entry during migration: {e}");
+                        }
+                    }
+
+                    user_key
+                }
+            };
+
+            let decrypted_key = user_key.to_encoded().to_vec();
             // The first unlock already sets the key for subsequent unlocks. The key may again be
             // set externally after unlock finishes.
-            secure_memory.put(user_id.to_string(), &decrypted_key.clone());
+            self.secure_memory
+                .lock()
+                .await
+                .put(user_id.to_string(), &decrypted_key);
             Ok(decrypted_key)
         }
     }
 
     async fn unlock_available(&self, user_id: &String) -> Result<bool> {
-        let secure_memory = self.secure_memory.lock().await;
-        let has_key =
-            secure_memory.has(user_id) || self.has_persistent(user_id).await.unwrap_or(false);
+        let has_key = self.secure_memory.lock().await.has(user_id)
+            || self.has_persistent(user_id).await.unwrap_or(false);
         Ok(has_key && self.authenticate_available().await.unwrap_or(false))
     }
 
@@ -269,19 +291,17 @@ async fn windows_hello_authenticate(message: String) -> Result<bool> {
     }
 }
 
-/// Derive the symmetric encryption key from the Windows Hello signature.
+/// Derive the [`WindowsHelloPrf`] from the Windows Hello signature.
 ///
-/// This works by signing a static challenge string with Windows Hello protected key store. The
-/// signed challenge is then hashed using SHA-256 and used as the symmetric encryption key for the
-/// Windows Hello protected keys.
+/// This works by signing the challenge with the Windows Hello protected key store. The signed
+/// challenge is then hashed into a high-entropy PRF that seals/unseals the Windows Hello protected
+/// keys.
 ///
 /// Windows will only sign the challenge if the user has successfully authenticated with Windows,
 /// ensuring user presence.
 ///
 /// Note: This API has inconsistent focusing behavior when called from another window
-async fn windows_hello_authenticate_with_crypto(
-    challenge: &[u8; CHALLENGE_LENGTH],
-) -> Result<[u8; XCHACHA20POLY1305_KEY_LENGTH]> {
+async fn windows_hello_authenticate_with_crypto(challenge: &Challenge) -> Result<WindowsHelloPrf> {
     debug!("[Windows Hello] Authenticating to sign challenge");
 
     // Ugly hack: We need to focus the window via window focusing APIs until Microsoft releases a
@@ -321,7 +341,7 @@ async fn windows_hello_authenticate_with_crypto(
 
     let signature = {
         let sign_operation = credential.RequestSignAsync(
-            &CryptographicBuffer::CreateFromByteArray(challenge.as_slice())?,
+            &CryptographicBuffer::CreateFromByteArray(challenge.as_bytes().as_slice())?,
         )?;
 
         // We need to drop the credential here to avoid holding it across an await point.
@@ -336,13 +356,10 @@ async fn windows_hello_authenticate_with_crypto(
     let mut signature_buffer = signature.Result()?;
     let signature_value = unsafe { as_mut_bytes(&mut signature_buffer)? };
 
-    // The signature is deterministic based on the challenge and keychain key. Thus, it can be
-    // hashed to a key. It is unclear what entropy this key provides.
-    let windows_hello_key = Sha256::digest(signature_value).into();
-    Ok(windows_hello_key)
+    Ok(WindowsHelloPrf::derive_from_signature(signature_value))
 }
 
-async fn set_keychain_entry(user_id: &str, entry: &WindowsHelloKeychainEntry) -> Result<()> {
+async fn set_keychain_entry(user_id: &str, entry: &WindowsHelloKeychainEntryV2) -> Result<()> {
     password::set_password(
         KEYCHAIN_SERVICE_NAME,
         user_id,
@@ -389,33 +406,6 @@ async fn has_keychain_entry(user_id: &str) -> Result<bool> {
         })
 }
 
-/// Encrypt data with XChaCha20Poly1305
-fn encrypt_data(
-    key: &[u8; XCHACHA20POLY1305_KEY_LENGTH],
-    plaintext: &[u8],
-) -> Result<(Vec<u8>, [u8; XCHACHA20POLY1305_NONCE_LENGTH])> {
-    let cipher = XChaCha20Poly1305::new(key.into());
-    let mut nonce = [0u8; XCHACHA20POLY1305_NONCE_LENGTH];
-    rand::fill(&mut nonce);
-    let ciphertext = cipher
-        .encrypt(XNonce::from_slice(&nonce), plaintext)
-        .map_err(|e| anyhow!(e))?;
-    Ok((ciphertext, nonce))
-}
-
-/// Decrypt data with XChaCha20Poly1305
-fn decrypt_data(
-    key: &[u8; XCHACHA20POLY1305_KEY_LENGTH],
-    ciphertext: &[u8],
-    nonce: &[u8; XCHACHA20POLY1305_NONCE_LENGTH],
-) -> Result<Vec<u8>> {
-    let cipher = XChaCha20Poly1305::new(key.into());
-    let plaintext = cipher
-        .decrypt(XNonce::from_slice(nonce), ciphertext)
-        .map_err(|e| anyhow!(e))?;
-    Ok(plaintext)
-}
-
 unsafe fn as_mut_bytes(buffer: &mut IBuffer) -> Result<&mut [u8]> {
     let interop = buffer.cast::<IBufferByteAccess>()?;
 
@@ -431,22 +421,18 @@ unsafe fn as_mut_bytes(buffer: &mut IBuffer) -> Result<&mut [u8]> {
 #[cfg(test)]
 #[allow(clippy::print_stdout)]
 mod tests {
-    use crate::{
-        biometric::{
-            decrypt_data, encrypt_data, has_keychain_entry, windows_hello_authenticate,
-            windows_hello_authenticate_with_crypto, CHALLENGE_LENGTH, XCHACHA20POLY1305_KEY_LENGTH,
-        },
-        BiometricLockSystem, BiometricTrait,
-    };
+    use bitwarden_crypto::{BitwardenLegacyKeyBytes, SymmetricCryptoKey};
+    use rand_core::Rng;
 
-    #[test]
-    fn test_encrypt_decrypt() {
-        let key = [0u8; 32];
-        let plaintext = b"Test data";
-        let (ciphertext, nonce) = encrypt_data(&key, plaintext).unwrap();
-        let decrypted = decrypt_data(&key, &ciphertext, &nonce).unwrap();
-        assert_eq!(plaintext.to_vec(), decrypted);
-    }
+    use super::{
+        encryption::{
+            Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1, CHALLENGE_LENGTH,
+            PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH,
+        },
+        get_keychain_entry, has_keychain_entry, windows_hello_authenticate,
+        windows_hello_authenticate_with_crypto, BiometricLockSystem, KEYCHAIN_SERVICE_NAME,
+    };
+    use crate::BiometricTrait;
 
     #[tokio::test]
     async fn test_has_keychain_entry_no_entry() {
@@ -460,13 +446,13 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn test_windows_hello_authenticate_with_crypto_manual() {
-        let challenge = [0u8; CHALLENGE_LENGTH];
+        let challenge = Challenge::from_bytes([0u8; CHALLENGE_LENGTH]);
         let windows_hello_key = windows_hello_authenticate_with_crypto(&challenge)
             .await
             .unwrap();
         println!(
-            "Windows hello key {:?} for challenge {:?}",
-            windows_hello_key, challenge
+            "Windows hello key {:?} for challenge",
+            windows_hello_key.as_bytes()
         );
     }
 
@@ -484,8 +470,8 @@ mod tests {
     #[ignore]
     async fn test_double_unenroll() {
         let user_id = String::from("test_user");
-        let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
-        rand::fill(&mut key);
+        let mut key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut key);
 
         let windows_hello_lock_system = BiometricLockSystem::new();
 
@@ -527,8 +513,8 @@ mod tests {
     #[ignore]
     async fn test_enroll_unlock_unenroll() {
         let user_id = String::from("test_user");
-        let mut key = [0u8; XCHACHA20POLY1305_KEY_LENGTH];
-        rand::fill(&mut key);
+        let mut key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut key);
 
         let windows_hello_lock_system = BiometricLockSystem::new();
 
@@ -555,5 +541,48 @@ mod tests {
             .has_persistent(&user_id)
             .await
             .unwrap());
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_legacy_entry_migrates_on_unlock() {
+        let user_id = String::from("test_user");
+        let mut key = [0u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut key);
+
+        let windows_hello_lock_system = BiometricLockSystem::new();
+
+        // Write a legacy (pre-envelope) keychain entry directly, simulating a user enrolled with an
+        // older build.
+        let mut challenge_bytes = [0u8; CHALLENGE_LENGTH];
+        bitwarden_random::rng().fill_bytes(&mut challenge_bytes);
+        let challenge = Challenge::from_bytes(challenge_bytes);
+        let windows_hello_key = windows_hello_authenticate_with_crypto(&challenge)
+            .await
+            .unwrap();
+        let user_key =
+            SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(key.to_vec())).unwrap();
+        let legacy =
+            WindowsHelloKeychainEntryV1::seal(challenge, &windows_hello_key, &user_key).unwrap();
+        desktop_core::password::set_password(
+            KEYCHAIN_SERVICE_NAME,
+            &user_id,
+            &serde_json::to_string(&legacy).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        println!("Unlocking user (should decrypt legacy entry and migrate)");
+        let key_after_unlock = windows_hello_lock_system
+            .unlock(&user_id, Vec::new())
+            .await
+            .unwrap();
+        assert_eq!(key_after_unlock, key);
+
+        // The entry should now be stored in the envelope (V2) format.
+        let migrated = get_keychain_entry(&user_id).await.unwrap();
+        assert!(matches!(migrated, WindowsHelloKeychainEntry::V2(_)));
+
+        windows_hello_lock_system.unenroll(&user_id).await.unwrap();
     }
 }
