@@ -37,7 +37,8 @@ export class DesktopPremiumUpgradePromptService implements PremiumUpgradePromptS
       );
 
       if (hasPremium) {
-        // Users with premium should see the status-aware membership view rather than the upgrade pitch.
+        // PremiumComponent renders based on premium status: users with premium (personal or
+        // org-provided) see their membership status, while everyone else sees the sign-up pitch.
         this.dialogService.open(PremiumComponent);
         return;
       }
