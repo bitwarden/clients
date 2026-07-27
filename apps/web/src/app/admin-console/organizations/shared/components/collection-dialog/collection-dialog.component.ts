@@ -55,6 +55,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { Vfo1IconPipe } from "@bitwarden/vault";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
@@ -89,7 +90,7 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionDialogComponent implements OnInit {

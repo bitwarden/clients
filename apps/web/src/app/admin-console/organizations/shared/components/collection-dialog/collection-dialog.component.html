@@ -47,7 +47,7 @@
               @if (deletedParentName()) {
                 <bit-option
                   disabled
-                  icon="bwi-collection-shared"
+                  [icon]="'bwi-collection-shared' | vfo1Icon"
                   [value]="deletedParentName()"
                   label="{{ deletedParentName() }} ({{ 'deleted' | i18n }})"
                 >
@@ -55,7 +55,7 @@
               }
               @for (collection of nestOptions(); track collection) {
                 <bit-option
-                  icon="bwi-collection-shared"
+                  [icon]="'bwi-collection-shared' | vfo1Icon"
                   [value]="collection.name"
                   [label]="collection.name"
                 >
