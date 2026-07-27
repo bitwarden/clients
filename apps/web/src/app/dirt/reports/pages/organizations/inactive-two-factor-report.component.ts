@@ -26,6 +26,7 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -56,6 +57,7 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     ChipFilterComponent,
     ChipActionComponent,
     BerryComponent,
+    Vfo1IconPipe,
   ],
 })
 export class InactiveTwoFactorReportComponent

@@ -44,17 +44,19 @@ export function NotificationConfirmationBody({
   return html`
     <div class=${notificationConfirmationBodyStyles({ theme })}>
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
-      ${showConfirmationMessage
-        ? NotificationConfirmationMessage({
-            buttonAria,
-            buttonText,
-            itemName: error ? undefined : itemName,
-            message: confirmationMessage,
-            messageDetails,
-            theme,
-            handleClick: handleOpenVault,
-          })
-        : nothing}
+      ${
+        showConfirmationMessage
+          ? NotificationConfirmationMessage({
+              buttonAria,
+              buttonText,
+              itemName: error ? undefined : itemName,
+              message: confirmationMessage,
+              messageDetails,
+              theme,
+              handleClick: handleOpenVault,
+            })
+          : nothing
+      }
     </div>
   `;
 }

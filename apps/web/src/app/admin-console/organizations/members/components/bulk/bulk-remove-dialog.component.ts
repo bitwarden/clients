@@ -20,6 +20,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
+
 import { BaseBulkRemoveComponent } from "./base-bulk-remove.component";
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -35,6 +37,7 @@ type BulkRemoveDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,

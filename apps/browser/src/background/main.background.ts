@@ -50,7 +50,7 @@ import {
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -829,18 +829,14 @@ export default class MainBackground {
     );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      () => this.sdkService,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
       this.newPolicyService,
-      () => this.configService,
+      () => this.sdkService,
     );
 
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
@@ -1249,6 +1245,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -2033,7 +2030,6 @@ export default class MainBackground {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),
@@ -2045,6 +2041,8 @@ export default class MainBackground {
        *  - userNotificationSettingsService
        */
     ]);
+
+    await this.keyService.clearKeys(userBeingLoggedOut);
 
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
@@ -2237,9 +2235,8 @@ export default class MainBackground {
     const streams: Observable<void>[] = handlers.map(({ startsWith, handler }) =>
       this.systemNotificationService.notificationClicked$.pipe(
         filter((event: SystemNotificationEvent): boolean => event.id.startsWith(startsWith + "_")),
-        switchMap(
-          (event: SystemNotificationEvent): Observable<void> =>
-            from(Promise.resolve(handler(event))),
+        switchMap((event: SystemNotificationEvent): Observable<void> =>
+          from(Promise.resolve(handler(event))),
         ),
       ),
     );

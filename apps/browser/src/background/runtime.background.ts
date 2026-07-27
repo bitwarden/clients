@@ -38,6 +38,7 @@ import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { getWebExtSender } from "../platform/utils/web-ext-sender";
 
 import MainBackground from "./main.background";
 
@@ -435,9 +436,7 @@ export default class RuntimeBackground {
    * @returns true if message fails validation
    */
   private async executeMessageActionOrOpenPopup(
-    message: {
-      webExtSender: chrome.runtime.MessageSender;
-    },
+    message: Record<PropertyKey, unknown>,
     messageAction: () => Promise<void>,
   ): Promise<boolean> {
     const hasAccounts = await firstValueFrom(
@@ -451,7 +450,7 @@ export default class RuntimeBackground {
     }
 
     const isValidVaultReferrer = await this.isValidVaultReferrer(
-      Utils.getHostname(message?.webExtSender?.origin),
+      Utils.getHostname(getWebExtSender(message)?.origin),
     );
 
     // When the referrer is not a known vault and the message is external, reject the message
