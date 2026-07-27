@@ -7,7 +7,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
+import {
+  CipherFormConfigService,
+  DefaultCipherFormConfigService,
+  Vfo1IconPipe,
+} from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared/shared.module";
 import { EmergencyAccessService } from "../../../emergency-access";
@@ -19,7 +23,7 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
 @Component({
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
-  imports: [SharedModule],
+  imports: [SharedModule, Vfo1IconPipe],
 })
 export class EmergencyAccessViewComponent implements OnInit {
   id: EmergencyAccessId | null = null;

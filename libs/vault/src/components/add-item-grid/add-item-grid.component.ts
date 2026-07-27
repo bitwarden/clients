@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -16,6 +16,8 @@ import {
   IconTileComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 export const AddItemGridResult = Object.freeze({
   Cipher: "cipher",
@@ -81,7 +83,7 @@ export class AddItemGridComponent {
 
     if (this.canCreateCollection()) {
       items.push({
-        icon: "bwi-collection-shared",
+        icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
         labelKey: "collection",
         subtitleKey: "collectionSubtitle",
         action: () => this.itemSelected.emit({ result: AddItemGridResult.Collection }),
@@ -90,6 +92,8 @@ export class AddItemGridComponent {
 
     return items;
   });
+
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {}
 }

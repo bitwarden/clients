@@ -6,6 +6,7 @@ import {
   Component,
   DestroyRef,
   EventEmitter,
+  inject,
   Inject,
   input,
   Input,
@@ -15,7 +16,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import * as JSZip from "jszip";
@@ -44,6 +45,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -69,6 +72,7 @@ import {
   SelectModule,
   ToastService,
   LinkModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -131,6 +135,22 @@ import { ImportLastPassComponent } from "./lastpass";
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   DefaultCollectionType = CollectionTypes.DefaultUserCollection;
+
+  // `Vfo1TerminologyService` and `Vfo1IconPipe` cannot be imported here because
+  // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
+  // module dependency at the webpack level. ConfigService is used directly instead.
+  private readonly configService = inject(ConfigService);
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected collectionIcon(type: number): BitwardenIcon {
+    if (type === CollectionTypes.DefaultUserCollection) {
+      return "bwi-user";
+    }
+    return this.vfo1Enabled() ? "bwi-shared-folder" : "bwi-collection-shared";
+  }
 
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];

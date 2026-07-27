@@ -19,6 +19,7 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   CipherTypeFilter,
   VaultFilterSection,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "./vault-filter.component";
@@ -95,6 +96,7 @@ describe("OrganizationVaultFilterComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$: restrictedSubject.asObservable() },
         },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
 

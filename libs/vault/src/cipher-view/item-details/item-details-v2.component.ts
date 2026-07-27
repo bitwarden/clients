@@ -43,7 +43,7 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
   ],
 })
 export class ItemDetailsV2Component {
-  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
   readonly hideOwner = input<boolean>(false);
@@ -113,9 +113,9 @@ export class ItemDetailsV2Component {
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return item.type === CollectionTypes.DefaultUserCollection
-        ? "bwi-user"
-        : "bwi-collection-shared";
+      return this.vfo1TerminologyService.iconClass(
+        item.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+      );
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }

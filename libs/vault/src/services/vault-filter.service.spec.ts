@@ -31,6 +31,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
   sortDefaultCollections: jest.fn((): CollectionView[] => []),
@@ -54,6 +55,7 @@ describe("vault filter service", () => {
   let autoConfirmPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -70,6 +72,8 @@ describe("vault filter service", () => {
     i18nService.collator = new Intl.Collator("en-US");
     collectionService = mock<CollectionService>();
     configService = mock<ConfigService>();
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
+    vfo1TerminologyService.iconClass.mockImplementation((icon) => icon);
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
@@ -104,6 +108,7 @@ describe("vault filter service", () => {
       collectionService,
       accountService,
       configService,
+      vfo1TerminologyService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
@@ -382,6 +387,7 @@ describe("vault filter service", () => {
           collectionService,
           accountService,
           configService,
+          vfo1TerminologyService,
         );
       });
 

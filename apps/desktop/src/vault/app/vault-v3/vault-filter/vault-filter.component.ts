@@ -21,6 +21,7 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   AddEditFolderDialogComponent,
   RoutedVaultFilterBridgeService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { DesktopPremiumUpgradePromptService } from "../../../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -46,6 +47,7 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
     CollectionFilterComponent,
     FolderFilterComponent,
     A11yTitleDirective,
+    Vfo1IconPipe,
   ],
   providers: [
     {

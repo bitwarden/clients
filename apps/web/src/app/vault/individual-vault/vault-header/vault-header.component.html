@@ -1,4 +1,4 @@
-<app-header [title]="title" [icon]="icon">
+<app-header [title]="title" [icon]="icon | vfo1Icon">
   @if (showBreadcrumbs) {
     <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
       @if (activeOrganizationId) {
@@ -13,7 +13,7 @@
       <ng-container>
         @for (collection of collections; track collection.id) {
           <bit-breadcrumb
-            icon="bwi-collection-shared"
+            [icon]="'bwi-collection-shared' | vfo1Icon"
             [route]="[]"
             [queryParams]="{ collectionId: collection.id }"
             queryParamsHandling="merge"

@@ -316,7 +316,7 @@
         }
         @if (showAssignToCollections) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
-            <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+            <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
             {{ "assignToCollections" | i18n }}
           </button>
         }

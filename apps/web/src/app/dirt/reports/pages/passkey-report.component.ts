@@ -36,6 +36,7 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -67,6 +68,7 @@ import {
     ToggleGroupModule,
     GetOrgNameFromIdPipe,
     OrganizationNameBadgeComponent,
+    Vfo1IconPipe,
   ],
   providers: [PasskeyReportService],
 })

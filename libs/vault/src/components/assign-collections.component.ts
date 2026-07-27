@@ -60,6 +60,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
 
@@ -218,6 +220,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private toastService: ToastService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
@@ -362,8 +365,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       })
       .map((c) => ({
-        icon:
+        icon: this.vfo1TerminologyService.iconClass(
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+        ),
         id: c.id,
         labelName: c.name,
         listName: c.name,
@@ -376,7 +380,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection-shared",
+          icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -469,8 +473,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon:
+          icon: this.vfo1TerminologyService.iconClass(
             c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+          ),
           id: c.id,
           labelName: c.name,
           listName: c.name,

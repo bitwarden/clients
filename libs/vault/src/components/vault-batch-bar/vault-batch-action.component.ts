@@ -22,6 +22,7 @@ import {
 } from "@bitwarden/components";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 type ActionDescriptor = {
   action: () => void;
@@ -45,6 +46,7 @@ const PRIMARY_ACTION_COUNT = 2;
 export class VaultBatchActionComponent implements OnDestroy {
   protected readonly service = inject(VaultBatchBarService);
   private readonly i18nService = inject(I18nService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly layoutFooter = inject(LayoutFooterService);
 
@@ -86,7 +88,7 @@ export class VaultBatchActionComponent implements OnDestroy {
     if (this.service.canAssignToCollections()) {
       actions.push({
         action: this.service.bulkAssignToCollections.bind(this.service),
-        icon: "bwi-collection",
+        icon: this.vfo1TerminologyService.iconClass("bwi-collection"),
         label: this.i18nService.t("assignToCollections"),
       });
     }

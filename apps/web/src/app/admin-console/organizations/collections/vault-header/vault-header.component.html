@@ -14,7 +14,7 @@
       <ng-container>
         @for (collection of collections(); track collection) {
           <bit-breadcrumb
-            icon="bwi-collection-shared"
+            [icon]="'bwi-collection-shared' | vfo1Icon"
             [route]="[]"
             [queryParams]="{ collectionId: collection.id }"
             queryParamsHandling="merge"
