@@ -27,7 +27,7 @@ const TOKEN_FILE: &str = "remote_desktop_portal_token";
 /// fails.
 pub(crate) fn should_use_portal() -> bool {
     let clipboard_works = super::arboard_backend::read().is_ok();
-    !clipboard_works;
+    !clipboard_works
 }
 
 /// Set the clipboard to `text` via the Clipboard portal over a RemoteDesktop session.
