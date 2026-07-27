@@ -281,7 +281,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private toastService: ToastService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
