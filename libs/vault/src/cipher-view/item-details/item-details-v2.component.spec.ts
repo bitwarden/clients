@@ -9,6 +9,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -94,6 +95,27 @@ describe("ItemDetailsV2Component", () => {
     expect(itemDetailsList[1].nativeElement.textContent.trim()).toContain(collection.name);
     expect(itemDetailsList[2].nativeElement.textContent.trim()).toContain(collection2.name);
     expect(itemDetailsList[3].nativeElement.textContent.trim()).toContain(folder.name);
+  });
+
+  describe("getAriaLabel", () => {
+    it("separates the label and name with a space for organizations", () => {
+      const org = Object.assign(new Organization(), { name: "Organization 1" });
+      expect(component.getAriaLabel(org)).toBe("ownerAriaLabel Organization 1");
+    });
+
+    it("separates the label and name with a space for collections", () => {
+      const col = new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "Collection 1",
+      });
+      expect(component.getAriaLabel(col)).toBe("collectionAriaLabel Collection 1");
+    });
+
+    it("separates the label and name with a space for folders", () => {
+      const folderView = Object.assign(new FolderView(), { name: "Folder 1" });
+      expect(component.getAriaLabel(folderView)).toBe("folderAriaLabel Folder 1");
+    });
   });
 
   it("does not render owner when `hideOwner` is true", () => {

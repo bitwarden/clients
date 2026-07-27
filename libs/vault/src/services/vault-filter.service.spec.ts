@@ -114,6 +114,22 @@ describe("vault filter service", () => {
     organizations.next([]);
   });
 
+  describe("shared-folder terminology filter heads", () => {
+    it("uses collection/folder head names when the flag is off", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(false);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("collections");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("folders");
+    });
+
+    it("uses shared-folder/my-folder head names when the flag is on", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(true);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("sharedFolders");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("myFolders");
+    });
+  });
+
   describe("collapsed filter nodes", () => {
     const nodes = new Set(["1", "2"]);
 

@@ -56,7 +56,7 @@
       @if (canCreateCollection()) {
         <button type="button" bitMenuItem (click)="collectionAdded.emit()">
           <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-          {{ "collection" | i18n }}
+          {{ "collection" | vfo1I18n: "sharedFolder" }}
         </button>
       }
     </bit-menu>

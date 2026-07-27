@@ -104,9 +104,11 @@ export class ItemDetailsV2Component {
       const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      return this.i18nService.t("collection") + item.name;
+      const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder") + item.name;
+      const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
+      return this.i18nService.t(key, item.name);
     }
     return "";
   }
@@ -124,9 +126,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t("collection");
+      return this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder");
+      return this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
     }
     return "";
   }

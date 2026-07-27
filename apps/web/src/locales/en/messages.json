@@ -1206,6 +1206,15 @@
   "myFolders": {
     "message": "My folders"
   },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
   "attachments": {
     "message": "Attachments"
   },
@@ -12705,6 +12714,42 @@
       "integration": {
         "content": "$1",
         "example": "google"
+      }
+    }
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
       }
     }
   },
