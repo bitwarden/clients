@@ -1,7 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { DialogService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -16,15 +21,19 @@ describe("CipherStep", () => {
   let apiService: MockProxy<ApiService>;
   let cipherEncryptionService: MockProxy<CipherEncryptionService>;
   let dialogService: MockProxy<DialogService>;
+  let encryptService: MockProxy<EncryptService>;
   let logger: MockProxy<LogRecorder>;
+
+  const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
     cipherEncryptionService = mock<CipherEncryptionService>();
     dialogService = mock<DialogService>();
+    encryptService = mock<EncryptService>();
     logger = mock<LogRecorder>();
 
-    cipherStep = new CipherStep(apiService, cipherEncryptionService, dialogService);
+    cipherStep = new CipherStep(apiService, cipherEncryptionService, dialogService, encryptService);
   });
 
   describe("runDiagnostics", () => {
@@ -118,9 +127,66 @@ describe("CipherStep", () => {
       const result = await cipherStep.runDiagnostics(workingData, logger);
 
       expect(result).toBe(false);
-      expect(logger.record).toHaveBeenCalledWith("Cipher ID cipher-2 was undecryptable");
-      expect(logger.record).toHaveBeenCalledWith("Cipher ID cipher-3 was undecryptable");
+      expect(logger.record).toHaveBeenCalledWith(
+        "Cipher ID cipher-2 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
+      );
+      expect(logger.record).toHaveBeenCalledWith(
+        "Cipher ID cipher-3 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
+      );
       expect(logger.record).toHaveBeenCalledWith("Found 2 undecryptable ciphers");
+    });
+
+    it("logs that a cipher key is present on an undecryptable cipher", async () => {
+      const userId = "user-id" as UserId;
+      const cipher = {
+        id: "cipher-1",
+        organizationId: null,
+        key: new EncString("2.key-iv|key-data|key-mac"),
+      } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [cipher],
+        folders: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
+
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(logger.record).toHaveBeenCalledWith(
+        "Cipher ID cipher-1 was undecryptable (cipher key present, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
+      );
+    });
+
+    it("logs the item type and FIDO2 credential state of an undecryptable cipher", async () => {
+      const userId = "user-id" as UserId;
+      const cipher = {
+        id: "cipher-1",
+        organizationId: null,
+        type: CipherType.Login,
+        login: { fido2Credentials: [{}] },
+      } as Cipher;
+
+      const workingData: RecoveryWorkingData = {
+        userId,
+        userKey,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [cipher],
+        folders: [],
+      };
+
+      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
+
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(logger.record).toHaveBeenCalledWith(
+        `Cipher ID cipher-1 was undecryptable (cipher key absent, item type ${CipherType.Login}, FIDO2 credentials present): full decryption failed: Decryption failed`,
+      );
     });
 
     it("returns correct results when running diagnostics multiple times", async () => {
@@ -156,6 +222,171 @@ describe("CipherStep", () => {
       expect(cipherStep.canRecover(workingData)).toBe(false);
       expect(cipherStep["undecryptableCipherIds"]).toHaveLength(0);
       expect(cipherStep["decryptableCipherIds"]).toHaveLength(2);
+    });
+
+    describe("name field check", () => {
+      const userId = "user-id" as UserId;
+      const encryptedName = new EncString("2.name-iv|name-data|name-mac");
+
+      const workingDataFor = (
+        cipher: Cipher,
+        key: UserKey | null = userKey,
+      ): RecoveryWorkingData => ({
+        userId,
+        userKey: key,
+        encryptedPrivateKey: null,
+        isPrivateKeyCorrupt: false,
+        ciphers: [cipher],
+        folders: [],
+      });
+
+      beforeEach(() => {
+        cipherEncryptionService.decrypt.mockResolvedValue({} as any);
+      });
+
+      it("does not probe a cipher with no name", async () => {
+        const workingData = workingDataFor({ id: "cipher-1", organizationId: null } as Cipher);
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
+      });
+
+      it("does not probe a name that is not an AesCbc256_HmacSha256 encrypted string", async () => {
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: new EncString("7.cose-data"),
+        } as Cipher);
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+      });
+
+      it("does not probe when the user key is missing", async () => {
+        const workingData = workingDataFor(
+          { id: "cipher-1", organizationId: null, name: encryptedName } as Cipher,
+          null,
+        );
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+      });
+
+      it("does not probe when the user key is not an AesCbc256_HmacSha256 key", async () => {
+        // A COSE user key cannot decrypt an AesCbc256_HmacSha256 name, so the probe would report a
+        // failure that says nothing about the cipher.
+        const coseUserKey = new SymmetricCryptoKey(new Uint8Array(70)) as UserKey;
+        const workingData = workingDataFor(
+          { id: "cipher-1", organizationId: null, name: encryptedName } as Cipher,
+          coseUserKey,
+        );
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
+      });
+
+      it("decrypts the name with the user key when the cipher has no cipher key", async () => {
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: encryptedName,
+        } as Cipher);
+
+        encryptService.decryptString.mockResolvedValue("name");
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
+        expect(encryptService.decryptString).toHaveBeenCalledWith(encryptedName, userKey);
+      });
+
+      it("decrypts the name with the unwrapped cipher key when the cipher has one", async () => {
+        const cipherKey = new EncString("2.key-iv|key-data|key-mac");
+        const unwrappedKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1));
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: encryptedName,
+          key: cipherKey,
+        } as Cipher);
+
+        encryptService.unwrapSymmetricKey.mockResolvedValue(unwrappedKey);
+        encryptService.decryptString.mockResolvedValue("name");
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(true);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(cipherKey, userKey);
+        expect(encryptService.decryptString).toHaveBeenCalledWith(encryptedName, unwrappedKey);
+      });
+
+      it("flags a cipher whose name fails to decrypt even when full decryption succeeds", async () => {
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: encryptedName,
+        } as Cipher);
+
+        encryptService.decryptString.mockRejectedValue(new Error("mac mismatch"));
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(false);
+        expect(logger.record).toHaveBeenCalledWith(
+          "Cipher ID cipher-1 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): name field could not be decrypted: mac mismatch",
+        );
+      });
+
+      it("flags a cipher whose cipher key cannot be unwrapped", async () => {
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: encryptedName,
+          key: new EncString("2.key-iv|key-data|key-mac"),
+        } as Cipher);
+
+        encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("mac mismatch"));
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(false);
+        expect(encryptService.decryptString).not.toHaveBeenCalled();
+        expect(logger.record).toHaveBeenCalledWith(
+          "Cipher ID cipher-1 was undecryptable (cipher key present, item type unknown, FIDO2 credentials absent): cipher key could not be unwrapped: mac mismatch",
+        );
+      });
+
+      it("reports both failures when full decryption and the name probe fail", async () => {
+        const workingData = workingDataFor({
+          id: "cipher-1",
+          organizationId: null,
+          name: encryptedName,
+        } as Cipher);
+
+        cipherEncryptionService.decrypt.mockRejectedValue(new Error("no elements in sequence"));
+        encryptService.decryptString.mockRejectedValue(new Error("mac mismatch"));
+
+        const result = await cipherStep.runDiagnostics(workingData, logger);
+
+        expect(result).toBe(false);
+        expect(logger.record).toHaveBeenCalledWith(
+          "Cipher ID cipher-1 was undecryptable " +
+            "(cipher key absent, item type unknown, FIDO2 credentials absent): " +
+            "full decryption failed: no elements in sequence; " +
+            "name field could not be decrypted: mac mismatch",
+        );
+      });
     });
   });
 
