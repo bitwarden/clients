@@ -113,7 +113,7 @@ export class SendProgram extends BaseProgram {
         );
         writeLn("", true);
       })
-      .action(async (url: string, options: OptionValues) => {
+      .action(async (url: string, options: OptionValues, command: Command) => {
         const cmd = new SendReceiveCommand(
           this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
@@ -124,7 +124,11 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.apiService,
           this.serviceContainer.sendTokenService,
         );
-        const response = await cmd.run(url, options);
+        // When invoked as `bw send receive`, the parent `send` command also declares
+        // `--password`, so commander binds the flag to the parent and this subcommand's
+        // `options.password` is undefined. `optsWithGlobals()` merges ancestor options so the
+        // password is resolved for both `bw send receive` and top-level `bw receive`. (PM-24945)
+        const response = await cmd.run(url, command.optsWithGlobals());
         this.processResponse(response);
       });
   }
