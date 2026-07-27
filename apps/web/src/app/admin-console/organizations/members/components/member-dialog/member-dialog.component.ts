@@ -20,10 +20,6 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -44,6 +40,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { OrganizationUserStatusType, OrganizationUserType } from "@bitwarden/sdk-internal";
 
 import {
   GroupApiService,
@@ -402,8 +399,9 @@ export class MemberDialogComponent implements OnDestroy {
     }
     this.isRevoked = userDetails.status === OrganizationUserStatusType.Revoked;
     this.showNoMasterPasswordWarning =
-      userDetails.status > OrganizationUserStatusType.Invited &&
-      userDetails.hasMasterPassword === false;
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        userDetails.status,
+      ) && userDetails.hasMasterPassword === false;
     const allCollectionsPermissions = {
       createNewCollections: userDetails.permissions.createNewCollections,
       editAnyCollection: userDetails.permissions.editAnyCollection,

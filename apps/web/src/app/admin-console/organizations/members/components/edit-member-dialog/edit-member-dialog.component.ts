@@ -18,10 +18,6 @@ import {
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -58,6 +54,7 @@ import {
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
+import { OrganizationUserType, OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
@@ -322,8 +319,9 @@ export class EditMemberDialogComponent {
   ) {
     this.isRevoked.set(userDetails.status === OrganizationUserStatusType.Revoked);
     this.showNoMasterPasswordWarning.set(
-      userDetails.status > OrganizationUserStatusType.Invited &&
-        userDetails.hasMasterPassword === false,
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        userDetails.status,
+      ) && userDetails.hasMasterPassword === false,
     );
     const allCollectionsPermissions = {
       createNewCollections: userDetails.permissions.createNewCollections,
