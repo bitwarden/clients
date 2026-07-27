@@ -547,15 +547,18 @@ viewport renders the interleaved headers and rows.
 By default the table grows to fit its rows and scrolls with the page. To bound it — so the body
 scrolls and the header stays pinned — set `[height]`:
 
-- **`height="fill"`** — fill the height of a bounded, full-height container. This is the idiomatic
-  way to make a table fill the main content area, inside the body of a
-  [`bit-page`](?path=/docs/component-library-layout-page--docs):
+- **`height="fill"`** — fill the height of the parent. The parent **must have a resolved height** of
+  its own; without one the table has nothing to fill and collapses. The typical such parent is the
+  body of a [`bit-page`](?path=/docs/component-library-layout-page--docs), which is the idiomatic
+  way to make a table fill the main content area:
 
   ```html
   <bit-page>
     <bit-table-v2 [tableDef]="table" height="fill">…columns…</bit-table-v2>
   </bit-page>
   ```
+
+  <Canvas of={stories.FillPage} />
 
 - **`[height]="N"`** — cap the body at `N` rows (minimum 4), then scroll. This needs a known row
   height, so it applies only to [virtualized](#virtual-scrolling) tables and is a no-op otherwise.
