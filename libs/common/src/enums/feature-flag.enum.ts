@@ -162,7 +162,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
+  [FeatureFlag.PM34203TemporaryItemSharing]: true as boolean,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.SendEventLogging]: FALSE,
