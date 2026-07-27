@@ -118,13 +118,15 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Collects page details from the specific tab. This method returns an observable that can
-   * be subscribed to in order to build the results from all collectPageDetailsResponse
-   * messages from the given tab.
+   * Collects page details from a tab. Returns an observable that builds the results from the
+   * collectPageDetailsResponse messages the tab's frames send back. When `frameId` is given, the
+   * collection is scoped to that one frame — only it is asked, and only its response is admitted, so
+   * a concurrent collection on another frame of the same tab cannot bleed in.
    *
    * @param tab The tab to collect page details from
+   * @param frameId When set, collect only this frame; otherwise collect every frame
    */
-  collectPageDetailsFromTab$(tab: chrome.tabs.Tab): Observable<PageDetail[]> {
+  collectPageDetailsFromTab$(tab: chrome.tabs.Tab, frameId?: number): Observable<PageDetail[]> {
     /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
     const pageDetailsFallback$ = new ReplaySubject<PageDetail[]>(1);
 
@@ -134,7 +136,8 @@ export default class AutofillService implements AutofillServiceInterface {
         filter(
           (message) =>
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
-            message.tab?.id === tab.id,
+            message.tab?.id === tab.id &&
+            (frameId === undefined || getWebExtSender(message)?.frameId === frameId),
         ),
         scan((acc: PageDetail[], message): PageDetail[] => {
           const frameId = getWebExtSender(message)?.frameId;
@@ -158,7 +161,7 @@ export default class AutofillService implements AutofillServiceInterface {
         command: AutofillMessageCommand.collectPageDetails,
         sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
       },
-      undefined,
+      frameId !== undefined ? { frameId } : undefined,
       true,
     ).catch(() => {
       // When `tabSendMessage` throws an error the `pageDetailsFromTab$` will not emit,

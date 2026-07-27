@@ -24,7 +24,10 @@ describe("NoopAutofillLifecycleService", () => {
   // doing nothing, and must name the member so the offending path is findable.
   it.each([
     ["init", () => service.init()],
-    ["reportPageTransition", () => service.reportPageTransition(createChromeTabMock(), 0)],
+    [
+      "reportPageTransition",
+      () => service.reportPageTransition(createChromeTabMock(), 0, "https://example.test"),
+    ],
     ["startMonitoringFrame", () => service.startMonitoringFrame(createChromeTabMock(), 0)],
     ["retireAllFrames", () => service.retireAllFrames()],
   ])("warns when %s is invoked", async (method, invoke) => {
@@ -34,6 +37,45 @@ describe("NoopAutofillLifecycleService", () => {
     expect(logService.warning).toHaveBeenCalledWith(
       expect.stringContaining(`NoopAutofillLifecycleService.${method}`),
     );
+  });
+
+  // The observable members are inert, not tripwires: they must be valid, empty
+  // streams that emit nothing and never warn, since the popup binds them but is
+  // free to subscribe.
+  it("exposes inert streams that emit nothing and do not warn", () => {
+    const emissions: unknown[] = [];
+    let pageTransitionCompleted = false;
+    let tabRemovedCompleted = false;
+
+    service.pageTransitionResolved$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (pageTransitionCompleted = true),
+    });
+    service.tabRemoved$(1).subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (tabRemovedCompleted = true),
+    });
+
+    expect(emissions).toEqual([]);
+    expect(pageTransitionCompleted).toBe(true);
+    expect(tabRemovedCompleted).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
+  });
+
+  // Unlike the other streams, `liveTabs$` must emit — a `withLatestReady` consumer
+  // would otherwise stall. It emits an (empty) set and completes.
+  it("exposes liveTabs$ as an inert empty-set stream", () => {
+    const emissions: unknown[] = [];
+    let completed = false;
+
+    service.liveTabs$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (completed = true),
+    });
+
+    expect(emissions).toEqual([new Set()]);
+    expect(completed).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
   });
 
   it("withholds the tab and frame entirely so no tab data reaches the log", async () => {
