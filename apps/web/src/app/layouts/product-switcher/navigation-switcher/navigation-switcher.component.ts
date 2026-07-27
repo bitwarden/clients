@@ -1,4 +1,4 @@
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { map, Observable } from "rxjs";
@@ -20,6 +20,7 @@ import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-s
   templateUrl: "./navigation-switcher.component.html",
   imports: [
     AsyncPipe,
+    NgTemplateOutlet,
     RouterModule,
     MenuModule,
     NavigationModule,
