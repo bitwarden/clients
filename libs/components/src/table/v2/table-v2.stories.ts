@@ -375,7 +375,7 @@ class DemoUrlSyncTableComponent {
 }
 
 export default {
-  title: "Component Library/Table V2",
+  title: "Component Library/Table V2 (Beta)",
   decorators: [
     positionFixedWrapperDecorator(undefined, { border: false }),
     moduleMetadata({
