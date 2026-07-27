@@ -180,9 +180,6 @@ export class SendAddEditDialogComponent {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,
       );
-      const showMakeCopyButton =
-        sendDisabledReason !== SendDisabledReason.None &&
-        this.config.originalSend.type === SendType.Text;
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
           title:
@@ -190,13 +187,17 @@ export class SendAddEditDialogComponent {
               ? "orgDoesNotAllowTextSends"
               : "orgDoesNotAllowFileSends",
           message: "sendWillAutomaticallyExpire",
-          showMakeCopyButton,
+          // It's impossible to make a compliant copy of this Send
+          // without changing the type so we hide the button
+          showMakeCopyButton: false,
         });
       } else if (sendDisabledReason === SendDisabledReason.Other) {
         this.disabledSendConfig.set({
           title: "sendNotCompliantWithYourOrgsPolicy",
           message: "sendDisabledNonCompliantBannerMessage",
-          showMakeCopyButton,
+          // We can't attach an existing file to a new Send so
+          // we can only make a copy if the Send is of type Text
+          showMakeCopyButton: this.config.originalSend?.type === SendType.Text,
         });
       } else {
         this.disabledSendConfig.set(null);
