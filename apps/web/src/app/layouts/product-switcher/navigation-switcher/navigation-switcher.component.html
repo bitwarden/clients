@@ -53,7 +53,7 @@
       @for (product of accessibleProducts; track product.name) {
         <a
           bitMenuItem
-          [href]="product.appRoute"
+          [routerLink]="product.appRoute"
           [attr.icon]="product.icon"
           [class.tw-bg-bg-brand-softer]="product.isActive"
           [class.tw-text-fg-heading]="product.isActive"
