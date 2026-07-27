@@ -35,7 +35,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   AccessItemType,
@@ -46,6 +46,15 @@ import {
   Permission,
 } from "./access-selector.models";
 import { UserTypePipe } from "./user-type.pipe";
+
+/**
+ * Maps a permission's legacy labelId to its VFO1 (shared folder terminology) i18n key, for
+ * permission labels whose copy references "collection". Options not listed here render the same
+ * label regardless of the flag state.
+ */
+const VFO1_PERMISSION_LABEL_KEYS: Readonly<Record<string, string>> = Object.freeze({
+  manageCollection: "manage",
+});
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -89,6 +98,7 @@ export enum PermissionMode {
     SelectModule,
     TableModule,
     UserTypePipe,
+    Vfo1I18nPipe,
   ],
 })
 export class AccessSelectorComponent implements ControlValueAccessor {
@@ -410,6 +420,14 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
   protected permissionLabelId(perm: CollectionPermission) {
     return this.permissionList.find((p) => p.perm == perm)?.labelId;
+  }
+
+  /**
+   * Returns the VFO1 (shared folder terminology) i18n key for a given permission labelId, falling
+   * back to the labelId itself when there is no mapping (i.e. the label doesn't change).
+   */
+  protected vfo1PermissionLabelId(labelId: string): string {
+    return VFO1_PERMISSION_LABEL_KEYS[labelId] ?? labelId;
   }
 
   protected canEditItemPermission(item: AccessItemView) {

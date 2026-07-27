@@ -20,6 +20,13 @@ import { AccessItemType, CollectionPermission } from "./access-selector.models";
  * Helper class that makes it easier to test the AccessSelectorComponent by
  * exposing some protected methods/properties
  */
+function buildVfo1TerminologyService(enabled = false) {
+  return {
+    iconClass: (icon: string) => icon,
+    enabled: () => enabled,
+  };
+}
+
 class TestableAccessSelectorComponent extends AccessSelectorComponent {
   selectItems(items: SelectItemView[]) {
     super.selectItems(items);
@@ -50,7 +57,7 @@ describe("AccessSelectorComponent", () => {
     TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
       providers: [
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        { provide: Vfo1TerminologyService, useValue: buildVfo1TerminologyService(false) },
       ],
     }).compileComponents();
   });
@@ -302,5 +309,22 @@ describe("AccessSelectorComponent", () => {
         expect(!!colHeading).toEqual(shouldShowColumn);
       },
     );
+  });
+
+  describe("vfo1PermissionLabelId", () => {
+    it("maps the manageCollection labelId to the VFO1 'manage' key", () => {
+      expect((component as any).vfo1PermissionLabelId("manageCollection")).toBe("manage");
+    });
+
+    it("returns the labelId unchanged for permissions that don't reference collections", () => {
+      expect((component as any).vfo1PermissionLabelId("viewItems")).toBe("viewItems");
+      expect((component as any).vfo1PermissionLabelId("viewItemsHidePass")).toBe(
+        "viewItemsHidePass",
+      );
+      expect((component as any).vfo1PermissionLabelId("editItems")).toBe("editItems");
+      expect((component as any).vfo1PermissionLabelId("editItemsHidePass")).toBe(
+        "editItemsHidePass",
+      );
+    });
   });
 });
