@@ -32,6 +32,7 @@ import {
   MenuModule,
   SimpleDialogOptions,
   IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import {
   NewCipherMenuComponent,
@@ -39,6 +40,7 @@ import {
   RoutedVaultFilterModel,
   Vfo1I18nPipe,
   Vfo1TerminologyService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
@@ -62,6 +64,7 @@ import { PipesModule } from "../pipes/pipes.module";
     CoachmarkComponent,
     IconModule,
     Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -165,6 +168,23 @@ export class VaultHeaderComponent {
     return this.organizations?.find((org) => org.id === organizationId);
   }
 
+  /**
+   * Query params for the organization breadcrumb. Mirrors the param-swap logic
+   * in {@link RoutedVaultFilterService.createRoute}: with the VFO1 flag enabled
+   * the organization is stored as `vaultId`, otherwise as `organizationId`. The
+   * opposite key is nulled so `queryParamsHandling="merge"` cannot leave a stale
+   * param behind.
+   */
+  protected get organizationBreadcrumbQueryParams() {
+    const organizationId = this.activeOrganizationId ?? null;
+    return {
+      ...(this.vfo1TerminologyService.enabled()
+        ? { vaultId: organizationId, organizationId: null }
+        : { organizationId, vaultId: null }),
+      collectionId: this.All,
+    };
+  }
+
   protected get showBreadcrumbs() {
     return this.filter?.collectionId !== undefined && this.filter.collectionId !== All;
   }
@@ -200,7 +220,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"

@@ -13,12 +13,14 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div aria-hidden="true">
-    <i
-      [class]="
-        'bwi bwi-fw bwi-lg ' +
+    <bit-icon
+      fixedWidth
+      class="bwi-lg"
+      [name]="
         (collection.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared')
+          | vfo1Icon
       "
-    ></i>
+    />
   </div>
 </td>
 <td bitCell [ngClass]="RowHeightClass">

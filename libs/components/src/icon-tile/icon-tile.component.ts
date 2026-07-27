@@ -19,24 +19,24 @@ const variantStyles: Record<IconTileVariant, string[]> = {
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
   xs: {
-    container: ["tw-w-4", "tw-h-4"],
-    icon: ["tw-text-xs", "tw-leading-[0]"],
+    container: ["tw-size-4"],
+    icon: ["tw-text-[.625rem]", "tw-leading-[0]"],
   },
   sm: {
-    container: ["tw-w-6", "tw-h-6"],
-    icon: ["tw-text-sm", "tw-leading-[0]"],
+    container: ["tw-size-6"],
+    icon: ["tw-text-base", "tw-leading-[0]"],
   },
   base: {
-    container: ["tw-w-9", "tw-h-9"],
-    icon: ["tw-text-lg"],
+    container: ["tw-size-8"],
+    icon: ["tw-text-xl"],
   },
   lg: {
-    container: ["tw-w-12", "tw-h-12"],
-    icon: ["tw-text-2xl"],
+    container: ["tw-size-12"],
+    icon: ["tw-text-[1.75rem]"],
   },
   xl: {
-    container: ["tw-w-16", "tw-h-16"],
-    icon: ["tw-text-3xl"],
+    container: ["tw-size-16"],
+    icon: ["tw-text-4xl"],
   },
 };
 

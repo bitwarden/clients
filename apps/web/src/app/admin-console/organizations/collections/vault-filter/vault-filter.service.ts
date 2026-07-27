@@ -39,7 +39,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
     collectionService: CollectionService,
     accountService: AccountService,
     configService: ConfigService,
-    vfo1Terminology: Vfo1TerminologyService,
+    vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     super(
       organizationService,
@@ -51,7 +51,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
       collectionService,
       accountService,
       configService,
-      vfo1Terminology,
+      vfo1TerminologyService,
     );
   }
 

@@ -170,6 +170,7 @@ describe("AccountSecurityComponent", () => {
     sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
     sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
     sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 
@@ -525,6 +526,45 @@ describe("AccountSecurityComponent", () => {
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
       ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlock sharing disabled for untrusted device", () => {
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      // The shared unlock feature flag is read in the constructor, so rebuild the fixture with it on.
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+    });
+
+    it("disables the shared unlock toggles and shows the message", async () => {
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(AccountSecurityComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(true);
+      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(true);
+      expect(
+        fixture.nativeElement.textContent.includes(
+          "sharedUnlockUnavailableUntrustedDevice-used-i18n",
+        ),
+      ).toBe(true);
+    });
+
+    it("leaves the toggles enabled when sharing is not disabled", async () => {
+      sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
+
+      fixture = TestBed.createComponent(AccountSecurityComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
+      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
     });
   });
 });
