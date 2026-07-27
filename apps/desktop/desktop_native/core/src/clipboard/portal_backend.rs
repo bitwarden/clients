@@ -23,15 +23,11 @@ const MIME_TEXT: &str = "text/plain;charset=utf-8";
 /// File name (under the config dir) used to persist the RemoteDesktop session restore token.
 const TOKEN_FILE: &str = "remote_desktop_portal_token";
 
-/// Whether the portal-based clipboard fallback should be used when the direct `arboard` write
+/// Whether the portal-based clipboard fallback should be used when the direct `arboard` access
 /// fails.
-///
-/// True on a GNOME desktop, where `arboard` cannot reliably set the clipboard on Wayland. Reads
-/// `XDG_CURRENT_DESKTOP` for the desktop environment.
 pub(crate) fn should_use_portal() -> bool {
-    std::env::var("XDG_CURRENT_DESKTOP")
-        .map(|desktop| desktop.to_ascii_uppercase().contains("GNOME"))
-        .unwrap_or(false)
+    let clipboard_works = super::arboard_backend::read().is_ok();
+    !clipboard_works;
 }
 
 /// Set the clipboard to `text` via the Clipboard portal over a RemoteDesktop session.
