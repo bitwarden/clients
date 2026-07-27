@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Add shared folder"
   },
-  "addToSharedFolder": {
-    "message": "Add to shared folder"
-  },
   "newSharedFolder": {
     "message": "New shared folder"
   },
