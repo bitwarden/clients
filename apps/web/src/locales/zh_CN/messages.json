@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "全选"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "取消全选"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "移除通行密钥"
   },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
+  },
   "removePasskeyInfo": {
     "message": "如果所有通行密钥被移除，没有主密码您将无法登录新的设备。"
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "新增组织"
   },
+  "newVault": {
+    "message": "新增密码库"
+  },
   "noOrganizationsList": {
     "message": "您没有加入任何组织。组织允许您与其他用户安全地共享项目。"
   },
@@ -2427,7 +2513,7 @@
     "message": "组织"
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "collectionsDesc": {
     "message": "编辑与其共享此项目的集合。只有具有这些集合访问权限的组织用户才能看到此项目。"
@@ -2504,7 +2590,7 @@
   "confirmSecretsExport": {
     "message": "确认机密导出"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "exportSecretsWarningDesc": {
@@ -2584,8 +2670,8 @@
   "passwordProtected": {
     "message": "密码保护"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「文件密码」与「确认文件密码」不一致。"
+  "filePasswordConfirmationMismatch": {
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "confirmVaultImport": {
     "message": "确认密码库导入"
@@ -2682,7 +2768,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除生成器历史记录"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "noPasswordsInList": {
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "联系人"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "在您的密码库中没有发现未配置两步登录的网站。"
   },
+  "passkeyLoginReport": {
+    "message": "通行密钥登录"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "通行密钥是一种安全的、防网络钓鱼的密码替代方案。查看您的哪些账户支持通行密钥。"
+  },
+  "passkeyLoginReportDesc": {
+    "message": "通行密钥是一种安全的、防网络钓鱼的密码替代方案。查看您的密码库中哪些账户支持通行密钥，以体验更简单的无密码登录。了解"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "通行密钥的工作原理"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "以及"
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "如何在 Bitwarden 中使用它们。"
+  },
+  "passkeyLoginFound": {
+    "message": "支持通行密钥的登录"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "我们在您的密码库中发现了 $COUNT$ 个支持通行密钥的登录。为进一步保障这些账户的安全，请考虑在支持的情况下设置通行密钥。数据来源：passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "我们在您的密码库中发现了 $COUNT$ 个支持通行密钥的登录。为进一步保障这些账户的安全，请考虑在支持的情况下设置通行密钥。数据来源：passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "在您的密码库中未发现支持通行密钥但尚未配置的账户。"
+  },
   "instructions": {
     "message": "说明"
+  },
+  "passwordlessLogin": {
+    "message": "无密码登录"
+  },
+  "multifactorAuthentication": {
+    "message": "多重身份验证"
   },
   "exposedPasswordsReport": {
     "message": "暴露的密码"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "取消订阅"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "订阅过期"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "访问了由 $ID$ 创建的文本 Send$SENDID$。",
+  "accessedTextSendV3": {
+    "message": "访问了由 $ID$ 创建的文本 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "访问了由 $ID$ 创建的文件 Send$SENDID$。",
+  "accessedFileSendV3": {
+    "message": "访问了由 $ID$ 创建的文件 Send$SENDID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "需要批准"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "您正在尝试登录吗？"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "已到期"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "搜索 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "更新了 $ID$ 电子邮箱地址。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ 首次使用 SSO 登录",
     "placeholders": {
@@ -8027,19 +8205,19 @@
     "message": "必须先启用「单一组织」策略，然后才能启用此策略。"
   },
   "accountRecoveryPolicyDescV3Part1": {
-    "message": "允许管理员帮助已注册/开启[某功能]的成员恢复其帐号访问权限"
+    "message": "允许管理员帮助已注册"
   },
   "accountRecoveryDescLinkText": {
-    "message": "恢复账户"
+    "message": "账户恢复"
   },
   "accountRecoveryPolicyDescV3Part2": {
-    "message": "的成员重新获得其账户的访问权限。启用此策略后，现有成员可以自行注册账户恢复；如果您愿意，可以自动为新成员注册账户恢复。"
+    "message": "的成员重新获得其账户的访问权限。启用此策略后，现有成员可以自行注册，也可以选择为新成员自动注册。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
+    "message": "此组织有一个企业策略，将为您自动注册密码重置。注册后将允许组织管理员更改您的主密码。"
   },
   "resetPasswordOrgKeysError": {
     "message": "组织密钥响应为空"
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "将 SSO 的安全性和便捷性扩展到非托管 App。当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现从身份提供程序到 App 的一键式安全流程。"
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现一键式安全登录。"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供程序主机"
   },
@@ -8680,7 +8861,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "没有赞助的家庭"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭版方案将显示在这里"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -8729,7 +8910,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "收回了免费版方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -9422,7 +9603,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9613,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9627,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9637,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "需要高级版订阅"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "移除成员"
   },
+  "revokeMember": {
+    "message": "撤销成员"
+  },
+  "restoreMember": {
+    "message": "恢复成员"
+  },
+  "deleteMember": {
+    "message": "删除成员"
+  },
   "collection": {
     "message": "集合"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "成员角色"
+  },
+  "moreActions": {
+    "message": "更多操作"
+  },
+  "emailUpdateOnSave": {
+    "message": "电子邮箱将在保存时更新"
+  },
+  "createdDate": {
+    "message": "创建日期"
   },
   "moreSettings": {
     "message": "更多设置"
@@ -11245,7 +11444,7 @@
     "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。"
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "自动为新成员注册账户恢复"
+    "message": "为新成员自动注册账户恢复"
   },
   "resetMasterPassword": {
     "message": "重置主密码"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "分配集合访问权限"
   },
-  "collectionsEdited": {
-    "message": "集合已编辑"
-  },
   "editedCollections": {
+    "message": "编辑了集合"
+  },
+  "editedCollection": {
     "message": "编辑了集合"
   },
   "collectionEdited": {
     "message": "集合已编辑"
   },
-  "editedCollection": {
-    "message": "编辑了集合"
+  "collectionsEdited": {
+    "message": "集合已编辑"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -11853,41 +12052,53 @@
     "message": "缺少某些功能或特性",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "未提供我们需要的某些功能",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "设置或管理起来太难了",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "上手、管理或日常使用过于复杂",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "我们没有获得足够的与成本对应的价值",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "定价与我们获得的价值不匹配",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "我们团队的使用率不高",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "我们无法让人们真正使用它",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "我们的需求发生变化",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "重组、并购、优先级调整，或我们已不再需要密码管理器",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "免费 1 年"
@@ -13151,8 +13362,8 @@
   "linkedHelpText": {
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
-  "linkedLabelHelpText": {
-    "message": "输入字段的 html ID、名称、aria-label 或占位符。"
+  "linkedFieldLabelHelpText": {
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "uppercaseDescription": {
     "message": "包含大写字符",
@@ -14102,8 +14313,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "订阅为 $PLAN$",
+  "subscribeToEnterprise": {
+    "message": "订阅 $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",

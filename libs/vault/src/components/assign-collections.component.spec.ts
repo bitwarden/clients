@@ -22,6 +22,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+
 import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,
@@ -105,6 +107,7 @@ describe("AssignCollectionsComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
 

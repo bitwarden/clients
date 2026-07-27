@@ -1,6 +1,8 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -138,6 +140,19 @@ export default {
           provide: LogService,
           useValue: {
             error: {},
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({ id: "test-user-id" }),
+          },
+        },
+        {
+          provide: PremiumCheckoutPendingService,
+          useValue: {
+            markCheckoutLaunched: () => Promise.resolve(),
+            consumeCheckoutPending: () => Promise.resolve(false),
           },
         },
       ],

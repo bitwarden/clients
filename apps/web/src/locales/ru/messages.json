@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Выбрать все"
   },
+  "selectAllRows": {
+    "message": "Выбрать все строки"
+  },
+  "selectRow": {
+    "message": "Выбрать строку"
+  },
+  "showingItemRange": {
+    "message": "Показаны $START$ - $END$ из $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Строк на странице"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ строк на странице",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ элементов",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Очистить все"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ выбрано",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предыдущая страница"
+  },
+  "nextPage": {
+    "message": "Следующая страница"
+  },
+  "goToPage": {
+    "message": "Перейти на страницу"
+  },
+  "ofPageCount": {
+    "message": "из $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Нет подходящих элементов"
+  },
   "deselectAll": {
     "message": "Отменить выбор"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "Удалить passkey"
   },
+  "deletePasskey": {
+    "message": "Удалить passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Этот passkey будет навсегда удален из вашего логина. Действие невозможно отменить."
+  },
   "removePasskeyInfo": {
     "message": "Если будут удалены все passkey, вы не сможете авторизоваться на новых устройствах без мастер-пароля."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "Новая организация"
   },
+  "newVault": {
+    "message": "Новое хранилище"
+  },
   "noOrganizationsList": {
     "message": "Вы не являетесь участником какой-либо организации. Организации позволяют безопасно обмениваться элементами с другими пользователями."
   },
@@ -2504,8 +2590,8 @@
   "confirmSecretsExport": {
     "message": "Подтвердить экспорт секретов"
   },
-  "exportWarningDesc": {
-    "message": "Экспортируемый файл содержит данные вашего хранилища в незашифрованном формате. Его не следует хранить или отправлять по небезопасным каналам (например по электронной почте). Удалите его сразу после использования."
+  "exportUnencryptedWarningDesc": {
+    "message": "Экспортируемый файл содержит данные вашего хранилища в незашифрованном формате. Не следует хранить или отправлять экспортный файл по незащищенным каналам (например, по email). Удалите его сразу после завершения работы с ним."
   },
   "exportSecretsWarningDesc": {
     "message": "Экспортируемый файл содержит данные ваших секретов в незашифрованном формате. Его не следует хранить или отправлять по небезопасным каналам (например по электронной почте). Удалите его сразу после использования."
@@ -2584,8 +2670,8 @@
   "passwordProtected": {
     "message": "Защищено паролем"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Пароль к файлу\" и \"Подтверждение пароля к файлу\" не совпадают."
+  "filePasswordConfirmationMismatch": {
+    "message": "“Пароль к файлу“ и “Подтверждение пароля к файлу“ не совпадают."
   },
   "confirmVaultImport": {
     "message": "Подтвердите импорт хранилища"
@@ -2682,8 +2768,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Очистить историю генератора"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Если вы продолжите, все записи будут навсегда удалены из истории генератора. Вы уверены, что хотите продолжить?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Если вы продолжите, все записи будут навсегда удалены из истории генератора. Вы уверены?"
   },
   "noPasswordsInList": {
     "message": "Нет паролей для отображения."
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ элемент будет пропущен",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Следующие элементы не удалось прочитать, и они не будут включены в ваш импорт:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Этот ключ SSH не может быть импортирован"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдерживаемый тип элемента"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Этот элемент не может быть импортирован"
   },
   "contact": {
     "message": "Контакт"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "В вашем хранилище нет сайтов с ненастроенной двухэтапной аутентификацией."
   },
+  "passkeyLoginReport": {
+    "message": "Вход по passkey"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkey - это безопасная и устойчивая к фишингу альтернатива паролям. Посмотрите, какие из ваших аккаунтов их поддерживают."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkey - это безопасная и устойчивая к фишингу альтернатива паролям. Посмотрите, какие аккаунты в вашем хранилище их поддерживают чтобы упростить безпарольную авторизацию. Узнать"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "как работают passkey"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "и "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "как их использовать в Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Логины, поддерживающие passkey"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "В вашем хранилище мы обнаружили $COUNT$ логин(ов), которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "В ваших хранилищах мы обнаружили $COUNT$ логин(ов), которые поддерживают passkey. Для дополнительной защиты этих аккаунтов рассмотрите возможность установки passkey, если он доступен. Источник: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "В вашем хранилище не обнаружено аккаунтов, поддерживающих passkey, которые не были настроены."
+  },
   "instructions": {
     "message": "Инструкции"
+  },
+  "passwordlessLogin": {
+    "message": "Вход без пароля"
+  },
+  "multifactorAuthentication": {
+    "message": "Многофакторная аутентификация"
   },
   "exposedPasswordsReport": {
     "message": "Скомпрометированные пароли"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Отменить подписку"
+  },
+  "completeCancellation": {
+    "message": "Полная отмена"
+  },
+  "helpUsImprove": {
+    "message": "Помогите нам стать лучше. Почему вы отменяете?"
+  },
+  "additionalDetails": {
+    "message": "Дополнительная информация"
   },
   "subscriptionExpiration": {
     "message": "Срок действия подписки"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Доступ к текстовой Send$SENDID$ созданной $ID$.",
+  "accessedTextSendV3": {
+    "message": "Доступ к текстовой Send$SENDID$, созданной $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Доступ к файловой Send$SENDID$ созданной $ID$.",
+  "accessedFileSendV3": {
+    "message": "Доступ к файловой Send$SENDID$, созданной $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "Требуется одобрение"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Вы пытаетесь войти?"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "Срок истек"
   },
+  "expiringSoon": {
+    "message": "Скоро истечет",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Активен",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Поиск Send’ов",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Адрес email $ID$ обновлен.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ впервые выполнил вход используя SSO",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Повысьте безопасность и удобство единого входа в неуправляемые приложения. Когда пользователи запускают приложение у вашего провайдера идентификации, их регистрационные данные автоматически заполняются и отправляются, создавая безопасный поток от провайдера к приложению в один клик."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Когда пользователи запускают приложение через вашего провайдера аутентификации, их учетные данные  будут автоматически заполнены и отправлены, что обеспечивает безопасную авторизацию одним щелчком мыши."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Хост провайдера идентификации"
   },
@@ -8680,8 +8861,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "Здесь будут показаны планы семей, не являющихся спонсорскими,"
+  "noSponsoredFamiliesDetails": {
+    "message": "Здесь будут показаны планы семей, не являющихся спонсорскими"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
@@ -9422,7 +9603,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Неверный токен API $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9613,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Неверный токен $SERVICENAME$ API: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,8 +9627,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ отклонил(а) ваш запрос. Обратитесь за помощью к своему провайдеру.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ отклонил ваш запрос. Обратитесь за помощью к своему провайдеру.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9637,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ отклонил(а) ваш запрос: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отклонил ваш запрос: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Требуется подписка Премиум"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "Удалить участника"
   },
+  "revokeMember": {
+    "message": "Отозвать пользователя"
+  },
+  "restoreMember": {
+    "message": "Восстановить пользователя"
+  },
+  "deleteMember": {
+    "message": "Удалить пользователя"
+  },
   "collection": {
     "message": "Коллекция"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "Роль участника"
+  },
+  "moreActions": {
+    "message": "Другие действия"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email обновится при сохранении"
+  },
+  "createdDate": {
+    "message": "Дата создания"
   },
   "moreSettings": {
     "message": "Дополнительные настройки"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "Назначить доступ к коллекциям"
   },
-  "collectionsEdited": {
-    "message": "Коллекции изменены"
-  },
   "editedCollections": {
     "message": "Изменение коллекции"
+  },
+  "editedCollection": {
+    "message": "Измененная коллекция"
   },
   "collectionEdited": {
     "message": "Коллекция изменена"
   },
-  "editedCollection": {
-    "message": "Измененная коллекция"
+  "collectionsEdited": {
+    "message": "Коллекции изменены"
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -11853,41 +12052,53 @@
     "message": "Отсутствующие возможности или функции",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "То, что нам нужно, недоступно",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "То, что нам нужно недоступно.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Слишком сложно настроить или управлять",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Регистрация, администрирование или повседневное использование были слишком сложными",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Регистрация, администрирование или повседневное использование были слишком сложными.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Мы не получаем достаточной отдачи от затрат",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Слишком высокая стоимость",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "Цена не соответствует тому, что мы получаем взамен",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "Цена не соответствует тому, что мы получаем взамен.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Недостаточное использование нашей командой",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "Мы не могли заставить людей по-настоящему им пользоваться",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "Мы не смогли заставить людей использовать его.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Наши потребности изменились",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Реорганизация, приобретение, смена приоритетов или нам больше не нужен менеджер паролей",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Реорганизация, приобретение, смена приоритетов или нам больше не нужен менеджер паролей.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Плохое обслуживание клиентов",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "Мы не получили необходимой помощи от службы поддержки или обслуживания клиентов.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Опишите причину отмены",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Бесплатно на 1 год"
@@ -13151,7 +13362,7 @@
   "linkedHelpText": {
     "message": "Используйте связанное поле, если у вас возникли проблемы с автозаполнением для конкретного сайта."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Введите HTML-идентификатор поля, имя, aria-label, или плейсхолдер."
   },
   "uppercaseDescription": {
@@ -14102,7 +14313,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Подписаться на $PLAN$",
     "placeholders": {
       "plan": {

@@ -11,9 +11,7 @@ Angular wrapper for [`@bitwarden/logging`](../logging/README.md). Provides `Flig
 ```typescript
 import { FlightRecorderService } from "@bitwarden/logging-angular";
 
-@Component({
-  /* ... */
-})
+@Component({/* ... */})
 export class MyComponent {
   private recorder = inject(FlightRecorderService);
 

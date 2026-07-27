@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Označit vše"
   },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
+  },
   "deselectAll": {
     "message": "Odznačit vše"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
   },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
+  },
   "removePasskeyInfo": {
     "message": "Pokud budou odebrány všechny přístupové klíče, nebudete se moci přihlásit do nových zařízení bez hlavního hesla."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "Nová organizace"
   },
+  "newVault": {
+    "message": "Nový trezor"
+  },
   "noOrganizationsList": {
     "message": "Nepatříte do žádné organizace. Organizace umožňují bezpečné sdílení položek s ostatními uživateli."
   },
@@ -2504,7 +2590,7 @@
   "confirmSecretsExport": {
     "message": "Potvrdit export tajných klíčů"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Tento export obsahuje data Vašeho trezoru v nezašifrovaném formátu. Soubor s exportem byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití."
   },
   "exportSecretsWarningDesc": {
@@ -2584,7 +2670,7 @@
   "passwordProtected": {
     "message": "Chráněno heslem"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
   },
   "confirmVaultImport": {
@@ -2682,7 +2768,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Vymazat historii generátoru"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Pokud budete pokračovat, všechny položky budou trvale smazány z historie generátoru. Jste si jisti, že chcete pokračovat?"
   },
   "noPasswordsInList": {
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
   },
   "contact": {
     "message": "Kontakt"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "V trezoru nebyly nalezeny žádné weby s chybějící konfigurací dvoufaktorového přihlášení."
   },
+  "passkeyLoginReport": {
+    "message": "Přihlášení přístupovým klíčem"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Přístupové klíče představují bezpečnou alternativu k heslům, která je odolná proti phishingu. Podívejte se, které z Vašich účtů je podporují."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Přístupové klíče představují bezpečnou alternativu k heslům, která je odolná proti phishingu. Podívejte se, které účty ve Vašem trezoru podporují přístupové klíče, a užijte si jednodušší přihlašování bez hesla. Další informace"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "o tom, jak fungují přístupová hesla"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "a "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "jak je používat v Bitwardeu."
+  },
+  "passkeyLoginFound": {
+    "message": "Přihlašovací účty, které podporují přístupové klíče"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Ve Vašem úložišti jsme našli $COUNT$ přihlašovacích údajů, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Ve Vašich úložištích jsme našli $COUNT$ přihlašovacích údajů, které podporují přístupové klíče. Chcete-li tyto účty ještě více zabezpečit, zvažte nastavení těchto klíčů, pokud to možné. Zdroj: passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Ve Vašem trezoru nebyly nalezeny žádné účty, které by podporovaly přístupové klíče, aniž by byl některý z nich nastaven."
+  },
   "instructions": {
     "message": "Instrukce"
+  },
+  "passwordlessLogin": {
+    "message": "Přihlášení bez hesla"
+  },
+  "multifactorAuthentication": {
+    "message": "Vícefaktorové ověření"
   },
   "exposedPasswordsReport": {
     "message": "Odhalená hesla"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Zrušit předplatné"
+  },
+  "completeCancellation": {
+    "message": "Dokončit zrušení"
+  },
+  "helpUsImprove": {
+    "message": "Pomozte nám se zlepšit. Proč rušíte?"
+  },
+  "additionalDetails": {
+    "message": "Další podrobnosti"
   },
   "subscriptionExpiration": {
     "message": "Předplatné vypršelo"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$.",
+  "accessedTextSendV3": {
+    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$.",
+  "accessedFileSendV3": {
+    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "Vyžaduje schválení"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Pokoušíte se přihlásit?"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "Vypršela platnost"
   },
+  "expiringSoon": {
+    "message": "Brzy vyprší",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Aktivní",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Prohledat Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "E-mailová adresa $ID$ byla aktualizována.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "Uživatel $ID$ se poprvé přihlásil pomocí SSO",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Rozšiřte zabezpečení a pohodlí SSO i na nespravované aplikace. Když uživatelé spustí aplikaci od Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se vytvoří bezpečný tok od poskytovatele identit k aplikaci jedním klepnutím."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Když uživatelé spustí aplikaci z Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se zajistí bezpečné přihlášení jedním klepnutím."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hostitel poskytovatele identity"
   },
@@ -8680,7 +8861,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Žádné sponzorované rodiny"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9603,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Neplatný token API $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9613,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9627,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9637,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Je vyžadováno předplatné Premium"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "Odebrat člena"
   },
+  "revokeMember": {
+    "message": "Odvolat člena"
+  },
+  "restoreMember": {
+    "message": "Obnovit člena"
+  },
+  "deleteMember": {
+    "message": "Smazat člena"
+  },
   "collection": {
     "message": "Sbírka"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "Role člena"
+  },
+  "moreActions": {
+    "message": "Více akcí"
+  },
+  "emailUpdateOnSave": {
+    "message": "E-mail bude aktualizován při uložení"
+  },
+  "createdDate": {
+    "message": "Datum vytvoření"
   },
   "moreSettings": {
     "message": "Další nastavení"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "Přiřadit přístup ke sbírce"
   },
-  "collectionsEdited": {
-    "message": "Sbírky byly upraveny"
-  },
   "editedCollections": {
     "message": "Upravené sbírky"
+  },
+  "editedCollection": {
+    "message": "Upravená sbírka"
   },
   "collectionEdited": {
     "message": "Sbírka byla upravena"
   },
-  "editedCollection": {
-    "message": "Upravená sbírka"
+  "collectionsEdited": {
+    "message": "Sbírky byly upraveny"
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -11853,7 +12052,7 @@
     "message": "Chybějící funkce nebo funkčnost",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
+  "cancelSurveyMissingFeaturesHintV2": {
     "message": "Něco, co jsme potřebovali, nebylo k dispozici",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11861,15 +12060,15 @@
     "message": "Příliš obtížné vytvořit nebo spravovat",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
+  "cancelSurveyTooComplexHintV2": {
     "message": "Onboarding, správa nebo každodenní používání bylo příliš složité",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Poměr cena/výkon není dostatečný",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cena byla příliš vysoká",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
+  "cancelSurveyNotEnoughValueHintV2": {
     "message": "Cena neodpovídá tomu, co za ni dostaneme",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11877,7 +12076,7 @@
     "message": "V našem týmu nevyužijeme",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
+  "cancelSurveyNotEnoughUsageHintV2": {
     "message": "Nemohli jsme přesvědčit lidi, aby jej skutečně používali",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11885,9 +12084,21 @@
     "message": "Naše potřeby se změnily",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
+  "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Špatný zákaznický servis",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "Od technické podpory ani od zákaznického servisu jsme nedostali potřebnou pomoc",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Popište svůj důvod pro zrušení",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
@@ -13151,8 +13362,8 @@
   "linkedHelpText": {
     "message": "Použijte propojené pole, pokud máte problémy s automatickým vyplňováním na konkrétní webové stránce."
   },
-  "linkedLabelHelpText": {
-    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak pole."
+  "linkedFieldLabelHelpText": {
+    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak."
   },
   "uppercaseDescription": {
     "message": "Zahrnout velká písmena",
@@ -14102,7 +14313,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Předplatné $PLAN$",
     "placeholders": {
       "plan": {

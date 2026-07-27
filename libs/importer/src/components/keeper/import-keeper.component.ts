@@ -34,8 +34,8 @@ import {
 } from "@bitwarden/components";
 
 import { KeeperAuthError, KeeperAuthErrorCode, KeeperRegion } from "../../importers/keeper/access";
-import { ImportRecordError } from "../../importers/keeper/keeper-import-error";
 import { ImportResult } from "../../models";
+import { ImportRecordError } from "../../models/import-record-error";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
 import { keeperImportGate, shouldSubmitAfterDialog } from "./keeper-import-gate";
