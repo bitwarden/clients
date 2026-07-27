@@ -279,9 +279,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         // Force change detection to update the access selector's items
         this.changeDetectorRef.detectChanges();
 
-        this.nestOptions = this.params.limitNestedCollections
+        const availableParentCollections = this.params.limitNestedCollections
           ? allCollections.filter((c) => c.manage)
-          : allCollections;
+          : allCollections.slice();
+        this.nestOptions = availableParentCollections.sort(
+          Utils.getSortFunction(this.i18nService, "name"),
+        );
 
         if (this.collection) {
           // Ensure we don't allow nesting the current collection within itself
