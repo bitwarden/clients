@@ -59,6 +59,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import {
@@ -110,6 +111,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     TabsModule,
     AccessSelectorModule,
     NestedCheckboxComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class EditMemberDialogComponent {
@@ -131,6 +133,7 @@ export class EditMemberDialogComponent {
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
   private readonly logService = inject(LogService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -611,7 +614,9 @@ export class EditMemberDialogComponent {
         placeholders: [this.params.name],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.params.name],
       },
       type: "warning",

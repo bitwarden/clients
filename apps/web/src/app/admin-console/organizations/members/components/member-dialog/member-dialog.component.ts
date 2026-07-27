@@ -44,6 +44,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   GroupApiService,
@@ -210,6 +211,7 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -722,7 +724,9 @@ export class MemberDialogComponent implements OnDestroy {
         placeholders: [this.params.name],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.params.name],
       },
       type: "warning",

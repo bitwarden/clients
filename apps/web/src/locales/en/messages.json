@@ -1311,6 +1311,56 @@
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
+  },
   "attachments": {
     "message": "Attachments"
   },
