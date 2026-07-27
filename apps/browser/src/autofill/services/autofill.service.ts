@@ -137,7 +137,7 @@ export default class AutofillService implements AutofillServiceInterface {
           (message) =>
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
             message.tab?.id === tab.id &&
-            (frameId === undefined || message.webExtSender?.frameId === frameId),
+            (frameId === undefined || getWebExtSender(message)?.frameId === frameId),
         ),
         scan((acc: PageDetail[], message): PageDetail[] => {
           const frameId = getWebExtSender(message)?.frameId;
