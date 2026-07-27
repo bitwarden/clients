@@ -94,12 +94,13 @@ export class InternalGroupApiService extends GroupApiService {
   }
 
   async save(group: AddEditGroupDetail): Promise<GroupView> {
-    const request = new GroupRequest();
-    request.name = group.name;
-    request.users = group.members;
-    request.collections = group.collections.map(
-      (c) => new SelectionReadOnlyRequest(c.id, c.readOnly, c.hidePasswords, c.manage),
-    );
+    const request = new GroupRequest({
+      name: group.name,
+      users: group.members,
+      collections: group.collections.map(
+        (c) => new SelectionReadOnlyRequest(c.id, c.readOnly, c.hidePasswords, c.manage),
+      ),
+    });
 
     if (group.id == undefined) {
       return await this.postGroup(group.organizationId, request);

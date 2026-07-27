@@ -180,10 +180,13 @@ const sharedDecorators = [
         provide: DeleteManagedMemberWarningService,
         useValue: mockDeleteManagedMemberWarningService,
       },
-      { provide: BillingConstraintService, useValue: mockBillingConstraintService },
       {
         provide: OrganizationMetadataServiceAbstraction,
         useValue: mockOrganizationMetadataService,
+      },
+      {
+        provide: BillingConstraintService,
+        useValue: mockBillingConstraintService,
       },
       { provide: ValidationService, useValue: mockValidationService },
       { provide: LogService, useValue: mockLogService },

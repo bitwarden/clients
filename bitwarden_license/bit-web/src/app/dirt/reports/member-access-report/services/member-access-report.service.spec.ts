@@ -114,14 +114,13 @@ describe("MemberAccessReportService", () => {
     collectionIds,
   });
 
-  const createMockGroup = (id: string, name: string): GroupView => {
-    const group = new GroupView();
-    group.id = id;
-    group.organizationId = mockOrganizationId;
-    group.name = name;
-    group.externalId = "";
-    return group;
-  };
+  const createMockGroup = (id: string, name: string): GroupView =>
+    new GroupView({
+      id,
+      organizationId: mockOrganizationId,
+      name,
+      externalId: "",
+    });
 
   // Scenario helpers to reduce test duplication
   const setupSingleUserWithDirectAccess = (
