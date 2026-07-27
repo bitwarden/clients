@@ -424,6 +424,7 @@ export class NativeMessagingMain {
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
       Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+      Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
   }
 

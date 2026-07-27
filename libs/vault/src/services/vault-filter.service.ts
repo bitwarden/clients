@@ -53,6 +53,8 @@ import {
   OrganizationFilter,
 } from "..";
 
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
+
 const NestingDelimiter = "/";
 
 @Injectable()
@@ -211,6 +213,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected collectionService: CollectionService,
     protected accountService: AccountService,
     protected configService: ConfigService,
+    protected vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -340,8 +343,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = cloneCollection(
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
-        collectionCopy.icon =
-          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared";
+        collectionCopy.icon = this.vfo1TerminologyService.iconClass(
+          c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+        );
         const parts = c.name ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
         ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
       }

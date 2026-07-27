@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { parse } from "tldts";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
 
@@ -64,7 +66,7 @@ export class IntegrationContext<Settings extends object> {
     // normalize `token` then assert it has a value
     let token = "token" in this.settings ? ((this.settings.token as string) ?? "") : "";
     if (token === "") {
-      const error = this.i18n.t("forwaderInvalidToken", this.metadata.name);
+      const error = this.i18n.t("forwarderInvalidToken", this.metadata.name);
       throw error;
     }
 
@@ -81,16 +83,19 @@ export class IntegrationContext<Settings extends object> {
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, tries to extract the hostname from the website URL, returns full URL otherwise
+   *  @param options.extractOrigin when `true`, tries to extract the origin (scheme + host) from the website URL, returns full URL otherwise
    *  @param options.maxLength limits the length of the return value
    *  @returns The website or an empty string if a website isn't available
    *  @remarks `website` is usually supplied when generating a credential from the vault
    */
   website(
     request: IntegrationRequest,
-    options?: { extractHostname?: boolean; maxLength?: number },
+    options?: { extractHostname?: boolean; extractOrigin?: boolean; maxLength?: number },
   ) {
     let url = request.website ?? "";
-    if (options?.extractHostname) {
+    if (options?.extractOrigin) {
+      url = Utils.getUrl(url)?.origin ?? url;
+    } else if (options?.extractHostname) {
       url = Utils.getHost(url) ?? url;
     }
     return url.slice(0, options?.maxLength);
@@ -114,5 +119,40 @@ export class IntegrationContext<Settings extends object> {
     const description = this.i18n.t(descriptionId, website);
 
     return description.slice(0, options?.maxLength);
+  }
+
+  /** transform a domain into a valid prefix
+   * for example, "example.com" becomes "example", "foo.example.com" becomes "foo_example"
+   * @param request supplies information about the state of the extension site
+   * @returns prefix derived from the website URL or an empty string if a website isn't available
+   */
+  prefix(request: IntegrationRequest) {
+    const rawWebsite = this.website(request);
+    const hostname = Utils.getHostname(rawWebsite) ?? "";
+    if (hostname === "") {
+      return "";
+    }
+
+    const parsed = parse(hostname, { allowPrivateDomains: true });
+
+    if (parsed.domainWithoutSuffix != null) {
+      // Use tldts-parsed parts so ccSLDs (e.g. .co.uk, .com.au) are handled correctly.
+      // subdomain may itself contain dots (foo.bar), so we split on "." before joining with "_".
+      return [parsed.subdomain, parsed.domainWithoutSuffix]
+        .filter(Boolean)
+        .join(".")
+        .split(".")
+        .join("_");
+    }
+
+    // Fallback for IPs and localhost where tldts has no public suffix data.
+    const parts = hostname.split(".");
+    if (parts.length <= 1) {
+      return Utils.getUrl(rawWebsite) != null ? hostname : "";
+    }
+
+    // Preserve existing behavior: strip last label and join with "_"
+    // (e.g. 127.0.0.1 → "127_0_0")
+    return parts.slice(0, parts.length - 1).join("_");
   }
 }

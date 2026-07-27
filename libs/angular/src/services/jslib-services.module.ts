@@ -75,7 +75,7 @@ import {
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -114,8 +114,10 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  DefaultOrganizationInviteService,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -165,12 +167,14 @@ import {
 } from "@bitwarden/common/billing/abstractions";
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { DefaultPremiumCheckoutPendingService } from "@bitwarden/common/billing/services/account/default-premium-checkout-pending.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { DefaultOrganizationMetadataService } from "@bitwarden/common/billing/services/organization/organization-metadata.service";
@@ -182,7 +186,10 @@ import {
   EventCollectionService as EventCollectionServiceAbstraction,
 } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
+import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
+import { DefaultPasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/default-passkey-directory-api.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -554,6 +561,16 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: PasskeyDirectoryApiService,
+    useClass: DefaultPasskeyDirectoryApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: EventLogApiService,
+    useClass: EventLogApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: AuthServiceAbstraction,
     useClass: AuthService,
     deps: [
@@ -832,7 +849,6 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       SUPPORTS_SECURE_STORAGE,
       SECURE_STORAGE,
-      KeyGenerationService,
       EncryptService,
       LogService,
       LOGOUT_CALLBACK,
@@ -1004,6 +1020,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountCryptographicStateService,
       V2UpgradeTokenStateService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1255,7 +1272,7 @@ const safeProviders: SafeProvider[] = [
         organizationService,
         accountService,
         newPolicyService,
-        () => injector.get(ConfigService),
+        () => injector.get(SdkService),
       ),
     deps: [
       StateProvider,
@@ -1271,17 +1288,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalNewPolicyService,
-    useFactory: (
-      stateProvider: StateProvider,
-      organizationService: OrganizationServiceAbstraction,
-      injector: Injector,
-    ) =>
-      new DefaultNewPolicyService(
-        stateProvider,
-        () => injector.get(SdkService),
-        organizationService,
-      ),
-    deps: [StateProvider, OrganizationServiceAbstraction, Injector],
+    useClass: DefaultNewPolicyService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PolicyApiServiceAbstraction,
@@ -1694,6 +1702,11 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: PremiumCheckoutPendingService,
+    useClass: DefaultPremiumCheckoutPendingService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: SubscriptionPricingServiceAbstraction,
     useClass: DefaultSubscriptionPricingService,
     deps: [
@@ -2001,7 +2014,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService],
+    deps: [PasswordPreloginApiService, SdkService, EnvironmentService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

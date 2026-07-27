@@ -1,4 +1,5 @@
 import { importProvidersFrom, Type } from "@angular/core";
+import { Router } from "@angular/router";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -7,8 +8,10 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -135,6 +138,26 @@ function buildPolicyDialogMeta(
             // directly, but providing it unconditionally is harmless for the drawer component.
             provide: ConfigService,
             useValue: { getFeatureFlag$: () => of(isDrawer) },
+          },
+          {
+            // Only AutoConfirmPolicy's component injects these, but providing them
+            // unconditionally is harmless for every other policy. Without these, Angular throws
+            // a NullInjectorError while creating the policy form component, which is swallowed by
+            // the dialog's async ngAfterViewInit and leaves the step body empty with no visible
+            // error in the story.
+            provide: PolicyService,
+            useValue: { policies$: () => of([]) },
+          },
+          {
+            provide: AutomaticUserConfirmationService,
+            useValue: {
+              configuration$: () => of(new AutoConfirmState()),
+              upsert: () => Promise.resolve(),
+            },
+          },
+          {
+            provide: Router,
+            useValue: { navigate: () => Promise.resolve(true) },
           },
         ],
       }),

@@ -28,11 +28,13 @@ export function CipherInfo({ cipher, theme }: CipherInfoProps) {
         ]}
       </span>
 
-      ${login?.username
-        ? html`<span title=${login.username} class=${cipherInfoSecondaryTextStyles(theme)}
-            >${login.username}</span
-          >`
-        : null}
+      ${
+        login?.username
+          ? html`<span title=${login.username} class=${cipherInfoSecondaryTextStyles(theme)}
+              >${login.username}</span
+            >`
+          : null
+      }
     </div>
   `;
 }
