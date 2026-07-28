@@ -224,6 +224,17 @@ const routes: Routes = [
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
+        // Registration-crossing entry: post-registration deep-link replay lands here with
+        // the sealed open-invite blob on the query. The component unseals it to recover
+        // the invite context. `pathMatch: "full"` keeps this from shadowing the sibling
+        // path-param route above.
+        path: "join",
+        pathMatch: "full",
+        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink)],
+        component: AcceptOrgOpenInviteComponent,
+        data: { titleId: "joinOrganization" } satisfies RouteDataProperties,
+      },
+      {
         path: AuthRoute.Login,
         canActivate: [unauthGuardFn()],
         data: {

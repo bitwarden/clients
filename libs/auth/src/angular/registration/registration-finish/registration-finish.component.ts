@@ -9,6 +9,7 @@ import { PremiumInterestStateService } from "@bitwarden/angular/billing/services
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
 import { RegisterVerificationEmailClickedRequest } from "@bitwarden/common/auth/models/request/registration/register-verification-email-clicked.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -78,6 +79,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   providerInviteToken: string;
   providerUserId: string;
 
+  // Sealed open-org-invite blob carried on the verification-email URL fragment when the
+  // registrant reached this flow from an open-invite link. Not consumed here — persisted to
+  // the deep-link state before login so the guard replays `/join?sealedOpenOrgInviteData=<blob>`
+  // after auth completes; the accept component owns unseal + error UX.
+  sealedOpenOrgInviteData: string | null = null;
+
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
   constructor(
@@ -93,6 +100,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private premiumInterestStateService: PremiumInterestStateService,
+    private deepLinkRedirectService: DeepLinkRedirectService,
   ) {}
 
   async ngOnInit() {
@@ -143,6 +151,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     if (qParams.fromMarketing != null && qParams.fromMarketing === MarketingInitiative.Premium) {
       this.premiumInterest = true;
+    }
+
+    if (qParams.sealedOpenOrgInviteData != null && qParams.sealedOpenOrgInviteData !== "") {
+      this.sealedOpenOrgInviteData = qParams.sealedOpenOrgInviteData;
     }
   }
 
@@ -201,8 +213,20 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     try {
       const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
 
+      // Persist before login so the deep-link guard on `/vault` replays this once auth
+      // completes — pipes the redirect through 2FA, set-initial-password, and any other
+      // intermediate auth stops without threading state through each.
+      if (this.sealedOpenOrgInviteData != null) {
+        await this.deepLinkRedirectService.persistPostLoginRedirectUrl(
+          `/join?sealedOpenOrgInviteData=${encodeURIComponent(this.sealedOpenOrgInviteData)}`,
+        );
+      }
+
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 
+      // 2FA is reachable on a freshly-created account when the joining org enables email 2FA
+      // at account creation via policy (direct-invite path). The deep-link persistence above
+      // handles the open-invite path: `/2fa` completes to `/vault`, firing the guard replay.
       if (authenticationResult?.requiresTwoFactor) {
         await this.router.navigate(["/2fa"]);
         return;

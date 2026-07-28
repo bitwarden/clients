@@ -115,6 +115,10 @@ import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstr
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import {
+  DeepLinkRedirectService,
+  NoopDeepLinkRedirectService,
+} from "@bitwarden/common/auth/deep-link-redirect";
+import {
   DefaultOrganizationInviteService,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
@@ -1822,6 +1826,11 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       SdkService,
     ],
+  }),
+  safeProvider({
+    provide: DeepLinkRedirectService,
+    useClass: NoopDeepLinkRedirectService,
+    deps: [],
   }),
   safeProvider({
     provide: TwoFactorAuthComponentService,
