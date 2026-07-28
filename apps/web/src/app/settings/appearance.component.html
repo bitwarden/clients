@@ -43,5 +43,12 @@
         <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
       </div>
     </div>
+
+    @if (showQuickCopyActionsSetting()) {
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="showQuickCopyActions" />
+        <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
+      </bit-form-control>
+    }
   </form>
 </bit-container>
