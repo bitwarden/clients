@@ -163,6 +163,7 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Edit",
             name: "Test User",
+            email: "test@example.com",
             organizationId: mockOrganization.id,
             organizationUserId: mockUser.id,
             usesKeyConnector: false,
@@ -535,6 +536,21 @@ describe("MemberDialogManagerService", () => {
       });
       expect(result).toBe(true);
     });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRemoveUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      expect(result).toBe(true);
+    });
   });
 
   describe("openRevokeUserConfirmationDialog", () => {
@@ -575,6 +591,22 @@ describe("MemberDialogManagerService", () => {
       const result = await service.openRevokeUserConfirmationDialog(noMpUser);
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(2);
+      expect(result).toBe(true);
+    });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      i18nService.t.mockReturnValue("Revoke user confirmation");
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRevokeUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
       expect(result).toBe(true);
     });
   });

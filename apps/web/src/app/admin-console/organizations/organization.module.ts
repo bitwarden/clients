@@ -2,6 +2,7 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
 import { ScrollLayoutDirective, IconModule } from "@bitwarden/components";
+import { Vfo1IconPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -22,6 +23,7 @@ import { AccessSelectorModule } from "./shared/components/access-selector";
     ScrollingModule,
     ScrollLayoutDirective,
     IconModule,
+    Vfo1IconPipe,
   ],
   declarations: [GroupsComponent, GroupAddEditComponent],
 })

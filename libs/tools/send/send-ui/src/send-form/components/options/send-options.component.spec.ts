@@ -80,7 +80,9 @@ describe("SendOptionsComponent", () => {
         notes: "My private note",
       } as SendView);
       cycleChangeDetection();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       expect(maxAccessCountEl.attributes.readonly).toEqual("");
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
@@ -124,7 +126,9 @@ describe("SendOptionsComponent", () => {
         sendType: SendType.Text,
       });
       fixture.detectChanges();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
       expect(hideEmailEl).toBeTruthy();

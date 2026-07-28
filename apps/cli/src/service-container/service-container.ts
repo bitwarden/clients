@@ -28,7 +28,7 @@ import {
   LockService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
@@ -75,7 +75,9 @@ import {
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { DefaultPremiumCheckoutPendingService } from "@bitwarden/common/billing/services/account/default-premium-checkout-pending.service";
 import {
   EventUploadService as EventUploadServiceAbstraction,
   EventCollectionService as EventCollectionServiceAbstraction,
@@ -350,6 +352,7 @@ export class ServiceContainer {
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
   billingAccountProfileStateService: BillingAccountProfileStateService;
+  premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
@@ -495,7 +498,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -560,17 +562,13 @@ export class ServiceContainer {
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      () => this.sdkService,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
       this.newPolicyService,
-      () => this.configService,
+      () => this.sdkService,
     );
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
@@ -808,6 +806,9 @@ export class ServiceContainer {
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
     );
+    this.premiumCheckoutPendingService = new DefaultPremiumCheckoutPendingService(
+      this.stateProvider,
+    );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
 
@@ -1028,6 +1029,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);

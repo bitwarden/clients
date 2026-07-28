@@ -987,7 +987,7 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "Kijelentkezett fiókjából."
+    "message": "Megtörtént a kijelentkezés a fiókból."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
@@ -1023,10 +1023,10 @@
     "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
+    "message": "Kezdjük újra a regisztrációt vagy próbáljunk meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehetséges, hogy már rendelkezik fiókkal"
+    "message": "Lehetséges, hogy már rendelkezünk fiókkal."
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1087,6 +1087,10 @@
   },
   "passwordCopied": {
     "message": "Jelszó másolva"
+  },
+  "passwordAnnounceSpace": {
+    "message": "szóköz",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1324,7 +1328,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
+    "message": "Nem lehetett ezt elmenteni. Próbáljuk meg beírni manuálisan.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1451,8 +1455,8 @@
   "accountRestricted": {
     "message": "Korlátozott fiók"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
+  "filePasswordConfirmationMismatch": {
+    "message": "A “Fájl jelszó” és a “Fájl jelszó megerősítés“ nem egyezik."
   },
   "warning": {
     "message": "FIGYELEM",
@@ -1465,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Széf exportálás megerősítése"
   },
-  "exportWarningDesc": {
-    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat. Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és tovább küldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
+  "exportUnencryptedWarningDesc": {
+    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat. Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és továbbküldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
   },
   "encExportKeyWarningDesc": {
     "message": "Ez az exportálás titkosítja az adatokat a fiók titkosítási kulcsával. Ha valaha a diók forgatási kulcsa más lesz, akkor újra exportálni kell, mert nem lehet visszafejteni ezt az exportálási fájlt."
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Megosztott"
+  },
+  "sharedFolder": {
+    "message": "Megosztott mappa"
+  },
+  "sharedFolders": {
+    "message": "Megosztott mappák"
+  },
+  "myFolder": {
+    "message": "Saját mappa"
+  },
+  "myFolders": {
+    "message": "Saját mappák"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
@@ -1610,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "Regisztráció a prémium tagságra az alábbi funkciókért:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
   "premiumSignUpStorageV2": {
@@ -1637,17 +1653,17 @@
   "restartPremium": {
     "message": "Prémium előfizetés újraindítása"
   },
-  "ppremiumSignUpReports": {
-    "message": "Jelszó higiénia, fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
+  "premiumSignUpReports": {
+    "message": "Jelszó higiénia, felhasználói fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
   },
-  "ppremiumSignUpTotp": {
-    "message": "TOTP ellenőrző kód (2FA) generátor a széfedben lévő bejelentkezésekhez."
+  "premiumSignUpTotp": {
+    "message": "TOTP ellenőrző kód (2FA) generátor a széfbe bejelentkezésekhez."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Kiemelt ügyfélszolgálati."
+  "premiumSignUpSupport": {
+    "message": "Elsőbbségi ügyfél támogatás."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több."
+  "premiumSignUpFuture": {
+    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több!"
   },
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
@@ -2532,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Beenerátor előzmények kiürítése"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ha folytatjuk, az összes bejegyzés véglegesen törlődik a generátor előzményeiből. Biztosan folytatjuk?"
   },
   "back": {
@@ -3057,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Az asztali alkalmazás egy másik fiókba van bejelentkezve. Ellenőrizzük, hogy mindkét alkalmazást azonos fiókba van bejelentkezve."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "A fiók nem egyezik."
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "A biometrikus kulcs nem egyezik."
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3096,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "A biometrikus adatokat nem lehet kitölteni, fontoljuk meg a mesterjelszó használatát vagy a kijelentkezést. Ha ez továbbra is fennáll, forduljunk a Bitwarden ügyfélszolgálatához."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "A jogosultság nincs megadva."
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "A Bitwarden Desktop Application alkalmazással kommunikáció engedély nélkül nem lehet biometrikus adatokat biztosítani a böngésző bővítményben. Próbáluk újra."
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "A Bitwarden Desktop Application alkalmazással kommunikáció engedély nélkül nem lehet biometrikus adatokat biztosítani a böngésző bővítményben. Próbáljuk újra."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Jogosultság kérési hiba történt."
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Ez a művelet nem hajtható végre az oldalsávon. Próbáljuk meg újra a műveletet a felbukkanó vagy a kiugró ablakban."
   },
   "personalOwnershipSubmitError": {
@@ -3914,7 +3930,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen.",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3924,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3938,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot szolgáltatóval segítségért.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot a szolgáltatóval segítségért.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3948,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ elutasította a kérést: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4025,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Kulcs csatlakozó hiba: ellenőrizzük, hogy a kulcs csatlakozó rendelkezésre áll-e és megfelelően működik-e."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Prémium előfizetés szükséges"
   },
   "organizationIsDisabled": {
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Fájl jelszó megerősítés"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass mesterjelszó"
+  },
+  "addKeyFile": {
+    "message": "Kulcs fájl hozzáadása"
+  },
+  "keyFileUpload": {
+    "message": "Kulcs fájl feltöltés"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX fájl feltöltés"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Elfogadott formátumok: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ez a fájl nem érvényes KeePass adatbázis (.kdbx). Válasszunk egy .kdbx fájlt, és próbáljuk újra."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ez a KeePass adatbázis túl nagy az importáláshoz."
   },
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
@@ -6014,7 +6054,7 @@
   "linkedHelpText": {
     "message": "Csatolt mező használata, ha egy adott webhely automatikus kitöltésével kapcsolatos problémákat tapasztalunk."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Adjuk meg a mező html azonosítóját, nevét, aria címkéjét vagy helyőrét."
   },
   "editField": {
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Feloldás biometrikusan"
   },
   "authenticating": {
     "message": "Hitelesítés"

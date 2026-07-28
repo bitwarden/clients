@@ -3103,6 +3103,23 @@ describe("CollectAutofillContentService", () => {
         );
       });
 
+      it("retains a shadow host adopted from an iframe realm (PM-39772)", () => {
+        const iframe = document.createElement("iframe");
+        document.body.appendChild(iframe);
+        // Cross-realm host: constructor comes from the iframe's realm, so
+        // top-frame `host instanceof Element` returns false.
+        const host = iframe.contentDocument!.createElement("foreign-host");
+        host.attachShadow({ mode: "open" });
+
+        // Precondition: confirm the cross-realm condition — if this fails,
+        // jsdom didn't give us a foreign realm and the regression can't fire.
+        expect(host instanceof Element).toBe(false);
+
+        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
+
+        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
+      });
+
       it("retains plain elements that have descendants", () => {
         const parent = document.createElement("section");
         parent.appendChild(document.createElement("span"));
