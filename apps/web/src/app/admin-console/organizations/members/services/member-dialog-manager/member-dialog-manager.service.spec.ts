@@ -163,6 +163,7 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Edit",
             name: "Test User",
+            profileName: "Test User",
             email: "test@example.com",
             organizationId: mockOrganization.id,
             organizationUserId: mockUser.id,
