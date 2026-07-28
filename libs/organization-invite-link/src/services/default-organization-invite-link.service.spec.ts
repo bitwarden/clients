@@ -192,7 +192,17 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual({ [mockOrgId]: OrganizationInviteLink.fromSdk(sdkInviteLink) });
+      expect(stored).toEqual({
+        [mockOrgId]: expect.objectContaining({
+          id: "link-id",
+          code: "code1",
+          organizationId: mockOrgId,
+          allowedDomains: ["bitwarden.com"],
+          invite: "sealed-envelope-base64",
+          supportsConfirmation: true,
+          creationDate: "2024-01-01T00:00:00Z",
+        }),
+      });
     });
 
     it("throws when no domains are provided", async () => {
@@ -248,7 +258,17 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual({ [mockOrgId]: OrganizationInviteLink.fromSdk(sdkInviteLink) });
+      expect(stored).toEqual({
+        [mockOrgId]: expect.objectContaining({
+          id: "link-id",
+          code: "refreshed",
+          organizationId: mockOrgId,
+          allowedDomains: ["example.com"],
+          invite: "sealed-envelope-base64",
+          supportsConfirmation: false,
+          creationDate: "2024-01-01T00:00:00Z",
+        }),
+      });
     });
 
     it("passes supportsConfirmation to the SDK when provided", async () => {
