@@ -20,7 +20,9 @@ import { PolicyType } from "../../../../admin-console/enums";
 import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
+import { FeatureFlag } from "../../../../enums/feature-flag.enum";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
 import { Utils } from "../../../../platform/misc/utils";
@@ -52,6 +54,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly organizationUserApiService: OrganizationUserApiService,
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
+    private readonly configService: ConfigService,
   ) {
     this.organizationInviteState = this.globalStateProvider.get(ORGANIZATION_INVITE);
   }
@@ -161,8 +164,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   ): Promise<OrganizationUserAcceptInitRequest> {
     const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey,
     );
 
