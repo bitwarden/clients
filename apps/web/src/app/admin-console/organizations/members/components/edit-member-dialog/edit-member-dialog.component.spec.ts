@@ -418,9 +418,9 @@ describe("EditMemberDialogComponent", () => {
         expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
       });
 
-      it("patches name from params on load", async () => {
+      it("patches name from profileName param on load", async () => {
         const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details, name: "Test User" }),
+          defaultParams({ initialTab: MemberDialogTab.Details, profileName: "Test User" }),
           { detailsTabEnabled: true },
         );
 

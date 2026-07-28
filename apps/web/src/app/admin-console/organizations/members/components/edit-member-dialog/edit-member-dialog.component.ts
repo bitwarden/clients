@@ -407,7 +407,7 @@ export class EditMemberDialogComponent {
 
     this.formGroup.patchValue({
       type: userDetails.type,
-      name: this.params.name,
+      name: this.params.profileName ?? "",
       email: this.params.email ?? "",
       externalId: userDetails.externalId,
       ssoExternalId: userDetails.ssoExternalId,
