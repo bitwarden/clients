@@ -11838,17 +11838,32 @@
   "collectionManagement": {
     "message": "Collection management"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folder management"
+  },
   "collectionManagementDescription": {
     "message": "Configure the collection behavior for the organization"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure the shared folder behavior for the organization"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Restrict collection creation to owners and admins"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Restrict collection deletion to owners and admins"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Restrict item deletion to members with the ",
@@ -11860,6 +11875,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Updated collection management setting"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
