@@ -127,16 +127,21 @@ type Story = StoryObj<GroupsComponent>;
 
 function makeRender(groups: GroupDetailsView[], vfo1Enabled = false): Story["render"] {
   return () => ({
+    // Vfo1TerminologyService is `providedIn: "root"`, so its ConfigService dependency must be
+    // overridden at the application root (applicationConfig) rather than in the story's
+    // moduleMetadata child injector, which Vfo1TerminologyService can't see.
+    // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx) for
+    // their ConfigService. Only force it here to guarantee the "Vfo1Enabled" story always
+    // renders with the flag on, regardless of the toolbar.
+    ...(vfo1Enabled
+      ? {
+          applicationConfig: {
+            providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+          },
+        }
+      : {}),
     moduleMetadata: {
-      providers: [
-        { provide: InternalGroupApiService, useValue: makeGroupService(groups) },
-        // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx)
-        // for their ConfigService. Only force it here to guarantee the "Vfo1Enabled" story
-        // always renders with the flag on, regardless of the toolbar.
-        ...(vfo1Enabled
-          ? [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }]
-          : []),
-      ],
+      providers: [{ provide: InternalGroupApiService, useValue: makeGroupService(groups) }],
     },
     template: `<app-groups></app-groups>`,
   });

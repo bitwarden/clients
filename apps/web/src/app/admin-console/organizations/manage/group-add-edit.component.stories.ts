@@ -19,6 +19,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 import { InternalGroupApiService } from "../core";
@@ -136,7 +137,7 @@ export default {
   decorators: [
     moduleMetadata({
       declarations: [GroupAddEditComponent],
-      imports: [SharedOrganizationModule],
+      imports: [SharedOrganizationModule, Vfo1I18nPipe],
       providers: [
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: DialogService, useValue: mockDialogService },
@@ -164,17 +165,24 @@ function makeRender(
   vfo1Enabled = false,
 ): Story["render"] {
   return () => ({
+    // Vfo1TerminologyService is `providedIn: "root"`, so its ConfigService dependency must be
+    // overridden at the application root (applicationConfig) rather than in the story's
+    // moduleMetadata child injector, which Vfo1TerminologyService can't see.
+    // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx) for
+    // their ConfigService. Only force it here to guarantee the "Vfo1Enabled" story always
+    // renders with the flag on, regardless of the toolbar.
+    ...(vfo1Enabled
+      ? {
+          applicationConfig: {
+            providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+          },
+        }
+      : {}),
     moduleMetadata: {
       providers: [
         { provide: DIALOG_DATA, useValue: params },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: InternalGroupApiService, useValue: makeGroupService(group) },
-        // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx)
-        // for their ConfigService. Only force it here to guarantee the "Vfo1Enabled" story
-        // always renders with the flag on, regardless of the toolbar.
-        ...(vfo1Enabled
-          ? [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }]
-          : []),
       ],
     },
     template: `<app-group-add-edit></app-group-add-edit>`,
