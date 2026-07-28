@@ -11,9 +11,10 @@ import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/bill
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
@@ -25,6 +26,7 @@ import {
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 import { SharedModule } from "../../../shared";
+import { BraintreeService, StripeService } from "../../services";
 import { PlanCardService } from "../../services/plan-card.service";
 import { PricingSummaryService } from "../../services/pricing-summary.service";
 import { PlanCardComponent } from "../plan-card/plan-card.component";
@@ -90,6 +92,22 @@ const mockSubscriberBillingClient: Partial<SubscriberBillingClient> = {
   getBillingAddress: () => Promise.resolve(null),
 };
 const mockPreviewInvoiceClient: Partial<PreviewInvoiceClient> = {};
+const mockLogService: Partial<LogService> = { warning: () => {}, error: () => {} };
+// Mocked to avoid injecting real Stripe/Braintree scripts and DOM elements into the story preview.
+const mockBraintreeService: Partial<BraintreeService> = {
+  loadBraintree: () => {},
+  createDropin: () => {},
+  requestPaymentMethod: () => Promise.resolve("mock-braintree-nonce"),
+  unloadBraintree: () => {},
+};
+const mockStripeService: Partial<StripeService> = {
+  loadStripe: () => {},
+  mountElements: () => {},
+  unloadStripe: () => {},
+  createSetupIntent: () => Promise.resolve("mock-client-secret"),
+  setupCardPaymentMethod: () => Promise.resolve("mock-payment-method"),
+  setupBankAccountPaymentMethod: () => Promise.resolve("mock-payment-method"),
+};
 
 export default {
   title: "Billing/Shared/Trial Payment Dialog",
@@ -102,6 +120,7 @@ export default {
         BannerModule,
         EnterPaymentMethodComponent,
         EnterBillingAddressComponent,
+        Vfo1I18nPipe,
       ],
       providers: [
         { provide: DIALOG_DATA, useValue: mockDialogData },
@@ -119,6 +138,9 @@ export default {
         },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
+        { provide: BraintreeService, useValue: mockBraintreeService },
+        { provide: StripeService, useValue: mockStripeService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }),
     applicationConfig({
