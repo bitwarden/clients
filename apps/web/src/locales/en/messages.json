@@ -11515,25 +11515,29 @@
     "message": "single organization",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescLink1Vfo1": {
+  "memberDecryptionOptionTdeDescVfo1Link1": {
     "message": "single organization vault",
-    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescLink1. Used in the SSO Trusted Devices hint to reflect the renamed policy."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
   },
-  "memberDecryptionOptionTdeDescPart2Vfo1": {
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO required",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
     "message": ",",
-    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart2. Removes the word 'policy' between policy links in the SSO Trusted Devices hint."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
   },
-  "memberDecryptionOptionTdeDescPart3Vfo1": {
+  "memberDecryptionOptionTdeDescVfo1Part3": {
     "message": ", and",
-    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart3. Removes the word 'policy' between policy links in the SSO Trusted Devices hint."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
   },
-  "memberDecryptionOptionTdeDescLink3Vfo1": {
+  "memberDecryptionOptionTdeDescVfo1Link3": {
     "message": "Account recovery administration",
-    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescLink3. Capitalizes the policy name in the SSO Trusted Devices hint."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
   },
-  "memberDecryptionOptionTdeDescPart4Vfo1": {
+  "memberDecryptionOptionTdeDescVfo1Part4": {
     "message": "policies will turn on automatically.",
-    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart4. Used at the end of the SSO Trusted Devices hint."
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
   },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "policy,",
