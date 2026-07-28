@@ -15,7 +15,7 @@ type StoryArgs = {
 };
 
 export default {
-  title: "Web/Organizations/Members/Nested Checkbox",
+  title: "Admin Console/Organizations/Members/Nested Checkbox",
   argTypes: {
     vfo1FoundationEnabled: {
       control: "boolean",

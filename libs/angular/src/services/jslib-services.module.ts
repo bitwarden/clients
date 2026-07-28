@@ -804,7 +804,6 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       I18nServiceAbstraction,
       StateProvider,
-      ConfigService,
       CollectionEncryptionService,
     ],
   }),
