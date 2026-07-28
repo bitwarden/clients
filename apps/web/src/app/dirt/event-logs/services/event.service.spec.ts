@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse, EventType } from "@bitwarden/common/dirt/event-logs";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { EventOptions, EventService } from "./event.service";
@@ -23,8 +24,10 @@ describe("EventService Send events", () => {
     policyService.policies$.mockReturnValue(of([]));
     const accountService = mock<AccountService>();
     (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
-    sut = new EventService(i18n, policyService, accountService);
+    sut = new EventService(i18n, policyService, accountService, configService);
   });
 
   const sendId = "send-1234-5678";
@@ -90,4 +93,111 @@ describe("EventService Send events", () => {
     expect(info.humanReadableMessage).not.toContain("href");
     expect(info.humanReadableMessage).toContain(sendId.substring(0, 8));
   });
+});
+
+describe("EventService collection/shared folder terminology (vfo1-foundation)", () => {
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation((id: string, p1?: string) => `${id}${p1 ?? ""}`);
+
+  function createSut(vfo1Enabled: boolean): EventService {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(vfo1Enabled);
+
+    return new EventService(i18n, policyService, accountService, configService);
+  }
+
+  const cases: [EventType, string, string, Partial<EventResponse>][] = [
+    [
+      EventType.Collection_Created,
+      "createdCollectionId",
+      "createdSharedFolderId",
+      { collectionId: "collection-1", organizationId: "org" },
+    ],
+    [
+      EventType.Collection_Updated,
+      "editedCollectionId",
+      "editedSharedFolderId",
+      { collectionId: "collection-1", organizationId: "org" },
+    ],
+    [
+      EventType.Collection_Deleted,
+      "deletedCollectionId",
+      "deletedSharedFolderId",
+      { collectionId: "collection-1", organizationId: "org" },
+    ],
+    [
+      EventType.Cipher_UpdatedCollections,
+      "editedCollectionsForItem",
+      "editedSharedFoldersForItem",
+      { cipherId: "cipher-1" },
+    ],
+    [
+      EventType.Organization_CollectionManagementUpdated,
+      "modifiedCollectionManagement",
+      "modifiedSharedFolderManagement",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled,
+      "limitCollectionCreationEnabled",
+      "limitSharedFolderCreationEnabled",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled,
+      "limitCollectionCreationDisabled",
+      "limitSharedFolderCreationDisabled",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled,
+      "limitCollectionDeletionEnabled",
+      "limitSharedFolderDeletionEnabled",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled,
+      "limitCollectionDeletionDisabled",
+      "limitSharedFolderDeletionDisabled",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled,
+      "allowAdminAccessToAllCollectionItemsEnabled",
+      "allowAdminAccessToAllSharedFolderItemsEnabled",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled,
+      "allowAdminAccessToAllCollectionItemsDisabled",
+      "allowAdminAccessToAllSharedFolderItemsDisabled",
+      { organizationId: "org" },
+    ],
+  ];
+
+  it.each(cases)(
+    "uses the legacy 'collection' key for %s when vfo1-foundation is off",
+    async (type, legacyKey, _nextKey, evFields) => {
+      const sut = createSut(false);
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse);
+
+      expect(info.humanReadableMessage).toContain(legacyKey);
+    },
+  );
+
+  it.each(cases)(
+    "uses the 'shared folder' key for %s when vfo1-foundation is on",
+    async (type, _legacyKey, nextKey, evFields) => {
+      const sut = createSut(true);
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse);
+
+      expect(info.humanReadableMessage).toContain(nextKey);
+    },
+  );
 });

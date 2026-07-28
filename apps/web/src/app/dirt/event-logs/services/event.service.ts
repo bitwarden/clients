@@ -10,6 +10,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon } from "@bitwarden/components";
 
@@ -24,6 +26,7 @@ export class EventService {
     private i18nService: I18nService,
     policyService: PolicyService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     accountService.activeAccount$
       .pipe(
@@ -66,6 +69,7 @@ export class EventService {
   private async getEventMessage(ev: EventResponse, options: EventOptions) {
     let msg = "";
     let humanReadableMsg = "";
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     switch (ev.type) {
       // User
       case EventType.User_LoggedIn:
@@ -199,13 +203,19 @@ export class EventService {
         msg = this.i18nService.t("autofilledItemId", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t("autofilledItemId", this.getShortId(ev.cipherId));
         break;
-      case EventType.Cipher_UpdatedCollections:
-        msg = this.i18nService.t("editedCollectionsForItem", this.formatCipherId(ev, options));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.Cipher_UpdatedCollections: {
+        const editedCollectionsForItemKey = this.vfo1Key(
+          vfo1Enabled,
           "editedCollectionsForItem",
+          "editedSharedFoldersForItem",
+        );
+        msg = this.i18nService.t(editedCollectionsForItemKey, this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          editedCollectionsForItemKey,
           this.getShortId(ev.cipherId),
         );
         break;
+      }
       case EventType.Cipher_ClientToggledBankAccountNumberVisible:
         msg = this.i18nService.t("viewedBankAccountNumberItemId", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t(
@@ -306,27 +316,45 @@ export class EventService {
         break;
 
       // Collection
-      case EventType.Collection_Created:
-        msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.Collection_Created: {
+        const createdCollectionIdKey = this.vfo1Key(
+          vfo1Enabled,
           "createdCollectionId",
+          "createdSharedFolderId",
+        );
+        msg = this.i18nService.t(createdCollectionIdKey, this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          createdCollectionIdKey,
           this.getShortId(ev.collectionId),
         );
         break;
-      case EventType.Collection_Updated:
-        msg = this.i18nService.t("editedCollectionId", this.formatCollectionId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.Collection_Updated: {
+        const editedCollectionIdKey = this.vfo1Key(
+          vfo1Enabled,
           "editedCollectionId",
-          this.getShortId(ev.collectionId),
+          "editedSharedFolderId",
         );
-        break;
-      case EventType.Collection_Deleted:
-        msg = this.i18nService.t("deletedCollectionId", this.formatCollectionId(ev));
+        msg = this.i18nService.t(editedCollectionIdKey, this.formatCollectionId(ev));
         humanReadableMsg = this.i18nService.t(
-          "deletedCollectionId",
+          editedCollectionIdKey,
           this.getShortId(ev.collectionId),
         );
         break;
+      }
+      case EventType.Collection_Deleted: {
+        const deletedCollectionIdKey = this.vfo1Key(
+          vfo1Enabled,
+          "deletedCollectionId",
+          "deletedSharedFolderId",
+        );
+        msg = this.i18nService.t(deletedCollectionIdKey, this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          deletedCollectionIdKey,
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      }
       // Group
       case EventType.Group_Created:
         msg = this.i18nService.t("createdGroupId", this.formatGroupId(ev));
@@ -552,41 +580,71 @@ export class EventService {
       case EventType.Organization_SponsorshipsSynced:
         msg = humanReadableMsg = this.i18nService.t("sponsorshipsSynced");
         break;
-      case EventType.Organization_CollectionManagementUpdated:
-        msg = this.i18nService.t("modifiedCollectionManagement", this.formatOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.Organization_CollectionManagementUpdated: {
+        const modifiedCollectionManagementKey = this.vfo1Key(
+          vfo1Enabled,
           "modifiedCollectionManagement",
+          "modifiedSharedFolderManagement",
+        );
+        msg = this.i18nService.t(modifiedCollectionManagementKey, this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          modifiedCollectionManagementKey,
           this.getShortId(ev.organizationId),
         );
         break;
-      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
-        msg = this.i18nService.t("limitCollectionCreationEnabled", this.formatOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled: {
+        const limitCollectionCreationEnabledKey = this.vfo1Key(
+          vfo1Enabled,
           "limitCollectionCreationEnabled",
+          "limitSharedFolderCreationEnabled",
+        );
+        msg = this.i18nService.t(limitCollectionCreationEnabledKey, this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          limitCollectionCreationEnabledKey,
           this.getShortId(ev.organizationId),
         );
         break;
-      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
-        msg = this.i18nService.t("limitCollectionCreationDisabled", this.formatOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled: {
+        const limitCollectionCreationDisabledKey = this.vfo1Key(
+          vfo1Enabled,
           "limitCollectionCreationDisabled",
+          "limitSharedFolderCreationDisabled",
+        );
+        msg = this.i18nService.t(limitCollectionCreationDisabledKey, this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          limitCollectionCreationDisabledKey,
           this.getShortId(ev.organizationId),
         );
         break;
-      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
-        msg = this.i18nService.t("limitCollectionDeletionEnabled", this.formatOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled: {
+        const limitCollectionDeletionEnabledKey = this.vfo1Key(
+          vfo1Enabled,
           "limitCollectionDeletionEnabled",
-          this.getShortId(ev.organizationId),
+          "limitSharedFolderDeletionEnabled",
         );
-        break;
-      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
-        msg = this.i18nService.t("limitCollectionDeletionDisabled", this.formatOrganizationId(ev));
+        msg = this.i18nService.t(limitCollectionDeletionEnabledKey, this.formatOrganizationId(ev));
         humanReadableMsg = this.i18nService.t(
-          "limitCollectionDeletionDisabled",
+          limitCollectionDeletionEnabledKey,
           this.getShortId(ev.organizationId),
         );
         break;
+      }
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled: {
+        const limitCollectionDeletionDisabledKey = this.vfo1Key(
+          vfo1Enabled,
+          "limitCollectionDeletionDisabled",
+          "limitSharedFolderDeletionDisabled",
+        );
+        msg = this.i18nService.t(limitCollectionDeletionDisabledKey, this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          limitCollectionDeletionDisabledKey,
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      }
       case EventType.Organization_CollectionManagement_LimitItemDeletionEnabled:
         msg = this.i18nService.t("limitItemDeletionEnabled", this.formatOrganizationId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -601,26 +659,38 @@ export class EventService {
           this.getShortId(ev.organizationId),
         );
         break;
-      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
-        msg = this.i18nService.t(
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled: {
+        const allowAdminAccessToAllCollectionItemsEnabledKey = this.vfo1Key(
+          vfo1Enabled,
           "allowAdminAccessToAllCollectionItemsEnabled",
+          "allowAdminAccessToAllSharedFolderItemsEnabled",
+        );
+        msg = this.i18nService.t(
+          allowAdminAccessToAllCollectionItemsEnabledKey,
           this.formatOrganizationId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "allowAdminAccessToAllCollectionItemsEnabled",
+          allowAdminAccessToAllCollectionItemsEnabledKey,
           this.getShortId(ev.organizationId),
         );
         break;
-      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
-        msg = this.i18nService.t(
+      }
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled: {
+        const allowAdminAccessToAllCollectionItemsDisabledKey = this.vfo1Key(
+          vfo1Enabled,
           "allowAdminAccessToAllCollectionItemsDisabled",
+          "allowAdminAccessToAllSharedFolderItemsDisabled",
+        );
+        msg = this.i18nService.t(
+          allowAdminAccessToAllCollectionItemsDisabledKey,
           this.formatOrganizationId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "allowAdminAccessToAllCollectionItemsDisabled",
+          allowAdminAccessToAllCollectionItemsDisabledKey,
           this.getShortId(ev.organizationId),
         );
         break;
+      }
       case EventType.Organization_ItemOrganization_Accepted:
         msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
         break;
@@ -1252,6 +1322,12 @@ export class EventService {
 
   private getShortId(id: string) {
     return id?.substring(0, 8);
+  }
+
+  // Selects between a legacy ("collection") i18n key and its VFO1 ("shared folder") replacement,
+  // gated by the vfo1-foundation feature flag.
+  private vfo1Key(vfo1Enabled: boolean, legacyKey: string, nextKey: string): string {
+    return vfo1Enabled ? nextKey : legacyKey;
   }
 
   private escapeHtml(unsafe: string): string {
