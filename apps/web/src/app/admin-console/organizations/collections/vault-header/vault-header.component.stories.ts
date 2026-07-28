@@ -75,7 +75,9 @@ function mockTreeNode(
 const mockCollectionAdminService: Partial<CollectionAdminService> = {};
 const mockDialogService: Partial<DialogService> = {};
 const mockRestrictedItemTypesService: Partial<RestrictedItemTypesService> = { restricted$: of([]) };
-const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
+const mockConfigServiceVfo1Enabled = {
+  getFeatureFlag$: () => of(true),
+} as unknown as ConfigService;
 
 const noop = () => of([]);
 const rootProviders = [
@@ -149,7 +151,6 @@ export default {
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({
@@ -218,6 +219,54 @@ export const ProviderUserNotMember: Story = {
     searchText: "find me",
   },
   render,
+};
+
+/**
+ * Org-level view with the VFO1 terminology flag on — header, breadcrumbs, and search
+ * placeholder render "shared folder(s)" instead of "collection(s)".
+ */
+export const OrgRootVfo1Enabled: Story = {
+  render: (args) => ({
+    props: args,
+    moduleMetadata: {
+      providers: [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }],
+    },
+    template: `
+      <app-org-vault-header
+        [filter]="filter"
+        [organization]="organization"
+        [collection]="collection"
+        [loading]="loading"
+        [searchText]="searchText"
+      ></app-org-vault-header>
+    `,
+  }),
+};
+
+/**
+ * Collection selected with the VFO1 terminology flag on — breadcrumbs and the edit menu
+ * render "shared folder" terminology.
+ */
+export const CollectionSelectedVfo1Enabled: Story = {
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
+    collection: mockTreeNode(mockCollection("Engineering")),
+  },
+  render: (args) => ({
+    props: args,
+    moduleMetadata: {
+      providers: [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }],
+    },
+    template: `
+      <app-org-vault-header
+        [filter]="filter"
+        [organization]="organization"
+        [collection]="collection"
+        [loading]="loading"
+        [searchText]="searchText"
+      ></app-org-vault-header>
+    `,
+  }),
 };
 
 /** Collection selected but the current user only has read access — view-only info/access buttons shown. */

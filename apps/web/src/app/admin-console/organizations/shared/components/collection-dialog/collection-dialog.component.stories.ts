@@ -108,8 +108,8 @@ const mockAccountService = {
   activeAccount$: new BehaviorSubject({ id: USER_ID, email: "alice@example.com" }),
 };
 
-const mockConfigService = {
-  getFeatureFlag$: () => of(false),
+const mockConfigServiceVfo1Enabled = {
+  getFeatureFlag$: () => of(true),
 };
 
 const mockGroupApiService = {
@@ -146,7 +146,6 @@ export default {
         { provide: DialogService, useValue: mockDialogService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ToastService, useValue: mockToastService },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: GroupApiService, useValue: mockGroupApiService },
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: CollectionService, useValue: mockCollectionService },
@@ -164,6 +163,7 @@ function makeRender(
   params: CollectionDialogParams,
   org: Organization,
   collection?: CollectionAdminView,
+  vfo1Enabled = false,
 ): Story["render"] {
   return () => ({
     moduleMetadata: {
@@ -171,6 +171,12 @@ function makeRender(
         { provide: DIALOG_DATA, useValue: params },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: CollectionAdminService, useValue: makeCollectionAdminService(collection) },
+        // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx)
+        // for their ConfigService. Only force it here to guarantee these specific
+        // "Vfo1Enabled" stories always render with the flag on, regardless of the toolbar.
+        ...(vfo1Enabled
+          ? [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }]
+          : []),
       ],
     },
     template: `<app-collection-dialog></app-collection-dialog>`,
@@ -227,5 +233,31 @@ export const EditCollectionDeletedParent: Story = {
     { organizationId: ORG_ID, collectionId: COLLECTION_ID },
     mockOrganization(),
     mockNestedCollection,
+  ),
+};
+
+/**
+ * New collection with the VFO1 terminology flag on — labels, info text, and access
+ * copy render "shared folder" terminology instead of "collection".
+ */
+export const CreateCollectionVfo1Enabled: Story = {
+  render: makeRender({ organizationId: ORG_ID }, mockOrganization(), undefined, true),
+};
+
+/**
+ * Existing collection open for editing with the VFO1 terminology flag on — the Access
+ * tab's Manage permission label renders "Manage" (not "Manage shared folder").
+ */
+export const EditCollectionVfo1Enabled: Story = {
+  render: makeRender(
+    {
+      organizationId: ORG_ID,
+      collectionId: COLLECTION_ID,
+      isAdminConsoleActive: true,
+      initialTab: CollectionDialogTabType.Access,
+    },
+    mockOrganization(),
+    mockCollection,
+    true,
   ),
 };
