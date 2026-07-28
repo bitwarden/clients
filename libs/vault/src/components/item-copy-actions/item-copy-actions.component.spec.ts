@@ -1,8 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -11,6 +15,8 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
+
+import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
 import { VaultItemCopyActionsComponent } from "./item-copy-actions.component";
 
@@ -34,7 +40,12 @@ describe("VaultItemCopyActionsComponent", () => {
         MenuModule,
         VaultItemCopyActionsComponent,
       ],
-      providers: [{ provide: I18nService, useValue: i18nService }],
+      providers: [
+        { provide: I18nService, useValue: i18nService },
+        { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: CipherService, useValue: mock<CipherService>() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VaultItemCopyActionsComponent);
@@ -71,6 +82,62 @@ describe("VaultItemCopyActionsComponent", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe("quick copy action labels", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+    });
+
+    const labelFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-label");
+
+    it("uses the copy labels when the login fields are populated", () => {
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-copyUsername");
+      expect(labelFor("bwi-key")).toBe("translated-copyPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-copyVerificationCode");
+    });
+
+    it("uses the empty-state labels when the login fields are not populated", () => {
+      (component.cipher() as any).__copyable = { username: false, password: false, totp: false };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-noUsername");
+      expect(labelFor("bwi-key")).toBe("translated-noPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-noVerificationCode");
+    });
+
+    describe("card cipher", () => {
+      beforeEach(() => {
+        (component.cipher() as CipherView).type = CipherType.Card;
+      });
+
+      it("uses the copy labels when the card fields are populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: true, securityCode: true };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-copyNumber");
+        expect(labelFor("bwi-key")).toBe("translated-copySecurityCode");
+      });
+
+      it("uses the empty-state labels when the card fields are not populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: false, securityCode: false };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-noNumber");
+        expect(labelFor("bwi-key")).toBe("translated-noSecurityCode");
+      });
+    });
   });
 
   describe("findSingleCopyableItem", () => {

@@ -8,7 +8,11 @@
         size="small"
         appCopyField="username"
         [cipher]="_cipher"
-        [label]="'copyUsername' | i18n"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'username')
+            ? ('copyUsername' | i18n)
+            : ('noUsername' | i18n)
+        "
       ></button>
     </bit-item-action>
     <bit-item-action>
@@ -19,7 +23,11 @@
           size="small"
           appCopyField="password"
           [cipher]="_cipher"
-          [label]="'copyPassword' | i18n"
+          [label]="
+            CipherViewLikeUtils.hasCopyableValue(_cipher, 'password')
+              ? ('copyPassword' | i18n)
+              : ('noPassword' | i18n)
+          "
         ></button>
       }
     </bit-item-action>
@@ -30,7 +38,11 @@
         size="small"
         appCopyField="totp"
         [cipher]="_cipher"
-        [label]="'copyVerificationCode' | i18n"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'totp')
+            ? ('copyVerificationCode' | i18n)
+            : ('noVerificationCode' | i18n)
+        "
       ></button>
     </bit-item-action>
   } @else {
@@ -51,7 +63,7 @@
           bitIconButton="bwi-clone"
           size="small"
           [label]="
-            hasLoginValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+            hasLoginValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasLoginValues"
           [bitMenuTriggerFor]="loginOptions"
@@ -83,7 +95,11 @@
         size="small"
         appCopyField="cardNumber"
         [cipher]="_cipher"
-        [label]="'copyNumber' | i18n"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'cardNumber')
+            ? ('copyNumber' | i18n)
+            : ('noNumber' | i18n)
+        "
       ></button>
     </bit-item-action>
     <bit-item-action>
@@ -93,7 +109,11 @@
         size="small"
         appCopyField="securityCode"
         [cipher]="_cipher"
-        [label]="'copySecurityCode' | i18n"
+        [label]="
+          CipherViewLikeUtils.hasCopyableValue(_cipher, 'securityCode')
+            ? ('copySecurityCode' | i18n)
+            : ('noSecurityCode' | i18n)
+        "
       ></button>
     </bit-item-action>
   } @else {
@@ -115,7 +135,7 @@
           bitIconButton="bwi-clone"
           size="small"
           [label]="
-            hasCardValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+            hasCardValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasCardValues"
           [bitMenuTriggerFor]="cardOptions"
@@ -152,7 +172,7 @@
         bitIconButton="bwi-clone"
         size="small"
         [label]="
-          hasIdentityValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+          hasIdentityValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
         "
         [disabled]="!hasIdentityValues"
         [bitMenuTriggerFor]="identityOptions"
@@ -196,7 +216,9 @@
       type="button"
       bitIconButton="bwi-clone"
       size="small"
-      [label]="hasSshKeyValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)"
+      [label]="
+        hasSshKeyValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+      "
       [disabled]="!hasSshKeyValues"
       [bitMenuTriggerFor]="sshKeyOptions"
     ></button>
@@ -232,7 +254,9 @@
         bitIconButton="bwi-clone"
         size="small"
         [label]="
-          hasBankAccountValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+          hasBankAccountValues
+            ? ('copyDetailsTitle' | i18n: _cipher.name)
+            : ('noValuesToCopy' | i18n)
         "
         [disabled]="!hasBankAccountValues"
         [bitMenuTriggerFor]="bankAccountOptions"
@@ -283,7 +307,7 @@
         size="small"
         [label]="
           hasDriversLicenseValues
-            ? ('copyInfoTitle' | i18n: _cipher.name)
+            ? ('copyDetailsTitle' | i18n: _cipher.name)
             : ('noValuesToCopy' | i18n)
         "
         [disabled]="!hasDriversLicenseValues"
@@ -325,7 +349,7 @@
         bitIconButton="bwi-clone"
         size="small"
         [label]="
-          hasPassportValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
+          hasPassportValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
         "
         [disabled]="!hasPassportValues"
         [bitMenuTriggerFor]="passportOptions"
