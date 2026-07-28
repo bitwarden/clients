@@ -1,7 +1,9 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
+import { CanActivateFn } from "@angular/router";
 import { Observable, of, combineLatest, map, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -52,3 +54,12 @@ export class HealthAccessService {
     );
   }
 }
+
+export const canAccessHealth: CanActivateFn = () => {
+  const accountService = inject(AccountService);
+  const healthAccessService = inject(HealthAccessService);
+
+  return accountService.activeAccount$.pipe(
+    switchMap((user) => (user?.id ? healthAccessService.healthEnabled$(user.id) : of(false))),
+  );
+};

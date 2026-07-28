@@ -68,6 +68,7 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { HealthComponent } from "../dirt/health/popup/health.component";
+import { canAccessHealth } from "../dirt/health/popup/services/health-access.service";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -776,7 +777,7 @@ const routes: Routes = [
       {
         path: "health",
         component: HealthComponent,
-        canActivate: [authGuard, canAccessFeature(FeatureFlag.BrowserExtensionHealthReport)],
+        canActivate: [authGuard, canAccessHealth],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
