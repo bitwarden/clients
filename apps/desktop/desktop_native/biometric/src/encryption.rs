@@ -193,9 +193,11 @@ impl WindowsHelloKeychainEntryV1 {
         let cipher = XChaCha20Poly1305::new(windows_hello_key.as_bytes().into());
         let mut nonce = [0u8; XCHACHA20POLY1305_NONCE_LENGTH];
         bitwarden_random::rng().fill_bytes(&mut nonce);
-        let nonce_from_slice = XNonce::from(nonce);
         let wrapped_key = cipher
-            .encrypt(&nonce_from_slice, user_key.to_encoded().to_vec().as_slice())
+            .encrypt(
+                &XNonce::from(nonce),
+                user_key.to_encoded().to_vec().as_slice(),
+            )
             .map_err(|e| anyhow!(e))?;
         Ok(Self {
             nonce,
@@ -206,11 +208,9 @@ impl WindowsHelloKeychainEntryV1 {
 
     /// Unseal the user key
     pub(super) fn unseal(&self, windows_hello_key: &WindowsHelloPrf) -> Result<SymmetricCryptoKey> {
-        let key: &[u8; 32] = windows_hello_key.as_bytes();
-        let cipher = XChaCha20Poly1305::new_from_slice(key)?;
-        let nonce = XNonce::from(self.nonce);
+        let cipher = XChaCha20Poly1305::new_from_slice(windows_hello_key.as_bytes())?;
         let decrypted = cipher
-            .decrypt(&nonce, self.wrapped_key.as_slice())
+            .decrypt(&XNonce::from(self.nonce), self.wrapped_key.as_slice())
             .map_err(|e| anyhow!(e))?;
         SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(decrypted))
             .map_err(|e| anyhow!("Failed to parse user key: {e}"))
@@ -287,12 +287,10 @@ mod tests {
 
         // V1 wraps the user key directly with XChaCha20Poly1305. `seal` picks a random nonce, so
         // build the entry with the pinned `TEST_VECTOR_NONCE` to keep the recorded vector stable.
-        let key: &[u8; 32] = windows_hello_key.as_bytes();
-        let cipher = XChaCha20Poly1305::new_from_slice(key).unwrap();
-        let nonce = XNonce::from(TEST_VECTOR_NONCE);
+        let cipher = XChaCha20Poly1305::new_from_slice(windows_hello_key.as_bytes()).unwrap();
         let wrapped_key = cipher
             .encrypt(
-                &nonce,
+                &XNonce::from(TEST_VECTOR_NONCE),
                 user_key(TEST_VECTOR_USER_KEY)
                     .to_encoded()
                     .to_vec()

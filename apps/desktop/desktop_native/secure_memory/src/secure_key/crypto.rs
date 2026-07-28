@@ -30,9 +30,8 @@ impl MemoryEncryptionKey {
         let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
         let mut nonce = [0u8; NONCE_SIZE];
         rng().fill(&mut nonce);
-        let nonce_from_slice = Nonce::from(nonce);
         let ciphertext = cipher
-            .encrypt(&nonce_from_slice, plaintext)
+            .encrypt(&Nonce::from(nonce), plaintext)
             .expect("encryption should not fail");
         EncryptedMemory { nonce, ciphertext }
     }
@@ -43,9 +42,8 @@ impl MemoryEncryptionKey {
     #[allow(unused)]
     pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Result<Vec<u8>, DecryptionError> {
         let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
-        let nonce = Nonce::from(encrypted.nonce);
         cipher
-            .decrypt(&nonce, encrypted.ciphertext.as_ref())
+            .decrypt(&Nonce::from(encrypted.nonce), encrypted.ciphertext.as_ref())
             .map_err(|_| DecryptionError::CouldNotDecrypt)
     }
 }

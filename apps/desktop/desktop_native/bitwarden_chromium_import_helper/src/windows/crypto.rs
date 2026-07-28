@@ -215,8 +215,7 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
         .collect();
 
     // Decrypt the actual ABE key with the decrypted AES key
-    let key = aes_key.as_slice().try_into()?;
-    let cipher = Aes256Gcm::new(key);
+    let cipher = Aes256Gcm::new_from_slice(aes_key.as_slice())?;
     let key = cipher
         .decrypt((&iv).into(), ciphertext.as_ref())
         .map_err(|e| anyhow!("Failed to decrypt v20 key with AES-GCM: {}", e))?;
