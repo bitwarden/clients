@@ -109,17 +109,6 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     });
   }
 
-  private processExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[]) {
-    extraFields?.forEach((extraField) => {
-      this.processKvp(
-        cipher,
-        extraField.fieldName,
-        extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
-        extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
-      );
-    });
-  }
-
   private processSections(cipher: CipherView, sections: ProtonPassIdentityItemExtraSection[]) {
     sections?.forEach((section) => {
       section.sectionFields?.forEach((field) => {
