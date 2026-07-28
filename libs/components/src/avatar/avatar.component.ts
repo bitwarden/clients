@@ -7,6 +7,10 @@ import {
   input,
 } from "@angular/core";
 
+import {
+  avatarDefaultColors,
+  getAvatarDefaultColor,
+} from "@bitwarden/common/platform/misc/avatar-color";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { AriaDisableDirective } from "../a11y";
@@ -14,7 +18,8 @@ import { ariaDisableElement } from "../utils";
 
 export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
-export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"] as const;
+/** Re-exported from @bitwarden/common so consumers of @bitwarden/components see no breaking change. */
+export const AvatarDefaultColors = avatarDefaultColors;
 export type AvatarColor = (typeof AvatarDefaultColors)[number];
 
 const sizeClasses: Record<AvatarSize, string[]> = {
@@ -206,26 +211,11 @@ export class AvatarComponent {
   }
 
   /**
-   * Deterministically choose a default avatar color based on the given strings
-   *
-   * Based on the id first and the text second, choose a color from AvatarColors. This ensures that
-   * the user sees the same color for the same avatar input every time.
+   * Deterministically choose a default avatar color based on the given strings.
+   * Delegates to the shared implementation in @bitwarden/common so the algorithm
+   * stays in one place.
    */
   protected getDefaultColorKey(id?: string, text?: string) {
-    let magicString = "";
-
-    if (!Utils.isNullOrWhitespace(id)) {
-      magicString = id!.toString();
-    } else {
-      magicString = text?.toUpperCase() ?? "";
-    }
-
-    let hash = 0;
-    for (const char of magicString) {
-      hash = char.charCodeAt(0) + ((hash << 5) - hash);
-    }
-
-    const index = Math.abs(hash) % AvatarDefaultColors.length;
-    return AvatarDefaultColors[index];
+    return getAvatarDefaultColor(id, text);
   }
 }
