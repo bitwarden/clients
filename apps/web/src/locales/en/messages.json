@@ -428,7 +428,7 @@
       }
     }
   },
-  "ofCountTotal":{
+  "ofCountTotal": {
     "message": "of $TOTAL$ total",
     "placeholders": {
       "total": {
@@ -1524,7 +1524,7 @@
     "message": "View note",
     "description": "Header for view note item type"
   },
-  "create":{
+  "create": {
     "message": "Create",
     "description": "for adding new items"
   },
@@ -11515,6 +11515,26 @@
     "message": "single organization",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescLink1Vfo1": {
+    "message": "single organization vault",
+    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescLink1. Used in the SSO Trusted Devices hint to reflect the renamed policy."
+  },
+  "memberDecryptionOptionTdeDescPart2Vfo1": {
+    "message": ",",
+    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart2. Removes the word 'policy' between policy links in the SSO Trusted Devices hint."
+  },
+  "memberDecryptionOptionTdeDescPart3Vfo1": {
+    "message": ", and",
+    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart3. Removes the word 'policy' between policy links in the SSO Trusted Devices hint."
+  },
+  "memberDecryptionOptionTdeDescLink3Vfo1": {
+    "message": "Account recovery administration",
+    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescLink3. Capitalizes the policy name in the SSO Trusted Devices hint."
+  },
+  "memberDecryptionOptionTdeDescPart4Vfo1": {
+    "message": "policies will turn on automatically.",
+    "description": "VFO1 flag-on replacement for memberDecryptionOptionTdeDescPart4. Used at the end of the SSO Trusted Devices hint."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "policy,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -15881,7 +15901,7 @@
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
-  "clickedVaultBannerButton":{
+  "clickedVaultBannerButton": {
     "message": "Clicked vault banner button"
   },
   "progressBar": {
