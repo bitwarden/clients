@@ -101,16 +101,15 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group collapsible [match]="isAutofill">
+  <bit-row-group [match]="isAutofill">
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {
-        <!-- Stop propagation so refreshing doesn't also toggle the collapsible group header. -->
         <button
           bitIconButton="bwi-refresh"
           type="button"
           size="small"
-          (click)="$event.stopPropagation(); refreshCurrentTab()"
+          (click)="refreshCurrentTab()"
           [label]="'refresh' | i18n"
         ></button>
       }
