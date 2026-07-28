@@ -30,6 +30,7 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExportHelper } from "@bitwarden/vault-export-core";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   CoreOrganizationModule,
   GroupApiService,
@@ -54,7 +55,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, IconModule],
+  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, IconModule, Vfo1I18nPipe],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
