@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component, computed, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map, Observable, of, switchMap } from "rxjs";
@@ -76,7 +76,7 @@ export class SelfHostedPremiumComponent {
     this.i18nService.t("andMoreFeatures"),
   ];
 
-  protected familiesFeatures = [
+  protected readonly familiesFeatures = computed(() => [
     this.i18nService.t("premiumAccounts"),
     this.i18nService.t("familiesUnlimitedSharing"),
     this.i18nService.t(
@@ -85,7 +85,7 @@ export class SelfHostedPremiumComponent {
         : "familiesUnlimitedCollections",
     ),
     this.i18nService.t("familiesSharedStorage"),
-  ];
+  ]);
 
   private destroyRef = inject(DestroyRef);
 

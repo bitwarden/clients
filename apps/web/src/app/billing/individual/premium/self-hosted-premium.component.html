@@ -63,7 +63,7 @@
             text: ('upgradeToFamilies' | i18n),
             icon: { type: 'bwi-external-link', position: 'after' },
           }"
-          [features]="familiesFeatures"
+          [features]="familiesFeatures()"
           (buttonClick)="onFamiliesUpgradeClick()"
         >
           <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "families" | i18n }}</h3>
