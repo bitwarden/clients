@@ -134,7 +134,11 @@
             ></button>
           }
 
-          <vault-item-copy-actions [cipher]="cipher"></vault-item-copy-actions>
+          <vault-item-copy-actions
+            class="tw-flex tw-items-center tw-gap-2 [&_button[biticonbutton]]:-tw-mx-1"
+            [cipher]="cipher"
+            [showQuickCopyActions]="(showQuickCopyActions$ | async) ?? false"
+          ></vault-item-copy-actions>
         </div>
       }
 

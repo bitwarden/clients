@@ -28,7 +28,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   CollectionPermission,
@@ -148,6 +148,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   protected organization?: Organization;
 
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected showQuickCopyActions$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -155,10 +156,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
+    private vaultCopyButtonsService: VaultCopyButtonsService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
+    this.showQuickCopyActions$ = this.vaultCopyButtonsService.showQuickCopyActions$;
   }
 
   /**
