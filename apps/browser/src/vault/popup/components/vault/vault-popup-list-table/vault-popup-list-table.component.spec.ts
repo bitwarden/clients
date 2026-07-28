@@ -141,7 +141,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         // Providers for the child components rendered in each row (vault-icon, copy actions,
-        // more-options menu, simplified-autofill-info), mirroring the Storybook setup.
+        // more-options menu), mirroring the Storybook setup.
         {
           provide: EnvironmentService,
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
