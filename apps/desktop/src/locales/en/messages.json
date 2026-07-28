@@ -1964,6 +1964,9 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
+  "showQuickCopyActions": {
+    "message": "Show quick copy actions on Vault"
+  },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
   },
