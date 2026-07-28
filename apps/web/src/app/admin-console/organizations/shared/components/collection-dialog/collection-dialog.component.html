@@ -69,11 +69,13 @@
           </ng-container>
           <ng-container *ngIf="!dialogReadonly">
             <bit-callout
-              title="{{ 'grantManageCollectionWarningTitle' | i18n }}"
+              title="{{
+                'grantManageCollectionWarningTitle' | vfo1I18n: 'grantManagePermissionsWarningTitle'
+              }}"
               type="warning"
               *ngIf="showAddAccessWarning"
             >
-              {{ "grantManageCollectionWarning" | i18n }}
+              {{ "grantManageCollectionWarning" | vfo1I18n: "grantManagePermissionsWarning" }}
             </bit-callout>
             <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
             <span *ngIf="!organization.useGroups">{{

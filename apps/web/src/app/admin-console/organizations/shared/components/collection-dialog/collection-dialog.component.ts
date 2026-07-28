@@ -52,7 +52,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { Vfo1IconPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
@@ -125,7 +125,7 @@ export enum CollectionDialogAction {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1I18nPipe, Vfo1IconPipe],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

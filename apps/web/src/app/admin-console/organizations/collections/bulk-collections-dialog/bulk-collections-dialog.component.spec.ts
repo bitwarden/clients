@@ -151,7 +151,10 @@ async function createComponent(options: CreateOptions = {}): Promise<{
       { provide: CollectionAdminService, useValue: collectionAdminService },
       { provide: ToastService, useValue: toastService },
       { provide: ConfigService, useValue: configService },
-      { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+      {
+        provide: Vfo1TerminologyService,
+        useValue: { iconClass: (icon: string) => icon, enabled: () => false },
+      },
     ],
   }).compileComponents();
 
