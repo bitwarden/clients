@@ -50,9 +50,18 @@ import { VaultPopupListTableComponent } from "./vault-popup-list-table.component
 // `subTitle` getter that surfaces a login's username) straight off the model, so building the actual
 // class is both simpler than mocking every getter and a truer exercise of the component.
 
-const pick = <T>(items: readonly T[]): T => items[Math.floor(Math.random() * items.length)];
-const randomDigits = (length: number): string =>
-  Array.from({ length }, () => Math.floor(Math.random() * 10)).join("");
+// Fixtures must be deterministic: Storybook snapshots these stories in Chromatic on every PR, so any
+// randomness here would diff against its baseline every build and erode the visual-regression signal.
+// `pick` rotates through each list in a fixed order — its own cursor per array — so fixtures keep
+// their variety without randomness.
+const pickCursors = new WeakMap<readonly unknown[], number>();
+const pick = <T>(items: readonly T[]): T => {
+  const next = pickCursors.get(items) ?? 0;
+  pickCursors.set(items, next + 1);
+  return items[next % items.length];
+};
+const sequentialDigits = (length: number): string =>
+  Array.from({ length }, (_, i) => String((i + 1) % 10)).join("");
 
 const WEBSITES = [
   { name: "GitHub", uri: "https://github.com" },
@@ -89,7 +98,7 @@ const LAST_NAMES = [
 const EMAIL_DOMAINS = ["gmail.com", "proton.me", "outlook.com", "fastmail.com"] as const;
 const CARD_BRANDS = ["Visa", "Mastercard", "American Express", "Discover"] as const;
 
-const randomEmail = (first = pick(FIRST_NAMES), last = pick(LAST_NAMES)): string =>
+const makeEmail = (first = pick(FIRST_NAMES), last = pick(LAST_NAMES)): string =>
   `${first}.${last}@${pick(EMAIL_DOMAINS)}`.toLowerCase();
 
 /** A real `CipherView` with a random id, editable and viewable by default. */
@@ -103,38 +112,38 @@ const baseCipher = (type: CipherType, name: string): CipherView => {
   return cipher;
 };
 
-const randomLogin = (
+const makeLogin = (
   overrides: { name?: string; username?: string; favorite?: boolean } = {},
 ): CipherView => {
   const site = pick(WEBSITES);
   const cipher = baseCipher(CipherType.Login, overrides.name ?? site.name);
   cipher.favorite = overrides.favorite ?? false;
-  // `"username" in overrides` distinguishes "no override" (random email) from an explicit
+  // `"username" in overrides` distinguishes "no override" (default email) from an explicit
   // `undefined` (a password-only login, whose subtitle is intentionally blank).
-  cipher.login.username = "username" in overrides ? overrides.username : randomEmail();
+  cipher.login.username = "username" in overrides ? overrides.username : makeEmail();
   const uri = new LoginUriView();
   uri.uri = site.uri;
   cipher.login.uris = [uri];
   return cipher;
 };
 
-const randomCard = (): CipherView => {
+const makeCard = (): CipherView => {
   const brand = pick(CARD_BRANDS);
   const cipher = baseCipher(CipherType.Card, `${brand} card`);
   cipher.card.brand = brand;
-  cipher.card.number = randomDigits(16);
-  cipher.card.expMonth = String(1 + Math.floor(Math.random() * 12));
-  cipher.card.expYear = String(2027 + Math.floor(Math.random() * 5));
+  cipher.card.number = sequentialDigits(16);
+  cipher.card.expMonth = "8";
+  cipher.card.expYear = "2030";
   return cipher;
 };
 
-const randomIdentity = (): CipherView => {
+const makeIdentity = (): CipherView => {
   const first = pick(FIRST_NAMES);
   const last = pick(LAST_NAMES);
   const cipher = baseCipher(CipherType.Identity, `${first} ${last}`);
   cipher.identity.firstName = first;
   cipher.identity.lastName = last;
-  cipher.identity.email = randomEmail(first, last);
+  cipher.identity.email = makeEmail(first, last);
   return cipher;
 };
 
@@ -167,29 +176,29 @@ const inOrganization = (
 };
 
 const AUTOFILL_CIPHERS: PopupCipherViewLike[] = [
-  randomLogin(),
-  randomLogin(),
+  makeLogin(),
+  makeLogin(),
   // No username, so its accessible title omits the field (`autofillTitle` vs `autofillTitleWithField`)
   // and its subtitle is blank. The logins above exercise the `*WithField` variants.
-  randomLogin({ name: "Password-only Login", username: undefined }),
+  makeLogin({ name: "Password-only Login", username: undefined }),
   // A card and identity so the autofill section's type subgroups (Card / Identity) render.
-  randomCard(),
-  randomIdentity(),
+  makeCard(),
+  makeIdentity(),
 ];
 
-const FAVORITE_CIPHERS: PopupCipherViewLike[] = [randomLogin({ favorite: true })];
+const FAVORITE_CIPHERS: PopupCipherViewLike[] = [makeLogin({ favorite: true })];
 
 const ALL_ITEM_CIPHERS: PopupCipherViewLike[] = [
-  randomLogin(),
-  randomLogin(),
-  randomCard(),
-  randomIdentity(),
+  makeLogin(),
+  makeLogin(),
+  makeCard(),
+  makeIdentity(),
   // Has an attachment, so the paperclip icon renders with its `attachments` accessible title.
-  withAttachment(randomLogin()),
+  withAttachment(makeLogin()),
   // In an organization across multiple shared folders: the org icon tooltip reads `nSharedFolders`.
-  inOrganization(randomLogin(), ProductTierType.Enterprise, ["Engineering", "Marketing"]),
+  inOrganization(makeLogin(), ProductTierType.Enterprise, ["Engineering", "Marketing"]),
   // In an organization within a single shared folder: the org icon tooltip reads that folder's name.
-  inOrganization(randomLogin(), ProductTierType.Families, ["Engineering"]),
+  inOrganization(makeLogin(), ProductTierType.Families, ["Engineering"]),
 ];
 
 type StoryArgs = {
@@ -362,8 +371,10 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
     },
     {
+      // Favicons off so snapshots don't attempt remote favicon fetches during Chromatic builds,
+      // which would make the rendered icons non-deterministic (and require network access offline).
       provide: DomainSettingsService,
-      useValue: { showFavicons$: of(true) },
+      useValue: { showFavicons$: of(false) },
     },
     {
       provide: VaultPopupCopyButtonsService,
