@@ -9,7 +9,6 @@ import { IconComponent } from "@bitwarden/angular/vault/components/icon.componen
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -66,7 +65,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected readonly disabled = input<boolean>();
   protected readonly cipher = input<C>();
   protected readonly showOwner = input<boolean>();
-  protected readonly showPremiumFeatures = input<boolean>();
   protected readonly useEvents = input<boolean>();
   protected readonly cloneable = input<boolean>();
   protected readonly organizations = input<Organization[]>();
@@ -93,8 +91,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
-
-  protected CipherType = CipherType;
 
   private platformUtilsService = inject(PlatformUtilsService);
   private i18nService = inject(I18nService);
