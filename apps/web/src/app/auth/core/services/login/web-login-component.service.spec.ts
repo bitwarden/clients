@@ -191,6 +191,7 @@ describe("WebLoginComponentService", () => {
 
     describe("given an open organization invite is in state", () => {
       const openInvite = new OpenOrganizationInvite({
+        organizationId: "11111111-1111-1111-1111-111111111111",
         inviteLinkCode: "link-code",
         inviteKey: "link-key",
         organizationName: "Acme Corp",
@@ -385,9 +386,31 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("falls through to the warning toast when a stashed open invite is present (open stash-match is stubbed until PM-40216)", async () => {
+      it("returns autoSubmit=true with the MP-entry layout override when a stashed open invite matches org id", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
+            organizationId: mockOrganizationId,
+            inviteLinkCode: "link-code",
+            inviteKey: "link-key",
+            organizationName: mockOrganizationName,
+          }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("falls through to the warning toast when a stashed open invite is for a different org", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new OpenOrganizationInvite({
+            organizationId: "22222222-2222-2222-2222-222222222222",
             inviteLinkCode: "link-code",
             inviteKey: "link-key",
             organizationName: mockOrganizationName,
@@ -477,9 +500,31 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).toHaveBeenCalled();
       });
 
-      it("falls through to the warning toast when a stashed open invite is present (open stash-match is stubbed until PM-40216)", async () => {
+      it("returns autoSubmit=true with the MP-entry layout override when a stashed open invite matches org id", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
+            organizationId: mockOrganizationId,
+            inviteLinkCode: "link-code",
+            inviteKey: "link-key",
+            organizationName: mockOrganizationName,
+          }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("falls through to the warning toast when a stashed open invite is for a different org", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new OpenOrganizationInvite({
+            organizationId: "22222222-2222-2222-2222-222222222222",
             inviteLinkCode: "link-code",
             inviteKey: "link-key",
             organizationName: mockOrganizationName,

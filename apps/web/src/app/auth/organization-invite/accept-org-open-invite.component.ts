@@ -45,8 +45,9 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly failedMessage = "openInviteAcceptFailed";
 
   async ngOnInit() {
-    // The open route puts `inviteLinkCode` in the path and `inviteKey` in the query
-    // string. Pre-merge before handing to AcceptFlowService, which expects one Params bag.
+    // The open route puts `organizationId` + `inviteLinkCode` in the path and `inviteKey`
+    // in the query string. Pre-merge before handing to AcceptFlowService, which expects one
+    // Params bag.
     const [params, qParams] = await Promise.all([
       firstValueFrom(this.route.params),
       firstValueFrom(this.route.queryParams),
@@ -57,8 +58,12 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       {
         failedMessage: this.failedMessage,
         parse: (p) =>
-          p?.inviteLinkCode && p?.key
-            ? { inviteLinkCode: p.inviteLinkCode, inviteKey: p.key }
+          p?.organizationId && p?.inviteLinkCode && p?.key
+            ? {
+                organizationId: p.organizationId,
+                inviteLinkCode: p.inviteLinkCode,
+                inviteKey: p.key,
+              }
             : null,
         authedHandler: (urlParams) => this.authedHandler(urlParams),
         unauthedHandler: (urlParams) => this.unauthedHandler(urlParams),
@@ -76,10 +81,14 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * failures so the caller can short-circuit. `unexpected` re-throws into
    * `AcceptFlowService`'s generic error path.
    */
-  // TODO: PM-40216 (PR #21815) — takes `organizationId` alongside `code` and
-  // passes both to `getOpenOrgInviteStatus`.
-  private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatus | null> {
-    const result = await this.organizationInviteService.getOpenOrgInviteStatus(code);
+  private async fetchStatusOrShowError(
+    organizationId: string,
+    code: string,
+  ): Promise<OpenOrgInviteStatus | null> {
+    const result = await this.organizationInviteService.getOpenOrgInviteStatus(
+      organizationId,
+      code,
+    );
     switch (result.kind) {
       case "ok":
         return result.status;
@@ -124,7 +133,10 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   private async unauthedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
-    const status = await this.fetchStatusOrShowError(urlParams.inviteLinkCode);
+    const status = await this.fetchStatusOrShowError(
+      urlParams.organizationId,
+      urlParams.inviteLinkCode,
+    );
     if (status == null) {
       return;
     }
@@ -155,7 +167,10 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     // user pasting a `/join/<code>?key=<key>` URL directly into their session has no
     // stashed invite state to hydrate from. The fetch also gives us fresh error
     // surfaces (404 / 400 / no-seats) to render before committing an accept.
-    const status = await this.fetchStatusOrShowError(urlParams.inviteLinkCode);
+    const status = await this.fetchStatusOrShowError(
+      urlParams.organizationId,
+      urlParams.inviteLinkCode,
+    );
     if (status == null) {
       return;
     }

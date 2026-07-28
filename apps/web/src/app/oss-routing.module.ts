@@ -218,7 +218,7 @@ const routes: Routes = [
         // Open organization invite link landing. The component handles both
         // authenticated and unauthenticated users so no unauthGuardFn here.
         // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
-        path: "join/:inviteLinkCode",
+        path: "join/:organizationId/:inviteLinkCode",
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
         component: AcceptOrgOpenInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,

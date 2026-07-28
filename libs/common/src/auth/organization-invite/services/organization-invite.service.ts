@@ -94,23 +94,30 @@ export abstract class OrganizationInviteService {
   ): Promise<MasterPasswordPolicyOptions | undefined>;
 
   /**
-   * Fetches the public status of an open invite link by its code (anonymous endpoint).
-   * Returns a discriminated {@link OpenOrgInviteStatusResult} — `ok` with the status
-   * payload on success, or one of the classified failure kinds (`not-found`,
-   * `plan-not-supported`) matching the server's known error surfaces. Unclassified
-   * failures (network / 5xx / non-`ErrorResponse` throws) return `unexpected` with a
-   * best-effort message.
+   * Fetches the public status of an open invite link (anonymous endpoint), scoped to
+   * `(organizationId, code)`. Returns a discriminated {@link OpenOrgInviteStatusResult} —
+   * `ok` with the status payload on success, or one of the classified failure kinds
+   * (`not-found`, `plan-not-supported`) matching the server's known error surfaces.
+   * Unclassified failures (network / 5xx / non-`ErrorResponse` throws) return `unexpected`
+   * with a best-effort message.
    */
-  abstract getOpenOrgInviteStatus(code: string): Promise<OpenOrgInviteStatusResult>;
+  abstract getOpenOrgInviteStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OpenOrgInviteStatusResult>;
 
   /**
    * Validates whether an email's domain is permitted by an open invite link's
-   * `AllowedDomains` configuration. Pre-auth UX check consumed by `LoginComponent`
-   * and `RegistrationStartComponent`; server-side enforcement runs at accept time
-   * regardless.
+   * `AllowedDomains` configuration, scoped to `(organizationId, code)` for parity with the
+   * status / accept endpoints. Pre-auth UX check consumed by `LoginComponent` and
+   * `RegistrationStartComponent`; server-side enforcement runs at accept time regardless.
    * @returns true if the email's domain is allowed, false if not.
    */
-  abstract validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean>;
+  abstract validateOpenOrgInviteEmailDomain(
+    organizationId: string,
+    code: string,
+    email: string,
+  ): Promise<boolean>;
 
   /**
    * Returns the base64-encoded `HighEntropySecret` previously paired with a sealed open-invite

@@ -204,11 +204,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         invite,
         userId,
       );
-      // TODO: PM-40216 (PR #21815) — accept request scoping. When that lands, pass
-      // `organizationId: invite.organizationId` on the request (invite.organizationId
-      // will re-appear on OpenOrganizationInvite, sourced from the URL path).
       await this.organizationInviteLinkApiService.accept(
         new OrganizationInviteLinkAcceptRequest({
+          organizationId: invite.organizationId,
           code: invite.inviteLinkCode,
           resetPasswordKey: orgPublicKeyEncryptedUserKey,
         }),
@@ -314,9 +312,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
               invite.email,
               invite.organizationUserId,
             )
-          : // TODO: PM-40216 (PR #21815) — policy fetch scoping. When that lands, pass
-            // `invite.organizationId` as the first argument.
-            await this.policyApiService.getPoliciesByInviteLinkCode(invite.inviteLinkCode);
+          : await this.policyApiService.getPoliciesByInviteLinkCode(
+              invite.organizationId,
+              invite.inviteLinkCode,
+            );
       if (policies != null) {
         this.policyCache.set(cacheKey, policies);
       }
@@ -327,13 +326,12 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
   }
 
-  // TODO: PM-40216 (PR #21815) — signature becomes
-  //   getOpenOrgInviteStatus(organizationId: string, code: string)
-  // and the wrapped call gets both args. Callers pass organizationId from the URL
-  // path params.
-  async getOpenOrgInviteStatus(code: string): Promise<OpenOrgInviteStatusResult> {
+  async getOpenOrgInviteStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OpenOrgInviteStatusResult> {
     try {
-      const response = await this.organizationInviteLinkApiService.getStatus(code);
+      const response = await this.organizationInviteLinkApiService.getStatus(organizationId, code);
       if (!response.linksEnabled) {
         return { kind: "plan-not-supported", organizationName: response.organizationName };
       }
@@ -385,12 +383,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   // "invite not found" post-auth; (b) fail-open + clear open-invite state on a definitive
   // 404 so pre-auth "Joining <org>" hints stop lying; (c) also surface a toast at the
   // domain-check step. Awaiting product's call.
-  // TODO: PM-40216 (PR #21815) — signature becomes
-  //   validateOpenOrgInviteEmailDomain(organizationId: string, code: string, email: string)
-  // and the request adds `organizationId`.
-  async validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean> {
+  async validateOpenOrgInviteEmailDomain(
+    organizationId: string,
+    code: string,
+    email: string,
+  ): Promise<boolean> {
     const response = await this.organizationInviteLinkApiService.validateEmailDomain(
-      new OrganizationInviteLinkValidateEmailDomainRequest({ code, email }),
+      new OrganizationInviteLinkValidateEmailDomainRequest({ organizationId, code, email }),
     );
     return response.isAllowed;
   }
@@ -613,25 +612,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * Stub: auto-enroll on open-invite accept is a no-op today. Returns undefined so
    * the accept request goes out without a `resetPasswordKey`.
    *
-   * Two independent blockers keep this stubbed. Do not simply restore the prior TS
-   * implementation — both blockers must resolve, and (2) requires a different design.
-   *
-   * 1. PM-40216 (PR #21815, in flight) — the invite URL will carry `organizationId`.
-   *    The prior TS crypto needed it for
-   *    `policyService.getResetPasswordPolicyOptions(policies, orgId)` and
-   *    `organizationApiService.getKeys(orgId)`. PM-40216 landing unblocks this.
-   *
-   * 2. ZK vulnerability flagged in PR #21574 review — the prior TS crypto encrypted
-   *    the user key against an unauthenticated org public key fetched from the server.
-   *    A malicious server can swap the pubkey and obtain the user key; nothing binds
-   *    trust to the invite. The direct-invite path has the same latent vulnerability
-   *    today. The fix is not a restoration but a replacement: an SDK primitive that
-   *    owns the wrap crypto and binds trust via the invite envelope (quexten's
-   *    proposal — bake the pubkey / fingerprint into the invite envelope).
-   *
-   * Net: PM-40216 does not, by itself, unblock this method. Wait for the SDK-owned
-   * account-recovery-wrap primitive; when it lands, this method disappears and the
-   * caller in `acceptOpenOrgInvite` calls the SDK instead.
+   * Blocked on the SDK-owned account-recovery-wrap primitive. Do not restore the prior
+   * TS implementation; the replacement is an SDK primitive that owns the wrap crypto and
+   * binds trust via the invite envelope (see PR #21574 review discussion). When that
+   * lands, this method disappears and the caller in `acceptOpenOrgInvite` calls the SDK
+   * instead.
    *
    * Feature is behind `FeatureFlag.GenerateInviteLink = false` in prod, so the
    * current no-op has no user-visible impact. Prior TS crypto preserved in branch

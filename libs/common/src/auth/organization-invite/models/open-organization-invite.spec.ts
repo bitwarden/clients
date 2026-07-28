@@ -13,11 +13,13 @@ describe("OpenOrganizationInvite", () => {
   describe("constructor", () => {
     it("assigns all required fields", () => {
       const invite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
         organizationName: "organizationName",
       });
 
+      expect(invite.organizationId).toBe("organizationId");
       expect(invite.inviteLinkCode).toBe("inviteLinkCode");
       expect(invite.inviteKey).toBe("inviteKey");
       expect(invite.organizationName).toBe("organizationName");
@@ -25,6 +27,7 @@ describe("OpenOrganizationInvite", () => {
 
     it("leaves sso undefined when not provided", () => {
       const invite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
         organizationName: "organizationName",
@@ -35,6 +38,7 @@ describe("OpenOrganizationInvite", () => {
 
     it("assigns sso when provided", () => {
       const invite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
         organizationName: "organizationName",
@@ -47,6 +51,7 @@ describe("OpenOrganizationInvite", () => {
 
   describe("fromUrlParamsAndStatus", () => {
     const validUrlParams = (): OpenOrgInviteUrlParams => ({
+      organizationId: "org-id",
       inviteLinkCode: "invite-link-code",
       inviteKey: "invite-key",
     });
@@ -66,6 +71,7 @@ describe("OpenOrganizationInvite", () => {
       expect(result).toBeInstanceOf(OpenOrganizationInvite);
       expect(result).toMatchObject({
         kind: "open",
+        organizationId: "org-id",
         inviteLinkCode: "invite-link-code",
         inviteKey: "invite-key",
         organizationName: "Acme Inc.",
@@ -100,6 +106,7 @@ describe("OpenOrganizationInvite", () => {
     it("builds an OpenOrganizationInvite from a valid JSON object", () => {
       const json = {
         kind: "open",
+        organizationId: "org-id",
         inviteLinkCode: "invite-link-code",
         inviteKey: "invite-key",
         organizationName: "organizationName",

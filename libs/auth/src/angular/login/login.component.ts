@@ -653,6 +653,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       return true;
     }
     const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+      invite.organizationId,
       invite.inviteLinkCode,
       email,
     );

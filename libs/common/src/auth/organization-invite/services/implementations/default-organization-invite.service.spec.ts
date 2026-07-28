@@ -606,7 +606,7 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("getOrgPoliciesForInvite (open branch)", () => {
-    it("routes open invites to getPoliciesByInviteLinkCode keyed by inviteLinkCode", async () => {
+    it("routes open invites to getPoliciesByInviteLinkCode keyed by (organizationId, inviteLinkCode)", async () => {
       const open = createOpenOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
@@ -615,6 +615,7 @@ describe("DefaultOrganizationInviteService", () => {
 
       expect(result).toEqual(policies);
       expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledWith(
+        open.organizationId,
         open.inviteLinkCode,
       );
       expect(policyApiService.getPoliciesByToken).not.toHaveBeenCalled();
@@ -673,7 +674,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("accepts without a resetPasswordKey even when ResetPassword auto-enroll would apply (stubbed until PM-40216 restores invite.organizationId)", async () => {
+    it("accepts without a resetPasswordKey even when ResetPassword auto-enroll would apply (stubbed pending SDK-owned account-recovery-wrap primitive)", async () => {
       const open = createOpenOrgInvite();
       const policies = [{ type: PolicyType.ResetPassword } as unknown as Policy];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
@@ -872,7 +873,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: null,
       } as any);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({
         kind: "ok",
@@ -881,7 +882,7 @@ describe("DefaultOrganizationInviteService", () => {
           sso: null,
         },
       });
-      expect(organizationInviteLinkApiService.getStatus).toHaveBeenCalledWith("abc");
+      expect(organizationInviteLinkApiService.getStatus).toHaveBeenCalledWith("org-id", "abc");
     });
 
     it("returns ok with the SSO config carried through on the mapped status", async () => {
@@ -892,7 +893,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: { orgSsoId: "acme-sso", required: true },
       } as any);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result.kind).toBe("ok");
       if (result.kind === "ok") {
@@ -908,7 +909,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: null,
       } as any);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "plan-not-supported", organizationName: "Acme" });
     });
@@ -921,7 +922,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: null,
       } as any);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "no-seats", organizationName: "Acme" });
     });
@@ -932,7 +933,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "not-found" });
     });
@@ -947,7 +948,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
     });
@@ -955,7 +956,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("returns unexpected with .message for non-ErrorResponse Error throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue(new Error("network gone"));
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
     });
@@ -963,7 +964,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("returns unexpected with String(e) for unknown throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue("bare string");
 
-      const result = await sut.getOpenOrgInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
     });
@@ -975,11 +976,19 @@ describe("DefaultOrganizationInviteService", () => {
         isAllowed: true,
       } as any);
 
-      const result = await sut.validateOpenOrgInviteEmailDomain("abc", "user@example.com");
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
 
       expect(result).toBe(true);
       expect(organizationInviteLinkApiService.validateEmailDomain).toHaveBeenCalledWith(
-        expect.objectContaining({ code: "abc", email: "user@example.com" }),
+        expect.objectContaining({
+          organizationId: "org-id",
+          code: "abc",
+          email: "user@example.com",
+        }),
       );
     });
 
@@ -988,7 +997,11 @@ describe("DefaultOrganizationInviteService", () => {
         isAllowed: false,
       } as any);
 
-      const result = await sut.validateOpenOrgInviteEmailDomain("abc", "user@example.com");
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
 
       expect(result).toBe(false);
     });
@@ -1136,6 +1149,7 @@ function createOrgInvite(custom: Partial<DirectOrganizationInvite> = {}): Direct
 
 function createOpenOrgInvite(custom: Partial<OpenOrganizationInvite> = {}): OpenOrganizationInvite {
   return new OpenOrganizationInvite({
+    organizationId: "org-id",
     inviteLinkCode: "invite-link-code",
     inviteKey: "invite-key",
     organizationName: "Acme",

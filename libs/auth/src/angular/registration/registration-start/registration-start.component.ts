@@ -271,6 +271,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       return true;
     }
     const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+      invite.organizationId,
       invite.inviteLinkCode,
       email,
     );

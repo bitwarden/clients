@@ -4,17 +4,15 @@ import { OrgInviteKind } from "../enums/org-invite-kind.enum";
 import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-invite-status.type";
 
 /**
- * URL contract for the open invite link route: `/#/join/:inviteLinkCode?key={inviteKey}`.
- * `inviteLinkCode` is a server-generated GUID; `inviteKey` is the URL-fragment key,
- * which the browser never transmits to the server in HTTP requests.
+ * URL contract for the open invite link route:
+ * `/#/join/:organizationId/:inviteLinkCode?key={inviteKey}`.
+ * `organizationId` scopes the invite to a specific org (matching the anonymous
+ * status/policy/accept endpoint contract); `inviteLinkCode` is a server-generated GUID;
+ * `inviteKey` is the URL-fragment key, which the browser never transmits to the server in
+ * HTTP requests.
  */
-// TODO: PM-40216 (PR #21815) — invite URL adds an `organizationId` path segment.
-// When that PR lands, add `organizationId: string` here (also to the constructor,
-// fromUrlParamsAndStatus, fromJSON, and the class field), update the route path in
-// oss-routing.module.ts, and re-wire the downstream consumers currently stubbed
-// with PM-40216 TODOs (computeOpenInviteResetPasswordKey; the openMatch branch in
-// WebLoginComponentService).
 export interface OpenOrgInviteUrlParams {
+  organizationId: string;
   inviteLinkCode: string;
   inviteKey: string;
 }
@@ -29,6 +27,7 @@ export interface OpenOrgInviteUrlParams {
  */
 export class OpenOrganizationInvite {
   readonly kind = OrgInviteKind.Open;
+  organizationId: string;
   inviteLinkCode: string;
   inviteKey: string;
   organizationName: string;
@@ -36,11 +35,13 @@ export class OpenOrganizationInvite {
   sso?: OpenOrgInviteSsoConfig;
 
   constructor(data: {
+    organizationId: string;
     inviteLinkCode: string;
     inviteKey: string;
     organizationName: string;
     sso?: OpenOrgInviteSsoConfig;
   }) {
+    this.organizationId = data.organizationId;
     this.inviteLinkCode = data.inviteLinkCode;
     this.inviteKey = data.inviteKey;
     this.organizationName = data.organizationName;
@@ -56,6 +57,7 @@ export class OpenOrganizationInvite {
     status: OpenOrgInviteStatus,
   ): OpenOrganizationInvite {
     return new OpenOrganizationInvite({
+      organizationId: urlParams.organizationId,
       inviteLinkCode: urlParams.inviteLinkCode,
       inviteKey: urlParams.inviteKey,
       organizationName: status.organizationName,
