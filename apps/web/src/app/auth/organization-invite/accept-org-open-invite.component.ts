@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AnonLayoutWrapperDataService,
   IconModule,
@@ -36,22 +37,49 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
 
   protected readonly loading = signal(true);
   protected readonly noSeats = signal(false);
   protected readonly linkNotFound = signal(false);
   protected readonly planNotSupported = signal(false);
+  protected readonly registrationCrossingFailed = signal(false);
 
   private readonly failedMessage = "openInviteAcceptFailed";
 
   async ngOnInit() {
-    // The open route puts `organizationId` + `inviteLinkCode` in the path and `inviteKey`
-    // in the query string. Pre-merge before handing to AcceptFlowService, which expects one
-    // Params bag.
+    // Two entry points map to this component:
+    //   1. `/join/:organizationId/:inviteLinkCode?key=<key>` — direct open-invite landing
+    //      with `organizationId`, `inviteLinkCode`, and `inviteKey` (as `?key=`) all
+    //      present on the URL.
+    //   2. `/join?sealedOpenOrgInviteData=<blob>` — registration-crossing replay from
+    //      RegistrationFinishComponent post-login; those three fields live inside the
+    //      sealed blob and must be recovered via
+    //      `OrganizationInviteService.unsealOpenOrgInvite`.
     const [params, qParams] = await Promise.all([
       firstValueFrom(this.route.params),
       firstValueFrom(this.route.queryParams),
     ]);
+
+    const sealedOpenOrgInviteData =
+      typeof qParams.sealedOpenOrgInviteData === "string" && qParams.sealedOpenOrgInviteData !== ""
+        ? qParams.sealedOpenOrgInviteData
+        : null;
+    const hasPathParams = params.organizationId != null && params.inviteLinkCode != null;
+
+    if (sealedOpenOrgInviteData == null && !hasPathParams) {
+      // Bare `/join` landing with no context — silent redirect to root. Nothing to accept,
+      // no error to surface (user did not attempt anything actionable).
+      this.loading.set(false);
+      await this.router.navigate(["/"], { replaceUrl: true });
+      return;
+    }
+
+    if (sealedOpenOrgInviteData != null) {
+      await this.registrationCrossingHandler(sealedOpenOrgInviteData);
+      this.loading.set(false);
+      return;
+    }
 
     await this.acceptFlowService.run<OpenOrgInviteUrlParams>(
       { ...params, ...qParams },
@@ -73,6 +101,116 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       },
     );
     this.loading.set(false);
+  }
+
+  /**
+   * Handles the registration-crossing entry: unseals the blob via the service, and on
+   * success hands the recovered invite context to {@link authedHandler} so the accept path
+   * is shared with the direct-landing flow. Strips the `sealedOpenOrgInviteData` query
+   * param from the URL up-front so back-nav / refresh cannot re-run the crossing after it
+   * has been handled once. Every unseal-failure branch — plus any throw from
+   * `authedHandler` (accept-endpoint failure, server error, revoked link, etc.) — surfaces
+   * the unified registration-crossing error state; the HighEntropySecret entry is cleared
+   * on every branch (success or failure) so the crossing is single-use.
+   */
+  private async registrationCrossingHandler(sealedOpenOrgInviteData: string): Promise<void> {
+    // Strip the sealed blob from the URL immediately so this branch cannot re-fire on
+    // refresh, back-nav, or history revisit regardless of the outcome below.
+    await this.stripSealedOpenOrgInviteDataFromUrl();
+
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const email = account?.email;
+    if (email == null) {
+      // The route is gated to authed users, so this is a defensive fallback for the
+      // rare "no active account" edge case (e.g. concurrent logout tab).
+      this.logService.warning(
+        "AcceptOrgOpenInviteComponent: registration-crossing entry hit without an active account.",
+      );
+      this.showRegistrationCrossingFailed();
+      return;
+    }
+
+    const result = await this.organizationInviteService.unsealOpenOrgInvite(
+      email,
+      sealedOpenOrgInviteData,
+    );
+
+    switch (result.kind) {
+      case "ok": {
+        try {
+          await this.authedHandler(result.invite);
+        } catch (e) {
+          // Post-unseal accept-endpoint failure (server error, invite revoked between
+          // unseal and accept, network drop, or an unclassified acceptOpenOrgInvite kind
+          // that rethrew) — treat as a registration-crossing failure per the unified
+          // error copy.
+          this.logService.warning(
+            "AcceptOrgOpenInviteComponent: accept threw after successful unseal.",
+            e,
+          );
+          this.showRegistrationCrossingFailed();
+        }
+        // Clear regardless of success/failure — the crossing is complete for this
+        // browser and the paired secret has no further use.
+        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
+        return;
+      }
+      case "secret-miss": {
+        // No HighEntropySecret stored for this email on this origin (cross-device attempt,
+        // state wiped, or TTL-swept). Nothing to clear.
+        this.logService.warning(
+          "AcceptOrgOpenInviteComponent: no HighEntropySecret stored for the active account's email.",
+        );
+        this.showRegistrationCrossingFailed();
+        return;
+      }
+      case "crypto-failure": {
+        // Wrong secret paired with this blob, or the blob has been tampered. The stored
+        // HighEntropySecret is now known-bad; clear it defensively.
+        this.logService.warning(
+          "AcceptOrgOpenInviteComponent: SDK reported a Crypto failure while unsealing.",
+        );
+        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
+        this.showRegistrationCrossingFailed();
+        return;
+      }
+      case "unexpected": {
+        // WASM boundary or unclassified throw. Clear defensively; the entry is unlikely
+        // to succeed on a retry.
+        this.logService.warning(
+          `AcceptOrgOpenInviteComponent: unexpected unseal failure: ${result.errorMessage}`,
+        );
+        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
+        this.showRegistrationCrossingFailed();
+        return;
+      }
+    }
+  }
+
+  /**
+   * Replaces the current URL with the same path minus the `sealedOpenOrgInviteData`
+   * query param. `replaceUrl: true` keeps the history entry from growing so back-nav
+   * still returns to whatever came before the crossing.
+   */
+  private async stripSealedOpenOrgInviteDataFromUrl(): Promise<void> {
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
+  }
+
+  // TODO: placeholder — pending design. Icon (AccountWarning) and copy
+  // (openInviteRegistrationCrossingFailedTitle / openInviteRegistrationCrossingFailedMessage
+  // in apps/web/src/locales/en/messages.json) are stand-ins until design provides the final
+  // asset + strings. Reused across every registration-crossing failure branch per the
+  // unified error copy in the tech breakdown.
+  private showRegistrationCrossingFailed(): void {
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "openInviteRegistrationCrossingFailedTitle" },
+      pageIcon: AccountWarning,
+    });
+    this.registrationCrossingFailed.set(true);
   }
 
   /**

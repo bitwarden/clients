@@ -129,8 +129,9 @@ export abstract class OrganizationInviteService {
   abstract getSealedOpenOrgInviteSecret(email: string): Promise<string | null>;
 
   /**
-   * Seals an open-org-invite context for the registration-crossing flow: hands the URL-params
-   * triple to the SDK's `seal_open_org_invite_data`, stores the returned `HighEntropySecret`
+   * Seals an open-org-invite context for the registration-crossing flow: hands the
+   * `organizationId`, `inviteLinkCode`, and `inviteKey` to the SDK's
+   * `seal_open_org_invite_data`, stores the returned `HighEntropySecret`
    * paired with `email` (so a later `unsealOpenOrgInvite` can recover it), and returns the
    * sealed blob for the caller to attach to the verification-email request. Returns `null`
    * when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op without a flag

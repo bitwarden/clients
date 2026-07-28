@@ -6200,6 +6200,12 @@
   "openInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
+  "openInviteRegistrationCrossingFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "openInviteRegistrationCrossingFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
   "rememberEmail": {
     "message": "Remember email"
   },

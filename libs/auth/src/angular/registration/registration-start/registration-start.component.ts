@@ -262,7 +262,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * When an `OpenOrganizationInvite` is stashed, seals its URL-params triple via the
+   * When an `OpenOrganizationInvite` is stashed, seals its `organizationId`,
+   * `inviteLinkCode`, and `inviteKey` via the
    * organization-invite service so the sealed blob can ride the verification-email
    * URL fragment through the tab-boundary. Returns `undefined` when no open invite is
    * stashed. The caller is responsible for feature-flag gating.
