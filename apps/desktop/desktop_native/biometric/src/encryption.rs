@@ -193,7 +193,7 @@ impl WindowsHelloKeychainEntryV1 {
         let cipher = XChaCha20Poly1305::new(windows_hello_key.as_bytes().into());
         let mut nonce = [0u8; XCHACHA20POLY1305_NONCE_LENGTH];
         bitwarden_random::rng().fill_bytes(&mut nonce);
-        let nonce_from_slice = XNonce::try_from(nonce)?;
+        let nonce_from_slice = XNonce::from(nonce);
         let wrapped_key = cipher
             .encrypt(&nonce_from_slice, user_key.to_encoded().to_vec().as_slice())
             .map_err(|e| anyhow!(e))?;
@@ -206,9 +206,9 @@ impl WindowsHelloKeychainEntryV1 {
 
     /// Unseal the user key
     pub(super) fn unseal(&self, windows_hello_key: &WindowsHelloPrf) -> Result<SymmetricCryptoKey> {
-        let key: &[u8; 32] = windows_hello_key.as_bytes().try_into()?;
+        let key: &[u8; 32] = windows_hello_key.as_bytes();
         let cipher = XChaCha20Poly1305::new_from_slice(key)?;
-        let nonce = XNonce::try_from(self.nonce)?;
+        let nonce = XNonce::from(self.nonce);
         let decrypted = cipher
             .decrypt(&nonce, self.wrapped_key.as_slice())
             .map_err(|e| anyhow!(e))?;
@@ -287,9 +287,9 @@ mod tests {
 
         // V1 wraps the user key directly with XChaCha20Poly1305. `seal` picks a random nonce, so
         // build the entry with the pinned `TEST_VECTOR_NONCE` to keep the recorded vector stable.
-        let key: &[u8; 32] = windows_hello_key.as_bytes().try_into().unwrap();
+        let key: &[u8; 32] = windows_hello_key.as_bytes();
         let cipher = XChaCha20Poly1305::new_from_slice(key).unwrap();
-        let nonce = XNonce::try_from(TEST_VECTOR_NONCE).expect("Could not create nonce");
+        let nonce = XNonce::from(TEST_VECTOR_NONCE);
         let wrapped_key = cipher
             .encrypt(
                 &nonce,
