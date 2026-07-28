@@ -114,8 +114,6 @@
           [label]="'refresh' | i18n"
         ></button>
       }
-      <!-- Stop propagation so opening the info popover doesn't also toggle the collapsible group header. -->
-      <app-simplified-autofill-info (click)="$event.stopPropagation()" />
     </div>
     <bit-row-group [match]="isLogin">{{ "typeLogin" | i18n }}</bit-row-group>
     <bit-row-group [match]="isCard">{{ "typeCard" | i18n }}</bit-row-group>

@@ -44,7 +44,6 @@ import { VaultPopupSectionService } from "../../../services/vault-popup-section.
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
-import { SimplifiedAutofillInfoComponent } from "../simplified-autofill-info/simplified-autofill-info.component";
 
 @Component({
   selector: "app-vault-popup-list-table",
@@ -74,7 +73,6 @@ import { SimplifiedAutofillInfoComponent } from "../simplified-autofill-info/sim
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
-    SimplifiedAutofillInfoComponent,
   ],
 })
 export class VaultPopupListTableComponent {

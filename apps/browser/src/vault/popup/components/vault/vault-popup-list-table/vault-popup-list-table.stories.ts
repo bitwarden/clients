@@ -304,12 +304,6 @@ const buildProviders = (args: StoryArgs) => {
           refresh: "Refresh",
           favorites: "Favorites",
           allItems: "All items",
-          // app-simplified-autofill-info
-          openSimplifiedAutofillPopover: "Open simplified autofill popover",
-          simplifiedAutofill: "Simplified autofill",
-          simplifiedAutofillDescription:
-            "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu.",
-          gotIt: "Got it",
           typeLogin: "Login",
           typeCard: "Card",
           typeIdentity: "Identity",
