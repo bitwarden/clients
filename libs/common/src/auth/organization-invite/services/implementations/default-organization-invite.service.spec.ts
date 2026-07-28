@@ -1241,6 +1241,72 @@ describe("DefaultOrganizationInviteService", () => {
       });
     });
 
+    describe("email-key normalization at the record boundary", () => {
+      // Guards the invariant that every record read/write applies the same normalization
+      // (`trim().toLowerCase()`) so seal-side and unseal-side callers key the same entry
+      // regardless of case/whitespace differences between the raw form email and the
+      // server-canonicalized account email.
+
+      it("sealOpenOrgInvite writes under the normalized email key", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        registrationClient.seal_open_org_invite_data.mockReturnValue({
+          sealedData: "sealed-blob",
+          highEntropySecret: "hes-abc",
+        } as any);
+
+        await sut.sealOpenOrgInvite("  Foo@Example.COM  ", {
+          organizationId: "org-id",
+          inviteLinkCode: "code",
+          inviteKey: "invite-key",
+        });
+
+        expect(await readRecord()).toEqual({
+          "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+      });
+
+      it("getSealedOpenOrgInviteSecret resolves a raw-cased lookup against a normalized entry", async () => {
+        await writeRecord({
+          "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+
+        expect(await sut.getSealedOpenOrgInviteSecret("Foo@Example.COM")).toEqual("hes-abc");
+        expect(await sut.getSealedOpenOrgInviteSecret("  foo@example.com  ")).toEqual("hes-abc");
+      });
+
+      it("unsealOpenOrgInvite finds the stored secret when the caller passes a differently-cased email", async () => {
+        await writeRecord({
+          "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+        registrationClient.unseal_open_org_invite_data.mockReturnValue({
+          organizationId: "org-id",
+          inviteLinkCode: "code",
+          inviteSecret: "invite-key",
+        } as any);
+
+        const result = await sut.unsealOpenOrgInvite("Foo@Example.COM", "sealed-blob");
+
+        expect(result.kind).toEqual("ok");
+        expect(registrationClient.unseal_open_org_invite_data).toHaveBeenCalledWith({
+          sealedData: "sealed-blob",
+          highEntropySecret: "hes-abc",
+        });
+      });
+
+      it("clearSealedOpenOrgInviteSecret removes the normalized entry when given a raw-cased email", async () => {
+        await writeRecord({
+          "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+          "other@example.com": { highEntropySecret: "keep", createdAtMs: NOW },
+        });
+
+        await sut.clearSealedOpenOrgInviteSecret("  Foo@Example.COM  ");
+
+        expect(await readRecord()).toEqual({
+          "other@example.com": { highEntropySecret: "keep", createdAtMs: NOW },
+        });
+      });
+    });
+
     describe("clearExpiredSealedOpenOrgInviteSecrets", () => {
       it("removes entries whose age is strictly greater than the TTL", async () => {
         await writeRecord({

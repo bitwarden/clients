@@ -420,8 +420,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async getSealedOpenOrgInviteSecret(email: string): Promise<string | null> {
+    const key = this.normalizeEmailKey(email);
     const record = await firstValueFrom(this.sealedOpenOrgInviteSecretState.state$);
-    return record?.[email]?.highEntropySecret ?? null;
+    return record?.[key]?.highEntropySecret ?? null;
   }
 
   async sealOpenOrgInvite(
@@ -485,23 +486,34 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     email: string,
     highEntropySecret: string,
   ): Promise<void> {
+    const key = this.normalizeEmailKey(email);
     const createdAtMs = Date.now();
     await this.sealedOpenOrgInviteSecretState.update((record) => {
       const next = { ...(record ?? {}) };
-      next[email] = { highEntropySecret, createdAtMs };
+      next[key] = { highEntropySecret, createdAtMs };
       return next;
     });
   }
 
   async clearSealedOpenOrgInviteSecret(email: string): Promise<void> {
+    const key = this.normalizeEmailKey(email);
     await this.sealedOpenOrgInviteSecretState.update((record) => {
-      if (record == null || !(email in record)) {
+      if (record == null || !(key in record)) {
         return record;
       }
       const next = { ...record };
-      delete next[email];
+      delete next[key];
       return next;
     });
+  }
+
+  /**
+   * Normalizes an email into the string used as the sealed-secret record key. Applied by
+   * every record read/write so the seal call site (which sees the raw form email) and the
+   * unseal call site (which sees the server-canonicalized account email) key the same entry.
+   */
+  private normalizeEmailKey(email: string): string {
+    return email.trim().toLowerCase();
   }
 
   /**
