@@ -1,5 +1,3 @@
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { PremiumCheckoutSessionRequest } from "../../billing/models/request/premium-checkout-session.request";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
@@ -9,6 +7,7 @@ import { PremiumCheckoutSessionResponse } from "../../billing/models/response/pr
 import { ListResponse } from "../../models/response/list.response";
 import { OrganizationId } from "../../types/guid";
 import { InvoicesResponse } from "../models/response/invoices.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export abstract class BillingApiServiceAbstraction {

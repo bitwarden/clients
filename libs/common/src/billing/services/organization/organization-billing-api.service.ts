@@ -1,7 +1,6 @@
-import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
-
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationBillingApiServiceAbstraction } from "../../abstractions/organizations/organization-billing-api.service.abstraction";
+import { ChangePlanFrequencyRequest } from "../../models/request/change-plan-frequency.request";
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,

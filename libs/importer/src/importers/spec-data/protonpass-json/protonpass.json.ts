@@ -76,7 +76,22 @@ export const testData: ProtonPassJsonFile = {
               note: "Secure note contents.",
               itemUuid: "ad618070",
             },
-            extraFields: [],
+            extraFields: [
+              {
+                fieldName: "note text field",
+                type: "text",
+                data: {
+                  content: "note text value",
+                },
+              },
+              {
+                fieldName: "note hidden field",
+                type: "hidden",
+                data: {
+                  content: "note hidden value",
+                },
+              },
+            ],
             type: "note",
             content: {},
           },
@@ -98,7 +113,22 @@ export const testData: ProtonPassJsonFile = {
               note: "Credit Card Note",
               itemUuid: "d8f45370",
             },
-            extraFields: [],
+            extraFields: [
+              {
+                fieldName: "card text field",
+                type: "text",
+                data: {
+                  content: "card text value",
+                },
+              },
+              {
+                fieldName: "card hidden field",
+                type: "hidden",
+                data: {
+                  content: "card hidden value",
+                },
+              },
+            ],
             type: "creditCard",
             content: {
               cardholderName: "Test name",
@@ -183,7 +213,7 @@ export const testData: ProtonPassJsonFile = {
               city: "New York",
               stateOrProvince: "Test",
               countryOrRegion: "US",
-              floor: "12th Foor",
+              floor: "12th Floor",
               county: "Test County",
               extraAddressDetails: [
                 {
@@ -198,7 +228,7 @@ export const testData: ProtonPassJsonFile = {
               passportNumber: "7173716378612",
               licenseNumber: "21234",
               website: "",
-              xHandle: "@twiter",
+              xHandle: "@twitter",
               secondPhoneNumber: "243538978",
               linkedin: "",
               reddit: "",

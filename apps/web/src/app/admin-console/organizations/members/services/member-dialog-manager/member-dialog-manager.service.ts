@@ -12,6 +12,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -90,16 +91,25 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
+    const detailsTabEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM28365_ChangeMemberEmail,
+    );
+    const resolvedTab =
+      detailsTabEnabled && initialTab === MemberDialogTab.Role
+        ? MemberDialogTab.Details
+        : initialTab;
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: initialTab,
-        managedByOrganization: user.managedByOrganization,
+        initialTab: resolvedTab,
+        claimedByOrganization: user.claimedByOrganization,
       },
     });
 
@@ -268,7 +278,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 
@@ -287,7 +302,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 

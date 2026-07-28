@@ -182,6 +182,50 @@ const alarms = {
   },
 };
 
+// jsdom does not provide IntersectionObserver; content-script services
+// allocate one at construction time. observe() invokes the supplied
+// callback on the next microtask with a minimal entry derived from the
+// target's bounding rect so async consumers (e.g. the autofill overlay
+// service) progress past the observer-based rect query.
+class IntersectionObserverMock {
+  private readonly callback: (entries: any[], observer: IntersectionObserverMock) => void;
+  root: Element | Document | null = null;
+  rootMargin = "";
+  thresholds: number[] = [];
+
+  constructor(callback: (entries: any[], observer: IntersectionObserverMock) => void) {
+    this.callback = callback;
+  }
+
+  observe = jest.fn((target: Element) => {
+    const rect =
+      typeof target.getBoundingClientRect === "function" ? target.getBoundingClientRect() : null;
+    // Promise microtasks are not faked by jest.useFakeTimers(), unlike
+    // queueMicrotask/setImmediate. Tests that opt into fake timers still
+    // see the callback fire so observer-based async chains progress.
+    void Promise.resolve().then(() => {
+      this.callback(
+        [
+          {
+            target,
+            boundingClientRect: rect,
+            intersectionRect: rect,
+            intersectionRatio: rect ? 1 : 0,
+            isIntersecting: !!rect,
+            rootBounds: null,
+            time: Date.now(),
+          },
+        ],
+        this,
+      );
+    });
+  });
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+  takeRecords = jest.fn(() => []);
+}
+(global as any).IntersectionObserver = IntersectionObserverMock;
+
 // set chrome
 global.chrome = {
   i18n,

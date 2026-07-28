@@ -177,7 +177,6 @@ export class SettingsDialogComponent implements OnInit {
     // App Settings
     runInBackground: false,
     openAtLogin: false,
-    enableBrowserIntegration: false,
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -268,15 +267,14 @@ export class SettingsDialogComponent implements OnInit {
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         this.currentUserId(),
       )),
-      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(this.currentUserId()),
+      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
       runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
-      enableBrowserIntegration: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationEnabled$,
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -436,7 +434,7 @@ export class SettingsDialogComponent implements OnInit {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
       await this.keyService.refreshAdditionalKeys(activeUserId);
       return;
     }
@@ -457,11 +455,11 @@ export class SettingsDialogComponent implements OnInit {
       return;
     }
 
-    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
@@ -473,7 +471,7 @@ export class SettingsDialogComponent implements OnInit {
     } else if (this.isLinux) {
       // Similar to Windows
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -483,7 +481,7 @@ export class SettingsDialogComponent implements OnInit {
       BiometricsStatus.Available;
     this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
     if (!biometricSet) {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
     }
   }
 
@@ -519,10 +517,11 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async updateAutoPromptBiometrics() {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.form.value.autoPromptBiometrics) {
-      await this.biometricStateService.setPromptAutomatically(true);
+      await this.biometricStateService.setPromptAutomatically(true, activeUserId);
     } else {
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
   }
 
@@ -557,8 +556,7 @@ export class SettingsDialogComponent implements OnInit {
   private showAutostartSetting(): boolean {
     // Windows store does not support autostart
     // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    // Snap store has auto-start enabled through electron-builder ALWAYS
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   protected async saveOpenAtLogin() {
@@ -567,44 +565,6 @@ export class SettingsDialogComponent implements OnInit {
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
     );
-  }
-
-  protected async saveBrowserIntegration() {
-    const skipSupportedPlatformCheck =
-      ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
-
-    if (!skipSupportedPlatformCheck) {
-      if (ipc.platform.isWindowsStore) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationWindowsStoreDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-    }
-
-    await this.desktopSettingsService.setBrowserIntegrationEnabled(
-      this.form.value.enableBrowserIntegration,
-    );
-
-    const errorResult = await this.nativeMessagingManifestService.generate(
-      this.form.value.enableBrowserIntegration,
-    );
-    if (errorResult !== null) {
-      this.logService.error("Error in browser integration: " + errorResult);
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationErrorTitle" },
-        content: { key: "browserIntegrationErrorDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "danger",
-      });
-    }
   }
 
   protected async saveDdgBrowserIntegration() {
@@ -616,10 +576,6 @@ export class SettingsDialogComponent implements OnInit {
     await this.stateService.setEnableDuckDuckGoBrowserIntegration(
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
-
-    if (!this.form.value.enableBrowserIntegration) {
-      await this.stateService.setDuckDuckGoSharedKey(null);
-    }
 
     const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
       this.form.value.enableDuckDuckGoBrowserIntegration,

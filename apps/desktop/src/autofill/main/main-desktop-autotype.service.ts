@@ -53,12 +53,12 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on("autofill.completeAutotypeError", (_event, matchError: AutotypeMatchError) => {
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, (_event, matchError: AutotypeMatchError) => {
       this.logService.debug(
-        "autofill.completeAutotypeError",
+        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
         "No match for window: " + matchError.windowTitle,
       );
-      this.logService.error("autofill.completeAutotypeError", matchError.errorMessage);
+      this.logService.error(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, matchError.errorMessage);
     });
   }
 
@@ -78,6 +78,7 @@ export class MainDesktopAutotypeService {
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.TOGGLE);
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
     ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR);
 
     // Also unregister the global shortcut
     this.disableAutotype();

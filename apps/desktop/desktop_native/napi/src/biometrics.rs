@@ -1,94 +1,100 @@
 #[napi]
 pub mod biometrics {
-    use desktop_core::biometric::{Biometric, BiometricTrait};
+    use biometric::BiometricTrait;
 
-    // Prompt for biometric confirmation
     #[napi]
-    pub async fn prompt(
+    pub struct BiometricLockSystem {
+        inner: biometric::BiometricLockSystem,
+    }
+
+    #[napi]
+    pub fn init_biometric_system() -> napi::Result<BiometricLockSystem> {
+        Ok(BiometricLockSystem {
+            inner: biometric::BiometricLockSystem::new(),
+        })
+    }
+
+    #[napi]
+    pub async fn authenticate(
+        biometric_lock_system: &BiometricLockSystem,
         hwnd: napi::bindgen_prelude::Buffer,
         message: String,
     ) -> napi::Result<bool> {
-        Ok(Biometric::prompt(hwnd.into(), message).await?)
+        Ok(biometric_lock_system
+            .inner
+            .authenticate(hwnd.into(), message)
+            .await?)
     }
 
     #[napi]
-    pub async fn available() -> napi::Result<bool> {
-        Ok(Biometric::available().await?)
+    pub async fn authenticate_available(
+        biometric_lock_system: &BiometricLockSystem,
+    ) -> napi::Result<bool> {
+        Ok(biometric_lock_system.inner.authenticate_available().await?)
     }
 
     #[napi]
-    pub async fn set_biometric_secret(
-        service: String,
-        account: String,
-        secret: String,
-        key_material: Option<KeyMaterial>,
-        iv_b64: String,
-    ) -> napi::Result<String> {
-        Ok(Biometric::set_biometric_secret(
-            &service,
-            &account,
-            &secret,
-            key_material.map(|m| m.into()),
-            &iv_b64,
-        )
-        .await?)
+    pub async fn enroll_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        Ok(biometric_lock_system
+            .inner
+            .enroll_persistent(&user_id, &key)
+            .await?)
     }
 
-    /// Retrieves the biometric secret for the given service and account.
-    /// Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the secret does not exist.
     #[napi]
-    pub async fn get_biometric_secret(
-        service: String,
-        account: String,
-        key_material: Option<KeyMaterial>,
-    ) -> napi::Result<String> {
-        Ok(
-            Biometric::get_biometric_secret(&service, &account, key_material.map(|m| m.into()))
-                .await?,
-        )
+    pub async fn provide_key(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        key: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<()> {
+        biometric_lock_system
+            .inner
+            .provide_key(&user_id, &key)
+            .await;
+        Ok(())
     }
 
-    /// Derives key material from biometric data. Returns a string encoded with a
-    /// base64 encoded key and the base64 encoded challenge used to create it
-    /// separated by a `|` character.
-    ///
-    /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
-    /// be generated.
-    ///
-    /// `format!("<key_base64>|<iv_base64>")`
-    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
-    pub async fn derive_key_material(iv: Option<String>) -> napi::Result<OsDerivedKey> {
-        Ok(Biometric::derive_key_material(iv.as_deref())?.into())
+    pub async fn unlock(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+        hwnd: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<napi::bindgen_prelude::Buffer> {
+        Ok(biometric_lock_system
+            .inner
+            .unlock(&user_id, hwnd.into())
+            .await?
+            .into())
     }
 
-    #[napi(object)]
-    pub struct KeyMaterial {
-        pub os_key_part_b64: String,
-        pub client_key_part_b64: Option<String>,
+    #[napi]
+    pub async fn unlock_available(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        Ok(biometric_lock_system
+            .inner
+            .unlock_available(&user_id)
+            .await?)
     }
 
-    impl From<KeyMaterial> for desktop_core::biometric::KeyMaterial {
-        fn from(km: KeyMaterial) -> Self {
-            desktop_core::biometric::KeyMaterial {
-                os_key_part_b64: km.os_key_part_b64,
-                client_key_part_b64: km.client_key_part_b64,
-            }
-        }
+    #[napi]
+    pub async fn has_persistent(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<bool> {
+        Ok(biometric_lock_system.inner.has_persistent(&user_id).await?)
     }
 
-    #[napi(object)]
-    pub struct OsDerivedKey {
-        pub key_b64: String,
-        pub iv_b64: String,
-    }
-
-    impl From<desktop_core::biometric::OsDerivedKey> for OsDerivedKey {
-        fn from(km: desktop_core::biometric::OsDerivedKey) -> Self {
-            OsDerivedKey {
-                key_b64: km.key_b64,
-                iv_b64: km.iv_b64,
-            }
-        }
+    #[napi]
+    pub async fn unenroll(
+        biometric_lock_system: &BiometricLockSystem,
+        user_id: String,
+    ) -> napi::Result<()> {
+        Ok(biometric_lock_system.inner.unenroll(&user_id).await?)
     }
 }

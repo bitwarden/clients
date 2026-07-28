@@ -14,12 +14,15 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 import {
   AssignCollectionsComponent,
@@ -103,6 +106,8 @@ describe("AssignCollectionsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
 

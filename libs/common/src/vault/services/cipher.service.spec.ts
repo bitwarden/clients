@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, filter, firstValueFrom, map, of } from "rxjs";
+import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -26,7 +26,7 @@ import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
-import { CipherKey, OrgKey, UserKey } from "../../types/key";
+import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
@@ -193,9 +193,6 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(false);
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
@@ -218,9 +215,6 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(false);
 
       const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
 
@@ -552,9 +546,6 @@ describe("Cipher Service", () => {
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
-      keyService.makeCipherKey.mockReturnValue(
-        Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
-      );
       encryptService.encryptString.mockImplementation(encryptText);
       encryptService.wrapSymmetricKey.mockResolvedValue(new EncString("Re-encrypted Cipher Key"));
 
@@ -580,42 +571,6 @@ describe("Cipher Service", () => {
       const { encryptedFor } = await cipherService.encrypt(cipherView, userId);
       expect(encryptedFor).toEqual(userId);
     });
-
-    describe("encryptCipherForRotation", () => {
-      beforeEach(() => {
-        jest.spyOn<any, string>(cipherService, "encryptCipherWithCipherKey");
-        keyService.getOrgKey.mockReturnValue(
-          Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-        );
-      });
-
-      it("is not called when feature flag is false", async () => {
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.CipherKeyEncryption)
-          .mockResolvedValue(false);
-
-        await cipherService.encrypt(cipherView, userId);
-
-        expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
-      });
-
-      describe("when feature flag is true", () => {
-        beforeEach(() => {
-          configService.getFeatureFlag
-            .calledWith(FeatureFlag.CipherKeyEncryption)
-            .mockResolvedValue(true);
-          cipherEncryptionService.decrypt.mockResolvedValue(new CipherView());
-        });
-
-        it("is not called when cipher viewPassword is false and original cipher has no key", async () => {
-          cipherView.viewPassword = false;
-
-          await cipherService.encrypt(cipherView, userId, new Cipher());
-
-          expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
-        });
-      });
-    });
   });
 
   describe("getRotatedData", () => {
@@ -626,9 +581,6 @@ describe("Cipher Service", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
       const keys = { userKey: originalUserKey } as CipherDecryptionKeys;
@@ -658,10 +610,6 @@ describe("Cipher Service", () => {
       );
       encryptedKey = new EncString("Re-encrypted Cipher Key");
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-
-      keyService.makeCipherKey.mockResolvedValue(
-        new SymmetricCryptoKey(new Uint8Array(32)) as CipherKey,
-      );
 
       cipherEncryptionService.encryptCipherForRotation.mockImplementation((cipher: CipherView) =>
         Promise.resolve({
@@ -749,6 +697,52 @@ describe("Cipher Service", () => {
         encryptionContext.cipher,
         userId,
       );
+    });
+  });
+
+  describe("cipherView$", () => {
+    let cipher1: CipherView;
+    let cipher2: CipherView;
+
+    beforeEach(() => {
+      cipher1 = new CipherView(encryptionContext.cipher);
+      cipher1.id = "cipher-1" as CipherId;
+      cipher2 = new CipherView(encryptionContext.cipher);
+      cipher2.id = "cipher-2" as CipherId;
+
+      jest
+        .spyOn(cipherService, "cipherViews$")
+        .mockReturnValue(of([cipher1, cipher2]) as Observable<CipherView[]>);
+    });
+
+    it("emits the decrypted cipher matching the given id", async () => {
+      const result = await firstValueFrom(
+        cipherService.cipherView$(mockUserId, "cipher-2" as CipherId),
+      );
+
+      expect(result).toBe(cipher2);
+    });
+
+    it("emits undefined when no cipher matches the given id", async () => {
+      const result = await firstValueFrom(
+        cipherService.cipherView$(mockUserId, "missing" as CipherId),
+      );
+
+      expect(result).toBeUndefined();
+    });
+
+    it("does not emit while cipherViews$ is null", async () => {
+      (cipherService.cipherViews$ as jest.Mock).mockReturnValue(
+        of(null) as unknown as Observable<CipherView[]>,
+      );
+
+      const emitted = jest.fn();
+      const subscription = cipherService
+        .cipherView$(mockUserId, "cipher-1" as CipherId)
+        .subscribe(emitted);
+
+      expect(emitted).not.toHaveBeenCalled();
+      subscription.unsubscribe();
     });
   });
 
@@ -1679,6 +1673,26 @@ describe("Cipher Service", () => {
       expect(result[1]).toBeInstanceOf(CipherView);
     });
 
+    it("should serve the decrypted cache without calling the SDK when the cache is populated (flag enabled)", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const cachedView = new CipherView();
+      cachedView.id = "cached-cipher-id" as CipherId;
+      cachedView.name = "Cached Cipher";
+
+      stateProvider.singleUser
+        .getFake(mockUserId, DECRYPTED_CIPHERS)
+        .nextState({ [cachedView.id]: cachedView });
+
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("Cached Cipher");
+    });
+
     it("should not call cipherSdkService when feature flag is disabled", async () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
@@ -1784,7 +1798,47 @@ describe("Cipher Service", () => {
     });
   });
 
-  describe("getCipherForUrl localData application", () => {
+  describe("getAllDecrypted (SDK path) localData hydration", () => {
+    beforeEach(() => {
+      sdkCrudFeatureFlag$.next(true);
+    });
+
+    it("re-attaches localData to SDK-decrypted ciphers", async () => {
+      const cipherId = "test-cipher-id" as CipherId;
+      const testLocalData = {
+        lastLaunched: Date.now().valueOf(),
+        lastUsedDate: Date.now().valueOf() - 1000,
+      };
+      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
+
+      const sdkView = new CipherView();
+      sdkView.id = cipherId;
+      sdkView.localData = undefined;
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+
+      const [result] = await cipherService.getAllDecrypted(userId);
+
+      expect(result.localData).toEqual(testLocalData);
+    });
+
+    it("still returns ciphers when localData retrieval fails", async () => {
+      const cipherId = "test-cipher-id" as CipherId;
+      jest
+        .spyOn(cipherService, "localData$")
+        .mockReturnValue(throwError(() => new Error("localData unavailable")));
+
+      const sdkView = new CipherView();
+      sdkView.id = cipherId;
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+
+      const result = await cipherService.getAllDecrypted(userId);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(cipherId);
+    });
+  });
+
+  describe("getCipherForUrl localData freshness", () => {
     beforeEach(() => {
       Object.defineProperty(autofillSettingsService, "autofillOnPageLoadDefault$", {
         value: of(true),
@@ -1792,66 +1846,23 @@ describe("Cipher Service", () => {
       });
     });
 
-    it("should apply localData to ciphers when getCipherForUrl is called via getLastLaunchedForUrl", async () => {
-      const testUrl = "https://test-url.com";
+    it("re-hydrates localData at call time so the launch flow selects the correct cipher", async () => {
       const cipherId = "test-cipher-id" as CipherId;
-      const testLocalData = {
+      const freshLocalData = {
         lastLaunched: Date.now().valueOf(),
         lastUsedDate: Date.now().valueOf() - 1000,
       };
+      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: freshLocalData }));
 
-      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
+      // Simulate a view whose localData has not yet propagated through cipherViews$.
+      const staleView = new CipherView();
+      staleView.id = cipherId;
+      staleView.localData = null;
+      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([staleView]);
 
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = null;
+      const result = await cipherService.getLastLaunchedForUrl("https://example.com", userId, true);
 
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
-
-      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
-
-      expect(result.localData).toEqual(testLocalData);
-    });
-
-    it("should apply localData to ciphers when getCipherForUrl is called via getLastUsedForUrl", async () => {
-      const testUrl = "https://test-url.com";
-      const cipherId = "test-cipher-id" as CipherId;
-      const testLocalData = { lastUsedDate: Date.now().valueOf() - 1000 };
-
-      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
-
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = null;
-
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
-
-      const result = await cipherService.getLastUsedForUrl(testUrl, userId, true);
-
-      expect(result.localData).toEqual(testLocalData);
-    });
-
-    it("should not modify localData if it already matches in getCipherForUrl", async () => {
-      const testUrl = "https://test-url.com";
-      const cipherId = "test-cipher-id" as CipherId;
-      const existingLocalData = {
-        lastLaunched: Date.now().valueOf(),
-        lastUsedDate: Date.now().valueOf() - 1000,
-      };
-
-      jest
-        .spyOn(cipherService, "localData$")
-        .mockReturnValue(of({ [cipherId]: existingLocalData }));
-
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = existingLocalData;
-
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
-
-      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
-
-      expect(result.localData).toBe(existingLocalData);
+      expect(result.localData).toEqual(freshLocalData);
     });
   });
 

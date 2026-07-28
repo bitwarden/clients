@@ -20,10 +20,6 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -44,6 +40,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { OrganizationUserStatusType, OrganizationUserType } from "@bitwarden/sdk-internal";
 
 import {
   GroupApiService,
@@ -94,7 +91,7 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   name: string;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
-  managedByOrganization?: boolean;
+  claimedByOrganization?: boolean;
   initialTab: MemberDialogTab;
 }
 
@@ -144,8 +141,10 @@ export class MemberDialogComponent implements OnDestroy {
   protected formGroup = this.formBuilder.group({
     emails: [""],
     type: OrganizationUserType.User,
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
-    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
+    // set to readonly in the template
+    externalId: this.formBuilder.control({ value: "", disabled: false }),
+    // set to readonly in the template
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -400,8 +399,9 @@ export class MemberDialogComponent implements OnDestroy {
     }
     this.isRevoked = userDetails.status === OrganizationUserStatusType.Revoked;
     this.showNoMasterPasswordWarning =
-      userDetails.status > OrganizationUserStatusType.Invited &&
-      userDetails.hasMasterPassword === false;
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        userDetails.status,
+      ) && userDetails.hasMasterPassword === false;
     const allCollectionsPermissions = {
       createNewCollections: userDetails.permissions.createNewCollections,
       editAnyCollection: userDetails.permissions.editAnyCollection,
@@ -519,7 +519,7 @@ export class MemberDialogComponent implements OnDestroy {
     const userView = await this.getUserView();
 
     if (this.isEditDialogParams(this.params)) {
-      await this.handleEditUser(userView, this.params);
+      await this.handleEditUser(userView, this.params, organization);
     } else {
       await this.handleInviteUsers(userView);
     }
@@ -554,7 +554,7 @@ export class MemberDialogComponent implements OnDestroy {
       accessSecretsManager: this.formGroup.value.accessSecretsManager,
       resetPasswordEnrolled: false,
       hasMasterPassword: false,
-      managedByOrganization: false,
+      claimedByOrganization: false,
     });
 
     return userView;
@@ -563,9 +563,10 @@ export class MemberDialogComponent implements OnDestroy {
   private async handleEditUser(
     userView: OrganizationUserAdminView,
     params: EditMemberDialogParams,
+    organization: Organization,
   ) {
     userView.id = params.organizationUserId;
-    await this.userService.save(userView);
+    await this.userService.save(userView, organization);
 
     this.toastService.showToast({
       variant: "success",
