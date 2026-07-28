@@ -5,6 +5,7 @@ import {
   ElementRef,
   input,
   NgZone,
+  OnDestroy,
   Optional,
 } from "@angular/core";
 import { take } from "rxjs/operators";
@@ -38,11 +39,14 @@ export function queryForAutofocusDescendents(el: Document | Element) {
 @Directive({
   selector: "[appAutofocus], [bitAutofocus]",
 })
-export class AutofocusDirective implements AfterContentChecked {
+export class AutofocusDirective implements AfterContentChecked, OnDestroy {
   readonly appAutofocus = input(undefined, { transform: booleanAttribute });
 
   // Track if we have already focused the element.
   private focused = false;
+
+  // Defers focusing until the window regains focus.
+  private deferredFocusListener?: () => void;
 
   constructor(
     private el: ElementRef,
@@ -69,10 +73,53 @@ export class AutofocusDirective implements AfterContentChecked {
       return;
     }
 
+    this.focusWhenWindowFocused();
+  }
+
+  ngOnDestroy() {
+    this.removeDeferredFocusListener();
+  }
+
+  /**
+   * Focus the element, but only while the window has focus.
+   *
+   * Focusing an input in a backgrounded window can enable macOS Secure Keyboard Input, which
+   * blocks global hotkeys in other applications until Bitwarden is closed. When the window isn't
+   * focused, defer until it regains focus.
+   *
+   * @see https://github.com/bitwarden/clients/issues/13241
+   */
+  private focusWhenWindowFocused() {
+    if (!document.hasFocus()) {
+      if (this.deferredFocusListener == null) {
+        this.deferredFocusListener = () => {
+          this.removeDeferredFocusListener();
+          this.focusOnceStable();
+        };
+        window.addEventListener("focus", this.deferredFocusListener);
+      }
+      return;
+    }
+
+    this.focusOnceStable();
+  }
+
+  private focusOnceStable() {
+    if (this.focused) {
+      return;
+    }
+
     if (this.ngZone.isStable) {
       this.focus();
     } else {
       this.ngZone.onStable.pipe(take(1)).subscribe(this.focus.bind(this));
+    }
+  }
+
+  private removeDeferredFocusListener() {
+    if (this.deferredFocusListener != null) {
+      window.removeEventListener("focus", this.deferredFocusListener);
+      this.deferredFocusListener = undefined;
     }
   }
 
