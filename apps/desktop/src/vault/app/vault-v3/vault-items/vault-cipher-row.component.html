@@ -83,22 +83,12 @@
         (click)="handleLaunch()"
       ></button>
     }
-    @if (showCopyButton()) {
-      <button
-        [bitMenuTriggerFor]="copyOptions"
-        [disabled]="disabled()"
-        bitIconButton="bwi-clone"
-        type="button"
-        label="{{ 'copyValue' | i18n }}"
-      ></button>
-      <bit-menu #copyOptions>
-        @for (copyField of copyFields(); track copyField.field) {
-          <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ copyField.title | i18n }}
-          </button>
-        }
-      </bit-menu>
+    @if (showCopyActions()) {
+      <vault-item-copy-actions
+        class="tw-inline-flex tw-items-center tw-gap-2 tw-align-middle [&_button[biticonbutton]]:-tw-mx-1"
+        [cipher]="cipher()"
+        [showQuickCopyActions]="showQuickCopyActions()"
+      ></vault-item-copy-actions>
     }
 
     <button

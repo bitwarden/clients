@@ -17,7 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyCipherFieldService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -39,8 +39,11 @@ console.error = (...args: unknown[]) => {
 describe("VaultCipherRowComponent", () => {
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
   let overlayContainer: OverlayContainer;
+  let showQuickCopyActions$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
+    showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+
     await TestBed.configureTestingModule({
       imports: [VaultCipherRowComponent],
       providers: [
@@ -67,6 +70,10 @@ describe("VaultCipherRowComponent", () => {
         {
           provide: DomainSettingsService,
           useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
+        },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: showQuickCopyActions$.asObservable() },
         },
       ],
     }).compileComponents();
@@ -167,6 +174,15 @@ describe("VaultCipherRowComponent", () => {
     it("still renders the copy button in the row", () => {
       const copyBtn = fixture.nativeElement.querySelector('button[biticonbutton="bwi-clone"]');
       expect(copyBtn).toBeTruthy();
+    });
+
+    it("renders individual quick-copy icons when quick copy actions are enabled", () => {
+      showQuickCopyActions$.next(true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-user"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-clock"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-clone"]')).toBeNull();
     });
   });
 
