@@ -1,5 +1,5 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
@@ -21,12 +21,23 @@ import { KeyService } from "@bitwarden/key-management";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
-import { HeaderModule } from "../../../layouts/header/header.module";
 import { InternalGroupApiService } from "../core";
 import { GroupDetailsView } from "../core/views/group-details.view";
 import { SharedOrganizationModule } from "../shared";
 
 import { GroupsComponent } from "./groups.component";
+
+/**
+ * The real `app-header` (`WebHeaderComponent`) pulls in `<app-product-switcher>` and
+ * `<app-account-menu>`, which depend on many app-wide services that aren't worth stubbing out
+ * for this story. Stub it out instead, matching the pattern in
+ * `vault-header.component.stories.ts`.
+ */
+@Component({
+  selector: "app-header",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StubHeaderComponent {}
 
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
@@ -99,7 +110,7 @@ export default {
       declarations: [GroupsComponent],
       imports: [
         SharedOrganizationModule,
-        HeaderModule,
+        StubHeaderComponent,
         ScrollingModule,
         ScrollLayoutDirective,
         IconModule,
