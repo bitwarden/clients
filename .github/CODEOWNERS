@@ -240,8 +240,9 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-apps/web/src/app/pam  @bitwarden/team-pam-dev
-libs/pam              @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
+apps/web/src/app/pam                   @bitwarden/team-pam-dev
+libs/pam                               @bitwarden/team-pam-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
