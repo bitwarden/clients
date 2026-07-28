@@ -20,6 +20,12 @@ import {
   OrganizationInviteLinkApiService,
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
+import {
+  isRegistrationError,
+  OpenOrgInvite,
+  PasswordManagerClient,
+  SealedOpenOrgInvite,
+} from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../../../abstractions/api.service";
@@ -30,21 +36,28 @@ import { PolicyType } from "../../../../admin-console/enums";
 import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
+import { FeatureFlag } from "../../../../enums/feature-flag.enum";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "../../../../models/response/error.response";
+import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
+import { SdkService } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
 import { OrgKey } from "../../../../types/key";
 import { AuthService } from "../../../abstractions/auth.service";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
-import { OpenOrganizationInvite } from "../../models/open-organization-invite";
+import {
+  OpenOrganizationInvite,
+  OpenOrgInviteUrlParams,
+} from "../../models/open-organization-invite";
 import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
 import { OpenOrgInviteSsoConfig } from "../../types/open-org-invite-status.type";
 import { OrganizationInvite } from "../../types/organization-invite.type";
+import { UnsealOpenOrgInviteResult } from "../../types/unseal-open-org-invite-result.type";
 import { OrganizationInviteService } from "../organization-invite.service";
 
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite.state";
@@ -91,6 +104,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly organizationInviteLinkApiService: OrganizationInviteLinkApiService,
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
+    private readonly sdkService: SdkService,
+    private readonly configService: ConfigService,
   ) {
     this.directInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
     this.openInviteState = this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE);
@@ -407,6 +422,75 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async getSealedOpenOrgInviteSecret(email: string): Promise<string | null> {
     const record = await firstValueFrom(this.sealedOpenOrgInviteSecretState.state$);
     return record?.[email]?.highEntropySecret ?? null;
+  }
+
+  async sealOpenOrgInvite(
+    email: string,
+    invite: OpenOrgInviteUrlParams, // TODO: figure out different type
+  ): Promise<string | null> {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return null;
+    }
+    const client: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const sealed: SealedOpenOrgInvite = client.auth().registration().seal_open_org_invite_data({
+      organizationId: invite.organizationId,
+      inviteLinkCode: invite.inviteLinkCode,
+      inviteSecret: invite.inviteKey,
+    });
+
+    await this.setSealedOpenOrgInviteSecret(email, sealed.highEntropySecret);
+    return sealed.sealedData;
+  }
+
+  async unsealOpenOrgInvite(email: string, sealedData: string): Promise<UnsealOpenOrgInviteResult> {
+    const highEntropySecret = await this.getSealedOpenOrgInviteSecret(email);
+    if (highEntropySecret == null) {
+      return { kind: "secret-miss" };
+    }
+    try {
+      const client: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+      const unsealed: OpenOrgInvite = client
+        .auth()
+        .registration()
+        .unseal_open_org_invite_data({ sealedData, highEntropySecret });
+
+      return {
+        kind: "ok",
+        invite: {
+          organizationId: unsealed.organizationId,
+          inviteLinkCode: unsealed.inviteLinkCode,
+          inviteKey: unsealed.inviteSecret,
+        },
+      };
+    } catch (e) {
+      return this.classifyUnsealOpenOrgInviteError(e);
+    }
+  }
+
+  /**
+   * Classifies unseal failures by inspecting the SDK's `RegistrationError` surface.
+   * The `Crypto` variant covers both a mismatched paired secret and a tampered blob —
+   * both indistinguishable at this layer. Any non-`RegistrationError` throw (WASM
+   * boundary error, unrelated runtime exception) falls through to `unexpected` with a
+   * best-effort message.
+   */
+  private classifyUnsealOpenOrgInviteError(e: unknown): UnsealOpenOrgInviteResult {
+    if (isRegistrationError(e) && e.variant === "Crypto") {
+      return { kind: "crypto-failure" };
+    }
+    return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+  }
+
+  private async setSealedOpenOrgInviteSecret(
+    email: string,
+    highEntropySecret: string,
+  ): Promise<void> {
+    const createdAtMs = Date.now();
+    await this.sealedOpenOrgInviteSecretState.update((record) => {
+      const next = { ...(record ?? {}) };
+      next[email] = { highEntropySecret, createdAtMs };
+      return next;
+    });
   }
 
   async clearSealedOpenOrgInviteSecret(email: string): Promise<void> {

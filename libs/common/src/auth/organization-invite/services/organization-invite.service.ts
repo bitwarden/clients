@@ -5,10 +5,11 @@ import { UserId } from "@bitwarden/user-core";
 import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { DirectOrganizationInvite } from "../models/direct-organization-invite";
-import { OpenOrganizationInvite } from "../models/open-organization-invite";
+import { OpenOrganizationInvite, OpenOrgInviteUrlParams } from "../models/open-organization-invite";
 import { AcceptOpenOrgInviteResult } from "../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
 import { OrganizationInvite } from "../types/organization-invite.type";
+import { UnsealOpenOrgInviteResult } from "../types/unseal-open-org-invite-result.type";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy
@@ -126,6 +127,27 @@ export abstract class OrganizationInviteService {
    * client-only half of the two-halves the SDK's `unseal_open_org_invite_data` needs.
    */
   abstract getSealedOpenOrgInviteSecret(email: string): Promise<string | null>;
+
+  /**
+   * Seals an open-org-invite context for the registration-crossing flow: hands the URL-params
+   * triple to the SDK's `seal_open_org_invite_data`, stores the returned `HighEntropySecret`
+   * paired with `email` (so a later `unsealOpenOrgInvite` can recover it), and returns the
+   * sealed blob for the caller to attach to the verification-email request. Returns `null`
+   * when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op without a flag
+   * check of their own.
+   */
+  abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteUrlParams): Promise<string | null>;
+
+  /**
+   * Unseals a previously-sealed open-org-invite blob using the `HighEntropySecret` stored for
+   * `email`. Returns a discriminated {@link UnsealOpenOrgInviteResult} — `ok` with the invite
+   * on success, `secret-miss` when no secret is stored, `crypto-failure` when the SDK reports
+   * a `RegistrationError.Crypto`, or `unexpected` with a best-effort message for anything else.
+   */
+  abstract unsealOpenOrgInvite(
+    email: string,
+    sealedData: string,
+  ): Promise<UnsealOpenOrgInviteResult>;
 
   /**
    * Removes the sealed-open-org-invite secret entry for the given email. Called on

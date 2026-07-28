@@ -1780,6 +1780,8 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteLinkApiService,
       I18nServiceAbstraction,
       GlobalStateProvider,
+      SdkService,
+      ConfigService,
     ],
   }),
   safeProvider({

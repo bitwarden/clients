@@ -24,9 +24,11 @@ import { OrganizationKeysResponse } from "../../../../admin-console/models/respo
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { ErrorResponse } from "../../../../models/response/error.response";
+import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
 import { Utils } from "../../../../platform/misc/utils";
+import { MockSdkService } from "../../../../platform/spec/mock-sdk.service";
 import { OrgKey } from "../../../../types/key";
 import { AuthService } from "../../../abstractions/auth.service";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
@@ -50,6 +52,10 @@ describe("DefaultOrganizationInviteService", () => {
   let organizationInviteLinkApiService: MockProxy<OrganizationInviteLinkApiService>;
   let i18nService: MockProxy<I18nService>;
   let globalStateProvider: FakeGlobalStateProvider;
+  let sdkService: MockSdkService;
+  let configService: MockProxy<ConfigService>;
+  // Deep-mock chain returned by sdkService.client.auth.mockDeep().registration.mockDeep().
+  let registrationClient: any;
 
   beforeEach(() => {
     apiService = mock();
@@ -64,6 +70,11 @@ describe("DefaultOrganizationInviteService", () => {
     organizationInviteLinkApiService = mock();
     i18nService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
+    sdkService = new MockSdkService();
+    configService = mock();
+    // Prime the deep-mock chain the service walks at seal/unseal time
+    // (client.auth().registration()) so tests can inspect calls on the same mock instance.
+    registrationClient = sdkService.client.auth.mockDeep().registration.mockDeep();
 
     sut = new DefaultOrganizationInviteService(
       apiService,
@@ -78,6 +89,8 @@ describe("DefaultOrganizationInviteService", () => {
       organizationInviteLinkApiService,
       i18nService,
       globalStateProvider,
+      sdkService,
+      configService,
     );
   });
 
@@ -1088,6 +1101,143 @@ describe("DefaultOrganizationInviteService", () => {
       it("is a no-op when the record has never been written", async () => {
         await sut.clearSealedOpenOrgInviteSecret("a@example.com");
         expect(await readRecord()).toBeNull();
+      });
+    });
+
+    describe("sealOpenOrgInvite", () => {
+      const validInvite = () => ({
+        organizationId: "org-id",
+        inviteLinkCode: "code",
+        inviteKey: "invite-key",
+      });
+
+      it("returns null and skips SDK/state writes when the feature flag is off", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+
+        const result = await sut.sealOpenOrgInvite("user@example.com", validInvite());
+
+        expect(result).toBeNull();
+        expect(registrationClient.seal_open_org_invite_data).not.toHaveBeenCalled();
+        expect(await readRecord()).toBeNull();
+      });
+
+      it("returns the sealedData when the flag is on and persists the paired secret keyed by email", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        registrationClient.seal_open_org_invite_data.mockReturnValue({
+          sealedData: "sealed-blob",
+          highEntropySecret: "hes-abc",
+        } as any);
+
+        const result = await sut.sealOpenOrgInvite("user@example.com", validInvite());
+
+        expect(result).toEqual("sealed-blob");
+        // Domain -> SDK field rename: inviteKey -> inviteSecret.
+        expect(registrationClient.seal_open_org_invite_data).toHaveBeenCalledWith({
+          organizationId: "org-id",
+          inviteLinkCode: "code",
+          inviteSecret: "invite-key",
+        });
+        expect(await readRecord()).toEqual({
+          "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+      });
+
+      it("overwrites an existing entry for the same email without touching others", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "old-hes", createdAtMs: NOW - 60_000 },
+          "other@example.com": { highEntropySecret: "keep", createdAtMs: NOW - 60_000 },
+        });
+        registrationClient.seal_open_org_invite_data.mockReturnValue({
+          sealedData: "sealed-blob",
+          highEntropySecret: "hes-new",
+        } as any);
+
+        await sut.sealOpenOrgInvite("user@example.com", validInvite());
+
+        expect(await readRecord()).toEqual({
+          "user@example.com": { highEntropySecret: "hes-new", createdAtMs: NOW },
+          "other@example.com": { highEntropySecret: "keep", createdAtMs: NOW - 60_000 },
+        });
+      });
+    });
+
+    describe("unsealOpenOrgInvite", () => {
+      it("returns { kind: 'secret-miss' } when no secret is stored for the email", async () => {
+        const result = await sut.unsealOpenOrgInvite("user@example.com", "sealed-blob");
+        expect(result).toEqual({ kind: "secret-miss" });
+        expect(registrationClient.unseal_open_org_invite_data).not.toHaveBeenCalled();
+      });
+
+      it("returns { kind: 'ok' } with the domain-shaped invite when the SDK unseal succeeds", async () => {
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+        registrationClient.unseal_open_org_invite_data.mockReturnValue({
+          organizationId: "org-id",
+          inviteLinkCode: "code",
+          inviteSecret: "invite-key",
+        } as any);
+
+        const result = await sut.unsealOpenOrgInvite("user@example.com", "sealed-blob");
+
+        expect(registrationClient.unseal_open_org_invite_data).toHaveBeenCalledWith({
+          sealedData: "sealed-blob",
+          highEntropySecret: "hes-abc",
+        });
+        // SDK -> domain field rename: inviteSecret -> inviteKey.
+        expect(result).toEqual({
+          kind: "ok",
+          invite: {
+            organizationId: "org-id",
+            inviteLinkCode: "code",
+            inviteKey: "invite-key",
+          },
+        });
+      });
+
+      it("returns { kind: 'crypto-failure' } when the SDK throws a RegistrationError with Crypto variant", async () => {
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+        const sdkError = Object.assign(new Error("Cryptography initialization failed"), {
+          name: "RegistrationError",
+          variant: "Crypto",
+        });
+        registrationClient.unseal_open_org_invite_data.mockImplementation(() => {
+          throw sdkError;
+        });
+
+        const result = await sut.unsealOpenOrgInvite("user@example.com", "sealed-blob");
+        expect(result).toEqual({ kind: "crypto-failure" });
+      });
+
+      it("returns { kind: 'unexpected' } with the message for non-RegistrationError throws", async () => {
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+        registrationClient.unseal_open_org_invite_data.mockImplementation(() => {
+          throw new Error("wasm boundary panic");
+        });
+
+        const result = await sut.unsealOpenOrgInvite("user@example.com", "sealed-blob");
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "wasm boundary panic" });
+      });
+
+      it("returns { kind: 'unexpected' } for a RegistrationError with a non-Crypto variant", async () => {
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
+        });
+        const sdkError = Object.assign(new Error("Api call failed"), {
+          name: "RegistrationError",
+          variant: "Api",
+        });
+        registrationClient.unseal_open_org_invite_data.mockImplementation(() => {
+          throw sdkError;
+        });
+
+        const result = await sut.unsealOpenOrgInvite("user@example.com", "sealed-blob");
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "Api call failed" });
       });
     });
 
