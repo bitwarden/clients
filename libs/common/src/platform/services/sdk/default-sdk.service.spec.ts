@@ -142,8 +142,8 @@ describe("DefaultSdkService", () => {
           service.userClient$(userId).subscribe(subject_1);
           service.userClient$(userId).subscribe(subject_2);
 
-          // Wait for debounceTime(100) in internalClient$ plus async client initialization
-          await new Promise((resolve) => setTimeout(resolve, 150));
+          // Let the async client initialization in internalClient$ settle.
+          await new Promise((resolve) => setTimeout(resolve, 0));
 
           expect(subject_1.value.take().value).toBe(mockClient);
           expect(subject_2.value.take().value).toBe(mockClient);
@@ -277,8 +277,8 @@ describe("DefaultSdkService", () => {
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
           const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
-          // Advance past the debounceTime(100) in internalClient$ so the first emission fires
-          await jest.advanceTimersByTimeAsync(100);
+          // Drain the microtask queue so the async client initialization completes and emits.
+          await jest.advanceTimersByTimeAsync(0);
           await firstEmission;
 
           service.setClient(userId, mockOverrideClient);
