@@ -7477,14 +7477,6 @@
     "message": "People who can view",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
-  "emailAddresses": {
-    "message": "Email addresses",
-    "description": "Label for the email addresses input field on the share item panel"
-  },
-  "shareEmailPlaceholder": {
-    "message": "Enter email addresses, separated by commas",
-    "description": "Placeholder text for the email addresses textarea on the share item panel"
-  },
   "linkExpiresAfter": {
     "message": "Link expires after",
     "description": "Label for the expiry duration select field when creating a share link"
