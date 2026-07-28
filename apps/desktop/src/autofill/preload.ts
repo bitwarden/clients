@@ -50,6 +50,12 @@ export default {
       completeCallback: (error: Error | null, response: AutotypeVaultData | null) => void,
     ) => void,
   ) => {
+    // Registration must be idempotent: `ipcRenderer.on` appends listeners, so
+    // clear any previous binding before adding a new one. This prevents multiple
+    // autotype mvp listeners. Without this, callers that re-register (for example,
+    // on every vault unlock) would stack the autotype listeners unintentionally.
+    ipcRenderer.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN);
+
     ipcRenderer.on(
       AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
       (

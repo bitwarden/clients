@@ -32,11 +32,13 @@ import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { AutotypeConfig } from "../models/autotype-config";
+import { AutotypeState } from "../models/autotype-state";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
+// Holds the stored user setting if Autotype is enabled or not
 export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
   "autotypeEnabled",
@@ -67,13 +69,13 @@ export class DesktopAutotypeService implements OnDestroy {
     AUTOTYPE_KEYBOARD_SHORTCUT,
   );
 
-  // if the user's account is Premium
-  private readonly isPremiumAccount$: Observable<boolean>;
-
   // The enabled/disabled state from the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
 
   autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
+
+  // If the user's account is Premium
+  private readonly isPremiumAccount$: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
 
@@ -115,13 +117,6 @@ export class DesktopAutotypeService implements OnDestroy {
       return;
     }
 
-    ipc.autofill.listenAutotypeRequestMvp(async (windowTitle, callback) => {
-      const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
-      const firstCipher = possibleCiphers?.at(0);
-      const [error, vaultData] = getAutotypeVaultData(firstCipher);
-      callback(error, vaultData);
-    });
-
     // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
     // user has never changed their local autotype setting (`autotypeEnabledState`),
     // we set their local setting to `true` (once the local user setting is changed
@@ -145,7 +140,7 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
-    // listen for changes in keyboard shortcut settings
+    // Listen for changes in keyboard shortcut settings
     this.autotypeKeyboardShortcut$
       .pipe(
         concatMap(async (keyboardShortcut) => {
@@ -158,36 +153,81 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
-    this.autotypeFeatureEnabled$
+    // Subscribes to any changes to the Autotype state
+    // and does one of the following:
+    // - Enables the Autotype MVP implementation
+    // - Enables the Autotype GA implementation
+    // - Disables Autotype
+    this.autotypeState$
       .pipe(
-        concatMap(async (enabled) => {
-          ipc.autofill.toggleAutotypeMvp(enabled);
+        concatMap(async (state) => {
+          // GA has no native toggle yet, so only the MVP implementation is wired up here.
+          if (state === AutotypeState.Mvp) {
+            // Define the function called within listenAutotypeRequestMvp()
+            // in the preload.ts file for the Autotype MVP implementation.
+            // Safe to call on every transition into Mvp: listenAutotypeRequestMvp
+            // clears any prior binding before adding a new one.
+            ipc.autofill.listenAutotypeRequestMvp(async (windowTitle, callback) => {
+              const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
+              const firstCipher = possibleCiphers?.at(0);
+              const [error, vaultData] = getAutotypeVaultData(firstCipher);
+              callback(error, vaultData);
+            });
+
+            ipc.autofill.toggleAutotypeMvp(true);
+          } else if (state === AutotypeState.Ga) {
+            ipc.autofill.toggleAutotypeMvp(false);
+            // TODO: enable GA -- listenAutotypeRequestGa(...) equivalent, made
+            // idempotent the same way as listenAutotypeRequestMvp above.
+          } else if (state === AutotypeState.Disabled) {
+            ipc.autofill.toggleAutotypeMvp(false);
+            // TODO: disable GA
+          }
         }),
         takeUntil(this.destroy$),
       )
       .subscribe();
   }
 
-  // Returns an observable that represents whether autotype is enabled for the current user.
-  private get autotypeFeatureEnabled$(): Observable<boolean> {
+  // Returns an observable that represents which Autotype implementation, if any,
+  // is active for the current user.
+  private get autotypeState$(): Observable<AutotypeState> {
     return combineLatest([
       // if the user has enabled the setting
       this.autotypeEnabledUserSetting$,
-      // if the feature flag is set
+      // if the MVP feature flag is set
       this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+      // if the GA feature flag is set
+      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA),
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
       // if the active user's account is Premium
       this.isPremiumAccount$,
     ]).pipe(
-      map(
-        ([settingsEnabled, ffEnabled, authStatus, isPremiumAcct]) =>
-          settingsEnabled &&
-          ffEnabled &&
-          authStatus === AuthenticationStatus.Unlocked &&
-          isPremiumAcct,
-      ),
-      distinctUntilChanged(), // Only emit when the boolean result changes
+      map(([settingsEnabled, mvpFlagEnabled, gaFlagEnabled, authStatus, isPremiumAcct]) => {
+        // Base gate for any non-disabled state: the user setting is on, the vault
+        // is unlocked, and the account is Premium.
+        const baseGateOpen =
+          settingsEnabled && authStatus === AuthenticationStatus.Unlocked && isPremiumAcct;
+
+        if (!baseGateOpen) {
+          return AutotypeState.Disabled;
+        }
+
+        // MVP intentionally takes precedence over GA when both flags are enabled
+        // simultaneously. This is an explicit product requirement, not an artifact
+        // of if/else ordering.
+        if (mvpFlagEnabled) {
+          return AutotypeState.Mvp;
+        }
+
+        if (gaFlagEnabled) {
+          return AutotypeState.Ga;
+        }
+
+        return AutotypeState.Disabled;
+      }),
+      distinctUntilChanged(), // Only emit when the resolved state changes
       takeUntil(this.destroy$),
     );
   }

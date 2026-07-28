@@ -1,17 +1,20 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
+
+import { AutotypeState } from "../models/autotype-state";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
@@ -40,7 +43,8 @@ describe("DesktopAutotypeService", () => {
   let activeAccountSubject: BehaviorSubject<any>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let featureFlagSubject: BehaviorSubject<boolean>;
+  let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
+  let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   let autotypeDefaultPolicySubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<any[]>;
 
@@ -53,7 +57,8 @@ describe("DesktopAutotypeService", () => {
       AuthenticationStatus.Unlocked,
     );
     hasPremiumSubject = new BehaviorSubject<boolean>(true);
-    featureFlagSubject = new BehaviorSubject<boolean>(true);
+    mvpFeatureFlagSubject = new BehaviorSubject<boolean>(true);
+    gaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     autotypeDefaultPolicySubject = new BehaviorSubject<boolean>(false);
     cipherViewsSubject = new BehaviorSubject<any[]>([]);
 
@@ -111,7 +116,12 @@ describe("DesktopAutotypeService", () => {
 
     // Mock ConfigService
     mockConfigService = {
-      getFeatureFlag$: jest.fn().mockReturnValue(featureFlagSubject.asObservable()),
+      getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
+        if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+          return gaFeatureFlagSubject.asObservable();
+        }
+        return mvpFeatureFlagSubject.asObservable();
+      }),
     } as any;
 
     // Mock PlatformUtilsService
@@ -184,7 +194,14 @@ describe("DesktopAutotypeService", () => {
 
   describe("init", () => {
     it("should register autotype request listener on Windows", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
+
       await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(global.ipc.autofill.listenAutotypeRequestMvp).toHaveBeenCalled();
     });
@@ -206,15 +223,30 @@ describe("DesktopAutotypeService", () => {
       expect(global.ipc.autofill.configureAutotypeMvp).toHaveBeenCalled();
     });
 
-    it("should toggle autotype when feature enabled state changes", async () => {
+    it("should toggle MVP autotype on when the MVP state is active", async () => {
       autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
 
       await service.init();
 
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalled();
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(true);
+    });
+
+    it("should not toggle MVP autotype on when only the GA state is active", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(true);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {
@@ -228,6 +260,60 @@ describe("DesktopAutotypeService", () => {
 
       expect(mockAutotypeEnabledState.update).toHaveBeenCalled();
       expect(autotypeEnabledSubject.value).toBe(true);
+    });
+  });
+
+  describe("autotypeState$", () => {
+    it("resolves to Mvp when the base gate is open and the MVP flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+
+      expect(state).toBe(AutotypeState.Mvp);
+    });
+
+    it("resolves to Ga when the base gate is open and only the GA flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(true);
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+
+      expect(state).toBe(AutotypeState.Ga);
+    });
+
+    it("prefers Mvp over Ga when both flags are enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+
+      expect(state).toBe(AutotypeState.Mvp);
+    });
+
+    it("resolves to Disabled when neither flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(false);
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+
+      expect(state).toBe(AutotypeState.Disabled);
+    });
+
+    it("resolves to Disabled when the base gate is closed even if a flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+      // Base gate closed: account is not Premium.
+      hasPremiumSubject.next(false);
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+
+      expect(state).toBe(AutotypeState.Disabled);
     });
   });
 
