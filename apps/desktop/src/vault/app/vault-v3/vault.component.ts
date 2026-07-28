@@ -207,7 +207,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   private focusSearchInput() {
-    if (this.showingModal) {
+    if (this.activeDrawerRef != null) {
+      return;
+    }
+    const active = document.activeElement;
+    if (active != null && active !== document.body && !active.closest("bit-search")) {
       return;
     }
     setTimeout(() => {
