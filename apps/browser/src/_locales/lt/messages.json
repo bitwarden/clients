@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Account restricted"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "ĮSPĖJIMAS",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Patvirtinti saugyklos eksportą"
   },
-  "exportWarningDesc": {
-    "message": "Šiame duomenų exporte jūsų saugyklos duomenys yra neužšifruoti. Jūs neturėtumete laikyti ar siųsti išeksportuotos duomenų bylos nesaugiu komunikaciniu kanalu (tokiu kaip el. paštas). Ištrinkite jį kaip galima greičiau po to kai pasinaudojote."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Šis duomenų exportavimas užšifruoja jūsų duomenis naudodamas jūsų prieigos kodų raktu. Jei jūs kada nuspręsite pakeisti prieigos kodų raktą, jūs turėtumėte per naują eksportuoti duomenis, nes kitaip, jūs negalėsite iššifruoti išeksportuotų duomenų."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Prisijunk prie Premium narystės ir gauk:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB užšifruotos vietos diske bylų prisegimams."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Slaptažodžio higiena, prieigos sveikata ir duomenų nutekinimo ataskaitos, kad tavo saugyklas būtų saugus."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "TOTP patvirtinimo kodų (2FA) generatorius prisijungimams prie tavo saugyklos."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Prioritetinis klientų aptarnavimas."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Visos būsimos Premium savybės. Daugiau jau greitai!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Įsigyti Premium"
@@ -2548,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Darbalaukio programa yra prisijungusi prie kitos paskyros. Įsitikinkite, kad abi programos yra prisijungusios prie tos pačios paskyros."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Paskyros neatitikimas"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometric key missmatch"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biometriniai duomenys negali būti užpildyti, apsvarstyk galimybę naudoti pagrindinį slaptažodį arba atsijungti. Jei tai tęsiasi, kreipkitės į Bitwarden pagalbą."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Netinkamas „$SERVICENAME$“ API prieigos raktas.",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Netinkamas „$SERVICENAME$“ API prieigos raktas: $ERRORMESSAGE$.",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Rakto jungties klaida: įsitikinkite, kad rakto jungtis yra prieinama ir veikia tinkamai."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Reikalingas Premium abonementas"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Organizacija suspenduota."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Redaguoti lauką"
