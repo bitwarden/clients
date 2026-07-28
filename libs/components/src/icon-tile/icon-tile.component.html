@@ -1,5 +1,8 @@
 <div
   [class]="containerClasses()"
+  [style.background-color]="customColorStyles()?.background"
+  [style.border-color]="customColorStyles()?.border"
+  [style.color]="customColorStyles()?.text"
   [attr.aria-label]="ariaLabel()"
   [attr.role]="ariaLabel() ? 'img' : null"
 >

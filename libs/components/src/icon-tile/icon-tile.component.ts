@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { BitwardenIcon } from "../shared/icon";
 
 type SemanticVariant =
@@ -12,8 +14,14 @@ export type IconTileEmphasis = "muted" | "bold";
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
+/** The [background, border, foreground] Tailwind class triple for one tile appearance. */
+type TileClasses = string[];
+
+/** A variant's classes for each emphasis level. */
+type EmphasisStyles = Record<IconTileEmphasis, TileClasses>;
+
 // Decorative color families are the single source of truth for the categorical palette.
-const decorativeVariantStyles: Record<DecorativeVariant, Record<IconTileEmphasis, string[]>> = {
+const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
   brand: {
     muted: [
       "tw-bg-bg-decorative-brand",
@@ -101,12 +109,12 @@ const decorativeVariantStyles: Record<DecorativeVariant, Record<IconTileEmphasis
 };
 
 // Semantic variants ignore emphasis — map both emphases to the same triple.
-const emphasisAgnostic = (classes: string[]): Record<IconTileEmphasis, string[]> => ({
+const emphasisAgnostic = (classes: TileClasses): EmphasisStyles => ({
   muted: classes,
   bold: classes,
 });
 
-const variantStyles: Record<IconTileVariant, Record<IconTileEmphasis, string[]>> = {
+const variantStyles: Record<IconTileVariant, EmphasisStyles> = {
   // decorative families respond to emphasis
   brand: decorativeVariantStyles.brand,
   teal: decorativeVariantStyles.teal,
@@ -185,6 +193,14 @@ export class IconTileComponent {
   readonly variant = input<IconTileVariant>("primary");
 
   /**
+   * Optional custom hex color (e.g. `#175ddc`) — typically used to match a user's avatar color.
+   * When set, it takes precedence over `variant`/`emphasis`: the fill matches the color, the
+   * foreground (icon) color is chosen for contrast, and the border is the color adjusted ±15%
+   * lightness.
+   */
+  readonly color = input<string>();
+
+  /**
    * Emphasis level for the decorative color families (`brand`, `teal`, `green`, `orange`, `red`,
    * `purple`, `gray`). Ignored by the semantic variants, which render the same regardless.
    */
@@ -200,9 +216,39 @@ export class IconTileComponent {
    */
   readonly ariaLabel = input<string>();
 
+  /**
+   * When a custom `color` is provided, derive the fill, border, and foreground colors. Mirrors the
+   * avatar component's custom-color logic so icon tiles and avatars render matching colors.
+   * Returns `null` when no custom color is set, in which case the `variant`/`emphasis` classes apply.
+   */
+  protected readonly customColorStyles = computed<{
+    background: string;
+    border: string;
+    text: string;
+  } | null>(() => {
+    const color = this.color();
+    if (color == null || color.trim() === "") {
+      return null;
+    }
+
+    // "black" or "white" — svgTextFill omits `!important` so the value is valid in a style binding.
+    const text = Utils.pickTextColorBasedOnBgColor(color, 135, true);
+    // Dark foreground -> darken the border 15%; white foreground -> lighten the border 15%.
+    const borderLightness = text === "black" ? "calc(l - 15)" : "calc(l + 15)";
+
+    return {
+      background: color,
+      border: `hsl(from ${color} h s ${borderLightness})`,
+      text,
+    };
+  });
+
   protected readonly containerClasses = computed(() => {
     const size = this.size();
-    const colorClasses = variantStyles[this.variant()][this.emphasis()];
+    // A custom color supplies bg/border/text via inline styles, so drop the variant color triple.
+    const colorClasses = this.customColorStyles()
+      ? []
+      : variantStyles[this.variant()][this.emphasis()];
 
     return [
       "tw-inline-flex",

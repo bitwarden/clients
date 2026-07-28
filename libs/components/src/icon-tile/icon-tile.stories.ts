@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+
 import { BITWARDEN_ICONS } from "../shared/icon";
 
 import { IconTileComponent } from "./icon-tile.component";
@@ -12,7 +14,6 @@ export default {
     variant: "primary",
     emphasis: "muted",
     size: "base",
-    borderRadius: "base",
   },
   argTypes: {
     variant: {
@@ -46,6 +47,9 @@ export default {
       options: BITWARDEN_ICONS,
       control: { type: "select" },
     },
+    color: {
+      control: { type: "color" },
+    },
     ariaLabel: {
       control: { type: "text" },
     },
@@ -60,7 +64,14 @@ export default {
 
 type Story = StoryObj<IconTileComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-icon-tile ${formatArgsForCodeSnippet<IconTileComponent>(args)}></bit-icon-tile>
+    `,
+  }),
+};
 
 export const AllVariants: Story = {
   render: () => ({
@@ -170,6 +181,13 @@ export const AllVariants: Story = {
       </div>
     `,
   }),
+};
+
+export const CustomColor: Story = {
+  ...Default,
+  args: {
+    color: "#f8e71c",
+  },
 };
 
 export const AllSizes: Story = {
