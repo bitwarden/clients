@@ -15,9 +15,9 @@ import {
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import { OrganizationId, UserId } from "../../../types/guid";
+import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -30,12 +30,6 @@ import { Utils } from "../../misc/utils";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
-
-/**
- * Comfortably longer than the `auditTime` window `internalClient$` applies to its non-userKey
- * state, so advancing by this always lets a pending state change through.
- */
-const PAST_AUDIT_WINDOW_MS = 250;
 
 class TestSdkLoadService extends SdkLoadService {
   protected override load(): Promise<void> {
@@ -148,8 +142,8 @@ describe("DefaultSdkService", () => {
           service.userClient$(userId).subscribe(subject_1);
           service.userClient$(userId).subscribe(subject_2);
 
-          // Wait for the audit window in internalClient$ plus async client initialization
-          await new Promise((resolve) => setTimeout(resolve, PAST_AUDIT_WINDOW_MS));
+          // Let the async client initialization in internalClient$ settle.
+          await new Promise((resolve) => setTimeout(resolve, 0));
 
           expect(subject_1.value.take().value).toBe(mockClient);
           expect(subject_2.value.take().value).toBe(mockClient);
@@ -214,58 +208,6 @@ describe("DefaultSdkService", () => {
           expect(userClientTracker.emissions[1]).toBeDefined();
         });
 
-        it("rebuilds the client as soon as the userKey changes, without waiting out the audit window", async () => {
-          jest.useFakeTimers();
-          const userKey$ = new BehaviorSubject(
-            new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-          );
-          keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
-
-          const subject = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-          const subscription = service.userClient$(userId).subscribe(subject);
-
-          // Let the initial client settle past the audit window.
-          await jest.advanceTimersByTimeAsync(PAST_AUDIT_WINDOW_MS);
-          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
-
-          userKey$.next(new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as UserKey);
-
-          // Only drain the microtask queue -- the userKey must not be subject to the audit window.
-          await jest.advanceTimersByTimeAsync(0);
-          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
-
-          subscription.unsubscribe();
-          jest.useRealTimers();
-        });
-
-        it("coalesces a burst of non-userKey state changes into a single client", async () => {
-          jest.useFakeTimers();
-          const orgKeys$ = new BehaviorSubject<Record<OrganizationId, EncString>>({});
-          keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(orgKeys$);
-
-          const subject = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-          const subscription = service.userClient$(userId).subscribe(subject);
-
-          await jest.advanceTimersByTimeAsync(PAST_AUDIT_WINDOW_MS);
-          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
-
-          const lastOrgId = Utils.newGuid() as OrganizationId;
-          orgKeys$.next({ [Utils.newGuid() as OrganizationId]: new EncString("4.first") });
-          orgKeys$.next({ [Utils.newGuid() as OrganizationId]: new EncString("4.second") });
-          orgKeys$.next({ [lastOrgId]: new EncString("4.third") });
-
-          await jest.advanceTimersByTimeAsync(PAST_AUDIT_WINDOW_MS);
-
-          // One rebuild for the whole burst, initialized with the final value.
-          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
-          expect(mockClient.crypto().initialize_org_crypto).toHaveBeenLastCalledWith({
-            organizationKeys: new Map([[lastOrgId, "4.third"]]),
-          });
-
-          subscription.unsubscribe();
-          jest.useRealTimers();
-        });
-
         it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {
           const env$ = new BehaviorSubject<Environment | undefined>(mock<Environment>());
           environmentService.getEnvironment$
@@ -273,12 +215,10 @@ describe("DefaultSdkService", () => {
             .mockReturnValue(env$ as BehaviorSubject<Environment>);
 
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          // The environment is part of the audited state, so both the initial client and the
-          // completion triggered by unsetting it wait out the audit window.
-          await userClientTracker.pauseUntilReceived(1, PAST_AUDIT_WINDOW_MS);
+          await userClientTracker.pauseUntilReceived(1);
 
           env$.next(undefined);
-          await userClientTracker.expectCompletion(PAST_AUDIT_WINDOW_MS);
+          await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);
         });
@@ -336,9 +276,9 @@ describe("DefaultSdkService", () => {
           sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
-          const firstEmission = userClientTracker.pauseUntilReceived(1, 500);
-          // Advance past the audit window in internalClient$ so the first emission fires
-          await jest.advanceTimersByTimeAsync(PAST_AUDIT_WINDOW_MS);
+          const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
+          // Drain the microtask queue so the async client initialization completes and emits.
+          await jest.advanceTimersByTimeAsync(0);
           await firstEmission;
 
           service.setClient(userId, mockOverrideClient);
