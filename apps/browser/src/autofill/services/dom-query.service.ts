@@ -79,7 +79,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   query<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
   ): T[] {
@@ -107,7 +107,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   /** Like {@link query}, but also returns the un-hydrated custom-element hosts found in the walk. */
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
   ): { elements: T[]; unresolvedHosts: Set<Element> } {
     return this.queryAllTreeWalkerNodes<T>(
@@ -571,7 +571,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   private queryAllTreeWalkerNodes<T>(
     rootNode: Node,
-    filterCallback: CallableFunction,
+    filterCallback: (element: Element) => boolean,
     ignoredTreeWalkerNodes: Set<string>,
     mutationObserver?: MutationObserver,
   ): { elements: T[]; unresolvedHosts: Set<Element> } {
@@ -603,7 +603,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
     treeWalkerQueryResults: T[],
-    filterCallback: CallableFunction,
+    filterCallback: (element: Element) => boolean,
     ignoredTreeWalkerNodes: Set<string>,
     mutationObserver: MutationObserver | undefined,
     unresolvedHosts: Set<Element>,
@@ -613,45 +613,55 @@ export class DomQueryService implements DomQueryServiceInterface {
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
-    let currentNode: Node | null = treeWalker?.currentNode;
 
-    while (currentNode) {
-      if (filterCallback(currentNode)) {
+    do {
+      const currentNode: Node | Element | null = treeWalker.currentNode;
+
+      // `currentNode` can be one of two things: the root node (which is a `Node`),
+      // or an `Element` (due to the `NodeFilter.SHOW_ELEMENT`). Therefore,
+      // `currentNode` is an `Element` if it is not the root node, or if it
+      // is an element.
+      let currentElement: Element;
+      if (currentNode != treeWalker.root || nodeIsElement(currentNode)) {
+        currentElement = currentNode as Element;
+      } else {
+        continue;
+      }
+
+      if (filterCallback(currentElement)) {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
-      if (nodeIsElement(currentNode)) {
-        const el = currentNode as Element;
-        let nodeShadowRoot: ShadowRoot | null = null;
-        // Probe only when shadow DOM is known present: open root, then extension API for closed.
-        if (this.pageContainsShadowDom) {
-          nodeShadowRoot = el.shadowRoot ?? this.getShadowRoot(currentNode);
-        }
-        if (nodeShadowRoot) {
-          if (mutationObserver) {
-            this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
-          }
-
-          this.buildTreeWalkerNodesQueryResults(
-            nodeShadowRoot,
-            treeWalkerQueryResults,
-            filterCallback,
-            ignoredTreeWalkerNodes,
-            mutationObserver,
-            unresolvedHosts,
-          );
-        } else if (
-          unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
-          el.tagName.includes("-") &&
-          !el.shadowRoot &&
-          !this.isOwnedShadowHost(el)
-        ) {
-          // Only enrollment source for hosts that predate observer attachment.
-          unresolvedHosts.add(el);
-        }
+      // Probe for a shadow root only when the page is known to have shadow DOM: the open root
+      // via element.shadowRoot (free), else the extension API for closed roots. `nodeShadowRoot`
+      // is declared out here — not inside the latch check — so the unresolved-host sink below
+      // still runs when the latch is false.
+      let nodeShadowRoot: ShadowRoot | null = null;
+      if (this.pageContainsShadowDom) {
+        nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
       }
+      if (nodeShadowRoot) {
+        if (mutationObserver) {
+          this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
+        }
 
-      currentNode = treeWalker?.nextNode();
-    }
+        this.buildTreeWalkerNodesQueryResults(
+          nodeShadowRoot,
+          treeWalkerQueryResults,
+          filterCallback,
+          ignoredTreeWalkerNodes,
+          mutationObserver,
+          unresolvedHosts,
+        );
+      } else if (
+        unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
+        currentElement.tagName.includes("-") &&
+        !currentElement.shadowRoot &&
+        !this.isOwnedShadowHost(currentElement)
+      ) {
+        // Only enrollment source for hosts that predate observer attachment.
+        unresolvedHosts.add(currentElement);
+      }
+    } while (treeWalker.nextNode());
   }
 }

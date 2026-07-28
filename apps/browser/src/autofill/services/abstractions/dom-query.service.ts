@@ -4,13 +4,13 @@ export interface DomQueryService {
   query<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
   ): T[];
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
   ): { elements: T[]; unresolvedHosts: Set<Element> };
   updatePageContainsShadowDom(): boolean;
