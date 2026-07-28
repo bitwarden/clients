@@ -48,10 +48,24 @@ import { OrganizationInvite } from "../../types/organization-invite.type";
 import { OrganizationInviteService } from "../organization-invite.service";
 
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite.state";
+import {
+  EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL,
+  SEALED_OPEN_ORG_INVITE_SECRET_TTL_MS,
+  SealedOpenOrgInviteSecretState,
+} from "./sealed-open-org-invite-secret.state";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   private directInviteState: GlobalState<DirectOrganizationInvite | null>;
   private openInviteState: GlobalState<OpenOrganizationInvite | null>;
+  /**
+   * Record of `{ email → { highEntropySecret, createdAtMs } }` for in-flight
+   * open-organization-invite registration crossings. Web-only (`disk-local`); pruned by
+   * {@link clearExpiredSealedOpenOrgInviteSecrets} on APP_INITIALIZER boot.
+   */
+  private sealedOpenOrgInviteSecretState: GlobalState<Record<
+    string,
+    SealedOpenOrgInviteSecretState
+  > | null>;
   /**
    * Merged stream of the two variant-specific state keys. Mutual exclusion is enforced
    * by {@link setOrganizationInvite} so at most one of the two is non-null; the merge
@@ -80,6 +94,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   ) {
     this.directInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
     this.openInviteState = this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE);
+    this.sealedOpenOrgInviteSecretState = this.globalStateProvider.get(
+      EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL,
+    );
     this.activeInvite$ = combineLatest([
       this.directInviteState.state$,
       this.openInviteState.state$,
@@ -386,6 +403,46 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return undefined;
     }
     return this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+  }
+
+  async getSealedOpenOrgInviteSecret(email: string): Promise<string | null> {
+    const record = await firstValueFrom(this.sealedOpenOrgInviteSecretState.state$);
+    return record?.[email]?.highEntropySecret ?? null;
+  }
+
+  async clearSealedOpenOrgInviteSecret(email: string): Promise<void> {
+    await this.sealedOpenOrgInviteSecretState.update((record) => {
+      if (record == null || !(email in record)) {
+        return record;
+      }
+      const next = { ...record };
+      delete next[email];
+      return next;
+    });
+  }
+
+  /**
+   * Idempotent: returns the same record reference when nothing is expired so the state
+   * provider can skip an unnecessary disk-local write. Uses strict `>` so entries at the TTL
+   * boundary survive clock jitter.
+   */
+  async clearExpiredSealedOpenOrgInviteSecrets(): Promise<void> {
+    const nowMs = Date.now();
+    await this.sealedOpenOrgInviteSecretState.update((record) => {
+      if (record == null) {
+        return record;
+      }
+      let anyExpired = false;
+      const next: Record<string, SealedOpenOrgInviteSecretState> = {};
+      for (const [email, entry] of Object.entries(record)) {
+        if (nowMs - entry.createdAtMs > SEALED_OPEN_ORG_INVITE_SECRET_TTL_MS) {
+          anyExpired = true;
+          continue;
+        }
+        next[email] = entry;
+      }
+      return anyExpired ? next : record;
+    });
   }
 
   private async acceptDirectOrgInviteAndInitOrganization(

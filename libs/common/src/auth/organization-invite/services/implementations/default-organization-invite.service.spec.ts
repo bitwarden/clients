@@ -34,6 +34,7 @@ import { DirectOrganizationInvite } from "../../models/direct-organization-invit
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
+import { EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL } from "./sealed-open-org-invite-secret.state";
 
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;
@@ -990,6 +991,132 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.validateOpenOrgInviteEmailDomain("abc", "user@example.com");
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("sealed-open-org-invite secret record", () => {
+    // TTL constant is 20 * 60 * 1000 (see SEALED_OPEN_ORG_INVITE_SECRET_TTL_MS).
+    const TTL_MS = 20 * 60 * 1000;
+    // Fixed NOW so the entry-age math in tests is deterministic across environments.
+    const NOW = 1_700_000_000_000;
+
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    // Reaches through the underlying `disk-local` record so tests can inspect what the sweep
+    // and clear methods actually persist — the service does not expose a raw-record read.
+    const readRecord = async (): Promise<
+      Record<string, { highEntropySecret: string; createdAtMs: number }> | null | undefined
+    > => {
+      const state = globalStateProvider.get(EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL);
+      return firstValueFrom(state.state$);
+    };
+
+    // Same reach-through as `readRecord`, used by tests that need to preload state without
+    // going through a public write method (there isn't one exposed on the service until
+    // the seal path lands).
+    const writeRecord = async (
+      record: Record<string, { highEntropySecret: string; createdAtMs: number }> | null,
+    ): Promise<void> => {
+      const state = globalStateProvider.get(EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL);
+      await state.update(() => record);
+    };
+
+    describe("getSealedOpenOrgInviteSecret", () => {
+      it("returns null when no record exists at all", async () => {
+        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
+        expect(result).toBeNull();
+      });
+
+      it("returns null when the record has no entry for the email", async () => {
+        await writeRecord({
+          "other@example.com": { highEntropySecret: "secret-other", createdAtMs: NOW },
+        });
+        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
+        expect(result).toBeNull();
+      });
+
+      it("returns the highEntropySecret for the stored entry", async () => {
+        await writeRecord({
+          "user@example.com": { highEntropySecret: "secret-user", createdAtMs: NOW },
+        });
+        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
+        expect(result).toEqual("secret-user");
+      });
+    });
+
+    describe("clearSealedOpenOrgInviteSecret", () => {
+      it("removes only the targeted email's entry, leaving other entries intact", async () => {
+        await writeRecord({
+          "a@example.com": { highEntropySecret: "sa", createdAtMs: NOW },
+          "b@example.com": { highEntropySecret: "sb", createdAtMs: NOW },
+        });
+        await sut.clearSealedOpenOrgInviteSecret("a@example.com");
+        expect(await readRecord()).toEqual({
+          "b@example.com": { highEntropySecret: "sb", createdAtMs: NOW },
+        });
+      });
+
+      it("is a no-op when the email has no entry", async () => {
+        await writeRecord({
+          "b@example.com": { highEntropySecret: "sb", createdAtMs: NOW },
+        });
+        await sut.clearSealedOpenOrgInviteSecret("a@example.com");
+        expect(await readRecord()).toEqual({
+          "b@example.com": { highEntropySecret: "sb", createdAtMs: NOW },
+        });
+      });
+
+      it("is a no-op when the record has never been written", async () => {
+        await sut.clearSealedOpenOrgInviteSecret("a@example.com");
+        expect(await readRecord()).toBeNull();
+      });
+    });
+
+    describe("clearExpiredSealedOpenOrgInviteSecrets", () => {
+      it("removes entries whose age is strictly greater than the TTL", async () => {
+        await writeRecord({
+          fresh: { highEntropySecret: "s-fresh", createdAtMs: NOW - 5 * 60 * 1000 },
+          expired: { highEntropySecret: "s-expired", createdAtMs: NOW - (TTL_MS + 1) },
+        });
+        await sut.clearExpiredSealedOpenOrgInviteSecrets();
+        expect(await readRecord()).toEqual({
+          fresh: { highEntropySecret: "s-fresh", createdAtMs: NOW - 5 * 60 * 1000 },
+        });
+      });
+
+      it("retains an entry sitting exactly at the TTL boundary (strict > guard)", async () => {
+        await writeRecord({
+          onBoundary: {
+            highEntropySecret: "s-boundary",
+            createdAtMs: NOW - TTL_MS,
+          },
+        });
+        await sut.clearExpiredSealedOpenOrgInviteSecrets();
+        expect(await readRecord()).toEqual({
+          onBoundary: { highEntropySecret: "s-boundary", createdAtMs: NOW - TTL_MS },
+        });
+      });
+
+      it("leaves the record reference unchanged when no entries are expired", async () => {
+        const before = {
+          a: { highEntropySecret: "sa", createdAtMs: NOW },
+          b: { highEntropySecret: "sb", createdAtMs: NOW - 5 * 60 * 1000 },
+        };
+        await writeRecord(before);
+        await sut.clearExpiredSealedOpenOrgInviteSecrets();
+        expect(await readRecord()).toEqual(before);
+      });
+
+      it("is a no-op when the record has never been written", async () => {
+        await sut.clearExpiredSealedOpenOrgInviteSecrets();
+        expect(await readRecord()).toBeNull();
+      });
     });
   });
 });

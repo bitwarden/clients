@@ -111,4 +111,27 @@ export abstract class OrganizationInviteService {
    * @returns true if the email's domain is allowed, false if not.
    */
   abstract validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean>;
+
+  /**
+   * Returns the base64-encoded `HighEntropySecret` previously paired with a sealed open-invite
+   * blob for the given email, or `null` if none is stored (never registered on this browser
+   * origin, cleared after a successful accept, or swept by the TTL). The secret is the
+   * client-only half of the two-halves the SDK's `unseal_open_org_invite_data` needs.
+   */
+  abstract getSealedOpenOrgInviteSecret(email: string): Promise<string | null>;
+
+  /**
+   * Removes the sealed-open-org-invite secret entry for the given email. Called on
+   * accept-success, on any accept-failure branch that has a stored secret to invalidate, and
+   * on unseal-failure (tampered blob / wrong secret). Safe to call when no entry exists.
+   */
+  abstract clearSealedOpenOrgInviteSecret(email: string): Promise<void>;
+
+  /**
+   * Sweeps the entire sealed-open-org-invite secret record, removing entries whose
+   * `createdAtMs` is older than the TTL. Web-only in practice — the underlying state is
+   * `disk-local` on web and unused elsewhere. Called from the web app's `APP_INITIALIZER`
+   * chain on every boot; a strict `>` boundary comparison prevents jitter-induced churn.
+   */
+  abstract clearExpiredSealedOpenOrgInviteSecrets(): Promise<void>;
 }
