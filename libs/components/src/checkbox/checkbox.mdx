@@ -81,3 +81,35 @@ most cases, if a card doesn't need group selection, it should be placed outside 
 ### Group with validation
 
 <Canvas of={stories.FormControlCardGroupWithValidation} />
+
+### Leading element
+
+A form control card can render a leading element before the label. Use the `icon` input for the
+common case — it renders a `bit-icon-tile` and automatically switches to the `subtle` variant when
+the control is disabled:
+
+```html
+<bit-form-control-card icon="bwi-clock">
+  <input type="checkbox" bitCheckbox formControlName="checkbox" />
+  <bit-label>Enable feature</bit-label>
+</bit-form-control-card>
+```
+
+To render any other element instead, project it into the `start` slot. This is mutually exclusive
+with `icon` — if both are provided, the `icon` wins. The card wraps the slot to keep the element
+top-aligned when the label wraps, so you only need to size and color your element:
+
+```html
+<bit-form-control-card>
+  <bit-svg
+    slot="start"
+    [content]="lockIcon"
+    aria-hidden="true"
+    class="tw-w-9 tw-text-fg-brand"
+  ></bit-svg>
+  <input type="checkbox" bitCheckbox formControlName="checkbox" />
+  <bit-label>Enable feature</bit-label>
+</bit-form-control-card>
+```
+
+<Canvas of={stories.FormControlCardCustomSlot} />

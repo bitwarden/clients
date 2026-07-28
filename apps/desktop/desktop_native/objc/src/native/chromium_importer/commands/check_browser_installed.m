@@ -1,5 +1,5 @@
+#import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
-#import <CoreServices/CoreServices.h>
 #import "../../interop.h"
 #import "check_browser_installed.h"
 
@@ -10,20 +10,7 @@ void checkBrowserInstalledCommand(void* context, NSDictionary *params) {
     return _return(context, _error(@"Missing required parameter: bundleId"));
   }
 
-  CFURLRef appURL = NULL;
-  OSStatus status = LSFindApplicationForInfo(
-    kLSUnknownCreator,
-    (__bridge CFStringRef)bundleId,
-    NULL,
-    NULL,
-    &appURL
-  );
-
-  BOOL isInstalled = (status == noErr && appURL != NULL);
-
-  if (appURL != NULL) {
-    CFRelease(appURL);
-  }
+  BOOL isInstalled = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:bundleId] != nil;
 
   _return(context, _success(@{@"isInstalled": @(isInstalled)}));
 }
