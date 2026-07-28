@@ -2572,6 +2572,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "Favorites"
   },
