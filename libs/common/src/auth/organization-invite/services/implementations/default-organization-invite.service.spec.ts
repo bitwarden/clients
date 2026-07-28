@@ -20,8 +20,10 @@ import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/do
 import { Policy } from "../../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../../admin-console/models/domain/reset-password-policy-options";
 import { OrganizationKeysResponse } from "../../../../admin-console/models/response/organization-keys.response";
+import { FeatureFlag } from "../../../../enums/feature-flag.enum";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
 import { Utils } from "../../../../platform/misc/utils";
@@ -44,6 +46,7 @@ describe("DefaultOrganizationInviteService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let i18nService: MockProxy<I18nService>;
   let globalStateProvider: FakeGlobalStateProvider;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     apiService = mock();
@@ -57,6 +60,7 @@ describe("DefaultOrganizationInviteService", () => {
     organizationUserApiService = mock();
     i18nService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
+    configService = mock();
 
     sut = new DefaultOrganizationInviteService(
       apiService,
@@ -70,6 +74,7 @@ describe("DefaultOrganizationInviteService", () => {
       organizationUserApiService,
       i18nService,
       globalStateProvider,
+      configService,
     );
   });
 
@@ -137,6 +142,42 @@ describe("DefaultOrganizationInviteService", () => {
       expect(authService.logOut).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
+    });
+
+    it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "string" } as EncString,
+        "orgPrivateKey" as unknown as OrgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        "orgPublicKey",
+        { encryptedString: "string" } as EncString,
+      ]);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await sut.validateAndAcceptInvite(createOrgInvite({ initOrganization: true }), activeUserId);
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+    });
+
+    it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "string" } as EncString,
+        "orgPrivateKey" as unknown as OrgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        "orgPublicKey",
+        { encryptedString: "string" } as EncString,
+      ]);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await sut.validateAndAcceptInvite(createOrgInvite({ initOrganization: true }), activeUserId);
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
     it("logs out the user and stores the invite when a master password policy check is required", async () => {

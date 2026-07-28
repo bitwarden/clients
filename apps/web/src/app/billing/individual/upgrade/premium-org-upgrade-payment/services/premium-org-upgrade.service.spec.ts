@@ -7,8 +7,10 @@ import {
   BusinessSubscriptionPricingTierIds,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
@@ -33,6 +35,7 @@ describe("PremiumOrgUpgradeService", () => {
   let keyService: jest.Mocked<KeyService>;
   let encryptService: jest.Mocked<EncryptService>;
   let i18nService: jest.Mocked<I18nService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -90,6 +93,9 @@ describe("PremiumOrgUpgradeService", () => {
     i18nService = {
       t: jest.fn().mockReturnValue("Default Collection"),
     } as any;
+    configService = {
+      getFeatureFlag: jest.fn().mockResolvedValue(false),
+    } as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -102,6 +108,7 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: KeyService, useValue: keyService },
         { provide: EncryptService, useValue: encryptService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -135,6 +142,34 @@ describe("PremiumOrgUpgradeService", () => {
       );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(result).toBe("new-org-id");
+    });
+
+    it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        mockPlanDetails.tier,
+        mockBillingAddress,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+    });
+
+    it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        mockPlanDetails.tier,
+        mockBillingAddress,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
     it("should throw an error when payment method is an unverified bank account", async () => {
