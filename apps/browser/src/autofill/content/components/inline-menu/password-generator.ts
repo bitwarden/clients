@@ -98,18 +98,12 @@ function isTrustedActionKey(
     !event.metaKey &&
     !event.shiftKey &&
     event.target instanceof HTMLElement &&
-    (event.code === "Space" || event.code === arrowCode)
+    event.code === arrowCode
   );
 }
 
 function handleActionKeyUp(event: KeyboardEvent, arrowCode: "ArrowLeft" | "ArrowRight") {
   if (!isTrustedActionKey(event, arrowCode)) {
-    return;
-  }
-
-  if (event.code === "Space") {
-    event.preventDefault();
-    event.target.click();
     return;
   }
 
