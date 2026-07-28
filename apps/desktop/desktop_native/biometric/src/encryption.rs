@@ -193,11 +193,9 @@ impl WindowsHelloKeychainEntryV1 {
         let cipher = XChaCha20Poly1305::new(windows_hello_key.as_bytes().into());
         let mut nonce = [0u8; XCHACHA20POLY1305_NONCE_LENGTH];
         bitwarden_random::rng().fill_bytes(&mut nonce);
+        let nonce_from_slice = XNonce::try_from(nonce)?;
         let wrapped_key = cipher
-            .encrypt(
-                XNonce::from_slice(&nonce),
-                user_key.to_encoded().to_vec().as_slice(),
-            )
+            .encrypt(&nonce_from_slice, user_key.to_encoded().to_vec().as_slice())
             .map_err(|e| anyhow!(e))?;
         Ok(Self {
             nonce,
@@ -210,8 +208,9 @@ impl WindowsHelloKeychainEntryV1 {
     pub(super) fn unseal(&self, windows_hello_key: &WindowsHelloPrf) -> Result<SymmetricCryptoKey> {
         let key: &[u8; 32] = windows_hello_key.as_bytes().try_into()?;
         let cipher = XChaCha20Poly1305::new_from_slice(key)?;
+        let nonce = XNonce::try_from(self.nonce)?;
         let decrypted = cipher
-            .decrypt(XNonce::from_slice(&self.nonce), self.wrapped_key.as_slice())
+            .decrypt(&nonce, self.wrapped_key.as_slice())
             .map_err(|e| anyhow!(e))?;
         SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(decrypted))
             .map_err(|e| anyhow!("Failed to parse user key: {e}"))
@@ -220,7 +219,6 @@ impl WindowsHelloKeychainEntryV1 {
 
 #[cfg(test)]
 mod tests {
-    use aes_gcm::aead::AeadInOut;
     use bitwarden_crypto::{BitwardenLegacyKeyBytes, SymmetricCryptoKey, SymmetricKeyAlgorithm};
     use chacha20poly1305::{aead::Aead, KeyInit, XChaCha20Poly1305, XNonce};
 
@@ -291,9 +289,10 @@ mod tests {
         // build the entry with the pinned `TEST_VECTOR_NONCE` to keep the recorded vector stable.
         let key: &[u8; 32] = windows_hello_key.as_bytes().try_into().unwrap();
         let cipher = XChaCha20Poly1305::new_from_slice(key).unwrap();
+        let nonce = XNonce::try_from(TEST_VECTOR_NONCE).expect("Could not create nonce");
         let wrapped_key = cipher
             .encrypt(
-                XNonce::from_slice(&TEST_VECTOR_NONCE),
+                &nonce,
                 user_key(TEST_VECTOR_USER_KEY)
                     .to_encoded()
                     .to_vec()

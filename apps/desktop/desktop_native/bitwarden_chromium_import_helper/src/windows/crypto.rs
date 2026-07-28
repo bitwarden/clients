@@ -1,4 +1,4 @@
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit};
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
@@ -134,9 +134,7 @@ fn decrypt_abe_key_blob_chrome_aes(blob: &[u8]) -> Result<Vec<u8>> {
         0x51, 0xCF, 0xFB, 0x94, 0x4D, 0x14, 0x3A, 0xB8, 0x16, 0x27, 0x6B, 0xCC, 0x6D, 0xA0, 0x28,
         0x47, 0x87,
     ];
-    let aes_key = Key::<Aes256Gcm>::from_slice(GOOGLE_AES_KEY);
-    let cipher = Aes256Gcm::new(aes_key);
-
+    let cipher = Aes256Gcm::new_from_slice(GOOGLE_AES_KEY)?;
     decrypt_abe_key_blob_with_aead(blob, &cipher, "v1 (AES flavor)")
 }
 
@@ -147,8 +145,7 @@ fn decrypt_abe_key_blob_chrome_chacha20(blob: &[u8]) -> Result<Vec<u8>> {
         0x96, 0x60,
     ];
 
-    let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
-    let cipher = ChaCha20Poly1305::new(chacha20_key);
+    let cipher = ChaCha20Poly1305::new_from_slice(GOOGLE_CHACHA20_KEY)?;
 
     decrypt_abe_key_blob_with_aead(blob, &cipher, "v2 (ChaCha20 flavor)")
 }
