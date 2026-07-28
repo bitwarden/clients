@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
@@ -147,7 +146,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
