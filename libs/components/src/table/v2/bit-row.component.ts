@@ -61,29 +61,29 @@ export class BitRowComponent {
       ...(this.fixedHeight() != null ? ["tw-overflow-clip"] : []),
       ...(this.table?.presentation() === "list"
         ? // `list` rows size to content off a `bit-item`-style minimum height.
-          [
-            "tw-min-h-9",
-            "tw-mb-1.5",
-            "tw-rounded-lg",
-            "tw-bg-background",
-            "tw-border-0",
-            "tw-border-b",
-            "tw-border-solid",
-            "tw-border-b-shadow",
-            "hover:tw-bg-hover-default",
-          ]
+        [
+          "tw-min-h-9",
+          "tw-mb-1.5",
+          "tw-rounded-lg",
+          "tw-bg-background",
+          "tw-border-0",
+          "tw-border-b",
+          "tw-border-solid",
+          "tw-border-b-shadow",
+          "hover:tw-bg-hover-default",
+        ]
         : [
-            // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
-            // below it, breaking the offsets the scroll strategy positions rows at.
-            ...(this.fixedHeight() != null ? [] : ["tw-min-h-14"]),
-            "tw-border-0",
-            "tw-border-b",
-            "tw-border-solid",
-            "tw-border-border-base",
-            "hover:tw-bg-bg-brand-softer",
-            // Outranks the hover rule above on specificity.
-            "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
-          ]),
+          // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
+          // below it, breaking the offsets the scroll strategy positions rows at.
+          ...(this.fixedHeight() != null ? [] : ["tw-min-h-14"]),
+          "tw-border-0",
+          "tw-border-b",
+          "tw-border-solid",
+          "tw-border-border-base",
+          "hover:tw-bg-bg-brand-softer",
+          // Outranks the hover rule above on specificity.
+          "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
+        ]),
     ].join(" "),
   );
 }
