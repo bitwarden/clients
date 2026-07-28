@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -17,7 +17,11 @@ import { LogService } from "@bitwarden/logging";
 import { AutotypeState } from "../models/autotype-state";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
+import {
+  autotypeMvpOrGaEnabled$,
+  DesktopAutotypeService,
+  getAutotypeVaultData,
+} from "./desktop-autotype.service";
 
 describe("DesktopAutotypeService", () => {
   let service: DesktopAutotypeService;
@@ -150,6 +154,7 @@ describe("DesktopAutotypeService", () => {
     global.ipc = {
       autofill: {
         listenAutotypeRequestMvp: jest.fn(),
+        stopListeningAutotypeRequestMvp: jest.fn(),
         configureAutotypeMvp: jest.fn(),
         toggleAutotypeMvp: jest.fn(),
       },
@@ -241,12 +246,112 @@ describe("DesktopAutotypeService", () => {
       mvpFeatureFlagSubject.next(false);
       gaFeatureFlagSubject.next(true);
 
+      // Confirm the state actually resolves to Ga (and not, say, Disabled),
+      // since both states call toggleAutotypeMvp(false) below.
+      const state = await firstValueFrom(service["autotypeState$"]);
+      expect(state).toBe(AutotypeState.Ga);
+
       await service.init();
 
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+    });
+
+    it("should not register the autotype request listener when the state is Disabled", async () => {
+      autotypeEnabledSubject.next(false);
+
+      // Base gate closed: the user setting is off.
+      const state = await firstValueFrom(service["autotypeState$"]);
+      expect(state).toBe(AutotypeState.Disabled);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+    });
+
+    it("unbinds the MVP listener when transitioning from Mvp to Disabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Starts in Mvp: listener bound, nothing torn down yet.
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).toHaveBeenCalledTimes(1);
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).not.toHaveBeenCalled();
+
+      // Drive a real transition away from Mvp -- lock the vault.
+      activeAccountStatusSubject.next(AuthenticationStatus.Locked);
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+      expect(state).toBe(AutotypeState.Disabled);
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalledTimes(1);
+    });
+
+    it("unbinds the MVP listener when transitioning from Mvp to Ga", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // MVP wins precedence while both flags are on: listener bound, nothing torn down yet.
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).toHaveBeenCalledTimes(1);
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).not.toHaveBeenCalled();
+
+      // Drive a real transition away from Mvp -- the MVP flag turns off, GA remains on.
+      mvpFeatureFlagSubject.next(false);
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const state = await firstValueFrom(service["autotypeState$"]);
+      expect(state).toBe(AutotypeState.Ga);
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalledTimes(1);
+    });
+
+    it("fails closed for an unrecognized state", async () => {
+      // Simulate a hypothetical fourth AutotypeState value reaching the switch --
+      // not constructible through the real autotypeState$ pipeline, since its
+      // map() only ever returns Mvp/Ga/Disabled. This exercises the `default`
+      // branch's runtime fail-closed behavior, which tsc's exhaustiveness check
+      // can't verify on its own (it only guards known, reachable code paths).
+      jest
+        .spyOn(service as any, "autotypeState$", "get")
+        .mockReturnValue(of("unknown" as unknown as AutotypeState));
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
+      // Unique to the default branch -- Disabled never logs. Without this, the test
+      // would still pass even if the spy above silently stopped taking effect, since
+      // the real pipeline resolves to Disabled and produces the same three calls above.
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Unhandled AutotypeState"),
+      );
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {
@@ -314,6 +419,61 @@ describe("DesktopAutotypeService", () => {
       const state = await firstValueFrom(service["autotypeState$"]);
 
       expect(state).toBe(AutotypeState.Disabled);
+    });
+  });
+
+  describe("autotypeMvpOrGaEnabled$", () => {
+    it("emits false when neither flag is enabled", async () => {
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(false);
+
+      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+
+      expect(result).toBe(false);
+    });
+
+    it("emits true when only the MVP flag is enabled", async () => {
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
+
+      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+
+      expect(result).toBe(true);
+    });
+
+    it("emits true when only the GA flag is enabled", async () => {
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(true);
+
+      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+
+      expect(result).toBe(true);
+    });
+
+    it("emits true when both flags are enabled", async () => {
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(true);
+
+      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+
+      expect(result).toBe(true);
+    });
+
+    it("does not re-emit when the resolved value is unchanged", () => {
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(false);
+
+      const emissions: boolean[] = [];
+      const subscription = autotypeMvpOrGaEnabled$(mockConfigService).subscribe((value) =>
+        emissions.push(value),
+      );
+
+      mvpFeatureFlagSubject.next(true); // false -> true: a real change
+      gaFeatureFlagSubject.next(true); // true || true is still true: no new emission
+
+      subscription.unsubscribe();
+
+      expect(emissions).toEqual([false, true]);
     });
   });
 
@@ -441,6 +601,12 @@ describe("DesktopAutotypeService", () => {
       service.ngOnDestroy();
 
       expect(destroySpy).toHaveBeenCalled();
+    });
+
+    it("unbinds the MVP listener", () => {
+      service.ngOnDestroy();
+
+      expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
     });
   });
 });

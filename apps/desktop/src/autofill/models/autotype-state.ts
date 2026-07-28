@@ -6,6 +6,7 @@
  */
 export const AutotypeState = Object.freeze({
   Disabled: "disabled",
+  // MVP, delete with PM-41067
   Mvp: "mvp",
   Ga: "ga",
 } as const);

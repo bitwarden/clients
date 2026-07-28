@@ -8,6 +8,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -23,6 +24,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
 
   let mockAccountSubject: BehaviorSubject<Account | null>;
   let mockFeatureFlagSubject: BehaviorSubject<boolean>;
+  let mockGaFeatureFlagSubject: BehaviorSubject<boolean>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let mockPoliciesSubject: BehaviorSubject<Policy[]>;
 
@@ -37,6 +39,9 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       }),
     });
     mockFeatureFlagSubject = new BehaviorSubject<boolean>(true);
+    // GA defaults to off, so existing tests (which only drive mockFeatureFlagSubject,
+    // the MVP flag) are unaffected: mvpEnabled || false === mvpEnabled.
+    mockGaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
@@ -50,7 +55,11 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     accountService.activeAccount$ = mockAccountSubject.asObservable();
     configService.getFeatureFlag$ = jest
       .fn()
-      .mockReturnValue(mockFeatureFlagSubject.asObservable());
+      .mockImplementation((flag: FeatureFlag) =>
+        flag === FeatureFlag.WindowsDesktopAutotypeGA
+          ? mockGaFeatureFlagSubject.asObservable()
+          : mockFeatureFlagSubject.asObservable(),
+      );
     authService.authStatusFor$ = jest
       .fn()
       .mockImplementation((_: UserId) => mockAuthStatusSubject.asObservable());
@@ -73,6 +82,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     jest.clearAllMocks();
     mockAccountSubject.complete();
     mockFeatureFlagSubject.complete();
+    mockGaFeatureFlagSubject.complete();
     mockAuthStatusSubject.complete();
     mockPoliciesSubject.complete();
   });
@@ -82,6 +92,18 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       mockFeatureFlagSubject.next(false);
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(result).toBeNull();
+    });
+
+    it("applies the policy when only the GA flag is enabled (MVP off)", async () => {
+      mockFeatureFlagSubject.next(false);
+      mockGaFeatureFlagSubject.next(true);
+      mockPoliciesSubject.next([
+        { type: PolicyType.AutotypeDefaultSetting, enabled: true } as Policy,
+      ]);
+
+      const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+
+      expect(result).toBe(true);
     });
 
     it("does not emit until an account appears", async () => {

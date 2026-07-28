@@ -1,5 +1,6 @@
 import { ipcMain, globalShortcut } from "electron";
 
+// MVP, delete with PM-41067
 import { autotype_mvp } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
@@ -20,9 +21,11 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
+    // TODO: check if mvp or ga via ipc
     this.registerMvpIpcListeners();
   }
 
+  // MVP, delete with PM-41067
   registerMvpIpcListeners() {
     ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
@@ -49,7 +52,7 @@ export class MainDesktopAutotypeService {
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
-        this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
+        this.doAutotypeMvp(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
 
@@ -78,6 +81,7 @@ export class MainDesktopAutotypeService {
   }
 
   dispose() {
+    // MVP, delete with PM-41067
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
@@ -97,6 +101,7 @@ export class MainDesktopAutotypeService {
       return;
     }
 
+    // change this based on MVP or GA
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
@@ -136,7 +141,8 @@ export class MainDesktopAutotypeService {
     }
   }
 
-  private doAutotype(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
+  // MVP, delete with PM-41067
+  private doAutotypeMvp(vaultData: AutotypeVaultData, keyboardShortcut: string[]) {
     const TAB = "\t";
     const inputPattern = vaultData.username + TAB + vaultData.password;
     const inputArray = new Array<number>(inputPattern.length);

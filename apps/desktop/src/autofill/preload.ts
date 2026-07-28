@@ -32,12 +32,29 @@ const sshAgent = {
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
+// Holds the listener for AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, if
+// any, so it can easily be removed rather than clearing the whole channel.
+// MVP, delete with PM-41067
+let autotypeRequestMvpHandler: Parameters<typeof ipcRenderer.on>[1] | null = null;
+
+// Unbinds the listener registered by listenAutotypeRequestMvp, if any.
+// Callers must invoke this whenever Autotype MVP is no longer the active
+// implementation, so a stale handler doesn't outlive its authorization.
+// MVP, delete with PM-41067
+function stopListeningAutotypeRequestMvp() {
+  if (autotypeRequestMvpHandler != null) {
+    ipcRenderer.removeListener(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, autotypeRequestMvpHandler);
+    autotypeRequestMvpHandler = null;
+  }
+}
+
 export default {
   desktopAutofill: DesktopAutofillPreload,
 
   sshAgent,
 
   // Autotype methods
+  // MVP, delete with PM-41067
   configureAutotypeMvp: (config: AutotypeConfig) => {
     ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, config);
   },
@@ -51,36 +68,36 @@ export default {
     ) => void,
   ) => {
     // Registration must be idempotent: `ipcRenderer.on` appends listeners, so
-    // clear any previous binding before adding a new one. This prevents multiple
+    // remove any previous binding before adding a new one. This prevents multiple
     // autotype mvp listeners. Without this, callers that re-register (for example,
     // on every vault unlock) would stack the autotype listeners unintentionally.
-    ipcRenderer.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN);
+    stopListeningAutotypeRequestMvp();
 
-    ipcRenderer.on(
-      AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
-      (
-        _event,
-        data: {
-          windowTitle: string;
-        },
-      ) => {
-        const { windowTitle } = data;
-
-        fn(windowTitle, (error, vaultData) => {
-          if (error) {
-            const matchError: AutotypeMatchError = {
-              windowTitle,
-              errorMessage: error.message,
-            };
-            ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR, matchError);
-            return;
-          }
-
-          if (vaultData !== null) {
-            ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE, vaultData);
-          }
-        });
+    autotypeRequestMvpHandler = (
+      _event,
+      data: {
+        windowTitle: string;
       },
-    );
+    ) => {
+      const { windowTitle } = data;
+
+      fn(windowTitle, (error, vaultData) => {
+        if (error) {
+          const matchError: AutotypeMatchError = {
+            windowTitle,
+            errorMessage: error.message,
+          };
+          ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR, matchError);
+          return;
+        }
+
+        if (vaultData !== null) {
+          ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE, vaultData);
+        }
+      });
+    };
+
+    ipcRenderer.on(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, autotypeRequestMvpHandler);
   },
+  stopListeningAutotypeRequestMvp,
 };

@@ -1,3 +1,4 @@
+// MVP, delete with PM-41067
 export const AUTOTYPE_MVP_IPC_CHANNELS = {
   TOGGLE: "autofill.toggleAutotypeMvp",
   CONFIGURE: "autofill.configureAutotypeMvp",

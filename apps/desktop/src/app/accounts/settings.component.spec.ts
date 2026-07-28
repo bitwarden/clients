@@ -13,6 +13,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -905,6 +906,21 @@ describe("SettingsComponent", () => {
 
       // `showEnableAutotype` should be false
       expect(component.showEnableAutotype).toBe(false);
+    });
+
+    it("shows the autotype toggle on windows when only the GA flag is enabled (MVP off)", async () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        of(flag === FeatureFlag.WindowsDesktopAutotypeGA),
+      );
+
+      fixture = TestBed.createComponent(SettingsComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component.showEnableAutotype).toBe(true);
     });
   });
 });
