@@ -42,7 +42,7 @@ export function InlineMenuPasswordGenerator({
   };
 
   const onRefresh = (event: Event) => {
-    if (EventSecurity.isEventTrusted(event) && event.target instanceof HTMLElement) {
+    if (EventSecurity.isEventTrusted(event) && event.target instanceof Element) {
       const actions = event.target.closest(ACTIONS_SELECTOR);
       actions?.classList.add("remove-outline");
       handleRefreshPassword(event);
