@@ -15,6 +15,7 @@ import {
   BulkDeleteDialogParams,
   BulkDeleteDialogResult,
   BulkDeleteService,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 export { BulkDeleteDialogParams, BulkDeleteDialogResult };
@@ -52,6 +53,7 @@ export class BulkDeleteDialogComponent {
   unassignedCiphers: string[];
 
   private readonly bulkDelete = inject(BulkDeleteService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   constructor(
     @Inject(DIALOG_DATA) params: BulkDeleteDialogParams,
@@ -111,7 +113,9 @@ export class BulkDeleteDialogComponent {
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("deletedCollections"),
+        message: this.i18nService.t(
+          this.vfo1TerminologyService.enabled() ? "deletedSharedFolders" : "deletedCollections",
+        ),
       });
     }
     this.close(BulkDeleteDialogResult.Deleted);
