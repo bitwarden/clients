@@ -7568,6 +7568,21 @@
       }
     }
   },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled"
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled"
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },

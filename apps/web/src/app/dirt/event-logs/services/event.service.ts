@@ -517,6 +517,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_InviteLinkConfirmed:
+        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventMemberConfirmed",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       case EventType.OrganizationUser_AdminChangedEmail:
         msg = this.i18nService.t("eventAdminChangedUserEmail", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -657,6 +664,12 @@ export class EventService {
         break;
       case EventType.Organization_InviteLinkRefreshed:
         msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
+        break;
+      case EventType.Organization_InviteLinkConfirmEnabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmEnabled");
+        break;
+      case EventType.Organization_InviteLinkConfirmDisabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmDisabled");
         break;
 
       // Policies

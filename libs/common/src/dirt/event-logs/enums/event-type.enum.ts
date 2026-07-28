@@ -82,7 +82,8 @@ export enum EventType {
   OrganizationUser_NotificationBannerActionClicked = 1522,
   OrganizationUser_Staged = 1523,
   OrganizationUser_InviteLinkAccepted = 1524,
-  OrganizationUser_AdminChangedEmail = 1525,
+  OrganizationUser_InviteLinkConfirmed = 1525,
+  OrganizationUser_AdminChangedEmail = 1526,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -113,6 +114,8 @@ export enum EventType {
   Organization_InviteLinkDeleted = 1626,
   Organization_InviteLinkClientCopied = 1627,
   Organization_InviteLinkRefreshed = 1628,
+  Organization_InviteLinkConfirmEnabled = 1629,
+  Organization_InviteLinkConfirmDisabled = 1630,
 
   Policy_Updated = 1700,
 
