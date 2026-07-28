@@ -401,4 +401,33 @@ export const InteractionStates: StoryObj<NavGroupComponent> = {
 export const InteractionStatesVfo1: StoryObj<NavGroupComponent> = {
   ...InteractionStates,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  // Unlike v1, the collapse arrow is a decorative icon for v2 top-level groups — the nav-item row
+  // is the interactive surface. Force the states on the row container instead.
+  play: async ({ canvas }) => {
+    const hoverNavGroups = await canvas.findAllByTestId("nav-group-hover");
+    const focusNavGroups = await canvas.findAllByTestId("nav-group-focus");
+
+    // make sure everything is rendered before we try to add test classes
+    await canvas.findAllByTestId("nav-group-collapse-arrow");
+
+    hoverNavGroups.forEach((navGroup) => {
+      const container = navGroup.querySelector('[data-testid="nav-item-container"]');
+      container?.classList.add("tw-test-hover");
+    });
+
+    focusNavGroups.forEach((navGroup) => {
+      const container = navGroup.querySelector('[data-testid="nav-item-container"]');
+      // focus-visible-within is JS-driven (see `fvwStyles`), so there is no CSS variant to force —
+      // apply the fvw ring utilities directly to mirror the focused state.
+      container?.classList.add(
+        "tw-z-10",
+        "tw-rounded",
+        "tw-outline-none",
+        "tw-ring",
+        "tw-ring-inset",
+        "tw-ring-border-nav-focus",
+        "tw-bg-bg-nav-hover",
+      );
+    });
+  },
 };
