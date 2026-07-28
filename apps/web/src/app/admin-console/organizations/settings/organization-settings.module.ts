@@ -3,7 +3,6 @@ import { NgModule } from "@angular/core";
 import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { ItemModule } from "@bitwarden/components";
-import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
 import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
@@ -24,7 +23,6 @@ import { TwoFactorSetupComponent } from "./two-factor-setup.component";
     PremiumBadgeComponent,
     ItemModule,
     TwoFactorIconComponent,
-    Vfo1I18nPipe,
   ],
   declarations: [AccountComponent, TwoFactorSetupComponent],
 })

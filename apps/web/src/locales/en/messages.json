@@ -12126,14 +12126,6 @@
   "grantManageCollectionWarning": {
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
-  "grantManagePermissionsWarningTitle": {
-    "message": "Missing Manage Permissions",
-    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
-  },
-  "grantManagePermissionsWarning": {
-    "message": "Grant Manage permissions to allow full collection management including deletion of collection.",
-    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
-  },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
   },
