@@ -120,6 +120,14 @@ export class ShareItemComponent {
         return "bwi-id-card";
       case CipherType.SecureNote:
         return "bwi-sticky-note";
+      case CipherType.SshKey:
+        return "bwi-key";
+      case CipherType.BankAccount:
+        return "bwi-bank";
+      case CipherType.DriversLicense:
+        return "bwi-id-card";
+      case CipherType.Passport:
+        return "bwi-passport";
       default:
         return "bwi-globe";
     }
