@@ -81,6 +81,10 @@ export type AccessItemValue = {
 export type Permission = {
   perm: CollectionPermission;
   labelId: string;
+  /**
+   * VFO1 terminology feature flag variant of `labelId`. Falls back to `labelId` when not set.
+   */
+  vfo1LabelId?: string;
 };
 
 export const getPermissionList = (): Permission[] => {
@@ -89,7 +93,9 @@ export const getPermissionList = (): Permission[] => {
     { perm: CollectionPermission.View, labelId: "viewItems" },
     { perm: CollectionPermission.EditExceptPass, labelId: "editItemsHidePass" },
     { perm: CollectionPermission.Edit, labelId: "editItems" },
-    { perm: CollectionPermission.Manage, labelId: "manageCollection" },
+    // "manageCollection" is shortened to "manage" rather than following the usual
+    // collection -> shared folder renaming pattern.
+    { perm: CollectionPermission.Manage, labelId: "manageCollection", vfo1LabelId: "manage" },
   ];
 
   return permissions;

@@ -12151,7 +12151,7 @@
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantManagePermissionsWarning": {
-    "message": "Grant Manage permissions to allow full collection management including deletion of collection.",
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantCollectionAccess": {
