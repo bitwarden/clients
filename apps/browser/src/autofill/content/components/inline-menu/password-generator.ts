@@ -116,7 +116,7 @@ function handleActionKeyUp(event: KeyboardEvent, arrowCode: "ArrowLeft" | "Arrow
   const actions = event.target.closest(ACTIONS_SELECTOR);
   const target = actions?.querySelector(
     arrowCode === "ArrowRight" ? REFRESH_SELECTOR : FILL_SELECTOR,
-  ) as HTMLElement | null;
+  ) ?? null;
   target?.focus();
   actions?.classList.toggle("remove-outline", arrowCode === "ArrowRight");
 }
