@@ -82,8 +82,8 @@ export enum EventType {
   OrganizationUser_NotificationBannerActionClicked = 1522,
   OrganizationUser_Staged = 1523,
   OrganizationUser_InviteLinkAccepted = 1524,
-  OrganizationUser_InviteLinkConfirmed = 1525,
-  OrganizationUser_AdminChangedEmail = 1526,
+  OrganizationUser_AdminChangedEmail = 1525,
+  OrganizationUser_InviteLinkConfirmed = 1526,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,

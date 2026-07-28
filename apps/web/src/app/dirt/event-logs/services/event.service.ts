@@ -517,17 +517,17 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
-      case EventType.OrganizationUser_InviteLinkConfirmed:
-        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
-        humanReadableMsg = this.i18nService.t(
-          "inviteLinkEventMemberConfirmed",
-          this.getShortId(ev.organizationUserId),
-        );
-        break;
       case EventType.OrganizationUser_AdminChangedEmail:
         msg = this.i18nService.t("eventAdminChangedUserEmail", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
           "eventAdminChangedUserEmail",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_InviteLinkConfirmed:
+        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventMemberConfirmed",
           this.getShortId(ev.organizationUserId),
         );
         break;
