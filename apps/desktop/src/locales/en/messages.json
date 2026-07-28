@@ -1967,6 +1967,19 @@
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "No values to copy"
+  },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
   },
