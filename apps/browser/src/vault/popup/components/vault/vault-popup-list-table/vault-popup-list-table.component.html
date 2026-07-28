@@ -103,7 +103,7 @@
             bitIconButton="bwi-external-link"
             size="small"
             (click)="launchCipher(row.cipher)"
-            [label]="'launchWebsite' | i18n"
+            [label]="'launchWebsiteName' | i18n: row.cipher.name"
           ></button>
         }
         <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
@@ -116,7 +116,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group [match]="isAutofill">
+  <bit-row-group collapsible [match]="isAutofill">
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {
@@ -124,7 +124,7 @@
           bitIconButton="bwi-refresh"
           type="button"
           size="small"
-          (click)="refreshCurrentTab()"
+          (click)="$event.stopPropagation(); refreshCurrentTab()"
           [label]="'refresh' | i18n"
         ></button>
       }

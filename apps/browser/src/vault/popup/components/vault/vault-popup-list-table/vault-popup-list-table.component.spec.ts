@@ -157,7 +157,7 @@ describe("VaultPopupListTableComponent", () => {
           provide: StateProvider,
           useValue: {
             getUserState$: () => of({ hasSeen: true, hasDismissed: true }),
-            getUser: () => ({ update: async () => {} }),
+            getUser: () => ({ update: async () => { } }),
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },

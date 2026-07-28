@@ -269,14 +269,14 @@ const buildProviders = (args: StoryArgs) => {
         currentTabIsOnBlocklist$: of(args.currentUriIsBlocked ?? false),
         autofillAllowed$: of(false),
         currentAutofillTab$: of(null),
-        doAutofill: async () => {},
+        doAutofill: async () => { },
       },
     },
     {
       provide: VaultPopupSectionService,
       useValue: {
         getOpenDisplayStateForSection: () => () => true,
-        updateSectionOpenStoredState: async () => {},
+        updateSectionOpenStoredState: async () => { },
       },
     },
     {
@@ -312,6 +312,12 @@ const buildProviders = (args: StoryArgs) => {
           refresh: "Refresh",
           favorites: "Favorites",
           allItems: "All items",
+          // app-simplified-autofill-info
+          openSimplifiedAutofillPopover: "Open simplified autofill popover",
+          simplifiedAutofill: "Simplified autofill",
+          simplifiedAutofillDescription:
+            "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu.",
+          gotIt: "Got it",
           typeLogin: "Login",
           typeCard: "Card",
           typeIdentity: "Identity",
@@ -361,7 +367,7 @@ const buildProviders = (args: StoryArgs) => {
           archiveVerb: "Archive",
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
-          launchWebsite: "Launch website",
+          launchWebsiteName: "Launch website",
           itemCount: "__$1__ items",
         }),
     },
@@ -387,7 +393,7 @@ const buildProviders = (args: StoryArgs) => {
       provide: StateProvider,
       useValue: {
         getUserState$: () => of({ hasSeen: false, hasDismissed: false }),
-        getUser: () => ({ update: async () => {} }),
+        getUser: () => ({ update: async () => { } }),
       },
     },
     {
