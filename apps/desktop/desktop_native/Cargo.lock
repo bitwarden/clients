@@ -488,7 +488,6 @@ name = "biometric"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.11.0",
  "anyhow",
  "bitwarden-crypto",
  "bitwarden-random",
@@ -1500,7 +1499,6 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.11.0",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
