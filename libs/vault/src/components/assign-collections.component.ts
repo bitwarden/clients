@@ -299,12 +299,12 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.showOrgSelector = true;
     }
 
+    await this.initializeItems(this.selectedOrgId);
+
     // Re-emit the label whenever the terminology flag resolves so it can't be snapshotted stale.
     this.vfo1Enabled$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.submitButtonTextChange.emit(this.submitButtonText));
-
-    await this.initializeItems(this.selectedOrgId);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
       await this.handleOrganizationCiphers(this.selectedOrgId);
@@ -349,16 +349,15 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   /**
-   * The label shown on the host's submit button. When there is no organization selector and the
-   * vault terminology is enabled, the action is a simple "Add"; otherwise it falls back to the
-   * transfer/assign wording.
+   * The label shown on the host's submit button. When the feature flag is off, falls back to "assign" wording.
+   * When at least 1 personal item would be transferred, use transferAndAdd, otherwise use add.
    */
   private get submitButtonText(): string {
-    if (!this.showOrgSelector && this.vfo1TerminologyService.enabled()) {
-      return this.i18nService.t("add");
+    if (this.vfo1TerminologyService.enabled()) {
+      return this.i18nService.t(this.personalItemsCount > 0 ? "transferAndAdd" : "add");
     }
 
-    return this.i18nService.t(this.vfo1TerminologyService.enabled() ? "transferAndAdd" : "assign");
+    return this.i18nService.t("assign");
   }
 
   submit = async () => {

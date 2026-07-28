@@ -325,11 +325,11 @@ describe("AssignCollectionsComponent", () => {
       expect(component["transferWarningText"]("", 1)).toBe("personalItemTransferWarningSingular");
     });
 
-    it("submitButtonText returns the assign label regardless of the org selector", () => {
-      component["showOrgSelector"] = true;
+    it("submitButtonText returns the assign label regardless of the personal item count", () => {
+      component["personalItemsCount"] = 1;
       expect(component["submitButtonText"]).toBe("assign");
 
-      component["showOrgSelector"] = false;
+      component["personalItemsCount"] = 0;
       expect(component["submitButtonText"]).toBe("assign");
     });
 
@@ -394,13 +394,13 @@ describe("AssignCollectionsComponent", () => {
       );
     });
 
-    it("submitButtonText returns the add label when there is no org selector", () => {
-      component["showOrgSelector"] = false;
+    it("submitButtonText returns the add label when there are no personal items to transfer", () => {
+      component["personalItemsCount"] = 0;
       expect(component["submitButtonText"]).toBe("add");
     });
 
-    it("submitButtonText returns the transfer-and-add label when the org selector is shown", () => {
-      component["showOrgSelector"] = true;
+    it("submitButtonText returns the transfer-and-add label when there are personal items to transfer", () => {
+      component["personalItemsCount"] = 1;
       expect(component["submitButtonText"]).toBe("transferAndAdd");
     });
 
