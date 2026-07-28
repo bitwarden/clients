@@ -5,9 +5,9 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
@@ -66,7 +66,12 @@ export const Default: Story = {};
 export const Vfo1Enabled: Story = {
   decorators: [
     moduleMetadata({
-      providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
     }),
   ],
 };

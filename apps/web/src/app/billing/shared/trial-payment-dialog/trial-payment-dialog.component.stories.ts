@@ -11,9 +11,9 @@ import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/bill
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
@@ -38,7 +38,7 @@ const mockOrganization = Object.assign(new Organization(), {
   id: ORG_ID,
   name: "Acme Families",
   productTierType: ProductTierType.Families,
-  canAccessSecretsManager: false,
+  useSecretsManager: false,
 });
 
 const mockPlan = {
@@ -146,7 +146,12 @@ export const Default: Story = {
 export const Vfo1Enabled: Story = {
   render: () => ({
     moduleMetadata: {
-      providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
     },
     template: `<app-trial-payment-dialog></app-trial-payment-dialog>`,
   }),

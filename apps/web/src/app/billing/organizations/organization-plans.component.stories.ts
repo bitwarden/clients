@@ -13,12 +13,12 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   PreviewInvoiceClient,
   SubscriberBillingClient,
@@ -222,7 +222,12 @@ export const Default: Story = {
 export const Vfo1Enabled: Story = {
   render: () => ({
     moduleMetadata: {
-      providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
     },
     template: `<app-organization-plans></app-organization-plans>`,
   }),

@@ -12,22 +12,30 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { BillingNotificationService } from "../services/billing-notification.service";
 
+// NOTE: ChangePlanDialogComponent must be imported before OrganizationWarningsService.
+// The component injects OrganizationWarningsService, which in turn imports
+// `openChangePlanDialog` from this component (used lazily, inside a method body). Importing
+// OrganizationWarningsService first here would force that circular pair to initialize in the
+// opposite order from how the real app loads them, leaving OrganizationWarningsService
+// undefined when the component's decorator metadata is evaluated.
 import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
+
+// eslint-disable-next-line import/order
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 const ORG_ID = "org-1" as OrganizationId;
 
@@ -137,7 +145,6 @@ const mockOrganization = Object.assign(new Organization(), {
   name: "Acme Corp",
   productTierType: ProductTierType.Free,
   useSecretsManager: false,
-  canAccessSecretsManager: false,
   hasPublicAndPrivateKeys: true,
   seats: 2,
 });
@@ -228,7 +235,12 @@ export const Default: Story = {};
 export const Vfo1Enabled: Story = {
   decorators: [
     moduleMetadata({
-      providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
     }),
   ],
 };

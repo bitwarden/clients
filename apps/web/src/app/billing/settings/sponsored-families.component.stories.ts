@@ -12,10 +12,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -97,7 +97,12 @@ export const Default: Story = {};
 export const Vfo1Enabled: Story = {
   decorators: [
     moduleMetadata({
-      providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => true, iconClass: (icon: string) => icon },
+        },
+      ],
     }),
   ],
 };
