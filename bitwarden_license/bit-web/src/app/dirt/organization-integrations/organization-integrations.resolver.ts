@@ -301,6 +301,23 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       });
     }
 
+    const genericHecFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForGenericHec),
+    );
+
+    if (genericHecFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.GenericHec,
+        linkURL: "https://bitwarden.com/help/http-event-collector/",
+        image: "../../../../../../../images/integrations/logo-generic-hec-color.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-generic-hec-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<your-hec-endpoint>/services/collector",
+      });
+    }
+
     const orgIntegrations = await firstValueFrom(
       this.organizationIntegrationService.integrations$.pipe(take(1)),
     );

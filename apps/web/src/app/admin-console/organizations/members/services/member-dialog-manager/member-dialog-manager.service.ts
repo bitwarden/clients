@@ -12,14 +12,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
 import {
   AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
-} from "../../components/account-recovery/account-recovery-dialog.component";
+} from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
@@ -91,16 +91,25 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ): Promise<MemberDialogResult> {
+    const detailsTabEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM28365_ChangeMemberEmail,
+    );
+    const resolvedTab =
+      detailsTabEnabled && initialTab === MemberDialogTab.Role
+        ? MemberDialogTab.Details
+        : initialTab;
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: initialTab,
-        managedByOrganization: user.managedByOrganization,
+        initialTab: resolvedTab,
+        claimedByOrganization: user.claimedByOrganization,
       },
     });
 
@@ -112,31 +121,16 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const adminResetTwoFactorEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.AdminResetTwoFactor,
-    );
-
-    const dialogRef = adminResetTwoFactorEnabled
-      ? AccountRecoveryDialogV2Component.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            email: user.email,
-            organizationId: organization.id as OrganizationId,
-            organizationUserId: user.id,
-            organizationUserType: user.type,
-            twoFactorEnabled: user.twoFactorEnabled,
-          },
-        })
-      : AccountRecoveryDialogComponent.open(this.dialogService, {
-          data: {
-            name: this.userNamePipe.transform(user),
-            email: user.email,
-            organizationId: organization.id as OrganizationId,
-            organizationUserId: user.id,
-            organizationUserType: user.type,
-            twoFactorEnabled: user.twoFactorEnabled,
-          },
-        });
+    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
+      data: {
+        name: this.userNamePipe.transform(user),
+        email: user.email,
+        organizationId: organization.id as OrganizationId,
+        organizationUserId: user.id,
+        organizationUserType: user.type,
+        twoFactorEnabled: user.twoFactorEnabled,
+      },
+    });
 
     const result = await lastValueFrom(dialogRef.closed);
     return result ?? AccountRecoveryDialogResultType.Ok;
@@ -284,7 +278,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 
@@ -303,7 +302,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 

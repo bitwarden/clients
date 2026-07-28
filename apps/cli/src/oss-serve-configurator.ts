@@ -167,7 +167,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
@@ -184,6 +183,8 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,

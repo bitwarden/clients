@@ -1,6 +1,5 @@
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-
+import { ApiService } from "../../../abstractions/api.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "../../abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "../../models/request/password.request";
 import { SetInitialPasswordRequest } from "../../models/request/set-initial-password.request";

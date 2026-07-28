@@ -33,7 +33,12 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import {
+  InitiationPath,
+  PlanSponsorshipType,
+  PlanType,
+  ProductTierType,
+} from "@bitwarden/common/billing/enums";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -130,6 +135,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
   readonly trialLength = input<number | undefined>(undefined);
 
+  /** Marketing-vs-product origin recorded on the create request; drives Stripe's trialInitiationPath metadata. */
+  readonly initiationPath = input<InitiationPath>(InitiationPath.NewOrganizationCreationInProduct);
+
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -162,7 +170,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return (
       hasPremiumPersonally &&
       isCreatingOrganization &&
-      premiumToOrganizationUpgradeFeatureFlagEnabled
+      premiumToOrganizationUpgradeFeatureFlagEnabled &&
+      !this.acceptingSponsorship()
     );
   });
 
@@ -746,8 +755,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.secretsManagerForm.controls.enabled.value) {
       this.secretsManagerForm.controls.userSeats.setValue(this.sub?.smSeats || 1);
       this.secretsManagerForm.controls.additionalServiceAccounts.setValue(
-        (this.sub?.smServiceAccounts ?? 0) -
-          (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0),
+        Math.max(
+          0,
+          (this.sub?.smServiceAccounts ?? 0) -
+            (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0) -
+            (this.sub?.smServiceAccountsGrace ?? 0),
+        ),
       );
     }
 
@@ -1040,7 +1053,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
-    request.initiationPath = "New organization creation in-product";
+    request.initiationPath = this.initiationPath();
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;

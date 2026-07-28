@@ -9,14 +9,12 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
@@ -82,7 +80,7 @@ describe("MemberDialogManagerService", () => {
       status: OrganizationUserStatusType.Confirmed,
       hasMasterPassword: true,
       accessSecretsManager: false,
-      managedByOrganization: false,
+      claimedByOrganization: false,
       twoFactorEnabled: false,
     } as OrganizationUserView;
 
@@ -165,12 +163,13 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Edit",
             name: "Test User",
+            email: "test@example.com",
             organizationId: mockOrganization.id,
             organizationUserId: mockUser.id,
             usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Role,
-            managedByOrganization: false,
+            claimedByOrganization: false,
           },
         }),
       );
@@ -218,31 +217,14 @@ describe("MemberDialogManagerService", () => {
       twoFactorEnabled: false,
     };
 
-    it("should open the v1 dialog when AdminResetTwoFactor flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+    it("should open the account recovery dialog", async () => {
       const mockDialogRef = { closed: of("recovered") };
       dialogService.open.mockReturnValue(mockDialogRef as any);
 
       const result = await service.openAccountRecoveryDialog(mockUser, mockOrganization);
 
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.AdminResetTwoFactor);
       expect(dialogService.open).toHaveBeenCalledWith(
         AccountRecoveryDialogComponent,
-        expect.objectContaining({ data: expectedData }),
-      );
-      expect(result).toBe("recovered");
-    });
-
-    it("should open the v2 dialog when AdminResetTwoFactor flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-      const mockDialogRef = { closed: of("recovered") };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
-
-      const result = await service.openAccountRecoveryDialog(mockUser, mockOrganization);
-
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.AdminResetTwoFactor);
-      expect(dialogService.open).toHaveBeenCalledWith(
-        AccountRecoveryDialogV2Component,
         expect.objectContaining({ data: expectedData }),
       );
       expect(result).toBe("recovered");
@@ -554,6 +536,21 @@ describe("MemberDialogManagerService", () => {
       });
       expect(result).toBe(true);
     });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRemoveUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      expect(result).toBe(true);
+    });
   });
 
   describe("openRevokeUserConfirmationDialog", () => {
@@ -594,6 +591,22 @@ describe("MemberDialogManagerService", () => {
       const result = await service.openRevokeUserConfirmationDialog(noMpUser);
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(2);
+      expect(result).toBe(true);
+    });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      i18nService.t.mockReturnValue("Revoke user confirmation");
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRevokeUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
       expect(result).toBe(true);
     });
   });

@@ -3,14 +3,18 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 
 // eslint-disable-next-line no-restricted-imports
 import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
 // eslint-disable-next-line no-restricted-imports
 import { InactiveTwoFactorReportComponent } from "../../../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+// eslint-disable-next-line no-restricted-imports
+import { OrgPasskeyReportComponent } from "../../../dirt/reports/pages/organizations/org-passkey-report.component";
 // eslint-disable-next-line no-restricted-imports
 import { ReusedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/reused-passwords-report.component";
 // eslint-disable-next-line no-restricted-imports
@@ -81,6 +85,17 @@ const routes: Routes = [
               titleId: "weakPasswordsReport",
             },
             canActivate: [isPaidOrgGuard()],
+          },
+          {
+            path: "passkey-report",
+            component: OrgPasskeyReportComponent,
+            data: {
+              titleId: "passkeyLoginReport",
+            },
+            canActivate: [
+              isPaidOrgGuard(),
+              canAccessFeature(FeatureFlag.PasskeyLoginReport, true, "../reports", false),
+            ],
           },
         ],
       },

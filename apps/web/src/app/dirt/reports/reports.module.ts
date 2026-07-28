@@ -13,6 +13,7 @@ import {
   DefaultCipherFormConfigService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -24,6 +25,7 @@ import { AdminConsoleCipherFormConfigService } from "../../vault/org-vault/servi
 import { BreachReportComponent } from "./pages/breach-report.component";
 import { ExposedPasswordsReportComponent } from "./pages/exposed-passwords-report.component";
 import { InactiveTwoFactorReportComponent } from "./pages/inactive-two-factor-report.component";
+import { PasskeyReportComponent } from "./pages/passkey-report.component";
 import { ReportsHomeComponent } from "./pages/reports-home.component";
 import { ReusedPasswordsReportComponent } from "./pages/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent } from "./pages/unsecured-websites-report.component";
@@ -45,7 +47,9 @@ import { ReportsSharedModule } from "./shared";
     ChipActionComponent,
     ChipFilterComponent,
     BerryComponent,
+    PasskeyReportComponent,
     TooltipDirective,
+    Vfo1IconPipe,
   ],
   declarations: [
     BreachReportComponent,

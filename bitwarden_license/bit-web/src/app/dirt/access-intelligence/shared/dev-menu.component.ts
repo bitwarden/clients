@@ -32,10 +32,12 @@ export class DevMenuComponent implements OnInit {
   private readonly logger = inject(LogService);
   protected readonly postImportDialogAcked = signal(false);
   protected readonly newAdminWelcomeDialogAcked = signal(false);
+  protected readonly coachmarksTourAcked = signal(false);
 
   readonly beginNewAdminWelcomeTour = output<void>();
   readonly beginPostImportTour = output<void>();
   readonly importData = output<void>();
+  readonly beginCoachmarksTour = output<void>();
   protected readonly isOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
@@ -45,6 +47,9 @@ export class DevMenuComponent implements OnInit {
     const newAdminWelcomeDialogAcked =
       await this.onboardingService.isNewAdminWelcomeDialogAcknowledged();
     this.newAdminWelcomeDialogAcked.set(newAdminWelcomeDialogAcked);
+
+    const coachmarksTourAcked = await this.onboardingService.isAICoachmarkTourCompleted();
+    this.coachmarksTourAcked.set(coachmarksTourAcked);
   }
 
   @HostListener("document:keydown", ["$event"])
@@ -77,6 +82,11 @@ export class DevMenuComponent implements OnInit {
   protected onBeginNewAdminWelcomeTour(): void {
     this.isOpen.set(false);
     this.beginNewAdminWelcomeTour.emit();
+  }
+
+  protected onBeginCoachmarksTour(): void {
+    this.isOpen.set(false);
+    this.beginCoachmarksTour.emit();
   }
 
   protected onImportData(): void {
@@ -133,6 +143,32 @@ export class DevMenuComponent implements OnInit {
     } catch (error) {
       this.logger.error(
         "Failed to get Access Intelligence new admin welcome dialog acknowledged state.",
+        error,
+      );
+    }
+  }
+
+  protected async onResetCoachmarksTourAck(): Promise<void> {
+    try {
+      await this.onboardingService.setAICoachmarkTourCompleted(false);
+      this.coachmarksTourAcked.set(false);
+      this.logger.info("Reset Access Intelligence coachmarks tour acknowledged state.");
+    } catch (error) {
+      this.logger.error(
+        "Failed to reset Access Intelligence coachmarks tour acknowledged state.",
+        error,
+      );
+    }
+  }
+
+  protected async onShowCoachmarksTourAckState(): Promise<void> {
+    try {
+      const isAck = await this.onboardingService.isAICoachmarkTourCompleted();
+      this.coachmarksTourAcked.set(isAck);
+      this.logger.info(`Access Intelligence coachmarks tour acknowledged state: ${isAck}.`);
+    } catch (error) {
+      this.logger.error(
+        "Failed to get Access Intelligence coachmarks tour acknowledged state.",
         error,
       );
     }

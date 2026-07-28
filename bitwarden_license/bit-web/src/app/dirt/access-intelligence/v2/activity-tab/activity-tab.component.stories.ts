@@ -2,6 +2,7 @@ import { provideLocationMocks } from "@angular/common/testing";
 import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import {
   createApplication,
   createMemberRegistry,
@@ -12,11 +13,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import {
   buildActivityTabProviders,
+  MockAccessIntelligenceCoachmarkService,
   createAccessIntelligenceI18nMock,
   MockToastService,
   populatedTrendData,
+  MockAccessIntelligenceDataService,
 } from "../testing";
 
 import { ActivityTabComponent } from "./activity-tab.component";
@@ -32,6 +36,11 @@ export default {
       providers: [
         { provide: I18nService, useFactory: createAccessIntelligenceI18nMock },
         { provide: ToastService, useClass: MockToastService },
+        { provide: AccessIntelligenceDataService, useClass: MockAccessIntelligenceDataService },
+        {
+          provide: AccessIntelligenceCoachmarkService,
+          useClass: MockAccessIntelligenceCoachmarkService,
+        },
       ],
     }),
     applicationConfig({
@@ -190,9 +199,9 @@ export const NeedsReview: Story = {
 };
 
 /**
- * Trend Chart Enabled - Feature flag on, trend widget visible with populated data
+ * Trend Chart - widget visible with populated data
  */
-export const TrendChartEnabled: Story = {
+export const TrendChart: Story = {
   // The trend chart derives its x-axis from the current date, so the rendered
   // chart is non-deterministic. Snapshotting will be re-enabled in a follow-up that
   // pins the chart's reference clock. Matches the trend-widget stories
@@ -222,7 +231,7 @@ export const TrendChartEnabled: Story = {
       props: { organizationId: orgId },
       moduleMetadata: {
         providers: buildActivityTabProviders(report, {
-          trend: { flagEnabled: true, data: populatedTrendData },
+          trend: { data: populatedTrendData },
         }),
       },
     };
