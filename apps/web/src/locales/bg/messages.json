@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Избиране на всичко"
   },
+  "selectAllRows": {
+    "message": "Избиране на всички редове"
+  },
+  "selectRow": {
+    "message": "Избиране на реда"
+  },
+  "showingItemRange": {
+    "message": "Показани: $START$ – $END$ от $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Редове на страница"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ реда на страница",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ избрани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предходна страница"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Към страница"
+  },
+  "ofPageCount": {
+    "message": "от $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Няма съвпадащи елементи"
+  },
   "deselectAll": {
     "message": "Отмяна на избора"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "Премахване на секретния ключ"
   },
+  "deletePasskey": {
+    "message": "Изтриване на секретния ключ"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Секретният ключ ще бъде изтрит завинаги от записа за вписване. Това действие е необратимо."
+  },
   "removePasskeyInfo": {
     "message": "Ако всички секретни ключове бъдат премахнати, няма да можете да се впишете в нови устройства без главната си парола."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "Нова организация"
   },
+  "newVault": {
+    "message": "Нов трезор"
+  },
   "noOrganizationsList": {
     "message": "Не сте член на никоя организация. Организациите позволяват да споделяте записи с други потребители по защитен начин."
   },
@@ -2504,8 +2590,8 @@
   "confirmSecretsExport": {
     "message": "Потвърждаване на изнасянето на тайните"
   },
-  "exportWarningDesc": {
-    "message": "Данните от трезора ви ще се изнесат в незащитен формат. Не го пращайте по незащитени канали като електронна поща. Изтрийте файла незабавно след като свършите работата си с него."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Изнесеният файл ще съдържа тайните, в незащитен формат. Не го пращайте по незащитени канали (напр. е-поща). Изтрийте файла незабавно след като свършите работата си с него."
@@ -2584,7 +2670,7 @@
   "passwordProtected": {
     "message": "Защитен с парола"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
   "confirmVaultImport": {
@@ -2682,7 +2768,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Изчистване на историята на генериране"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
   },
   "noPasswordsInList": {
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ елемент ще бъде пропуснат",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Следните елементи не могат да бъдат прочетени и няма да бъдат включени при внасянето:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Този SSH ключ не може да бъде внесен"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдържан вид елемент"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Този елемент не може да бъде внесен"
   },
   "contact": {
     "message": "Контакт"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "Не са открити записи в трезора ви с липсващи настройки за двустепенна идентификация."
   },
+  "passkeyLoginReport": {
+    "message": "Вписване със секретен ключ"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Секретните ключове са сигурна и неподатлива на измами алтернатива на паролите. Вижте кои от акаунтите Ви ги поддържат."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Секретните ключове са сигурна и неподатлива на измами алтернатива на паролите. Вижте кои от акаунтите в трезора Ви поддържат секретни ключове, за да улесните вписването си, без да ползвате пароли. Научете"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "как работят секретните ключове"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "и "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "как да ги ползвате в Битуорден."
+  },
+  "passkeyLoginFound": {
+    "message": "Акаунти, които поддържат секретни ключове"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "В трезора Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "В трезорите Ви има $COUNT$ запис(а), които поддържат секретни ключове. Ако искате да подобрите защитата на тези акаунти, може да настроите секретен ключ, където това е възможно. Информацията е получена от passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "В трезора Ви няма акаунти, които поддържат секретни ключове, но все още нямат настроени такива."
+  },
   "instructions": {
     "message": "Инструкции"
+  },
+  "passwordlessLogin": {
+    "message": "Вписване без парола"
+  },
+  "multifactorAuthentication": {
+    "message": "Многостъпково удостоверяване"
   },
   "exposedPasswordsReport": {
     "message": "Доклад за разкрити пароли"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Прекратяване на абонамента"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Изтичане на абонамента"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Осъществен е достъп до текстово изпращане $SENDID$ създадено чрез $ID$.",
+  "accessedTextSendV3": {
+    "message": "Осъществен е достъп до текстово изпращане $SENDID$ създадено чрез $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Осъществен е достъп до файлово изпращане $SENDID$ създадено чрез $ID$.",
+  "accessedFileSendV3": {
+    "message": "Осъществен е достъп до файлово изпращане $SENDID$ създадено чрез $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "Изисква одобрение"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Опитвате се да се впишете ли?"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "Изтекъл"
   },
+  "expiringSoon": {
+    "message": "Изтича скоро",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Активно",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Търсене в изпратените",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Адресът на е-пощата на $ID$ е променен.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ се вписа за първи път с еднократно удостоверяване",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Възползвайте се от сигурността и удобството на еднократното удостоверяване дори и за неуправлявани приложения. Когато потребителите пуснат приложение от Вашия доставчик на самоличности, данните им за вписване ще бъдат автоматично попълнени и изпратени, с едно щракване и по безопасен път от доставчика на самоличност до приложението."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Когато потребителите стартират приложение от Вашия доставчик на идентификационни данни, данните им за вписване ще бъдат автоматично попълнени и изпратени — създавайки сигурен и лесен начин за вписване с едно щракване."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Сървър на доставчика на самоличност"
   },
@@ -8680,7 +8861,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Няма спонсорирани семейни планове"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Спонсорираните семейни планове за не-членове ще се показват тук"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9603,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9613,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9627,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9637,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Изисква се платен абонамент"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "Премахване на члена"
   },
+  "revokeMember": {
+    "message": "Отнемане на достъпа на члена"
+  },
+  "restoreMember": {
+    "message": "Възстановяване на достъпа на члена"
+  },
+  "deleteMember": {
+    "message": "Изтриване на члена"
+  },
   "collection": {
     "message": "Колекция"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "Роля на члена"
+  },
+  "moreActions": {
+    "message": "Още действия"
+  },
+  "emailUpdateOnSave": {
+    "message": "Е-пощата ще се обнови при запазване"
+  },
+  "createdDate": {
+    "message": "Дата на създаване"
   },
   "moreSettings": {
     "message": "Още настройки"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
-  "collectionsEdited": {
-    "message": "Колекциите са редактирани"
-  },
   "editedCollections": {
     "message": "Редактирани колекции"
+  },
+  "editedCollection": {
+    "message": "Редактирана колекция"
   },
   "collectionEdited": {
     "message": "Колекцията е редактирана"
   },
-  "editedCollection": {
-    "message": "Редактирана колекция"
+  "collectionsEdited": {
+    "message": "Колекциите са редактирани"
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -11853,41 +12052,53 @@
     "message": "Липсващи функционалности",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Нещо, което ни е необходимо, не беше налично",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Твърде сложно за настройка или управление",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Обучението, администрирането или начина на ползване беше твърде сложен",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Не получаваме достатъчно стойност за цената",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "Цената не отговаря на това, което получаваме",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Не се използва достатъчно от екипа ни",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "Не успяхме да накараме хората наистина да го ползват",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Нуждите ни се промениха",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Реорганизация, сливане, промяна в приоритетите или просто вече не ни трябва управител на пароли",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Безплатно за 1 година"
@@ -13151,8 +13362,8 @@
   "linkedHelpText": {
     "message": "Използвайте свързано поле, когато имате проблеми с автоматичното попълване на конкретен уеб сайт."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Въведете подробности за полето от атрибутите му в HTML – id, name, aria-label или placeholder."
   },
   "uppercaseDescription": {
     "message": "Включване на главни букви",
@@ -14102,7 +14313,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Стартиране на абонамент за $PLAN$",
     "placeholders": {
       "plan": {

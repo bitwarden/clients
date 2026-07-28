@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Conta restrinxida"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Contrasinal do arquivo\" e \"Repetir contrasinal do arquivo\" non coinciden."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "ADVERTENCIA",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Confirmar o exportado da caixa forte"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportación contén os teus datos nun formato sen cifrar. Non deberías gardar ou enviar o arquivo por canais inseguros (como correo electrónico). Elimínao inmediatamente despois de finalizar o seu uso."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Este tipo de exportado cifra os teus datos empregando a clave de cifrado da túa conta. Se cambias o teu contrasinal ou nome de usuario deberás volver xerar o arquivo."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Actualiza a unha conta Premium e recibe:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB de almacenamento cifrado para arquivos anexos."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Limpeza de contrasinais, saúde de contas e informes de filtración de datos para manter a túa caixa forte segura."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Xerador de códigos TOTP (2FA) para as credenciais da túa caixa forte."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Atención ó cliente prioritaria."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Tódalas funcións Prémium futuras!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Adquirir Prémium"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Baleirar historial do xerador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Se continúas, tódalas entradas serán eliminadas permanentemente do historial do xerador. Seguro que queres continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Atrás"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "A aplicación de escritorio ten unha conta distinta. Por favor asegúrate de que ambas aplicacións iniciaron sesión na mesma conta."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Conta non coincidente"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Clave biométrica non coincidente"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Desbloqueo biométrico fallido. A clave biométrica non puido abrir a caixa forte. Por favor proba a volver configurar a biometría."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "A biometría non puido ser completada. Proba a usar o contrasinal mestre ou pechar a sesión. Se o problema persiste, contacta con atención ó cliente."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token da API de $SERVICENAME$ inválido",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,7 +3954,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Erro de conector de clave: asegúrate de que o conector de clave está dispoñible e funcionando correctamente."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Requírese plan Prémium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Organización suspendida."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Emprega un campo vinculado cando teñas problemas coa autoenchido dalgunha web."
   },
-  "linkedLabelHelpText": {
-    "message": "Insire o ID HTML, nome, aria-label ou exemplo foi campo."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Modificar campo"

@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "Akun dibatasi"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Kata sandi berkas\" dan \"Konfirmasi kata sandi berkas\" tidak cocok."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "PERINGATAN",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Konfirmasi Ekspor Brankas"
   },
-  "exportWarningDesc": {
-    "message": "Berkas ekspor ini berisi data brankas Anda dalam format tidak terenkripsi. Jangan pernah menyimpan atau mengirim berkas ini melalui kanal tidak aman (seperti surel). Segera hapus setelah Anda selesai menggunakannya."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "Ekspor ini mengenkripsi data Anda menggunakan kunci enkripsi akun Anda. Jika Anda pernah merotasi kunci enkripsi akun Anda, Anda harus mengekspor lagi karena Anda tidak akan dapat mendekripsi file ekspor ini."
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "Daftar untuk keanggotaan premium dan mendapatkan:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 GB penyimpanan berkas yang dienkripsi."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Kebersihan kata sandi, kesehatan akun, dan laporan kebocoran data untuk tetap menjaga keamanan brankas Anda."
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Pembuat kode verifikasi TOTP (2FA) untuk masuk di brankas anda."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Dukungan pelanggan prioritas."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Semua fitur-fitur premium masa depan. Akan segera tiba!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "Beli Keanggotaan Premium"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Bersihkan riwayat penghasil"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Jika Anda melanjutkan, semua daftar akan dihapus selamanya dari riwayat penghasil. Apakah Anda yakin ingin melanjutkan?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Kembali"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Aplikasi desktop masuk ke akun yang berbeda. Harap pastikan kedua aplikasi masuk ke akun yang sama."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Akun tidak cocok"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Kunci biometrik tidak cocok"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Gagal membuka dengan biometrik. Kunci rahasia biometrik gagal membuka brankas. Harap coba atur biometrik lagi."
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Biometrik tidak dapat diselesaikan, pertimbangkan untuk menggunakan sebuah kata sandi utama atau keluar. Jika hal ini tetap berlangsung, mohon hubungi dukungan Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token API $SERVICENAME$ tidak valid",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token API $SERVICENAME$ tidak valid: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ menolak permintaan Anda. Harap hubungi penyedia layanan Anda untuk bantuan.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ menolak permintaan Anda: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "Galat kunci penyambung: pastikan kunci penyambung tersedia dan bekerja dengan benar."
   },
-  "premiumSubcriptionRequired": {
-    "message": "Langganan premium diperlukan"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "Organisasi ditangguhkan."
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Gunakan bidang tertaut ketika Anda mengalami masalah pengisian otomatis untuk situs web tertentu."
   },
-  "linkedLabelHelpText": {
-    "message": "Masukkan id, name, aria-label, atau placeholder html dari bidang."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "Sunting bidang"

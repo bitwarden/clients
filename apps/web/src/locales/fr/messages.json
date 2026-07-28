@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Tout sélectionner"
   },
+  "selectAllRows": {
+    "message": "Sélectionner toutes les colonnes"
+  },
+  "selectRow": {
+    "message": "Sélectionner une colonne"
+  },
+  "showingItemRange": {
+    "message": "Affichage de $START$ - $END$ de $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Lignes par page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ lignes par page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ éléments",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Effacer tout"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ sélectionné(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Page précédente"
+  },
+  "nextPage": {
+    "message": "Page suivante"
+  },
+  "goToPage": {
+    "message": "Aller à la page"
+  },
+  "ofPageCount": {
+    "message": "de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Aucun élément correspondant"
+  },
   "deselectAll": {
     "message": "Tout désélectionner"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "Retirer la clé d'identification (passkey)"
   },
+  "deletePasskey": {
+    "message": "Supprimer la clé d'accès"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Cette clé d'accès sera définitivement supprimée de votre élément de connexion. Cela ne peut pas être annulé."
+  },
   "removePasskeyInfo": {
     "message": "Si toutes les clés d'accès sont supprimées, vous ne pourrez pas vous connecter à de nouveaux appareils sans votre mot de passe principal."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "Nouvelle organisation"
   },
+  "newVault": {
+    "message": "Nouveau coffre"
+  },
   "noOrganizationsList": {
     "message": "Vous ne faites partie d'aucune organisation. Les organisations vous permettent de partager des éléments de façon sécurisée avec d'autres utilisateurs."
   },
@@ -2504,8 +2590,8 @@
   "confirmSecretsExport": {
     "message": "Confirmer l'export des secrets"
   },
-  "exportWarningDesc": {
-    "message": "Cet export contient vos données de coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
+  "exportUnencryptedWarningDesc": {
+    "message": "Cet export contient les données de votre coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme un courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
   },
   "exportSecretsWarningDesc": {
     "message": "Cet export contient vos données secrètes dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser."
@@ -2584,8 +2670,8 @@
   "passwordProtected": {
     "message": "Protégé par mot de passe"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "Le \"Mot de Passe\" et le \"Mot de Passe Confirmé\" ne correspondent pas."
+  "filePasswordConfirmationMismatch": {
+    "message": "Le \"Mot de passe du fichier\" et la \"Confirmation du mot de passe du fichier\" ne correspondent pas."
   },
   "confirmVaultImport": {
     "message": "Confirmer l'Importation du Coffre"
@@ -2682,8 +2768,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Effacer l'historique du générateur"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Si vous continuez, toutes les entrées seront définitivement supprimées de l'historique du générateur. Êtes-vous sûr de vouloir continuer ?"
   },
   "noPasswordsInList": {
     "message": "Aucun mot de passe à afficher."
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ éléments seront ignorés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Les éléments suivants n'ont pas pu être lus et ne seront pas inclus dans votre importation :"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Cette clé SSH n'a pas pu être importée"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Type d'élément non pris en charge"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Cet élément n'a pas pu être importé"
   },
   "contact": {
     "message": "Contact"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "Aucun site web n'a été trouvé dans votre coffre avec une configuration d'authentification à deux facteurs manquante."
   },
+  "passkeyLoginReport": {
+    "message": "Connexion par clé d'accès"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Les clés d'accès sont une alternative sécuritaire et résistante à l'hameçonnage des mots de passe. Voyez ceux de vos comptes qui les supportent."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Les clés d'accès sont une alternative sécuritaire et résistante à l'hameçonnage des mots de passe. Voyez les comptes de votre coffre qui supportent les clés d'accès pour une expérience de connexion simplifiée et sans mot de passe. Apprenez"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "comment fonctionnent les clés d'accès"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "et "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "comment les utiliser dans Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Identifiants qui supportent les clés d'accès"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "Nous avons trouvé $COUNT$ identifiant(s) dans votre coffre qui supportent les clés d'accès. Pour sécuriser davantage ces comptes, envisagez de configurer une clé d'accès où cela est disponible. Source : passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "Nous avons trouvé $COUNT$ identifiant(s) dans votre coffre qui supportent les clés d'accès. Pour sécuriser davantage ces comptes, envisagez de configurer une clé d'accès où cela est disponible. Source : passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Aucun compte n'a été trouvé dans votre coffre qui supporte les clés d'accès sans en avoir une non configurée."
+  },
   "instructions": {
     "message": "Instructions"
+  },
+  "passwordlessLogin": {
+    "message": "Connexion sans mot de passe"
+  },
+  "multifactorAuthentication": {
+    "message": "Authentification multifacteur"
   },
   "exposedPasswordsReport": {
     "message": "Mots de passe exposés"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Annuler l'abonnement"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Expiration de l'abonnement"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "A accédé à un texte de Send$SENDID$ créé par $ID$.",
+  "accessedTextSendV3": {
+    "message": "A accédé au texte de Send$SENDID$ créé par $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "A accédé à un fichier de Send$SENDID$ créé par $ID$.",
+  "accessedFileSendV3": {
+    "message": "A accédé au fichier de Send$SENDID$ créé par $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "Requiert une approbation"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Essayez-vous de vous connecter ?"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "Expiré"
   },
+  "expiringSoon": {
+    "message": "Expire bientôt",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Actif",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Rechercher dans les Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Adresse couriel de $ID$ mise à jour.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ s'est connecté avec le SSO pour la première fois",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Étendre la sécurité et la commodité SSO aux applications non gérées. Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion sont automatiquement saisis et soumis, créant une connexion sécuriséw en un clic depuis le fournisseur d'identité vers l'application."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion seront automatiquement remplis et soumis, créant ainsi une connexion sécurisée en un seul clic."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hôte du fournisseur d'identité"
   },
@@ -8680,7 +8861,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Aucune famille parrainée"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,8 +9603,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Jeton API $SERVICENAME$ invalide",
+  "forwarderInvalidToken": {
+    "message": "Jeton d'API $SERVICENAME$ invalide",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9613,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Jeton API $SERVICENAME$ non valide : $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Jeton d'API de $SERVICENAME$ invalide : $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9627,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de service pour assistance.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de services pour obtenir de l'aide.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9637,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Abonnement Premium requis"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "Supprimer le membre"
   },
+  "revokeMember": {
+    "message": "Révoquer le membre"
+  },
+  "restoreMember": {
+    "message": "Restaurer le membre"
+  },
+  "deleteMember": {
+    "message": "Supprimer le membre"
+  },
   "collection": {
     "message": "Collection"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "Rôle du membre"
+  },
+  "moreActions": {
+    "message": "Plus d'actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Le courriel sera mis à jour lors de la sauvegarde"
+  },
+  "createdDate": {
+    "message": "Date de création"
   },
   "moreSettings": {
     "message": "Plus de paramètres"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "Assigner l'accès à la collection"
   },
-  "collectionsEdited": {
-    "message": "Collections modifiées"
-  },
   "editedCollections": {
     "message": "Collections modifiées"
+  },
+  "editedCollection": {
+    "message": "Collection modifiée"
   },
   "collectionEdited": {
     "message": "Collection modifiée"
   },
-  "editedCollection": {
-    "message": "Collection modifiée"
+  "collectionsEdited": {
+    "message": "Collections modifiées"
   },
   "baseUrl": {
     "message": "URL du serveur"
@@ -11590,7 +11789,7 @@
     "message": "Au moins un membre ou un groupe doit avoir l'autorisation peut gérer."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Clé d'accès"
   },
   "passkeyNotCopied": {
     "message": "La clé d'accès ne sera pas copiée"
@@ -11853,41 +12052,53 @@
     "message": "Caractéristiques ou fonctionnalités manquantes",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Quelque chose dont nous avions besoin n'était pas disponible",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Trop difficile à configurer ou à gérer",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "L'intégration, l'admininistration, ou l'utilisation quotidienne était trop complexe",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Nous n'en n'avons pas pour notre argent",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "Le prix ne correspond pas à ce que nous en tirons",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Pas assez d'utilisation par notre équipe",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "Nous étions incapables de faire en sorte que les personnes l'utilisent",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Nos besoins ont changé",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorganisation, acquisition, changement de priorités, ou nous n'avons plus besoin d'un gestionnaire de mots de passe",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Gratuit pour 1 an"
@@ -13151,8 +13362,8 @@
   "linkedHelpText": {
     "message": "Utilisez un champ lié lorsque vous rencontrez des problèmes de saisie automatique pour un site Web spécifique."
   },
-  "linkedLabelHelpText": {
-    "message": "Entrez l'identifiant html, le nom, l'étiquette aria ou l'espace réservé du champ."
+  "linkedFieldLabelHelpText": {
+    "message": "Entrez l'identifiant HTML du champ, le nom, l'aria-label ou le placeholder."
   },
   "uppercaseDescription": {
     "message": "Inclure les caractères majuscules",
@@ -14102,8 +14313,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "Abonnez-vous au plan $PLAN$",
+  "subscribeToEnterprise": {
+    "message": "S'abonner à $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",

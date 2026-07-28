@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "انتخاب همه"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "لغو انتخاب همه"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "حذف کلید عبور"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "removePasskeyInfo": {
     "message": "اگر همه کلیدهای عبور حذف شوند، نمی‌توانید بدون کلمه عبور اصلی خود وارد دستگاه‌های جدید شوید."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "سازمان جدید"
   },
+  "newVault": {
+    "message": "New vault"
+  },
   "noOrganizationsList": {
     "message": "شما به هیچ سازمانی تعلق ندارید. سازمان‌ها به شما اجازه می‌دهند تا داده‌های خود را با کاربران دیگر به صورت امن به اشتراک بگذارید."
   },
@@ -2504,8 +2590,8 @@
   "confirmSecretsExport": {
     "message": "برون ریزی رازها را تأیید کنید"
   },
-  "exportWarningDesc": {
-    "message": "این برون ریزی شامل داده‌های گاوصندوق در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "این برون ریزی شامل داده‌های رازها در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید."
@@ -2584,8 +2670,8 @@
   "passwordProtected": {
     "message": "محافظت ‌شده با کلمه عبور"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"کلمه عبور پرونده\" و \"تأیید کلمه عبور پرونده\" با یکدیگر مطابقت ندارند."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "درون ریزی گاوصندوق را تأیید کنید"
@@ -2682,8 +2768,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "پاک کردن تاریخچه تولید کننده"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "اگر ادامه دهید، تمام ورودی‌ها به‌طور دائمی از تاریخچه تولید کننده حذف خواهند شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "هیچ کلمه عبوری برای فهرست کردن وجود ندارد."
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "موارد زیر قابل خواندن نیستند و در درون ریزی شما لحاظ نخواهند شد:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "مخاطب"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "هیچ وب‌سایتی در گاوصندوق شما یافت نشد که پیکربندی ورود دو مرحله‌ای نداشته باشد."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "دستور العمل‌ها"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "کلمه‌های عبور افشا شده"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "لغو اشتراک"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "انقضای اشتراک"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "به متن ارسال با شناسه $SENDID$ که توسط $ID$ ایجاد شده بود، دسترسی پیدا شد.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "به پرونده ارسال با شناسه $SENDID$ که توسط $ID$ ایجاد شده بود، دسترسی پیدا شد.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,8 +5739,8 @@
   "needsApproval": {
     "message": "نیاز به تأیید دارد"
   },
-  "areYouTryingtoLogin": {
-    "message": "آیا در تلاش برای ورود به سیستم هستید؟"
+  "areYouTryingToLogin": {
+    "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
     "message": "تلاش برای ورود به سیستم توسط $EMAIL$",
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "منقضی شده"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "جستجوی ارسال‌ها",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ برای اولین بار با استفاده از Sso وارد سیستم شد",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "امنیت و سهولت ورود یکپارچه (SSO) را به برنامه‌های مدیریت‌نشده نیز گسترش دهید. هنگامی که کاربران یک برنامه را از طریق ارائه‌دهنده هویت اجرا می‌کنند، اطلاعات ورود آن‌ها به‌طور خودکار تکمیل و ارسال می‌شود و یک فرایند امن و یک‌کلیکی از ارائه‌دهنده هویت تا برنامه ایجاد می‌شود."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "میزبان ارائه دهنده هویت"
   },
@@ -8680,8 +8861,8 @@
   "noSponsoredFamiliesMessage": {
     "message": "خانواده‌های تحت حمایت وجود ندارند"
   },
-  "nosponsoredFamiliesDetails": {
-    "message": "طرح‌های خانواده‌های غیر عضو تحت حمایت در اینجا نمایش داده خواهند شد"
+  "noSponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "اعضای سازمان شما واجد شرایط استفاده از نسخه رایگان خانواده‌های Bitwarden هستند. شما می‌توانید نسخه رایگان خانواده‌های Bitwarden را برای کارمندانی که عضو سازمان Bitwarden شما نیستند، حمایت کنید. حمایت از یک فرد غیر عضو مستلزم وجود صندلی آزاد در سازمان شما است."
@@ -9422,8 +9603,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "توکن API نامعتبر برای $SERVICENAME$",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9432,8 +9613,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "توکن API نامعتبر برای $SERVICENAME$: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9446,8 +9627,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ درخواست شما را رد کرد. لطفاً برای دریافت کمک با ارائه‌دهنده سرویس خود تماس بگیرید.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -9456,8 +9637,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ درخواست شما را رد کرد: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9545,8 +9726,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "اشتراک پرمیوم نیاز است"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "تأمین SCIM",
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "حذف عضو"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "مجموعه"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "نقش عضو"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "تنظیمات بیشتر"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "اختصاص دسترسی به مجموعه"
   },
-  "collectionsEdited": {
-    "message": "مجموعه‌ها ویرایش شد"
-  },
   "editedCollections": {
     "message": "مجموعه‌های ویرایش شده"
+  },
+  "editedCollection": {
+    "message": "مجموعه ویرایش شد"
   },
   "collectionEdited": {
     "message": "مجموعه ویرایش شد"
   },
-  "editedCollection": {
-    "message": "مجموعه ویرایش شد"
+  "collectionsEdited": {
+    "message": "مجموعه‌ها ویرایش شد"
   },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
@@ -11853,41 +12052,53 @@
     "message": "ویژگی‌ها یا قابلیت‌های از دست رفته",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "چیزی که نیاز داشتیم در دسترس نبود",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "راه‌اندازی یا مدیریت آن بسیار دشوار است",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "مراحل ورود به سیستم، مدیریت یا استفاده روزانه بیش از حد پیچیده بود",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "ما در ازای هزینه، ارزش کافی دریافت نمی‌کنیم",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "قیمت با آنچه از آن به دست می‌آوریم مطابقت ندارد",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "استفاده کافی توسط تیم ما انجام نشده است",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "ما نتوانستیم مردم را وادار کنیم که واقعاً از آن استفاده کنند",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "نیازهای ما تغییر کرد",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "تغییر ساختار سازمان، ادغام یا خرید شرکت، تغییر اولویت‌ها، یا دیگر به مدیر کلمه عبور نیازی نداریم",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "رایگان برای یک سال"
@@ -13151,8 +13362,8 @@
   "linkedHelpText": {
     "message": "وقتی در پر کردن خودکار برای یک وب‌سایت خاص به مشکل برخوردید، از فیلد مرتبط استفاده کنید."
   },
-  "linkedLabelHelpText": {
-    "message": "شناسه Html، نام، aria-label یا محل نگهدار فیلد را وارد کنید."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "شامل حروف بزرگ باشد",
@@ -14102,8 +14313,8 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
-    "message": "در $PLAN$ مشترک شوید",
+  "subscribeToEnterprise": {
+    "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",

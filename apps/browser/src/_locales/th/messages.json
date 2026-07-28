@@ -1455,8 +1455,8 @@
   "accountRestricted": {
     "message": "จำกัดเฉพาะบัญชี"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“รหัสผ่านไฟล์” และ “ยืนยันรหัสผ่านไฟล์” ไม่ตรงกัน"
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "คำเตือน",
@@ -1469,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "ยืนยันการส่งออกตู้นิรภัย"
   },
-  "exportWarningDesc": {
-    "message": "การส่งออกนี้มีข้อมูลตู้นิรภัยในรูปแบบที่ไม่ได้เข้ารหัส คุณไม่ควรจัดเก็บหรือส่งไฟล์ที่ส่งออกผ่านช่องทางที่ไม่ปลอดภัย (เช่น อีเมล) ลบไฟล์ทันทีหลังจากใช้งานเสร็จ"
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "การส่งออกนี้เข้ารหัสข้อมูลของคุณโดยใช้กุญแจเข้ารหัสบัญชีของคุณ หากคุณหมุนเวียนกุญแจเข้ารหัสบัญชี คุณควรส่งออกใหม่อีกครั้ง เนื่องจากคุณจะไม่สามารถถอดรหัสไฟล์ส่งออกนี้ได้"
@@ -1626,8 +1626,8 @@
   "premiumSignUpAndGet": {
     "message": "สมัครสมาชิกพรีเมียมแล้วรับ:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "พื้นที่จัดเก็บไฟล์แนบเข้ารหัสขนาด 1 GB"
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "พื้นที่จัดเก็บไฟล์แนบเข้ารหัสขนาด $SIZE$",
@@ -1653,17 +1653,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "รายงานความปลอดภัยของรหัสผ่าน สุขภาพบัญชี และข้อมูลรั่วไหล เพื่อรักษาตู้นิรภัยให้ปลอดภัย"
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "ตัวสร้างรหัสยืนยัน TOTP (2FA) สำหรับข้อมูลเข้าสู่ระบบในตู้นิรภัย"
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "บริการลูกค้าสัมพันธ์ระดับพรีเมียม"
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "ฟีเจอร์พรีเมียมในอนาคตทั้งหมด และอื่น ๆ ที่กำลังจะมาเร็ว ๆ นี้!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "ซื้อพรีเมียม"
@@ -2548,8 +2548,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "ล้างประวัติตัวสร้างรหัสผ่าน"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "หากดำเนินการต่อ รายการทั้งหมดจะถูกลบออกจากประวัติของตัวสร้างอย่างถาวร ยืนยันที่จะดำเนินการต่อหรือไม่"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "ย้อนกลับ"
@@ -3073,11 +3073,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "แอปพลิเคชันเดสก์ท็อปเข้าสู่ระบบด้วยบัญชีอื่น โปรดตรวจสอบให้แน่ใจว่าทั้งสองแอปพลิเคชันเข้าสู่ระบบด้วยบัญชีเดียวกัน"
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "บัญชีไม่ตรงกัน"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "คีย์ไบโอเมตริกไม่ตรงกัน"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "การปลดล็อกด้วยไบโอเมตริกล้มเหลว คีย์ลับไบโอเมตริกไม่สามารถปลดล็อกตู้นิรภัยได้ โปรดลองตั้งค่าไบโอเมตริกใหม่อีกครั้ง"
@@ -3112,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "ไม่สามารถดำเนินการไบโอเมตริกให้เสร็จสิ้นได้ โปรดพิจารณาใช้รหัสผ่านหลักหรือออกจากระบบ หากปัญหายังคงอยู่ โปรดติดต่อฝ่ายสนับสนุน Bitwarden"
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permission not provided"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Permission request error"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
@@ -3930,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "โทเค็น API ของ $SERVICENAME$ ไม่ถูกต้อง",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +3940,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "โทเค็น API ของ $SERVICENAME$ ไม่ถูกต้อง: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ ปฏิเสธคำขอของคุณ โปรดติดต่อผู้ให้บริการเพื่อขอความช่วยเหลือ",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,8 +3964,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ ปฏิเสธคำขอของคุณ: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4041,8 +4041,8 @@
   "ssoKeyConnectorError": {
     "message": "ข้อผิดพลาด Key Connector: ตรวจสอบให้แน่ใจว่า Key Connector พร้อมใช้งานและทำงานอย่างถูกต้อง"
   },
-  "premiumSubcriptionRequired": {
-    "message": "จำเป็นต้องสมัครสมาชิกพรีเมียม"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "องค์กรถูกระงับ"
@@ -6054,8 +6054,8 @@
   "linkedHelpText": {
     "message": "ใช้ฟิลด์เชื่อมโยงเมื่อคุณประสบปัญหาการป้อนอัตโนมัติสำหรับเว็บไซต์ใดเว็บไซต์หนึ่งโดยเฉพาะ"
   },
-  "linkedLabelHelpText": {
-    "message": "ป้อน html id, name, aria-label หรือ placeholder ของฟิลด์"
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "แก้ไขฟิลด์"

@@ -59,8 +59,10 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest?: PasskeyRegistrationRequest;
-  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
+  private featureFlag?:
+    typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
   private isEnabled: boolean = false;
+  private readonly inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
     private logService: LogService,
@@ -74,6 +76,8 @@ export class DesktopAutofillService implements OnDestroy {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
       this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    } else if (deviceType === DeviceType.WindowsDesktop) {
+      this.featureFlag = FeatureFlag.WindowsNativeCredentialSync;
     }
   }
 
@@ -83,6 +87,18 @@ export class DesktopAutofillService implements OnDestroy {
     }
     this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
     if (!this.isEnabled) {
+      return;
+    }
+
+    // Signal the main process to register the native OS credential provider and start the autofill
+    // IPC server. Gated here because the main process cannot evaluate the feature flag itself.
+    const ipcServerStarted = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!ipcServerStarted) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to start native autofill; aborting init",
+      );
+      this.isEnabled = false;
       return;
     }
 
@@ -220,6 +236,19 @@ export class DesktopAutofillService implements OnDestroy {
     return this.registrationRequest;
   }
 
+  async doCancelRequest(context: string): Promise<void> {
+    const controller = this.inFlightRequests[context];
+    if (controller) {
+      this.logService.debug("[DesktopAutofillService]", `Cancelling request ${context}`);
+      controller.abort("Operation cancelled");
+    } else {
+      this.logService.debug(
+        "[DesktopAutofillService]",
+        `Ignoring cancellation of unknown request: ${context}`,
+      );
+    }
+  }
+
   async doLockStatus(): Promise<autofill.LockStatusResponse> {
     const isUnlocked =
       (await firstValueFrom(this.authService.activeAccountStatus$)) ===
@@ -229,27 +258,28 @@ export class DesktopAutofillService implements OnDestroy {
 
   async doPasskeyRegistration(
     request: PasskeyRegistrationRequest,
+    abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
-    const controller = new AbortController();
     this.registrationRequest = request;
 
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
       { windowXy: request.clientWindow.position },
-      controller,
+      abortController,
     );
     return this.convertRegistrationResponse(request, response);
   }
 
-  async doPasskeyAssertion(request: PasskeyAssertionRequest): Promise<PasskeyAssertionResponse> {
-    const controller = new AbortController();
-
+  async doPasskeyAssertion(
+    request: PasskeyAssertionRequest,
+    abortController: AbortController,
+  ): Promise<PasskeyAssertionResponse> {
     const assumeUserPresence = false;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
       { windowXy: request.clientWindow.position },
-      controller,
+      abortController,
     );
 
     return this.convertAssertionResponse(request, response);
@@ -257,15 +287,14 @@ export class DesktopAutofillService implements OnDestroy {
 
   async doPasskeyAssertionWithoutUserInterface(
     request: PasskeyAssertionWithoutUserInterfaceRequest,
+    abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
-    const controller = new AbortController();
-
     const assumeUserPresence = true;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
       { windowXy: request.clientWindow.position },
-      controller,
+      abortController,
     );
 
     return this.convertAssertionResponse(request, response);
@@ -282,16 +311,29 @@ export class DesktopAutofillService implements OnDestroy {
   listenIpc() {
     const ipcDesktopAutofill = ipc.autofill.desktopAutofill;
     // These must be arrow functions to bind `this` properly.
-    this.makeListener(ipcDesktopAutofill.listenPasskeyRegistration, (r) =>
-      this.doPasskeyRegistration(r),
+    this.makeListener(ipcDesktopAutofill.listenCancelRequest, (ctx) => this.doCancelRequest(ctx));
+
+    this.makeListener(
+      ipcDesktopAutofill.listenPasskeyRegistration,
+      (request, abortController) => this.doPasskeyRegistration(request, abortController),
+      (request) => request.context,
     );
 
-    this.makeListener(ipcDesktopAutofill.listenPasskeyAssertion, (r) => this.doPasskeyAssertion(r));
-    this.makeListener(ipcDesktopAutofill.listenPasskeyAssertionWithoutUserInterface, (r) =>
-      this.doPasskeyAssertionWithoutUserInterface(r),
+    this.makeListener(
+      ipcDesktopAutofill.listenPasskeyAssertion,
+      (request, abortController) => this.doPasskeyAssertion(request, abortController),
+      (request) => request.context,
+    );
+    this.makeListener(
+      ipcDesktopAutofill.listenPasskeyAssertionWithoutUserInterface,
+      (request, abortController) =>
+        this.doPasskeyAssertionWithoutUserInterface(request, abortController),
+      (request) => request.context,
     );
 
-    this.makeListener(ipcDesktopAutofill.listenNativeStatus, (r) => this.doNativeStatus(r));
+    this.makeListener(ipcDesktopAutofill.listenNativeStatus, (request) =>
+      this.doNativeStatus(request),
+    );
 
     this.makeListener(ipcDesktopAutofill.listenLockStatus, () => this.doLockStatus());
 
@@ -308,7 +350,8 @@ export class DesktopAutofillService implements OnDestroy {
    */
   makeListener<Request, Response>(
     channelBindFn: IpcListenerBindFn<Request, Response>,
-    handleFn: (request: Request) => Promise<Response>,
+    handleFn: (request: Request, abortController: AbortController) => Promise<Response>,
+    deriveTransactionIdFn?: (request: Request) => string,
   ) {
     /** Name to use in logs.
      *
@@ -347,8 +390,19 @@ export class DesktopAutofillService implements OnDestroy {
         return;
       }
 
+      // Setup correlation for cancellation requests
+      let transactionId: string | undefined = undefined;
+      const abortController: AbortController = new AbortController();
+
       try {
-        const response = await handleFn(request);
+        if (deriveTransactionIdFn) {
+          transactionId = deriveTransactionIdFn(request);
+          if (transactionId) {
+            this.inFlightRequests[transactionId] = abortController;
+          }
+        }
+
+        const response = await handleFn(request, abortController);
         if (completeCallback) {
           completeCallback(null, response);
         }
@@ -367,6 +421,10 @@ export class DesktopAutofillService implements OnDestroy {
           } else {
             completeCallback(new Error(JSON.stringify(error)), null);
           }
+        }
+      } finally {
+        if (transactionId) {
+          delete this.inFlightRequests[transactionId];
         }
       }
     };

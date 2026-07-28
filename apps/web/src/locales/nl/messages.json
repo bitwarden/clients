@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Alles selecteren"
   },
+  "selectAllRows": {
+    "message": "Alle rijen selecteren"
+  },
+  "selectRow": {
+    "message": "Rij selecteren"
+  },
+  "showingItemRange": {
+    "message": "Toont $START$ - $END$ van $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rijen per pagina"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rijen per pagina",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Alles wissen"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ geselecteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Vorige pagina"
+  },
+  "nextPage": {
+    "message": "Volgende pagina"
+  },
+  "goToPage": {
+    "message": "Ga naar pagina"
+  },
+  "ofPageCount": {
+    "message": "van $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Geen overeenkomende items"
+  },
   "deselectAll": {
     "message": "Selectie ongedaan maken"
   },
@@ -2005,6 +2082,12 @@
   "removePasskey": {
     "message": "Passkey verwijderen"
   },
+  "deletePasskey": {
+    "message": "Passkey verwijderen"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Deze passkey zal permanent worden verwijderd uit je inlogitem. Je kunt dit niet ongedaan maken."
+  },
   "removePasskeyInfo": {
     "message": "Als je alle passkeys verwijdert, heb je je hoofdwachtwoord nodig om op nieuwe apparaten in te loggen."
   },
@@ -2284,6 +2367,9 @@
   "newOrganization": {
     "message": "Nieuwe organisatie"
   },
+  "newVault": {
+    "message": "Nieuwe kluis"
+  },
   "noOrganizationsList": {
     "message": "Je behoort niet tot een organisatie. Via organisaties deel je je items veilig met andere gebruikers."
   },
@@ -2504,7 +2590,7 @@
   "confirmSecretsExport": {
     "message": "Geheimen exporteren bevestigen"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Deze export bevat jouw kluisgegevens in een niet-versleutelde opmaak. Je moet het geëxporteerde bestand niet opslaan of verzenden over onbeveiligde kanalen (zoals e-mail). Verwijder het exportbestand direct na gebruik."
   },
   "exportSecretsWarningDesc": {
@@ -2584,7 +2670,7 @@
   "passwordProtected": {
     "message": "Beveiligd met wachtwoord"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Bestandswachtwoord\" en \"Bestandswachtwoord bevestigen\" komen niet overeen."
   },
   "confirmVaultImport": {
@@ -2682,7 +2768,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Generatorgeschiedenis wissen"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Als je doorgaat, wis je definitief de geschiedenis van de generator. Weet je zeker dat je wilt doorgaan?"
   },
   "noPasswordsInList": {
@@ -2959,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "De volgende items konden niet worden gelezen en zullen niet worden meegenomen met je import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "Contact"
@@ -3493,8 +3597,56 @@
   "noInactive2fa": {
     "message": "Er zijn geen websites in je kluis gevonden waarin tweestapsaanmelding ontbreekt."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey-login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke van je accounts deze ondersteunen."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys zijn een veilig, phishing-resistent alternatief voor wachtwoorden. Zie welke accounts in je kluis ondersteuning hebben voor passkeys voor een eenvoudigere, wachtwoordloze aanmeldervaring. Lees"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "hoe passkeys werken"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "en "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "hoe ze te gebruiken in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins die passkeys ondersteunen"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We hebben $COUNT$ login(s) in je kluis gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We hebben $COUNT$ login(s) in je kluizen gevonden die wachtwoorden ondersteunen. Overweeg een passkey in te stellen waar deze beschikbaar is om deze accounts verder te beveiligen. Gevonden via passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "Er zijn geen accounts in je kluis gevonden die passkeys ondersteunen zonder dat er al een is geconfigureerd."
+  },
   "instructions": {
     "message": "Instructies"
+  },
+  "passwordlessLogin": {
+    "message": "Wachtwoordloze login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor-authenticatie"
   },
   "exposedPasswordsReport": {
     "message": "Gelekte wachtwoorden"
@@ -3888,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Abonnement opzeggen"
+  },
+  "completeCancellation": {
+    "message": "Annulering afronden"
+  },
+  "helpUsImprove": {
+    "message": "Help ons verbeteren. Waarom annuleer je?"
+  },
+  "additionalDetails": {
+    "message": "Aanvullende details"
   },
   "subscriptionExpiration": {
     "message": "Abonnement vervaldatum"
@@ -4930,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Tekst-Send$SENDID$ aangemaakt door $ID$ geopend.",
+  "accessedTextSendV3": {
+    "message": "Tekst-Send$SENDID$ aangemaakt door $ID$ geopend",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Bestand-Send$SENDID$ aangemaakt door $ID$ geopend.",
+  "accessedFileSendV3": {
+    "message": "Bestand-Send$SENDID$ aangemaakt door $ID$ geopend",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5578,7 +5739,7 @@
   "needsApproval": {
     "message": "Heeft goedkeuring nodig"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Probeer je in te loggen?"
   },
   "logInAttemptBy": {
@@ -7143,6 +7304,14 @@
   "expired": {
     "message": "Verlopen"
   },
+  "expiringSoon": {
+    "message": "Vervalt binnenkort",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Actief",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Sends zoeken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7981,6 +8150,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "e-mailadres $ID$ bijgewerkt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ heeft voor de eerste keer ingelogd met Sso",
     "placeholders": {
@@ -8394,6 +8572,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "Wanneer gebruikers een app van je identiteitsprovider starten, worden de inloggegevens automatisch ingevuld en verstuurd, wat veilig inloggen met één klik bewerkstelligt."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identiteitsproviderhost"
   },
@@ -8680,7 +8861,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "Geen gesponsorde families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +9603,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Ongeldig $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +9613,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Ongeldige $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +9627,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd. Neem contact op met je serviceprovider voor hulp.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +9637,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ heeft je aanvraag geweigerd: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9545,7 +9726,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium-abonnement vereist"
   },
   "scim": {
@@ -10324,6 +10505,15 @@
   "removeMember": {
     "message": "Lid verwijderen"
   },
+  "revokeMember": {
+    "message": "Lid intrekken"
+  },
+  "restoreMember": {
+    "message": "Lid herstellen"
+  },
+  "deleteMember": {
+    "message": "Lid verwijderen"
+  },
   "collection": {
     "message": "Collectie"
   },
@@ -10494,6 +10684,15 @@
   },
   "memberRole": {
     "message": "Rol van lid"
+  },
+  "moreActions": {
+    "message": "Meer acties"
+  },
+  "emailUpdateOnSave": {
+    "message": "E-mail wordt bijgewerkt bij opslaan"
+  },
+  "createdDate": {
+    "message": "Datum aangemaakt"
   },
   "moreSettings": {
     "message": "Meer instellingen"
@@ -11558,17 +11757,17 @@
   "assignCollectionAccess": {
     "message": "Toegang collectie toewijzen"
   },
-  "collectionsEdited": {
-    "message": "Collecties bewerkt"
-  },
   "editedCollections": {
     "message": "Bewerkte collecties"
+  },
+  "editedCollection": {
+    "message": "Edited collection"
   },
   "collectionEdited": {
     "message": "Collectie bewerkt"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "collectionsEdited": {
+    "message": "Collecties bewerkt"
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -11853,7 +12052,7 @@
     "message": "Ontbrekende functies of functionaliteit",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
+  "cancelSurveyMissingFeaturesHintV2": {
     "message": "Iets wat we nodig hadden was niet beschikbaar",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11861,33 +12060,45 @@
     "message": "Te moeilijk om in te stellen of te beheren",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We krijgen niet genoeg waarde voor het geld",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Kosten waren te hoog",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "De prijs komt niet overeen met wat we eruit krijgen",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "De prijs komt niet overeen met wat we eruit krijgen.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Niet genoeg gebruik door ons team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We konden mensen er niet toe zetten het echt te gebruiken",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We konden mensen er niet toe zetten het echt te gebruiken.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Onze behoeften zijn veranderd",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Slechte klantenservice",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We hebben niet de hulp gekregen die we nodig hadden van support of klantenservice.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Beschrijf je reden voor annulering",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "1 jaar gratis"
@@ -13151,7 +13362,7 @@
   "linkedHelpText": {
     "message": "Gebruik een gekoppeld veld als je problemen ervaart met het automatisch invullen voor een specifieke website."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Html-id, naam, aria-label of placeholder van het veld invullen."
   },
   "uppercaseDescription": {
@@ -14102,7 +14313,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Abonneren op $PLAN$",
     "placeholders": {
       "plan": {

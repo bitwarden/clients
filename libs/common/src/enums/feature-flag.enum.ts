@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
@@ -31,14 +30,15 @@ export enum FeatureFlag {
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
-  MacOsNativeCredentialSync = "macos-native-credential-sync",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
 
   /* Desktop Native */
+  MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
+  WindowsNativeCredentialSync = "windows-native-credential-sync",
   SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
 
@@ -107,18 +107,23 @@ export enum FeatureFlag {
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
   PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
+  PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
+  ManagedDeviceFramework = "pm-27719-managed-device-framework",
 
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -141,21 +146,21 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
-  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
@@ -194,6 +199,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
+  [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
@@ -237,12 +243,16 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
+  [FeatureFlag.ManagedDeviceFramework]: FALSE,
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* PAM */
+  [FeatureFlag.Pam]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,
