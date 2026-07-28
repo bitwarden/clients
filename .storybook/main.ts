@@ -32,6 +32,8 @@ const config: StorybookConfig = {
     "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../bitwarden_license/bit-browser/src/**/*.mdx",
+    "../bitwarden_license/bit-browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/angular/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [

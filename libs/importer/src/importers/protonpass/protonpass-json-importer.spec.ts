@@ -51,6 +51,14 @@ describe("Protonpass Json Importer", () => {
     expect(noteCipher.type).toEqual(CipherType.SecureNote);
     expect(noteCipher.name).toEqual("My Secure Note");
     expect(noteCipher.notes).toEqual("Secure note contents.");
+
+    expect(noteCipher.fields.length).toEqual(2);
+    expect(noteCipher.fields.at(0).name).toEqual("note text field");
+    expect(noteCipher.fields.at(0).value).toEqual("note text value");
+    expect(noteCipher.fields.at(0).type).toEqual(FieldType.Text);
+    expect(noteCipher.fields.at(1).name).toEqual("note hidden field");
+    expect(noteCipher.fields.at(1).value).toEqual("note hidden value");
+    expect(noteCipher.fields.at(1).type).toEqual(FieldType.Hidden);
   });
 
   it("should parse credit card data", async () => {
@@ -69,9 +77,17 @@ describe("Protonpass Json Importer", () => {
     expect(creditCardCipher.card.expMonth).toBe("1");
     expect(creditCardCipher.card.expYear).toBe("2025");
     expect(creditCardCipher.card.code).toBe("333");
+    expect(creditCardCipher.fields.length).toEqual(3);
     expect(creditCardCipher.fields.at(0).name).toEqual("PIN");
     expect(creditCardCipher.fields.at(0).value).toEqual("1234");
     expect(creditCardCipher.fields.at(0).type).toEqual(FieldType.Hidden);
+
+    expect(creditCardCipher.fields.at(1).name).toEqual("card text field");
+    expect(creditCardCipher.fields.at(1).value).toEqual("card text value");
+    expect(creditCardCipher.fields.at(1).type).toEqual(FieldType.Text);
+    expect(creditCardCipher.fields.at(2).name).toEqual("card hidden field");
+    expect(creditCardCipher.fields.at(2).value).toEqual("card hidden value");
+    expect(creditCardCipher.fields.at(2).type).toEqual(FieldType.Hidden);
   });
 
   it("should create folders if not part of an organization", async () => {

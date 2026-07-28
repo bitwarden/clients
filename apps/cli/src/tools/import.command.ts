@@ -14,6 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   CredentialKind,
+  ImportRecordErrorReason,
   ImportServiceAbstraction,
   ImportType,
   SdkImportCredentials,
@@ -132,6 +133,22 @@ export class ImportCommand {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.syncService.fullSync(true);
+
+        // Some items may have been skipped while the rest imported. Report which ones and why.
+        const skipped = response.errors ?? [];
+        if (skipped.length > 0) {
+          const details = skipped
+            .map(
+              (e) =>
+                `  - ${e.id != null && e.id.trim() !== "" ? e.id : "(unidentified item)"}: ${this.importErrorReasonText(e.reason)}`,
+            )
+            .join("\n");
+          const message = `${skipped.length} item(s) could not be imported and were skipped:\n${details}`;
+          const res = new MessageResponse("Imported " + filepath, message);
+          res.raw = message;
+          return Response.success(res);
+        }
+
         return Response.success(new MessageResponse("Imported " + filepath, null));
       }
     } catch (err) {
@@ -204,6 +221,21 @@ export class ImportCommand {
       }
       default:
         return { kind: "none" };
+    }
+  }
+
+  private importErrorReasonText(reason: ImportRecordErrorReason): string {
+    switch (reason) {
+      case ImportRecordErrorReason.SshKeyParseFailed:
+        return "SSH key could not be imported";
+      case ImportRecordErrorReason.UnsupportedType:
+        return "unsupported item type";
+      case ImportRecordErrorReason.UnsupportedFeature:
+        return "unsupported feature";
+      case ImportRecordErrorReason.FolderDecryptionFailed:
+        return "folder could not be decrypted";
+      default:
+        return "could not be imported";
     }
   }
 

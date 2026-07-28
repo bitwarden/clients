@@ -9,6 +9,7 @@ import {
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
@@ -48,7 +49,9 @@ describe("AccessSelectorComponent", () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
-      providers: [],
+      providers: [
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+      ],
     }).compileComponents();
   });
 

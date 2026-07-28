@@ -19,6 +19,7 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -49,6 +50,7 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
     PipesModule,
     ChipFilterComponent,
     BerryComponent,
+    Vfo1IconPipe,
   ],
 })
 export class ReusedPasswordsReportComponent

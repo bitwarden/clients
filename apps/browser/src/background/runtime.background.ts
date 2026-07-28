@@ -25,6 +25,7 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
@@ -64,6 +65,7 @@ export default class RuntimeBackground {
     private browserInitialInstallService: BrowserInitialInstallService,
     private autofillLifecycleService: AutofillLifecycleService,
     private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
+    private autofillOrchestrator: AutofillOrchestrator,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -149,62 +151,39 @@ export default class RuntimeBackground {
         break;
       case AutofillMessageCommand.pageTransitionDetected:
         // A page-lifecycle monitor reports a transition as a fact. The service
-        // buffers it against monitoring state and decides whether it warrants
-        // a collection.
-        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId);
+        // buffers it against monitoring state and `AutofillOrchestrator` decides whether
+        // it warrants a collection.
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
         break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
-          case "autofiller":
-          case ExtensionCommand.AutofillCommand: {
-            const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-            );
-            await this.accountService.setAccountActivity(activeUserId, new Date());
-            const totpCode = await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillCommand,
-            );
-            if (totpCode != null) {
-              this.platformUtilsService.copyToClipboard(totpCode);
-            }
-            await this.main.updateOverlayCiphers();
+          case ExtensionCommand.AutofillCommand:
+            this.autofillOrchestrator.autofillActiveTabFromCommand({
+              frameId: sender.frameId,
+              tab: msg.tab,
+              details: msg.details,
+            });
             break;
-          }
-          case ExtensionCommand.AutofillCard: {
-            await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillCard,
+          case ExtensionCommand.AutofillCard:
+            this.autofillOrchestrator.autofillActiveTabForCipherType(
+              {
+                frameId: sender.frameId,
+                tab: msg.tab,
+                details: msg.details,
+              },
               CipherType.Card,
             );
             break;
-          }
-          case ExtensionCommand.AutofillIdentity: {
-            await this.autofillService.doAutoFillActiveTab(
-              [
-                {
-                  frameId: sender.frameId,
-                  tab: msg.tab,
-                  details: msg.details,
-                },
-              ],
-              msg.sender === ExtensionCommand.AutofillIdentity,
+          case ExtensionCommand.AutofillIdentity:
+            this.autofillOrchestrator.autofillActiveTabForCipherType(
+              {
+                frameId: sender.frameId,
+                tab: msg.tab,
+                details: msg.details,
+              },
               CipherType.Identity,
             );
             break;
-          }
           case "contextMenu":
             clearTimeout(this.autofillTimeout);
             this.pageDetailsToAutoFill.push({

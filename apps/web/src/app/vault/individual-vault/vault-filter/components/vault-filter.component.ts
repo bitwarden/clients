@@ -115,10 +115,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       return "searchDriversLicense";
     }
     if (this.activeFilter.selectedFolderNode?.node) {
-      return "searchFolder";
+      return this.vfo1TerminologyService.enabled() ? "searchMyFolder" : "searchFolder";
     }
     if (this.activeFilter.selectedCollectionNode?.node) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     if (this.activeFilter.organizationId === "MyVault") {
       return "searchMyVault";
@@ -351,7 +351,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
       edit: {
-        filterName: this.i18nService.t("folder"),
+        filterName: this.i18nService.t(
+          this.vfo1TerminologyService.enabled() ? "myFolder" : "folder",
+        ),
         action: this.editFolder as (filter: VaultFilterType) => void,
       },
     };

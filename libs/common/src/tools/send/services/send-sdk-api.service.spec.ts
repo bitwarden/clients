@@ -2,6 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
+  AuthEdit,
   SendAddRequest,
   SendAuthType,
   SendEditRequest,
@@ -102,7 +103,7 @@ describe("SendSdkApiService", () => {
       expect(auth).toEqual({ type: "password", password: "hunter2" });
     });
 
-    it("emits the plaintext `password` variant for a password-changing edit", async () => {
+    it("wraps the plaintext `password` variant in `AuthEdit::Set` for a password-changing edit", async () => {
       const existingId = Utils.newGuid();
       const view = textView({ id: existingId, authType: AuthType.Password });
       const send = sendResolvingTo(view, existingId);
@@ -110,41 +111,33 @@ describe("SendSdkApiService", () => {
       await service.save([send, mock<EncArrayBuffer>()], "new-password");
 
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
-      const auth: SendAuthType = request.auth;
-      expect(auth).toEqual({ type: "password", password: "new-password" });
+      const auth: AuthEdit = request.auth;
+      expect(auth).toEqual({ type: "set", auth: { type: "password", password: "new-password" } });
     });
 
-    it("forwards the existing keyB64 via `hashedPassword` for a password-preserving edit", async () => {
+    it("emits `AuthEdit::Preserve` for a password-preserving edit", async () => {
       const existingId = Utils.newGuid();
       const view = textView({ id: existingId, authType: AuthType.Password });
       const send = sendResolvingTo(view, existingId);
-      // On preserve the caller passes no plaintext; the existing proof lives on the stored send.
-      const storedSend = new Send();
-      storedSend.id = existingId;
-      storedSend.password = "existing-keyB64";
-      sendService.getFromState.mockResolvedValue(storedSend);
 
+      // On preserve the caller passes no plaintext; the SDK resolves the existing auth
+      // against its own stored Send, so the client never needs to know the existing hash.
       await service.save([send, mock<EncArrayBuffer>()]);
 
-      expect(sendService.getFromState).toHaveBeenCalledWith(existingId);
+      expect(sendService.getFromState).not.toHaveBeenCalled();
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
-      const auth: SendAuthType = request.auth;
-      expect(auth).toEqual({ type: "hashedPassword", keyB64: "existing-keyB64" });
+      const auth: AuthEdit = request.auth;
+      expect(auth).toEqual({ type: "preserve" });
     });
 
-    it("throws when a password-protected send has neither a plaintext nor an existing password", async () => {
-      const existingId = Utils.newGuid();
-      const view = textView({ id: existingId, authType: AuthType.Password });
-      const send = sendResolvingTo(view, existingId);
-      const storedSend = new Send();
-      storedSend.id = existingId;
-      storedSend.password = null;
-      sendService.getFromState.mockResolvedValue(storedSend);
+    it("throws when a password-protected create has no plaintext password", async () => {
+      const view = textView({ authType: AuthType.Password });
+      const send = sendResolvingTo(view, null);
 
       await expect(service.save([send, mock<EncArrayBuffer>()])).rejects.toThrow(
         "Password-protected send is missing its password.",
       );
-      expect(sendsClient.edit).not.toHaveBeenCalled();
+      expect(sendsClient.create).not.toHaveBeenCalled();
     });
 
     it("emits a `none` auth variant for an unprotected send", async () => {
@@ -155,6 +148,22 @@ describe("SendSdkApiService", () => {
 
       const request = sendsClient.create.mock.calls[0][0] as SendAddRequest;
       expect(request.auth).toEqual({ type: "none" });
+    });
+
+    it("wraps non-password auth in `AuthEdit::Set` on edit, since it carries no secret to preserve", async () => {
+      const existingId = Utils.newGuid();
+      const view = textView({
+        id: existingId,
+        authType: AuthType.Email,
+        emails: ["a@example.com"],
+      });
+      const send = sendResolvingTo(view, existingId);
+
+      await service.save([send, mock<EncArrayBuffer>()]);
+
+      const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
+      const auth: AuthEdit = request.auth;
+      expect(auth).toEqual({ type: "set", auth: { type: "emails", emails: ["a@example.com"] } });
     });
   });
 

@@ -1,0 +1,29 @@
+<ng-template #content>
+  <ng-content></ng-content>
+</ng-template>
+
+<ng-template #tpl>
+  <div
+    role="columnheader"
+    class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0 tw-text-sm tw-font-medium tw-text-start"
+    [attr.aria-sort]="ariaSort()"
+  >
+    @if (sortable()) {
+      <button
+        type="button"
+        [class]="sortButtonClasses"
+        [attr.aria-pressed]="active()"
+        (click)="onSortClick()"
+      >
+        <ng-container *ngTemplateOutlet="content"></ng-container>
+        <bit-icon class="tw-ms-2" [name]="sortIcon()"></bit-icon>
+      </button>
+    } @else {
+      <ng-container *ngTemplateOutlet="content"></ng-container>
+    }
+  </div>
+</ng-template>
+
+@if (manual()) {
+  <ng-container *ngTemplateOutlet="tpl"></ng-container>
+}

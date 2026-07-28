@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "Tout sélectionner"
   },
+  "selectAllRows": {
+    "message": "Sélectionner toutes les colonnes"
+  },
+  "selectRow": {
+    "message": "Sélectionner une colonne"
+  },
+  "showingItemRange": {
+    "message": "Affichage de $START$ - $END$ de $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Lignes par page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ lignes par page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ éléments",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Effacer tout"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ sélectionné(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Page précédente"
+  },
+  "nextPage": {
+    "message": "Page suivante"
+  },
+  "goToPage": {
+    "message": "Aller à la page"
+  },
+  "ofPageCount": {
+    "message": "de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Aucun élément correspondant"
+  },
   "deselectAll": {
     "message": "Tout désélectionner"
   },
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "Retirer la clé d'identification (passkey)"
+  },
+  "deletePasskey": {
+    "message": "Supprimer la clé d'accès"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Cette clé d'accès sera définitivement supprimée de votre élément de connexion. Cela ne peut pas être annulé."
   },
   "removePasskeyInfo": {
     "message": "Si toutes les clés d'accès sont supprimées, vous ne pourrez pas vous connecter à de nouveaux appareils sans votre mot de passe principal."
@@ -2962,8 +3045,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ éléments seront ignorés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Les éléments suivants n'ont pas pu être lus et ne seront pas inclus dans votre importation :"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Cette clé SSH n'a pas pu être importée"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Type d'élément non pris en charge"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Cet élément n'a pas pu être importé"
   },
   "contact": {
     "message": "Contact"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "Annuler l'abonnement"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Expiration de l'abonnement"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "A accédé à un texte de Send$SENDID$ créé par $ID$.",
+  "accessedTextSendV3": {
+    "message": "A accédé au texte de Send$SENDID$ créé par $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "A accédé à un fichier de Send$SENDID$ créé par $ID$.",
+  "accessedFileSendV3": {
+    "message": "A accédé au fichier de Send$SENDID$ créé par $ID$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -7193,6 +7303,14 @@
   },
   "expired": {
     "message": "Expiré"
+  },
+  "expiringSoon": {
+    "message": "Expire bientôt",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Actif",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
     "message": "Rechercher dans les Sends",
@@ -11934,41 +12052,53 @@
     "message": "Caractéristiques ou fonctionnalités manquantes",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Quelque chose dont nous avions besoin n'était pas disponible",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Trop difficile à configurer ou à gérer",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "L'intégration, l'admininistration, ou l'utilisation quotidienne était trop complexe",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Nous n'en n'avons pas pour notre argent",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "Le prix ne correspond pas à ce que nous en tirons",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Pas assez d'utilisation par notre équipe",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "Nous étions incapables de faire en sorte que les personnes l'utilisent",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Nos besoins ont changé",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorganisation, acquisition, changement de priorités, ou nous n'avons plus besoin d'un gestionnaire de mots de passe",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Gratuit pour 1 an"

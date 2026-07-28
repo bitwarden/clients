@@ -1,8 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, Inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -39,7 +36,7 @@ export enum OffboardingSurveyDialogResultType {
 }
 
 type Reason = {
-  value: string;
+  value: string | null;
   text: string;
 };
 
@@ -65,7 +62,7 @@ export const openOffboardingSurvey = (
   standalone: false,
 })
 export class OffboardingSurveyComponent {
-  protected ResultType = OffboardingSurveyDialogResultType;
+  protected readonly ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
   protected readonly reasons: Reason[] = [];
@@ -74,27 +71,32 @@ export class OffboardingSurveyComponent {
     {
       value: "missing_features",
       labelKey: "cancelSurveyMissingFeaturesLabel",
-      hintKey: "cancelSurveyMissingFeaturesHint",
+      hintKey: "cancelSurveyMissingFeaturesHintV2",
     },
     {
       value: "switched_service",
       labelKey: "cancelSurveyTooComplexLabel",
-      hintKey: "cancelSurveyTooComplexHint",
+      hintKey: "cancelSurveyTooComplexHintV2",
     },
     {
       value: "too_complex",
-      labelKey: "cancelSurveyNotEnoughValueLabel",
-      hintKey: "cancelSurveyNotEnoughValueHint",
+      labelKey: "cancelSurveyNotEnoughValueLabelV2",
+      hintKey: "cancelSurveyNotEnoughValueHintV2",
     },
     {
       value: "unused",
       labelKey: "cancelSurveyNotEnoughUsageLabel",
-      hintKey: "cancelSurveyNotEnoughUsageHint",
+      hintKey: "cancelSurveyNotEnoughUsageHintV2",
     },
     {
       value: "too_expensive",
       labelKey: "cancelSurveyNeedsChangedLabel",
-      hintKey: "cancelSurveyNeedsChangedHint",
+      hintKey: "cancelSurveyNeedsChangedHintV2",
+    },
+    {
+      value: "customer_service",
+      labelKey: "cancelSurveyPoorServiceLabel",
+      hintKey: "cancelSurveyPoorServiceHint",
     },
     {
       value: "other",
@@ -105,19 +107,26 @@ export class OffboardingSurveyComponent {
 
   protected readonly isBusiness: boolean;
 
-  protected formGroup = this.formBuilder.group({
-    reason: [null, [Validators.required]],
+  protected readonly formGroup = this.formBuilder.group({
+    reason: [null as string | null],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
+    otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
+  protected readonly reason = toSignal(this.formGroup.controls.reason.valueChanges, {
+    initialValue: this.formGroup.controls.reason.value,
+  });
+
+  protected readonly isOtherReason = computed(() => this.reason() === "other");
+
   constructor(
-    @Inject(DIALOG_DATA) private dialogParams: OffboardingSurveyDialogParams,
-    private dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
-    private formBuilder: FormBuilder,
-    private billingApiService: BillingApiService,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) private readonly dialogParams: OffboardingSurveyDialogParams,
+    private readonly dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
+    private readonly formBuilder: FormBuilder,
+    private readonly billingApiService: BillingApiService,
+    private readonly i18nService: I18nService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly toastService: ToastService,
   ) {
     this.isBusiness = this.isBusinessPlan();
 
@@ -150,16 +159,20 @@ export class OffboardingSurveyComponent {
     ];
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
       return;
     }
 
+    const feedbackParts = this.isOtherReason()
+      ? [this.formGroup.value.otherFeedback, this.formGroup.value.feedback]
+      : [this.formGroup.value.feedback];
+
     const request = {
-      reason: this.formGroup.value.reason,
-      feedback: this.formGroup.value.feedback,
+      reason: this.formGroup.value.reason!,
+      feedback: feedbackParts.filter(Boolean).join("\n"),
     };
 
     this.dialogParams.type === "Organization"
@@ -168,7 +181,7 @@ export class OffboardingSurveyComponent {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("canceledSubscription"),
     });
 

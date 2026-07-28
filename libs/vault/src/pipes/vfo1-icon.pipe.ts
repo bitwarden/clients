@@ -1,5 +1,7 @@
 import { inject, Pipe, PipeTransform } from "@angular/core";
 
+import { BitwardenIcon } from "@bitwarden/components";
+
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 /**
@@ -12,9 +14,9 @@ import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 export class Vfo1IconPipe implements PipeTransform {
   private terminology = inject(Vfo1TerminologyService);
 
-  private last?: { in: string; enabled: boolean; out: string };
+  private last?: { in: BitwardenIcon; enabled: boolean; out: BitwardenIcon };
 
-  transform(iconClass: string): string {
+  transform(iconClass: BitwardenIcon): BitwardenIcon {
     const enabled = this.terminology.enabled();
     if (this.last && this.last.in === iconClass && this.last.enabled === enabled) {
       return this.last.out;

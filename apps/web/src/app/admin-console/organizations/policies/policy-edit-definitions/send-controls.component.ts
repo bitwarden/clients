@@ -26,6 +26,7 @@ import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -62,7 +63,7 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
   }
 
-  override enabled(policy: PolicyResponse): boolean {
+  override enabled(policy: PolicyResponse | PolicyStatusResponse): boolean {
     // This policy is always enabled, and is driven entirely through its `policy.data` configuration.
     // The 'enabled' UI reflects whether the Send feature is enabled, rather than whether the policy is enabled.
 

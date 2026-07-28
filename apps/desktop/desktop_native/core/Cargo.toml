@@ -42,6 +42,8 @@ tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
 typenum = { workspace = true }
+
+[target.'cfg(not(windows))'.dependencies]
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -65,19 +67,10 @@ scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
-    "Foundation",
-    "Security_Credentials_UI",
-    "Security_Cryptography",
-    "Storage_Streams",
     "Win32_Foundation",
     "Win32_Security_Credentials",
-    "Win32_Security_Cryptography",
-    "Win32_System_WinRT",
-    "Win32_UI_Input_KeyboardAndMouse",
-    "Win32_UI_WindowsAndMessaging",
     "Win32_System_Pipes",
 ], optional = true }
-windows-future = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

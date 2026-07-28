@@ -40,6 +40,7 @@ import {
   CipherStatus,
   CipherTypeFilter,
   VaultFilter,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 @Component({
@@ -54,6 +55,7 @@ export class VaultFilterComponent {
   private readonly accountService = inject(AccountService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -161,14 +163,14 @@ export class VaultFilterComponent {
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection-shared",
+          icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection-shared",
+            icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           },
         ],
       ),

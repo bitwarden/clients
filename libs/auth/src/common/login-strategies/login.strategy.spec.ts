@@ -41,7 +41,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
@@ -332,6 +332,43 @@ describe("LoginStrategy", () => {
 
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    });
+
+    it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+      const accountKeysData = {
+        publicKeyEncryptionKeyPair: {
+          publicKey: "testPublicKey",
+          wrappedPrivateKey: "testPrivateKey",
+        },
+      };
+
+      const tokenResponse = identityTokenResponseFactory();
+      tokenResponse.key = makeEncString("mockEncryptedUserKey");
+      // Add accountKeysResponseModel to the response
+      (tokenResponse as any).accountKeysResponseModel = {
+        publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+        toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        }),
+      };
+
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        {
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        },
         userId,
       );
     });

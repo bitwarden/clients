@@ -41,9 +41,9 @@ import {
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
   isSubFramePositioningMessageData,
-  nodeIsAnchorElement,
-  nodeIsButtonElement,
-  nodeIsTypeSubmitElement,
+  elementIsAnchorElement,
+  elementIsButtonElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
   throttle,
 } from "../utils";
@@ -594,7 +594,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const genericSubmitElement = await this.querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       return genericSubmitElement;
@@ -603,15 +603,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitButtonElement = await this.querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element) => elementIsButtonElement(element),
     );
     if (submitButtonElement) {
       return submitButtonElement;
     }
 
     // If the submit button is not a traditional button element, check for an anchor element that contains submission keywords.
-    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (node: Node) =>
-      nodeIsAnchorElement(node),
+    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (element) =>
+      elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;
@@ -630,7 +630,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = this.domQueryService.query<HTMLButtonElement>(
       element,

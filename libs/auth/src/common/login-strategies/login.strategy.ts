@@ -263,7 +263,7 @@ export abstract class LoginStrategy {
 
     await this.setMasterKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
-    await this.setUserKey(response, userId);
+    await this.unlock(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
@@ -276,15 +276,31 @@ export abstract class LoginStrategy {
     return result;
   }
 
-  // The keys comes from different sources depending on the login strategy
+  /**
+   * The keys comes from different sources depending on the login strategy
+   * @deprecated This method will be removed with https://bitwarden.atlassian.net/browse/PM-33722
+   */
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+  /**
+   * Unlocks the SDK for the user using the implementation for the login strategy.
+   */
+  protected abstract unlock(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
-  protected abstract setAccountCryptographicState(
+  protected async setAccountCryptographicState(
     response: IdentityTokenResponse,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<void> {
+    // The accountKeysResponseModel is always present except for JIT SSO users
+    // which have just registered but not yet initialized the cryptographic state
+    // for their account.
+    if (response.accountKeysResponseModel) {
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
+        userId,
+      );
+    }
+  }
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins

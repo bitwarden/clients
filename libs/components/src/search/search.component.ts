@@ -62,6 +62,9 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   protected readonly id = `search-id-${nextId++}`;
   protected readonly searchText = signal<string | undefined>(undefined);
+
+  /** The current search term, for hosts (e.g. `bit-table-v2`) that read it without owning the form control. */
+  readonly value = this.searchText.asReadonly();
   // Use `type="text"` for Safari to improve rendering performance
   protected readonly inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 

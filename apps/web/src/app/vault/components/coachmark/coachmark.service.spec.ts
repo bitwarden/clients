@@ -9,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { COACHMARK_STEPS } from "./coachmark-step";
 import { CoachmarkService } from "./coachmark.service";
@@ -23,6 +24,7 @@ describe("CoachmarkService", () => {
   const navigate = jest.fn().mockResolvedValue(true);
   const hasOrganizations = jest.fn().mockReturnValue(of(false));
   const t = jest.fn((key: string) => key);
+  const vfo1Enabled = jest.fn().mockReturnValue(false);
 
   let activeAccount$: BehaviorSubject<Account | null>;
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
@@ -37,6 +39,7 @@ describe("CoachmarkService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    vfo1Enabled.mockReturnValue(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
@@ -50,6 +53,7 @@ describe("CoachmarkService", () => {
         { provide: I18nService, useValue: { t } },
         { provide: Router, useValue: { navigate } },
         { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
+        { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
       ],
     });
 
@@ -89,6 +93,17 @@ describe("CoachmarkService", () => {
     it("returns empty string for an unknown step", () => {
       const result = service.getStepDescription("nonExistent" as any);
       expect(result).toBe("");
+    });
+
+    it("uses the VFO1 description key for shareWithCollections when terminology is enabled", () => {
+      vfo1Enabled.mockReturnValue(true);
+      service.getStepDescription("shareWithCollections");
+      expect(t).toHaveBeenCalledWith("coachmarkShareWithSharedFoldersDescription");
+    });
+
+    it("uses the legacy description key for shareWithCollections when terminology is disabled", () => {
+      service.getStepDescription("shareWithCollections");
+      expect(t).toHaveBeenCalledWith("coachmarkShareWithCollectionsDescription");
     });
   });
 

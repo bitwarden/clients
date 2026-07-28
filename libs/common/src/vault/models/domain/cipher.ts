@@ -141,6 +141,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
+  /**
+   * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
+   * If you are using this, please migrate off of it immediately! This function will be removed
+   * in a near release.
+   */
   async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
     assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
 

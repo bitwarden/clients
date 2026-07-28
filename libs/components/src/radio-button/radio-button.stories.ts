@@ -7,10 +7,12 @@ import {
 } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormControlGroupComponent } from "../form-control/form-control-group.component";
+import { SvgComponent } from "../svg/svg.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { RadioButtonModule } from "./radio-button.module";
@@ -27,6 +29,7 @@ export default {
         RadioButtonModule,
         FormControlCardComponent,
         RadioInputComponent,
+        SvgComponent,
       ],
       providers: [
         {
@@ -312,6 +315,97 @@ export const InactiveFormControlCard: Story = {
           </bit-form-control-card>
 
           <bit-hint>Choose one of the options above.</bit-hint>
+        </bit-form-control-group>
+      </form>
+    `,
+  }),
+};
+
+export const FormControlCardGroupGrid: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-group grid formControlName="radio">
+          <bit-label>Select an option</bit-label>
+
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="0" />
+            <bit-label>Option A</bit-label>
+            <bit-hint>The first available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="1" />
+            <bit-label>Option B</bit-label>
+            <bit-hint>The second available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="2" />
+            <bit-label>Option C</bit-label>
+            <bit-hint>The third available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="3" />
+            <bit-label>Option D</bit-label>
+            <bit-hint>The fourth available option</bit-hint>
+          </bit-form-control-card>
+
+          <bit-hint>Choose one of the options above.</bit-hint>
+        </bit-form-control-group>
+      </form>
+    `,
+  }),
+};
+
+export const FormControlCardCustomSlot: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0),
+      }),
+      lockIcon: LockIcon,
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-group [block]="true" formControlName="radio">
+          <bit-label>Select an option</bit-label>
+
+          <bit-form-control-card>
+            <bit-svg
+              slot="start"
+              [content]="lockIcon"
+              aria-hidden="true"
+              class="tw-w-9 tw-text-fg-brand"
+            ></bit-svg>
+            <input type="radio" bitRadio [value]="0" />
+            <bit-label>Option A</bit-label>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <bit-svg
+              slot="start"
+              [content]="lockIcon"
+              aria-hidden="true"
+              class="tw-w-9 tw-text-fg-brand"
+            ></bit-svg>
+            <input type="radio" bitRadio [value]="1" />
+            <bit-label>Option B</bit-label>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <bit-svg
+              slot="start"
+              [content]="lockIcon"
+              aria-hidden="true"
+              class="tw-w-9 tw-text-fg-brand"
+            ></bit-svg>
+            <input type="radio" bitRadio [value]="2" />
+            <bit-label>Option C</bit-label>
+          </bit-form-control-card>
+
+          <bit-hint>Each card projects a custom SVG via slot="start".</bit-hint>
         </bit-form-control-group>
       </form>
     `,

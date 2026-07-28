@@ -238,6 +238,37 @@ describe("AutofillService", () => {
       );
     });
 
+    it("scopes the send to the given frame", () => {
+      autofillService.collectPageDetailsFromTab$(tab, 2);
+
+      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
+        tab,
+        {
+          command: AutofillMessageCommand.collectPageDetails,
+          sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+          tab,
+        },
+        { frameId: 2 },
+        true,
+      );
+    });
+
+    it("admits only the scoped frame's response, not a concurrent collection on another frame", async () => {
+      const scopedSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+      const otherSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 3 });
+
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tab, 2));
+      const pausePromise = tracker.pauseUntilReceived(1);
+
+      messages.next(mockCollectPageDetailsResponseMessage(tab, otherSender));
+      messages.next(mockCollectPageDetailsResponseMessage(tab, scopedSender));
+
+      await pausePromise;
+
+      expect(tracker.emissions[0].length).toBe(1);
+      expect(tracker.emissions[0][0].frameId).toBe(2);
+    });
+
     it("builds an array of page details from received `collectPageDetailsResponse` messages", async () => {
       const topLevelSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 0 });
       const subFrameSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 1 });

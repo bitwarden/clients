@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, DestroyRef, input, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
@@ -23,6 +23,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  BitwardenIcon,
   CardComponent,
   ChipActionComponent,
   FormFieldModule,
@@ -33,6 +34,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { getOrgIconForTier } from "../../../components/org-icon.directive";
+import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
+import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -55,9 +59,13 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
+    Vfo1I18nPipe,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
+
   itemDetailsForm = this.formBuilder.group({
     name: ["", [Validators.required]],
     organizationId: [null],
@@ -173,6 +181,10 @@ export class ItemDetailsSectionComponent implements OnInit {
           return cipher;
         });
       });
+  }
+
+  getOrgIcon(org: Organization): BitwardenIcon {
+    return getOrgIconForTier(org.productTierType);
   }
 
   get favoriteIcon() {

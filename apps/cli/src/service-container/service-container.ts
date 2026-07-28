@@ -75,7 +75,9 @@ import {
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { DefaultPremiumCheckoutPendingService } from "@bitwarden/common/billing/services/account/default-premium-checkout-pending.service";
 import {
   EventUploadService as EventUploadServiceAbstraction,
   EventCollectionService as EventCollectionServiceAbstraction,
@@ -350,6 +352,7 @@ export class ServiceContainer {
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
   billingAccountProfileStateService: BillingAccountProfileStateService;
+  premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
@@ -801,6 +804,9 @@ export class ServiceContainer {
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
+      this.stateProvider,
+    );
+    this.premiumCheckoutPendingService = new DefaultPremiumCheckoutPendingService(
       this.stateProvider,
     );
 

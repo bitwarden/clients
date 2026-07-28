@@ -1,8 +1,11 @@
 use anyhow::Result;
 
+mod app_data;
+
 #[cfg(target_os = "windows")]
 mod modifier_keys;
 
+pub use app_data::path::{build_normalizer, PathNormalizer, PlatformPolicy};
 #[cfg(target_os = "windows")]
 pub(crate) use modifier_keys::*;
 

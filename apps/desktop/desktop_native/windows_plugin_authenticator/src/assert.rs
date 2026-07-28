@@ -138,11 +138,8 @@ fn create_get_assertion_response(
     signature: Vec<u8>,
     user_handle: Vec<u8>,
 ) -> std::result::Result<Vec<u8>, Box<dyn std::error::Error>> {
-    const CTAP2_OK: u8 = 0x00;
-    // Construct a CTAP2 response with the proper structure
-
     // Create CTAP2 GetAssertion response map according to CTAP2 specification
-    let mut cbor_data = vec![CTAP2_OK];
+    let mut cbor_data = vec![];
     let mut writer = CborWriter::new(&mut cbor_data);
 
     let mut num_elements = 4;
@@ -217,8 +214,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(cbor[0], 0x00); // CTAP2_OK
-        let map = CborParser::parse(&cbor[1..]).unwrap().into_map().unwrap();
+        let map = CborParser::parse(&cbor).unwrap().into_map().unwrap();
         assert_eq!(map.len(), 5);
     }
 
@@ -232,8 +228,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(cbor[0], 0x00);
-        let map = CborParser::parse(&cbor[1..]).unwrap().into_map().unwrap();
+        let map = CborParser::parse(&cbor).unwrap().into_map().unwrap();
         assert_eq!(map.len(), 4);
         assert!(!map.iter().any(|(k, _)| *k == CborValue::PositiveInteger(4)));
     }
@@ -249,7 +244,7 @@ mod tests {
         )
         .unwrap();
 
-        let map = CborParser::parse(&cbor[1..]).unwrap().into_map().unwrap();
+        let map = CborParser::parse(&cbor).unwrap().into_map().unwrap();
         let (_, cred_descriptor) = map
             .iter()
             .find(|(k, _)| *k == CborValue::PositiveInteger(1))

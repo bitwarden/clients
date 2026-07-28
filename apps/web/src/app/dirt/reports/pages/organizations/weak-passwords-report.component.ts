@@ -20,6 +20,7 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -50,6 +51,7 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
     PipesModule,
     ChipFilterComponent,
     BerryComponent,
+    Vfo1IconPipe,
   ],
 })
 export class WeakPasswordsReportComponent

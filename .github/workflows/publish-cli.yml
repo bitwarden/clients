@@ -1,0 +1,16 @@
+# Inert publish shim for @bitwarden/cli.
+# Do NOT add logic to this file — it is intentionally minimal and managed by BRE.
+
+name: "CLI: Publish"
+on:
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Publish @bitwarden/cli to npm
+    permissions:
+      contents: read
+      id-token: write
+    uses: bitwarden/gh-actions/.github/workflows/_publish-cli-npm.yml@main

@@ -18,7 +18,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogCloseType } from "@bitwarden/components";
-import { All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { All, RoutedVaultFilterModel, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
@@ -123,6 +123,7 @@ describe("VaultHeaderComponent", () => {
         { provide: DialogService, useValue: mockDialogService },
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

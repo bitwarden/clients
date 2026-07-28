@@ -12,7 +12,7 @@
     }
 
     <bit-nav-item
-      icon="bwi-collection-shared"
+      [icon]="'bwi-collection-shared' | vfo1Icon"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"

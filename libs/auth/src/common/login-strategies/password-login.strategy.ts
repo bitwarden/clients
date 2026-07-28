@@ -117,21 +117,8 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {

@@ -446,11 +446,11 @@ function createCollectionView(i: number): CollectionAdminView {
 
 function createGroupView(i: number): GroupView {
   const organization = organizations[i % organizations.length];
-  const view = new GroupView();
-  view.id = `group-${i}`;
-  view.name = `Group ${i}`;
-  view.organizationId = organization.id;
-  return view;
+  return new GroupView({
+    id: `group-${i}`,
+    name: `Group ${i}`,
+    organizationId: organization.id,
+  });
 }
 
 function createOrganization(i: number): Organization {

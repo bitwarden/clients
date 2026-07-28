@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-
   "extraMetadata": {
     "name": "bitwarden"
   },
@@ -107,6 +106,20 @@
       {
         "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
+        "to": "bitwarden_plugin_authenticator.exe"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "resources/windows_plugin_authenticator_config.json",
+        "to": "plugin_authenticator_config.json"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo.svg",
+        "to": "plugin_authenticator_logo.svg"
       }
     ]
   },

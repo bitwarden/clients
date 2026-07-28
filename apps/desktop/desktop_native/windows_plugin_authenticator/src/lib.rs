@@ -49,6 +49,12 @@ pub fn register() -> Result<(), String> {
     };
     let response = WebAuthnPlugin::add_authenticator(&options)
         .map_err(|err| format!("Failed to add the authenticator: {err}"))?;
+    // We already registered before, so update the details.
+    if response.is_none() {
+        let update_options = options.into();
+        WebAuthnPlugin::update_authenticator_details(&update_options)
+            .map_err(|err| format!("Failed to update the authenticator: {err}"))?;
+    }
     tracing::debug!("Added the authenticator: {response:?}");
     Ok(())
 }

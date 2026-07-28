@@ -78,7 +78,7 @@ export abstract class AutofillService {
   enableInlineMenuAnimation$!: Observable<boolean>;
   enableNotificationAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
-  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab, frameId?: number) => Observable<PageDetail[]>;
   /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
   /** Non-null asserted. */

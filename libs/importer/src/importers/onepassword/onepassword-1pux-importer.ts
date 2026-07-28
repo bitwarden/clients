@@ -9,8 +9,9 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
-import { import_ssh_key } from "@bitwarden/sdk-internal";
+import { import_ssh_key, isSshKeyImportError } from "@bitwarden/sdk-internal";
 
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
@@ -41,79 +42,103 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
       vault.items.forEach((item: Item) => {
-        const cipher = this.initLoginCipher();
+        // Snapshot folder state so a mid-item failure can be rolled back cleanly — no dangling
+        // relationship and no empty folder left behind.
+        const folderCount = this.result.folders.length;
+        const folderRelationshipCount = this.result.folderRelationships.length;
 
-        const category = item.categoryUuid as Category;
-        switch (category) {
-          case Category.Login:
-          case Category.Database:
-          case Category.Password:
-          case Category.WirelessRouter:
-          case Category.Server:
-          case Category.API_Credential:
-            cipher.type = CipherType.Login;
-            cipher.login = new LoginView();
-            break;
-          case Category.CreditCard:
-          case Category.BankAccount:
-            cipher.type = CipherType.Card;
-            cipher.card = new CardView();
-            break;
-          case Category.SecureNote:
-          case Category.SoftwareLicense:
-          case Category.EmailAccount:
-          case Category.MedicalRecord:
-            // case CategoryEnum.Document:
-            cipher.type = CipherType.SecureNote;
-            cipher.secureNote = new SecureNoteView();
-            cipher.secureNote.type = SecureNoteType.Generic;
-            break;
-          case Category.Identity:
-          case Category.DriversLicense:
-          case Category.OutdoorLicense:
-          case Category.Membership:
-          case Category.Passport:
-          case Category.RewardsProgram:
-          case Category.SocialSecurityNumber:
-            cipher.type = CipherType.Identity;
-            cipher.identity = new IdentityView();
-            break;
-          case Category.SSH_Key:
-            cipher.type = CipherType.SshKey;
-            cipher.sshKey = new SshKeyView();
-            break;
-          default:
-            break;
+        try {
+          const cipher = this.initLoginCipher();
+
+          const category = item.categoryUuid as Category;
+          switch (category) {
+            case Category.Login:
+            case Category.Database:
+            case Category.Password:
+            case Category.WirelessRouter:
+            case Category.Server:
+            case Category.API_Credential:
+              cipher.type = CipherType.Login;
+              cipher.login = new LoginView();
+              break;
+            case Category.CreditCard:
+            case Category.BankAccount:
+              cipher.type = CipherType.Card;
+              cipher.card = new CardView();
+              break;
+            case Category.SecureNote:
+            case Category.SoftwareLicense:
+            case Category.EmailAccount:
+            case Category.MedicalRecord:
+              // case CategoryEnum.Document:
+              cipher.type = CipherType.SecureNote;
+              cipher.secureNote = new SecureNoteView();
+              cipher.secureNote.type = SecureNoteType.Generic;
+              break;
+            case Category.Identity:
+            case Category.DriversLicense:
+            case Category.OutdoorLicense:
+            case Category.Membership:
+            case Category.Passport:
+            case Category.RewardsProgram:
+            case Category.SocialSecurityNumber:
+              cipher.type = CipherType.Identity;
+              cipher.identity = new IdentityView();
+              break;
+            case Category.SSH_Key:
+              cipher.type = CipherType.SshKey;
+              cipher.sshKey = new SshKeyView();
+              break;
+            default:
+              break;
+          }
+
+          cipher.favorite = item.favIndex === 1 ? true : false;
+
+          this.processOverview(item.overview, cipher);
+
+          this.processLoginFields(item, cipher);
+
+          this.processDetails(category, item.details, cipher);
+
+          this.parsePasswordHistory(item.details.passwordHistory, cipher);
+
+          this.processSections(category, item.details.sections, cipher);
+
+          if (!this.isNullOrWhitespace(item.details.notesPlain)) {
+            cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n").trimEnd();
+          }
+
+          this.convertToNoteIfNeeded(cipher);
+          this.cleanupCipher(cipher);
+
+          // Preserve 1Password's archive state on import (fixes #20694). The 1pux
+          // schema only tells us an item is archived, not WHEN it was archived,
+          // so we stamp the import time — this matches the behaviour of archiving
+          // a cipher manually in Bitwarden after the import.
+          if (item.state === "archived") {
+            cipher.archivedDate = new Date();
+          }
+
+          this.result.ciphers.push(cipher);
+        } catch (e) {
+          // One bad item must not abort the whole import: roll back its partial folder state, skip
+          // it, and report it so the user (and logs) see exactly what was dropped.
+          this.result.folders.length = folderCount;
+          this.result.folderRelationships.length = folderRelationshipCount;
+
+          const reason = this.importErrorReason(e);
+          // Identify the item by its non-sensitive UID (never its name, which is Vault Data)
+          const uid = this.getValueOrDefault(item.uuid, "");
+          this.result.errors.push(new ImportRecordError(uid, reason));
+
+          const message = `1Password import skipped an item (uuid: ${uid || "unknown"}, reason: ${reason})`;
+          if (isSshKeyImportError(e)) {
+            this.logService.warning(message);
+          } else {
+            this.logService.error(message);
+          }
         }
-
-        cipher.favorite = item.favIndex === 1 ? true : false;
-
-        this.processOverview(item.overview, cipher);
-
-        this.processLoginFields(item, cipher);
-
-        this.processDetails(category, item.details, cipher);
-
-        this.parsePasswordHistory(item.details.passwordHistory, cipher);
-
-        this.processSections(category, item.details.sections, cipher);
-
-        if (!this.isNullOrWhitespace(item.details.notesPlain)) {
-          cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n").trimEnd();
-        }
-
-        this.convertToNoteIfNeeded(cipher);
-        this.cleanupCipher(cipher);
-
-        // Preserve 1Password's archive state on import (fixes #20694). The 1pux
-        // schema only tells us an item is archived, not WHEN it was archived,
-        // so we stamp the import time — this matches the behaviour of archiving
-        // a cipher manually in Bitwarden after the import.
-        if (item.state === "archived") {
-          cipher.archivedDate = new Date();
-        }
-
-        this.result.ciphers.push(cipher);
       });
     });
 
@@ -332,8 +357,9 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           // Use sshKey.metadata.privateKey instead of the sshKey.privateKey field.
           // The sshKey.privateKey field doesn't have a consistent format for every item.
           const { privateKey } = field.value.sshKey.metadata;
-          // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using SDK
-          // Note: 1Password does not store password-protected SSH keys, so no password handling needed for now
+          // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using the SDK.
+          // Note: 1Password does not store password-protected SSH keys
+          // A key the SDK can't parse throws here and is handled per-item by parse()'s try/catch.
           const parsedKey = import_ssh_key(privateKey);
           cipher.sshKey.privateKey = parsedKey.privateKey;
           cipher.sshKey.publicKey = parsedKey.publicKey;
@@ -665,5 +691,21 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         ph.lastUsedDate = new Date(("" + h.time).length >= 13 ? h.time : h.time * 1000);
         return ph;
       });
+  }
+
+  // Any item can throw during processing. Only the SDK's SshKeyImportError maps to a specific
+  // reason; anything else is a generic failure.
+  private importErrorReason(error: unknown): ImportRecordErrorReason {
+    if (!isSshKeyImportError(error)) {
+      return ImportRecordErrorReason.Error;
+    }
+    switch (error.variant) {
+      case "UnsupportedKeyType":
+        return ImportRecordErrorReason.UnsupportedType;
+      case "Parsing":
+        return ImportRecordErrorReason.SshKeyParseFailed;
+      default:
+        return ImportRecordErrorReason.Error;
+    }
   }
 }

@@ -1,16 +1,26 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { View } from "@bitwarden/common/models/view/view";
 
 import { GroupResponse } from "../services/group/responses/group.response";
 
 export class GroupView implements View {
-  id: string;
-  organizationId: string;
-  name: string;
-  externalId: string;
+  readonly id: string;
+  readonly organizationId: string;
+  readonly name: string;
+  readonly externalId: string | undefined;
+
+  constructor(c: { id: string; organizationId: string; name: string; externalId?: string }) {
+    this.id = c.id;
+    this.organizationId = c.organizationId;
+    this.name = c.name;
+    this.externalId = c.externalId ?? undefined;
+  }
 
   static fromResponse(response: GroupResponse): GroupView {
-    return Object.assign(new GroupView(), response);
+    return new GroupView({
+      id: response.id,
+      organizationId: response.organizationId,
+      name: response.name,
+      externalId: response.externalId ?? undefined,
+    });
   }
 }

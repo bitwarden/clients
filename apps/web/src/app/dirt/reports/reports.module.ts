@@ -13,6 +13,7 @@ import {
   DefaultCipherFormConfigService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -48,6 +49,7 @@ import { ReportsSharedModule } from "./shared";
     BerryComponent,
     PasskeyReportComponent,
     TooltipDirective,
+    Vfo1IconPipe,
   ],
   declarations: [
     BreachReportComponent,

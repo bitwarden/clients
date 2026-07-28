@@ -462,6 +462,26 @@ describe("DomQueryService", () => {
       expect(result).toBe(true);
     });
 
+    it("returns true for a shadow host adopted from an iframe realm (PM-39772)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+
+      const iframe = document.createElement("iframe");
+      document.body.appendChild(iframe);
+      // Cross-realm host: constructor comes from the iframe's realm, so
+      // top-frame `host instanceof Element` returns false.
+      const host = iframe.contentDocument!.createElement("foreign-host");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      // Precondition: confirm the cross-realm condition — if this fails,
+      // jsdom didn't give us a foreign realm and the regression can't fire.
+      expect(host instanceof Element).toBe(false);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result).toBe(true);
+    });
+
     it("bails at MAX_DEEP_QUERY_RECURSION_DEPTH without throwing on pathological nesting", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const root0 = document.createElement("host-0");

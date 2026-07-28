@@ -114,7 +114,22 @@ describe("LoginCredentialsViewComponent", () => {
       passwordField = fixture.debugElement.queryAll(By.directive(BitFormFieldComponent))[1];
     });
 
-    it("displays the password", () => {
+    it("displays a masked password by default", () => {
+      const passwordInput = passwordField.query(By.css("input")).nativeElement;
+
+      expect(passwordInput.value).toBe(cipher.login.maskedPassword);
+    });
+
+    it("displays the actual password when revealed", () => {
+      cipher.viewPassword = true;
+      fixture.detectChanges();
+
+      const viewPasswordButton = passwordField.query(By.directive(BitPasswordInputToggleDirective));
+      const toggleInputDirective = viewPasswordButton.injector.get(BitPasswordInputToggleDirective);
+
+      toggleInputDirective.onClick();
+      fixture.detectChanges();
+
       const passwordInput = passwordField.query(By.css("input")).nativeElement;
 
       expect(passwordInput.value).toBe(cipher.login.password);

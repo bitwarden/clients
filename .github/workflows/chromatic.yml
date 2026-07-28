@@ -61,6 +61,7 @@ jobs:
               - "package.json"
               - ".storybook/**"
               - "apps/browser/src/autofill/content/components/**"
+              - ".github/workflows/chromatic.yml"
 
       - name: Get Node version
         id: retrieve-node-version
@@ -112,7 +113,7 @@ jobs:
 
       - name: Publish to Chromatic for Autofill
         id: publish-chromatic-autofill
-        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
+        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
@@ -131,7 +132,7 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic for CL
-        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
+        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}

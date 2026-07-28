@@ -94,4 +94,5 @@ export type AutofillIpcResponse<K extends AutofillIpcChannelIncoming> =
 export const AutofillIpcChannelControl = Object.freeze({
   ListenerReady: "autofill.listenerReady",
   RunCommand: "autofill.runCommand",
+  SetEnabled: "autofill.setEnabled",
 } as const);

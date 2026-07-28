@@ -6,6 +6,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+
 import { AddItemGridComponent, AddItemGridResult } from "./add-item-grid.component";
 
 describe("AddItemGridComponent", () => {
@@ -25,6 +27,7 @@ describe("AddItemGridComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$ },
         },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
   });

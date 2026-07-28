@@ -1,0 +1,59 @@
+<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="small">
+  <div bitDialogContent>
+    @if (activeFilter(); as filter) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        startIcon="bwi-angle-left"
+        class="tw-mb-2"
+        (click)="back()"
+      >
+        {{ "back" | i18n }}
+      </button>
+      <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+    } @else {
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        @for (filter of filters; track filter.key()) {
+          <button
+            type="button"
+            class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-solid tw-border-secondary-300 tw-bg-transparent tw-p-3 tw-text-start tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+            (click)="select(filter)"
+          >
+            <span
+              class="tw-size-2 tw-flex-none tw-rounded-full"
+              [class.tw-bg-primary-600]="filter.active()"
+            ></span>
+            <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ rowText(filter) }}</span>
+            @if (filter.optionsTemplate()) {
+              <bit-icon name="bwi-angle-right" class="tw-flex-none tw-text-muted"></bit-icon>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (activeFilter()) {
+      <button bitButton buttonType="primary" type="button" class="tw-ms-auto" (click)="back()">
+        {{ "done" | i18n }}
+      </button>
+    } @else {
+      <span class="tw-text-sm tw-text-muted">{{ "filtersSelected" | i18n: selectedCount() }}</span>
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        class="tw-ms-auto"
+        (click)="clearAll()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+      <button bitButton buttonType="primary" type="button" (click)="close()">
+        {{ "done" | i18n }}
+      </button>
+    }
+  </ng-container>
+</bit-dialog>

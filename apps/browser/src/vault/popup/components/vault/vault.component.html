@@ -39,6 +39,10 @@
     <blocked-injection-banner slot="full-width-notice"></blocked-injection-banner>
   }
 
+  @if (vaultState !== VaultStateEnum.Empty) {
+    <fill-assist-active-banner slot="full-width-notice"></fill-assist-active-banner>
+  }
+
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {

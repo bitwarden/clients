@@ -9,9 +9,9 @@ import { DomQueryService } from "../services/dom-query.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import {
   elementIsInputElement,
-  nodeIsButtonElement,
-  nodeIsFormElement,
-  nodeIsTypeSubmitElement,
+  elementIsButtonElement,
+  elementIsFormElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
 import { getSubmitButtonKeywordsSet } from "../utils/qualification";
@@ -197,7 +197,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     const genericSubmitElement = querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element: Element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       clickSubmitElement(genericSubmitElement, lastFieldIsPasswordInput);
@@ -207,7 +207,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     const buttonElement = querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element: Element) => elementIsButtonElement(element),
     );
     if (buttonElement) {
       clickSubmitElement(buttonElement, lastFieldIsPasswordInput);
@@ -228,7 +228,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
   function querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = domQueryService.query<HTMLButtonElement>(
       element,
@@ -294,7 +294,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     return domQueryService.query<HTMLFormElement>(
       globalContext.document.documentElement,
       "form",
-      (node: Node) => nodeIsFormElement(node),
+      (element: Element) => elementIsFormElement(element),
     );
   }
 

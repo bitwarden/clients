@@ -31,6 +31,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
@@ -183,6 +184,7 @@ async function createComponent(
       { provide: ConfigService, useValue: configService },
       { provide: ValidationService, useValue: validationService },
       { provide: LogService, useValue: logService },
+      { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
     ],
   }).compileComponents();
 

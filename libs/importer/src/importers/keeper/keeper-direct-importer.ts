@@ -8,10 +8,10 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models";
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { BaseImporter } from "../base-importer";
 
 import { Vault, VaultField, VaultItem, VaultRecordError, VaultRecordErrorReason } from "./access";
-import { ImportRecordError, ImportRecordErrorReason } from "./keeper-import-error";
 
 type Reference = {
   id: string;

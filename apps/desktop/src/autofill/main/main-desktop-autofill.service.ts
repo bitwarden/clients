@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 import { AutofillCommandDefinition } from "../models/autofill-command";
@@ -44,6 +44,7 @@ export class DesktopAutofillMain {
   private ipcServer?: AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
+  private enabled = false;
   private completionCallbacks: Map<string, CompletionCallback<any>> = new Map();
 
   constructor(
@@ -80,7 +81,44 @@ export class DesktopAutofillMain {
     this.messageBuffer = [];
   }
 
-  async init() {
+  /**
+   * Registers the control handler that waits for the renderer to signal whether native credential
+   * sync is enabled via the {@link AutofillIpcChannelControl.SetEnabled} channel.
+   */
+  init() {
+    ipcMain.handle(
+      AutofillIpcChannelControl.SetEnabled,
+      (_event, enabled: boolean): Promise<boolean> => {
+        if (!enabled) {
+          return Promise.resolve(this.enabled);
+        }
+        return this.enable();
+      },
+    );
+  }
+
+  /**
+   * Registers the native OS credential provider and starts the autofill IPC server. Idempotent:
+   * subsequent calls are ignored while already enabled.
+   *
+   * @returns whether native autofill is running after this call.
+   */
+  private async enable(): Promise<boolean> {
+    if (this.enabled) {
+      this.logService.info("Native autofill is already enabled, ignoring enable request");
+      return true;
+    }
+
+    if (process.platform === "win32") {
+      try {
+        passkey_authenticator.register();
+      } catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err);
+        this.enabled = false;
+        return false;
+      }
+    }
+
     ipcMain.handle(
       AutofillIpcChannelControl.RunCommand,
       <C extends AutofillCommandDefinition>(
@@ -145,6 +183,9 @@ export class DesktopAutofillMain {
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
     });
+
+    this.enabled = true;
+    return true;
   }
 
   /**
@@ -266,7 +307,10 @@ export class DesktopAutofillMain {
       this.logService.error(`Error running autofill command '${command.command}':`, e);
 
       if (e instanceof Error) {
-        return { type: "error", error: e.stack ?? String(e) } as RunCommandResult<C>;
+        return {
+          type: "error",
+          error: e.stack ?? String(e),
+        } as RunCommandResult<C>;
       }
 
       return { type: "error", error: String(e) } as RunCommandResult<C>;

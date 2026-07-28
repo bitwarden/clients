@@ -145,6 +145,12 @@
           </bit-form-control>
         </div>
         <div class="tw-col-span-4">
+          <app-nested-checkbox
+            parentId="manageAllCollections"
+            [checkboxes]="permissionsGroup.controls.manageAllCollectionsGroup"
+          ></app-nested-checkbox>
+        </div>
+        <div class="tw-col-span-4">
           <div class="tw-mb-3">
             <bit-form-control>
               <input type="checkbox" bitCheckbox formControlName="manageGroups" />

@@ -12,6 +12,16 @@ type ComponentAndControls = Omit<InlineMenuPromptProps, "icon"> & {
   iconName: "plus" | "lock" | "none";
 };
 
+const baseArgs: ComponentAndControls = {
+  message: mockI18n.noItemsToShow,
+  actionText: mockI18n.newLogin,
+  i18n: { actionAria: mockI18n.addNewLoginItemAria },
+  iconName: "plus",
+  theme: ThemeTypes.Light,
+  handleAction: () => alert("Action"),
+  width: 280,
+};
+
 export default {
   title: "Components/Inline Menu/Prompt",
   argTypes: {
@@ -22,15 +32,7 @@ export default {
     handleAction: { control: false },
     width: { control: "number", min: 160, max: 480, step: 8 },
   },
-  args: {
-    message: mockI18n.noItemsToShow,
-    actionText: mockI18n.newLogin,
-    i18n: { actionAria: mockI18n.addNewLoginItemAria },
-    iconName: "plus",
-    theme: ThemeTypes.Light,
-    handleAction: () => alert("Action"),
-    width: 280,
-  },
+  args: baseArgs,
 } as Meta<ComponentAndControls>;
 
 const resolveIcon = (iconName: ComponentAndControls["iconName"]) => {
@@ -52,11 +54,36 @@ const Template = (args: ComponentAndControls) => {
 
 export const Empty: StoryObj<ComponentAndControls> = {
   args: {
-    message: mockI18n.noItemsToShow,
-    actionText: mockI18n.newLogin,
-    i18n: { actionAria: mockI18n.addNewLoginItemAria },
-    iconName: "plus",
-    theme: ThemeTypes.Dark,
+    dataTestId: "inline-menu-empty-state",
+    actionDataTestId: "inline-menu-new-item-button",
+  },
+  render: Template,
+};
+
+export const EmptyCard: StoryObj<ComponentAndControls> = {
+  args: {
+    actionText: mockI18n.newCard,
+    i18n: { actionAria: mockI18n.addNewCardItemAria },
+    dataTestId: "inline-menu-empty-state",
+    actionDataTestId: "inline-menu-new-item-button",
+  },
+  render: Template,
+};
+
+export const EmptyIdentity: StoryObj<ComponentAndControls> = {
+  args: {
+    actionText: mockI18n.newIdentity,
+    i18n: { actionAria: mockI18n.addNewIdentityItemAria },
+    dataTestId: "inline-menu-empty-state",
+    actionDataTestId: "inline-menu-new-item-button",
+  },
+  render: Template,
+};
+
+export const EmptyNewItem: StoryObj<ComponentAndControls> = {
+  args: {
+    actionText: mockI18n.newItem,
+    i18n: { actionAria: mockI18n.addNewVaultItem },
     dataTestId: "inline-menu-empty-state",
     actionDataTestId: "inline-menu-new-item-button",
   },
@@ -69,7 +96,6 @@ export const Locked: StoryObj<ComponentAndControls> = {
     actionText: mockI18n.unlockAccount,
     i18n: { actionAria: mockI18n.unlockAccountAria },
     iconName: "lock",
-    theme: ThemeTypes.Dark,
     dataTestId: "inline-menu-locked-state",
     actionDataTestId: "inline-menu-unlock-button",
   },
@@ -84,7 +110,6 @@ export const SaveLogin: StoryObj<ComponentAndControls> = {
       actionAria: `${mockI18n.saveToBitwarden}, ${mockI18n.opensInANewWindow}`,
     },
     iconName: "none",
-    theme: ThemeTypes.Dark,
     dataTestId: "inline-menu-save-login",
     actionDataTestId: "inline-menu-save-login-button",
   },

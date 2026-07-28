@@ -59,7 +59,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async setUserKey(idTokenResponse: IdentityTokenResponse, userId: UserId) {
+  protected override async unlock(idTokenResponse: IdentityTokenResponse, userId: UserId) {
     const masterKeyEncryptedUserKey = idTokenResponse.key;
 
     if (masterKeyEncryptedUserKey) {
@@ -98,16 +98,6 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
         await this.keyService.setUserKey(userKey as UserKey, userId);
       }
     }
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   exportCache(): CacheData {
