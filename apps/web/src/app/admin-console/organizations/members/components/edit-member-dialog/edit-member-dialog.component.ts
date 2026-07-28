@@ -154,6 +154,8 @@ export class EditMemberDialogComponent {
     () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
   );
 
+  protected readonly nameEditable = computed(() => this.params.claimedByOrganization ?? false);
+
   protected readonly collectionAccessItems = signal<AccessItemView[]>([]);
   protected readonly groupAccessItems = signal<AccessItemView[]>([]);
 
@@ -419,6 +421,12 @@ export class EditMemberDialogComponent {
     } else {
       this.formGroup.controls.email.disable();
     }
+
+    if (this.nameEditable()) {
+      this.formGroup.controls.name.enable();
+    } else {
+      this.formGroup.controls.name.disable();
+    }
   }
 
   private setRequestPermissions(p: PermissionsApi, clearPermissions: boolean): PermissionsApi {
@@ -467,7 +475,7 @@ export class EditMemberDialogComponent {
       ? (this.formGroup.getRawValue().email ?? undefined)
       : undefined;
 
-    const name = this.formGroup.getRawValue().name ?? undefined;
+    const name = this.nameEditable() ? (this.formGroup.getRawValue().name ?? undefined) : undefined;
 
     const request = new OrganizationUserUpdateRequest({
       type,

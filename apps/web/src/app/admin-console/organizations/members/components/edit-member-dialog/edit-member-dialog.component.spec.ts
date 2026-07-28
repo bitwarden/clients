@@ -494,6 +494,83 @@ describe("EditMemberDialogComponent", () => {
     });
   });
 
+  describe("nameEditable", () => {
+    it("is true when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }), {
+        detailsTabEnabled: true,
+      });
+
+      expect((component as any).nameEditable()).toBe(true);
+    });
+
+    it("is false when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }), {
+        detailsTabEnabled: true,
+      });
+
+      expect((component as any).nameEditable()).toBe(false);
+    });
+  });
+
+  describe("name control enabled state after load", () => {
+    it("enables name control when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }), {
+        detailsTabEnabled: true,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(false);
+    });
+
+    it("keeps name control disabled when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }), {
+        detailsTabEnabled: true,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() name field", () => {
+    it("includes name in request when claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.name.setValue("New Name");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "New Name" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits name from request when not claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+  });
+
   describe("email control enabled state after load", () => {
     it("enables email control when emailEditable is true", async () => {
       const { component } = await createComponent(

@@ -10546,6 +10546,9 @@
   "nameErrorNotClaimed": {
     "message": "Cannot change the name of a member who is not claimed by the organization."
   },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
+  },
   "createdDate": {
     "message": "Created date"
   },
