@@ -38,6 +38,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
+    supportsConfirmation: boolean,
   ): Promise<void> {
     if (allowedDomains.length === 0) {
       throw new Error("At least one allowed domain is required.");
@@ -49,7 +50,11 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
           using ref = sdk.take();
           const inviteLink = ref.value
             .invite_link()
-            .create_invite_link(asUuid<SdkOrganizationId>(orgId), allowedDomains);
+            .create_invite_link(
+              asUuid<SdkOrganizationId>(orgId),
+              allowedDomains,
+              supportsConfirmation,
+            );
           return await inviteLink;
         }),
         concatMap((inviteLink) => this.upsert(userId, OrganizationInviteLink.fromSdk(inviteLink))),
@@ -72,14 +77,18 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
-  async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
+  async refreshInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
           const inviteLink = ref.value
             .invite_link()
-            .refresh_invite_link(asUuid<SdkOrganizationId>(orgId));
+            .refresh_invite_link(asUuid<SdkOrganizationId>(orgId), supportsConfirmation);
           return await inviteLink;
         }),
         concatMap((inviteLink) => this.upsert(userId, OrganizationInviteLink.fromSdk(inviteLink))),
