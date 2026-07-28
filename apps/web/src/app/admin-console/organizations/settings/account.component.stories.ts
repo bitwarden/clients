@@ -1,4 +1,4 @@
-import { importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
@@ -21,10 +21,21 @@ import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 import { AccountFingerprintComponent } from "../../../key-management/account-fingerprint/account-fingerprint.component";
-import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { AccountComponent } from "./account.component";
+
+/**
+ * The real `app-header` (`WebHeaderComponent`) pulls in `<app-product-switcher>` and
+ * `<app-account-menu>`, which depend on many app-wide services that aren't worth stubbing out
+ * for this story. Stub it out instead, matching the pattern in
+ * `vault-header.component.stories.ts`.
+ */
+@Component({
+  selector: "app-header",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StubHeaderComponent {}
 
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
@@ -32,7 +43,6 @@ const USER_ID = "user-1" as UserId;
 const mockOrganization = Object.assign(new Organization(), {
   id: ORG_ID,
   name: "Acme Corp",
-  canEditSubscription: false,
   useApi: false,
 });
 
@@ -97,7 +107,7 @@ export default {
         SharedModule,
         AccountFingerprintComponent,
         DangerZoneComponent,
-        HeaderModule,
+        StubHeaderComponent,
         PremiumBadgeComponent,
         ItemModule,
         TwoFactorIconComponent,
