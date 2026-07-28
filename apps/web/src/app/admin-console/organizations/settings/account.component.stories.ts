@@ -116,7 +116,13 @@ export default {
       ],
     }),
     applicationConfig({
-      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+      providers: [
+        importProvidersFrom(PreloadedEnglishI18nModule),
+        // Vfo1TerminologyService is `providedIn: "root"`, so it resolves ConfigService from the
+        // application root injector. Provide a flag-off default here so the `Default` story
+        // renders without relying on the global feature-flag toolbar (see .storybook/preview.tsx).
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+      ],
     }),
   ],
 } as Meta;
@@ -137,7 +143,9 @@ export const Default: Story = {
  */
 export const Vfo1Enabled: Story = {
   render: () => ({
-    moduleMetadata: {
+    // Overriding ConfigService requires applicationConfig (not moduleMetadata) since
+    // Vfo1TerminologyService resolves it from the application root injector.
+    applicationConfig: {
       providers: [{ provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } }],
     },
     template: `<app-org-account></app-org-account>`,
