@@ -13,6 +13,7 @@ import {
 import {
   CopyCipherFieldDirective,
   VaultItemCopyActionsComponent,
+  Vfo1I18nPipe,
   Vfo1IconPipe,
 } from "@bitwarden/vault";
 
@@ -43,6 +44,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     ScrollLayoutDirective,
     PremiumBadgeComponent,
     IconModule,
+    Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],

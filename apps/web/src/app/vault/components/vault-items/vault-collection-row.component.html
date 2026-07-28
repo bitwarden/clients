@@ -7,7 +7,7 @@
       [disabled]="disabled"
       [checked]="checked"
       (change)="$event ? this.checkedToggled.next() : null"
-      [attr.aria-label]="'collectionItemSelect' | i18n"
+      [attr.aria-label]="'collectionItemSelect' | vfo1I18n: 'sharedFolderItemSelect'"
     />
   }
 </td>
@@ -31,7 +31,9 @@
       type="button"
       class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
       linkType="secondary"
-      title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
+      title="{{
+        'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name
+      }}"
       [routerLink]="[]"
       [queryParams]="{ collectionId: collection.id }"
       queryParamsHandling="merge"
