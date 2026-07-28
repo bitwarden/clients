@@ -270,7 +270,10 @@ const makeRender =
         },
         {
           provide: Vfo1TerminologyService,
-          useValue: { enabled: () => args.vfo1FoundationEnabled },
+          useValue: {
+            enabled: () => args.vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
         },
       ],
     },
