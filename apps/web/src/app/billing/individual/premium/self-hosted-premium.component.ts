@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { UpdateLicenseDialogComponent } from "../../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
@@ -78,7 +79,11 @@ export class SelfHostedPremiumComponent {
   protected familiesFeatures = [
     this.i18nService.t("premiumAccounts"),
     this.i18nService.t("familiesUnlimitedSharing"),
-    this.i18nService.t("familiesUnlimitedCollections"),
+    this.i18nService.t(
+      this.vfo1TerminologyService.enabled()
+        ? "familiesUnlimitedSharedFolders"
+        : "familiesUnlimitedCollections",
+    ),
     this.i18nService.t("familiesSharedStorage"),
   ];
 
@@ -93,6 +98,7 @@ export class SelfHostedPremiumComponent {
     private i18nService: I18nService,
     private router: Router,
     private toastService: ToastService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     // Redirect premium users to subscription page
     this.hasPremiumPersonally$

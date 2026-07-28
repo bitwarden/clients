@@ -45,6 +45,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -114,6 +115,7 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
