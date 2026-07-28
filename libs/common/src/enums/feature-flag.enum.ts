@@ -123,6 +123,9 @@ export enum FeatureFlag {
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
 
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
+
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
 }
@@ -249,6 +252,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* PAM */
+  [FeatureFlag.Pam]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,

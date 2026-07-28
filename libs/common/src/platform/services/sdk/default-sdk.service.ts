@@ -1,5 +1,4 @@
 import {
-  auditTime,
   combineLatest,
   concatMap,
   Observable,
@@ -190,32 +189,26 @@ export class DefaultSdkService implements SdkService {
       .v2UpgradeToken$(userId)
       .pipe(distinctUntilChanged());
 
-    // Slow-moving state. These are frequently written in quick succession, and building a
-    // client per intermediate combination is both expensive and hands out clients assembled
-    // from a half-updated set of values. `auditTime` waits out the burst and emits only the
-    // final combination, so a burst results in exactly one client.
-    const clientState$ = combineLatest([
+    const client$ = combineLatest([
       this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
       accountCryptographicState$,
+      userKey$,
       orgKeys$,
       v2UpgradeToken$,
-    ]).pipe(auditTime(100));
-
-    const client$ = combineLatest([
-      clientState$,
-      // The user key is deliberately kept out of the audit window above: lock and unlock must
-      // be reflected in the client immediately, otherwise consumers can take a stale client
-      // and fail to decrypt.
-      userKey$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(
         ([
-          [env, account, kdfParams, accountCryptographicState, orgKeys, v2UpgradeToken],
+          env,
+          account,
+          kdfParams,
+          accountCryptographicState,
           userKey,
+          orgKeys,
+          v2UpgradeToken,
         ]) => {
           // Create our own observable to be able to implement clean-up logic
           return new Observable<Rc<PasswordManagerClient>>((subscriber) => {
