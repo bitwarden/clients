@@ -969,7 +969,6 @@ export default class MainBackground {
       this.encryptService,
       this.i18nService,
       this.stateProvider,
-      this.configService,
       this.collectionEncryptionService,
     );
 
