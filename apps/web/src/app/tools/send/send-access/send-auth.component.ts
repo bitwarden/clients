@@ -17,6 +17,7 @@ import {
   SendTokenService,
 } from "@bitwarden/common/auth/send-access";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
@@ -66,6 +67,7 @@ export class SendAuthComponent implements OnInit {
     private formBuilder: FormBuilder,
     private sendTokenService: SendTokenService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private environmentService: EnvironmentService,
   ) {}
 
   ngOnInit() {
@@ -107,9 +109,13 @@ export class SendAuthComponent implements OnInit {
   private async getTokenWithRetry(
     sendAccessCreds: SendAccessDomainCredentials | null,
   ): Promise<void> {
+    // The web vault accesses the send against its own environment's API origin.
+    const apiUrl = (await firstValueFrom(this.environmentService.environment$)).getApiUrl();
     const response = !sendAccessCreds
-      ? await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(this.id()))
-      : await firstValueFrom(this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds));
+      ? await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(this.id(), apiUrl))
+      : await firstValueFrom(
+          this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds, apiUrl),
+        );
 
     if (response instanceof SendAccessToken) {
       this.expiredAuthAttempts = 0;

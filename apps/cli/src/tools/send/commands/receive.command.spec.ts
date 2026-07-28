@@ -96,7 +96,10 @@ describe("SendReceiveCommand", () => {
         const response = await command.run(testUrl, {});
 
         expect(response.success).toBe(true);
-        expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId);
+        expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(
+          testSendId,
+          "https://api.bitwarden.com",
+        );
       });
 
       it("should handle expired token and determine auth type", async () => {
@@ -147,6 +150,7 @@ describe("SendReceiveCommand", () => {
             kind: "password",
             passwordHashB64: expect.any(String),
           }),
+          "https://api.bitwarden.com",
         );
       });
 
@@ -482,6 +486,29 @@ describe("SendReceiveCommand", () => {
 
       const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
       expect(apiUrl).toBe("https://custom.example.com/api");
+    });
+  });
+
+  describe("token origin binding", () => {
+    // Regression: a Send URL on a different origin must scope the token lookup to that origin's
+    // API, so a token minted for the legitimate origin is never selected (and thus never sent) for
+    // a same-id/key URL on an attacker-controlled origin.
+    it("scopes the cached-token lookup to the URL-derived origin, not the configured API", async () => {
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+
+      const attackerUrl = "https://custom.example.com/#/send/abc123/key456";
+      await command.run(attackerUrl, {});
+
+      expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(
+        testSendId,
+        "https://custom.example.com/api",
+      );
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalledWith(
+        testSendId,
+        "https://api.bitwarden.com",
+      );
     });
   });
 });

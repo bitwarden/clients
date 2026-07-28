@@ -124,7 +124,7 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
 
-    const currentResponse = await this.getTokenWithRetry(id);
+    const currentResponse = await this.getTokenWithRetry(id, apiUrl);
 
     if (currentResponse instanceof SendAccessToken) {
       return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
@@ -165,14 +165,17 @@ export class SendReceiveCommand extends DownloadCommand {
 
   private async getTokenWithRetry(
     sendId: string,
+    apiUrl: string,
     credentials?: SendAccessDomainCredentials,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     let expiredAttempts = 0;
 
     while (expiredAttempts < 3) {
       const response = credentials
-        ? await firstValueFrom(this.sendTokenService.getSendAccessToken$(sendId, credentials))
-        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId));
+        ? await firstValueFrom(
+            this.sendTokenService.getSendAccessToken$(sendId, credentials, apiUrl),
+          )
+        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId, apiUrl));
 
       if (response instanceof SendAccessToken) {
         return response;
@@ -234,7 +237,7 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<Response> {
     const email = await this.promptForEmail();
 
-    const emailResponse = await this.getTokenWithRetry(sendId, {
+    const emailResponse = await this.getTokenWithRetry(sendId, apiUrl, {
       kind: "email",
       email: email,
     });
@@ -256,7 +259,7 @@ export class SendReceiveCommand extends DownloadCommand {
         const promptResponse = await this.promptForOtp(sendId, email);
 
         // Use retry helper for expired token handling
-        const otpResponse = await this.getTokenWithRetry(sendId, {
+        const otpResponse = await this.getTokenWithRetry(sendId, apiUrl, {
           kind: "email_otp",
           email: email,
           otp: promptResponse,
@@ -310,7 +313,7 @@ export class SendReceiveCommand extends DownloadCommand {
     const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
 
     // Use retry helper for expired token handling
-    const response = await this.getTokenWithRetry(sendId, {
+    const response = await this.getTokenWithRetry(sendId, apiUrl, {
       kind: "password",
       passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
     });

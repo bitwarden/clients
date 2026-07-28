@@ -57,6 +57,10 @@ describe("SendTokenService", () => {
     let token: string;
     let tokenExpiresAt: number;
 
+    // The origin the token is minted for / used against. Cached tokens are keyed by `${apiUrl}|${sendId}`.
+    const apiUrl = "https://api.example.com";
+    let cacheKey: string;
+
     const EXPECTED_SERVER_KIND: GetSendAccessTokenError["kind"] = "expected_server";
     const UNEXPECTED_SERVER_KIND: GetSendAccessTokenError["kind"] = "unexpected_server";
 
@@ -98,6 +102,7 @@ describe("SendTokenService", () => {
 
     beforeEach(() => {
       sendId = "sendId";
+      cacheKey = `${apiUrl}|${sendId}`;
       token = "sendAccessToken";
       tokenExpiresAt = Date.now() + 1000 * 60 * 5; // 5 minutes from now
 
@@ -116,24 +121,52 @@ describe("SendTokenService", () => {
     describe("tryGetSendAccessToken$", () => {
       it("returns the send access token from session storage when token exists and isn't expired", async () => {
         // Arrange
-        // Store the send access token in the global state
-        sendAccessTokenDictGlobalState.stateSubject.next({ [sendId]: sendAccessToken });
+        // Store the send access token in the global state under its per-origin cache key
+        sendAccessTokenDictGlobalState.stateSubject.next({ [cacheKey]: sendAccessToken });
 
         // Act
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         // Assert
         expect(result).toEqual(sendAccessToken);
+      });
+
+      it("does not reuse a token minted for one origin when queried for a different origin", async () => {
+        // Arrange: a token is cached for the legitimate origin.
+        sendAccessTokenDictGlobalState.stateSubject.next({ [cacheKey]: sendAccessToken });
+
+        // The server would mint a distinct token for any fresh request.
+        const freshTokenResponse: SendAccessTokenResponse = {
+          token: "freshTokenForOtherOrigin",
+          expiresAt: tokenExpiresAt,
+        };
+        sdkService.client.auth
+          .mockDeep()
+          .send_access.mockDeep()
+          .request_send_access_token.mockResolvedValue(freshTokenResponse);
+
+        // Act: query with a different (e.g. attacker-supplied) origin.
+        const attackerApiUrl = "https://attacker.example";
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, attackerApiUrl));
+
+        // Assert: the legitimate origin's token is never returned for the other origin.
+        expect(result).toBeInstanceOf(SendAccessToken);
+        expect((result as SendAccessToken).token).toBe("freshTokenForOtherOrigin");
+
+        const dict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+        // The legitimate origin's token is untouched; the other origin gets its own bucket.
+        expect(dict).toHaveProperty([cacheKey], sendAccessToken);
+        expect(dict?.[`${attackerApiUrl}|${sendId}`]?.token).toBe("freshTokenForOtherOrigin");
       });
 
       it("returns expired error and clears token from storage when token is expired", async () => {
         // Arrange
         const oldDate = new Date("2025-01-01");
         const expiredSendAccessToken = new SendAccessToken(token, oldDate.getTime());
-        sendAccessTokenDictGlobalState.stateSubject.next({ [sendId]: expiredSendAccessToken });
+        sendAccessTokenDictGlobalState.stateSubject.next({ [cacheKey]: expiredSendAccessToken });
 
         // Act
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         // Assert
         expect(result).not.toBeInstanceOf(SendAccessToken);
@@ -141,7 +174,7 @@ describe("SendTokenService", () => {
 
         // assert that we removed the expired token from storage.
         const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
-        expect(sendAccessTokenDict).not.toHaveProperty(sendId);
+        expect(sendAccessTokenDict).not.toHaveProperty([cacheKey]);
       });
 
       it("calls to get a new token if none is found in storage and stores the retrieved token in session storage", async () => {
@@ -152,13 +185,13 @@ describe("SendTokenService", () => {
           .request_send_access_token.mockResolvedValue(sendAccessTokenResponse);
 
         // Act
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         // Assert
         expect(result).toBeInstanceOf(SendAccessToken);
         expect(result).toEqual(sendAccessToken);
         const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
-        expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+        expect(sendAccessTokenDict).toHaveProperty([cacheKey], sendAccessToken);
       });
 
       describe("handles expected invalid_request scenarios appropriately", () => {
@@ -177,7 +210,7 @@ describe("SendTokenService", () => {
             });
 
             // Act
-            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -197,7 +230,7 @@ describe("SendTokenService", () => {
           });
 
           // Act
-          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
           // Assert
           expect(result).toEqual({
@@ -214,7 +247,7 @@ describe("SendTokenService", () => {
         };
         mockSdkRejectWith({ kind: "expected", data: api });
 
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
       });
@@ -225,7 +258,7 @@ describe("SendTokenService", () => {
           const api: SendAccessTokenApiErrorResponse = { error: errorType };
           mockSdkRejectWith({ kind: "expected", data: api });
 
-          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
           expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
         },
@@ -247,7 +280,7 @@ describe("SendTokenService", () => {
             });
 
             // Act
-            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -267,7 +300,7 @@ describe("SendTokenService", () => {
           });
 
           // Act
-          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
           // Assert
           expect(result).toEqual({
@@ -287,7 +320,7 @@ describe("SendTokenService", () => {
         });
 
         // Act
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         // Assert
         expect(result).toEqual({
@@ -306,7 +339,7 @@ describe("SendTokenService", () => {
           .request_send_access_token.mockRejectedValue(new Error(unknownError));
 
         // Act
-        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId, apiUrl));
 
         // Assert
         expect(result).toEqual({
@@ -383,14 +416,14 @@ describe("SendTokenService", () => {
 
         // Act
         const result = await firstValueFrom(
-          service.getSendAccessToken$(sendId, sendPasswordCredentials),
+          service.getSendAccessToken$(sendId, sendPasswordCredentials, apiUrl),
         );
 
         // Assert
         expect(result).toEqual(sendAccessToken);
 
         const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
-        expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+        expect(sendAccessTokenDict).toHaveProperty([cacheKey], sendAccessToken);
       });
 
       // Note: we deliberately aren't testing the "success" scenario of passing
@@ -411,13 +444,13 @@ describe("SendTokenService", () => {
 
         // Act
         const result = await firstValueFrom(
-          service.getSendAccessToken$(sendId, sendEmailOtpCredentials),
+          service.getSendAccessToken$(sendId, sendEmailOtpCredentials, apiUrl),
         );
 
         // Assert
         expect(result).toEqual(sendAccessToken);
         const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
-        expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
+        expect(sendAccessTokenDict).toHaveProperty([cacheKey], sendAccessToken);
       });
 
       describe.each(CREDS.map((c) => [c.kind, c] as const))(
@@ -437,7 +470,9 @@ describe("SendTokenService", () => {
                 data: sendAccessTokenApiErrorResponse,
               });
 
-              const result = await firstValueFrom(service.getSendAccessToken$("abc123", creds));
+              const result = await firstValueFrom(
+                service.getSendAccessToken$("abc123", creds, apiUrl),
+              );
 
               expect(result).toEqual({
                 kind: "expected_server",
@@ -456,7 +491,7 @@ describe("SendTokenService", () => {
             });
 
             // Act
-            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -479,7 +514,9 @@ describe("SendTokenService", () => {
                 data: sendAccessTokenApiErrorResponse,
               });
 
-              const result = await firstValueFrom(service.getSendAccessToken$("abc123", creds));
+              const result = await firstValueFrom(
+                service.getSendAccessToken$("abc123", creds, apiUrl),
+              );
 
               expect(result).toEqual({
                 kind: "expected_server",
@@ -498,7 +535,7 @@ describe("SendTokenService", () => {
             });
 
             // Act
-            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -516,7 +553,9 @@ describe("SendTokenService", () => {
               };
               mockSdkRejectWith({ kind: "expected", data: api });
 
-              const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+              const result = await firstValueFrom(
+                service.getSendAccessToken$(sendId, creds, apiUrl),
+              );
 
               expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
             },
@@ -528,7 +567,9 @@ describe("SendTokenService", () => {
               const api: SendAccessTokenApiErrorResponse = { error: errorType };
               mockSdkRejectWith({ kind: "expected", data: api });
 
-              const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+              const result = await firstValueFrom(
+                service.getSendAccessToken$(sendId, creds, apiUrl),
+              );
 
               expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
             },
@@ -544,7 +585,7 @@ describe("SendTokenService", () => {
             });
 
             // Act
-            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -563,7 +604,7 @@ describe("SendTokenService", () => {
               .request_send_access_token.mockRejectedValue(new Error(unknownError));
 
             // Act
-            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl));
 
             // Assert
             expect(result).toEqual({
@@ -579,9 +620,9 @@ describe("SendTokenService", () => {
           kind: "password",
           passwordHashB64: "" as SendHashedPasswordB64,
         };
-        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
-          "passwordHashB64 must be provided for password credentials.",
-        );
+        await expect(
+          firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl)),
+        ).rejects.toThrow("passwordHashB64 must be provided for password credentials.");
       });
 
       it("errors if email is missing for email credentials", async () => {
@@ -589,9 +630,9 @@ describe("SendTokenService", () => {
           kind: "email",
           email: "",
         };
-        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
-          "email must be provided for email credentials.",
-        );
+        await expect(
+          firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl)),
+        ).rejects.toThrow("email must be provided for email credentials.");
       });
 
       it("errors if email or otp is missing for email_otp credentials", async () => {
@@ -600,23 +641,46 @@ describe("SendTokenService", () => {
           email: "",
           otp: "" as SendOtp,
         };
-        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
-          "email and otp must be provided for email_otp credentials.",
-        );
+        await expect(
+          firstValueFrom(service.getSendAccessToken$(sendId, creds, apiUrl)),
+        ).rejects.toThrow("email and otp must be provided for email_otp credentials.");
       });
     });
 
     describe("invalidateSendAccessToken", () => {
-      it("removes a send access token from storage", async () => {
-        // Arrange
-        sendAccessTokenDictGlobalState.stateSubject.next({ [sendId]: sendAccessToken });
+      it("removes a send access token from storage for every origin the send is cached under", async () => {
+        // Arrange: same send cached under two different origins
+        const otherApiUrl = "https://api.other-example.com";
+        const otherCacheKey = `${otherApiUrl}|${sendId}`;
+        sendAccessTokenDictGlobalState.stateSubject.next({
+          [cacheKey]: sendAccessToken,
+          [otherCacheKey]: sendAccessToken,
+        });
 
         // Act
         await service.invalidateSendAccessToken(sendId);
         const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
 
         // Assert
-        expect(sendAccessTokenDict).not.toHaveProperty(sendId);
+        expect(sendAccessTokenDict).not.toHaveProperty([cacheKey]);
+        expect(sendAccessTokenDict).not.toHaveProperty([otherCacheKey]);
+      });
+
+      it("leaves tokens for other sends untouched", async () => {
+        // Arrange
+        const otherSendCacheKey = `${apiUrl}|otherSendId`;
+        sendAccessTokenDictGlobalState.stateSubject.next({
+          [cacheKey]: sendAccessToken,
+          [otherSendCacheKey]: sendAccessToken,
+        });
+
+        // Act
+        await service.invalidateSendAccessToken(sendId);
+        const sendAccessTokenDict = await firstValueFrom(sendAccessTokenDictGlobalState.state$);
+
+        // Assert
+        expect(sendAccessTokenDict).not.toHaveProperty([cacheKey]);
+        expect(sendAccessTokenDict).toHaveProperty([otherSendCacheKey], sendAccessToken);
       });
     });
   });

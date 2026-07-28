@@ -19,10 +19,13 @@ export abstract class SendTokenService {
    * If an access token cannot be granted b/c the send requires credentials, then it returns a {@link TryGetSendAccessTokenError} indicating which credentials are required.
    * Any submissions of credentials will be handled by the getSendAccessToken$ method.
    * @param sendId The ID of the send to retrieve the access token for.
+   * @param apiUrl The API origin the token will be used against. Cached tokens are bound to this
+   * value so a token minted for one origin is never returned for a different caller-supplied origin.
    * @returns An observable that emits a SendAccessToken if successful, or a TryGetSendAccessTokenError if not.
    */
   abstract tryGetSendAccessToken$: (
     sendId: string,
+    apiUrl: string,
   ) => Observable<SendAccessToken | TryGetSendAccessTokenError>;
 
   /**
@@ -31,11 +34,14 @@ export abstract class SendTokenService {
    * If the access token cannot be granted due to invalid credentials, it returns a {@link GetSendAccessTokenError}.
    * @param sendId The ID of the send to retrieve the access token for.
    * @param sendAccessCredentials The credentials to use for accessing the send.
+   * @param apiUrl The API origin the token will be used against. The token is cached bound to this
+   * value so it is never returned for a different caller-supplied origin.
    * @returns An observable that emits a SendAccessToken if successful, or a GetSendAccessTokenError if not.
    */
   abstract getSendAccessToken$: (
     sendId: string,
     sendAccessCredentials: SendAccessDomainCredentials,
+    apiUrl: string,
   ) => Observable<SendAccessToken | GetSendAccessTokenError>;
 
   /**

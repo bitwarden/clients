@@ -40,24 +40,32 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     this.sendAccessTokenDictGlobalState = this.globalStateProvider.get(SEND_ACCESS_TOKEN_DICT);
   }
 
-  tryGetSendAccessToken$(sendId: string): Observable<SendAccessToken | TryGetSendAccessTokenError> {
+  tryGetSendAccessToken$(
+    sendId: string,
+    apiUrl: string,
+  ): Observable<SendAccessToken | TryGetSendAccessTokenError> {
     // Defer the execution to ensure that a cold observable is returned.
-    return defer(() => from(this._tryGetSendAccessToken(sendId)));
+    return defer(() => from(this._tryGetSendAccessToken(sendId, apiUrl)));
   }
 
   private async _tryGetSendAccessToken(
     sendId: string,
+    apiUrl: string,
   ): Promise<SendAccessToken | TryGetSendAccessTokenError> {
     // Validate the sendId is a non-empty string.
     this.validateSendId(sendId);
 
-    // Check in storage for the access token for the given sendId.
-    const sendAccessTokenFromStorage = await this.getSendAccessTokenFromStorage(sendId);
+    // Cache tokens per (apiUrl, sendId) so a token minted for one origin is never returned for a
+    // different caller-supplied origin.
+    const cacheKey = this.buildCacheKey(apiUrl, sendId);
+
+    // Check in storage for the access token for the given send and origin.
+    const sendAccessTokenFromStorage = await this.getSendAccessTokenFromStorage(cacheKey);
 
     if (sendAccessTokenFromStorage != null) {
       // If it is expired, we clear the token from storage and return the expired error
       if (sendAccessTokenFromStorage.isExpired()) {
-        await this.clearSendAccessTokenFromStorage(sendId);
+        await this.clearSendAccessTokenFromStorage(cacheKey);
         return { kind: "expired" };
       } else {
         // If it is not expired, we return it
@@ -82,7 +90,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
 
       // If we get a token back, we need to store it in the global state.
-      await this.setSendAccessTokenInStorage(sendId, sendAccessToken);
+      await this.setSendAccessTokenInStorage(cacheKey, sendAccessToken);
 
       return sendAccessToken;
     } catch (error: unknown) {
@@ -93,17 +101,22 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   getSendAccessToken$(
     sendId: string,
     sendCredentials: SendAccessDomainCredentials,
+    apiUrl: string,
   ): Observable<SendAccessToken | GetSendAccessTokenError> {
     // Defer the execution to ensure that a cold observable is returned.
-    return defer(() => from(this._getSendAccessToken(sendId, sendCredentials)));
+    return defer(() => from(this._getSendAccessToken(sendId, sendCredentials, apiUrl)));
   }
 
   private async _getSendAccessToken(
     sendId: string,
     sendAccessCredentials: SendAccessDomainCredentials,
+    apiUrl: string,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     // Validate inputs to account for non-strict TS call sites.
     this.validateCredentialsRequest(sendId, sendAccessCredentials);
+
+    // Bind the freshly minted token to the origin it will be used against.
+    const cacheKey = this.buildCacheKey(apiUrl, sendId);
 
     // Convert inputs to SDK request shape
     const request: SendAccessTokenRequest = {
@@ -123,7 +136,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
 
       // Any time we get a token from the server, we need to store it in the global state.
-      await this.setSendAccessTokenInStorage(sendId, sendAccessToken);
+      await this.setSendAccessTokenInStorage(cacheKey, sendAccessToken);
 
       return sendAccessToken;
     } catch (error: unknown) {
@@ -132,7 +145,56 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   }
 
   async invalidateSendAccessToken(sendId: string): Promise<void> {
-    await this.clearSendAccessTokenFromStorage(sendId);
+    this.validateSendId(sendId);
+
+    if (this.sendAccessTokenDictGlobalState == null) {
+      return;
+    }
+
+    // Cache keys are `${normalizedApiUrl}|${sendId}`; clear every origin's token for this send.
+    const suffix = `|${sendId}`;
+    await this.sendAccessTokenDictGlobalState.update(
+      (sendAccessTokenDict) => {
+        if (!sendAccessTokenDict) {
+          return sendAccessTokenDict;
+        }
+        return Object.fromEntries(
+          Object.entries(sendAccessTokenDict).filter(([key]) => !key.endsWith(suffix)),
+        );
+      },
+      {
+        shouldUpdate: (prevDict) =>
+          prevDict != null && Object.keys(prevDict).some((key) => key.endsWith(suffix)),
+      },
+    );
+  }
+
+  /**
+   * Builds the per-origin cache key for a send access token. Binding the key to the API origin
+   * ensures a token minted for one origin is never returned for a different caller-supplied origin.
+   */
+  private buildCacheKey(apiUrl: string, sendId: string): string {
+    return `${this.normalizeApiUrl(apiUrl)}|${sendId}`;
+  }
+
+  /**
+   * Normalizes an API URL to a stable origin string: lower-cased scheme/host (via URL parsing),
+   * default ports dropped, and any trailing slash removed. The path is preserved because
+   * self-hosted deployments serve the API under a path (e.g. `https://vault.example.com/api`).
+   */
+  private normalizeApiUrl(apiUrl: string): string {
+    if (apiUrl == null || apiUrl.trim() === "") {
+      throw new Error("apiUrl must be provided.");
+    }
+
+    try {
+      const url = new URL(apiUrl);
+      const path = url.pathname.replace(/\/+$/, "");
+      return `${url.protocol}//${url.host}${path}`;
+    } catch {
+      // Fall back so an unparseable url still buckets deterministically rather than throwing.
+      return apiUrl.trim().toLowerCase().replace(/\/+$/, "");
+    }
   }
 
   async hashSendPassword(
@@ -167,17 +229,17 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   }
 
   private async getSendAccessTokenFromStorage(
-    sendId: string,
+    cacheKey: string,
   ): Promise<SendAccessToken | undefined> {
     if (this.sendAccessTokenDictGlobalState != null) {
       const sendAccessTokenDict = await firstValueFrom(this.sendAccessTokenDictGlobalState.state$);
-      return sendAccessTokenDict?.[sendId];
+      return sendAccessTokenDict?.[cacheKey];
     }
     return undefined;
   }
 
   private async setSendAccessTokenInStorage(
-    sendId: string,
+    cacheKey: string,
     sendAccessToken: SendAccessToken,
   ): Promise<void> {
     if (this.sendAccessTokenDictGlobalState != null) {
@@ -185,13 +247,13 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
         (sendAccessTokenDict) => {
           sendAccessTokenDict ??= {}; // Initialize if undefined
 
-          sendAccessTokenDict[sendId] = sendAccessToken;
+          sendAccessTokenDict[cacheKey] = sendAccessToken;
           return sendAccessTokenDict;
         },
         {
           // only update if the value is different (to avoid unnecessary writes)
           shouldUpdate: (prevDict) => {
-            const prevSendAccessToken = prevDict?.[sendId];
+            const prevSendAccessToken = prevDict?.[cacheKey];
             return (
               prevSendAccessToken?.token !== sendAccessToken.token ||
               prevSendAccessToken?.expiresAt !== sendAccessToken.expiresAt
@@ -202,7 +264,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     }
   }
 
-  private async clearSendAccessTokenFromStorage(sendId: string): Promise<void> {
+  private async clearSendAccessTokenFromStorage(cacheKey: string): Promise<void> {
     if (this.sendAccessTokenDictGlobalState != null) {
       await this.sendAccessTokenDictGlobalState.update(
         (sendAccessTokenDict) => {
@@ -211,20 +273,20 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
             return sendAccessTokenDict;
           }
 
-          if (sendAccessTokenDict[sendId] == null) {
-            // If the specific sendId does not exist, nothing to clear
+          if (sendAccessTokenDict[cacheKey] == null) {
+            // If the specific cache key does not exist, nothing to clear
             return sendAccessTokenDict;
           }
 
-          // Destructure to omit the specific sendId and get new reference for the rest of the dict for an immutable update
+          // Destructure to omit the specific cache key and get new reference for the rest of the dict for an immutable update
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [sendId]: _, ...rest } = sendAccessTokenDict;
+          const { [cacheKey]: _, ...rest } = sendAccessTokenDict;
 
           return rest;
         },
         {
           // only update if the value is defined (to avoid unnecessary writes)
-          shouldUpdate: (prevDict) => prevDict?.[sendId] != null,
+          shouldUpdate: (prevDict) => prevDict?.[cacheKey] != null,
         },
       );
     }
