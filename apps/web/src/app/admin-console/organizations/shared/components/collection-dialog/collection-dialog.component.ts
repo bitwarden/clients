@@ -212,9 +212,12 @@ export class CollectionDialogComponent implements OnInit {
     organization: this.organization$,
   }).pipe(
     map(({ allCollections, collection, organization }) => {
-      let nestOptions: CollectionView[] = this.params.limitNestedCollections
+      const availableParentCollections = this.params.limitNestedCollections
         ? allCollections.filter((c) => c.manage)
-        : allCollections;
+        : allCollections.slice();
+      let nestOptions: CollectionView[] = availableParentCollections.sort(
+        Utils.getSortFunction(this.i18nService, "name"),
+      );
 
       let deletedParentName: string | undefined = undefined;
 
