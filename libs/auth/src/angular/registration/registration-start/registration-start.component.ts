@@ -192,11 +192,24 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     // The app expects null for name and not empty string.
     const sanitizedName = this.name.value === "" ? null : this.name.value;
 
-    const request: RegisterSendVerificationEmailRequest = new RegisterSendVerificationEmailRequest(
-      this.email.value,
-      sanitizedName,
-      this.receiveMarketingEmails.value,
-    );
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — collapse to the
+    // on-flag branch.
+    let request: RegisterSendVerificationEmailRequest;
+    if (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink)) {
+      const sealedOpenOrgInviteData = await this.sealOpenOrgInviteIfPresent(this.email.value);
+      request = new RegisterSendVerificationEmailRequest(
+        this.email.value,
+        sanitizedName,
+        this.receiveMarketingEmails.value,
+        sealedOpenOrgInviteData,
+      );
+    } else {
+      request = new RegisterSendVerificationEmailRequest(
+        this.email.value,
+        sanitizedName,
+        this.receiveMarketingEmails.value,
+      );
+    }
 
     const result = await this.accountApiService.registerSendVerificationEmail(request);
 
@@ -246,6 +259,25 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
 
     return this.formGroup.valid;
+  }
+
+  /**
+   * When an `OpenOrganizationInvite` is stashed, seals its URL-params triple via the
+   * organization-invite service so the sealed blob can ride the verification-email
+   * URL fragment through the tab-boundary. Returns `undefined` when no open invite is
+   * stashed. The caller is responsible for feature-flag gating.
+   */
+  private async sealOpenOrgInviteIfPresent(email: string): Promise<string | undefined> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return undefined;
+    }
+    const sealed = await this.organizationInviteService.sealOpenOrgInvite(email, {
+      organizationId: invite.organizationId,
+      inviteLinkCode: invite.inviteLinkCode,
+      inviteKey: invite.inviteKey,
+    });
+    return sealed ?? undefined;
   }
 
   /**
