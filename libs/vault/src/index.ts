@@ -9,6 +9,10 @@ export {
   CopyFieldAction,
 } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
+export {
+  VaultCopyButtonsService,
+  CopyButtonDisplayMode,
+} from "./services/vault-copy-buttons.service";
 export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
