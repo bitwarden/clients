@@ -138,6 +138,9 @@ module.exports.buildConfig = function buildConfig(params) {
         BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(
           process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS === "true",
         ),
+        BW_DETECT_SYNC_BOUNDARIES: JSON.stringify(
+          process.env.BW_DETECT_SYNC_BOUNDARIES === "true" || ENV === "development",
+        ),
       },
     }),
     new webpack.EnvironmentPlugin({

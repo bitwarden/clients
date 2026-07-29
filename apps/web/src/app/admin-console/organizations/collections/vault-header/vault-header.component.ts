@@ -24,7 +24,13 @@ import {
   SimpleDialogOptions,
   IconModule,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1IconPipe,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
@@ -44,6 +50,7 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     JslibModule,
     NewCipherMenuComponent,
     IconModule,
+    Vfo1IconPipe,
   ],
 })
 export class VaultHeaderComponent {
@@ -52,6 +59,7 @@ export class VaultHeaderComponent {
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly All = All;
   protected readonly Unassigned = Unassigned;
@@ -112,7 +120,9 @@ export class VaultHeaderComponent {
   });
 
   protected readonly icon = computed(() =>
-    this.filter().collectionId !== undefined ? "bwi-collection-shared" : "",
+    this.filter().collectionId !== undefined
+      ? this.vfo1TerminologyService.iconClass("bwi-collection-shared")
+      : "",
   );
 
   protected readonly showBreadcrumbs = computed(
