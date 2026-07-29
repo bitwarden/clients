@@ -10828,6 +10828,33 @@
   "emailUpdateOnSave": {
     "message": "Email will update on save"
   },
+  "emailNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their email address."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "This member has a master password. Contact the member to update their email address."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "The new email must match a domain claimed by your organization."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email is already in use by a member of your organization."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email is already in use. You can invite them to your organization instead."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
+  },
   "createdDate": {
     "message": "Created date"
   },
