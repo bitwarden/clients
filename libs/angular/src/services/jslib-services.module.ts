@@ -1016,8 +1016,6 @@ const safeProviders: SafeProvider[] = [
       TokenServiceAbstraction,
       AuthServiceAbstraction,
       StateProvider,
-      KdfConfigService,
-      V2UpgradeTokenStateService,
       ConfigService,
       SdkService,
     ],

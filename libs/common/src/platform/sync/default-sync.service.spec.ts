@@ -13,7 +13,7 @@ import {
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 import { KmSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
@@ -31,16 +31,9 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  MasterKeyWrappedUserKey,
-  MasterPasswordSalt,
-  MasterPasswordUnlockData,
-} from "../../key-management/master-password/types/master-password.types";
-import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -82,9 +75,6 @@ describe("DefaultSyncService", () => {
   let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let stateProvider: MockProxy<StateProvider>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
-  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
   let kmSyncHandler: { on_sync: jest.Mock<Promise<void>, [KmSyncData]> };
@@ -118,9 +108,6 @@ describe("DefaultSyncService", () => {
     tokenService = mock();
     authService = mock();
     stateProvider = mock();
-    kdfConfigService = mock();
-    accountCryptographicStateService = mock();
-    v2UpgradeTokenStateService = mock();
     configService = mock();
     sdkService = mock();
     kmSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
@@ -159,9 +146,6 @@ describe("DefaultSyncService", () => {
       tokenService,
       authService,
       stateProvider,
-      kdfConfigService,
-      accountCryptographicStateService,
-      v2UpgradeTokenStateService,
       configService,
       sdkService,
     );
@@ -219,19 +203,7 @@ describe("DefaultSyncService", () => {
           userDecryption,
         });
 
-      it("is not called when the feature flag is off", async () => {
-        configService.getFeatureFlag.mockImplementation(async () => false);
-        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
-
-        await sut.fullSync(true);
-
-        expect(kmSyncHandler.on_sync).not.toHaveBeenCalled();
-      });
-
       it("passes an undefined key id through when the server did not report one", async () => {
-        configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PostUserKeyId,
-        );
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
 
         await sut.fullSync(true);
@@ -242,9 +214,6 @@ describe("DefaultSyncService", () => {
 
       it("passes the server's key id through when it reported one", async () => {
         const userKeyId = "0123456789abcdef0123456789abcdef";
-        configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PostUserKeyId,
-        );
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({ userKeyId }));
 
         await sut.fullSync(true);
@@ -254,9 +223,6 @@ describe("DefaultSyncService", () => {
       });
 
       it("passes the master password unlock data and upgrade token through", async () => {
-        configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PostUserKeyId,
-        );
         apiService.getSync.mockResolvedValue(
           syncResponseWithUserDecryption({
             masterPasswordUnlock: {
@@ -285,9 +251,6 @@ describe("DefaultSyncService", () => {
       });
 
       it("leaves userDecryption undefined when the server reported none", async () => {
-        configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PostUserKeyId,
-        );
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
@@ -299,9 +262,6 @@ describe("DefaultSyncService", () => {
       });
 
       it("does not fail the sync when the handler throws", async () => {
-        configService.getFeatureFlag.mockImplementation(
-          async (flag) => flag === FeatureFlag.PostUserKeyId,
-        );
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
         kmSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
 
@@ -491,120 +451,6 @@ describe("DefaultSyncService", () => {
 
         expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
         expect(sut["inFlightApiCalls"].sync).toBeNull();
-      });
-    });
-
-    describe("syncUserDecryption", () => {
-      const salt = "test@example.com";
-      const kdf = new PBKDF2KdfConfig(600_000);
-      const encryptedUserKey = "testUserKey";
-
-      it("should set master password unlock when present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-            AccountKeys: {
-              publicKeyEncryptionKeyPair: {
-                wrappedPrivateKey: "wrappedPrivateKey",
-                publicKey: "publicKey",
-              },
-            },
-          },
-          UserDecryption: {
-            MasterPasswordUnlock: {
-              Salt: salt,
-              Kdf: {
-                KdfType: kdf.kdfType,
-                Iterations: kdf.iterations,
-              },
-              MasterKeyEncryptedUserKey: encryptedUserKey,
-            },
-          },
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-          new MasterPasswordUnlockData(
-            salt as MasterPasswordSalt,
-            kdf,
-            encryptedUserKey as MasterKeyWrappedUserKey,
-          ),
-          user1,
-        );
-      });
-
-      it("should not set master password unlock when not present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-            AccountKeys: {
-              publicKeyEncryptionKeyPair: {
-                wrappedPrivateKey: "wrappedPrivateKey",
-                publicKey: "publicKey",
-              },
-            },
-          },
-          UserDecryption: {},
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
-      });
-
-      it("should persist the V2 upgrade token when present on the user decryption response", async () => {
-        const wrappedUserKey1 = "mockWrappedUserKey1";
-        const wrappedUserKey2 = "mockWrappedUserKey2";
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-            AccountKeys: {
-              publicKeyEncryptionKeyPair: {
-                wrappedPrivateKey: "wrappedPrivateKey",
-                publicKey: "publicKey",
-              },
-            },
-          },
-          UserDecryption: {
-            V2UpgradeToken: {
-              WrappedUserKey1: wrappedUserKey1,
-              WrappedUserKey2: wrappedUserKey2,
-            },
-          },
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(v2UpgradeTokenStateService.setV2UpgradeToken).toHaveBeenCalledWith(
-          { wrapped_user_key_1: wrappedUserKey1, wrapped_user_key_2: wrappedUserKey2 },
-          user1,
-        );
-        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).not.toHaveBeenCalled();
-      });
-
-      it("should clear the V2 upgrade token when the response omits it", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-            AccountKeys: {
-              publicKeyEncryptionKeyPair: {
-                wrappedPrivateKey: "wrappedPrivateKey",
-                publicKey: "publicKey",
-              },
-            },
-          },
-          UserDecryption: {},
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).toHaveBeenCalledWith(user1);
-        expect(v2UpgradeTokenStateService.setV2UpgradeToken).not.toHaveBeenCalled();
       });
     });
 
