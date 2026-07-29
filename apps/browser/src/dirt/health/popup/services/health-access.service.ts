@@ -63,7 +63,9 @@ export class HealthAccessService {
    * @returns An observable that emits true if the User has opened the Health report feature, false otherwise.
    */
   healthHasBeenOpened$(userId: UserId): Observable<boolean> {
-    return this.stateProvider.getUserState$(HEALTH_TAB_OPENED_KEY, userId);
+    return this.stateProvider
+      .getUserState$(HEALTH_TAB_OPENED_KEY, userId)
+      .pipe(map((hasBeenOpened) => hasBeenOpened ?? false));
   }
 
   /**
