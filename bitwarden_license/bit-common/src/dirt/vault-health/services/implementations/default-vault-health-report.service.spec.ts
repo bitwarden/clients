@@ -95,7 +95,6 @@ describe("DefaultVaultHealthReportService", () => {
 
     const result = await report();
 
-    expect(result.categoryCounts).toEqual({ exposed: 1, weak: 1, reused: 1 });
     expect(result.categoryItems.exposed.map((h) => h.cipherId)).toEqual(["a"]);
     expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["b"]);
     expect(result.categoryItems.reused.map((h) => h.cipherId)).toEqual(["c"]);
@@ -107,8 +106,9 @@ describe("DefaultVaultHealthReportService", () => {
     const result = await report();
 
     expect(result.atRiskCount).toBe(1);
-    expect(result.categoryCounts).toEqual({ exposed: 1, weak: 0, reused: 0 });
     expect(result.categoryItems.exposed.map((h) => h.cipherId)).toEqual(["a"]);
+    expect(result.categoryItems.weak).toHaveLength(0);
+    expect(result.categoryItems.reused).toHaveLength(0);
     // Full per-login breakdown still reflects all categories the login is at risk in.
     const health = result.cipherHealth.find((h) => h.cipherId === "a")!;
     expect(health.hasExposedPassword).toBe(true);
@@ -121,7 +121,9 @@ describe("DefaultVaultHealthReportService", () => {
 
     const result = await report();
 
-    expect(result.categoryCounts).toEqual({ exposed: 0, weak: 1, reused: 0 });
+    expect(result.categoryItems.exposed).toHaveLength(0);
+    expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["a"]);
+    expect(result.categoryItems.reused).toHaveLength(0);
     const health = result.cipherHealth.find((h) => h.cipherId === "a")!;
     expect(health.hasWeakPassword).toBe(true);
     expect(health.hasReusedPassword).toBe(true);
@@ -149,7 +151,9 @@ describe("DefaultVaultHealthReportService", () => {
     expect(result.totalCount).toBe(0);
     expect(result.atRiskCount).toBe(0);
     expect(result.score).toBe(0);
-    expect(result.categoryCounts).toEqual({ exposed: 0, weak: 0, reused: 0 });
+    expect(result.categoryItems.exposed).toHaveLength(0);
+    expect(result.categoryItems.weak).toHaveLength(0);
+    expect(result.categoryItems.reused).toHaveLength(0);
     expect(cipherRiskService.computeRiskForCiphers).not.toHaveBeenCalled();
   });
 
@@ -164,7 +168,9 @@ describe("DefaultVaultHealthReportService", () => {
 
     expect(result.atRiskCount).toBe(0);
     expect(result.score).toBe(0);
-    expect(result.categoryCounts).toEqual({ exposed: 0, weak: 0, reused: 0 });
+    expect(result.categoryItems.exposed).toHaveLength(0);
+    expect(result.categoryItems.weak).toHaveLength(0);
+    expect(result.categoryItems.reused).toHaveLength(0);
     expect(result.cipherHealth).toHaveLength(3);
   });
 

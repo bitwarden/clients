@@ -18,9 +18,11 @@ export class VaultHealthReportView implements View {
   atRiskCount = 0;
   /** atRiskCount / totalCount; 0 when totalCount is 0. */
   score = 0;
-  /** Deduplicated, highest-risk-wins count per category. */
-  categoryCounts: CategoryRecord<number> = { exposed: 0, weak: 0, reused: 0 };
-  /** The at-risk logins placed in each category (highest-risk-wins). */
+  /**
+   * The at-risk logins placed in each category (highest-risk-wins). The
+   * per-category count is the length of each list; no separate counts record
+   * is kept.
+   */
   categoryItems: CategoryRecord<CipherHealthView[]> = { exposed: [], weak: [], reused: [] };
   /** Full per-login breakdown: every category each at-risk login falls under. */
   cipherHealth: CipherHealthView[] = [];

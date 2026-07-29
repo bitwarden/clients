@@ -81,7 +81,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     const cipherHealth = risks.map((risk) => this.toCipherHealthView(risk));
     const atRisk = cipherHealth.filter((health) => health.isAtRisk());
 
-    const categoryCounts: Record<RiskCategory, number> = { exposed: 0, weak: 0, reused: 0 };
     const categoryItems: Record<RiskCategory, CipherHealthView[]> = {
       exposed: [],
       weak: [],
@@ -90,7 +89,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
 
     for (const health of atRisk) {
       const category = this.highestRiskCategory(health);
-      categoryCounts[category] += 1;
       categoryItems[category].push(health);
     }
 
@@ -98,7 +96,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       totalCount,
       atRiskCount: atRisk.length,
       score: atRisk.length / totalCount,
-      categoryCounts,
       categoryItems,
       cipherHealth,
     });
