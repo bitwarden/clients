@@ -1,9 +1,8 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -14,9 +13,7 @@ import { DefaultVaultHealthReportService } from "./default-vault-health-report.s
 describe("DefaultVaultHealthReportService", () => {
   const userId = "test-user-id" as UserId;
 
-  let cipherService: ReturnType<typeof mock<CipherService>>;
   let cipherRiskService: ReturnType<typeof mock<CipherRiskService>>;
-  let cipherViews$: BehaviorSubject<CipherView[]>;
   let service: DefaultVaultHealthReportService;
 
   // Per-test lookup so risk results are returned for exactly the ciphers passed,
@@ -24,18 +21,15 @@ describe("DefaultVaultHealthReportService", () => {
   let riskById: Map<string, CipherRiskResult>;
 
   beforeEach(() => {
-    cipherService = mock<CipherService>();
     cipherRiskService = mock<CipherRiskService>();
-    cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     riskById = new Map();
 
-    cipherService.cipherViews$.mockReturnValue(cipherViews$);
     cipherRiskService.buildPasswordReuseMap.mockResolvedValue({});
     cipherRiskService.computeRiskForCiphers.mockImplementation(async (ciphers) =>
       ciphers.map((c) => riskById.get(c.id)!),
     );
 
-    service = new DefaultVaultHealthReportService(cipherService, cipherRiskService);
+    service = new DefaultVaultHealthReportService(cipherRiskService);
   });
 
   afterEach(() => {
@@ -76,24 +70,25 @@ describe("DefaultVaultHealthReportService", () => {
     } as unknown as CipherRiskResult;
   };
 
-  /** Seed the vault with logins and register a risk result for each by id. */
-  const seed = (entries: { cipher: CipherView; risk: CipherRiskResult }[]) => {
+  /** Register a risk result per cipher id and return the cipher list to pass in. */
+  const withRisks = (entries: { cipher: CipherView; risk: CipherRiskResult }[]): CipherView[] => {
     entries.forEach((e) => riskById.set(e.cipher.id, e.risk));
-    cipherViews$.next(entries.map((e) => e.cipher));
+    return entries.map((e) => e.cipher);
   };
 
-  const report = () => firstValueFrom(service.vaultHealthReport$(userId));
+  const report = (ciphers: CipherView[]) =>
+    firstValueFrom(service.buildVaultHealthReport$(ciphers, userId));
 
   // --- tests ---------------------------------------------------------------
 
   it("categorizes each single-risk login into its matching category", async () => {
-    seed([
+    const ciphers = withRisks([
       { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
       { cipher: login("b"), risk: risk("b", { strength: 1 }) },
       { cipher: login("c"), risk: risk("c", { reuse: 2 }) },
     ]);
 
-    const result = await report();
+    const result = await report(ciphers);
 
     expect(result.categoryItems.exposed.map((h) => h.cipherId)).toEqual(["a"]);
     expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["b"]);
@@ -101,42 +96,46 @@ describe("DefaultVaultHealthReportService", () => {
   });
 
   it("counts an exposed+weak+reused login once, under Exposed (highest-risk-wins)", async () => {
-    seed([{ cipher: login("a"), risk: risk("a", { strength: 1, exposed: 5, reuse: 3 }) }]);
+    const ciphers = withRisks([
+      { cipher: login("a"), risk: risk("a", { strength: 1, exposed: 5, reuse: 3 }) },
+    ]);
 
-    const result = await report();
+    const result = await report(ciphers);
 
     expect(result.atRiskCount).toBe(1);
     expect(result.categoryItems.exposed.map((h) => h.cipherId)).toEqual(["a"]);
     expect(result.categoryItems.weak).toHaveLength(0);
     expect(result.categoryItems.reused).toHaveLength(0);
-    // Full per-login breakdown still reflects all categories the login is at risk in.
-    const health = result.cipherHealth.find((h) => h.cipherId === "a")!;
+    // The bucketed item still carries every category it is at risk in, so the
+    // cross-category view is available without a separate flat list.
+    const health = result.categoryItems.exposed.find((h) => h.cipherId === "a")!;
     expect(health.hasExposedPassword).toBe(true);
     expect(health.hasWeakPassword).toBe(true);
     expect(health.hasReusedPassword).toBe(true);
   });
 
   it("places a weak+reused (not exposed) login under Weak", async () => {
-    seed([{ cipher: login("a"), risk: risk("a", { strength: 2, reuse: 4 }) }]);
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { strength: 2, reuse: 4 }) }]);
 
-    const result = await report();
+    const result = await report(ciphers);
 
     expect(result.categoryItems.exposed).toHaveLength(0);
     expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["a"]);
     expect(result.categoryItems.reused).toHaveLength(0);
-    const health = result.cipherHealth.find((h) => h.cipherId === "a")!;
+    const health = result.categoryItems.weak.find((h) => h.cipherId === "a")!;
     expect(health.hasWeakPassword).toBe(true);
     expect(health.hasReusedPassword).toBe(true);
   });
 
   it("scores unique at-risk logins over total logins", async () => {
-    const entries = Array.from({ length: 10 }, (_, i) => ({
-      cipher: login(`c${i}`),
-      risk: i < 3 ? risk(`c${i}`, { strength: 1 }) : risk(`c${i}`),
-    }));
-    seed(entries);
+    const ciphers = withRisks(
+      Array.from({ length: 10 }, (_, i) => ({
+        cipher: login(`c${i}`),
+        risk: i < 3 ? risk(`c${i}`, { strength: 1 }) : risk(`c${i}`),
+      })),
+    );
 
-    const result = await report();
+    const result = await report(ciphers);
 
     expect(result.totalCount).toBe(10);
     expect(result.atRiskCount).toBe(3);
@@ -144,9 +143,7 @@ describe("DefaultVaultHealthReportService", () => {
   });
 
   it("returns an empty report with score 0 when there are no scoped logins", async () => {
-    cipherViews$.next([]);
-
-    const result = await report();
+    const result = await report([]);
 
     expect(result.totalCount).toBe(0);
     expect(result.atRiskCount).toBe(0);
@@ -158,76 +155,53 @@ describe("DefaultVaultHealthReportService", () => {
   });
 
   it("reports zero at risk when all logins are healthy", async () => {
-    seed([
+    const ciphers = withRisks([
       { cipher: login("a"), risk: risk("a") },
       { cipher: login("b"), risk: risk("b") },
       { cipher: login("c"), risk: risk("c") },
     ]);
 
-    const result = await report();
+    const result = await report(ciphers);
 
+    expect(result.totalCount).toBe(3);
     expect(result.atRiskCount).toBe(0);
     expect(result.score).toBe(0);
     expect(result.categoryItems.exposed).toHaveLength(0);
     expect(result.categoryItems.weak).toHaveLength(0);
     expect(result.categoryItems.reused).toHaveLength(0);
-    expect(result.cipherHealth).toHaveLength(3);
   });
 
   it("excludes org items, deleted items, non-logins, and passwordless logins from scope", async () => {
     const personal = login("personal");
     riskById.set(personal.id, risk("personal", { strength: 1 }));
-    cipherViews$.next([
+    const ciphers = [
       personal,
       login("org", { organizationId: "org-1" }),
       login("deleted", { deleted: true }),
       login("card", { type: CipherType.Card }),
       login("nopass", { password: "" }),
-    ]);
+    ];
 
-    const result = await report();
+    const result = await report(ciphers);
 
     expect(result.totalCount).toBe(1);
     const passed = cipherRiskService.computeRiskForCiphers.mock.calls[0][0];
     expect(passed.map((c) => c.id)).toEqual(["personal"]);
   });
 
-  it("re-emits an updated report when the vault changes", async () => {
-    seed([
-      { cipher: login("a"), risk: risk("a", { strength: 1 }) },
-      { cipher: login("b"), risk: risk("b") },
-    ]);
-    const emissions: number[] = [];
-    const sub = service.vaultHealthReport$(userId).subscribe((r) => emissions.push(r.atRiskCount));
-
-    // allow the first async report to resolve
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    seed([
-      { cipher: login("a"), risk: risk("a", { strength: 1 }) },
-      { cipher: login("b"), risk: risk("b", { exposed: 2 }) },
-      { cipher: login("c"), risk: risk("c", { reuse: 2 }) },
-    ]);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    sub.unsubscribe();
-    expect(emissions[0]).toBe(1);
-    expect(emissions[emissions.length - 1]).toBe(3);
-  });
-
   it("propagates errors from the risk computation instead of swallowing them", async () => {
-    seed([{ cipher: login("a"), risk: risk("a") }]);
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
     cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
 
-    await expect(report()).rejects.toThrow("HIBP unavailable");
+    await expect(report(ciphers)).rejects.toThrow("HIBP unavailable");
   });
 
   it("enables the exposed check and passes the pre-built reuse map", async () => {
     const reuseMap = { "pw-a": 1 };
     cipherRiskService.buildPasswordReuseMap.mockResolvedValue(reuseMap);
-    seed([{ cipher: login("a"), risk: risk("a") }]);
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
 
-    await report();
+    await report(ciphers);
 
     expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledWith(
       expect.any(Array),
@@ -246,7 +220,6 @@ describe("DefaultVaultHealthReportService", () => {
     riskById.set("a", risk("a", { exposed: 4 }));
     riskById.set("b", risk("b", { strength: 1 }));
     riskById.set("c", risk("c", { reuse: 2 }));
-    cipherViews$.next([a, b, c]);
     // Return results in a different order than the inputs.
     cipherRiskService.computeRiskForCiphers.mockResolvedValueOnce([
       riskById.get("c")!,
@@ -254,59 +227,10 @@ describe("DefaultVaultHealthReportService", () => {
       riskById.get("b")!,
     ]);
 
-    const result = await report();
+    const result = await report([a, b, c]);
 
     expect(result.categoryItems.exposed.map((h) => h.cipherId)).toEqual(["a"]);
     expect(result.categoryItems.weak.map((h) => h.cipherId)).toEqual(["b"]);
     expect(result.categoryItems.reused.map((h) => h.cipherId)).toEqual(["c"]);
-  });
-
-  it("does not recompute when only non-scoped items change (identical scoped set)", async () => {
-    const a = login("a");
-    riskById.set("a", risk("a"));
-    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-    const sub = service.vaultHealthReport$(userId).subscribe();
-    cipherViews$.next([a, login("card1", { type: CipherType.Card })]);
-    await tick();
-    // Same scoped login set (a); only the ignored card changed.
-    cipherViews$.next([a, login("card2", { type: CipherType.Card })]);
-    await tick();
-    sub.unsubscribe();
-
-    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not recompute when the same scoped set is re-emitted in a different order", async () => {
-    const a = login("a");
-    const b = login("b");
-    riskById.set("a", risk("a"));
-    riskById.set("b", risk("b"));
-    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-    const sub = service.vaultHealthReport$(userId).subscribe();
-    cipherViews$.next([a, b]);
-    await tick();
-    // Same logins, reversed emission order: the signature is sorted by id, so
-    // this must not be treated as a change.
-    cipherViews$.next([b, a]);
-    await tick();
-    sub.unsubscribe();
-
-    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
-  });
-
-  it("recomputes when a scoped login's password changes", async () => {
-    riskById.set("a", risk("a"));
-    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-    const sub = service.vaultHealthReport$(userId).subscribe();
-    cipherViews$.next([login("a", { password: "pw1" })]);
-    await tick();
-    cipherViews$.next([login("a", { password: "pw2" })]);
-    await tick();
-    sub.unsubscribe();
-
-    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,8 +1,7 @@
-import { Observable, distinctUntilChanged, from, map, switchMap } from "rxjs";
+import { Observable, from } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherRiskResult } from "@bitwarden/sdk-internal";
@@ -13,21 +12,21 @@ import { VaultHealthReportView } from "../../models/view/vault-health-report.vie
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
-  constructor(
-    private cipherService: CipherService,
-    private cipherRiskService: CipherRiskService,
-  ) {}
+  constructor(private cipherRiskService: CipherRiskService) {}
 
-  vaultHealthReport$(userId: UserId): Observable<VaultHealthReportView> {
-    return this.cipherService.cipherViews$(userId).pipe(
-      map((ciphers) => this.filterScopedLogins(ciphers)),
-      // cipherViews$ re-emits on any vault change, including edits to items this
-      // report ignores (cards, org items, deleted items). Only recompute when the
-      // scoped login set actually changes, so we don't fire a fresh HIBP request
-      // for an identical set. Still re-emits whenever the vault changes (the AC).
-      distinctUntilChanged((prev, curr) => this.scopeSignature(prev) === this.scopeSignature(curr)),
-      switchMap((logins) => from(this.buildReport(logins, userId))),
-    );
+  /**
+   * Compute-only: the caller (the Health-tab root component) owns fetching the
+   * vault ciphers and deciding when to recompute. This service filters the
+   * given ciphers to the personal-vault logins in scope, then categorizes,
+   * deduplicates (highest-risk-wins), and scores them. Errors from the risk
+   * computation propagate to the caller.
+   */
+  buildVaultHealthReport$(
+    ciphers: CipherView[],
+    userId: UserId,
+  ): Observable<VaultHealthReportView> {
+    const logins = this.filterScopedLogins(ciphers);
+    return from(this.buildReport(logins, userId));
   }
 
   /**
@@ -42,23 +41,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
         c.organizationId == null &&
         !c.isDeleted &&
         (c.login?.password ?? "") !== "",
-    );
-  }
-
-  /**
-   * A stable signature of the inputs that affect the report: each login's id,
-   * username, and password (the same fields the SDK risk computation consumes).
-   * Two scoped sets with an equal signature produce an identical report, so the
-   * recompute (and its HIBP call) can be skipped. Uses a structural JSON encoding
-   * so a space in a username/password cannot collide two distinct sets. The
-   * tuples are sorted by id so the signature is independent of cipherViews$
-   * emission order: only a genuine change to the scoped set triggers a recompute.
-   */
-  private scopeSignature(logins: CipherView[]): string {
-    return JSON.stringify(
-      logins
-        .map((c) => [c.id, c.login?.username ?? "", c.login?.password ?? ""])
-        .sort((a, b) => a[0].localeCompare(b[0])),
     );
   }
 
@@ -78,8 +60,8 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
 
     // Each CipherRiskResult carries its own `id`, so map results to per-login
     // views directly by id (no reliance on array position).
-    const cipherHealth = risks.map((risk) => this.toCipherHealthView(risk));
-    const atRisk = cipherHealth.filter((health) => health.isAtRisk());
+    const healthViews = risks.map((risk) => this.toCipherHealthView(risk));
+    const atRisk = healthViews.filter((health) => health.isAtRisk());
 
     const categoryItems: Record<RiskCategory, CipherHealthView[]> = {
       exposed: [],
@@ -97,7 +79,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       atRiskCount: atRisk.length,
       score: atRisk.length / totalCount,
       categoryItems,
-      cipherHealth,
     });
   }
 

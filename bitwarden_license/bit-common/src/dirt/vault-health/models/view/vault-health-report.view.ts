@@ -21,11 +21,11 @@ export class VaultHealthReportView implements View {
   /**
    * The at-risk logins placed in each category (highest-risk-wins). The
    * per-category count is the length of each list; no separate counts record
-   * is kept.
+   * is kept. Each item is a CipherHealthView that carries every category the
+   * login is at risk in, so consumers needing the cross-category view (e.g.
+   * the delete-from-detail dialog) can read it here without a separate list.
    */
   categoryItems: CategoryRecord<CipherHealthView[]> = { exposed: [], weak: [], reused: [] };
-  /** Full per-login breakdown: every category each at-risk login falls under. */
-  cipherHealth: CipherHealthView[] = [];
 
   constructor(init?: Partial<VaultHealthReportView>) {
     if (init == null) {
