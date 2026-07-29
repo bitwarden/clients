@@ -363,10 +363,13 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "provider-user":
       case "free-admin-limit":
       case "reset-password-key-required":
+      case "recovery-key-mismatch":
         // TODO: dedicated UI per kind pending design. Until then, surface via the
         // AcceptFlowService generic error path so the user sees the failedMessage toast.
         // Note: `already-member` is success-adjacent and probably wants distinct UX
-        // (toast + navigate home) but the treatment is design's call.
+        // (toast + navigate home) but the treatment is design's call. `recovery-key-mismatch`
+        // is a specific security condition (invite-bound org key differs from the
+        // account-recovery public key) and may warrant distinct copy too.
         throw new Error(`Open invite accept rejected: ${result.kind}`);
       case "unexpected":
         throw new Error(result.errorMessage);

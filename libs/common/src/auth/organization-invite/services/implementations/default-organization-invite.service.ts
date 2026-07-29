@@ -1,4 +1,4 @@
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom, map, Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -16,13 +16,14 @@ import { KeyService } from "@bitwarden/key-management";
 // that are bound at DI time. Acknowledged here per the same pattern used for the AC API
 // service imports above.
 import {
-  OrganizationInviteLinkAcceptRequest,
   OrganizationInviteLinkApiService,
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
 import {
+  isInviteLinkError,
   isRegistrationError,
   OpenOrgInvite,
+  OrganizationId as SdkOrganizationId,
   PasswordManagerClient,
   SealedOpenOrgInvite,
 } from "@bitwarden/sdk-internal";
@@ -42,7 +43,7 @@ import { ErrorResponse } from "../../../../models/response/error.response";
 import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
-import { SdkService } from "../../../../platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
 import { OrgKey } from "../../../../types/key";
@@ -214,17 +215,28 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return { kind: "stashed-for-mp-policy-detour" };
     }
 
+    const enrollIntoAccountRecovery = await this.openInviteRequiresResetPasswordAutoEnroll(invite);
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+    const defaultCollectionName = this.i18nService.t(
+      vfo1Enabled ? "defaultSharedFolder" : "defaultCollection",
+    );
+
     try {
-      const orgPublicKeyEncryptedUserKey = await this.computeOpenInviteResetPasswordKey(
-        invite,
-        userId,
-      );
-      await this.organizationInviteLinkApiService.accept(
-        new OrganizationInviteLinkAcceptRequest({
-          organizationId: invite.organizationId,
-          code: invite.inviteLinkCode,
-          resetPasswordKey: orgPublicKeyEncryptedUserKey,
-        }),
+      await firstValueFrom(
+        this.sdkService.userClient$(userId).pipe(
+          concatMap(async (sdk) => {
+            using ref = sdk.take();
+            await ref.value
+              .invite_link()
+              .accept_and_optionally_confirm(
+                asUuid<SdkOrganizationId>(invite.organizationId),
+                invite.inviteLinkCode,
+                invite.inviteKey,
+                defaultCollectionName,
+                enrollIntoAccountRecovery,
+              );
+          }),
+        ),
       );
       await this.apiService.refreshIdentityToken();
       await this.clearOrganizationInvite();
@@ -235,26 +247,41 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Classifies accept-endpoint failures by matching the server's response message
-   *
-   * String matching is the only client-side discriminator today — the server does not
-   * emit a stable error code on these responses. When a message changes on the server
-   * without a matching update here, the case falls through to `unexpected` and the
-   * server's raw text is surfaced to the user; the flow degrades gracefully rather
-   * than breaking. Spec cases mirror these strings so a copy change fails tests.
+   * The SDK wraps HTTP failures as `variant: "Api"` with a display string of the form
+   * `Received error message from server: [{status}] {server-message}` (from
+   * `bitwarden-core::ApiError::Response`). Unwrap once, delegate to
+   * {@link classifyServerAcceptError}; unrecognized status/message falls through to
+   * `unexpected` with the raw text. `RecoveryKeyMismatch` gets its own kind because
+   * it signals org-key substitution.
    */
   private classifyAcceptOpenOrgInviteError(e: unknown): AcceptOpenOrgInviteResult {
-    if (!(e instanceof ErrorResponse)) {
+    if (!isInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
-    if (e.statusCode === 404) {
+    if (e.variant === "RecoveryKeyMismatch") {
+      return { kind: "recovery-key-mismatch" };
+    }
+    if (e.variant !== "Api") {
+      return { kind: "unexpected", errorMessage: e.message };
+    }
+    // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
+    const match = e.message.match(/^Received error message from server: \[(\d+)\] ([\s\S]+)$/);
+    if (match == null) {
+      return { kind: "unexpected", errorMessage: e.message };
+    }
+    return this.classifyServerAcceptError(Number(match[1]), match[2]);
+  }
+
+  private classifyServerAcceptError(
+    statusCode: number,
+    message: string,
+  ): AcceptOpenOrgInviteResult {
+    if (statusCode === 404) {
       return { kind: "link-not-found" };
     }
-    if (e.statusCode !== 400) {
-      return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+    if (statusCode !== 400) {
+      return { kind: "unexpected", errorMessage: message };
     }
-
-    const message = e.getSingleMessage() ?? "";
     if (message === "Your organization's plan does not support invite links.") {
       return { kind: "plan-not-supported" };
     }
@@ -650,6 +677,30 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return result[1] && result[0].autoEnrollEnabled;
   }
 
+  /**
+   * Whether the org's ResetPassword policy has auto-enroll on. Drives the
+   * `enrollIntoAccountRecovery` bool passed to the SDK's
+   * `accept_and_optionally_confirm`; when true, the SDK fetches the org public key,
+   * verifies its thumbprint against the invite's bound key, and encapsulates the
+   * user key to it. Shares its policy fetch with the MP-policy check via the
+   * per-invite `policyCache`, so both checks cost one round-trip.
+   */
+  private async openInviteRequiresResetPasswordAutoEnroll(
+    openOrgInvite: OpenOrganizationInvite,
+  ): Promise<boolean> {
+    const policies = await this.getOrgPoliciesForInvite(openOrgInvite);
+
+    if (policies == null || policies.length === 0) {
+      return false;
+    }
+
+    const [options, enabled] = this.policyService.getResetPasswordPolicyOptions(
+      policies,
+      openOrgInvite.organizationId,
+    );
+    return enabled && options.autoEnrollEnabled;
+  }
+
   private async directInviteMasterPasswordPolicyCheckRequired(
     invite: DirectOrganizationInvite,
   ): Promise<boolean> {
@@ -703,26 +754,5 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
     const hasNotCheckedMasterPasswordYet = storedInvite == null;
     return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
-  }
-
-  /**
-   * Stub: auto-enroll on open-invite accept is a no-op today. Returns undefined so
-   * the accept request goes out without a `resetPasswordKey`.
-   *
-   * Blocked on the SDK-owned account-recovery-wrap primitive. Do not restore the prior
-   * TS implementation; the replacement is an SDK primitive that owns the wrap crypto and
-   * binds trust via the invite envelope (see PR #21574 review discussion). When that
-   * lands, this method disappears and the caller in `acceptOpenOrgInvite` calls the SDK
-   * instead.
-   *
-   * Feature is behind `FeatureFlag.GenerateInviteLink = false` in prod, so the
-   * current no-op has no user-visible impact. Prior TS crypto preserved in branch
-   * history if it's useful as reference for the SDK migration.
-   */
-  private async computeOpenInviteResetPasswordKey(
-    _invite: OpenOrganizationInvite,
-    _userId: UserId,
-  ): Promise<string | undefined> {
-    return undefined;
   }
 }

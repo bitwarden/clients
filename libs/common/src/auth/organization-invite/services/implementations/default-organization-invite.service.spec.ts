@@ -701,9 +701,124 @@ describe("DefaultOrganizationInviteService", () => {
 
   describe("acceptOpenOrgInvite", () => {
     const activeUserId = newGuid() as UserId;
+    const organizationId = newGuid();
+    // Deep-mock chain returned by userClient.invite_link.mockDeep(); holds
+    // .accept_and_optionally_confirm which our implementation calls.
+    let inviteLinkClient: any;
 
-    it("returns stashed-for-mp-policy-detour when the open invite's org enforces an unsatisfied MP policy", async () => {
-      const open = createOpenOrgInvite();
+    beforeEach(() => {
+      const userClient = sdkService.simulate.userLogin(activeUserId);
+      inviteLinkClient = userClient.invite_link.mockDeep();
+      inviteLinkClient.accept_and_optionally_confirm.mockResolvedValue(undefined);
+      // Default: no MP-policy detour, no AR auto-enroll, VFO1 off. Individual tests
+      // override.
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
+      configService.getFeatureFlag.mockResolvedValue(false);
+      i18nService.t.mockImplementation((key: string) => key);
+    });
+
+    /**
+     * Fabricates the `InviteLinkError { variant: "Api" }` shape the SDK produces when a
+     * server response fails. Mirrors `bitwarden-core::ApiError::Response`'s Display
+     * output: `Received error message from server: [{status}] {message}`. The name/
+     * variant fields are what `isInviteLinkError` uses to identify the error.
+     */
+    const makeSdkApiError = (statusCode: number, message: string): Error => {
+      const err = new Error(
+        `Received error message from server: [${statusCode}] ${message}`,
+      ) as Error & { name: string; variant: string };
+      err.name = "InviteLinkError";
+      err.variant = "Api";
+      return err;
+    };
+
+    const makeSdkError = (variant: string, message: string): Error => {
+      const err = new Error(message) as Error & { name: string; variant: string };
+      err.name = "InviteLinkError";
+      err.variant = variant;
+      return err;
+    };
+
+    it("returns accepted, calls the SDK with the expected args, refreshes the identity token, and clears any stashed invite on success", async () => {
+      const open = createOpenOrgInvite({ organizationId });
+
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(result).toEqual({ kind: "accepted" });
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
+        organizationId,
+        open.inviteLinkCode,
+        open.inviteKey,
+        "defaultCollection",
+        false,
+      );
+      expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+      expect(await sut.getOrganizationInvite()).toBeNull();
+    });
+
+    it("passes enrollIntoAccountRecovery=true when the org's ResetPassword policy has auto-enroll enabled", async () => {
+      const open = createOpenOrgInvite({ organizationId });
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.ResetPassword, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
+        true,
+      ]);
+
+      await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
+        organizationId,
+        open.inviteLinkCode,
+        open.inviteKey,
+        "defaultCollection",
+        true,
+      );
+    });
+
+    it("passes enrollIntoAccountRecovery=false when the ResetPassword policy exists but autoEnrollEnabled is false", async () => {
+      const open = createOpenOrgInvite({ organizationId });
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.ResetPassword, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        true,
+      ]);
+
+      await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
+        organizationId,
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        false,
+      );
+    });
+
+    it("passes defaultSharedFolder as the default collection name when the VFO1 flag is on", async () => {
+      configService.getFeatureFlag.mockImplementation(async (flag) =>
+        flag === FeatureFlag.VFO1Foundation ? true : false,
+      );
+      const open = createOpenOrgInvite({ organizationId });
+
+      await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
+        organizationId,
+        expect.any(String),
+        expect.any(String),
+        "defaultSharedFolder",
+        false,
+      );
+    });
+
+    it("returns stashed-for-mp-policy-detour and does not call the SDK when the org enforces an unsatisfied MP policy", async () => {
+      const open = createOpenOrgInvite({ organizationId });
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
         { type: PolicyType.MasterPassword, enabled: true } as Policy,
       ]);
@@ -713,208 +828,211 @@ describe("DefaultOrganizationInviteService", () => {
       expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
       expect(authService.logOut).toHaveBeenCalled();
       expect(await sut.getOrganizationInvite()).toEqual(open);
-      expect(organizationInviteLinkApiService.accept).not.toHaveBeenCalled();
+      expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
     });
 
-    it("returns accepted with no resetPasswordKey when ResetPassword auto-enroll is not enabled", async () => {
-      const open = createOpenOrgInvite();
-      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
-
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
-
-      expect(result).toEqual({ kind: "accepted" });
-      expect(organizationInviteLinkApiService.accept).toHaveBeenCalledWith(
-        expect.objectContaining({ code: open.inviteLinkCode, resetPasswordKey: undefined }),
-      );
-      expect(apiService.refreshIdentityToken).toHaveBeenCalled();
-      expect(await sut.getOrganizationInvite()).toBeNull();
-    });
-
-    it("accepts without a resetPasswordKey even when ResetPassword auto-enroll would apply (stubbed pending SDK-owned account-recovery-wrap primitive)", async () => {
-      const open = createOpenOrgInvite();
-      const policies = [{ type: PolicyType.ResetPassword } as unknown as Policy];
-      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
-      policyService.getResetPasswordPolicyOptions.mockReturnValue([
-        { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
-        true,
-      ]);
-
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
-
-      expect(result).toEqual({ kind: "accepted" });
-      expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-      expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
-      expect(organizationInviteLinkApiService.accept).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: open.inviteLinkCode,
-          resetPasswordKey: undefined,
-        }),
-      );
-    });
-
-    // Classifier cases — each rejection kind is a string-match against the exact server
-    // message defined in server/src/Core/AdminConsole/OrganizationFeatures/InviteLinks/Errors.cs
-    // (and the sibling AcceptMembership/AutoConfirmUser/SingleOrganizationPolicy error files).
-    // If a message on the server changes, the corresponding test here fails alongside the
-    // classifier — that's intentional so drift is caught early.
-    describe("classifies rejection responses", () => {
-      const mockAcceptReject = (statusCode: number, message: string) => {
-        const err = Object.assign(Object.create(ErrorResponse.prototype), {
-          statusCode,
-          message,
-          getSingleMessage() {
-            return message;
-          },
-        });
-        organizationInviteLinkApiService.accept.mockRejectedValue(err);
+    /**
+     * Classifier cases — each rejection maps to a kind on {@link AcceptOpenOrgInviteResult}.
+     * The 400-branch server messages mirror the strings defined in
+     * `server/src/Core/AdminConsole/OrganizationFeatures/InviteLinks/Errors.cs` (and the
+     * sibling AcceptMembership/AutoConfirmUser/SingleOrganizationPolicy error files); a
+     * copy change on the server fails the corresponding test here alongside the
+     * classifier, so drift is caught early.
+     */
+    describe("classifies SDK rejection variants", () => {
+      const runWithRejection = async (err: unknown) => {
+        inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err);
+        return sut.acceptOpenOrgInvite(createOpenOrgInvite({ organizationId }), activeUserId);
       };
 
-      beforeEach(() => {
-        // Non-MP, non-auto-enroll path so accept() is what fails.
-        policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
-      });
-
       it("returns link-not-found on 404", async () => {
-        mockAcceptReject(404, "Invite link not found.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(makeSdkApiError(404, "Invite link not found."));
         expect(result).toEqual({ kind: "link-not-found" });
       });
 
       it("returns plan-not-supported for InviteLinkNotAvailable", async () => {
-        mockAcceptReject(400, "Your organization's plan does not support invite links.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "Your organization's plan does not support invite links."),
+        );
         expect(result).toEqual({ kind: "plan-not-supported" });
       });
 
       it("returns email-domain-not-allowed for EmailDomainNotAllowed", async () => {
-        mockAcceptReject(400, "Your email domain is not allowed to join this organization.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "Your email domain is not allowed to join this organization."),
+        );
         expect(result).toEqual({ kind: "email-domain-not-allowed" });
       });
 
       it("returns already-member for AlreadyOrganizationMember", async () => {
-        mockAcceptReject(400, "You are already a member of this organization.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "You are already a member of this organization."),
+        );
         expect(result).toEqual({ kind: "already-member" });
       });
 
       it("returns org-access-revoked for OrganizationAccessRevoked", async () => {
-        mockAcceptReject(400, "Your organization access has been revoked.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "Your organization access has been revoked."),
+        );
         expect(result).toEqual({ kind: "org-access-revoked" });
       });
 
       it("returns no-seats for OrganizationHasNoAvailableSeats", async () => {
-        mockAcceptReject(400, "This organization has no available seats.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "This organization has no available seats."),
+        );
         expect(result).toEqual({ kind: "no-seats" });
       });
 
       it("returns no-seats for SeatAddFailed (folded into the same user-facing meaning)", async () => {
-        mockAcceptReject(
-          400,
-          "Unable to join this organization right now. Please contact your organization administrator.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "Unable to join this organization right now. Please contact your organization administrator.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "no-seats" });
       });
 
       it("returns two-factor-required for TwoFactorRequiredForMembership", async () => {
-        mockAcceptReject(
-          400,
-          "You cannot join this organization until you enable two-step login on your user account.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "You cannot join this organization until you enable two-step login on your user account.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "two-factor-required" });
       });
 
       it("returns single-org-policy-violation for UserIsAMemberOfAnotherOrganization", async () => {
-        mockAcceptReject(
-          400,
-          "Member cannot join the organization until they leave or remove all other organizations.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "Member cannot join the organization until they leave or remove all other organizations.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "single-org-policy-violation" });
       });
 
       it("returns single-org-policy-violation for UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy", async () => {
-        mockAcceptReject(
-          400,
-          "Member cannot join the organization because they are in another organization which forbids it.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "Member cannot join the organization because they are in another organization which forbids it.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "single-org-policy-violation" });
       });
 
       it("returns auto-confirm-policy-violation for UserCannotBelongToAnotherOrganization", async () => {
-        mockAcceptReject(
-          400,
-          "Cannot confirm this member to the organization until they leave or remove all other organizations",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "Cannot confirm this member to the organization until they leave or remove all other organizations",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "auto-confirm-policy-violation" });
       });
 
       it("returns auto-confirm-policy-violation for OtherOrganizationDoesNotAllowOtherMembership", async () => {
-        mockAcceptReject(
-          400,
-          "Cannot confirm this member to the organization because they are in another organization which forbids it.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "Cannot confirm this member to the organization because they are in another organization which forbids it.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "auto-confirm-policy-violation" });
       });
 
       it("returns provider-user for ProviderUsersCannotAcceptInviteLink", async () => {
-        mockAcceptReject(400, "Provider users cannot join organizations via invite link.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "Provider users cannot join organizations via invite link."),
+        );
         expect(result).toEqual({ kind: "provider-user" });
       });
 
       it("returns provider-user for the auto-confirm ProviderUsersCannotJoin variant", async () => {
-        mockAcceptReject(
-          400,
-          "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining.",
+        const result = await runWithRejection(
+          makeSdkApiError(
+            400,
+            "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining.",
+          ),
         );
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
         expect(result).toEqual({ kind: "provider-user" });
       });
 
       it("returns free-admin-limit for OnlyOneFreeOrganizationAdminAllowed", async () => {
-        mockAcceptReject(400, "You can only be an admin of one free organization.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "You can only be an admin of one free organization."),
+        );
         expect(result).toEqual({ kind: "free-admin-limit" });
       });
 
       it("returns reset-password-key-required for ResetPasswordKeyRequired", async () => {
-        mockAcceptReject(400, "Master Password reset is required, but not provided.");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "Master Password reset is required, but not provided."),
+        );
         expect(result).toEqual({ kind: "reset-password-key-required" });
       });
 
+      it("returns recovery-key-mismatch for the SDK-native RecoveryKeyMismatch variant", async () => {
+        const result = await runWithRejection(
+          makeSdkError(
+            "RecoveryKeyMismatch",
+            "Account recovery public key does not match the invite's bound organization key",
+          ),
+        );
+        expect(result).toEqual({ kind: "recovery-key-mismatch" });
+      });
+
+      it("returns unexpected for the SDK Crypto variant", async () => {
+        const result = await runWithRejection(makeSdkError("Crypto", "invalid key"));
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "invalid key" });
+      });
+
+      it("returns unexpected for the SDK Invite variant", async () => {
+        const result = await runWithRejection(makeSdkError("Invite", "unseal failed"));
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "unseal failed" });
+      });
+
+      it("returns unexpected for the SDK MissingField variant", async () => {
+        const result = await runWithRejection(
+          makeSdkError("MissingField", "field 'invite' missing"),
+        );
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "field 'invite' missing" });
+      });
+
       it("returns unexpected with the server's message for an unrecognized 400", async () => {
-        mockAcceptReject(400, "some future error the client doesn't know about");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection(
+          makeSdkApiError(400, "some future error the client doesn't know about"),
+        );
         expect(result).toEqual({
           kind: "unexpected",
           errorMessage: "some future error the client doesn't know about",
         });
       });
 
-      it("returns unexpected for 5xx responses", async () => {
-        mockAcceptReject(500, "boom");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+      it("returns unexpected with the server's message for 5xx responses", async () => {
+        const result = await runWithRejection(makeSdkApiError(500, "boom"));
         expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
       });
 
-      it("returns unexpected for non-ErrorResponse Error throws", async () => {
-        organizationInviteLinkApiService.accept.mockRejectedValue(new Error("network gone"));
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+      it("returns unexpected with the raw SDK message when the Api-error prefix doesn't match", async () => {
+        const result = await runWithRejection(makeSdkError("Api", "totally unrecognized wrapper"));
+        expect(result).toEqual({
+          kind: "unexpected",
+          errorMessage: "totally unrecognized wrapper",
+        });
+      });
+
+      it("returns unexpected for non-SDK Error throws (network layer, unrelated exception)", async () => {
+        const result = await runWithRejection(new Error("network gone"));
         expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
       });
 
       it("returns unexpected for unknown (non-Error) throws", async () => {
-        organizationInviteLinkApiService.accept.mockRejectedValue("bare string");
-        const result = await sut.acceptOpenOrgInvite(createOpenOrgInvite(), activeUserId);
+        const result = await runWithRejection("bare string");
         expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
       });
     });
