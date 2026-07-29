@@ -110,6 +110,9 @@
       }
     }
   },
+  "openInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Finish joining this organization by setting a master password."
   },
