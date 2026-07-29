@@ -15,6 +15,7 @@ import {
   DialogService,
   IconModule,
   ScrollLayoutDirective,
+  ScrollLayoutHostDirective,
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -113,6 +114,7 @@ export default {
         StubHeaderComponent,
         ScrollingModule,
         ScrollLayoutDirective,
+        ScrollLayoutHostDirective,
         IconModule,
         Vfo1IconPipe,
         Vfo1I18nPipe,
@@ -154,7 +156,7 @@ function makeRender(groups: GroupDetailsView[], vfo1Enabled = false): Story["ren
     moduleMetadata: {
       providers: [{ provide: InternalGroupApiService, useValue: makeGroupService(groups) }],
     },
-    template: `<app-groups></app-groups>`,
+    template: `<div bitScrollLayoutHost class="tw-h-screen tw-overflow-auto"><app-groups></app-groups></div>`,
   });
 }
 
