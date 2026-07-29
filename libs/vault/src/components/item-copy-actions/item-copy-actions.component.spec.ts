@@ -140,6 +140,41 @@ describe("VaultItemCopyActionsComponent", () => {
     });
   });
 
+  describe("disabled input", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+    });
+
+    const disabledFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-disabled");
+
+    it("leaves copy actions enabled by default", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBeNull();
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
+
+    it("disables copy actions when disabled is true", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBe("true");
+      expect(disabledFor("bwi-clock")).toBe("true");
+    });
+  });
+
   describe("findSingleCopyableItem", () => {
     it("returns the single item with value and translates its key", () => {
       const items = [
