@@ -58,9 +58,11 @@ export default {
   configureAutotypeMvp: (config: AutotypeConfig) => {
     ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, config);
   },
+  // MVP, delete with PM-41067
   toggleAutotypeMvp: (enable: boolean) => {
     ipcRenderer.send(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE, enable);
   },
+  // MVP, delete with PM-41067
   listenAutotypeRequestMvp: (
     fn: (
       windowTitle: string,

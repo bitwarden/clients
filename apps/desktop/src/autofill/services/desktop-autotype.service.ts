@@ -175,6 +175,7 @@ export class DesktopAutotypeService implements OnDestroy {
           // Currently, only the MVP implementation is wired up
           // TODO: Wire up GA, in the follow-up PR
           switch (state) {
+            // MVP, delete with PM-41067
             case AutotypeState.Mvp: {
               // TODO: toggle off GA, and stop any GA listeners, in the follow-up PR
 

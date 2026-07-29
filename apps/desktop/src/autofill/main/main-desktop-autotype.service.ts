@@ -101,7 +101,7 @@ export class MainDesktopAutotypeService {
       return;
     }
 
-    // change this based on MVP or GA
+    // TODO: change this based on MVP or GA
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
