@@ -1,4 +1,6 @@
-import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, inject, OnDestroy, Renderer2 } from "@angular/core";
+
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 /**
  * Directive that wraps Tab focus within the host element.
@@ -10,12 +12,19 @@ import { AfterViewInit, Directive, ElementRef, OnDestroy, Renderer2 } from "@ang
  * This directive adds invisible sentinel elements at the start and end of the host.
  * When a sentinel receives focus (via Tab / Shift+Tab), focus is redirected to the
  * opposite end of the focusable elements within the host.
+ *
+ * Firefox-only: every other browser cycles focus correctly, and the sentinels are
+ * actively harmful elsewhere. Safari hands keyboard focus to the popover web view
+ * after load, which lands on the start sentinel and redirects to the last focusable
+ * element — the Settings tab button — instead of the page's autofocus target.
  */
 @Directive({
   selector: "[appPopupFocusWrap]",
   standalone: true,
 })
 export class PopupFocusWrapDirective implements AfterViewInit, OnDestroy {
+  private platformUtilsService = inject(PlatformUtilsService);
+
   private sentinels: { start: HTMLElement; end: HTMLElement } | undefined;
   private cleanupFns: (() => void)[] = [];
 
@@ -25,6 +34,10 @@ export class PopupFocusWrapDirective implements AfterViewInit, OnDestroy {
   ) {}
 
   ngAfterViewInit() {
+    if (!this.platformUtilsService.isFirefox()) {
+      return;
+    }
+
     const start = this.createSentinel();
     const end = this.createSentinel();
     this.sentinels = { start, end };
