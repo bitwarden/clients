@@ -239,6 +239,37 @@ describe("DefaultOrganizationInviteService", () => {
       expect(stored).toEqual(providedInvite);
     });
 
+    it("fires the master-password-policy detour even when an open invite is stashed", async () => {
+      // A stash of the opposite kind must not count as "policy already checked" for
+      // the incoming direct invite — different invites can't share a detour breadcrumb.
+      const stashedOpen = new OpenOrganizationInvite({
+        organizationId: "open-org-id",
+        inviteLinkCode: "open-link-code",
+        inviteKey: "open-invite-key",
+        organizationName: "OpenOrg",
+      });
+      await sut.setOrganizationInvite(stashedOpen);
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+      // Prime so that if the detour is (incorrectly) skipped, the accept path
+      // reaches a clean "accepted" outcome — makes the test failure read as
+      // "invite accepted when detour should have fired" rather than an unrelated
+      // NPE deeper in the accept path.
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+
+      expect(result).toBe(false);
+      expect(authService.logOut).toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toEqual(invite);
+    });
+
     it("accepts the invite when the organization doesn't have a master password policy", async () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
@@ -821,6 +852,32 @@ describe("DefaultOrganizationInviteService", () => {
       const open = createOpenOrgInvite({ organizationId });
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
         { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
+      expect(authService.logOut).toHaveBeenCalled();
+      expect(await sut.getOrganizationInvite()).toEqual(open);
+      expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
+    });
+
+    it("fires the master-password-policy detour even when a direct invite is stashed", async () => {
+      // A stash of the opposite kind must not count as "policy already checked" for
+      // the incoming open invite — different invites can't share a detour breadcrumb.
+      const stashedDirect = createOrgInvite();
+      await sut.setOrganizationInvite(stashedDirect);
+      const open = createOpenOrgInvite({ organizationId });
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+      // Prime so that if the detour is (incorrectly) skipped, the accept path
+      // reaches a clean "accepted" outcome — makes the test failure read as
+      // "invite accepted when detour should have fired" rather than an unrelated
+      // NPE deeper in the accept path.
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
       ]);
 
       const result = await sut.acceptOpenOrgInvite(open, activeUserId);

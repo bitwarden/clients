@@ -124,6 +124,20 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
+   * Kind-specific reads of the two segregated state keys. Used internally by paths
+   * (e.g. the MP-policy detour checks) that must not treat a stash of the opposite
+   * kind as belonging to the invite in hand. External callers should keep using
+   * {@link getOrganizationInvite} for the merged view.
+   */
+  private async getDirectOrgInvite(): Promise<DirectOrganizationInvite | null> {
+    return await firstValueFrom(this.directInviteState.state$);
+  }
+
+  private async getOpenOrgInvite(): Promise<OpenOrganizationInvite | null> {
+    return await firstValueFrom(this.openInviteState.state$);
+  }
+
+  /**
    * Writes the invite to the state key matching its `kind` and clears the opposite key,
    * enforcing the "at most one stashed invite" mutual-exclusion invariant.
    */
@@ -717,17 +731,17 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       (p) => p.type === PolicyType.MasterPassword && p.enabled,
     );
 
-    let storedInvite = await this.getOrganizationInvite();
-    if (
-      storedInvite != null &&
-      storedInvite.kind === OrgInviteKind.Direct &&
-      storedInvite.email !== invite.email
-    ) {
-      // clear stored invites if the email doesn't match
+    // Read only the direct-invite stash. A stashed open invite must not count as
+    // "policy already checked" for this direct invite — they represent different
+    // ceremonies and cannot share a detour breadcrumb.
+    let storedInvite = await this.getDirectOrgInvite();
+    if (storedInvite != null && storedInvite.email !== invite.email) {
+      // Different-email stash is stale for this invite; clear so the detour fires fresh.
       await this.clearOrganizationInvite();
       storedInvite = null;
     }
-    // if we don't have an org invite stored, we know the user hasn't been redirected yet to check the MP policy
+    // If we don't have an org invite stored, we know the user hasn't been redirected
+    // yet to check the MP policy.
     const hasNotCheckedMasterPasswordYet = storedInvite == null;
     return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
   }
@@ -743,16 +757,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       (p) => p.type === PolicyType.MasterPassword && p.enabled,
     );
 
-    // Open invites carry no user identity, so there's no email-mismatch fork. The
-    // "have we been through the detour" signal is just whether a matching open-invite
-    // stash exists. If the stash holds a different open invite (different code), clear
-    // it so this invite gets fresh MP-policy treatment.
-    let storedInvite = await this.getOrganizationInvite();
-    if (
-      storedInvite != null &&
-      storedInvite.kind === OrgInviteKind.Open &&
-      storedInvite.inviteLinkCode !== invite.inviteLinkCode
-    ) {
+    // Read only the open-invite stash. A stashed direct invite must not count as
+    // "policy already checked" for this open invite. Open invites carry no user
+    // identity, so the same-kind mismatch signal is inviteLinkCode.
+    let storedInvite = await this.getOpenOrgInvite();
+    if (storedInvite != null && storedInvite.inviteLinkCode !== invite.inviteLinkCode) {
       await this.clearOrganizationInvite();
       storedInvite = null;
     }
