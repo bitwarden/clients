@@ -47,7 +47,7 @@
       "!libs/key-management-ui",
       "!libs/pricing/src/components",
       "!libs/subscription/src/components",
-      "!libs/tools/export/vault-export/vault-export-ui",
+      "!libs/tools/export-vault-ui",
       "!libs/tools/generator/components",
       "!libs/tools/send/send-ui",
       "!libs/vault/src/cipher-form",
