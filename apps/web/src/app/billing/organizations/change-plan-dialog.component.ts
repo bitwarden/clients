@@ -20,9 +20,9 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import {
   getOrganizationById,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
@@ -31,9 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -117,7 +115,6 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
   ],
-  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -150,6 +147,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   protected estimatedTax: number = 0;
+  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -179,7 +177,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -250,7 +247,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -300,12 +296,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    this._familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    this._familyPlan = PlanType.FamiliesAnnually;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
@@ -321,9 +312,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {
@@ -344,9 +333,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -397,6 +383,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
+    // A schedule-derived discount (e.g. a deferred price-migration coupon) is not an SM trial,
+    // even when it applies to a subscription product.
+    if (this.sub?.customerDiscount?.isFromSchedule) {
+      return false;
+    }
+
     return (
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
@@ -520,12 +512,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
+    // Clear the previous plan's server total so the summary falls back to the client
+    // estimate for the newly selected plan until refreshSalesTax() resolves.
+    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
       await this.refreshSalesTax();
     } catch {
       this.estimatedTax = 0;
+      this.estimatedTotal = undefined;
     }
   }
 
@@ -752,7 +748,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
+    const usedServiceAccounts =
+      (this.sub?.smServiceAccounts || 0) - (this.sub?.smServiceAccountsGrace || 0);
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
 
@@ -843,7 +840,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private async restartSubscription() {
@@ -984,10 +981,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1017,12 +1010,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
       setTimeout(() => {
         const card = cardElements[newIndex];
-        if (
-          !(
-            card.classList.contains("tw-bg-secondary-100") &&
-            card.classList.contains("tw-text-muted")
-          )
-        ) {
+        if (!(
+          card.classList.contains("tw-bg-secondary-100") && card.classList.contains("tw-text-muted")
+        )) {
           card?.focus();
         }
       }, 0);
@@ -1076,6 +1066,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
     this.estimatedTax = taxAmounts.tax;
+    this.estimatedTotal = taxAmounts.total;
   }
 
   protected canUpdatePaymentInformation(): boolean {

@@ -8,13 +8,11 @@ storybook-static
 
 # External libraries / auto synced locales
 apps/browser/src/_locales
-apps/browser/src/auth/scripts/duo.js
 apps/browser/src/safari
 
 apps/desktop/src/locales
 apps/desktop/dist-safari
 apps/desktop/desktop_native
-apps/desktop/src/auth/scripts/duo.js
 
 apps/cli/src/locales
 apps/cli/.github

@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
+import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -16,7 +16,6 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -65,7 +64,7 @@ import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizatio
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
+import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
@@ -74,6 +73,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
@@ -88,8 +88,8 @@ import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-land
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
-import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
+import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -124,9 +124,9 @@ const routes: Routes = [
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
-        path: AuthWebRoute.AcceptOrganizationInvite,
+        path: AuthWebRoute.AcceptOrgDirectInvite,
         canActivate: [deepLinkGuard()],
-        component: AcceptOrganizationComponent,
+        component: AcceptOrgDirectInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
@@ -217,7 +217,7 @@ const routes: Routes = [
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
@@ -606,6 +606,16 @@ const routes: Routes = [
         ],
       },
       {
+        path: "premium/checkout/success",
+        data: {
+          titleId: "paymentSuccessful",
+          pageIcon: null,
+          doNotSaveUrl: true,
+          maxWidth: "lg",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
+      },
+      {
         path: AuthRoute.ChangePassword,
         component: ChangePasswordComponent,
         canActivate: [authGuard],
@@ -644,12 +654,25 @@ const routes: Routes = [
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, _configService, policyService) =>
-            policyService
-              .policyAppliesToUser$(PolicyType.DisableSend, userId)
-              .pipe(map((policyApplies) => !policyApplies)),
+          organizationPolicyGuard((userId, policyService, configService) =>
+            configService
+              .getFeatureFlag$(FeatureFlag.SendControls)
+              .pipe(
+                switchMap((sendControlsEnabled) =>
+                  sendControlsEnabled
+                    ? policyService
+                        .policiesByType$(PolicyType.SendControls, userId)
+                        .pipe(
+                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
+                        )
+                    : policyService
+                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
+                        .pipe(map((policyApplies) => !policyApplies)),
+                ),
+              ),
           ),
         ],
+        canDeactivate: [unsavedSendEditsGuard],
       },
       {
         path: "sm-landing",
@@ -678,28 +701,7 @@ const routes: Routes = [
           {
             path: "appearance",
             component: AppearanceComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                true,
-                "/settings/preferences",
-                false,
-              ),
-            ],
             data: { titleId: "appearance" } satisfies RouteDataProperties,
-          },
-          {
-            path: "preferences",
-            component: PreferencesComponent,
-            canActivate: [
-              canAccessFeature(
-                FeatureFlag.ConsolidatedSessionTimeoutComponent,
-                false,
-                "/settings/appearance",
-                false,
-              ),
-            ],
-            data: { titleId: "preferences" } satisfies RouteDataProperties,
           },
           {
             path: "security",
@@ -708,8 +710,7 @@ const routes: Routes = [
           {
             path: "data-recovery",
             component: DataRecoveryComponent,
-            canActivate: [canAccessFeature(FeatureFlag.DataRecoveryTool)],
-            data: { titleId: "dataRecovery" } satisfies RouteDataProperties,
+            data: { titleId: "troubleshooting" } satisfies RouteDataProperties,
           },
           {
             path: "domain-rules",

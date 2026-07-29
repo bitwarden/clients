@@ -29,7 +29,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -1094,7 +1093,6 @@ describe("KeyRotationService", () => {
       expect(mockKeyService.hashMasterKey).toHaveBeenCalledWith(
         "mockMasterPassword",
         new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-        HashPurpose.ServerAuthorization,
       );
     });
   });

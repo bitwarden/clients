@@ -1,6 +1,8 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VaultTimeoutAction {
-  Lock = "lock",
-  LogOut = "logOut",
-}
+import { UnionOfValues } from "../../../vault/types/union-of-values";
+
+export const VaultTimeoutAction = {
+  Lock: "lock",
+  LogOut: "logOut",
+} as const;
+
+export type VaultTimeoutAction = UnionOfValues<typeof VaultTimeoutAction>;

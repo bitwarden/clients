@@ -12,7 +12,6 @@ pub mod autofill;
 pub mod autostart;
 pub mod autotype;
 pub mod biometrics;
-pub mod biometrics_v2;
 pub mod chromium_importer;
 pub mod clipboards;
 pub mod ipc;
@@ -21,5 +20,6 @@ pub mod passkey_authenticator;
 pub mod passwords;
 pub mod powermonitors;
 pub mod processisolations;
-pub mod sshagent;
+pub mod sshagent; // deprecated
+pub mod sshagent_v2;
 pub mod windows_registry;

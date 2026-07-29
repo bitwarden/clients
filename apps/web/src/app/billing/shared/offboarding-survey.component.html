@@ -1,10 +1,20 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog>
-    <span bitDialogTitle class="tw-font-medium">
-      {{ "cancelSubscription" | i18n }}
-    </span>
-    <div bitDialogContent>
-      <p>{{ "sorryToSeeYouGo" | i18n }}</p>
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle class="tw-font-medium">
+    {{ "helpUsImprove" | i18n }}
+  </span>
+  <div bitDialogContent>
+    @if (isBusiness) {
+      <bit-radio-group formControlName="reason" [block]="true">
+        @for (reason of businessReasons; track reason.value) {
+          <bit-radio-button [value]="reason.value">
+            <bit-label>{{ reason.labelKey | i18n }}</bit-label>
+            @if (reason.hintKey) {
+              <bit-hint>{{ reason.hintKey | i18n }}</bit-hint>
+            }
+          </bit-radio-button>
+        }
+      </bit-radio-group>
+    } @else {
       <bit-form-field>
         <bit-label>
           {{ "selectCancellationReason" | i18n }}
@@ -15,24 +25,29 @@
           </option>
         </select>
       </bit-form-field>
-      <bit-form-field>
-        <bit-label>
-          {{ "anyOtherFeedback" | i18n }}
-        </bit-label>
-        <textarea rows="4" bitInput formControlName="feedback"></textarea>
-        <bit-hint>{{
-          "charactersCurrentAndMaximum"
-            | i18n: formGroup.value.feedback?.length ?? 0 : MaxFeedbackLength
-        }}</bit-hint>
+    }
+    @if (isOtherReason()) {
+      <bit-form-field class="-tw-mt-1">
+        <input
+          bitInput
+          formControlName="otherFeedback"
+          [placeholder]="'cancelSurveyOtherPlaceholder' | i18n"
+        />
       </bit-form-field>
-    </div>
-    <ng-container bitDialogFooter>
-      <button bitButton bitFormButton buttonType="primary" type="submit">
-        {{ "cancelSubscription" | i18n }}
-      </button>
-      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
-        {{ "close" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+    }
+    <bit-form-field>
+      <bit-label>
+        {{ "additionalDetails" | i18n }}
+      </bit-label>
+      <textarea rows="3" bitInput formControlName="feedback"></textarea>
+    </bit-form-field>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton bitFormButton buttonType="primary" type="submit" [disabled]="!reason()">
+      {{ "completeCancellation" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
 </form>

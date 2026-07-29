@@ -5,8 +5,6 @@ import {
   map,
   Observable,
   shareReplay,
-  Subscription,
-  BehaviorSubject,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -16,16 +14,15 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -35,20 +32,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { MasterKey } from "@bitwarden/common/types/key";
-import {
-  KdfType,
-  KeyService,
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import {
   AuthRequestLoginStrategy,
@@ -76,52 +67,10 @@ import {
   WebAuthnLoginCredentials,
 } from "../../models";
 
-import {
-  AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
-  CURRENT_LOGIN_STRATEGY_KEY,
-  CacheData,
-  CACHE_EXPIRATION_KEY,
-  CACHE_KEY,
-} from "./login-strategy.state";
-
-const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
+import { AUTH_REQUEST_PUSH_NOTIFICATION_KEY, CacheData } from "./login-strategy.state";
 
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
-  private sessionTimeoutSubscription: Subscription | undefined;
-  private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
-  private loginStrategyCacheState: GlobalState<CacheData | null>;
-  private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string | null>;
-  private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
-
-  // Prefetched password prelogin
-  //
-  // About versioning:
-  // Users can quickly change emails (e.g., continue with user1, go back, continue with user2)
-  // which triggers overlapping async prelogin requests. We use a monotonically increasing
-  // "version" to associate each prelogin attempt with the state at the time it was started.
-  // Only if BOTH the email and the version still match when the promise resolves do we commit
-  // the resulting KDF config or clear the in-flight promise. This prevents stale results from
-  // user1 overwriting user2's state in race conditions.
-  private passwordPrelogin: {
-    email: string | null;
-    kdfConfig: KdfConfig | null;
-    promise: Promise<KdfConfig | null> | null;
-    /**
-     * Version guard for prelogin attempts.
-     * Incremented at the start of getPasswordPrelogin for each new submission.
-     * Used to ignore stale async resolutions when email changes mid-flight.
-     */
-    version: number;
-  } = {
-    email: null,
-    kdfConfig: null,
-    promise: null,
-    version: 0,
-  };
-
-  authenticationSessionTimeout$: Observable<boolean> =
-    this.authenticationTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy
@@ -135,56 +84,45 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   currentAuthType$: Observable<AuthenticationType | null>;
 
   constructor(
-    protected accountService: AccountService,
-    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected keyService: KeyService,
-    protected apiService: ApiService,
-    protected tokenService: TokenService,
-    protected appIdService: AppIdService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected messagingService: MessagingService,
-    protected logService: LogService,
-    protected keyConnectorService: KeyConnectorService,
-    protected environmentService: EnvironmentService,
-    protected stateService: StateService,
-    protected twoFactorService: TwoFactorService,
-    protected i18nService: I18nService,
-    protected encryptService: EncryptService,
-    protected passwordStrengthService: PasswordStrengthServiceAbstraction,
-    protected policyService: PolicyService,
-    protected deviceTrustService: DeviceTrustServiceAbstraction,
-    protected authRequestService: AuthRequestServiceAbstraction,
-    protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    protected stateProvider: GlobalStateProvider,
-    protected billingAccountProfileStateService: BillingAccountProfileStateService,
-    protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    protected kdfConfigService: KdfConfigService,
-    protected taskSchedulerService: TaskSchedulerService,
-    protected configService: ConfigService,
-    protected accountCryptographicStateService: AccountCryptographicStateService,
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private keyService: KeyService,
+    private apiService: ApiService,
+    private tokenService: TokenService,
+    private appIdService: AppIdService,
+    private platformUtilsService: PlatformUtilsService,
+    private messagingService: MessagingService,
+    private logService: LogService,
+    private keyConnectorService: KeyConnectorService,
+    private environmentService: EnvironmentService,
+    private stateService: StateService,
+    private twoFactorService: TwoFactorService,
+    private i18nService: I18nService,
+    private encryptService: EncryptService,
+    private passwordStrengthService: PasswordStrengthServiceAbstraction,
+    private policyService: PolicyService,
+    private deviceTrustService: DeviceTrustServiceAbstraction,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    private stateProvider: GlobalStateProvider,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private kdfConfigService: KdfConfigService,
+    private configService: ConfigService,
+    private accountCryptographicStateService: AccountCryptographicStateService,
+    private passwordPreloginService: PasswordPreloginService,
+    private unlockService: UnlockService,
+    private loginStrategyCacheService: LoginStrategyCacheService,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {
-    this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
-    this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
-    this.loginStrategyCacheExpirationState = this.stateProvider.get(CACHE_EXPIRATION_KEY);
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
     );
-    this.taskSchedulerService.registerTaskHandler(
-      ScheduledTaskNames.loginStrategySessionTimeout,
-      async () => {
-        this.authenticationTimeoutSubject.next(true);
-        try {
-          await this.clearCache();
-        } catch (e) {
-          this.logService.error("Failed to clear cache during session timeout", e);
-        }
-      },
-    );
 
-    this.currentAuthType$ = this.currentAuthnTypeState.state$;
-    this.loginStrategy$ = this.currentAuthnTypeState.state$.pipe(
+    this.currentAuthType$ = this.loginStrategyCacheService.currentAuthType$;
+    this.loginStrategy$ = this.loginStrategyCacheService.currentAuthType$.pipe(
       distinctUntilChanged(),
-      combineLatestWith(this.loginStrategyCacheState.state$),
+      combineLatestWith(this.loginStrategyCacheService.cacheData$),
       this.initializeLoginStrategy.bind(this),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -244,9 +182,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult> {
     await this.clearCache();
-    this.authenticationTimeoutSubject.next(false);
 
-    await this.currentAuthnTypeState.update((_) => credentials.type);
+    await this.loginStrategyCacheService.setCurrentAuthType(credentials.type);
 
     const strategy = await firstValueFrom(this.loginStrategy$);
 
@@ -263,8 +200,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       await this.clearCache();
     } else {
       // Cache the strategy data so we can attempt again later with 2fa or device verification
-      await this.loginStrategyCacheState.update((_) => strategy?.exportCache() ?? null);
-      await this.startSessionTimeout();
+      await this.loginStrategyCacheService.setCacheData(strategy?.exportCache() ?? null);
+      await this.loginStrategySessionTimeoutService.startSessionTimeout();
     }
 
     if (!result) {
@@ -337,151 +274,20 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
   }
 
-  async makePasswordPreLoginMasterKey(masterPassword: string, email: string): Promise<MasterKey> {
-    email = email.trim().toLowerCase();
-
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM23801_PrefetchPasswordPrelogin)) {
-      let kdfConfig: KdfConfig | null = null;
-      if (this.passwordPrelogin.email === email) {
-        if (this.passwordPrelogin.kdfConfig) {
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        } else if (this.passwordPrelogin.promise != null) {
-          try {
-            await this.passwordPrelogin.promise;
-          } catch (error) {
-            this.logService.error(
-              "Failed to prefetch prelogin data, falling back to fetching now.",
-              error,
-            );
-          }
-          kdfConfig = this.passwordPrelogin.kdfConfig;
-        }
-      }
-
-      if (!kdfConfig) {
-        try {
-          const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-          kdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse);
-        } catch (e: any) {
-          if (e == null || e.statusCode !== 404) {
-            throw e;
-          }
-        }
-      }
-
-      if (!kdfConfig) {
-        throw new Error("KDF config is required");
-      }
-      kdfConfig.validateKdfConfigForPrelogin();
-      return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
-    }
-
-    // Legacy behavior when flag is disabled
-    let legacyKdfConfig: KdfConfig | undefined;
-    try {
-      const preloginResponse = await this.apiService.postPrelogin(new PreloginRequest(email));
-      legacyKdfConfig = this.buildKdfConfigFromPrelogin(preloginResponse) ?? undefined;
-    } catch (e: any) {
-      if (e == null || e.statusCode !== 404) {
-        throw e;
-      }
-    }
-
-    if (!legacyKdfConfig) {
-      throw new Error("KDF config is required");
-    }
-    legacyKdfConfig.validateKdfConfigForPrelogin();
-    return await this.keyService.makeMasterKey(masterPassword, email, legacyKdfConfig);
-  }
-
-  async getPasswordPrelogin(email: string): Promise<void> {
-    const normalizedEmail = email.trim().toLowerCase();
-    const version = ++this.passwordPrelogin.version;
-
-    this.passwordPrelogin.email = normalizedEmail;
-    this.passwordPrelogin.kdfConfig = null;
-    const promise: Promise<KdfConfig | null> = (async () => {
-      try {
-        const preloginResponse = await this.apiService.postPrelogin(
-          new PreloginRequest(normalizedEmail),
-        );
-        return this.buildKdfConfigFromPrelogin(preloginResponse);
-      } catch (e: any) {
-        if (e == null || e.statusCode !== 404) {
-          throw e;
-        }
-        return null;
-      }
-    })();
-
-    this.passwordPrelogin.promise = promise;
-    promise
-      .then((cfg) => {
-        // Only apply if still for the same email and same version
-        if (
-          this.passwordPrelogin.email === normalizedEmail &&
-          this.passwordPrelogin.version === version &&
-          cfg
-        ) {
-          this.passwordPrelogin.kdfConfig = cfg;
-        }
-      })
-      .catch(() => {
-        // swallow; best-effort prefetch
-      })
-      .finally(() => {
-        if (
-          this.passwordPrelogin.email === normalizedEmail &&
-          this.passwordPrelogin.version === version
-        ) {
-          this.passwordPrelogin.promise = null;
-        }
-      });
-  }
-
   private async clearCache(): Promise<void> {
-    await this.currentAuthnTypeState.update((_) => null);
-    await this.loginStrategyCacheState.update((_) => null);
-    this.authenticationTimeoutSubject.next(false);
-    await this.clearSessionTimeout();
-
-    // Increment to invalidate any in-flight requests
-    this.passwordPrelogin.version++;
-    this.passwordPrelogin.email = null;
-    this.passwordPrelogin.kdfConfig = null;
-    this.passwordPrelogin.promise = null;
-  }
-
-  private async startSessionTimeout(): Promise<void> {
-    await this.clearSessionTimeout();
-
-    // This Login Strategy Cache Expiration State value set here is used to clear the cache on re-init
-    // of the application in the case where the timeout is terminated due to a closure of the application
-    // window. The browser extension popup in particular is susceptible to this concern, as the user
-    // is almost always likely to close the popup window before the session timeout is reached.
-    await this.loginStrategyCacheExpirationState.update(
-      (_) => new Date(Date.now() + sessionTimeoutLength),
-    );
-    this.sessionTimeoutSubscription = this.taskSchedulerService.setTimeout(
-      ScheduledTaskNames.loginStrategySessionTimeout,
-      sessionTimeoutLength,
-    );
-  }
-
-  private async clearSessionTimeout(): Promise<void> {
-    await this.loginStrategyCacheExpirationState.update((_) => null);
-    this.sessionTimeoutSubscription?.unsubscribe();
+    await this.loginStrategyCacheService.clearCache();
+    await this.loginStrategySessionTimeoutService.cancelSessionTimeout();
   }
 
   private async isSessionValid(): Promise<boolean> {
-    const cache = await firstValueFrom(this.loginStrategyCacheState.state$);
+    const cache = await firstValueFrom(this.loginStrategyCacheService.cacheData$);
     if (cache == null) {
       return false;
     }
 
     // If the Login Strategy Cache Expiration State value is less than the current
     // datetime stamp, then the cache is invalid and should be cleared.
-    const expiration = await firstValueFrom(this.loginStrategyCacheExpirationState.state$);
+    const expiration = await firstValueFrom(this.loginStrategyCacheService.cacheExpiration$);
     if (expiration != null && expiration < new Date()) {
       await this.clearCache();
       return false;
@@ -525,22 +331,24 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               data?.password ?? new PasswordLoginStrategyData(),
               this.passwordStrengthService,
               this.policyService,
-              this,
+              this.passwordPreloginService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
             return new SsoLoginStrategy(
               data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               this.deviceTrustService,
               this.authRequestService,
-              this.i18nService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.AuthRequest:
@@ -557,25 +365,5 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         }
       }),
     );
-  }
-
-  private buildKdfConfigFromPrelogin(
-    preloginResponse: {
-      kdf: KdfType;
-      kdfIterations: number;
-      kdfMemory?: number;
-      kdfParallelism?: number;
-    } | null,
-  ): KdfConfig | null {
-    if (preloginResponse == null) {
-      return null;
-    }
-    return preloginResponse.kdf === KdfType.PBKDF2_SHA256
-      ? new PBKDF2KdfConfig(preloginResponse.kdfIterations)
-      : new Argon2KdfConfig(
-          preloginResponse.kdfIterations,
-          preloginResponse.kdfMemory,
-          preloginResponse.kdfParallelism,
-        );
   }
 }

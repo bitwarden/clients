@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -18,13 +18,15 @@ import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/reque
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
-import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -56,7 +58,7 @@ import {
   KeePass2XmlImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
-  // KeeperJsonImporter,
+  KeeperJsonImporter,
   LastPassCsvImporter,
   LogMeOnceCsvImporter,
   MSecureCsvImporter,
@@ -94,6 +96,7 @@ import {
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
   PasswordDepot17XmlImporter,
+  DelineaXmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -103,6 +106,13 @@ import {
   regularImportOptions,
 } from "../models/import-options";
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
+import {
+  buildSdkImporterRegistry,
+  CredentialKind,
+  SdkImportCredentials,
+  SdkImporterRegistry,
+  SdkImportSummary,
+} from "../sdk";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
@@ -110,6 +120,8 @@ export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
+
+  private readonly sdkImporters: SdkImporterRegistry = buildSdkImporterRegistry();
 
   constructor(
     private cipherService: CipherService,
@@ -122,6 +134,7 @@ export class ImportService implements ImportServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private sdkService: SdkService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -145,6 +158,20 @@ export class ImportService implements ImportServiceAbstraction {
       throw error;
     }
 
+    return this.importImportResult(
+      importResult,
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+    );
+  }
+
+  async importImportResult(
+    importResult: ImportResult,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<ImportResult> {
     if (!importResult.success) {
       if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
         throw new Error(importResult.errorMessage);
@@ -220,6 +247,74 @@ export class ImportService implements ImportServiceAbstraction {
     return importer;
   }
 
+  /** True when the format's parse/encrypt/submit is handled by an SDK importer strategy. */
+  isSdkImporter(format: ImportType): boolean {
+    return this.sdkImporters.has(format);
+  }
+
+  /** The credentials an SDK importer requires, so callers can collect them generically. */
+  credentialKindFor(format: ImportType): CredentialKind | undefined {
+    return this.sdkImporters.get(format)?.credentialKind;
+  }
+
+  /** Optional file-picker `accept` hint declared by an SDK importer. */
+  sdkFileTypeHint(format: ImportType): string | undefined {
+    return this.sdkImporters.get(format)?.fileTypeHint;
+  }
+
+  /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
+  sdkErrorMessageKey(format: ImportType, error: unknown): string | undefined {
+    return this.sdkImporters.get(format)?.errorMessageKey?.(error);
+  }
+
+  /**
+   * Runs an SDK-backed import: the SDK parses, encrypts, and submits the data, returning per-type
+   * counts. The unlocked-client lifecycle and the org/permission guard live here; the per-format
+   * SDK mapping lives in the registered strategy.
+   */
+  async importWithSdk(
+    format: ImportType,
+    file: Uint8Array,
+    credentials: SdkImportCredentials,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<SdkImportSummary> {
+    const importer = this.sdkImporters.get(format);
+    if (importer == null) {
+      throw new Error(`No SDK importer registered for format '${format}'.`);
+    }
+
+    // Mirror the pipeline's guard: an org import with no target collection leaves every item
+    // unassigned, which is only allowed with import/export permission.
+    if (organizationId && !selectedImportTarget && !canAccessImportExport) {
+      throw new Error(this.i18nService.t("importUnassignedItemsError"));
+    }
+
+    const restrictedTypes = await firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restricted) => restricted.map((r) => r.cipherType)),
+      ),
+    );
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await importer.import(ref.value, file, credentials, {
+            organizationId: organizationId ?? undefined,
+            selectedImportTarget: selectedImportTarget ?? undefined,
+            restrictedTypes,
+          });
+        }),
+      ),
+    );
+  }
+
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
@@ -285,8 +380,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
         return new KeeperCsvImporter();
-      // case "keeperjson":
-      //   return new KeeperJsonImporter();
+      case "keeperjson":
+        return new KeeperJsonImporter();
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
@@ -369,6 +464,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new NetwrixPasswordSecureCsvImporter();
       case "passworddepot17xml":
         return new PasswordDepot17XmlImporter();
+      case "delineaxml":
+        return new DelineaXmlImporter();
       default:
         return null;
     }
@@ -385,17 +482,8 @@ export class ImportService implements ImportServiceAbstraction {
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
-    if (importResult.folders != null) {
-      for (let i = 0; i < importResult.folders.length; i++) {
-        const f = await this.folderService.encrypt(importResult.folders[i], userKey);
-        request.folders.push(new FolderWithIdRequest(f));
-      }
-    }
-    if (importResult.folderRelationships != null) {
-      importResult.folderRelationships.forEach((r) =>
-        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
-      );
-    }
+    await this.addFolders(request, importResult, userKey);
+
     return await this.importApiService.postImportCiphers(request);
   }
 
@@ -417,6 +505,10 @@ export class ImportService implements ImportServiceAbstraction {
       request.ciphers.push(new CipherRequest(encryptedCipher));
     }
 
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    await this.addFolders(request, importResult, userKey);
+
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;
@@ -430,6 +522,24 @@ export class ImportService implements ImportServiceAbstraction {
       );
     }
     return await this.importApiService.postImportOrganizationCiphers(organizationId, request);
+  }
+
+  private async addFolders(
+    request: ImportCiphersRequest | ImportOrganizationCiphersRequest,
+    importResult: ImportResult,
+    userKey: UserKey,
+  ) {
+    if (importResult.folders != null) {
+      for (let i = 0; i < importResult.folders.length; i++) {
+        const f = await this.folderService.encrypt(importResult.folders[i], userKey);
+        request.folders.push(new FolderWithOptionalIdRequest(f));
+      }
+    }
+    if (importResult.folderRelationships != null) {
+      importResult.folderRelationships.forEach((r) =>
+        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
+      );
+    }
   }
 
   private badData(c: CipherView) {
@@ -509,16 +619,42 @@ export class ImportService implements ImportServiceAbstraction {
         }
       });
 
-      // My Items collections do not support collection nesting.
-      // Flatten all ciphers from nested collections into the import target.
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
+        // For individual vault export files we preserve any existing folders
+        if (importResult.folders.length > 0) {
+          for (let i = 0; i < importResult.ciphers.length; i++) {
+            const cipherFolderIndex = importResult.folders.findIndex(
+              (f) => f.id === importResult.ciphers[i].folderId,
+            );
+            if (cipherFolderIndex !== -1) {
+              importResult.folderRelationships.push([i, cipherFolderIndex]);
+            }
+          }
+          // For organization vault export files we turn any collections into folders.
+          // Ciphers can only have one folder (for now) so bail if any have multiple collections
+        } else {
+          if (
+            importResult.ciphers.some(
+              (_c, c_idx) =>
+                importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
+            )
+          ) {
+            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+          }
+          importResult.folders = importResult.collections.map((c) => {
+            const f = new FolderView();
+            f.name = c.name;
+            return f;
+          });
+          importResult.folderRelationships = importResult.collectionRelationships.map((c) => [
+            c[0],
+            c[1],
+          ]);
+        }
+        // In either case set target collection to My Items...
         importResult.collections = [importTarget];
-
-        const flattenRelationships: CollectionRelationship[] = [];
-        importResult.ciphers.forEach((c, index) => {
-          flattenRelationships.push([index, 0]);
-        });
-        importResult.collectionRelationships = flattenRelationships;
+        // ...and set the collection relationships accordingly
+        importResult.collectionRelationships = importResult.ciphers.map((_c, idx) => [idx, 0]);
         return;
       }
 

@@ -2,7 +2,7 @@ import { Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
-import { ProgressModule } from "@bitwarden/components";
+import { ProgressBarComponent } from "@bitwarden/components";
 
 // Map of progress step to display config
 const ProgressStepConfig = Object.freeze({
@@ -18,7 +18,7 @@ const ProgressStepConfig = Object.freeze({
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-report-loading",
-  imports: [JslibModule, ProgressModule],
+  imports: [JslibModule, ProgressBarComponent],
   templateUrl: "./report-loading.component.html",
 })
 export class ReportLoadingComponent {

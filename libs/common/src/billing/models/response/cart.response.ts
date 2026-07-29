@@ -1,9 +1,7 @@
-import {
-  SubscriptionCadence,
-  SubscriptionCadenceIds,
-} from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { Cart, CartItem, Discount } from "@bitwarden/pricing";
+
+import { BaseResponse } from "../../../models/response/base.response";
+import { SubscriptionCadence, SubscriptionCadenceIds } from "../../types/subscription-pricing-tier";
 
 import { DiscountResponse } from "./discount.response";
 
@@ -66,7 +64,7 @@ export class CartResponse extends BaseResponse implements Cart {
     additionalServiceAccounts?: CartItem;
   };
   cadence: SubscriptionCadence;
-  discount?: Discount;
+  discounts?: Discount[];
   estimatedTax: number;
 
   constructor(response: any) {
@@ -89,7 +87,7 @@ export class CartResponse extends BaseResponse implements Cart {
 
     const discount = this.getResponseProperty("Discount");
     if (discount) {
-      this.discount = new DiscountResponse(discount);
+      this.discounts = [new DiscountResponse(discount)];
     }
 
     this.estimatedTax = this.getResponseProperty("EstimatedTax");

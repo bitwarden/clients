@@ -12,7 +12,6 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, map, Observable, of, switchMap, tap, withLatestFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import {
   AutoConfirmWarningDialogComponent,
   AutomaticUserConfirmationService,
@@ -20,17 +19,17 @@ import {
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
-  BitIconButtonComponent,
   CardComponent,
   DialogService,
   FormFieldModule,
   SwitchComponent,
+  CalloutModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { UserId } from "@bitwarden/user-core";
@@ -47,33 +46,35 @@ import { UserId } from "@bitwarden/user-core";
     ReactiveFormsModule,
     SwitchComponent,
     CardComponent,
-    SpotlightComponent,
-    BitIconButtonComponent,
     I18nPipe,
+    CalloutModule,
   ],
 })
 export class AdminSettingsComponent implements OnInit {
-  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly organizations$: Observable<Organization[]> = this.userId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+  );
 
   protected readonly formLoading: WritableSignal<boolean> = signal(true);
-  protected adminForm = this.formBuilder.group({
+  protected readonly adminForm = this.formBuilder.group({
     autoConfirm: false,
   });
-  protected showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
+  protected readonly showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
       this.nudgesService.showNudgeSpotlight$(NudgeType.AutoConfirmNudge, userId),
     ),
   );
 
   constructor(
-    private formBuilder: FormBuilder,
-    private accountService: AccountService,
-    private autoConfirmService: AutomaticUserConfirmationService,
-    private destroyRef: DestroyRef,
-    private dialogService: DialogService,
-    private nudgesService: NudgesService,
-    private eventCollectionService: EventCollectionService,
-    private organizationService: InternalOrganizationServiceAbstraction,
+    private readonly formBuilder: FormBuilder,
+    private readonly accountService: AccountService,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
+    private readonly destroyRef: DestroyRef,
+    private readonly dialogService: DialogService,
+    private readonly nudgesService: NudgesService,
+    private readonly eventCollectionService: EventCollectionService,
+    private readonly organizationService: InternalOrganizationServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -81,10 +82,11 @@ export class AdminSettingsComponent implements OnInit {
     const autoConfirmEnabled = (
       await firstValueFrom(this.autoConfirmService.configuration$(userId))
     ).enabled;
-    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled });
+    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled }, { emitEvent: false });
 
     this.formLoading.set(false);
 
+    // Update State
     this.adminForm.controls.autoConfirm.valueChanges
       .pipe(
         switchMap((newValue) => {
@@ -93,26 +95,45 @@ export class AdminSettingsComponent implements OnInit {
           }
           return of(false);
         }),
-        withLatestFrom(
-          this.autoConfirmService.configuration$(userId),
-          this.organizationService.organizations$(userId),
-        ),
-        switchMap(async ([newValue, existingState, organizations]) => {
-          await this.autoConfirmService.upsert(userId, {
+        withLatestFrom(this.autoConfirmService.configuration$(userId)),
+        switchMap(([newValue, existingState]) =>
+          this.autoConfirmService.upsert(userId, {
             ...existingState,
             enabled: newValue,
             showBrowserNotification: false,
-          });
+          }),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
-          // Auto-confirm users can only belong to one organization
-          const organization = organizations[0];
-          if (organization?.id) {
-            const eventType = newValue
-              ? EventType.Organization_AutoConfirmEnabled_Admin
-              : EventType.Organization_AutoConfirmDisabled_Admin;
-            await this.eventCollectionService.collect(eventType, undefined, true, organization.id);
+    // Event Logging
+    this.autoConfirmService
+      .configuration$(userId)
+      .pipe(
+        map((state) =>
+          state.enabled
+            ? EventType.Organization_AutoConfirmEnabled_Admin
+            : EventType.Organization_AutoConfirmDisabled_Admin,
+        ),
+        withLatestFrom(this.organizations$.pipe(map((organizations) => organizations[0]))),
+        switchMap(([event, organization]) => {
+          if (!organization) {
+            return of(undefined);
           }
+          return this.eventCollectionService.collect(event, undefined, true, organization.id);
         }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    // Fire confirm on initial event
+    this.autoConfirmService
+      .configuration$(userId)
+      .pipe(
+        switchMap((state) =>
+          state.enabled ? this.autoConfirmService.bulkAutoConfirmPendingUsers(userId) : of(),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

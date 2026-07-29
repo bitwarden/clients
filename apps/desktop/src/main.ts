@@ -11,13 +11,19 @@ import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -33,7 +39,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
-import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
+import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -41,22 +48,26 @@ import { DesktopBiometricsService } from "./key-management/biometrics/desktop.bi
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
-import { MessagingMain } from "./main/messaging.main";
+import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SsoCookieMain } from "./main/sso-cookie.main";
+import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { SafeShell } from "./platform/main/safe-shell.main";
+import { CachedBackend } from "./platform/main/storage/cached-backend";
+import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
-import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
+import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
@@ -69,6 +80,7 @@ export class Main {
   memoryStorageForStateProviders: SerializedMemoryStorageService;
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
+  govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
@@ -85,12 +97,16 @@ export class Main {
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
-  nativeAutofillMain: NativeAutofillMain;
+  desktopAutofillMain: DesktopAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
   versionMain: VersionMain;
+  shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
+  ssoCookieMain: SsoCookieMain;
+  ipcService: IpcService;
 
   constructor() {
     // Set paths for portable builds
@@ -126,8 +142,24 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
-    const storageDefaults: any = {};
-    this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
+    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
+    const cachedBackend = new CachedBackend(electronStoreBackend);
+
+    // Main doesn't have access to ConfigService or the feature flags easily at this
+    // early stage, so instead we try to read the raw feature flag value directly
+    // from the storage to determine whether to use the cached backend or not.
+    let isCacheEnabled = false;
+    try {
+      isCacheEnabled = Object.values(
+        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
+      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
+    } catch {
+      // Ignore errors
+    }
+    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
+    this.storageService = new ElectronStorageService(
+      isCacheEnabled ? cachedBackend : electronStoreBackend,
+    );
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -138,6 +170,8 @@ export class Main {
       storageServiceProvider,
       this.logService,
     );
+
+    this.ssoCookieMain = new SsoCookieMain(globalStateProvider, this.logService);
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
@@ -181,6 +215,8 @@ export class Main {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
+    this.govModeService = new DefaultGovModeService(this.environmentService);
+
     this.migrationRunner = new MigrationRunner(
       this.storageService,
       this.logService,
@@ -190,19 +226,18 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-    const encryptService = new EncryptServiceImplementation(
-      this.mainCryptoFunctionService,
-      this.logService,
-      true,
-    );
+
+    this.shell = new SafeShell(this.logService);
 
     this.windowMain = new WindowMain(
       biometricStateService,
       this.logService,
       this.storageService,
       this.desktopSettingsService,
+      this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
+      () => this.trayMain.restoreFromTray(),
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -211,17 +246,20 @@ export class Main {
       this.logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      this.mainCryptoFunctionService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
-    this.updaterMain = new UpdaterMain(this.i18nService, this.logService, this.windowMain);
+    this.updaterMain = new UpdaterMain(
+      this.i18nService,
+      this.logService,
+      this.windowMain,
+      this.shell,
+    );
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(messageSubject), // For local messages
-      new ElectronMainMessagingService(this.windowMain),
+      new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
     this.trayMain = new TrayMain(
@@ -253,6 +291,7 @@ export class Main {
       this.updaterMain,
       this.desktopSettingsService,
       this.versionMain,
+      this.shell,
     );
 
     this.trayMain = new TrayMain(
@@ -272,12 +311,21 @@ export class Main {
       this.logService,
     );
 
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(stateProvider);
+
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
       this.windowMain,
       app.getPath("userData"),
       app.getPath("exe"),
       app.getAppPath(),
+    );
+
+    this.ipcService = new IpcMainService(
+      this.logService,
+      app,
+      this.nativeMessagingMain,
+      this.windowMain,
     );
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
@@ -298,8 +346,8 @@ export class Main {
 
     new ChromiumImporterService();
 
-    this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
-    void this.nativeAutofillMain.init();
+    this.desktopAutofillMain = new DesktopAutofillMain(this.logService, this.windowMain);
+    void this.desktopAutofillMain.init();
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
@@ -308,6 +356,7 @@ export class Main {
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
+      this.storageService.dispose();
     });
   }
 
@@ -317,10 +366,18 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
         await this.desktopSettingsService.resetModalMode();
-        await this.windowMain.init();
+
+        // Autostart should start to tray. However showing it then hiding it quickly triggers a bug in Kwin
+        // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
+        // autostart is enabled.
+        const showWindow = !isAutostart;
+        await this.windowMain.init(showWindow);
+        this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -334,40 +391,42 @@ export class Main {
             click: () => this.messagingService.send("lockVault"),
           },
         ]);
-        if (await firstValueFrom(this.desktopSettingsService.startToTray$)) {
-          await this.trayMain.hideToTray();
+
+        // Autostart starts to tray. Any auto-start mechanism must provide this flag.
+        // Only hide to tray when running in the background is enabled; otherwise there
+        // would be a hidden window with no tray icon to bring it back.
+        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.runInBackground$))) {
+          this.trayMain.hideToTray();
         }
+
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
-        const [browserIntegrationEnabled, ddgIntegrationEnabled] = await Promise.all([
-          firstValueFrom(this.desktopSettingsService.browserIntegrationEnabled$),
+        const [ddgIntegrationEnabled] = await Promise.all([
           firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
         ]);
 
-        if (browserIntegrationEnabled || ddgIntegrationEnabled) {
-          // Re-register the native messaging host integrations on startup, in case they are not present
-          if (browserIntegrationEnabled) {
-            this.nativeMessagingMain
-              .generateManifests()
-              .catch((err) => this.logService.error("Error while generating manifests", err));
-          }
-          if (ddgIntegrationEnabled) {
-            this.nativeMessagingMain
-              .generateDdgManifests()
-              .catch((err) => this.logService.error("Error while generating DDG manifests", err));
-          }
-
-          this.nativeMessagingMain
-            .listen()
-            .catch((err) =>
-              this.logService.error("Error while starting native message listener", err),
+        if (ddgIntegrationEnabled) {
+          try {
+            await this.nativeMessagingMain.generateDdgManifests();
+          } catch (err) {
+            this.logService.error(
+              "Error while generating DuckDuckGo native messaging manifests:",
+              err,
             );
+          }
+        }
+
+        try {
+          await this.nativeMessagingMain.generateManifests();
+          await this.nativeMessagingMain.listen();
+        } catch (err) {
+          this.logService.error("Error while setting up native messaging:", err);
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");
         if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requirering a different protocol client
+          // Fix development build on Windows requiring a different protocol client
           app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
             process.argv[1],
             path.resolve(process.argv[2]),
@@ -391,6 +450,7 @@ export class Main {
         });
 
         await this.sdkLoadService.loadAndInit();
+        await this.ipcService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

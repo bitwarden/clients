@@ -14,6 +14,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -65,6 +66,7 @@ function createMockMember(index: number): MemberAccessReportView {
     groupsCount: ((index * 2) % 5) + 1, // Deterministic: 1-5
     itemsCount: ((index * 17) % 200) + 1, // Deterministic: 1-200
     usesKeyConnector: index % 2 === 0, // Deterministic: alternating true/false
+    userIdFromOrgUser: `userIdFromOrgUser${index}`,
   };
 }
 
@@ -180,6 +182,8 @@ export default {
           },
         },
         { provide: AvatarService, useValue: { avatarColor$: of("#175ddc") } },
+        { provide: LockService, useValue: { lock: () => Promise.resolve() } },
+        { provide: LogoutService, useValue: { logout: () => Promise.resolve() } },
         { provide: SyncService, useValue: { getLastSync: () => Promise.resolve(new Date()) } },
 
         // Router

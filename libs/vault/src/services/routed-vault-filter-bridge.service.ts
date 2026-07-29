@@ -2,11 +2,12 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterService,
@@ -18,7 +19,7 @@ import {
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "@bitwarden/vault";
+} from "..";
 
 /**
  * This file is part of a layer that is used to temporary bridge between URL filtering and the old state-in-code method.
@@ -41,22 +42,33 @@ export class RoutedVaultFilterBridgeService {
     this.activeFilter$ = combineLatest([
       routedVaultFilterService.filter$,
       legacyVaultFilterService.collectionTree$,
-      legacyVaultFilterService.folderTree$,
       legacyVaultFilterService.organizationTree$,
       legacyVaultFilterService.cipherTypeTree$,
     ]).pipe(
-      map(([filter, collectionTree, folderTree, organizationTree, cipherTypeTree]) => {
-        const legacyFilter = isAdminConsole(filter)
-          ? createLegacyFilterForAdminConsole(filter, collectionTree, cipherTypeTree)
-          : createLegacyFilterForEndUser(
+      switchMap(([filter, collectionTree, organizationTree, cipherTypeTree]) => {
+        if (isAdminConsole(filter)) {
+          // folderTree$ is unused in the AC context — skip the subscription to avoid
+          // triggering a personal vault decrypt via filteredFolders$ → cipherListViews$.
+          const legacyFilter = createLegacyFilterForAdminConsole(
+            filter,
+            collectionTree,
+            cipherTypeTree,
+          );
+          return of(new RoutedVaultFilterBridge(filter, legacyFilter, this));
+        }
+
+        return legacyVaultFilterService.folderTree$.pipe(
+          map((folderTree) => {
+            const legacyFilter = createLegacyFilterForEndUser(
               filter,
               collectionTree,
               folderTree,
               organizationTree,
               cipherTypeTree,
             );
-
-        return new RoutedVaultFilterBridge(filter, legacyFilter, this);
+            return new RoutedVaultFilterBridge(filter, legacyFilter, this);
+          }),
+        );
       }),
     );
   }
@@ -109,7 +121,7 @@ function createLegacyFilterForAdminConsole(
     );
   } else if (filter.type !== undefined && filter.type === "trash") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "trash", name: "", type: "trash", icon: "" },
+      { id: "trash", name: "", type: "trash" },
       null,
     );
   } else if (filter.type !== undefined && filter.type !== "trash") {
@@ -170,12 +182,12 @@ function createLegacyFilterForEndUser(
     );
   } else if (filter.type !== undefined && filter.type === "trash") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "trash", name: "", type: "trash", icon: "" },
+      { id: "trash", name: "", type: "trash" },
       null,
     );
   } else if (filter.type !== undefined && filter.type === "archive") {
     legacyFilter.selectedCipherTypeNode = new TreeNode<CipherTypeFilter>(
-      { id: "archive", name: "", type: "archive", icon: "" },
+      { id: "archive", name: "", type: "archive" },
       null,
     );
   } else if (filter.type !== undefined && filter.type !== "trash") {

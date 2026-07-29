@@ -1,3 +1,12 @@
+//! V1 Bitwarden SSH Agent implementation
+//!
+//! WARNING !!!
+//!
+//! This crate is deprecated as the v2 implementation is in
+//! progress. Only security patches and critical bug fixes will
+//! be accepted for this crate. After the v2 is released, the v1
+//! implementation will be removed.
+
 use std::{
     collections::HashMap,
     sync::{
@@ -13,7 +22,7 @@ use bitwarden_russh::{
 };
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "unix.rs")]
@@ -170,7 +179,13 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
     ) {
         match session_bind_info_result {
             SessionBindResult::Success(session_bind_info) => {
-                connection_info.set_forwarding(session_bind_info.is_forwarding);
+                debug!(
+                    is_forwarding = session_bind_info.is_forwarding,
+                    "Session bind received"
+                );
+                if session_bind_info.is_forwarding {
+                    connection_info.set_forwarding();
+                }
                 connection_info.set_host_key(session_bind_info.host_key.clone());
             }
             SessionBindResult::SignatureFailure => {

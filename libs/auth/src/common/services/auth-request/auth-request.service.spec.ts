@@ -146,11 +146,11 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(sut.decryptPubKeyEncryptedUserKey).toBeCalledWith(
+      expect(sut.decryptPubKeyEncryptedUserKey).toHaveBeenCalledWith(
         mockAuthReqResponse.key,
         mockPrivateKey,
       );
-      expect(keyService.setUserKey).toBeCalledWith(mockDecryptedUserKey, mockUserId);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
     });
   });
 
@@ -172,7 +172,7 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(encryptService.decapsulateKeyUnsigned).toBeCalledWith(
+      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
         new EncString(mockPubKeyEncryptedUserKey),
         mockPrivateKey,
       );

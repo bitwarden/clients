@@ -5,22 +5,19 @@ import { A11yModule } from "@angular/cdk/a11y";
 import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AvatarModule, IconButtonModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopBiometricsService } from "../../../key-management/biometrics/desktop.biometrics.service";
 
@@ -41,7 +38,7 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher-v2",
   templateUrl: "account-switcher-v2.component.html",
-  imports: [CommonModule, OverlayModule, A11yModule, JslibModule, AvatarModule, IconButtonModule],
+  imports: [CommonModule, OverlayModule, A11yModule, I18nPipe, AvatarModule, IconButtonModule],
   animations: [
     trigger("transformPanel", [
       state(
@@ -64,11 +61,6 @@ type InactiveAccount = ActiveAccount & {
   ],
 })
 export class AccountSwitcherV2Component implements OnInit {
-  protected readonly useNewAccountSwitcher = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone4),
-    { initialValue: false },
-  );
-
   activeAccount$: Observable<ActiveAccount | null>;
   inactiveAccounts$: Observable<{ [userId: string]: InactiveAccount }>;
   authStatus = AuthenticationStatus;
@@ -104,10 +96,12 @@ export class AccountSwitcherV2Component implements OnInit {
     private environmentService: EnvironmentService,
     private accountService: AccountService,
     private biometricsService: DesktopBiometricsService,
-    private configService: ConfigService,
   ) {
-    this.activeAccount$ = this.accountService.activeAccount$.pipe(
-      switchMap(async (active) => {
+    this.activeAccount$ = combineLatest([
+      this.accountService.activeAccount$,
+      this.avatarService.avatarColor$,
+    ]).pipe(
+      switchMap(async ([active, avatarColor]) => {
         if (active == null) {
           return null;
         }
@@ -121,7 +115,7 @@ export class AccountSwitcherV2Component implements OnInit {
           id: active.id,
           name: active.name,
           email: active.email,
-          avatarColor: await firstValueFrom(this.avatarService.avatarColor$),
+          avatarColor,
           server: (
             await firstValueFrom(this.environmentService.getEnvironment$(active.id))
           )?.getHostname(),

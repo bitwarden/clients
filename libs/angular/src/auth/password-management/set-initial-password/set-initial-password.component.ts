@@ -29,7 +29,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -48,7 +47,6 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
@@ -123,92 +121,49 @@ export class SetInitialPasswordComponent implements OnInit {
 
     switch (this.userType) {
       case SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER: {
-        /**
-         * "KM flag"   = EnableAccountEncryptionV2JitPasswordRegistration
-         * "Auth flag" = PM27086_UpdateAuthenticationApisForInputPassword (checked in InputPasswordComponent and
-         *                                                                 passed through via PasswordInputResult)
-         *
-         * Flag unwinding for this specific `case` will depend on which flag gets unwound first:
-         * - If KM flag gets unwound first, remove all code (in this `case`) after the call
-         *   to setInitialPasswordJitMPUserV2Encryption(), as the V2Encryption method is the
-         *   end-goal for this `case`.
-         * - If Auth flag gets unwound first (in PM-28143), keep the KM code & early return,
-         *   but unwind the auth flagging logic and then remove the method call marked with
-         *   the "Default Scenario" comment.
-         */
-
         const accountEncryptionV2 = await this.configService.getFeatureFlag(
           FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration,
         );
 
-        // Scenario 1: KM flag ON
         if (accountEncryptionV2) {
           await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
           return;
         }
 
-        // Scenario 2: KM flag OFF, Auth flag ON
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          /**
-           * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
-           * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here and add them late
-           * to the PasswordInputResult before calling setInitialPassword().
-           *
-           * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
-           */
-          const ctx = "Could not set initial password.";
-          assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-          assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-          assertTruthy(this.email, "email", ctx);
+        /**
+         * Assuming the KM flag above is off, this JIT_PROVISIONED_MP_ORG_USER case still relies on us making
+         * `newMasterKey` and `newServerMasterKeyHash` here in the component. This is a temporary state. This
+         * flow will be updated to use the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
+         * as part of https://bitwarden.atlassian.net/browse/PM-32526
+         */
 
-          const newMasterKey = await this.keyService.makeMasterKey(
-            passwordInputResult.newPassword,
-            this.email.trim().toLowerCase(),
-            passwordInputResult.kdfConfig,
-          );
+        const ctx = "Could not set initial password.";
+        assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+        assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+        assertTruthy(this.email, "email", ctx);
 
-          const newServerMasterKeyHash = await this.keyService.hashMasterKey(
-            passwordInputResult.newPassword,
-            newMasterKey,
-            HashPurpose.ServerAuthorization,
-          );
+        const newMasterKey = await this.keyService.makeMasterKey(
+          passwordInputResult.newPassword,
+          this.email.trim().toLowerCase(),
+          passwordInputResult.kdfConfig,
+        );
 
-          const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-            passwordInputResult.newPassword,
-            newMasterKey,
-            HashPurpose.LocalAuthorization,
-          );
+        const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+          passwordInputResult.newPassword,
+          newMasterKey,
+        );
 
-          passwordInputResult.newMasterKey = newMasterKey;
-          passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
-          passwordInputResult.newLocalMasterKeyHash = newLocalMasterKeyHash;
+        passwordInputResult.newMasterKey = newMasterKey;
+        passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
 
-          await this.setInitialPassword(passwordInputResult); // passwordInputResult masterKey properties generated on the SetInitialPasswordComponent (just above)
-          return;
-        }
-
-        // Default Scenario: both flags OFF
-        await this.setInitialPassword(passwordInputResult); // passwordInputResult masterKey properties generated on the InputPasswordComponent (default)
-
+        await this.setInitialPassword(passwordInputResult);
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
-          return; // EARLY RETURN for flagged logic
-        }
-
-        await this.setInitialPassword(passwordInputResult);
-
+        await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          await this.setInitialPasswordTdeOffboarding(passwordInputResult);
-          return;
-        }
-
-        await this.setInitialPasswordTdeOffboardingOld(passwordInputResult);
-
+        await this.setInitialPasswordTdeOffboarding(passwordInputResult);
         break;
       default:
         this.logService.error(
@@ -356,13 +311,12 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
    */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
@@ -377,7 +331,6 @@ export class SetInitialPasswordComponent implements OnInit {
       const credentials: SetInitialPasswordCredentials = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier: this.orgSsoIdentifier,
@@ -468,41 +421,6 @@ export class SetInitialPasswordComponent implements OnInit {
       this.showSuccessToastByUserType();
 
       // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-      await this.logoutService.logout(this.userId);
-      // navigate to root so redirect guard can properly route next active user or null user to correct page
-      await this.router.navigate(["/"]);
-    } catch (e) {
-      this.logService.error("Error setting initial password during TDE offboarding", e);
-      this.validationService.showError(e);
-    } finally {
-      this.submitting = false;
-    }
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  private async setInitialPasswordTdeOffboardingOld(passwordInputResult: PasswordInputResult) {
-    const ctx = "Could not set initial password.";
-    assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
-    assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(this.userId, "userId", ctx);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
-
-    try {
-      const credentials: SetInitialPasswordTdeOffboardingCredentialsOld = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newPasswordHint: passwordInputResult.newPasswordHint,
-      };
-
-      await this.setInitialPasswordService.setInitialPasswordTdeOffboardingOld(
-        credentials,
-        this.userId,
-      );
-
-      this.showSuccessToastByUserType();
-
       await this.logoutService.logout(this.userId);
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);

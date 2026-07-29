@@ -7,9 +7,7 @@
         @if (!attachment.hasDecryptionError) {
           <bit-item>
             <bit-item-content>
-              <span data-testid="file-name" [title]="attachment.fileName">
-                {{ attachment.fileName }}
-              </span>
+              <bit-truncated-filename data-testid="file-name" [filename]="attachment.fileName" />
               <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
               @if (attachment.key == null) {
                 <i
@@ -82,7 +80,7 @@
 <form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
   @if (cipher()?.edit) {
     <bit-card>
-      <label for="file" bitTypography="body2" class="tw-block tw-text-muted tw-px-1 tw-pb-1.5">
+      <label for="file" bitTypography="body2" class="tw-sr-only">
         {{ "addAttachment" | i18n }}
       </label>
       <div class="tw-relative">
@@ -108,20 +106,28 @@
             (click)="fileInput.click()"
             class="tw-whitespace-nowrap"
           >
-            {{ "chooseFile" | i18n }}
+            {{ "chooseFileSentenceCase" | i18n }}
           </button>
-          <p bitTypography="body2" class="tw-text-muted tw-mb-0">
-            {{
-              this.attachmentForm.controls.file?.value
-                ? this.attachmentForm.controls.file.value.name
-                : ("noFileChosen" | i18n)
-            }}
-          </p>
+          @if (this.attachmentForm.controls.file?.value; as file) {
+            <bit-truncated-filename
+              bitTypography="body2"
+              class="tw-text-muted tw-min-w-0"
+              [filename]="file.name"
+            />
+          } @else {
+            <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+              {{ "noFileChosen" | i18n }}
+            </p>
+          }
         </div>
       </div>
-      <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
-        {{ "maxFileSizeSansPunctuation" | i18n }}
-      </p>
+      @if (uploadProgress() === null) {
+        <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
+          {{ "maxFileSizeSansPunctuation" | i18n }}
+        </p>
+      } @else {
+        <bit-progress-bar [value]="uploadProgress()" class="tw-block tw-mt-2" />
+      }
     </bit-card>
   }
 </form>

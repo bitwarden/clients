@@ -6,6 +6,7 @@
     (formLoading)="this.loading = $event"
     (onSuccessfulImport)="this.onSuccessfulImport($event)"
     organizationId="{{ routeOrgId }}"
+    [returnTo]="returnTo"
   ></tools-import>
   <button
     [disabled]="disabled"

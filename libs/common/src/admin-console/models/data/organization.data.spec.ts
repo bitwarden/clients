@@ -29,6 +29,7 @@ describe("ORGANIZATIONS state", () => {
         useResetPassword: false,
         useSecretsManager: false,
         usePasswordManager: false,
+        usePam: false,
         useActivateAutofillPolicy: false,
         useAutomaticUserConfirmation: false,
         selfHost: false,
@@ -57,7 +58,7 @@ describe("ORGANIZATIONS state", () => {
         limitItemDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
-        userIsManagedByOrganization: false,
+        userIsClaimedByOrganization: false,
         useAccessIntelligence: false,
         useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
@@ -67,6 +68,7 @@ describe("ORGANIZATIONS state", () => {
         useDisableSMAdsForUsers: false,
         usePhishingBlocker: false,
         useMyItems: false,
+        useInviteLinks: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

@@ -1,19 +1,28 @@
-import { Component, Input } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogRef,
+  DialogService,
+  IconComponent,
+  MenuModule,
+} from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
+  SendFormService,
   SendItemDialogResult,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendSuccessDrawerDialogComponent } from "../shared";
 
@@ -22,7 +31,7 @@ import { SendSuccessDrawerDialogComponent } from "../shared";
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
+  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
@@ -34,18 +43,26 @@ export class NewSendDropdownComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
 
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   /** SendType provided for the markup to pass back the selected type of Send */
   protected sendType = SendType;
 
   /** Indicates whether the user can access premium features. */
   protected canAccessPremium$: Observable<boolean>;
 
+  private sendFormDialogRef?: DialogRef<SendItemDialogResult, SendAddEditDialogComponent>;
+
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
-    private configService: ConfigService,
+    private sendFormService: SendFormService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -54,6 +71,28 @@ export class NewSendDropdownComponent {
           : of(false),
       ),
     );
+  }
+
+  private readonly sendPolicyService = inject(SendPolicyService);
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
+  });
+
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.hideIcon) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "createSendV2";
+      } else {
+        return "createSend";
+      }
+    } else {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "create";
+      } else {
+        return "new";
+      }
+    }
   }
 
   /**
@@ -66,20 +105,33 @@ export class NewSendDropdownComponent {
       return;
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
-    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-
-    if (useRefresh) {
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
-      if (dialogRef) {
-        const result = await lastValueFrom(dialogRef.closed);
-        if (result?.result === SendItemDialogResult.Saved && result?.send) {
-          this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
-            data: result.send,
-          });
-        }
+    const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+    });
+    if (sendFormDialogRef) {
+      this.sendFormDialogRef = sendFormDialogRef;
+      const result = await lastValueFrom(this.sendFormDialogRef.closed);
+      this.sendFormDialogRef = undefined;
+      if (result?.result === SendItemDialogResult.Created && result?.send) {
+        await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+          data: result.send,
+        });
       }
-    } else {
-      SendAddEditDialogComponent.open(this.dialogService, { formConfig });
     }
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.sendFormDialogRef) {
+      const closeResult = await this.sendFormDialogRef.close();
+      return closeResult.closed;
+    }
+    return true;
+  }
+
+  /** Called when SendType is restricted to a single type — create it immediately */
+  async onRestrictedClick() {
+    const allowedSendTypes = this.allowedSendTypes();
+    await this.createSend(allowedSendTypes[0]);
   }
 }

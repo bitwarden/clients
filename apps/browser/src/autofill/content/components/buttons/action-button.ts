@@ -15,6 +15,7 @@ export type ActionButtonProps = {
   theme: Theme;
   handleClick: (e: Event) => void;
   fullWidth?: boolean;
+  title?: string;
 };
 
 export function ActionButton({
@@ -25,6 +26,7 @@ export function ActionButton({
   theme,
   handleClick,
   fullWidth = true,
+  title,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (EventSecurity.isEventTrusted(event) && !disabled && !isLoading) {
@@ -36,7 +38,7 @@ export function ActionButton({
     <button
       class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
       data-testid="${dataTestId}"
-      title=${buttonText}
+      title=${title ?? buttonText}
       type="button"
       @click=${handleButtonClick}
     >
@@ -71,12 +73,13 @@ const actionButtonStyles = ({
   text-overflow: ellipsis;
   font-weight: 500;
 
-  ${disabled || isLoading
-    ? `
+  ${
+    disabled || isLoading
+      ? `
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
   `
-    : `
+      : `
     background-color: ${themes[theme].primary["600"]};
     cursor: pointer;
     color: ${themes[theme].text.contrast};
@@ -90,7 +93,8 @@ const actionButtonStyles = ({
       outline: 2px solid ${themes[theme].primary["600"]};
       outline-offset: 1px;
     }
-  `}
+  `
+  }
 
   svg {
     padding: 2px 0; /* Match line-height of button body2 typography */

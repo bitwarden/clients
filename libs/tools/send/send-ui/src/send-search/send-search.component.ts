@@ -23,7 +23,7 @@ const SearchTextDebounceInterval = 200;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendSearchComponent {
-  private sendListItemService = inject(SendItemsService);
+  private readonly sendListItemService = inject(SendItemsService);
 
   /** The current search text entered by the user. */
   protected readonly searchText = model("");

@@ -1,11 +1,15 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
+
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import Domain from "../../../platform/models/domain/domain-base";
+import { CollectionId, OrganizationId } from "../../../types/guid";
+import { OrgKey } from "../../../types/key";
 
 import { CollectionData } from "./collection.data";
+
+import { CollectionView } from ".";
 
 export const CollectionTypes = {
   SharedCollection: 0,
@@ -74,6 +78,43 @@ export class Collection extends Domain {
 
   decrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<CollectionView> {
     return CollectionView.fromCollection(this, encryptService, orgKey);
+  }
+
+  /**
+   * Creates a Collection domain model from the SDK Collection returned by SDK encrypt operations.
+   */
+  static fromSdkCollection(sdkCollection: SdkCollection): Collection {
+    const collection = new Collection({
+      id: sdkCollection.id
+        ? (uuidAsString(sdkCollection.id) as CollectionId)
+        : ("" as CollectionId),
+      organizationId: uuidAsString(sdkCollection.organizationId) as OrganizationId,
+      name: new EncString(sdkCollection.name as unknown as string),
+    });
+    collection.externalId = sdkCollection.externalId;
+    collection.hidePasswords = sdkCollection.hidePasswords;
+    collection.readOnly = sdkCollection.readOnly;
+    collection.manage = sdkCollection.manage;
+    collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
+    collection.type = sdkCollection.type;
+    return collection;
+  }
+
+  /**
+   * Maps Collection to SDK format for use with the SDK crypto operations.
+   */
+  toSdkCollection(): SdkCollection {
+    return {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: asUuid(this.organizationId),
+      name: this.name.toSdk(),
+      externalId: this.externalId,
+      hidePasswords: this.hidePasswords,
+      readOnly: this.readOnly,
+      manage: this.manage,
+      defaultUserCollectionEmail: this.defaultUserCollectionEmail,
+      type: this.type,
+    };
   }
 
   // @TODO: This would be better off in Collection.Utils. Move this there when

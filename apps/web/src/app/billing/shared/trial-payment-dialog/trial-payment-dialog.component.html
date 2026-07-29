@@ -1,10 +1,12 @@
 <bit-dialog dialogSize="default">
   <span bitDialogTitle class="tw-font-medium">
-    {{ "subscribetoEnterprise" | i18n: currentPlanName }}
+    {{ "subscribeToEnterprise" | i18n: currentPlanName }}
   </span>
 
   <div bitDialogContent>
-    <p>{{ "subscribeEnterpriseSubtitle" | i18n: currentPlanName }}</p>
+    <p>
+      {{ "subscribeEnterpriseSubtitleSpecificTrialLength" | i18n: currentPlanName : trialLength }}
+    </p>
 
     <!-- Plan Features List -->
     <ng-container [ngSwitch]="currentPlan?.productTier">

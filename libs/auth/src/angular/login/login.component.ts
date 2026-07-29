@@ -10,8 +10,8 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
+import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
+import { firstValueFrom, Subject, take, takeUntil, skip, combineLatest, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -22,14 +22,12 @@ import {
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -42,10 +40,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -65,7 +63,9 @@ const BroadcasterSubscriptionId = "LoginComponent";
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
+  /** Display the email input field + continue button */
   EMAIL_ENTRY = "EmailEntry",
+  /** Display the master password input field + login submit button */
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
@@ -148,6 +148,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
+    private passwordPreloginService: PasswordPreloginService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -177,21 +178,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    let paramEmailIsSet = false;
-
     const params = await firstValueFrom(this.activatedRoute.queryParams);
+    const paramEmailIsSet = this.applyEmailFromQueryParams(params);
 
-    if (params) {
-      const qParamsEmail = params.email;
-
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-    }
-
-    // If there are no params or no email in the query params, loadEmailSettings from state
     if (!paramEmailIsSet) {
       await this.loadRememberedEmail();
     }
@@ -201,15 +190,54 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.getKnownDevice(this.emailFormControl.value);
     }
 
-    // Backup check to handle unknown case where activatedRoute is not available
-    // This shouldn't happen under normal circumstances
-    if (!this.activatedRoute) {
-      await this.loadRememberedEmail();
+    // Let the client decide whether to auto-progress past email entry and how to
+    // respond to error codes in /login query params (e.g. SSO invited-user server redirects).
+    const queryParamResult = params
+      ? await this.loginComponentService.handleQueryParamErrors?.(params)
+      : undefined;
+
+    // Auto-progress when the hook signals it. Via continuePressed (not continue) so its
+    // pushState lets back-button return to email entry rather than the SSO callback URL.
+    if (queryParamResult?.autoSubmit && paramEmailIsSet) {
+      await this.continuePressed(queryParamResult.mpEntryLayoutOverride);
     }
 
-    // This SSO required check should come after email has had a chance to be pre-filled (if it
-    // was found in query params or was the remembered email)
-    await this.determineIfSsoRequired();
+    // This SSO required tracking should be initialized after email has had a chance to be pre-filled
+    // (if it was found in query params or was the remembered email)
+    await this.initSsoRequiredTracking();
+
+    // Listen for region/environment changes after initialization.
+    // If the user switches region while on the password entry screen, we need to clear
+    // any stale authentication errors from the previous region and refresh the prelogin
+    // data (KDF settings) for the new environment.
+    this.environmentService.environment$
+      .pipe(
+        skip(1), // Skip the initial emission, only react to subsequent changes
+        takeUntil(this.destroy$),
+      )
+      .subscribe((env) => {
+        if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
+          // Clear previous login attempt errors as they are no longer valid for the new region
+          this.formGroup.controls.masterPassword.setErrors(null);
+          this.formGroup.controls.masterPassword.updateValueAndValidity();
+          // Fetch new prelogin data for the updated region
+          this.prefetchPasswordPreloginData();
+        }
+      });
+  }
+
+  /**
+   * Pre-fills the email form control from `?email=…` if the param is present and
+   * looks like an email. Returns whether the form control was set so the caller
+   * can decide whether to fall back to the remembered email.
+   */
+  private applyEmailFromQueryParams(params: Params | null): boolean {
+    const qParamsEmail = params?.email;
+    if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
+      this.formGroup.controls.email.setValue(qParamsEmail);
+      return true;
+    }
+    return false;
   }
 
   private async desktopOnInit(): Promise<void> {
@@ -217,6 +245,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
+          case "windowHidden":
+            this.onWindowHidden();
+            break;
           case "windowIsFocused":
             if (this.deferFocus === null) {
               this.deferFocus = !message.windowIsFocused;
@@ -236,37 +267,31 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async determineIfSsoRequired() {
+  private async initSsoRequiredTracking() {
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
-    // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
-    if (ssoRequiredCache != null && ssoRequiredCache.size > 0) {
-      // If the pre-filled/remembered email field value exists in the cache, set to true
-      if (
-        this.emailFormControl.value &&
-        ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
-      ) {
-        this.ssoRequired = true;
-      }
-
-      this.listenForEmailChanges(ssoRequiredCache);
+    // Only set up a subscription if there is actually a populated ssoRequiredCache
+    if (ssoRequiredCache == null || ssoRequiredCache.length < 1) {
+      return;
     }
-  }
 
-  private listenForEmailChanges(ssoRequiredCache: Set<string>) {
-    // On subsequent email field value changes, check and set again. This allows alternate login buttons
-    // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
-    this.formGroup.controls.email.valueChanges
+    // React to both email and environment changes
+    combineLatest([
+      // startWith email form field value (it could be empty, a remembered email, or pre-filled from query params)
+      this.formGroup.controls.email.valueChanges.pipe(startWith(this.emailFormControl.value)),
+      // Changing environments on Extension/Desktop does not reload the page, so we must listen for environment
+      // changes and re-evaluate the SSO required state accordingly. Web only ever uses the initial emission, because
+      // changing environments on Web navigates the page.
+      this.environmentService.globalEnvironment$,
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (
-          this.emailFormControl.value &&
-          ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
-        ) {
-          this.ssoRequired = true;
-        } else {
-          this.ssoRequired = false;
-        }
+      .subscribe(([email, env]) => {
+        const emailValue = email?.toLowerCase();
+        const webVaultUrl = env.getWebVaultUrl();
+
+        this.ssoRequired = emailValue
+          ? ssoRequiredCache.some((e) => e.email === emailValue && e.webVaultUrl === webVaultUrl)
+          : false;
       });
   }
 
@@ -299,11 +324,20 @@ export class LoginComponent implements OnInit, OnDestroy {
     const orgMasterPasswordPolicyOptions =
       this.orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
 
+    // This was kicked off when the user hit continue to the MP entry
+    // so await the result before continuing to login to ensure we
+    // don't call to get password prelogin data twice.
+    // Other MP login flows in the app don't prefetch this data.
+    const preFetchedPreloginData = await firstValueFrom(
+      this.passwordPreloginService.getPreloginData$(email),
+    );
+
     const credentials = new PasswordLoginCredentials(
       email,
       masterPassword,
       undefined,
       orgMasterPasswordPolicyOptions,
+      preFetchedPreloginData,
     );
 
     try {
@@ -410,11 +444,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
     if (this.orgPoliciesFromInvite) {
-      // Since we have retrieved the policies, we can go ahead and set them into state for future use
-      // e.g., the change-password page currently only references state for policy data and
-      // doesn't fallback to pulling them from the server like it should if they are null.
-      await this.setPoliciesIntoState(authResult.userId, this.orgPoliciesFromInvite.policies);
-
       const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
         this.orgPoliciesFromInvite.enforcedPasswordPolicyOptions,
       );
@@ -435,10 +464,9 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Checks if the master password meets the enforced policy requirements
    * and if the user is required to change their password.
    *
-   * TODO: This is duplicate checking that we want to only do in the password login strategy.
-   *       Once we no longer need the policies state being set to reference later in change password
-   *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
-   *       PM-23001 for details.
+   * TODO: PM-18269 - this duplicates the evaluation done in PasswordLoginStrategy.
+   * Consolidate so the WeakMasterPassword ForceSetPasswordReason flow is the single
+   * mechanism that drives the redirect to change-password post-login.
    */
   private async isPasswordChangeRequiredByOrgPolicy(
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
@@ -477,12 +505,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async setPoliciesIntoState(userId: UserId, policies: Policy[]): Promise<void> {
-    const policiesData: { [id: string]: PolicyData } = {};
-    policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
-    await this.policyService.replace(policiesData, userId);
-  }
-
   protected async startAuthRequestLogin(): Promise<void> {
     this.formGroup.get("masterPassword")?.clearValidators();
     this.formGroup.get("masterPassword")?.updateValueAndValidity();
@@ -494,15 +516,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.router.navigate(["/login-with-device"]);
   }
 
-  protected async toggleLoginUiState(value: LoginUiState): Promise<void> {
+  protected async toggleLoginUiState(
+    value: LoginUiState,
+    mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>,
+  ): Promise<void> {
     this.loginUiState = value;
 
     if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
       this.loginComponentService.showBackButton(false);
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "logInToBitwarden" },
-        pageIcon: this.Icons.VaultIcon,
+        pageTitle: { key: "loginPageEmailEntryScreenTitle" },
+        pageIcon: this.Icons.VaultIcon, // layout decides whether to render it via hidePageIcon
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
@@ -513,11 +538,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.isKnownDevice = false;
     } else if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
       this.loginComponentService.showBackButton(true);
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "welcomeBack" },
-        pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.Icons.WaveIcon,
-      });
+
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(
+        mpEntryLayoutOverride ?? {
+          pageTitle: { key: "loginPageMasterPasswordEntryScreenTitle" },
+          pageSubtitle: this.emailFormControl.value,
+          pageIcon: this.Icons.WaveIcon, // layout decides whether to render it via hidePageIcon
+        },
+      );
 
       // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
       this.formGroup.controls.masterPassword.markAsUntouched();
@@ -551,23 +579,26 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Continue button clicked (or enter key pressed).
    * Adds the login url to the browser's history so that the back button can be used to go back to the email entry state.
    * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
+   * @param mpEntryLayoutOverride Optional override for the default MP-entry anon-layout. Used by
+   * client-specific flows (e.g. SSO invited-user redirect) that need a different title/subtitle/icon.
    */
-  protected async continuePressed() {
+  protected async continuePressed(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>) {
     // Add a new entry to the browser's history so that there is a history entry to go back to
     history.pushState({}, "", window.location.href);
-    await this.continue();
+    await this.continue(mpEntryLayoutOverride);
   }
 
   /**
    * Continue to the master password entry state (only if email is validated)
+   * @param mpEntryLayoutOverride See {@link continuePressed}.
    */
-  protected async continue(): Promise<void> {
+  protected async continue(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>): Promise<void> {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
-      await this.makePasswordPreloginCall();
+      this.prefetchPasswordPreloginData();
 
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
+      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
     }
   }
 
@@ -651,6 +682,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       ?.focus();
   }
 
+  private onWindowHidden() {
+    this.deferFocus = true;
+  }
+
   /**
    * Helper function to determine if the back button should be shown.
    * @returns true if the back button should be shown.
@@ -669,20 +704,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     history.back();
   }
 
-  private async makePasswordPreloginCall() {
-    // Prefetch prelogin KDF config when enabled
-    try {
-      const flagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM23801_PrefetchPasswordPrelogin,
-      );
-      if (flagEnabled) {
-        const email = this.formGroup.value.email;
-        if (email) {
-          void this.loginStrategyService.getPasswordPrelogin(email);
-        }
-      }
-    } catch (error) {
-      this.logService.error("Failed to prefetch prelogin data.", error);
+  /**
+   * Prefetches the password prelogin data for the entered email
+   * so that it is available by the time the user submits the password.
+   * If it is not available by the time the user submits, the login strategy will still work
+   * as it will wait for the prelogin data to be available before proceeding.
+   */
+  private prefetchPasswordPreloginData() {
+    const email = this.formGroup.value.email;
+    if (email) {
+      // Don't await this call as we don't want to delay the UI transition to the master password entry
+      // Errors are deferred to the subscriber in submit().
+      void this.passwordPreloginService.getPreloginData$(email);
     }
   }
 

@@ -1,4 +1,4 @@
-import { DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { DialogRef } from "@angular/cdk/dialog";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +8,7 @@ import {
   Signal,
 } from "@angular/core";
 
-import { DIALOG_DATA, DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 export interface BulkProgressDialogParams {
   progress: Signal<number>;
@@ -22,17 +22,17 @@ export interface BulkProgressDialogParams {
   standalone: false,
 })
 export class BulkProgressDialogComponent {
-  protected allCount: string;
+  protected readonly allCount: string;
   protected readonly progressCount: Signal<string>;
   protected readonly progressPercentage: Signal<number>;
   private readonly progressEffect = effect(() => {
     if (this.progressPercentage() >= 100) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
     }
   });
 
   constructor(
-    public dialogRef: DialogRef,
+    readonly dialogRef: DialogRef,
     @Inject(DIALOG_DATA) data: BulkProgressDialogParams,
   ) {
     this.progressCount = computed(() => data.progress().toLocaleString());

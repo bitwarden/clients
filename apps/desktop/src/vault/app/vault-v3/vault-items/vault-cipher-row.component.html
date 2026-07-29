@@ -1,37 +1,48 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-flex tw-items-center tw-gap-2">
+@if (showBatchBar()) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-w-10">
+    <input
+      type="checkbox"
+      bitCheckbox
+      [checked]="selected()"
+      (change)="checkboxChange.emit()"
+      [attr.aria-label]="cipher().name"
+    />
+  </td>
+}
+<td bitCell [ngClass]="RowHeightClass" class="tw-flex tw-items-center tw-gap-2">
   <app-vault-icon [cipher]="cipher()"></app-vault-icon>
-  <div class="tw-flex tw-flex-col tw-w-full">
-    <button
-      bitLink
-      class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
-      [disabled]="disabled()"
-      (click)="viewCipher()"
-      title="{{ 'editItemWithName' | i18n: cipher().name }}"
-      type="button"
-      appStopProp
-      aria-haspopup="true"
-    >
-      {{ cipher().name }}
-    </button>
-    @if (hasAttachments()) {
-      <i
-        class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
-        appStopProp
-        title="{{ 'attachments' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-      @if (showFixOldAttachments()) {
+  <div class="tw-truncate">
+    <div class="tw-inline-flex tw-w-full">
+      <button
+        bitLink
+        class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
+        [disabled]="disabled()"
+        (click)="viewCipher()"
+        title="{{ 'editItemWithName' | i18n: cipher().name }}"
+        type="button"
+        aria-haspopup="true"
+      >
+        {{ cipher().name }}
+      </button>
+      @if (hasAttachments()) {
         <i
-          class="bwi bwi-exclamation-triangle tw-ml-2 tw-leading-normal tw-text-warning"
-          appStopProp
-          title="{{ 'attachmentsNeedFix' | i18n }}"
+          class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
+          title="{{ 'attachments' | i18n }}"
           aria-hidden="true"
         ></i>
-        <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
+        <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+        @if (showFixOldAttachments()) {
+          <i
+            class="bwi bwi-exclamation-triangle tw-ml-2 tw-leading-normal tw-text-warning"
+            title="{{ 'attachmentsNeedFix' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
+        }
       }
-    }
-    <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span>
+    </div>
+    <br />
+    <span class="tw-text-sm tw-text-muted">{{ subtitle() }}</span>
   </div>
 </td>
 @if (showOwner()) {
@@ -40,7 +51,6 @@
       [disabled]="disabled()"
       [organizationId]="cipher().organizationId"
       [organizationName]="cipher().organizationId | orgNameFromId: organizations()"
-      appStopProp
     >
     </app-org-badge>
   </td>
@@ -54,15 +64,12 @@
       bitIconButton="bwi-ellipsis-v"
       type="button"
       label="{{ 'options' | i18n }}"
-      appStopProp
     ></button>
     <bit-menu #corruptedCipherOptions>
       @if (canDeleteCipher()) {
-        <button bitMenuItem (click)="deleteCipher()" type="button">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
-          </span>
+        <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
         </button>
       }
     </bit-menu>
@@ -72,7 +79,6 @@
         [disabled]="disabled()"
         bitIconButton="bwi-external-link"
         type="button"
-        appStopProp
         label="{{ 'launch' | i18n }}"
         (click)="handleLaunch()"
       ></button>
@@ -83,7 +89,6 @@
         [disabled]="disabled()"
         bitIconButton="bwi-clone"
         type="button"
-        appStopProp
         label="{{ 'copyValue' | i18n }}"
       ></button>
       <bit-menu #copyOptions>
@@ -97,29 +102,14 @@
     }
 
     <button
+      #optionsMenuTrigger="menuTrigger"
       [bitMenuTriggerFor]="cipherOptions"
       [disabled]="disabled()"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      appStopProp
       label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
-      @if (canLaunch()) {
-        <button type="button" bitMenuItem (click)="handleLaunch()">
-          <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
-          {{ "launch" | i18n }}
-        </button>
-      }
-      @for (copyField of copyFields(); track copyField.field) {
-        <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-          <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-          {{ copyField.title | i18n }}
-        </button>
-      }
-      @if (showMenuDivider()) {
-        <bit-menu-divider />
-      }
       @if (showFavorite()) {
         <button bitMenuItem type="button" (click)="toggleFavorite()">
           <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
@@ -146,7 +136,7 @@
       }
       @if (showAssignToCollections()) {
         <button bitMenuItem type="button" (click)="assignToCollections()">
-          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
+          <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
           {{ "assignToCollections" | i18n }}
         </button>
       }
@@ -183,11 +173,9 @@
         </button>
       }
       @if (canDeleteCipher()) {
-        <button bitMenuItem (click)="deleteCipher()" type="button">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
-          </span>
+        <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ (isDeleted() ? "permanentlyDelete" : "delete") | i18n }}
         </button>
       }
     </bit-menu>

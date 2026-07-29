@@ -11,8 +11,10 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -20,8 +22,19 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-import { AccountBillingClient, PreviewInvoiceClient } from "../../../../clients";
-import { BillingAddress } from "../../../../payment/types";
+import {
+  AccountBillingClient,
+  PreviewInvoiceClient,
+  SubscriberBillingClient,
+} from "../../../../clients";
+import {
+  BillingAddress,
+  MaskedPaymentMethod,
+  TokenizablePaymentMethods,
+} from "../../../../payment/types";
+
+export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
+  "Unverified bank account payment method is not supported for this upgrade";
 
 export type PremiumOrgUpgradePlanDetails = {
   tier: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId;
@@ -46,15 +59,17 @@ export interface InvoicePreview {
   newPlanProratedAmount?: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
+    private subscriberBillingClient: SubscriberBillingClient,
     private keyService: KeyService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private syncService: SyncService,
+    private configService: ConfigService,
   ) {}
 
   async previewProratedInvoice(
@@ -89,6 +104,15 @@ export class PremiumOrgUpgradeService {
       throw new Error("Billing address information is incomplete");
     }
 
+    const paymentMethod = await this.subscriberBillingClient.getPaymentMethod({
+      type: "account",
+      data: account,
+    });
+
+    if (this.isUnverifiedBankAccount(paymentMethod)) {
+      throw new Error(UNVERIFIED_BANK_ACCOUNT_MESSAGE);
+    }
+
     const productTier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(tier);
     const encryptionData = await this.generateOrganizationEncryptionData(account.id);
 
@@ -106,6 +130,17 @@ export class PremiumOrgUpgradeService {
     await this.syncService.fullSync(true);
 
     return orgId;
+  }
+
+  isUnverifiedBankAccount(paymentMethod: MaskedPaymentMethod | null): boolean {
+    return (
+      paymentMethod?.type === TokenizablePaymentMethods.bankAccount &&
+      !!paymentMethod.hostedVerificationUrl
+    );
+  }
+
+  isBankAccountNotSupportedError(error: unknown): boolean {
+    return error instanceof Error && error.message === UNVERIFIED_BANK_ACCOUNT_MESSAGE;
   }
 
   private ProductTierTypeFromSubscriptionTierId(
@@ -134,7 +169,7 @@ export class PremiumOrgUpgradeService {
       case ProductTierType.Enterprise:
         return BusinessSubscriptionPricingTierIds.Enterprise;
       default:
-        throw new Error(`Unsupported product tier: ${productTier}`);
+        throw new Error("Invalid plan tier for organization upgrade");
     }
   }
 
@@ -152,8 +187,9 @@ export class PremiumOrgUpgradeService {
   }> {
     const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString as string;
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey[1],
     );
     const collectionCt = collection.encryptedString as string;

@@ -1,11 +1,15 @@
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
-import BrowserPopupUtils, { PopupWidthOptions } from "./browser-popup-utils";
+import BrowserPopupUtils, {
+  POPUP_WIDTH_STORAGE_KEY,
+  PopupWidthOptions,
+} from "./browser-popup-utils";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   describe("inSidebar", () => {
@@ -19,6 +23,24 @@ describe("BrowserPopupUtils", () => {
       const win = { location: { href: "https://jest-testing.com?uilocation=popout" } } as Window;
 
       expect(BrowserPopupUtils.inSidebar(win)).toBe(false);
+    });
+  });
+
+  describe("inSidePanel", () => {
+    it("should return true if the window URL contains uilocation=sidepanel", () => {
+      const win = {
+        location: { href: "https://jest-testing.com?uilocation=sidepanel" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inSidePanel(win)).toBe(true);
+    });
+
+    it("should return false if the window URL does not contain uilocation=sidepanel", () => {
+      const win = {
+        location: { href: "https://jest-testing.com?uilocation=popout" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inSidePanel(win)).toBe(false);
     });
   });
 
@@ -149,6 +171,9 @@ describe("BrowserPopupUtils", () => {
         incognito: false,
         width: PopupWidthOptions.default,
       });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "win",
+      } as chrome.runtime.PlatformInfo);
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
     });
 
@@ -267,6 +292,98 @@ describe("BrowserPopupUtils", () => {
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
       });
     });
+
+    it("uses the narrow width when localStorage has the narrow setting", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      localStorage.setItem(POPUP_WIDTH_STORAGE_KEY, "narrow");
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.narrow,
+        }),
+      );
+    });
+
+    it("uses the wide width when localStorage has the wide setting", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      localStorage.setItem(POPUP_WIDTH_STORAGE_KEY, "wide");
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.wide,
+        }),
+      );
+    });
+
+    it("falls back to chrome.storage width when localStorage has no stored width", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      (chrome.storage.local.get as jest.Mock).mockResolvedValueOnce({
+        "global_popupStyle_popup-width": { __json__: true, value: '"narrow"' },
+      });
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.narrow,
+        }),
+      );
+    });
+
+    it("omits position when on Linux with Wayland-like coordinates (left=0, top=0)", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserApi, "getWindow").mockReset().mockResolvedValueOnce({
+        id: 2,
+        left: 0,
+        top: 0,
+        focused: false,
+        alwaysOnTop: false,
+        incognito: false,
+        width: PopupWidthOptions.default,
+      });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
+
+    it("includes position when on Linux with non-zero window coordinates", async () => {
+      const url = "popup/index.html";
+      // Uses the beforeEach window (left: 100, top: 100) — non-zero, so not Wayland-like.
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
   });
 
   describe("openCurrentPagePopout", () => {
@@ -337,6 +454,51 @@ describe("BrowserPopupUtils", () => {
     });
   });
 
+  describe("closeCurrentPopupOrPopout", () => {
+    const win = {} as Window;
+
+    it("closes the browser action popup when the view is a popup", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+
+    it("removes the current window when the view is a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow").mockResolvedValue({ id: 42 } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "removeWindow").mockResolvedValue();
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.removeWindow).toHaveBeenCalledWith(42);
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the view is neither a popup nor a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+  });
+
   describe("waitForAllPopupsClose", () => {
     beforeEach(() => {
       jest.useFakeTimers();
@@ -347,17 +509,17 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve immediately if no popups are open", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(false);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
       jest.advanceTimersByTime(100);
 
       await expect(promise).resolves.toBeUndefined();
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(1);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(1);
     });
 
     it("should resolve after timeout if popup never closes when using custom timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose(500);
 
@@ -368,7 +530,7 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve after timeout if popup never closes when using default timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
 
@@ -380,7 +542,7 @@ describe("BrowserPopupUtils", () => {
 
     it("should stop polling after popup closes before timeout", async () => {
       let callCount = 0;
-      jest.spyOn(BrowserApi, "isPopupOpen").mockImplementation(async () => {
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockImplementation(async () => {
         callCount++;
         return callCount <= 2;
       });
@@ -395,7 +557,7 @@ describe("BrowserPopupUtils", () => {
       // Advance further to ensure no more calls are made
       jest.advanceTimersByTime(1000);
 
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(3);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(3);
     });
   });
 

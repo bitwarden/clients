@@ -21,12 +21,12 @@ export abstract class AutomaticUserConfirmationService {
    * This will check if the feature is enabled, the organization plan feature UseAutomaticUserConfirmation is enabled
    * and the the provided user has admin/owner/manage custom permission role.
    * @param userId
-   * @returns Observable<boolean> an observable with a boolean telling us if the provided user may confgure the auto confirm feature.
+   * @returns Observable<boolean> an observable with a boolean telling us if the provided user may configure the auto confirm feature.
    **/
   abstract canManageAutoConfirm$(userId: UserId): Observable<boolean>;
   /**
    * Calls the API endpoint to initiate automatic user confirmation.
-   * @param userId The userId of the logged in admin performing auto confirmation. This is neccesary to perform the key exchange and for permissions checks.
+   * @param userId The userId of the logged in admin performing auto confirmation. This is necessary to perform the key exchange and for permissions checks.
    * @param confirmedUserId The userId of the member being confirmed (for key exchange).
    * @param confirmedOrganizationUserId The Organization userId of the member being confirmed (for confirm action).
    * @param organization the organization the member is being auto confirmed to.
@@ -37,4 +37,13 @@ export abstract class AutomaticUserConfirmationService {
     confirmedOrganizationUserId: UserId,
     organization: OrganizationId,
   ): Promise<void>;
+  /**
+   * Sweeps for all organization members in the Accepted state that were not confirmed
+   * while the admin was offline, and bulk auto-confirms them.
+   *
+   * This should be called when a user transitions to the Unlocked auth state.
+   *
+   * @param userId The userId of the admin performing the sweep.
+   **/
+  abstract bulkAutoConfirmPendingUsers(userId: UserId): Promise<void>;
 }

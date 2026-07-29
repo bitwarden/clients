@@ -1,9 +1,5 @@
 <ng-container *ngIf="view$ | async as view">
-  <div
-    cdkOverlayOrigin
-    #trigger="cdkOverlayOrigin"
-    [hidden]="!view.showSwitcher || !useNewAccountSwitcher()"
-  >
+  <div cdkOverlayOrigin #trigger="cdkOverlayOrigin" [hidden]="!view.showSwitcher">
     @if (view.activeAccount?.email != null) {
       <button
         class="account-switcher-v2"

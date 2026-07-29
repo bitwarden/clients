@@ -1,15 +1,18 @@
 import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
-import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 
@@ -30,8 +33,14 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 })
 export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
+  private sendPolicyService = inject(SendPolicyService);
 
   protected readonly logo = PasswordManagerLogo;
+
+  protected readonly sendEnabled = toSignal(
+    this.sendPolicyService.disableSend$.pipe(map((disableSend) => !disableSend)),
+    { initialValue: true },
+  );
 
   protected openGenerator() {
     this.dialogService.open(CredentialGeneratorComponent);

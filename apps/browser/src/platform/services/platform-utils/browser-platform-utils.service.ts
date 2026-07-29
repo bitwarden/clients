@@ -149,38 +149,12 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
-  /**
-   * Identifies if the vault popup is currently open. This is done by sending a
-   * message to the popup and waiting for a response. If a response is received,
-   * the view is open.
-   */
   async isPopupOpen(): Promise<boolean> {
-    if (this.isSafari()) {
-      // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
-      return BrowserApi.isPopupOpen();
-    }
+    return BrowserApi.isPopupOpen();
+  }
 
-    return new Promise<boolean>((resolve, reject) => {
-      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
-        if (chrome.runtime.lastError != null) {
-          // This error means that nothing was there to listen to the message,
-          // meaning the view is not open.
-          if (
-            chrome.runtime.lastError.message ===
-            "Could not establish connection. Receiving end does not exist."
-          ) {
-            resolve(false);
-            return;
-          }
-
-          // All unhandled errors still reject
-          reject(chrome.runtime.lastError);
-          return;
-        }
-
-        resolve(Boolean(response));
-      });
-    });
+  async isAnyViewFocused(): Promise<boolean> {
+    return BrowserApi.isAnyViewFocused();
   }
 
   lockTimeout(): number {
@@ -237,9 +211,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * Copies the passed text to the clipboard. For Safari, this will use
    * the native messaging API to send the text to the Bitwarden app. If
-   * the extension is using manifest v3, the offscreen document API will
-   * be used to copy the text to the clipboard. Otherwise, the browser's
-   * clipboard API will be used.
+   * the extension is using manifest v3 and the calling context does not
+   * have direct DOM access (e.g. a service worker), the offscreen document
+   * API will be used to copy the text to the clipboard. Otherwise, the
+   * browser's clipboard API will be used directly, which requires a focused
+   * document with a user gesture (e.g. the popup).
    *
    * @param text - The text to copy to the clipboard.
    * @param options - Options for the clipboard operation.
@@ -264,7 +240,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       text = "\u0000";
     }
 
-    if (BrowserApi.isManifestVersion(3) && this.offscreenDocumentService.offscreenApiSupported()) {
+    if (
+      BrowserApi.isManifestVersion(3) &&
+      this.offscreenDocumentService.offscreenApiSupported() &&
+      typeof windowContext.document === "undefined"
+    ) {
       void this.triggerOffscreenCopyToClipboard(text).then(handleClipboardWriteCallback);
 
       return;
@@ -276,9 +256,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * Reads the text from the clipboard. For Safari, this will use the
    * native messaging API to request the text from the Bitwarden app. If
-   * the extension is using manifest v3, the offscreen document API will
-   * be used to read the text from the clipboard. Otherwise, the browser's
-   * clipboard API will be used.
+   * the extension is using manifest v3 and the calling context does not
+   * have direct DOM access (e.g. a service worker), the offscreen document
+   * API will be used to read the text from the clipboard. Otherwise, the
+   * browser's clipboard API will be used directly.
    *
    * @param options - Options for the clipboard operation.
    */
@@ -289,7 +270,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       return await SafariApp.sendMessageToApp("readFromClipboard");
     }
 
-    if (BrowserApi.isManifestVersion(3) && this.offscreenDocumentService.offscreenApiSupported()) {
+    if (
+      BrowserApi.isManifestVersion(3) &&
+      this.offscreenDocumentService.offscreenApiSupported() &&
+      typeof windowContext.document === "undefined"
+    ) {
       return await this.triggerOffscreenReadFromClipboard();
     }
 

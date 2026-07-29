@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { takeUntil } from "rxjs";
@@ -11,8 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
-import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
-import { EventService } from "@bitwarden/web-vault/app/core";
+import { EventService, BaseEventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
 
 import { ServiceAccountEventLogApiService } from "./service-account-event-log-api.service";

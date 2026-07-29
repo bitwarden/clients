@@ -1,0 +1,97 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./bulk-actions-bar.stories";
+
+<Meta of={stories} />
+
+```ts
+import {
+  BulkActionComponent,
+  BulkActionsBarComponent,
+  BulkAdditionalActionComponent,
+} from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+<Primary />
+<Controls />
+
+## Declaring actions
+
+Project `<bit-bulk-action>` elements into the bar — one per action. Each is a data holder: it
+renders no DOM itself; the bar reads its inputs and renders the toolbar button.
+
+```html
+<bit-bulk-actions-bar [selectedCount]="selectedCount()" (clear)="clearAll()">
+  <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
+  <bit-bulk-action [action]="delete" icon="bwi-trash" label="Delete" [disabled]="allReadOnly()" />
+</bit-bulk-actions-bar>
+```
+
+- `[action]` — required callback `() => void`. The bar invokes it when the user clicks the rendered
+  button (or activates it via keyboard).
+- `[label]` — required string. Becomes the button's visible text and, in compact mode, its tooltip /
+  aria-label.
+- `[icon]` — required `BitwardenIcon`. Every action in the toolbar row carries an icon so it has
+  something to fall back to when compact mode collapses labels.
+- `[disabled]` — optional boolean; propagates to the rendered button.
+
+The consumer's `[action]` callback is the only place a primary action's click logic lives. There is
+no `(click)` event on `<bit-bulk-action>`.
+
+## Visibility
+
+The bar auto-renders when `selectedCount > 0` and slides offscreen when the count returns to `0`. It
+stays mounted at all times — visibility is purely a CSS transform — so screen readers can still
+announce the count-to-zero transition via the bar's internal live region.
+
+## Clearing the selection
+
+The bar always renders a built-in **Clear** button immediately after the selection count, using the
+`bwi-clear` icon and a localized label. Wire `(clear)` to reset your selection state — typically a
+CDK `SelectionModel.clear()` call.
+
+## Additional actions
+
+Project `<bit-bulk-additional-action>` entries to add menu-only actions — items that live in the
+overflow / "Additional actions" menu, not in the toolbar row. When at least one is present, the bar
+renders an icon-only ellipsis trigger at the end of the toolbar that opens a bar-owned menu
+containing those entries.
+
+The `[icon]` input is **optional** on additional actions (unlike primary actions, where it's
+required) — menu items can be label-only. When provided, the icon renders as a leading affordance
+inside the menu item.
+
+```html
+<bit-bulk-additional-action [action]="share" icon="bwi-share" label="Share" />
+<bit-bulk-additional-action [action]="export" label="Export" />
+```
+
+<Canvas of={stories.WithAdditionalActions} />
+
+## Compact mode
+
+When the bar's container is narrower than the bar's natural width, a `ResizeObserver` flips the bar
+into compact mode: action labels collapse and each rendered button exposes its label via tooltip
+instead. No consumer wiring is required.
+
+<Canvas of={stories.Compact} />
+
+## Keyboard shortcut
+
+While the bar is visible, pressing <kbd>Cmd+B</kbd> (Mac) or <kbd>Ctrl+B</kbd> (Windows/Linux) moves
+focus to the first item in the bar. Pressing it again restores focus to whatever element was focused
+before — the same stash-and-restore pattern CDK Overlay uses internally.
+
+## Accessibility
+
+- The bar has `role="toolbar"` with `aria-orientation="horizontal"` and a localized `aria-label`.
+  Focus inside the bar follows a roving tabindex via Angular CDK's `FocusKeyManager` — horizontal
+  arrow keys move between items, <kbd>Home</kbd>/<kbd>End</kbd> jump to the ends, and navigation
+  wraps.
+- A visually-hidden `role="status" aria-live="polite"` region sits alongside the toolbar and
+  announces count changes — including the "Selection cleared" transition that fires after the bar
+  slides away.
+- While hidden, the bar carries `inert` and `aria-hidden="true"` so it can't be focused or read by
+  assistive technology.

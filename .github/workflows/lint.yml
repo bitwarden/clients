@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -64,7 +64,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -95,20 +95,21 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: stable
+          toolchain: 1.96.0
           components: rustfmt, clippy
 
       - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
+        id: rust-nightly
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: nightly
+          toolchain: nightly-2026-06-29
           components: rustfmt
 
       - name: Check Rust version
@@ -119,7 +120,13 @@ jobs:
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly fmt --check
+        # Use the exact toolchain installed above (Renovate manages the version
+        # via the `with: toolchain:` input) so the invoked toolchain can never
+        # drift from the installed one. Passed through env rather than
+        # interpolated into the run script to satisfy the template-injection rule.
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
@@ -127,24 +134,18 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
 
-      - name: Install cargo-sort
-        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev ac6e328faf467a39e38ab48dc60dcf4f6a46d7a5 # v2.0.2
+      - name: Install cargo tool dependencies
+        run: ./scripts/prepare-env-unix-rust.sh
 
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
         run: cargo sort --workspace --check
 
-      - name: Install cargo-udeps
-        run: cargo install cargo-udeps --version 0.1.57 --locked
-
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly udeps --workspace --all-features --all-targets
-
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@887bc4e03483810873d617344dd5189cd82e7b8b # v2.67.11
-        with:
-          tool: cargo-deny@0.18.6
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" udeps --workspace --all-features --all-targets
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native

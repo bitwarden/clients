@@ -11,10 +11,12 @@ import {
   TypographyModule,
   CalloutTypes,
   ButtonType,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
-import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BitwardenSubscription, SubscriptionStatuses } from "../..";
 
 export const SubscriptionCardActions = {
   ContactSupport: "contact-support",
@@ -33,7 +35,7 @@ type Badge = { text: string; variant: BadgeVariant };
 type Callout = Maybe<{
   title: string;
   type: CalloutTypes;
-  icon?: string;
+  icon?: BitwardenIcon;
   description: string;
   callsToAction?: {
     text: string;
@@ -58,8 +60,8 @@ type Callout = Maybe<{
   ],
 })
 export class SubscriptionCardComponent {
-  private datePipe = inject(DatePipe);
-  private i18nService = inject(I18nService);
+  private readonly datePipe = inject(DatePipe);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly dateFormat = "MMM. d, y";
 
@@ -188,7 +190,7 @@ export class SubscriptionCardComponent {
         return {
           title: this.i18nService.t("upgradeYourPlan"),
           type: "info",
-          icon: "bwi-gem",
+          icon: "bwi-diamond",
           description: this.i18nService.t("premiumShareEvenMore"),
           callsToAction: [
             {

@@ -1,8 +1,8 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BadgeListComponent } from "./badge-list.component";
@@ -48,7 +48,7 @@ export const Default: Story = {
   }),
 
   args: {
-    variant: "info",
+    variant: "primary",
     maxItems: 3,
     items: ["Badge 1", "Badge 2", "Badge 3", "Badge 4", "Badge 5"],
     truncate: false,
@@ -58,7 +58,7 @@ export const Default: Story = {
 export const Truncated: Story = {
   ...Default,
   args: {
-    variant: "info",
+    variant: "primary",
     maxItems: 3,
     items: ["Badge 1", "Badge 2 containing lengthy text", "Badge 3", "Badge 4", "Badge 5"],
     truncate: true,

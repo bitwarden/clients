@@ -57,7 +57,7 @@ export class ChangeKdfConfirmationComponent {
         variant: "success",
         message: this.i18nService.t("encKeySettingsChanged"),
       });
-      this.dialogRef.close();
+      await this.dialogRef.close();
     } else {
       this.toastService.showToast({
         variant: "success",

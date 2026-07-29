@@ -29,7 +29,7 @@
     "message": "Đăng nhập bằng khóa truy cập"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Mở khóa bằng mã khóa"
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Tổ chức của bạn yêu cầu đăng nhập một lần."
   },
-  "welcomeBack": {
-    "message": "Chào mừng bạn trở lại"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Đăng nhập"
   },
   "setAStrongPassword": {
     "message": "Đặt một mật khẩu mạnh"
@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "Sao chép số hộ chiếu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Sao chép số căn cước"
+  },
+  "copyFirstName": {
+    "message": "Sao chép tên"
+  },
+  "copyMiddleName": {
+    "message": "Sao chép tên đệm"
+  },
+  "copyLastName": {
+    "message": "Sao chép họ"
+  },
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
   },
@@ -202,8 +214,13 @@
     "message": "Điền",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Tự động điền"
+  "autofillNoun": {
+    "message": "Tự động điền",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Tự động điền",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Tự động điền thông tin đăng nhập"
@@ -272,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Nhập địa chỉ email tài khoản của bạn và gợi ý mật khẩu sẽ được gửi đến bạn"
   },
-  "getMasterPasswordHint": {
-    "message": "Nhận gợi ý mật khẩu chính"
+  "hint": {
+    "message": "Gợi ý"
   },
   "continue": {
     "message": "Tiếp tục"
@@ -375,6 +392,9 @@
   },
   "save": {
     "message": "Lưu"
+  },
+  "saveAndFill": {
+    "message": "Lưu và điền"
   },
   "move": {
     "message": "Di chuyển"
@@ -574,10 +594,10 @@
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Mục đã được lưu trữ"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Đã bỏ lưu trữ mục"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -593,6 +613,23 @@
   },
   "upgradeToUseArchive": {
     "message": "Cần là thành viên cao cấp để sử dụng tính năng Lưu trữ."
+  },
+  "archiveItemsPlural": {
+    "message": "Lưu trữ $NUM$ mục",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Lưu trữ mục",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Sau khi lưu trữ, các mục này sẽ bị loại trừ khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
   "itemRestored": {
     "message": "Mục đã được khôi phục"
@@ -696,23 +733,33 @@
   "unlockMethods": {
     "message": "Tùy chọn mở khóa"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
-  },
   "unlockMethodNeeded": {
     "message": "Thiết lập phương pháp mở khóa trong Cài đặt"
   },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
   },
-  "vaultTimeoutHeader": {
-    "message": "Thời gian mở kho"
-  },
   "otherOptions": {
     "message": "Tùy chọn khác"
   },
   "rateExtension": {
     "message": "Đánh giá tiện ích mở rộng"
+  },
+  "troubleshooting": {
+    "message": "Khắc phục sự cố"
+  },
+  "experiencingAnIssue": {
+    "message": "Bạn đang gặp sự cố?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Tải xuống sau đó chia sẻ báo cáo chẩn đoán với"
+  },
+  "bitwardenSupport": {
+    "message": "bộ phận hỗ trợ Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Tải xuống"
   },
   "browserNotSupportClipboard": {
     "message": "Trình duyệt web của bạn không hỗ trợ sao chép vào bảng nhớ tạm một cách dễ dàng. Vui lòng sao chép thủ công."
@@ -897,7 +944,7 @@
     "message": "Mã xác minh không đúng"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Email hoặc mã xác thực không hợp lệ"
   },
   "valueCopied": {
     "message": "Đã sao chép $VALUE$",
@@ -948,8 +995,8 @@
   "logIn": {
     "message": "Đăng nhập"
   },
-  "logInToBitwarden": {
-    "message": "Đăng nhập Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Đăng nhập"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Nhập mã được gửi về email của bạn"
@@ -991,10 +1038,10 @@
     "message": "Không"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Bất kỳ ai có liên kết"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Bất kỳ ai có mật khẩu do bạn đặt"
   },
   "location": {
     "message": "Vị trí"
@@ -1040,6 +1087,10 @@
   },
   "passwordCopied": {
     "message": "Đã sao chép mật khẩu"
+  },
+  "passwordAnnounceSpace": {
+    "message": "dấu nối",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1153,6 +1204,15 @@
   "clearClipboardDesc": {
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
+  },
+  "clipboardSettingUpdated": {
+    "message": "Đã cập nhật cài đặt bộ nhớ tạm"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Thời gian chờ của bộ nhớ tạm đang được đặt ở giá trị mặc định. Để tăng cường bảo mật, giá trị mặc định này đã được cập nhật thành 5 phút."
+  },
+  "jumpToSetting": {
+    "message": "Chuyển đến cài đặt"
   },
   "notificationAddDesc": {
     "message": "Bạn có cần Bitwarden nhớ giúp bạn mật khẩu này không?"
@@ -1307,6 +1367,18 @@
   "additionalOptions": {
     "message": "Tùy chọn bổ sung"
   },
+  "enableFillAssist": {
+    "message": "Sử dụng hỗ trợ điền"
+  },
+  "turnOnFillAssist": {
+    "message": "Bật hỗ trợ điền"
+  },
+  "enableFillAssistDescription": {
+    "message": "Hỗ trợ điền giúp cải thiện độ chính xác của tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng của trang web. Không có dữ liệu nào được thu thập hoặc lưu lại khi bạn sử dụng tính năng này."
+  },
+  "aboutFillAssist": {
+    "message": "Giới thiệu về hỗ trợ điền"
+  },
   "enableContextMenuItem": {
     "message": "Hiển thị tuỳ chọn menu ngữ cảnh"
   },
@@ -1383,8 +1455,8 @@
   "accountRestricted": {
     "message": "Tài khoản bị hạn chế"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“Mật khẩu tập tin” và “Nhập lại mật khẩu tập tin” không khớp."
+  "filePasswordConfirmationMismatch": {
+    "message": "\"Mật khẩu tệp\" và \"Xác nhận mật khẩu tệp\" không khớp."
   },
   "warning": {
     "message": "CẢNH BÁO",
@@ -1397,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "Xác nhận xuất kho"
   },
-  "exportWarningDesc": {
-    "message": "Bản xuất này chứa dữ liệu kho bạn và không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin đã xuất thông qua phương thức rủi ro (như email). Vui lòng xóa nó ngay lập tức khi bạn đã sử dụng xong."
+  "exportUnencryptedWarningDesc": {
+    "message": "Tệp xuất này chứa dữ liệu kho lưu trữ của bạn ở dạng không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin này thông qua phương thức không an toàn (như email). Hãy xóa tệp ngay sau khi sử dụng xong."
   },
   "encExportKeyWarningDesc": {
     "message": "Quá trình xuất này sẽ mã hóa dữ liệu của bạn bằng khóa mã hóa của tài khoản. Nếu bạn từng thay đổi mã hóa tài khoản của mình, bạn nên xuất lại vì bạn sẽ không thể giải mã tập tin xuất này."
@@ -1411,6 +1483,18 @@
   },
   "shared": {
     "message": "Đã chia sẻ"
+  },
+  "sharedFolder": {
+    "message": "Thư mục chia sẻ"
+  },
+  "sharedFolders": {
+    "message": "Thư mục chia sẻ"
+  },
+  "myFolder": {
+    "message": "Thư mục của tôi"
+  },
+  "myFolders": {
+    "message": "Thư mục của tôi"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden cho Doanh Nghiệp cho phép bạn chia sẻ các mục trong kho mật khẩu với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com."
@@ -1500,6 +1584,12 @@
   "file": {
     "message": "Tập tin"
   },
+  "photo": {
+    "message": "Ảnh"
+  },
+  "unknown": {
+    "message": "Không rõ"
+  },
   "fileToShare": {
     "message": "Tệp để chia sẻ"
   },
@@ -1536,7 +1626,7 @@
   "premiumSignUpAndGet": {
     "message": "Đăng ký làm thành viên Cao cấp và nhận được:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
   "premiumSignUpStorageV2": {
@@ -1563,16 +1653,16 @@
   "restartPremium": {
     "message": "Khởi động lại gói Cao cấp"
   },
-  "ppremiumSignUpReports": {
-    "message": "Thanh lọc mật khẩu, kiểm tra an toàn tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho dữ liệu của bạn."
+  "premiumSignUpReports": {
+    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Trình tạo mã xác nhận TOTP (2FA) để đăng nhập vào kho lưu trữ của bạn."
+  "premiumSignUpTotp": {
+    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Ưu tiên hỗ trợ khách hàng."
+  "premiumSignUpSupport": {
+    "message": "Hỗ trợ khách hàng ưu tiên."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Tất cả các tính năng Cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
   },
   "premiumPurchase": {
@@ -1663,8 +1753,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Xác thực mã khóa thất bại"
   },
-  "useADifferentLogInMethod": {
-    "message": "Dùng phương thức đăng nhập khác"
+  "useDifferentLoginMethod": {
+    "message": "Sử dụng phương thức đăng nhập khác"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Đang chờ tương tác với khóa bảo mật..."
@@ -1760,6 +1850,9 @@
   "iconsUrl": {
     "message": "URL máy chủ biểu tượng"
   },
+  "sendUrl": {
+    "message": "Gửi URL máy chủ"
+  },
   "environmentSaved": {
     "message": "Các URL môi trường đã được lưu"
   },
@@ -1793,6 +1886,39 @@
   },
   "confirmAutofillDesc": {
     "message": "Trang web này không khớp với đăng nhập đã lưu của bạn. Trước khi bạn điền thông tin đăng nhập, hãy đảm bảo đây là trang web đáng tin cậy."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Thông tin đăng nhập không khớp"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Trang web này không khớp với đăng nhập đã lưu của bạn. Xác minh rằng bạn đang ở trên một trang web đáng tin cậy trước khi tự động điền."
+  },
+  "uriMatchRule": {
+    "message": "Quy tắc khớp URI"
+  },
+  "neverMatch": {
+    "message": "Không bao giờ khớp"
+  },
+  "loginHasNoSiteSaved": {
+    "message": "Thông tin đăng nhập này chưa lưu trang web"
+  },
+  "siteDoesntMatch": {
+    "message": "Trang web không khớp"
+  },
+  "loginNoSiteDesc": {
+    "message": "Thông tin đăng nhập này chưa lưu trang web nào. Xác minh rằng bạn đang ở trên một trang web đáng tin cậy trước khi tự động điền."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Trang web này không khớp với trang web đã lưu cho thông tin đăng nhập này. Xác minh rằng bạn đang ở trên một trang web đáng tin cậy trước khi tự động điền."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Trang web này không khớp với các trang web đã lưu cho thông tin đăng nhập này. Xác minh rằng bạn đang ở trên một trang web đáng tin cậy trước khi tự động điền."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Tự động điền và lưu trang web này"
+  },
+  "autofillOnly": {
+    "message": "Chỉ tự động điền"
   },
   "showInlineMenuLabel": {
     "message": "Hiển thị các gợi ý tự động điền trên các trường biểu mẫu"
@@ -1949,11 +2075,32 @@
   "brand": {
     "message": "Thương hiệu"
   },
+  "birthDay": {
+    "message": "Ngày sinh"
+  },
+  "birthMonth": {
+    "message": "Tháng sinh"
+  },
+  "birthYear": {
+    "message": "Năm sinh"
+  },
+  "expirationDay": {
+    "message": "Ngày hết hạn"
+  },
   "expirationMonth": {
     "message": "Tháng hết hạn"
   },
   "expirationYear": {
     "message": "Năm hết hạn"
+  },
+  "issueDay": {
+    "message": "Ngày cấp"
+  },
+  "issueMonth": {
+    "message": "Tháng cấp"
+  },
+  "issueYear": {
+    "message": "Năm cấp"
   },
   "monthly": {
     "message": "tháng"
@@ -2048,6 +2195,51 @@
   "passportNumber": {
     "message": "Số hộ chiếu"
   },
+  "dateOfBirth": {
+    "message": "Ngày sinh"
+  },
+  "sex": {
+    "message": "Giới tính"
+  },
+  "copySex": {
+    "message": "Sao chép giới tính"
+  },
+  "birthPlace": {
+    "message": "Nơi sinh"
+  },
+  "copyBirthPlace": {
+    "message": "Sao chép nơi sinh"
+  },
+  "nationality": {
+    "message": "Quốc tịch"
+  },
+  "copyNationality": {
+    "message": "Sao chép quốc tịch"
+  },
+  "issuingCountry": {
+    "message": "Quốc gia cấp"
+  },
+  "copyIssuingCountry": {
+    "message": "Sao chép quốc gia cấp"
+  },
+  "passportType": {
+    "message": "Loại hộ chiếu"
+  },
+  "copyPassportType": {
+    "message": "Sao chép loại hộ chiếu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Số căn cước"
+  },
+  "issuingAuthority": {
+    "message": "Cơ quan cấp"
+  },
+  "copyIssuingAuthority": {
+    "message": "Sao chép cơ quan / văn phòng cấp"
+  },
+  "issueDate": {
+    "message": "Ngày cấp"
+  },
   "licenseNumber": {
     "message": "Số giấy phép lái xe"
   },
@@ -2055,7 +2247,7 @@
     "message": "Email"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Email"
   },
   "phone": {
     "message": "Số điện thoại"
@@ -2105,8 +2297,104 @@
   "typeSshKey": {
     "message": "Khóa SSH"
   },
+  "bankAccount": {
+    "message": "Tài khoản ngân hàng"
+  },
+  "bankAccountDetails": {
+    "message": "Chi tiết tài khoản ngân hàng"
+  },
   "typeNote": {
     "message": "Ghi chú"
+  },
+  "typeBankAccount": {
+    "message": "Tài khoản ngân hàng"
+  },
+  "typeLoginSubtitle": {
+    "message": "Trang web hoặc ứng dụng"
+  },
+  "typeCardSubtitle": {
+    "message": "Thẻ tín dụng hoặc thẻ ghi nợ"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Thông tin cá nhân"
+  },
+  "typeNoteSubtitle": {
+    "message": "Văn bản quan trọng"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token đăng nhập máy chủ"
+  },
+  "folderSubtitle": {
+    "message": "Sắp xếp các mục của bạn"
+  },
+  "collectionSubtitle": {
+    "message": "Sắp xếp các mục chia sẻ"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Chi tiết ngân hàng"
+  },
+  "typePassport": {
+    "message": "Hộ chiếu"
+  },
+  "passportDetails": {
+    "message": "Chi tiết hộ chiếu"
+  },
+  "passportAdded": {
+    "message": "Đã thêm hộ chiếu"
+  },
+  "typePassportSubtitle": {
+    "message": "Giấy tờ du lịch"
+  },
+  "typeDriversLicense": {
+    "message": "Giấy phép"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Bằng lái xe hoặc giấy tờ tùy thân"
+  },
+  "driversLicenseDetails": {
+    "message": "Chi tiết giấy phép"
+  },
+  "issuingState": {
+    "message": "Bang / tỉnh cấp"
+  },
+  "licenseClass": {
+    "message": "Hạng giấy phép"
+  },
+  "addItemHeaderLogin": {
+    "message": "Thêm mục đăng nhập",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Thêm thẻ",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Thêm danh tính",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Thêm ghi chú",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Thêm ghi chú bảo mật",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Thêm khóa SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Thêm tài khoản ngân hàng",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Thêm giấy phép",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Thêm hộ chiếu",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Đăng nhập mới",
@@ -2124,16 +2412,32 @@
     "message": "Ghi chú mới",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Ghi chú bảo mật mới",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Khóa SSH mới",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Send văn bản mới",
+  "newItemHeaderBankAccount": {
+    "message": "Tài khoản ngân hàng mới",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Giấy phép mới",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Hộ chiếu mới",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "Văn bản mới",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Send tập tin mới",
+  "newItemHeaderFileSendV2": {
+    "message": "Tệp mới",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2152,16 +2456,48 @@
     "message": "Chỉnh sửa ghi chú",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Chỉnh sửa ghi chú bảo mật",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Chỉnh sửa đăng nhập",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Chỉnh sửa thẻ",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Chỉnh sửa danh tính",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Chỉnh sửa ghi chú",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Sửa khóa SSH",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Sửa Send văn bản",
+  "editItemHeaderBankAccount": {
+    "message": "Chỉnh sửa tài khoản ngân hàng",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Chỉnh sửa giấy phép",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Chỉnh sửa hộ chiếu",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Chỉnh sửa văn bản",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Sửa Send tập tin",
+  "editItemHeaderFileSendV2": {
+    "message": "Chỉnh sửa tệp",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2180,9 +2516,28 @@
     "message": "Xem ghi chú",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Xem ghi chú bảo mật",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "Xem khóa SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Xem tài khoản ngân hàng",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "Xem giấy phép",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Xem hộ chiếu",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Chọn mục để thêm"
   },
   "passwordHistory": {
     "message": "Lịch sử mật khẩu"
@@ -2193,7 +2548,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Dọn dẹp lịch sử trình tạo"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Nếu bạn tiếp tục, tất cả các mục sẽ bị xóa vĩnh viễn khỏi lịch sử của trình tạo. Bạn có chắc chắn muốn tiếp tục không?"
   },
   "back": {
@@ -2238,6 +2593,35 @@
   "clear": {
     "message": "Xoá",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Đã chọn"
+  },
+  "selectedLowercase": {
+    "message": "đã chọn",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
+  "bulkActionsBar": {
+    "message": "Thao tác hàng loạt"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Đã chọn $COUNT$ mục. Thanh thao tác hàng loạt hiện có sẵn ở cuối màn hình. Nhấn $SHORTCUTBINDING$ để chuyển tiêu điểm sang thanh thao tác hàng loạt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Đã xóa lựa chọn"
+  },
+  "additionalActions": {
+    "message": "Thao tác bổ sung"
   },
   "checkPassword": {
     "message": "Kiểm tra xem mật khẩu có bị lộ không."
@@ -2372,6 +2756,30 @@
   "weakMasterPasswordDesc": {
     "message": "Mật khẩu chính bạn vừa chọn hơi yếu. Bạn nên chọn mật khẩu chính mạnh(hoặc một cụm mật khẩu) để bảo vệ tài khoản Bitwarden của mình một cách an toàn. Bạn có thực sự muốn dùng mật khẩu chính này không?"
   },
+  "rotateAccountEncKey": {
+    "message": "Đồng thời thay đổi khóa mã hóa tài khoản của tôi"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Thay đổi khóa mã hóa"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Bạn có chắc chắn muốn thay đổi khóa mã hóa của tài khoản không?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Sau khi cập nhật khóa mã hóa của bạn, bạn bắt buộc phải đăng xuất và đăng nhập lại vào tất cả các ứng dụng Bitwarden mà bạn đang sử dụng (chẳng hạn như ứng dụng di động hoặc tiện ích mở rộng trình duyệt). Nếu không đăng xuất và đăng nhập lại (để tải xuống khóa mã hóa mới), dữ liệu của bạn có thể bị hỏng. Chúng tôi sẽ cố gắng tự động đăng xuất bạn, tuy nhiên có thể sẽ bị trễ."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Mọi bản xuất bị giới hạn theo tài khoản mà bạn đã lưu sẽ bị vô hiệu."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Có một số tệp đính kèm cũ trong kho lưu trữ của bạn cần được sửa chữa trước khi bạn có thể thay đổi khóa mã hóa của tài khoản."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Tác động của việc thay đổi khóa mã hóa"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Các chính sách của tổ chức yêu cầu mật khẩu chính phải đáp ứng các yêu cầu sau:"
+  },
   "pin": {
     "message": "Mã PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2870,8 @@
   "vaultTimeoutAction": {
     "message": "Hành động sau khi đóng kho"
   },
-  "vaultTimeoutAction1": {
-    "message": "Hành động sau khi đóng kho"
+  "showAtRiskPasswordNotifications": {
+    "message": "Hiển thị thông báo mật khẩu có rủi ro"
   },
   "lock": {
     "message": "Khóa",
@@ -2590,8 +2998,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Mật khẩu chính bạn chọn không đáp ứng yêu cầu."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden trong hộp thư đến của bạn."
+  "receiveMarketingEmails": {
+    "message": "Nhận các thông tin cập nhật từ Bitwarden trong hộp thư đến của bạn."
   },
   "unsubscribe": {
     "message": "Hủy đăng ký"
@@ -2665,10 +3073,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Ứng dụng trên máy tính đang đăng nhập vào một tài khoản khác. Hãy đảm bảo cả hai ứng dụng được đăng nhập vào cùng một tài khoản."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Không khớp tài khoản"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Tài khoản không khớp"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Khóa sinh trắc học không khớp"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -2704,16 +3112,16 @@
   "biometricsFailedDesc": {
     "message": "Không thể xác thực sinh trắc học, hãy cân nhắc sử dụng mật khẩu chính hoặc đăng xuất. Nếu sự cố vẫn tiếp diễn, vui lòng liên hệ bộ phận hỗ trợ của Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Chưa được cấp quyền"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Nếu không được phép giao tiếp với Ứng dụng Bitwarden trên máy tính, chúng tôi không thể cung cấp tính năng sinh trắc học trong tiện ích mở rộng trình duyệt. Vui lòng thử lại."
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Không có quyền giao tiếp với Ứng dụng Bitwarden trên máy tính nên tiện ích mở rộng trình duyệt không thể sử dụng tính năng sinh trắc học. Vui lòng thử lại."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Lỗi yêu cầu quyền truy cập"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Không thể thực hiện hành động này trong thanh bên, vui lòng thử lại hành động trong cửa sổ bật lên hoặc cửa sổ bật ra."
   },
   "personalOwnershipSubmitError": {
@@ -2819,8 +3227,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ yêu cầu bạn thay đổi mật khẩu này vì nó đang gặp rủi ro. Vui lòng truy cập vào cài đặt tài khoản của bạn để thay đổi mật khẩu.",
+  "atRiskNavigatePromptV2": {
+    "message": "Mật khẩu của bạn cho trang web này có rủi ro. $ORGANIZATION$ đã yêu cầu bạn điều hướng đến cài đặt tài khoản của mình và thay đổi mật khẩu.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2834,6 +3242,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Kiểm tra và thay đổi $COUNT$ mật khẩu có rủi ro cao",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Xem lại 1 mật khẩu có rủi ro"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Xem lại $COUNT$ mật khẩu có rủi ro",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2861,7 +3281,7 @@
     "message": "Minh họa danh sách các tài khoản đăng nhập có rủi ro."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Hình minh họa bố cục của trang kho lưu trữ Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Tạo nhanh một mật khẩu mạnh, duy nhất bằng menu tự động điền của Bitwarden trên trang web có nguy cơ.",
@@ -3039,6 +3459,10 @@
     "message": "Tạo Send mới",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createSendV2": {
+    "message": "Tạo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "newPassword": {
     "message": "Mật khẩu mới"
   },
@@ -3087,7 +3511,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ giờ",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3096,7 +3520,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "Sao chép và chia sẻ liên kết Send này. Send sẽ khả dụng cho bất kỳ ai có liên kết trong vòng $TIME$ tới.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3106,7 +3530,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "Sao chép và chia sẻ liên kết Send này. Send sẽ khả dụng cho bất kỳ ai có liên kết và mật khẩu bạn đã đặt trong vòng $TIME$ tới.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3116,7 +3540,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "Sao chép và chia sẻ liên kết Send này. Liên kết có thể được xem bởi những người bạn đã chỉ định trong vòng $TIME$ tới.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3230,9 +3654,6 @@
   "minutes": {
     "message": "Phút"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
     "placeholders": {
@@ -3343,33 +3764,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Đang xuất dữ liệu kho cá nhân"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Chỉ dữ liệu trong kho cá nhân liên kết với $EMAIL$ mới được xuất. Không bao gồm các dữ liệu trong kho tổ chức. Chỉ thông tin về các mục trong kho mới được xuất, sẽ không có các tệp đính kèm.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Chỉ các mục kho lưu trữ cá nhân bao gồm các tệp đính kèm liên quan đến $EMAIL$ sẽ được xuất. Các mục trong kho lưu trữ của tổ chức sẽ không được bao gồm",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Đang xuất dữ liệu kho tổ chức"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Chỉ dữ liệu trong kho tổ chức $ORGANIZATION$ mới được xuất. Các kho cá nhân hoặc của tổ chức khác sẽ không được bao gồm.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Chỉ các mục trong kho lưu trữ cá nhân của bạn mới được xuất."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Chỉ các mục liên kết với kho lưu trữ $ORGANIZATION$ mới được xuất. Các mục trong kho lưu trữ cá nhân sẽ không được xuất.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3395,10 +3801,10 @@
     "message": "Lỗi"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Không thể mở khóa bằng mã khóa. Vui lòng thử lại hoặc sử dụng phương thức mở khóa khác."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Không có mã khóa hỗ trợ PRF nào khả dụng để mở khóa. Vui lòng đăng nhập bằng mã khóa trước."
   },
   "decryptionError": {
     "message": "Lỗi giải mã"
@@ -3424,7 +3830,7 @@
     "message": "Tạo email"
   },
   "spinboxBoundariesHint": {
-    "message": "Giá trị phải nằm trong khoảng từ $MIN$ đến $MAX$.",
+    "message": "Độ dài phải nằm trong khoảng từ $MIN$ đến $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -3524,8 +3930,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Khoá API $SERVICENAME$ không hợp lệ",
+  "forwarderInvalidToken": {
+    "message": "Token API $SERVICENAME$ không hợp lệ",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3534,7 +3940,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Token API $SERVICENAME$ không hợp lệ: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3548,8 +3954,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ của bạn để được hỗ trợ.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn. Vui lòng liên hệ với nhà cung cấp dịch vụ để được hỗ trợ.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3558,7 +3964,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ đã từ chối yêu cầu của bạn: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3635,7 +4041,7 @@
   "ssoKeyConnectorError": {
     "message": "Lỗi kết nối khóa: hãy đảm bảo kết nối khóa khả dụng và hoạt động bình thường."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Yêu cầu đăng ký gói Cao cấp"
   },
   "organizationIsDisabled": {
@@ -3679,9 +4085,6 @@
         "example": "Jun 15, 2015"
       }
     }
-  },
-  "loginWithMasterPassword": {
-    "message": "Đăng nhập bằng mật khẩu chính"
   },
   "newAroundHere": {
     "message": "Bạn mới tới đây sao?"
@@ -3752,6 +4155,24 @@
   },
   "loginStatus": {
     "message": "Trạng thái đăng nhập"
+  },
+  "recentlyActive": {
+    "message": "Hoạt động gần đây"
+  },
+  "recentlyActiveToday": {
+    "message": "Hôm nay"
+  },
+  "recentlyActivePast7Days": {
+    "message": "7 ngày qua"
+  },
+  "recentlyActivePast14Days": {
+    "message": "14 ngày qua"
+  },
+  "recentlyActivePast30Days": {
+    "message": "30 ngày qua"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Hơn 30 ngày trước"
   },
   "masterPasswordChanged": {
     "message": "Đã lưu mật khẩu chính"
@@ -4051,7 +4472,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai, trên bất kỳ nền tảng nào. Thông tin của bạn sẽ được mã hóa đầu cuối để hạn chế rủi ro bị lộ.",
+    "message": "Chia sẻ tệp tin và dữ liệu một cách an toàn với bất kỳ ai trên mọi nền tảng. Thông tin của bạn luôn được mã hóa đầu cuối để giảm nguy cơ bị lộ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4110,6 +4531,9 @@
   },
   "multipleInputEmails": {
     "message": "Có ít nhất 1 địa chỉ email không hợp lệ"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Danh sách người nhận email không được vượt quá 2.500 ký tự. Xóa một hoặc nhiều người nhận để tiếp tục."
   },
   "inputTrimValidator": {
     "message": "Dữ liệu nhập vào không được chỉ chứa khoảng trắng.",
@@ -4176,12 +4600,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Tự động điền khi tải trang được đặt thành mặc định trong cài đặt.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Không thể tự động điền"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Phép so khớp mặc định được đặt thành \"Khớp chính xác\". Trang web hiện tại không khớp chính xác với đăng nhập đã lưu cho mục này."
   },
   "okay": {
     "message": "Đồng ý"
@@ -4372,6 +4790,51 @@
   "importNothingError": {
     "message": "Không có gì được nhập."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ mục sẽ bị bỏ qua",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Không thể đọc các mục sau đây và chúng sẽ không được bao gồm trong dữ liệu nhập của bạn:"
+  },
+  "contact": {
+    "message": "Danh bạ"
+  },
+  "membership": {
+    "message": "Thẻ thành viên"
+  },
+  "passport": {
+    "message": "Hộ chiếu"
+  },
+  "driverLicense": {
+    "message": "Giấy phép lái xe"
+  },
+  "ssnCard": {
+    "message": "Thẻ căn cước"
+  },
+  "birthCertificate": {
+    "message": "Giấy khai sinh"
+  },
+  "databaseCredentials": {
+    "message": "Thông tin đăng nhập cơ sở dữ liệu"
+  },
+  "serverCredentials": {
+    "message": "Thông tin đăng nhập máy chủ"
+  },
+  "softwareLicense": {
+    "message": "Bản quyền phần mềm"
+  },
+  "healthInsurance": {
+    "message": "Bảo hiểm y tế"
+  },
+  "wifiCredentials": {
+    "message": "Thông tin đăng nhập Wi-Fi"
+  },
   "importEncKeyError": {
     "message": "Lỗi giải mã tập tin đã xuất. Khóa mã hóa của bạn không khớp với khóa mã hóa được sử dụng để xuất dữ liệu."
   },
@@ -4408,6 +4871,9 @@
   "chooseFile": {
     "message": "Chọn tập tin"
   },
+  "chooseFileSentenceCase": {
+    "message": "Chọn tệp"
+  },
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
@@ -4433,8 +4899,47 @@
   "confirmFilePassword": {
     "message": "Nhập lại mật khẩu tập tin"
   },
+  "keePassMasterPassword": {
+    "message": "Mật khẩu chính KeePass"
+  },
+  "addKeyFile": {
+    "message": "Thêm tệp khóa"
+  },
+  "keyFileUpload": {
+    "message": "Tải lên tệp khóa"
+  },
+  "kdbxFileUpload": {
+    "message": "Tải lên tệp KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Định dạng được chấp nhận: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Dữ liệu không đúng định dạng. Vui lòng kiểm tra tệp tin nhập và thử lại."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tệp này không phải là cơ sở dữ liệu KeePass (.kdbx) hợp lệ. Vui lòng chọn một tệp .kdbx rồi thử lại."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Cơ sở dữ liệu KeePass này quá lớn để nhập."
+  },
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
+  },
+  "exportError": {
+    "message": "Đã xảy ra lỗi khi xuất dữ liệu kho lưu trữ của bạn"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 tệp đính kèm bị hỏng đã bị bỏ qua trong quá trình xuất. Tất cả các dữ liệu kho lưu trữ và tệp đính kèm khác đã được xuất thành công."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ tệp đính kèm bị hỏng đã bị bỏ qua trong quá trình xuất. Tất cả các dữ liệu kho lưu trữ và tệp đính kèm khác đã được xuất thành công.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Mã khoá"
@@ -4520,6 +5025,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Xác thực đa yếu tố thất bại"
   },
+  "keeperConnectionError": {
+    "message": "Đã xảy ra lỗi khi kết nối với Keeper. Vui lòng thử nhập lại dữ liệu."
+  },
   "includeSharedFolders": {
     "message": "Bao gồm các thư mục được chia sẻ"
   },
@@ -4571,6 +5079,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Cắm khóa YubiKey được liên kết với tài khoản LastPass của bạn vào cổng USB của máy tính, sau đó nhấn nút trên YubiKey."
+  },
+  "keeperEmail": {
+    "message": "Email Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Nhập email bạn dùng để đăng nhập vào Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Vị trí trung tâm dữ liệu"
+  },
+  "keeperMasterPassword": {
+    "message": "Mật khẩu tổng Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Vui lòng nhập mật khẩu chính tài khoản Keeper"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Vui lòng nhập mã từ phương thức xác thực hai yếu tố của bạn"
+  },
+  "totpCodePrompt": {
+    "message": "Vui lòng nhập mã từ ứng dụng xác thực của bạn"
+  },
+  "smsCodePrompt": {
+    "message": "Vui lòng nhập mã được gửi qua tin nhắn văn bản"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Vui lòng nhập mã từ ứng dụng Keeper DNA của bạn"
+  },
+  "adminApproval": {
+    "message": "Phê duyệt của quản trị viên"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Chúng tôi đã gửi một yêu cầu phê duyệt đến quản trị viên của bạn"
+  },
+  "method": {
+    "message": "Phương thức"
+  },
+  "directImporter": {
+    "message": "Công cụ nhập trực tiếp"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "Yêu cầu xác thực đăng nhập một lần (SSO)"
+  },
+  "keeperSsoDesc": {
+    "message": "Tài khoản Keeper của bạn yêu cầu xác thực SSO. Hãy hoàn tất đăng nhập trong cửa sổ trình duyệt vừa mở, sau đó dán token được hiển thị trên trang vào đây."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Hãy hoàn tất đăng nhập trong tab trình duyệt vừa mở. Token sẽ được tự động ghi nhận."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Yêu cầu xác thực Keeper"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Yêu cầu phê duyệt thiết bị Keeper"
+  },
+  "selectApprovalMethod": {
+    "message": "Phương thức phê duyệt"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Cần phê duyệt thiết bị"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Phê duyệt thiết bị này bằng cách chọn một phương thức bên dưới"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Phương thức hai yếu tố"
+  },
+  "emailVerification": {
+    "message": "Xác minh qua email"
+  },
+  "approvalEmailDesc": {
+    "message": "Vui lòng kiểm tra email của bạn và nhập mã xác minh bên dưới"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Thông báo Keeper Push đã được gửi đến thiết bị được phê duyệt"
+  },
+  "keeperPushSent": {
+    "message": "Đã gửi Keeper Push"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Yêu cầu phê duyệt sẽ bị hủy"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Bạn có chắc chắn muốn rời đi? Yêu cầu phê duyệt của quản trị viên sẽ bị hủy."
+  },
+  "cancelRequest": {
+    "message": "Hủy yêu cầu"
+  },
+  "keeperMFARequired": {
+    "message": "Yêu cầu xác thực hai yếu tố Keeper"
+  },
+  "mfaPushDesc": {
+    "message": "Hãy phê duyệt yêu cầu đăng nhập trong ứng dụng xác thực của bạn. Hộp thoại này sẽ tự động đóng."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Chọn phương thức hai yếu tố"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Chọn cách bạn muốn xác minh danh tính của mình."
+  },
+  "authenticatorAppTotp": {
+    "message": "Ứng dụng xác thực (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Tin nhắn văn bản (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Mã dự phòng"
+  },
+  "securityKeyU2f": {
+    "message": "Khóa bảo mật (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Khóa bảo mật (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Xác minh Keeper DNA"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Hãy phê duyệt thông báo Keeper DNA trên thiết bị của bạn"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Chọn phương thức Keeper DNA"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Chọn cách bạn muốn xác minh với Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Thông báo đẩy"
+  },
+  "enterCodeManually": {
+    "message": "Nhập mã thủ công"
+  },
+  "twoFactorAuthentication": {
+    "message": "Xác thực hai yếu tố"
+  },
+  "unknownMethod": {
+    "message": "Phương thức không xác định"
+  },
+  "selectDuoMethod": {
+    "message": "Chọn phương thức Duo"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Chọn cách bạn muốn xác minh với Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Cuộc gọi điện thoại"
+  },
+  "duoVerification": {
+    "message": "Xác minh Duo"
+  },
+  "duoPushWaiting": {
+    "message": "Hãy phê duyệt thông báo đẩy Duo trên thiết bị của bạn."
+  },
+  "duoSmsWaiting": {
+    "message": "Một tin nhắn văn bản đã được gửi đến điện thoại của bạn. Hãy nhập mã đó vào ứng dụng Duo để tiếp tục."
+  },
+  "duoVoiceWaiting": {
+    "message": "Trả lời cuộc gọi điện thoại từ Duo và làm theo hướng dẫn."
+  },
+  "tryAnotherMethod": {
+    "message": "Thử phương thức khác"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Tài khoản Keeper của bạn yêu cầu phương thức xác thực hai yếu tố hiện chưa được công cụ nhập trực tiếp hỗ trợ."
   },
   "switchAccount": {
     "message": "Chuyển tài khoản"
@@ -4686,6 +5383,20 @@
     "message": "Đặt Bitwarden làm trình quản lý mật khẩu mặc định của bạn",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Làm cho trải nghiệm tự động điền của bạn tốt hơn",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Bạn sẽ được yêu cầu cấp quyền cho trình duyệt $BROWSER$ để đặt Bitwarden làm trình quản lý mật khẩu mặc định của bạn.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Không thể đặt Bitwarden làm trình quản lý mật khẩu mặc định",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4697,6 +5408,37 @@
   "makeDefault": {
     "message": "Đặt làm mặc định",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Đặt Bitwarden làm trình quản lý mật khẩu mặc định cho trình duyệt của bạn"
+  },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Đặt Bitwarden làm trình quản lý mật khẩu mặc định của bạn",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Tắt cài đặt tự động điền của trình duyệt để tránh xung đột.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Quản lý cài đặt trình duyệt",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "từ lời nhắc của trình duyệt để cấp quyền cho Bitwarden thay đổi cài đặt của bạn."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Chúng tôi sẽ tắt trình quản lý mật khẩu tích hợp sẵn của trình duyệt để bạn có thể tận hưởng trải nghiệm đăng nhập an toàn."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Đã đặt Bitwarden làm trình quản lý mật khẩu trình duyệt mặc định của bạn"
+  },
+  "allow": {
+    "message": "Cho phép",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Bỏ qua"
   },
   "saveCipherAttemptSuccess": {
     "message": "Thông tin đăng nhập đã lưu thành công!",
@@ -4850,6 +5592,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "Chưa nhập giá trị",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "Không có giá trị để sao chép"
   },
@@ -4864,6 +5610,9 @@
   },
   "copyAddress": {
     "message": "Sao chép địa chỉ"
+  },
+  "myItems": {
+    "message": "Mục của tôi"
   },
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
@@ -4944,6 +5693,29 @@
         "example": "Work"
       }
     }
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Xem mục đăng nhập",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Xem thẻ",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Xem danh tính",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Xem ghi chú",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Tạo",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Thêm bộ sưu tập"
   },
   "new": {
     "message": "Mới"
@@ -5026,7 +5798,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Tải xuống tệp đính kèm"
   },
   "downloadBitwarden": {
     "message": "Tải xuống Bitwarden"
@@ -5129,11 +5901,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "Ứng dụng (URI)"
+  },
+  "appUriCount": {
+    "message": "Ứng dụng (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Đã thêm trang web"
   },
   "addWebsite": {
     "message": "Thêm trang web"
+  },
+  "addWebsiteOrApp": {
+    "message": "Thêm trang web hoặc ứng dụng"
+  },
+  "app": {
+    "message": "Ứng dụng"
   },
   "deleteWebsite": {
     "message": "Xóa trang web"
@@ -5263,8 +6054,8 @@
   "linkedHelpText": {
     "message": "Sử dụng trường liên kết khi bạn gặp vấn đề với tính năng tự động điền trên một trang web cụ thể."
   },
-  "linkedLabelHelpText": {
-    "message": "Nhập html id, name, aria-label hoặc placeholder của các trường."
+  "linkedFieldLabelHelpText": {
+    "message": "Nhập id HTML, name, aria-label hoặc placeholder của trường."
   },
   "editField": {
     "message": "Chỉnh sửa trường"
@@ -5364,6 +6155,24 @@
   },
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
+  },
+  "itemMovedToCollection": {
+    "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemMovedToCollections": {
+    "message": "Mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsMovedToCollection": {
+    "message": "Các mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemsMovedToCollections": {
+    "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemAssignedToCollections": {
+    "message": "Mục đã được gán cho các bộ sưu tập"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Các mục đã được gán cho các bộ sưu tập"
   },
   "nothingSelected": {
     "message": "Bạn chưa chọn gì."
@@ -5534,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Đã thiết lập mở khóa bằng mã PIN"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Đã thiết lập mở khóa bằng sinh trắc học"
   },
   "authenticating": {
     "message": "Đang xác thực"
@@ -5773,7 +6579,7 @@
     "message": "Tùy chọn kho"
   },
   "emptyVaultDescription": {
-    "message": "Kho lưu trữ không chỉ bảo vệ mật khẩu của bạn. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, ID, thẻ và ghi chú tại đây."
+    "message": "Kho lưu trữ không chỉ bảo vệ mỗi mật khẩu. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, giấy tờ tùy thân, thẻ và ghi chú tại đây."
   },
   "introCarouselLabel": {
     "message": "Chào mừng bạn đến với Bitwarden"
@@ -5946,6 +6752,10 @@
   "next": {
     "message": "Tiếp theo"
   },
+  "breadcrumbs": {
+    "message": "Đường dẫn điều hướng",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6006,7 +6816,7 @@
     "message": "Số thẻ"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Lỗi: Không thể giải mã"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Tổ chức của bạn không còn sử dụng mật khẩu chính để đăng nhập vào Bitwarden. Để tiếp tục, hãy xác minh tổ chức và tên miền."
@@ -6094,6 +6904,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Đặt phương thức mở khóa để thay đổi hành động khi hết thời gian chờ"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Được quản lý bởi ứng dụng Bitwarden máy tính. Mở ứng dụng trên máy tính để chỉnh sửa."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% hoàn thành",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Nâng cấp"
   },
@@ -6127,8 +6949,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức vì lý do bảo mật và tuân thủ.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,62 +6958,287 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Nhấp vào chấp nhận để chuyển quyền sở hữu các mục của bạn."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Mở bài viết trợ giúp về việc chuyển quyền sở hữu mục"
+  },
   "acceptTransfer": {
     "message": "Chấp nhận chuyển"
   },
   "declineAndLeave": {
     "message": "Từ chối và rời đi"
   },
-  "whyAmISeeingThis": {
-    "message": "Tại sao tôi thấy điều này?"
-  },
   "items": {
-    "message": "Items"
+    "message": "Mục"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Kết quả tìm kiếm"
   },
   "simplifiedAutofill": {
-    "message": "Simplified autofill"
+    "message": "Tự động điền đơn giản"
   },
   "simplifiedAutofillDescription": {
-    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+    "message": "Khi bạn nhấp vào một mục tự động điền được gợi ý, mục đó sẽ được điền thay vì đưa bạn đến phần chi tiết. Bạn vẫn có thể xem các mục này từ menu Thêm."
   },
   "openSimplifiedAutofillPopover": {
-    "message": "Open simplified autofill popover"
+    "message": "Mở cửa sổ bật lên tự động điền đơn giản"
   },
   "resizeSideNavigation": {
     "message": "Thay đổi kích thước thanh bên"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Ai có thể xem"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Những người cụ thể"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Sau khi chia sẻ liên kết Send này, các cá nhân sẽ cần xác minh email của họ bằng một mã để xem Send này."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "Nhập nhiều email bằng cách phân tách bằng dấu phẩy."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Tải xuống các ứng dụng Bitwarden"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Email được bảo vệ"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Các cá nhân sẽ cần nhập mật khẩu để xem Send này",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Xác minh người dùng thất bại."
+  },
+  "sharedUnlock": {
+    "message": "Cùng mở khóa"
+  },
+  "sharedUnlockWithDesktop": {
+    "message": "Chia sẻ trạng thái mở khóa với ứng dụng máy tính"
+  },
+  "sharedUnlockWithDesktopDescription": {
+    "message": "Khi được bật, trạng thái mở khóa sẽ được chia sẻ với ứng dụng Bitwarden máy tính."
+  },
+  "sharedUnlockWithWeb": {
+    "message": "Chia sẻ trạng thái mở khóa với kho lưu trữ web"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "Khi được bật, trạng thái mở khóa sẽ được chia sẻ với các kho lưu trữ web Bitwarden."
+  },
+  "newPermissionNeeded": {
+    "message": "Cần có quyền mới"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "Để sử dụng tính năng cùng mở khóa, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden sẽ khóa và tải lại. Sau khi bạn phê duyệt, tiện ích mở rộng sẽ tải lại và sẽ khóa kho lưu trữ của bạn."
+  },
+  "biometricPermissionDesc": {
+    "message": "Để sử dụng tính năng mở khóa bằng sinh trắc học, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
+  },
+  "enterMonth": {
+    "message": "Nhập tháng."
+  },
+  "enterDay": {
+    "message": "Nhập ngày."
+  },
+  "enterYear": {
+    "message": "Nhập năm."
+  },
+  "invalidDay": {
+    "message": "Nhập một ngày hợp lệ."
+  },
+  "invalidYear": {
+    "message": "Nhập một năm hợp lệ."
+  },
+  "searchDriversLicense": {
+    "message": "Tìm kiếm giấy phép"
+  },
+  "bankName": {
+    "message": "Tên ngân hàng"
+  },
+  "nameOnAccount": {
+    "message": "Tên trên tài khoản"
+  },
+  "bankAccountType": {
+    "message": "Loại tài khoản"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Công ty (doanh nghiệp)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Cá nhân (riêng lẻ)"
+  },
+  "accountNumber": {
+    "message": "Số tài khoản"
+  },
+  "bankRoutingNumber": {
+    "message": "Số định tuyến ngân hàng",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Số chi nhánh/tổ chức"
+  },
+  "swiftCode": {
+    "message": "Mã SWIFT"
+  },
+  "iban": {
+    "message": "Số IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Điện thoại liên hệ của ngân hàng"
+  },
+  "searchBankAccount": {
+    "message": "Tìm kiếm tài khoản ngân hàng"
+  },
+  "searchPassport": {
+    "message": "Tìm kiếm hộ chiếu"
+  },
+  "copyAccountNumber": {
+    "message": "Sao chép số tài khoản"
+  },
+  "copyRoutingNumber": {
+    "message": "Sao chép số định tuyến"
+  },
+  "copyPin": {
+    "message": "Sao chép mã PIN"
+  },
+  "copyIban": {
+    "message": "Sao chép số IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Sao chép tên trên tài khoản"
+  },
+  "copyBranchNumber": {
+    "message": "Sao chép số chi nhánh"
+  },
+  "copySwiftCode": {
+    "message": "Sao chép mã SWIFT"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Tài khoản thanh toán"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Tài khoản tiết kiệm"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Chứng chỉ tiền gửi"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Hạn mức tín dụng"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Đầu tư/môi giới"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Thị trường tiền tệ"
+  },
+  "bankAccountTypeOther": {
+    "message": "Khác"
+  },
+  "downloadFailed": {
+    "message": "Tải xuống thất bại."
+  },
+  "more": {
+    "message": "Thêm"
+  },
+  "maxAccessCount": {
+    "message": "Số lần truy cập tối đa",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Ẩn địa chỉ email của tôi đối với người nhận."
+  },
+  "viewTextSendHeader": {
+    "message": "Xem văn bản"
+  },
+  "viewFileSendHeader": {
+    "message": "Xem tệp"
+  },
+  "sendCreated": {
+    "message": "Đã tạo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Đầu vào phải là số"
+  },
+  "integerInputError": {
+    "message": "Đầu vào phải là một số nguyên"
+  },
+  "sideNavigation": {
+    "message": "Thanh điều hướng bên"
+  },
+  "skipLink": {
+    "message": "Liên kết bỏ qua"
+  },
+  "callout": {
+    "message": "Hộp thông tin",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Thanh tiến trình",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Tổ chức của bạn yêu cầu hiển thị email. Bỏ chọn \"Ẩn email của bạn đối với người xem\" để lưu."
+  },
+  "domainNotAllowed": {
+    "message": "Chỉ bao gồm các miền sau: $DOMAINS$. Vui lòng kiểm tra và thử lại",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Không tuân thủ chính sách Send của tổ chức bạn",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Để chỉnh sửa Send này, hãy tạo một bản sao. Nếu Send này có thể hết hạn vào ngày xóa đã đặt, bạn không cần thực hiện hành động nào",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Tạo một bản sao"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Send văn bản không được phép đối với tổ chức của bạn",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Send tệp không được phép đối với tổ chức của bạn",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Send này sẽ tự động hết hạn vào ngày xóa đã đặt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Bạn không thể nhập các mục vào Mục của tôi khi chúng thuộc về nhiều bộ sưu tập khác nhau"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Không thể lưu mục. Bạn phải được xác nhận vào tổ chức để lưu các mục."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Mục không thể có nhiều tệp đính kèm có cùng tên tệp"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ đã đặt ngày xóa này",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   }
 }

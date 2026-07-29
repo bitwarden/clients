@@ -60,7 +60,7 @@
   }
 
   body {
-    width: 480px;
+    width: 100%;
     height: 100%;
     position: relative;
     min-height: inherit;
@@ -118,19 +118,6 @@
   /* FireFox & Chrome support */
   html:not(.browser_safari) .tw-styled-scrollbar {
     scrollbar-color: rgb(var(--color-secondary-500)) rgb(var(--color-background-alt));
-  }
-
-  #duo-frame {
-    background: url("../images/loading.svg") 0 0 no-repeat;
-    width: 100%;
-    height: 470px;
-    margin-bottom: -10px;
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
   }
 
   #web-authn-frame {

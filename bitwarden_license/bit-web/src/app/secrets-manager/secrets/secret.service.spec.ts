@@ -130,6 +130,7 @@ const secretView: SecretView = {
     {
       id: "502d93ae-a084-490a-8a64-b187015eb69c",
       name: "project-name",
+      decryptionError: false,
     },
   ],
   read: true,
@@ -156,6 +157,7 @@ const expectedSecretView: SecretView = {
     {
       id: "502d93ae-a084-490a-8a64-b187015eb69c",
       name: mockUnencryptedData,
+      decryptionError: false,
     },
   ],
   read: true,

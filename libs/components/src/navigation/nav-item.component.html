@@ -1,28 +1,31 @@
-<div class="tw-ps-2 tw-pe-2">
-  @let open = sideNavService.open();
+@let open = sideNavService.open();
+@let interactiveElClass =
+  "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none !tw-text-fg-nav tw-text-start hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
+
+<div class="tw-cursor-pointer tw-ps-3 tw-pe-3">
   @if (open || icon()) {
     <div
       [style.padding-inline-start]="navItemIndentationPadding()"
-      class="tw-relative tw-rounded-md tw-h-10"
+      class="tw-relative tw-rounded-xl tw-h-10 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
       [class]="fvwStyles()"
-      [class.tw-bg-bg-sidenav-active-item]="showActiveStyles"
-      [class.tw-bg-bg-sidenav-background]="!showActiveStyles"
-      [class.hover:tw-bg-bg-sidenav-item-hover]="!showActiveStyles"
+      [style]="
+        showActiveStyles()
+          ? '--color-nav-bg-primary: var(--color-nav-bg-primary-strong); --color-nav-bg-secondary: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-primary-hover-strong); --color-nav-bg-secondary-hover: var(--color-nav-bg-secondary-hover-strong);'
+          : ''
+      "
+      data-testid="nav-item-container"
+      data-spotlight-target
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
-          <div
-            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
-          >
+          <div class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)]">
             <ng-content select="[slot=start]"></ng-content>
           </div>
         }
         @if (route()) {
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin` -->
-          <!-- The following `class` field should match the button class field below -->
           <a
-            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
-            [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
+            [class]="interactiveElClass"
             data-fvw
             [routerLink]="route()"
             [relativeTo]="relativeTo()"
@@ -35,17 +38,17 @@
             [state]="{
               focusAfterNav: focusAfterNavTarget(),
             }"
+            data-testid="nav-item-interactive"
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </a>
         } @else {
-          <!-- Class field should match anchor class field above -->
           <button
             type="button"
-            class="tw-size-full tw-px-4 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-fg-sidenav-text hover:tw-text-fg-sidenav-text hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]"
-            [class.!tw-ps-0]="variant() === 'tree' || treeDepth() > 0"
+            [class]="interactiveElClass"
             data-fvw
             (click)="mainContentClicked.emit()"
+            data-testid="nav-item-interactive"
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </button>
@@ -53,7 +56,8 @@
 
         @if (open) {
           <div
-            class="tw-flex tw-items-center tw-pe-1 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-border-focus [&>*:hover]:!tw-border-border-focus [&>*]:tw-text-fg-sidenav-text empty:tw-hidden"
+            class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button)]:tw-pe-2 empty:tw-hidden"
+            (click)="$event.stopPropagation()"
           >
             <ng-content select="[slot=end]"></ng-content>
           </div>
@@ -67,19 +71,20 @@
 <ng-template #anchorAndButtonContent>
   <div
     [title]="text()"
-    class="tw-gap-2 tw-flex tw-items-center tw-font-medium tw-h-full"
-    [class.tw-py-0]="variant() === 'tree' || treeDepth() > 0"
-    [class.tw-py-2]="variant() !== 'tree' && treeDepth() === 0"
+    class="tw-gap-2 tw-py-0 tw-flex tw-items-center tw-h-full"
     [class.tw-text-center]="!open"
     [class.tw-justify-center]="!open"
+    [class.tw-font-normal]="!showActiveStyles()"
+    [class.tw-font-semibold]="showActiveStyles()"
   >
     @if (icon()) {
-      <i
-        class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-fg-sidenav-text"
-        [class]="icon()"
+      <bit-icon
+        class="!tw-m-0 tw-w-4 tw-shrink-0"
+        [name]="icon()"
+        fixedWidth="true"
         [attr.aria-hidden]="open"
         [attr.aria-label]="text()"
-      ></i>
+      ></bit-icon>
     }
     @if (open) {
       <span class="tw-truncate">{{ text() }}</span>

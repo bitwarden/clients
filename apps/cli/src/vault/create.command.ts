@@ -12,19 +12,23 @@ import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
+import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 
@@ -44,6 +48,7 @@ export class CreateCommand {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   async run(
@@ -95,7 +100,25 @@ export class CreateCommand {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      const cipherView = CipherExport.toView(req);
+      const allowDerivedSshKeys = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM40201_DeriveSSHKeys),
+      );
+
+      const cipherView = CipherExport.toView(req, undefined, allowDerivedSshKeys);
+
+      if (
+        cipherView.type === CipherType.BankAccount ||
+        cipherView.type === CipherType.DriversLicense ||
+        cipherView.type === CipherType.Passport
+      ) {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.error(`Item type ${cipherView.type} is not available.`);
+        }
+      }
+
       const isCipherTypeRestricted =
         await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
 
@@ -104,7 +127,7 @@ export class CreateCommand {
       }
 
       const newCipher = await this.cipherService.createWithServer(
-        CipherExport.toView(req),
+        CipherExport.toView(req, undefined, allowDerivedSshKeys),
         activeUserId,
       );
       const res = new CipherResponse(newCipher);
@@ -205,6 +228,9 @@ export class CreateCommand {
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
+    }
     try {
       const orgKey = await this.keyService.getOrgKey(req.organizationId);
       if (orgKey == null) {
@@ -243,7 +269,13 @@ export class CreateCommand {
       });
       const response = await this.apiService.postCollection(req.organizationId, request);
       const view = CollectionExport.toView(req, response.id);
-      const res = new OrganizationCollectionResponse(view, groups, users);
+      const serverGroups = response.groups.map(
+        (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+      );
+      const serverUsers = response.users.map(
+        (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
+      );
+      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

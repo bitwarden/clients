@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import {
   AvatarModule,
   BreadcrumbsModule,
@@ -20,8 +21,7 @@ import {
   NavigationModule,
   TabsModule,
   TypographyModule,
-} from "@bitwarden/components";
-
+} from "..";
 import { I18nMockService } from "../utils";
 
 import { HeaderComponent } from "./header.component";
@@ -55,6 +55,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               moreBreadcrumbs: "More breadcrumbs",
+              breadcrumbs: "Breadcrumbs",
               loading: "Loading",
             });
           },
@@ -90,8 +91,8 @@ export const KitchenSink: Story = {
               placeholder="Ask Jeeves"
               type="text"
             />
-            <button type="button" bitIconButton="bwi-filter" label="Switch products"></button>
-            <bit-avatar text="Will"></bit-avatar>
+            <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
+            <bit-avatar text="Will" size="lg"></bit-avatar>
             <button bitButton buttonType="primary">New</button>
             <button bitButton slot="secondary">Click Me 🎉</button>
             <bit-tab-nav-bar slot="tabs">

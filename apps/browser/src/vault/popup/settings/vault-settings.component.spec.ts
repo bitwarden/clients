@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -57,7 +58,6 @@ describe("VaultSettingsComponent", () => {
     id: "user-id",
   });
   const mockUserCanArchive$ = new BehaviorSubject<boolean>(false);
-  const mockHasArchiveFlagEnabled$ = new BehaviorSubject<boolean>(true);
   const mockArchivedCiphers$ = new BehaviorSubject<CipherView[]>([]);
   const mockShowNudgeBadge$ = new BehaviorSubject<boolean>(false);
 
@@ -65,21 +65,15 @@ describe("VaultSettingsComponent", () => {
     return fixture.debugElement.query(By.css(`[data-test-id="${testId}"]`));
   };
 
-  const setArchiveState = (
-    canArchive: boolean,
-    archivedItems: CipherView[] = [],
-    flagEnabled = true,
-  ) => {
+  const setArchiveState = (canArchive: boolean, archivedItems: CipherView[] = []) => {
     mockUserCanArchive$.next(canArchive);
     mockArchivedCiphers$.next(archivedItems);
-    mockHasArchiveFlagEnabled$.next(flagEnabled);
     fixture.detectChanges();
   };
 
   beforeEach(async () => {
     // Reset BehaviorSubjects to initial values
     mockUserCanArchive$.next(false);
-    mockHasArchiveFlagEnabled$.next(true);
     mockArchivedCiphers$.next([]);
     mockShowNudgeBadge$.next(false);
 
@@ -87,7 +81,6 @@ describe("VaultSettingsComponent", () => {
       userCanArchive$: jest.fn().mockReturnValue(mockUserCanArchive$),
       archivedCiphers$: jest.fn().mockReturnValue(mockArchivedCiphers$),
     });
-    mockCipherArchiveService.hasArchiveFlagEnabled$ = mockHasArchiveFlagEnabled$.asObservable();
 
     await TestBed.configureTestingModule({
       imports: [VaultSettingsComponent],
@@ -97,6 +90,7 @@ describe("VaultSettingsComponent", () => {
           { path: "premium", component: VaultSettingsComponent },
         ]),
         { provide: SyncService, useValue: mock<SyncService>() },
+        { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -175,17 +169,6 @@ describe("VaultSettingsComponent", () => {
 
       expect(archiveLink).toBeTruthy();
       expect(component["userCanArchive"]()).toBe(true);
-    });
-
-    it("hides archive link when feature flag is disabled", () => {
-      setArchiveState(false, [], false);
-
-      const archiveLink = queryByTestId("archive-link");
-      const premiumArchiveLink = queryByTestId("premium-archive-link");
-
-      expect(archiveLink).toBeNull();
-      expect(premiumArchiveLink).toBeNull();
-      expect(component["showArchiveItem"]()).toBe(false);
     });
 
     it("shows premium badge when user has no archived items and cannot archive", () => {

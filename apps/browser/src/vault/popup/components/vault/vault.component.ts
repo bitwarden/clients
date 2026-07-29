@@ -21,20 +21,18 @@ import {
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutoConfirmState,
   AutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm/angular";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -51,11 +49,13 @@ import {
   ScrollLayoutService,
   ToastService,
   TypographyModule,
+  CalloutModule,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -73,6 +73,7 @@ import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/v
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import {
   NewItemDropdownComponent,
   NewItemInitialValues,
@@ -96,6 +97,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
   templateUrl: "vault.component.html",
   imports: [
     BlockedInjectionBanner,
+    FillAssistActiveBannerComponent,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -110,12 +112,13 @@ type VaultState = UnionOfValues<typeof VaultState>;
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
-    SpotlightComponent,
+    CalloutModule,
     RouterModule,
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
+    VaultOrganizationUserNotificationsComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -157,10 +160,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     }),
   );
 
-  protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.BrowserPremiumSpotlight,
-  );
-
   protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
   protected readonly numberOfAppliedFilters$ =
     this.vaultPopupListFiltersService.numberOfAppliedFilters$;
@@ -169,41 +168,17 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
-  protected hasPremium$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
-  );
-  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
-    map((account) => {
-      if (!account || !account.creationDate) {
-        return 0;
-      }
-      const creationDate = account.creationDate;
-      const ageInMilliseconds = Date.now() - creationDate.getTime();
-      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-    }),
-  );
 
   protected showPremiumSpotlight$ = combineLatest([
-    this.premiumSpotlightFeatureFlag$,
     this.activeUserId$.pipe(
       switchMap((userId) =>
         this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
       ),
     ),
     this.showHasItemsVaultSpotlight$,
-    this.hasPremium$,
-    this.cipherCount$,
-    this.accountAgeInDays$,
   ]).pipe(
-    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
-      return (
-        featureFlagEnabled &&
-        showPremiumNudge &&
-        !showHasItemsNudge &&
-        !hasPremium &&
-        count >= 5 &&
-        age >= 7
-      );
+    map(([showPremiumNudge, showHasItemsNudge]) => {
+      return showPremiumNudge && !showHasItemsNudge && this.premiumUpsellService.showUpsell();
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -240,6 +215,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected canCreateCipher$: Observable<boolean> =
+    this.vaultPopupItemsService.showDeactivatedOrg$.pipe(map((isDeactivated) => !isDeactivated));
+
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
 
@@ -271,6 +253,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private vaultItemsTransferService: VaultItemsTransferService,
     private eventCollectionService: EventCollectionService,
     private organizationService: InternalOrganizationServiceAbstraction,
+    private premiumUpsellService: PremiumUpsellService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -371,7 +354,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.autoConfirmService.upsert(userId, newState);
+          await this.autoConfirmService.upsert(userId, newState);
+
+          if (result) {
+            await this.autoConfirmService.bulkAutoConfirmPendingUsers(userId);
+          }
         }),
         takeUntilDestroyed(this.destroyRef),
       )

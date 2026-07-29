@@ -1,3 +1,4 @@
+import { NgClass } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core";
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
@@ -10,7 +11,7 @@ import { SideNavService } from "./side-nav.service";
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",
-  imports: [RouterLinkActive, RouterLink, SvgComponent],
+  imports: [NgClass, RouterLinkActive, RouterLink, SvgComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-contents" },
 })

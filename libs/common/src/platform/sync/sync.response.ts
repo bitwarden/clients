@@ -1,5 +1,4 @@
-import { CollectionDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
-
+import { CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { BaseResponse } from "../../models/response/base.response";
@@ -16,6 +15,7 @@ export class SyncResponse extends BaseResponse {
   ciphers: CipherResponse[] = [];
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
+  policiesNew?: PolicyResponse[];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
 
@@ -50,6 +50,11 @@ export class SyncResponse extends BaseResponse {
     const policies = this.getResponseProperty("Policies");
     if (policies != null) {
       this.policies = policies.map((p: any) => new PolicyResponse(p));
+    }
+
+    const policiesNew = this.getResponseProperty("PoliciesNew");
+    if (policiesNew != null) {
+      this.policiesNew = policiesNew.map((p: any) => new PolicyResponse(p));
     }
 
     const sends = this.getResponseProperty("Sends");

@@ -3,34 +3,34 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
+  contentChild,
   effect,
   inject,
   viewChild,
   input,
   booleanAttribute,
   ElementRef,
-  DestroyRef,
   computed,
   signal,
   AfterViewInit,
-  NgZone,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AutofocusFallbackDirective } from "../../a11y/autofocus-fallback.directive";
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
-import { queryForAutofocusDescendents } from "../../input";
 import { getRootFontSizePx } from "../../shared";
 import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { DialogRef } from "../dialog.service";
+import { DialogRef } from "../dialog-ref";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
+import { DialogFooterDirective } from "../simple-dialog/simple-dialog.component";
 
 type DialogSize = "small" | "default" | "large";
 
@@ -74,12 +74,11 @@ export const drawerSizeToWidthRem: Record<string, number> = {
     CdkScrollable,
     SpinnerComponent,
   ],
+  hostDirectives: [{ directive: AutofocusFallbackDirective }],
 })
 export class DialogComponent implements AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
-  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly drawerService = inject(DrawerService);
+  private readonly autofocusFallback = inject(AutofocusFallbackDirective, { host: true });
 
   constructor() {
     effect(() => {
@@ -99,7 +98,6 @@ export class DialogComponent implements AfterViewInit {
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
 
@@ -108,6 +106,9 @@ export class DialogComponent implements AfterViewInit {
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
   );
+
+  private readonly footerDirective = contentChild(DialogFooterDirective);
+  protected readonly hasFooter = computed(() => !!this.footerDirective());
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -126,11 +127,6 @@ export class DialogComponent implements AfterViewInit {
    * Subtitle to show in the dialog's header
    */
   readonly subtitle = input<string>();
-
-  /**
-   * Disable the built-in padding on the dialog, for use with tabbed dialogs.
-   */
-  readonly disablePadding = input(false, { transform: booleanAttribute });
 
   /**
    * Disable animations for the dialog.
@@ -179,64 +175,56 @@ export class DialogComponent implements AfterViewInit {
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
-  handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
-      event.stopPropagation();
+  /** True when this dialog is a drawer and there is a previous entry in the stack to go back to. */
+  protected readonly isStacked = computed(
+    () => this.dialogRef?.isDrawer === true && this.drawerService.stackDepth() > 1,
+  );
+
+  protected async closeDialog(): Promise<void> {
+    if (this.dialogRef?.isDrawer) {
+      await this.drawerService.closeAll();
+    } else {
+      void this.dialogRef?.close();
     }
+  }
+
+  handleEsc(event: Event) {
+    if (this.dialogRef?.disableClose) {
+      return;
+    }
+    // For drawers, Esc mirrors the back button — pop only the top entry.
+    // The X button still calls closeDialog() to tear down the whole stack.
+    if (this.dialogRef?.isDrawer) {
+      void this.dialogRef.close();
+    } else {
+      void this.closeDialog();
+    }
+    event.stopPropagation();
   }
 
   onAnimationEnd() {
     this.animationCompleted.set(true);
   }
 
-  async ngAfterViewInit() {
+  ngAfterViewInit() {
     /**
-     * Wait for the zone to stabilize before performing any focus behaviors. This ensures that all
-     * child elements are rendered and stable.
+     * Ensure that the user's focus is in the dialog by setting an autofocus fallback element (i.e.
+     * a fallback for when no other elements in the dialog are set to autofocus). Best practice is
+     * to autofocus the first interactive element. We can't safely assume what will be the first
+     * interactive element or the most appropriate place for focus given the variety of UIs that can
+     * be present in a dialog. Therefore, as a fallback, we choose the header since it is always
+     * present and will provide brief context on the dialog.
      */
-    if (this.ngZone.isStable) {
-      this.handleAutofocus();
-    } else {
-      await firstValueFrom(this.ngZone.onStable);
-      this.handleAutofocus();
-    }
+    this.autofocusFallback.bitAutofocusFallback.set(this.dialogHeader());
   }
 
   /**
-   * Ensure that the user's focus is in the dialog by autofocusing the appropriate element.
+   * Manually focus the dialog header.
    *
-   * If there is a descendant of the dialog with the AutofocusDirective applied, we defer to that.
-   * If not, we want to fallback to a default behavior of focusing the dialog's header element. We
-   * choose the dialog header as the default fallback for dialog focus because it is always present,
-   * unlike possible interactive elements.
+   * Useful in situations where you may be moving between dialogs and the user's focus will
+   * otherwise be lost.
    */
-  handleAutofocus() {
-    /**
-     * Angular's contentChildren query cannot see into the internal templates of child components.
-     * We need to use a regular DOM query instead to see if there are descendants using the
-     * AutofocusDirective.
-     */
-    const dialogRef = this.el.nativeElement;
-    const autofocusDescendants = queryForAutofocusDescendents(dialogRef);
-    const hasAutofocusDescendants = autofocusDescendants.length > 0;
-
-    if (!hasAutofocusDescendants) {
-      /**
-       * Wait a tick for any focus management to occur on the trigger element before moving focus
-       * to the dialog header.
-       *
-       * We are doing this manually instead of using Angular's built-in focus management
-       * directives (`cdkTrapFocusAutoCapture` and `cdkFocusInitial`) because we need this delay
-       * behavior.
-       *
-       * And yes, we need the timeout even though we are already waiting for ngZone to stabilize.
-       */
-      const headerFocusTimeout = setTimeout(() => {
-        this.dialogHeader().nativeElement.focus();
-      }, 0);
-
-      this.destroyRef.onDestroy(() => clearTimeout(headerFocusTimeout));
-    }
+  focusHeader() {
+    this.dialogHeader().nativeElement.focus();
   }
 }

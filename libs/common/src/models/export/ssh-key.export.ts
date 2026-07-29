@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
@@ -16,20 +13,28 @@ export class SshKeyExport {
     return req;
   }
 
-  static toView(req?: SshKeyExport, view = new SshKeyView()): SshKeyView | undefined {
+  static toView(
+    req?: SshKeyExport,
+    view = new SshKeyView(),
+    allowDerivedKeys = false,
+  ): SshKeyView | undefined {
     if (req == null) {
       return undefined;
     }
 
-    // Validate required fields
     if (!req.privateKey || req.privateKey.trim() === "") {
       throw new Error("SSH key private key is required.");
     }
-    if (!req.publicKey || req.publicKey.trim() === "") {
-      throw new Error("SSH key public key is required.");
-    }
-    if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
-      throw new Error("SSH key fingerprint is required.");
+
+    // The public key and fingerprint are derivable from the private key, but only clients that can
+    // derive them may create a key without them. Otherwise older clients fail to decrypt the item.
+    if (!allowDerivedKeys) {
+      if (!req.publicKey || req.publicKey.trim() === "") {
+        throw new Error("SSH key public key is required.");
+      }
+      if (!req.keyFingerprint || req.keyFingerprint.trim() === "") {
+        throw new Error("SSH key fingerprint is required.");
+      }
     }
 
     view.privateKey = req.privateKey;
@@ -45,17 +50,17 @@ export class SshKeyExport {
     return domain;
   }
 
-  privateKey: string;
-  publicKey: string;
-  keyFingerprint: string;
+  privateKey: string = "";
+  publicKey: string = "";
+  keyFingerprint: string = "";
 
   constructor(o?: SshKeyView | SshKeyDomain) {
     if (o == null) {
       return;
     }
 
-    this.privateKey = safeGetString(o.privateKey);
-    this.publicKey = safeGetString(o.publicKey);
-    this.keyFingerprint = safeGetString(o.keyFingerprint);
+    this.privateKey = safeGetString(o.privateKey) ?? "";
+    this.publicKey = safeGetString(o.publicKey) ?? "";
+    this.keyFingerprint = safeGetString(o.keyFingerprint) ?? "";
   }
 }

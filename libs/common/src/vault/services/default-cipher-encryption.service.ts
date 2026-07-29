@@ -1,13 +1,13 @@
-import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
+import { EMPTY, catchError, concatMap, firstValueFrom, map, throwError } from "rxjs";
 
-import { UserKey } from "@bitwarden/common/types/key";
-import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
@@ -23,15 +23,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   async encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
-          const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
+          const encryptionContext = await ref.value.vault().ciphers().encrypt(sdkCipherView);
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
@@ -53,25 +49,25 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
 
-          return ref.value
+          const results = await ref.value
             .vault()
             .ciphers()
-            .encrypt_list(models.map((model) => model.toSdkCipherView(ref.value.vault().ciphers())))
-            .map((encryptionContext) => ({
-              cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-              encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
-            }));
+            .encrypt_list(
+              models.map((model) => model.toSdkCipherView(ref.value.vault().ciphers())),
+            );
+          return results.map((encryptionContext) => ({
+            cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+          }));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
-          return EMPTY;
+          // Propagate the underlying failure. Returning EMPTY here would make firstValueFrom
+          // reject with an opaque "no elements in sequence" EmptyError.
+          return throwError(() => (error instanceof Error ? error : new Error(String(error))));
         }),
       ),
     );
@@ -84,11 +80,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   ): Promise<EncryptionContext | undefined> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
@@ -97,7 +89,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             .ciphers()
             .move_to_organization(sdkCipherView, asUuid(organizationId));
 
-          const encryptionContext = ref.value.vault().ciphers().encrypt(movedCipherView);
+          const encryptionContext = await ref.value.vault().ciphers().encrypt(movedCipherView);
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
@@ -119,15 +111,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   ): Promise<EncryptionContext | undefined> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
-          const encryptionContext = ref.value
+          const encryptionContext = await ref.value
             .vault()
             .ciphers()
             .encrypt_cipher_for_rotation(sdkCipherView, newKey.toBase64());
@@ -148,13 +136,9 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
-          const sdkCipherView = ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
+          const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
 
           const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
 
@@ -197,19 +181,15 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<[CipherView[], CipherView[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
 
           const successful: CipherView[] = [];
           const failed: CipherView[] = [];
 
-          ciphers.forEach((cipher) => {
+          for (const cipher of ciphers) {
             try {
-              const sdkCipherView = ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
+              const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
               const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
 
               // Handle FIDO2 credentials if present
@@ -244,7 +224,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               failedView.decryptionFailure = true;
               failed.push(failedView);
             }
-          });
+          }
 
           return [successful, failed] as [CipherView[], CipherView[]];
         }),
@@ -262,14 +242,10 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
   ): Promise<[CipherListView[], Cipher[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK is undefined");
-          }
-
+        concatMap(async (sdk) => {
           using ref = sdk.take();
 
-          const result: DecryptCipherListResult = ref.value
+          const result: DecryptCipherListResult = await ref.value
             .vault()
             .ciphers()
             .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
@@ -279,7 +255,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             .map((cipher) => Cipher.fromSdkCipher(cipher))
             .filter((cipher): cipher is Cipher => cipher !== undefined);
 
-          return [decryptedCiphers, failedCiphers];
+          return [decryptedCiphers, failedCiphers] as [CipherListView[], Cipher[]];
         }),
       ),
     );
@@ -304,10 +280,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK is undefined");
-          }
-
           using ref = sdk.take();
 
           return ref.value

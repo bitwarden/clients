@@ -3,7 +3,13 @@ import { NgModule } from "@angular/core";
 
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
-import { IconModule, ScrollLayoutDirective } from "@bitwarden/components";
+import {
+  BerryComponent,
+  IconModule,
+  ScrollLayoutDirective,
+  TooltipDirective,
+} from "@bitwarden/components";
+import { Vfo1IconPipe } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
@@ -18,10 +24,11 @@ import { BulkReinviteFailureDialogComponent } from "./components/bulk/bulk-reinv
 import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
+import { InviteMembersDialogComponent } from "./components/invite-members-dialog";
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
-import { UserStatusPipe } from "./pipes";
+import { AvatarIdPipe, UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
@@ -34,6 +41,7 @@ import {
     SharedOrganizationModule,
     MembersRoutingModule,
     UserDialogModule,
+    InviteMembersDialogComponent,
     PasswordCalloutComponent,
     HeaderModule,
     ScrollingModule,
@@ -41,17 +49,21 @@ import {
     ScrollLayoutDirective,
     OrganizationFreeTrialWarningComponent,
     IconModule,
-  ],
-  declarations: [
+    BerryComponent,
+    TooltipDirective,
+    AvatarIdPipe,
     BulkConfirmDialogComponent,
+    BulkDeleteDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
+    Vfo1IconPipe,
+  ],
+  declarations: [
     BulkProgressDialogComponent,
     BulkReinviteFailureDialogComponent,
     MembersComponent,
-    BulkDeleteDialogComponent,
     UserStatusPipe,
   ],
   providers: [

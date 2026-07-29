@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -27,6 +29,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -42,11 +46,13 @@ import {
   ButtonModule,
   CardComponent,
   ItemModule,
+  ProgressBarComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../../components/download-attachment/download-attachment.component";
+import { TruncatedFilenameComponent } from "../../../components/truncated-filename";
 
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
@@ -64,7 +70,9 @@ type CipherAttachmentForm = FormGroup<{
     CommonModule,
     ItemModule,
     JslibModule,
+    ProgressBarComponent,
     ReactiveFormsModule,
+    TruncatedFilenameComponent,
     TypographyModule,
     CardComponent,
     DeleteAttachmentComponent,
@@ -109,6 +117,7 @@ export class CipherAttachmentsComponent {
 
   protected readonly organization = signal<Organization | null>(null);
   protected readonly cipher = signal<CipherView | null>(null);
+  protected readonly uploadProgress = signal<number | null>(null);
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
     file: new FormControl<File | null>(null, [Validators.required]),
@@ -127,6 +136,7 @@ export class CipherAttachmentsComponent {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
+    private configService: ConfigService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       const btn = this.submitBtn();
@@ -209,6 +219,7 @@ export class CipherAttachmentsComponent {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("selectFile"),
       });
+      this.onUploadFailed.emit();
       return;
     }
 
@@ -219,6 +230,7 @@ export class CipherAttachmentsComponent {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("maxFileSize"),
       });
+      this.onUploadFailed.emit();
       return;
     }
 
@@ -226,12 +238,35 @@ export class CipherAttachmentsComponent {
       return;
     }
 
+    if ((this.cipher()?.attachments ?? []).some((a) => (a.fileName ?? "") === file.name)) {
+      // File has the same name as an existing attachment
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("duplicateAttachmentNameError"),
+      });
+      this.onUploadFailed.emit();
+      return;
+    }
+
+    const progressEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM34410AttachmentUploadProgress,
+    );
+
     try {
+      if (progressEnabled) {
+        this.uploadProgress.set(0);
+      }
       this.cipherDomain = await this.cipherService.saveAttachmentWithServer(
         this.cipherDomain,
         file,
         this.activeUserId,
-        this.organization()?.canEditAllCiphers,
+        this.admin(),
+        progressEnabled
+          ? {
+              onProgress: (p) => this.uploadProgress.set(p),
+            }
+          : undefined,
       );
 
       // re-decrypt the cipher to update the attachments
@@ -266,6 +301,10 @@ export class CipherAttachmentsComponent {
         message: errorMessage,
       });
       this.onUploadFailed.emit();
+    } finally {
+      if (progressEnabled) {
+        this.uploadProgress.set(null);
+      }
     }
   };
 
@@ -299,20 +338,22 @@ export class CipherAttachmentsComponent {
       return null;
     }
 
+    // When in admin context, always fetch from server to get fresh data.
+    // Admin uploads skip local state upsert, so local state may be stale.
+    if (this.admin()) {
+      const cipherResponse = await this.apiService.getCipherAdmin(id);
+      // Admin API response doesn't include `edit`, but admin users always have edit access
+      cipherResponse.edit = true;
+      const cipherData = new CipherData(cipherResponse);
+      return new Cipher(cipherData);
+    }
+
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
     // If we got the cipher or there's no organization context, return the result
     if (localCipher != null || !this.organizationId()) {
       return localCipher;
-    }
-
-    // Only try the admin API if the user has admin permissions
-    const org = this.organization();
-    if (org != null && org.canEditAllCiphers) {
-      const cipherResponse = await this.apiService.getCipherAdmin(id);
-      const cipherData = new CipherData(cipherResponse);
-      return new Cipher(cipherData);
     }
 
     return null;

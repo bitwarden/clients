@@ -6,7 +6,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+
+import { CopyCipherFieldService } from "..";
 
 import { CopyCipherFieldDirective } from "./copy-cipher-field.directive";
 
@@ -214,6 +215,34 @@ describe("CopyCipherFieldDirective", () => {
       ["publicKey", "test-public-key"],
       ["keyFingerprint", "test-key-fingerprint"],
     ])("copies %s field from ssh key to clipboard", async (action, value) => {
+      copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
+
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).toHaveBeenCalledWith(
+        value,
+        action,
+        copyCipherFieldDirective.cipher,
+      );
+    });
+  });
+
+  describe("bank account", () => {
+    beforeEach(() => {
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.BankAccount;
+      cipher.bankAccount.accountNumber = "test-account-number";
+      cipher.bankAccount.routingNumber = "test-routing-number";
+      cipher.bankAccount.pin = "test-pin";
+      cipher.bankAccount.iban = "test-iban";
+    });
+
+    it.each([
+      ["accountNumber", "test-account-number"],
+      ["routingNumber", "test-routing-number"],
+      ["pin", "test-pin"],
+      ["iban", "test-iban"],
+    ])("copies %s field from bank account to clipboard", async (action, value) => {
       copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
 
       await copyCipherFieldDirective.copy();

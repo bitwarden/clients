@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-
   "extraMetadata": {
     "name": "bitwarden"
   },
@@ -23,7 +22,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "39.2.6",
+  "electronVersion": "41.7.2",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -72,6 +71,7 @@
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
@@ -95,7 +95,8 @@
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
       {
@@ -105,6 +106,20 @@
       {
         "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
+        "to": "bitwarden_plugin_authenticator.exe"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "resources/windows_plugin_authenticator_config.json",
+        "to": "plugin_authenticator_config.json"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo.svg",
+        "to": "plugin_authenticator_logo.svg"
       }
     ]
   },
@@ -132,6 +147,7 @@
   },
   "dmg": {
     "icon": "dmg.icns",
+    "background": "resources/background.png",
     "sign": false,
     "contents": [
       {
@@ -152,6 +168,7 @@
     }
   },
   "mas": {
+    "identity": "Bitwarden Inc",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
@@ -270,6 +287,17 @@
       {
         "polkit": {
           "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      },
+      {
+        "personal-files": {
+          "read": [],
+          "write": [
+            "$HOME/.config/chromium/NativeMessagingHosts",
+            "$HOME/.config/microsoft-edge/NativeMessagingHosts",
+            "$HOME/.config/google-chrome/NativeMessagingHosts",
+            "$HOME/.mozilla/native-messaging-hosts"
+          ]
         }
       },
       "u2f-devices"

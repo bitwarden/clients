@@ -1,4 +1,4 @@
-import { Discount } from "@bitwarden/pricing";
+import { Discount } from "..";
 
 import { Credit } from "./credit";
 
@@ -21,7 +21,7 @@ export type Cart = {
     additionalServiceAccounts?: CartItem;
   };
   cadence: "annually" | "monthly";
-  discount?: Discount;
+  discounts?: Discount[];
   credit?: Credit;
   estimatedTax: number;
 };

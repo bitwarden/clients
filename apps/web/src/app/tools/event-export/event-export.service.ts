@@ -3,7 +3,7 @@
 import { Injectable } from "@angular/core";
 import * as papa from "papaparse";
 
-import { EventView } from "@bitwarden/common/models/view/event.view";
+import { EventView } from "@bitwarden/common/dirt/event-logs";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
 import { EventExport } from "./event.export";

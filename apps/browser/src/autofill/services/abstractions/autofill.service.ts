@@ -34,12 +34,21 @@ export interface AutoFillOptions {
   inlineMenuFillType?: InlineMenuFillType;
 }
 
-export interface FormData {
+interface FormDataBase {
   form: AutofillForm;
   password: AutofillField;
-  username: AutofillField;
   passwords: AutofillField[];
 }
+
+export interface FormDataWithUsername extends FormDataBase {
+  username: AutofillField;
+}
+
+export interface FormDataPasswordOnly extends FormDataBase {
+  username: null;
+}
+
+export type FormData = FormDataWithUsername | FormDataPasswordOnly;
 
 export interface GenerateFillScriptOptions {
   skipUsernameOnlyFill: boolean;
@@ -58,7 +67,6 @@ export type CollectPageDetailsResponseMessage = {
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
   sender?: string;
-  webExtSender: chrome.runtime.MessageSender;
 };
 
 export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
@@ -67,8 +75,10 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
+  enableInlineMenuAnimation$!: Observable<boolean>;
+  enableNotificationAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
-  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab, frameId?: number) => Observable<PageDetail[]>;
   /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
   /** Non-null asserted. */

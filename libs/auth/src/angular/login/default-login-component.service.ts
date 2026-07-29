@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -8,6 +7,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+
+import { LoginComponentService } from "..";
 
 export class DefaultLoginComponentService implements LoginComponentService {
   protected clientType: ClientType;
@@ -96,7 +97,7 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
     const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
     const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+    const codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash);
 
     // Save SSO params
     await this.ssoLoginService.setSsoState(state);

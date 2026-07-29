@@ -27,14 +27,14 @@
             />
           }
           @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
+            <bit-icon name="bwi-star-f"></bit-icon>
           }
         </td>
       }
       @if (!showRowCheckBox) {
         <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
           @if (row.isMarkedAsCritical) {
-            <i class="bwi bwi-star-f"></i>
+            <bit-icon name="bwi-star-f"></bit-icon>
           }
         </td>
       }

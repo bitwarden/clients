@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
@@ -24,6 +23,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { JslibModule } from "../../jslib.module";
 
 const RequestTimeOut = 60000 * 15; // 15 Minutes
 const RequestTimeUpdate = 60000 * 5; // 5 Minutes
@@ -146,7 +147,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       this.showResultToast(loginResponse);
     }
 
-    this.dialogRef.close(approve);
+    await this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {
@@ -206,7 +207,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       );
     } else {
       clearInterval(this.interval);
-      this.dialogRef.close();
+      void this.dialogRef.close();
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("loginRequestHasAlreadyExpired"),

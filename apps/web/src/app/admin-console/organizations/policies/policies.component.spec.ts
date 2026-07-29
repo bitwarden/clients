@@ -21,6 +21,7 @@ import { DialogService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
+import { PolicyCategory } from "./pipes/policy-category";
 import { PoliciesComponent } from "./policies.component";
 import { SingleOrgPolicy } from "./policy-edit-definitions/single-org.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
@@ -53,7 +54,14 @@ describe("PoliciesComponent", () => {
     enabled: true,
   } as Organization;
 
-  const mockPolicyResponse = {
+  const mockPolicyResponse: {
+    id: string;
+    enabled: boolean;
+    object: string;
+    organizationId: string;
+    type: PolicyType;
+    data: null;
+  } = {
     id: newGuid(),
     enabled: true,
     object: "policy",
@@ -85,6 +93,7 @@ describe("PoliciesComponent", () => {
 
     mockPolicyListService = mock<PolicyListService>();
     mockPolicyListService.getPolicies.mockReturnValue([mockPolicy]);
+    (mockPolicyListService as any).sections = [];
 
     mockDialogService = mock<DialogService>();
     mockDialogService.open.mockReturnValue({ close: jest.fn() } as any);
@@ -93,6 +102,7 @@ describe("PoliciesComponent", () => {
     mockPolicyService.policies$.mockReturnValue(of([]));
 
     mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
@@ -139,7 +149,7 @@ describe("PoliciesComponent", () => {
 
   describe("organizationId$", () => {
     it("should extract organizationId from route params", async () => {
-      const orgId = await firstValueFrom(component.organizationId$);
+      const orgId = await firstValueFrom(component["organizationId$"]);
       expect(orgId).toBe(mockOrgId);
     });
 
@@ -147,7 +157,7 @@ describe("PoliciesComponent", () => {
       const newOrgId = newGuid() as OrganizationId;
       const emittedValues: OrganizationId[] = [];
 
-      const subscription = component.organizationId$.subscribe((orgId) => {
+      const subscription = component["organizationId$"].subscribe((orgId) => {
         emittedValues.push(orgId);
 
         if (emittedValues.length === 2) {
@@ -164,7 +174,7 @@ describe("PoliciesComponent", () => {
 
   describe("organization$", () => {
     it("should retrieve organization for current user and organizationId", async () => {
-      const org = await firstValueFrom(component.organization$);
+      const org = await firstValueFrom(component["organization$"]);
       expect(org).toBe(mockOrg);
       expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
     });
@@ -172,24 +182,30 @@ describe("PoliciesComponent", () => {
     it("should throw error when organization is not found", async () => {
       mockOrganizationService.organizations$.mockReturnValue(of([]));
 
-      await expect(firstValueFrom(component.organization$)).rejects.toThrow(
+      await expect(firstValueFrom(component["organization$"])).rejects.toThrow(
         "No organization found for provided userId",
       );
     });
   });
 
-  describe("policies$", () => {
-    it("should return policies from PolicyListService", async () => {
-      const policies = await firstValueFrom(component.policies$);
+  describe("policySections$", () => {
+    it("should return sections from PolicyListService", async () => {
+      const sections = await firstValueFrom(component["policySections$"]);
 
-      expect(policies).toBeDefined();
-      expect(Array.isArray(policies)).toBe(true);
+      expect(sections).toBeDefined();
+      expect(Array.isArray(sections)).toBe(true);
     });
   });
 
   describe("orgPolicies$", () => {
     describe("with multiple policies", () => {
-      const mockPolicyResponsesData = [
+      const mockPolicyResponsesData: {
+        id: string;
+        organizationId: string;
+        type: PolicyType;
+        enabled: boolean;
+        data: null;
+      }[] = [
         {
           id: newGuid(),
           organizationId: mockOrgId,
@@ -263,7 +279,13 @@ describe("PoliciesComponent", () => {
 
   describe("policiesEnabledMap$", () => {
     describe("with multiple policies", () => {
-      const mockPolicyResponsesData = [
+      const mockPolicyResponsesData: {
+        id: string;
+        organizationId: string;
+        type: PolicyType;
+        enabled: boolean;
+        data: null;
+      }[] = [
         {
           id: "policy-1",
           organizationId: mockOrgId,
@@ -301,7 +323,7 @@ describe("PoliciesComponent", () => {
       });
 
       it("should create a map of policy types to their enabled status", async () => {
-        const map = await firstValueFrom(component.policiesEnabledMap$);
+        const map = await firstValueFrom(component["policiesEnabledMap$"]);
         expect(map.size).toBe(3);
         expect(map.get(PolicyType.TwoFactorAuthentication)).toBe(true);
         expect(map.get(PolicyType.RequireSso)).toBe(false);
@@ -321,7 +343,7 @@ describe("PoliciesComponent", () => {
       });
 
       it("should create empty map when no policies exist", async () => {
-        const map = await firstValueFrom(component.policiesEnabledMap$);
+        const map = await firstValueFrom(component["policiesEnabledMap$"]);
         expect(map.size).toBe(0);
       });
     });
@@ -341,9 +363,9 @@ describe("PoliciesComponent", () => {
         mockPolicyService.policies$.mockReturnValue(policiesSubject.asObservable());
 
         callCount = 0;
-        mockPolicyApiService.getPolicies.mockImplementation(() => {
+        mockPolicyApiService.getPolicies.mockImplementation(async () => {
           callCount++;
-          return of(new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse));
+          return new ListResponse({ Data: [], ContinuationToken: null }, PolicyResponse);
         });
 
         fixture = TestBed.createComponent(PoliciesComponent);
@@ -367,12 +389,21 @@ describe("PoliciesComponent", () => {
         name: "Test Policy",
         description: "Test Description",
         type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
-      const mockPolicyResponseData = {
+      const mockPolicyResponseData: {
+        id: string;
+        organizationId: string;
+        type: PolicyType;
+        enabled: boolean;
+        data: null;
+      } = {
         id: mockPolicyId,
         organizationId: mockOrgId,
         type: PolicyType.TwoFactorAuthentication,
@@ -385,12 +416,10 @@ describe("PoliciesComponent", () => {
       beforeEach(async () => {
         queryParamsSubject.next({ policyId: mockPolicyId });
 
-        mockPolicyApiService.getPolicies.mockReturnValue(
-          of(
-            new ListResponse(
-              { Data: [mockPolicyResponseData], ContinuationToken: null },
-              PolicyResponse,
-            ),
+        mockPolicyApiService.getPolicies.mockResolvedValue(
+          new ListResponse(
+            { Data: [mockPolicyResponseData], ContinuationToken: null },
+            PolicyResponse,
           ),
         );
 
@@ -431,7 +460,7 @@ describe("PoliciesComponent", () => {
         expect(dialogOpenSpy).toHaveBeenCalled();
         const callArgs = dialogOpenSpy.mock.calls[0][1];
         expect(callArgs.data?.policy.type).toBe(mockPolicy.type);
-        expect(callArgs.data?.organizationId).toBe(mockOrgId);
+        expect(callArgs.data?.organization).toBe(mockOrg);
       });
     });
 
@@ -448,8 +477,11 @@ describe("PoliciesComponent", () => {
         name: "Test Policy",
         description: "Test Description",
         type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -467,31 +499,34 @@ describe("PoliciesComponent", () => {
   });
 
   describe("edit", () => {
-    it("should call dialogService.open with correct parameters when no custom dialog is specified", () => {
+    it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
         type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, mockOrgId);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
-          organizationId: mockOrgId,
+          organization: mockOrg,
         },
       });
     });
 
-    it("should call custom dialog open method when specified", () => {
+    it("should call custom dialog open method when specified", async () => {
       const mockDialogRef = { close: jest.fn() };
       const mockCustomDialog = {
         open: jest.fn().mockReturnValue(mockDialogRef),
@@ -501,48 +536,134 @@ describe("PoliciesComponent", () => {
         name: "Custom Policy",
         description: "Custom Description",
         type: PolicyType.RequireSso,
+        category: PolicyCategory.Authentication,
+        priority: 10,
         component: {} as any,
         editDialogComponent: mockCustomDialog as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
-      component.edit(mockPolicy, mockOrgId);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(mockCustomDialog.open).toHaveBeenCalled();
       const callArgs = mockCustomDialog.open.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
-          organizationId: mockOrgId,
+          organization: mockOrg,
         },
       });
       expect(PolicyEditDialogComponent.open).not.toHaveBeenCalled();
     });
 
-    it("should pass correct organizationId to dialog", () => {
-      const customOrgId = newGuid() as OrganizationId;
+    it("should pass organization to dialog", async () => {
+      const customOrg = { id: newGuid() as OrganizationId, name: "Custom Org" } as Organization;
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
         type: PolicyType.SingleOrg,
+        category: PolicyCategory.Authentication,
+        priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, customOrgId);
+      await component.edit(mockPolicy, customOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
-          organizationId: customOrgId,
+          organization: customOrg,
         },
       });
+    });
+
+    it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(PoliciesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
+      const mockDrawerDialog = {
+        open: jest.fn(),
+        openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
+      };
+
+      const mockPolicy: BasePolicyEditDefinition = {
+        name: "Drawer Policy",
+        description: "Drawer Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        editDialogComponent: mockDrawerDialog as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      await component.edit(mockPolicy, mockOrg);
+
+      expect(mockDrawerDialog.openDrawer).toHaveBeenCalled();
+      const callArgs = mockDrawerDialog.openDrawer.mock.calls[0];
+      expect(callArgs[1]).toEqual({
+        data: {
+          policy: mockPolicy,
+          organization: mockOrg,
+        },
+      });
+      expect(mockDrawerDialog.open).not.toHaveBeenCalled();
+    });
+
+    it("clears the drawer ref once it closes, so canDeactivate doesn't re-close a stale ref", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(PoliciesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      // Simulate the real DrawerRef behavior: calling close() on an already-closed ref
+      // short-circuits to `{ closed: false }`. If the component failed to clear its
+      // `drawerRef` signal after the drawer closed, canDeactivate() would call this again
+      // and incorrectly block navigation.
+      const closeSpy = jest.fn().mockResolvedValue({ closed: false });
+      const mockDrawerRef = { close: closeSpy, closed: of(undefined) };
+      const mockDrawerDialog = {
+        open: jest.fn(),
+        openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
+      };
+
+      const mockPolicy: BasePolicyEditDefinition = {
+        name: "Drawer Policy",
+        description: "Drawer Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        editDialogComponent: mockDrawerDialog as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      // The drawer's `closed` observable (of(undefined)) completes synchronously once
+      // subscribed, simulating a save/cancel that already closed the drawer.
+      await component.edit(mockPolicy, mockOrg);
+
+      const canLeave = await component.canDeactivate();
+
+      expect(canLeave).toBe(true);
+      expect(closeSpy).not.toHaveBeenCalled();
     });
   });
 });

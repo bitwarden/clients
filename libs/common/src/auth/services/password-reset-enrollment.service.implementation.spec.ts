@@ -86,7 +86,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
 
       const result = () => service.enroll("orgId");
 
-      await expect(result).rejects.toThrowError("resetPasswordOrgKeysError");
+      await expect(result).rejects.toThrow("resetPasswordOrgKeysError");
     });
 
     it("should enroll the user when no user id or key is provided", async () => {

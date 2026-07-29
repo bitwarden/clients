@@ -2,11 +2,13 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
+import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -62,6 +64,7 @@ describe("AppearanceComponent", () => {
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
   const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
   const featureFlag$ = new BehaviorSubject<boolean>(false);
+  const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
   const setShowFavicons = jest.fn().mockResolvedValue(undefined);
   const setEnableBadgeCounter = jest.fn().mockResolvedValue(undefined);
@@ -69,6 +72,7 @@ describe("AppearanceComponent", () => {
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
   const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
   const setClickItemsToAutofillVaultView = jest.fn().mockResolvedValue(undefined);
+  const setShowAtRiskPasswordNotifications = jest.fn().mockResolvedValue(undefined);
 
   const mockWidthService: Partial<PopupSizeService> = {
     width$: new BehaviorSubject("default"),
@@ -81,14 +85,17 @@ describe("AppearanceComponent", () => {
     setEnableBadgeCounter.mockClear();
     setEnableRoutingAnimation.mockClear();
     setClickItemsToAutofillVaultView.mockClear();
+    setShowAtRiskPasswordNotifications.mockClear();
 
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-        return featureFlag$.asObservable();
-      }
-      return of(false);
-    });
+    configService.getFeatureFlag$.mockImplementation(
+      <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
+        if (flag === FeatureFlag.PM31039ItemActionInExtension) {
+          return featureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+        }
+        return of(false) as Observable<FeatureFlagValueType<Flag>>;
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent],
@@ -126,7 +133,23 @@ describe("AppearanceComponent", () => {
           provide: VaultSettingsService,
           useValue: {
             clickItemsToAutofillVaultView$: of(false),
+            showAtRiskPasswordNotifications$: of(true),
             setClickItemsToAutofillVaultView,
+            setShowAtRiskPasswordNotifications,
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: new BehaviorSubject({
+              id: "test-user-id",
+            } as Account),
+          },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: {
+            hasPremiumFromAnySource$: jest.fn().mockReturnValue(hasPremiumFromAnySource$),
           },
         },
       ],
@@ -159,6 +182,7 @@ describe("AppearanceComponent", () => {
       showQuickCopyActions: false,
       width: "default",
       clickItemsToAutofillVaultView: false,
+      showAtRiskNotifications: true,
     });
   });
 
@@ -238,6 +262,40 @@ describe("AppearanceComponent", () => {
         );
         expect(checkbox).toBeNull();
       });
+    });
+  });
+
+  describe("showAtRiskNotifications", () => {
+    it("updates the showAtRiskPasswordNotifications setting when changed", async () => {
+      await fixture.whenStable();
+
+      component.appearanceForm.controls.showAtRiskNotifications.setValue(false);
+
+      expect(setShowAtRiskPasswordNotifications).toHaveBeenCalledWith(false);
+    });
+
+    it("shows the showAtRiskNotifications checkbox only for premium users", async () => {
+      hasPremiumFromAnySource$.next(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const checkbox = fixture.debugElement.query(
+        By.css('input[formControlName="showAtRiskNotifications"]'),
+      );
+      expect(checkbox).not.toBeNull();
+    });
+
+    it("hides the showAtRiskNotifications checkbox for non-premium users", async () => {
+      hasPremiumFromAnySource$.next(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const checkbox = fixture.debugElement.query(
+        By.css('input[formControlName="showAtRiskNotifications"]'),
+      );
+      expect(checkbox).toBeNull();
     });
   });
 });

@@ -1,4 +1,7 @@
 #![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
+#[cfg(feature = "uniffi")]
+uniffi::setup_scaffolding!("autofill_provider");
+
 mod assertion;
 mod lock_status;
 mod registration;
@@ -12,23 +15,17 @@ use std::{
     fmt::Display,
     path::PathBuf,
     sync::{
-        atomic::AtomicU32,
+        atomic::{AtomicU32, AtomicU8},
         mpsc::{self, Receiver, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
     time::{Duration, Instant},
 };
 
-pub use assertion::{
-    PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
-    PreparePasskeyAssertionCallback,
-};
 use futures::FutureExt;
-pub use lock_status::LockStatusResponse;
-pub use registration::{
-    PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
-};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+#[cfg(feature = "napi")]
+use napi_derive::napi;
+use serde::{Deserialize, Serialize};
 use tracing::{error, info};
 #[cfg(target_os = "macos")]
 use tracing_subscriber::{
@@ -36,39 +33,26 @@ use tracing_subscriber::{
     layer::SubscriberExt,
     util::SubscriberInitExt,
 };
-pub use window_handle_query::WindowHandleQueryResponse;
 
-use crate::{
-    lock_status::{GetLockStatusCallback, LockStatusRequest},
-    window_handle_query::{GetWindowHandleQueryCallback, WindowHandleQueryRequest},
+pub use crate::{
+    assertion::{
+        PasskeyAssertionRequest, PasskeyAssertionResponse,
+        PasskeyAssertionWithoutUserInterfaceRequest, PreparePasskeyAssertionCallback,
+    },
+    lock_status::LockStatusResponse,
+    registration::{
+        PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
+    },
+    window_handle_query::WindowHandleQueryResponse,
 };
-
-#[cfg(target_os = "macos")]
-uniffi::setup_scaffolding!();
+use crate::{
+    lock_status::GetLockStatusCallback, window_handle_query::GetWindowHandleQueryCallback,
+};
 
 #[cfg(target_os = "macos")]
 static INIT: Once = Once::new();
 
-/// User verification preference for WebAuthn requests.
-#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum UserVerification {
-    Preferred,
-    Required,
-    Discouraged,
-}
-
-/// Coordinates representing a point on the screen.
-#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Position {
-    pub x: i32,
-    pub y: i32,
-}
-
-#[cfg_attr(target_os = "macos", derive(uniffi::Error))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Error))]
 #[derive(Debug, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
@@ -98,10 +82,13 @@ trait Callback: Send + Sync {
 
 /// Store the connection status between the credential provider extension
 /// and the desktop application's IPC server.
-#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug)]
 pub enum ConnectionStatus {
+    /// connect() was called; the pipe handshake has not yet completed.
+    Connecting,
     Connected,
+    /// The connection was established and has since dropped.
     Disconnected,
 }
 
@@ -153,7 +140,7 @@ pub enum ConnectionStatus {
 ///     // use client here
 /// }
 /// ```
-#[cfg_attr(target_os = "macos", derive(uniffi::Object))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Object))]
 pub struct AutofillProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
@@ -162,22 +149,116 @@ pub struct AutofillProviderClient {
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
 
-    // Flag to track connection status - atomic for thread safety without locks
-    connection_status: Arc<std::sync::atomic::AtomicBool>,
+    // Tracks connection lifecycle — see CONNECTION_* constants.
+    connection_status: Arc<AtomicU8>,
+}
+
+/// Requests from the extension to the host.
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtensionRequestMessage {
+    pub sequence_number: u32,
+    #[serde(flatten)]
+    pub request: ExtensionRequest,
+}
+
+/// Requests from the extension to the host.
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(tag = "request", content = "params", rename_all = "camelCase")]
+pub enum ExtensionRequest {
+    CancelRequest(String),
+    LockStatus,
+    NativeStatus(NativeStatus),
+    PasskeyAssertion(PasskeyAssertionRequest),
+    PasskeyAssertionWithoutUserInterface(PasskeyAssertionWithoutUserInterfaceRequest),
+    PasskeyRegistration(PasskeyRegistrationRequest),
+    WindowHandle,
 }
 
 /// Store native desktop status information to use for IPC communication
 /// between the application and the credential provider.
-#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NativeStatus {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
+}
+
+/// Coordinates representing a point on the screen.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// User verification preference for WebAuthn requests.
+#[cfg(not(feature = "napi"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum UserVerification {
+    Preferred,
+    Required,
+    Discouraged,
+}
+
+// This needs to be duplicated because the #[napi] field macro is a proc-macro,
+// not an attribute macro, so #[cfg_attr] doesn't work.
+/// User verification preference for WebAuthn requests.
+#[cfg(feature = "napi")]
+#[cfg_attr(feature = "napi", napi(string_enum, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum UserVerification {
+    #[napi(value = "preferred")]
+    Preferred,
+    #[napi(value = "required")]
+    Required,
+    #[napi(value = "discouraged")]
+    Discouraged,
+}
+
+/// Details about a native window.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WindowDetails {
+    /// Coordinates of the center of the window, relative to
+    /// the top-left point on the screen.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Note that macOS APIs gives points relative to the bottom-left point on the
+    /// screen by default, so the y-coordinate will be flipped.
+    ///
+    /// ## Windows
+    /// On Windows, this must be logical pixels, not physical pixels.
+    pub position: Position,
+
+    /// Byte string representing the native OS window handle.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Unused.
+    ///
+    /// ## Windows
+    /// On Windows, this is a HWND.
+    pub handle: Option<Vec<u8>>,
 }
 
 // In our callback management, 0 is a reserved sequence number indicating that a message does not
 // have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
+
+const CONNECTION_CONNECTING: u8 = 0;
+const CONNECTION_CONNECTED: u8 = 1;
+const CONNECTION_DISCONNECTED: u8 = 2;
 
 #[cfg(not(test))]
 static IPC_PATH: &str = "af";
@@ -193,15 +274,12 @@ impl AutofillProviderClient {
 
     /// Request the desktop client's lock status.
     pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
-        self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
+        self.send_request(ExtensionRequest::LockStatus, Some(Box::new(callback)));
     }
 
     /// Requests details about the desktop client's native window.
     pub fn get_window_handle(&self, callback: Arc<dyn GetWindowHandleQueryCallback>) {
-        self.send_message(
-            WindowHandleQueryRequest::default(),
-            Some(Box::new(callback)),
-        );
+        self.send_request(ExtensionRequest::WindowHandle, Some(Box::new(callback)));
     }
 
     fn connect_to_path(path: PathBuf) -> Self {
@@ -213,7 +291,7 @@ impl AutofillProviderClient {
             response_callbacks_counter: AtomicU32::new(1), /* Start at 1 since 0 is reserved for
                                                             * "no callback" scenarios */
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
-            connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            connection_status: Arc::new(AtomicU8::new(CONNECTION_CONNECTING)),
         };
 
         let queue = client.response_callbacks_queue.clone();
@@ -242,11 +320,11 @@ impl AutofillProviderClient {
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
-                            connection_status.store(true, std::sync::atomic::Ordering::Relaxed);
+                            connection_status
+                                .store(CONNECTION_CONNECTED, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Command(CommandMessage::Disconnected)) => {
-                            info!("Disconnected from server");
-                            connection_status.store(false, std::sync::atomic::Ordering::Relaxed);
+                            break;
                         }
                         Ok(SerializedMessage::Message {
                             sequence_number,
@@ -278,6 +356,12 @@ impl AutofillProviderClient {
                         }
                     };
                 }
+                // Channel closed — covers both clean disconnects and ipc::connect errors.
+                info!("Disconnected from server");
+                connection_status.store(
+                    CONNECTION_DISCONNECTED,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
             });
         });
 
@@ -285,13 +369,13 @@ impl AutofillProviderClient {
     }
 }
 
-#[cfg_attr(target_os = "macos", uniffi::export)]
+#[cfg_attr(feature = "uniffi", uniffi::export)]
 impl AutofillProviderClient {
     /// Asynchronously initiates a connection to the autofill service on the desktop client.
     ///
     /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage
     /// information.
-    #[cfg_attr(target_os = "macos", uniffi::constructor)]
+    #[cfg_attr(feature = "uniffi", uniffi::constructor)]
     pub fn connect() -> Self {
         tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
         let path = desktop_core::ipc::path(IPC_PATH);
@@ -301,7 +385,15 @@ impl AutofillProviderClient {
     /// Send a one-way key-value message to the desktop client.
     pub fn send_native_status(&self, key: String, value: String) {
         let status = NativeStatus { key, value };
-        self.send_message(status, None);
+        self.send_request(ExtensionRequest::NativeStatus(status), None);
+    }
+
+    /// Cancel a request.
+    ///
+    /// The `context` parameter should be the same as the `context`
+    /// field from the original request.
+    pub fn cancel_request(&self, context: String) {
+        self.send_request(ExtensionRequest::CancelRequest(context), None);
     }
 
     /// Send a request to create a new passkey to the desktop client.
@@ -310,7 +402,10 @@ impl AutofillProviderClient {
         request: PasskeyRegistrationRequest,
         callback: Arc<dyn PreparePasskeyRegistrationCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyRegistration(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Send a request to assert a passkey to the desktop client.
@@ -319,7 +414,10 @@ impl AutofillProviderClient {
         request: PasskeyAssertionRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyAssertion(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Send a request to assert a passkey, without prompting the user, to the desktop client.
@@ -328,24 +426,27 @@ impl AutofillProviderClient {
         request: PasskeyAssertionWithoutUserInterfaceRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyAssertionWithoutUserInterface(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Return the status this client's connection to the desktop client.
     pub fn get_connection_status(&self) -> ConnectionStatus {
-        let is_connected = self
+        match self
             .connection_status
-            .load(std::sync::atomic::Ordering::Relaxed);
-        if is_connected {
-            ConnectionStatus::Connected
-        } else {
-            ConnectionStatus::Disconnected
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
+            CONNECTION_CONNECTED => ConnectionStatus::Connected,
+            CONNECTION_DISCONNECTED => ConnectionStatus::Disconnected,
+            _ => ConnectionStatus::Connecting,
         }
     }
 }
 
 #[cfg(target_os = "macos")]
-#[uniffi::export]
+#[cfg_attr(feature = "uniffi", uniffi::export)]
 pub fn initialize_logging() {
     INIT.call_once(|| {
         let filter = EnvFilter::builder()
@@ -363,16 +464,16 @@ pub fn initialize_logging() {
     });
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(tag = "command", rename_all = "camelCase")]
-enum CommandMessage {
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "command", content = "params", rename_all = "camelCase")]
+pub enum CommandMessage {
     Connected,
     Disconnected,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(untagged, rename_all = "camelCase")]
-enum SerializedMessage {
+pub enum SerializedMessage {
     Command(CommandMessage),
     Message {
         sequence_number: u32,
@@ -394,12 +495,8 @@ impl AutofillProviderClient {
         sequence_number
     }
 
-    fn send_message(
-        &self,
-        message: impl Serialize + DeserializeOwned,
-        callback: Option<Box<dyn Callback>>,
-    ) {
-        if let ConnectionStatus::Disconnected = self.get_connection_status() {
+    fn send_request(&self, request: ExtensionRequest, callback: Option<Box<dyn Callback>>) {
+        if !matches!(self.get_connection_status(), ConnectionStatus::Connected) {
             if let Some(callback) = callback {
                 callback.error(BitwardenError::Disconnected);
             }
@@ -411,7 +508,7 @@ impl AutofillProviderClient {
             NO_CALLBACK_INDICATOR
         };
 
-        if let Err(e) = send_message_helper(sequence_number, message, &self.to_server_send) {
+        if let Err(e) = send_request_helper(sequence_number, request, &self.to_server_send) {
             // Make sure we remove the callback from the queue if we can't send the message
             if sequence_number != NO_CALLBACK_INDICATOR {
                 if let Some((callback, _)) = self
@@ -430,17 +527,14 @@ impl AutofillProviderClient {
 }
 
 // Wrapped in Result<> to allow using ? for clarity.
-fn send_message_helper(
+fn send_request_helper(
     sequence_number: u32,
-    message: impl Serialize + DeserializeOwned,
+    request: ExtensionRequest,
     tx: &tokio::sync::mpsc::Sender<String>,
 ) -> Result<(), BitwardenError> {
-    let value = serde_json::to_value(message).map_err(|err| {
-        BitwardenError::Internal(format!("Could not represent message as JSON: {err}"))
-    })?;
-    let message = SerializedMessage::Message {
+    let message = ExtensionRequestMessage {
         sequence_number,
-        value: Ok(value),
+        request,
     };
     let json = serde_json::to_string(&message).map_err(|err| {
         BitwardenError::Internal(format!("Could not serialize message as JSON: {err}"))
@@ -573,16 +667,6 @@ impl<T: Send + 'static> TimedCallback<T> {
     }
 }
 
-impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationResponse> {
-    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
-        self.send(Ok(credential));
-    }
-
-    fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error));
-    }
-}
-
 #[cfg(test)]
 mod tests {
     //! For debugging test failures, it may be useful to enable tracing to see
@@ -606,9 +690,10 @@ mod tests {
     use tokio::sync::mpsc;
     use tracing::Level;
 
-    use crate::{
-        AutofillProviderClient, BitwardenError, ConnectionStatus, LockStatusRequest,
-        SerializedMessage, TimedCallback, IPC_PATH,
+    use super::{
+        AutofillProviderClient, BitwardenError, ConnectionStatus, ExtensionRequest,
+        ExtensionRequestMessage, PasskeyAssertionRequest, Position, SerializedMessage,
+        TimedCallback, UserVerification, WindowDetails, IPC_PATH,
     };
 
     /// Generates a path for a server and client to connect with.
@@ -624,9 +709,7 @@ mod tests {
     }
 
     /// Sets up an in-memory server based on the passed handler and returns a client to the server.
-    fn get_client<
-        F: Fn(Result<Value, BitwardenError>) -> Result<Value, BitwardenError> + Send + 'static,
-    >(
+    fn get_client<F: Fn(ExtensionRequest) -> Result<Value, BitwardenError> + Send + 'static>(
         handler: F,
     ) -> AutofillProviderClient {
         let (signal_tx, signal_rx) = std::sync::mpsc::channel();
@@ -644,7 +727,8 @@ mod tests {
                 .unwrap();
             rt.block_on(async move {
                 tracing::debug!(?server_path, "Starting server");
-                let server = desktop_core::ipc::server::Server::start(&server_path, tx).unwrap();
+                let server =
+                    desktop_core::ipc::server::Server::start(vec![server_path], tx).unwrap();
 
                 // Signal to main thread that the server is ready to process messages.
                 tracing::debug!("Server started");
@@ -659,21 +743,16 @@ mod tests {
                         MessageType::Disconnected => {}
                         MessageType::Message => {
                             // Deserialize and handle messages using the given handler function.
-                            let msg: SerializedMessage =
+                            let msg: ExtensionRequestMessage =
                                 serde_json::from_str(&data.message.unwrap()).unwrap();
 
-                            if let SerializedMessage::Message {
-                                sequence_number,
-                                value,
-                            } = msg
-                            {
-                                let response = serde_json::to_string(&SerializedMessage::Message {
-                                    sequence_number,
-                                    value: handler(value),
-                                })
-                                .unwrap();
-                                server.send(response).unwrap();
-                            }
+                            let response = serde_json::to_string(&SerializedMessage::Message {
+                                sequence_number: msg.sequence_number,
+                                value: handler(msg.request),
+                            })
+                            .unwrap();
+                            tracing::debug!("{response}");
+                            server.send(response).unwrap();
                         }
                     }
                 }
@@ -729,13 +808,12 @@ mod tests {
     #[test]
     fn test_client_parses_get_lock_status_response_when_valid_json_is_returned() {
         // The server should expect a lock status request and return a valid response.
-        let handler = |value: Result<Value, BitwardenError>| {
-            let value = value.unwrap();
-            if let Ok(LockStatusRequest {}) = serde_json::from_value(value.clone()) {
-                Ok(json!({"isUnlocked": true}))
+        let handler = |request: ExtensionRequest| {
+            if let ExtensionRequest::LockStatus = request {
+                Ok(json!({"isUnlocked": true }))
             } else {
                 Err(BitwardenError::Internal(format!(
-                    "Expected LockStatusRequest, received: {value:?}"
+                    "Expected LockStatusRequest, received: {request:?}"
                 )))
             }
         };
@@ -750,5 +828,31 @@ mod tests {
             .unwrap();
 
         assert!(response.is_unlocked);
+    }
+
+    #[test]
+    fn test_serialize_extension_request() {
+        let message = ExtensionRequestMessage {
+            sequence_number: 42,
+            request: ExtensionRequest::PasskeyAssertion(PasskeyAssertionRequest {
+                rp_id: "example.com".to_string(),
+                client_data_hash: vec![1; 32],
+                user_verification: UserVerification::Preferred,
+                allowed_credentials: vec![vec![4; 8]],
+                client_window: WindowDetails {
+                    position: Position { x: 100, y: 200 },
+                    handle: None,
+                },
+                context: "context".to_string(),
+            }),
+        };
+        let json = serde_json::to_string(&message).unwrap();
+        let value: Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(value["sequenceNumber"], 42);
+        assert_eq!(value["request"], "passkeyAssertion");
+        let request: PasskeyAssertionRequest =
+            serde_json::from_value(value.as_object().unwrap().get("params").unwrap().clone())
+                .unwrap();
+        assert_eq!(request.rp_id, "example.com");
     }
 }

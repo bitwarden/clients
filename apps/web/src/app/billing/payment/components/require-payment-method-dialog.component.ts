@@ -33,29 +33,26 @@ type DialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <form [formGroup]="formGroup" [bitSubmit]="submit">
-      <bit-dialog>
-        <span bitDialogTitle class="tw-font-medium">
-          {{ "addPaymentMethod" | i18n }}
-        </span>
-        <div bitDialogContent>
-          <bit-callout [type]="dialogParams.callout.type" [title]="dialogParams.callout.title">
-            {{ dialogParams.callout.message }}
-          </bit-callout>
-          <app-enter-payment-method [group]="formGroup" [includeBillingAddress]="true">
-          </app-enter-payment-method>
-        </div>
-        <ng-container bitDialogFooter>
-          <button bitButton bitFormButton buttonType="primary" type="submit">
-            {{ "save" | i18n }}
-          </button>
-        </ng-container>
-      </bit-dialog>
+    <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+      <span bitDialogTitle class="tw-font-medium">
+        {{ "addPaymentMethod" | i18n }}
+      </span>
+      <div bitDialogContent>
+        <bit-callout [type]="dialogParams.callout.type" [title]="dialogParams.callout.title">
+          {{ dialogParams.callout.message }}
+        </bit-callout>
+        <app-enter-payment-method [group]="formGroup" [includeBillingAddress]="true">
+        </app-enter-payment-method>
+      </div>
+      <ng-container bitDialogFooter>
+        <button bitButton bitFormButton buttonType="primary" type="submit">
+          {{ "save" | i18n }}
+        </button>
+      </ng-container>
     </form>
   `,
   standalone: true,
   imports: [EnterPaymentMethodComponent, SharedModule],
-  providers: [SubscriberBillingClient],
 })
 export class RequirePaymentMethodDialogComponent extends SubmitPaymentMethodDialogComponent {
   protected override subscriber: BitwardenSubscriber;

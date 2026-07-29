@@ -47,6 +47,12 @@
           @let hasDirectory = selectableProduct.hasDirectory;
           @let usersGetPremium = selectableProduct.usersGetPremium;
           @let trialPeriodDays = selectableProduct.trialPeriodDays;
+          @let effectiveTrial = trialLength() ?? trialPeriodDays;
+          @let showTrialOffer =
+            tier != productTypes.Free &&
+            effectiveTrial &&
+            createOrganization() &&
+            !upgradingFromPremium;
 
           <div class="tw-mb-3">
             <bit-radio-button [value]="tier" (change)="changedProduct()">
@@ -65,8 +71,8 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
-                      <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
+                    @if (showTrialOffer) {
+                      <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                     }
                   </ul>
                 } @else {
@@ -75,9 +81,9 @@
                       <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                       <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                       <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
+                      @if (showTrialOffer) {
                         <li>
-                          {{ "xDayFreeTrial" | i18n: trialPeriodDays }}
+                          {{ "xDayFreeTrial" | i18n: effectiveTrial }}
                         </li>
                       }
                     </ul>
@@ -126,8 +132,8 @@
                       @if (tier != productTypes.Free) {
                         <li>{{ "priorityCustomerSupport" | i18n }}</li>
                       }
-                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
-                        <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
+                      @if (showTrialOffer) {
+                        <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                       }
                     </ul>
                   }
@@ -397,6 +403,7 @@
           <app-enter-payment-method
             #enterPaymentMethodComponent
             [group]="billingFormGroup.controls.paymentMethod"
+            [showBankAccount]="!upgradingFromPremium"
           ></app-enter-payment-method>
         }
         <app-enter-billing-address
@@ -406,7 +413,7 @@
         >
         </app-enter-billing-address>
         <div id="price" class="tw-my-4">
-          <billing-cart-summary [cart]="cart()" />
+          <billing-cart-summary [cart]="cart()" [showDiscountBadges]="true" />
         </div>
       </bit-section>
     }

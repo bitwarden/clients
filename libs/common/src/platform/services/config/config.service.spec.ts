@@ -34,6 +34,7 @@ import {
   ApiUrl,
   DefaultConfigService,
   RETRIEVAL_INTERVAL,
+  GLOBAL_FEATURE_FLAG_OVERRIDES,
   GLOBAL_SERVER_CONFIGURATIONS,
   USER_SERVER_CONFIG,
   SLOW_EMISSION_GUARD,
@@ -173,10 +174,7 @@ describe("ConfigService", () => {
 
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
-              expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: { bootstrap: { type: "direct" } },
-              });
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
 
             it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
@@ -193,17 +191,33 @@ describe("ConfigService", () => {
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
               expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: {
-                  bootstrap: {
-                    type: "ssoCookieVendor",
-                    idpLoginUrl: "https://idp.example.com",
-                    cookieName: "auth_token",
-                    cookieDomain: ".example.com",
-                    cookieValue: undefined,
-                  },
+                bootstrap: {
+                  type: "ssoCookieVendor",
+                  idpLoginUrl: "https://idp.example.com",
+                  cookieName: "auth_token",
+                  cookieDomain: ".example.com",
+                  vaultUrl: "vault.example.com",
+                  cookieValue: undefined,
                 },
               });
+            });
+
+            it("emits direct bootstrap config when ssoCookieVendor bootstrap has no vault URL", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              // Remove the environment field so vaultUrl will be undefined
+              ssoResponse.environment = undefined as any;
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
           });
         });
@@ -350,6 +364,93 @@ describe("ConfigService", () => {
       expect(values[0]).toBe(undefined);
       expect(values[1]).toBe(true);
       expect(values[2]).toBe(false);
+    });
+  });
+
+  describe("feature flag overrides", () => {
+    let sut: DefaultConfigService;
+    let overrideState: FakeGlobalState<Record<string, boolean | number | string>>;
+    const environmentSubject = new BehaviorSubject(environmentFactory(activeApiUrl));
+
+    beforeAll(async () => {
+      await accountService.switchAccount(null);
+    });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.globalEnvironment$ = environmentSubject;
+
+      // Provide a fresh server config so serverConfig$ resolves without fetching
+      globalState.stateSubject.next({ [activeApiUrl]: serverConfigFactory(activeApiUrl) });
+
+      overrideState = stateProvider.global.getFake(GLOBAL_FEATURE_FLAG_OVERRIDES);
+
+      sut = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+    });
+
+    it("returns the override value when one is present", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(true);
+    });
+
+    it("returns the override value for non-boolean types", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.PM32180PremiumUpsellAccountAge]: 99 });
+
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.PM32180PremiumUpsellAccountAge),
+      );
+
+      expect(result).toBe(99);
+    });
+
+    it("falls through to the server config when the flag is not in the override map", async () => {
+      overrideState.stateSubject.next({});
+      const serverConfig = new ServerConfig(
+        new ServerConfigData({
+          featureStates: { [FeatureFlag.FedRampGovRegion]: true },
+        }),
+      );
+      globalState.stateSubject.next({ [activeApiUrl]: serverConfig });
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(true);
+    });
+
+    it("falls through to the default value when neither override nor server set the flag", async () => {
+      overrideState.stateSubject.next({});
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(false);
+    });
+
+    it("falls through to the default value when overrides state is null", async () => {
+      overrideState.stateSubject.next(null);
+
+      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+
+      expect(result).toBe(false);
+    });
+
+    it("userCachedFeatureFlag$ honors the override", async () => {
+      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+      userState.nextState(null);
+
+      const result = await firstValueFrom(
+        sut.userCachedFeatureFlag$(FeatureFlag.FedRampGovRegion, userId),
+      );
+
+      expect(result).toBe(true);
     });
   });
 

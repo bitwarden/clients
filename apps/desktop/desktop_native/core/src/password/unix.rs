@@ -1,20 +1,12 @@
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
-use oo7::dbus::{self};
 use tracing::info;
 
 use crate::password::PASSWORD_NOT_FOUND;
 
 /// Retrieves a password from the Linux Secret Service keyring.
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
-    match get_password_new(service, account).await {
-        Ok(res) => Ok(res),
-        Err(_) => get_password_legacy(service, account).await,
-    }
-}
-
-async fn get_password_new(service: &str, account: &str) -> Result<String> {
     let keyring = oo7::Keyring::new().await?;
     let _ = try_prompt(&keyring).await;
     let attributes = HashMap::from([("service", service), ("account", account)]);
@@ -24,29 +16,6 @@ async fn get_password_new(service: &str, account: &str) -> Result<String> {
         Some(res) => {
             let secret = res.secret().await?;
             Ok(String::from_utf8(secret.to_vec())?)
-        }
-        None => Err(anyhow!(PASSWORD_NOT_FOUND)),
-    }
-}
-
-// forces to read via secret service; remvove after 2025.03
-async fn get_password_legacy(service: &str, account: &str) -> Result<String> {
-    info!("falling back to get legacy {} {}", service, account);
-    let svc = dbus::Service::new().await?;
-    let collection = svc.default_collection().await?;
-    let keyring = oo7::Keyring::DBus(collection);
-    let _ = try_prompt(&keyring).await;
-    let attributes = HashMap::from([("service", service), ("account", account)]);
-    let results = keyring.search_items(&attributes).await?;
-    let res = results.first();
-    match res {
-        Some(res) => {
-            let secret = res.secret().await?;
-            info!(service, account, "deleting legacy secret service entry",);
-            keyring.delete(&attributes).await?;
-            let secret_string = String::from_utf8(secret.to_vec())?;
-            set_password(service, account, &secret_string).await?;
-            Ok(secret_string)
         }
         None => Err(anyhow!(PASSWORD_NOT_FOUND)),
     }

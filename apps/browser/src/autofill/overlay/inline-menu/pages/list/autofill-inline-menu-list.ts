@@ -101,6 +101,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       showPasskeysLabels = false,
       generatedPassword,
       showSaveLoginMenu,
+      showAnimations = true,
     } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -118,6 +119,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer = globalThis.document.createElement("div");
     this.inlineMenuListContainer.classList.add("inline-menu-list-container", themeClass);
+    if (!showAnimations) {
+      this.inlineMenuListContainer.classList.add("no-animations");
+    }
     this.resizeObserver.observe(this.inlineMenuListContainer);
 
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
@@ -1351,7 +1355,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   private buildTotpElement(
     totpCode: string,
-    username: string,
+    username: string | undefined,
     reprompt: CipherRepromptType,
   ): HTMLDivElement | null {
     if (!totpCode) {

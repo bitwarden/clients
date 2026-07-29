@@ -6,18 +6,16 @@ import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
-import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
-import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
@@ -29,6 +27,17 @@ export type EncryptionContext = {
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
+  /**
+   * Observable that emits the decrypted {@link CipherView} for a single cipher, or `undefined`
+   * when no cipher with the given id exists in the user's vault.
+   *
+   * Encapsulates the common pattern of subscribing to {@link cipherViews$} and finding a single
+   * cipher by id. The observable re-emits whenever the user's ciphers change.
+   *
+   * @param userId The id of the user whose vault should be searched.
+   * @param cipherId The id of the cipher to retrieve.
+   */
+  abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
@@ -46,8 +55,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract encrypt(
     model: CipherView,
     userId: UserId,
-    keyForEncryption?: SymmetricCryptoKey,
-    keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
   ): Promise<EncryptionContext>;
   /**
@@ -59,8 +66,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to an array of encryption contexts
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
-  abstract encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]>;
-  abstract encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
@@ -145,14 +150,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @param organizationId The Id of the organization to move the cipher to
    * @param collectionIds The collection Ids to assign the cipher to in the organization
    * @param userId The Id of the user performing the operation
-   * @param originalCipher Optional original cipher that will be used to compare/update password history
+   * @param originalCipherView Optional original cipher view that will be used to compare/update password history
    */
   abstract shareWithServer(
     cipher: CipherView,
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
-    originalCipher?: Cipher,
+    originalCipherView?: CipherView,
   ): Promise<Cipher>;
   abstract shareManyWithServer(
     ciphers: CipherView[],
@@ -165,6 +170,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     unencryptedFile: any,
     userId: UserId,
     admin?: boolean,
+    options?: UploadOptions,
   ): Promise<Cipher>;
   abstract saveAttachmentRawWithServer(
     cipher: Cipher,
@@ -172,6 +178,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     data: Uint8Array,
     userId: UserId,
     admin?: boolean,
+    options?: UploadOptions,
   ): Promise<Cipher>;
   /**
    * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.

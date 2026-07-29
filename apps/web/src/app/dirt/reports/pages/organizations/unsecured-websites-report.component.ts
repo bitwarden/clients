@@ -7,17 +7,19 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { BerryComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -41,14 +43,22 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    ChipFilterComponent,
+    BerryComponent,
+    Vfo1IconPipe,
+  ],
 })
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit
 {
-  // Contains a list of ciphers, the user running the report, can manage
-  private manageableCiphers: Cipher[] = [];
+  private manageableCipherIds = new Set<string>();
+  private sharedCollectionIds = new Set<string>();
 
   constructor(
     cipherService: CipherService,
@@ -56,6 +66,7 @@ export class UnsecuredWebsitesReportComponent
     private route: ActivatedRoute,
     organizationService: OrganizationService,
     protected accountService: AccountService,
+    protected logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
@@ -74,20 +85,51 @@ export class UnsecuredWebsitesReportComponent
       collectionService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
+    this.logService.info("[UnsecuredWebsitesOrganizationReport] org setup start");
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          this.manageableCiphers = await this.cipherService.getAll(userId);
-          await super.ngOnInit();
+          this.logService.info("[UnsecuredWebsitesOrganizationReport] route params received");
+
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[UnsecuredWebsitesOrganizationReport] organization context loaded found=${this.organization != null}`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            this.logService.info(
+              `[UnsecuredWebsitesOrganizationReport] manageable ciphers loaded count=${this.manageableCipherIds.size}`,
+            );
+
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[UnsecuredWebsitesOrganizationReport] shared collections loaded count=${this.sharedCollectionIds.size}`,
+            );
+
+            await super.ngOnInit();
+            this.logService.info("[UnsecuredWebsitesOrganizationReport] org setup complete");
+          } catch (e) {
+            this.logService.error("[UnsecuredWebsitesOrganizationReport] org setup failure", e);
+            throw e;
+          }
         }),
         takeUntil(this.destroyed$),
       )
@@ -95,19 +137,41 @@ export class UnsecuredWebsitesReportComponent
   }
 
   async getAllCiphers(): Promise<CipherView[]> {
+    this.logService.info("[UnsecuredWebsitesOrganizationReport] cipher fetch start");
+
     if (this.organization) {
-      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      try {
+        const ciphers = await this.cipherService.getAllFromApiForOrganization(
+          this.organization.id,
+          true,
+        );
+        this.logService.info(
+          `[UnsecuredWebsitesOrganizationReport] cipher fetch complete count=${ciphers.length}`,
+        );
+        return ciphers;
+      } catch (e) {
+        this.logService.error("[UnsecuredWebsitesOrganizationReport] cipher fetch failure", e);
+        throw e;
+      }
     }
+
+    this.logService.info(
+      "[UnsecuredWebsitesOrganizationReport] cipher fetch skipped reason=no organization",
+    );
+
     return [];
   }
 
   protected canManageCipher(c: CipherView): boolean {
-    if (c.collectionIds.length === 0) {
-      return true;
+    if (
+      CipherViewLikeUtils.isUnassigned(c) ||
+      !c.collectionIds?.some((id) => this.sharedCollectionIds.has(id))
+    ) {
+      return false;
     }
     if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
-    return this.manageableCiphers.some((x) => x.id === c.id);
+    return this.manageableCipherIds.has(c.id);
   }
 }

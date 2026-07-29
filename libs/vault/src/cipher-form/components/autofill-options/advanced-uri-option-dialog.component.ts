@@ -36,12 +36,12 @@ export class AdvancedUriOptionDialogComponent {
 
   onCancel() {
     this.params.onCancel?.();
-    this.dialogRef.close(false);
+    void this.dialogRef.close(false);
   }
 
   onContinue() {
     this.params.onContinue?.();
-    this.dialogRef.close(true);
+    void this.dialogRef.close(true);
   }
 
   openLink(event: Event) {

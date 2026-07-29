@@ -46,11 +46,11 @@ export class TransferItemsDialogComponent {
   protected readonly organizationName = this.params.organizationName;
 
   protected acceptTransfer() {
-    this.dialogRef.close(TransferItemsDialogResult.Accepted);
+    void this.dialogRef.close(TransferItemsDialogResult.Accepted);
   }
 
   protected decline() {
-    this.dialogRef.close(TransferItemsDialogResult.Declined);
+    void this.dialogRef.close(TransferItemsDialogResult.Declined);
   }
 
   protected openLearnMore(e: Event) {

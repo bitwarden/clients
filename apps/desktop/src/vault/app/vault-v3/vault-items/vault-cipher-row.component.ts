@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, HostListener, ViewChild, computed, inject, input, output } from "@angular/core";
+import { Component, HostListener, computed, inject, input, output, viewChild } from "@angular/core";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -13,18 +14,21 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  AriaDisableDirective,
   BitIconButtonComponent,
+  CheckboxModule,
   MenuModule,
   MenuTriggerForDirective,
-  TooltipDirective,
   TableModule,
+  LinkModule,
+  IconModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CopyAction,
   CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "./vault-item-event";
@@ -42,24 +46,25 @@ interface CopyFieldConfig {
   templateUrl: "vault-cipher-row.component.html",
   imports: [
     NgClass,
-    JslibModule,
+    I18nPipe,
     TableModule,
-    AriaDisableDirective,
     OrganizationNameBadgeComponent,
-    TooltipDirective,
     BitIconButtonComponent,
     MenuModule,
     CopyCipherFieldDirective,
     PremiumBadgeComponent,
     GetOrgNameFromIdPipe,
+    IconComponent,
+    LinkModule,
+    IconModule,
+    CheckboxModule,
+    Vfo1IconPipe,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
+  protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
   protected readonly disabled = input<boolean>();
   protected readonly cipher = input<C>();
@@ -83,22 +88,22 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * user has archive permissions
    */
   protected readonly userCanArchive = input<boolean>();
-  /** Archive feature is enabled */
-  readonly archiveEnabled = input.required<boolean>();
   /**
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly showBatchBar = input<boolean>(false);
+  protected readonly selected = input<boolean>(false);
+  protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
 
   protected CipherType = CipherType;
 
   private platformUtilsService = inject(PlatformUtilsService);
+  private i18nService = inject(I18nService);
 
   protected readonly showArchiveButton = computed(() => {
     return (
-      this.archiveEnabled() &&
-      !this.cipher().organizationId &&
       !CipherViewLikeUtils.isArchived(this.cipher()) &&
       !CipherViewLikeUtils.isDeleted(this.cipher())
     );
@@ -138,7 +143,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   }
 
   protected readonly subtitle = computed(() => {
-    return CipherViewLikeUtils.subtitle(this.cipher());
+    return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
   });
 
   protected readonly isDeleted = computed(() => {
@@ -180,8 +185,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     }
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
-
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
 
   /**
    * Returns the list of copyable fields based on cipher type.
@@ -225,6 +228,39 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.SecureNote:
         return [{ field: "secureNote", title: "copyNote" }];
+      case CipherType.BankAccount:
+        return [
+          { field: "nameOnAccount", title: "copyNameOnAccount" },
+          { field: "accountNumber", title: "copyAccountNumber" },
+          { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "branchNumber", title: "copyBranchNumber" },
+          { field: "pin", title: "copyPin" },
+          { field: "iban", title: "copyIban" },
+          { field: "swiftCode", title: "copySwiftCode" },
+        ];
+      case CipherType.Passport:
+        return [
+          { field: "givenName", title: "copyFirstName" },
+          { field: "surname", title: "copyLastName" },
+          { field: "passportNumber", title: "copyPassportNumber" },
+          {
+            field: "nationalIdentificationNumber",
+            title: "copyNationalIdentificationNumber",
+          },
+        ];
+      case CipherType.DriversLicense:
+        return [
+          { field: "firstNameLicense", title: "copyFirstName" },
+          { field: "middleNameLicense", title: "copyMiddleName" },
+          { field: "lastNameLicense", title: "copyLastName" },
+          { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
+        ];
       default:
         return [];
     }
@@ -294,8 +330,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
       return;
     }
 
-    if (!this.disabled() && this.menuTrigger) {
-      this.menuTrigger.toggleMenuOnRightClick(event);
+    if (!this.disabled() && this.menuTrigger()) {
+      this.menuTrigger().toggleMenuOnRightClick(event);
     }
   }
 }

@@ -8,7 +8,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
-import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
+import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
@@ -18,12 +18,12 @@ import AutofillService from "@bitwarden/browser/autofill/services/autofill.servi
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-cache/popup-router-cache.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -37,6 +37,7 @@ import {
   DecryptionFailureDialogComponent,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -52,6 +53,7 @@ import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-passw
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
@@ -91,6 +93,7 @@ class CurrentAccountStubComponent {}
 })
 class NewItemDropdownStubComponent {
   readonly initialValues = input();
+  readonly canCreateCipher = input();
 }
 
 @Component({
@@ -110,12 +113,28 @@ class PopOutStubComponent {}
 class BlockedInjectionBannerStubComponent {}
 
 @Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
+
+@Component({
   selector: "vault-at-risk-password-callout",
   standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class VaultAtRiskCalloutStubComponent {}
+
+@Component({
+  selector: "vault-organization-user-notifications",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultOrganizationUserNotificationsStubComponent {}
 
 @Component({
   selector: "app-autofill-vault-list-items",
@@ -168,7 +187,7 @@ describe("VaultComponent", () => {
   }
 
   function queryAllSpotlights(fixture: any): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("bit-spotlight")) as HTMLElement[];
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-callout")) as HTMLElement[];
   }
 
   const itemsSvc: any = {
@@ -197,6 +216,7 @@ describe("VaultComponent", () => {
 
   const cipherSvc = {
     failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
+    ciphers$: jest.fn().mockReturnValue(of({})),
   } as Partial<CipherService>;
 
   const nudgesSvc = {
@@ -234,15 +254,21 @@ describe("VaultComponent", () => {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
 
+  const premiumUpsellSvc = {
+    showUpsell: jest.fn().mockReturnValue(false),
+  };
+
   const autoConfirmSvc = {
     configuration$: jest.fn().mockReturnValue(of({})),
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
     upsert: jest.fn().mockResolvedValue(undefined),
     autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+    bulkAutoConfirmPendingUsers: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    premiumUpsellSvc.showUpsell.mockReturnValue(false);
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
@@ -301,6 +327,7 @@ describe("VaultComponent", () => {
           provide: InternalOrganizationServiceAbstraction,
           useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
         },
+        { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -314,9 +341,11 @@ describe("VaultComponent", () => {
           NewItemDropdownComponent,
           PopOutComponent,
           BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
+          VaultOrganizationUserNotificationsComponent,
         ],
         providers: [
           { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
@@ -330,9 +359,11 @@ describe("VaultComponent", () => {
           NewItemDropdownStubComponent,
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
+          VaultOrganizationUserNotificationsStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
@@ -472,25 +503,16 @@ describe("VaultComponent", () => {
     expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
   }));
 
-  it("accountAgeInDays$ computes integer days since creation", (done) => {
-    activeAccount$.next({
-      id: "user-123",
-      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    } as any);
-    getObs<number | null>(component, "accountAgeInDays$").subscribe((days) => {
-      if (days !== null) {
-        expect(days).toBeGreaterThanOrEqual(7);
-        done();
-      }
-    });
-
-    void component.ngOnInit();
-  });
-
   it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    } as any);
+
     itemsSvc.cipherCount$.next(10);
 
     hasPremiumFromAnySource$.next(false);
+    premiumUpsellSvc.showUpsell.mockReturnValue(true);
 
     configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
 
@@ -509,14 +531,16 @@ describe("VaultComponent", () => {
     fixture.detectChanges();
 
     const spotlights = Array.from(
-      fixture.nativeElement.querySelectorAll("bit-spotlight"),
+      fixture.nativeElement.querySelectorAll("bit-callout"),
     ) as HTMLElement[];
     expect(spotlights.length).toBe(1);
 
-    const spotDe = fixture.debugElement.query(By.css("bit-spotlight"));
+    const spotDe = fixture.debugElement.query(By.css("bit-callout"));
     expect(spotDe).toBeTruthy();
 
-    spotDe.triggerEventHandler("onButtonClick", undefined);
+    const button = spotDe.query(By.css("[slot='end']"));
+    button.nativeElement.click();
+
     fixture.detectChanges();
 
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);
@@ -559,6 +583,10 @@ describe("VaultComponent", () => {
   }));
 
   it("does not render Premium spotlight when account is less than a week old", fakeAsync(() => {
+    activeAccount$.next({
+      id: "user-1",
+      creationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    } as any);
     itemsSvc.cipherCount$.next(10);
     hasPremiumFromAnySource$.next(false);
 
@@ -806,6 +834,46 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls bulkAutoConfirmPendingUsers when user enables auto-confirm via setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(expect.any(String));
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when user dismisses setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
     }));
   });
 });

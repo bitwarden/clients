@@ -9,6 +9,7 @@
   <ng-container *ngIf="sub && !loading">
     <app-subscription-status
       [organizationSubscriptionResponse]="sub"
+      [hideCallout]="isResellerOrganizationOwnerExempt"
       (reinstatementRequested)="reinstate()"
       *ngIf="!userOrg.isFreeOrg"
     ></app-subscription-status>
@@ -24,6 +25,15 @@
             variant="success"
             class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
+          >
+          <span
+            *ngIf="customerDiscount?.amountOff > 0 && !isSecretsManagerTrial()"
+            bitBadge
+            variant="success"
+            class="tw-inline-flex tw-items-center"
+            >{{
+              "providerDiscountAmountOff" | i18n: (customerDiscount?.amountOff | currency: "$")
+            }}</span
           >
         </strong>
         <bit-table>
@@ -51,17 +61,28 @@
                   <ng-template #calculateElse>
                     <div class="tw-flex tw-flex-col">
                       <span>
-                        {{ i.quantity * i.amount | currency: "$" }} /
+                        {{ i.discountedTotal | currency: "$" }} /
                         {{ i.interval | i18n }}
                       </span>
+                      <span *ngIf="i.discounted" class="tw-line-through !tw-text-muted"
+                        >{{ i.quantity * i.originalAmount | currency: "$" }} /
+                        {{ i.interval | i18n }}</span
+                      >
                       <span
                         *ngIf="
-                          customerDiscount?.percentOff && discountAppliesToProduct(i.productId)
+                          i.discounted &&
+                          (customerDiscount?.durationInMonths != null || customerDiscount?.end)
                         "
-                        class="tw-line-through !tw-text-muted"
-                        >{{ i.quantity * i.originalAmount | currency: "$" }} /
-                        {{ "year" | i18n }}</span
+                        class="tw-text-sm !tw-text-muted"
                       >
+                        <ng-container
+                          *ngIf="customerDiscount?.durationInMonths != null; else throughDate"
+                          >{{ discountDurationLabel() }}</ng-container
+                        >
+                        <ng-template #throughDate>{{
+                          "discountThroughDate" | i18n: (customerDiscount?.end | date: "longDate")
+                        }}</ng-template>
+                      </span>
                     </div>
                   </ng-template>
                 </td>
@@ -81,6 +102,9 @@
         </bit-table>
       </div>
     </ng-container>
+
+    <app-organization-scheduled-price-increase-warning [organization]="userOrg">
+    </app-organization-scheduled-price-increase-warning>
 
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-mt-5">
@@ -160,7 +184,9 @@
         <p bitTypography="body1">
           {{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}
         </p>
-        <bit-progress [barWidth]="storagePercentage" bgColor="success"></bit-progress>
+        <bit-progress-bar [value]="storagePercentage" variant="success">
+          <bit-hint slot="start">{{ storagePercentage }}%</bit-hint>
+        </bit-progress-bar>
         <ng-container
           *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
         >

@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -34,7 +34,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -89,7 +89,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -101,7 +101,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -119,12 +119,12 @@ jobs:
         # maxWorkers is a workaround for a memory leak that crashes tests in CI:
         # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
         # Reduced to 2 workers and split tests across parallel jobs to prevent OOM kills
-        run: npm test -- ${{ matrix.test-group.paths }} --coverage --maxWorkers=2
+        run: npm test -- ${{ matrix.test-group.paths }} --coverage --maxWorkers=2 --workerIdleMemoryLimit=1500MiB
         env:
           JEST_JUNIT_OUTPUT_NAME: ${{ matrix.test-group.junit }}
 
       - name: Report test results
-        uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !cancelled() }}
         with:
           name: Test Results - ${{ matrix.test-group.name }}
@@ -133,12 +133,12 @@ jobs:
           fail-on-error: true
 
       - name: Upload results to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           report_type: test_results
 
       - name: Upload test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.test-group.artifact }}
           path: ./coverage/lcov.info
@@ -167,24 +167,39 @@ jobs:
           sudo apt-get install -y gnome-keyring dbus-x11
 
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      - name: Detect changed crates
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: changes
+        with:
+          filters: |
+            ssh_agent:
+              - 'apps/desktop/desktop_native/ssh_agent/**'
 
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
 
+      - name: Linux test setup
+        if: ${{ matrix.os=='ubuntu-22.04' }}
+        run: |
+          mkdir -p ~/.cache
+          mkdir -p ~/.local/share/keyrings
+          eval "$(dbus-launch --sh-syntax)"
+          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
+          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
+          echo "DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS" >> "$GITHUB_ENV"
+          echo "DBUS_SESSION_BUS_PID=$DBUS_SESSION_BUS_PID" >> "$GITHUB_ENV"
+          echo "GNOME_KEYRING_CONTROL=$GNOME_KEYRING_CONTROL" >> "$GITHUB_ENV"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+
       - name: Linux unit tests
         if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
-        run: |
-          eval "$(dbus-launch --sh-syntax)"
-          mkdir -p ~/.cache
-          mkdir -p ~/.local/share/keyrings
-          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
-          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test --lib -- --test-threads=1
+        run: cargo test --lib -- --test-threads=1
 
       - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
@@ -196,6 +211,11 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
 
+      - name: Integration tests ssh_agent
+        if: ${{ steps.changes.outputs.ssh_agent == 'true' }}
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test -p ssh_agent --test '*' -- --test-threads=1
+
       - name: Doc tests
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --doc
@@ -205,14 +225,14 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
       - name: Install rust
-        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: stable
+          toolchain: 1.96.0
           components: llvm-tools
 
       - name: Cache cargo registry
@@ -228,7 +248,7 @@ jobs:
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
 
       - name: Upload test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: rust-coverage
           path: ./apps/desktop/desktop_native/lcov.info
@@ -241,48 +261,48 @@ jobs:
       - rust-coverage
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
       - name: Download Browser coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jest-coverage-browser
           path: ./jest-coverage-browser
 
       - name: Download Web coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jest-coverage-web
           path: ./jest-coverage-web
 
       - name: Download Desktop coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jest-coverage-desktop
           path: ./jest-coverage-desktop
 
       - name: Download CLI coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jest-coverage-cli
           path: ./jest-coverage-cli
 
       - name: Download Libs coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jest-coverage-libs
           path: ./jest-coverage-libs
 
       - name: Download rust coverage
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rust-coverage
           path: ./apps/desktop/desktop_native
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: |
             ./jest-coverage-browser/lcov.info

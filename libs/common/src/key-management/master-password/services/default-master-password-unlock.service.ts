@@ -6,7 +6,6 @@ import { LogService } from "@bitwarden/logging";
 import { isCryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { HashPurpose } from "../../../platform/enums";
 import { UserKey } from "../../../types/key";
 import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
@@ -103,13 +102,6 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       throw new Error("Master key could not be created to set legacy master password state.");
     }
 
-    const localKeyHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }

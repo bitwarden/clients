@@ -35,6 +35,12 @@ export abstract class BaseAcceptComponent implements OnInit {
 
   abstract unauthedHandler(qParams: Params): Promise<void>;
 
+  protected getErrorMessage(errorMessage: string | null): string {
+    return errorMessage != null
+      ? this.i18nService.t(this.failedShortMessage, errorMessage)
+      : this.i18nService.t(this.failedMessage);
+  }
+
   async ngOnInit() {
     this.route.queryParams
       .pipe(
@@ -43,7 +49,7 @@ export abstract class BaseAcceptComponent implements OnInit {
           let error = this.requiredParameters.some(
             (e) => qParams?.[e] == null || qParams[e] === "",
           );
-          let errorMessage: string = null;
+          let apiErrorMessage: string = null;
           if (!error) {
             this.email = qParams.email;
 
@@ -53,7 +59,7 @@ export abstract class BaseAcceptComponent implements OnInit {
                 await this.authedHandler(qParams);
               } catch (e) {
                 error = true;
-                errorMessage = e.message;
+                apiErrorMessage = e.message;
               }
             } else {
               await this.unauthedHandler(qParams);
@@ -61,11 +67,8 @@ export abstract class BaseAcceptComponent implements OnInit {
           }
 
           if (error) {
-            const message =
-              errorMessage != null
-                ? this.i18nService.t(this.failedShortMessage, errorMessage)
-                : this.i18nService.t(this.failedMessage);
-            this.platformUtilService.showToast("error", null, message, { timeout: 10000 });
+            const userMessage = this.getErrorMessage(apiErrorMessage);
+            this.platformUtilService.showToast("error", null, userMessage, { timeout: 10000 });
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/"]);

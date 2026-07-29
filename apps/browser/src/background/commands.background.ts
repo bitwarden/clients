@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,7 +13,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
-import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import MainBackground from "./main.background";
@@ -26,7 +25,7 @@ export default class CommandsBackground {
     private main: MainBackground,
     private platformUtilsService: PlatformUtilsService,
     private authService: AuthService,
-    private generatePasswordToClipboard: () => Promise<void>,
+    private generatePasswordToClipboard: () => Observable<string>,
     private accountService: AccountService,
     private lockService: LockService,
   ) {
@@ -53,8 +52,8 @@ export default class CommandsBackground {
 
   private async processCommand(command: string, sender?: chrome.runtime.MessageSender) {
     switch (command) {
-      case "generate_password":
-        await this.generatePasswordToClipboard();
+      case ExtensionCommand.GeneratePassword:
+        await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(
@@ -74,10 +73,10 @@ export default class CommandsBackground {
           ExtensionCommand.AutofillIdentity,
         );
         break;
-      case "open_popup":
+      case ExtensionCommand.OpenPopup:
         await this.openPopup();
         break;
-      case "lock_vault": {
+      case ExtensionCommand.LockVault: {
         const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         await this.lockService.lock(activeUserId);
         break;
@@ -100,7 +99,7 @@ export default class CommandsBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsData = {
+      await openUnlockPopout(tab, {
         commandToRetry: {
           message: {
             command:
@@ -111,14 +110,7 @@ export default class CommandsBackground {
           sender: { tab: tab },
         },
         target: "commands.background",
-      };
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
-
-      await openUnlockPopout(tab);
+      });
       return;
     }
 

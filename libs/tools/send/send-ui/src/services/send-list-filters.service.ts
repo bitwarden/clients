@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { ChipSelectOption } from "@bitwarden/components";
+import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 export type SendListFilter = {
   sendType: SendType | null;
@@ -58,7 +58,7 @@ export class SendListFiltersService {
   /**
    * All available send types
    */
-  readonly sendTypes: ChipSelectOption<SendType>[] = [
+  readonly sendTypes: ChipFilterOption<SendType>[] = [
     {
       value: SendType.File,
       label: this.i18nService.t("sendTypeFile"),
@@ -77,18 +77,18 @@ export class SendListFiltersService {
   }
 
   /**
-   * Converts the given item into the `ChipSelectOption` structure
+   * Converts the given item into the `ChipFilterOption` structure
    */
-  private convertToChipSelectOption<T extends ITreeNodeObject>(
+  private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: string,
-  ): ChipSelectOption<T> {
+    icon: BitwardenIcon,
+  ): ChipFilterOption<T> {
     return {
       value: item.node,
       label: item.node.name,
       icon,
       children: item.children
-        ? item.children.map((i) => this.convertToChipSelectOption(i, icon))
+        ? item.children.map((i) => this.convertToChipFilterOption(i, icon))
         : undefined,
     };
   }

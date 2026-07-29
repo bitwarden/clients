@@ -1,6 +1,6 @@
 /**
  * include structuredClone in test environment.
- * @jest-environment ../../../../shared/test.environment.ts
+ * @jest-environment ../../libs/shared/test.environment.ts
  */
 // @ts-strict-ignore this file explicitly tests what happens when types are ignored
 import { of, firstValueFrom, Subject, tap, EmptyError, BehaviorSubject } from "rxjs";
@@ -19,7 +19,7 @@ import {
   memoizedMap,
 } from "./rx";
 
-describe("tools rx utilites", () => {
+describe("tools rx utilities", () => {
   describe("errorOnChange", () => {
     it("emits a single value when the input emits only once", async () => {
       const source$ = new Subject<number>();

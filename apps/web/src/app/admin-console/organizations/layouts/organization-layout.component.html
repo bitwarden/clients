@@ -12,7 +12,7 @@
     }
 
     <bit-nav-item
-      icon="bwi-collection-shared"
+      [icon]="'bwi-collection-shared' | vfo1Icon"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
@@ -137,7 +137,7 @@
   </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
-    <bit-banner *ngIf="organization.isProviderUser" [showClose]="false">
+    <bit-banner *ngIf="organization.isProviderUser">
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
     <app-tax-id-warning

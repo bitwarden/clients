@@ -4,23 +4,28 @@ import {
   BehaviorSubject,
   concatMap,
   firstValueFrom,
+  map,
   Subject,
   takeUntil,
   withLatestFrom,
 } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   MaximumSessionTimeoutPolicyData,
   SessionTimeoutAction,
   SessionTimeoutType,
 } from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 import {
   BasePolicyEditComponent,
   BasePolicyEditDefinition,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -30,7 +35,13 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
   type = PolicyType.MaximumVaultTimeout;
+  category = PolicyCategory.Authentication;
+  priority = 70;
   component = SessionTimeoutPolicyComponent;
+
+  display$(_organization: Organization, configService: ConfigService) {
+    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v: boolean) => !v));
+  }
 }
 
 const DEFAULT_HOURS = 8;
@@ -163,7 +174,7 @@ export class SessionTimeoutPolicyComponent
   }
 
   private get policyData(): MaximumSessionTimeoutPolicyData | null {
-    return this.policyResponse?.data ?? null;
+    return this.policyResponse()?.data ?? null;
   }
 
   private async confirmTypeChange(newType: SessionTimeoutType): Promise<boolean> {

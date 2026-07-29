@@ -80,10 +80,7 @@ export default {
         >
           @if (includeHeaderActions) {
             <div slot="header-actions" class="tw-flex tw-items-center tw-gap-2">
-              <bit-avatar
-                size="small"
-                text="Bob Loblaw"
-              ></bit-avatar>
+              <bit-avatar text="Bob Loblaw"></bit-avatar>
             </div>
           }
           <ng-container [ngSwitch]="contentLength">

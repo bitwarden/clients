@@ -40,11 +40,11 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import {
   HecConnectDialogResult,
   DatadogConnectDialogResult,
-  HuntressConnectDialogResult,
+  ConnectViaHecTokenDialogResult,
   IntegrationDialogResultStatus,
   openDatadogConnectDialog,
   openHecConnectDialog,
-  openHuntressConnectDialog,
+  openConnectViaHecTokenDialog,
 } from "../integration-dialog/index";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -155,6 +155,24 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    const [isUnique, conflictingIntegrationName] = this.isIntegrationUniqueForTypeAndOrganization();
+    if (!isUnique) {
+      const organizationIntegrationTypeName = this.getOrganizationIntegrationTypeName(
+        this.integrationSettings().integrationType,
+      );
+
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t(
+          "onlyOneIntegrationOfTypeAllowed",
+          organizationIntegrationTypeName,
+          conflictingIntegrationName,
+        ),
+      });
+      return;
+    }
+
     if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Datadog) {
       const dialog = openDatadogConnectDialog(this.dialogService, {
         data: {
@@ -169,9 +187,12 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         () => this.deleteDatadog(),
         (res) => this.saveDatadog(res),
       );
-    } else if (this.integrationSettings().name === OrganizationIntegrationServiceName.Huntress) {
-      // Huntress uses HEC protocol but has its own dialog
-      const dialog = openHuntressConnectDialog(this.dialogService, {
+    } else if (
+      this.integrationSettings()?.integrationType === OrganizationIntegrationType.Hec &&
+      this.integrationSettings().name !== OrganizationIntegrationServiceName.CrowdStrike
+    ) {
+      // for now, this will always be Hec via Token Auth
+      const dialog = openConnectViaHecTokenDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
         },
@@ -181,11 +202,12 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
       await this.handleIntegrationDialogResult(
         result,
-        () => this.deleteHuntress(),
-        (res) => this.saveHuntress(res),
+        () => this.deleteConnectViaHecTokenIntegration(),
+        (res) => this.saveConnectViaHecTokenIntegration(res),
       );
     } else {
-      // invoke the dialog to connect the integration
+      // The current Crowdstrike configuration.
+      // As we get specs for Crowdstrike, this could be Hec via API key auth
       const dialog = openHecConnectDialog(this.dialogService, {
         data: {
           settings: this.integrationSettings(),
@@ -250,22 +272,38 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (response.anotherIntegrationWithSameTypeExists) {
+      const integrationTypeName = this.getOrganizationIntegrationTypeName(integrationType);
+      this.showAnotherIntegrationWithSameTypeExistsToast(integrationTypeName);
+      return;
+    }
+
     // update local state with the new integration settings
     if (response.success && response.organizationIntegrationResult) {
+      // update local state with the new integration settings
       this.state.updateIntegrationSettings(
         this.integrationSettings().name,
         response.organizationIntegrationResult,
       );
     }
 
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t(
-        "integrationConnectedSuccessfully",
-        this.integrationSettings().name,
-      ),
-    });
+    // show success toast
+    if (response.success) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t(
+          "integrationConnectedSuccessfully",
+          this.integrationSettings().name,
+        ),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToSaveIntegration"),
+      });
+    }
   }
 
   /**
@@ -293,13 +331,19 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
     if (response.success) {
       this.state.deleteIntegrationSettings(this.integrationSettings().name);
-    }
 
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("success"),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("success"),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("failedToDeleteIntegration"),
+      });
+    }
   }
 
   /**
@@ -362,24 +406,25 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     await this.deleteIntegration();
   }
 
-  async saveHuntress(result: HuntressConnectDialogResult) {
-    // Huntress uses "Splunk" scheme for HEC protocol compatibility
+  async saveConnectViaHecTokenIntegration(result: ConnectViaHecTokenDialogResult) {
+    // create the Hec configuration
     const config = OrgIntegrationBuilder.buildHecConfiguration(
       result.url,
       result.token,
-      OrganizationIntegrationServiceName.Huntress,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
       Schemas.Splunk,
     );
-    // Huntress SIEM doesn't require the index field
+
+    // create a template
     const template = OrgIntegrationBuilder.buildHecTemplate(
       "",
-      OrganizationIntegrationServiceName.Huntress,
+      this.integrationSettings().name as OrganizationIntegrationServiceName,
     );
 
     await this.saveIntegration(OrganizationIntegrationType.Hec, config, template);
   }
 
-  async deleteHuntress() {
+  async deleteConnectViaHecTokenIntegration() {
     await this.deleteIntegration();
   }
 
@@ -402,5 +447,44 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       title: "",
       message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
     });
+  }
+
+  private showAnotherIntegrationWithSameTypeExistsToast(type: string) {
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t("anotherIntegrationWithSameTypeExists", type),
+    });
+  }
+
+  private isIntegrationUniqueForTypeAndOrganization(): [boolean, string] {
+    const integrationType = this.integrationSettings().integrationType;
+    if (!integrationType) {
+      return [true, ""];
+    }
+
+    const otherIntegrationOfTheSameType = this.state
+      .integrations()
+      .filter(
+        (i) => i.name !== this.integrationSettings().name && i.integrationType === integrationType,
+      )
+      .find((integration) => integration.organizationIntegration?.configuration !== undefined);
+
+    const isSameOrganization = this.state.organization()?.id === this.organizationId;
+
+    const isUnique = !otherIntegrationOfTheSameType && isSameOrganization;
+    const conflictingName = otherIntegrationOfTheSameType?.name ?? "";
+
+    return [isUnique, conflictingName];
+  }
+
+  private getOrganizationIntegrationTypeName(
+    integrationType: OrganizationIntegrationType | null | undefined,
+  ): string {
+    const entry = Object.entries(OrganizationIntegrationType).find(
+      ([, value]) => value === integrationType,
+    )?.[0];
+
+    return entry ? entry : "";
   }
 }
