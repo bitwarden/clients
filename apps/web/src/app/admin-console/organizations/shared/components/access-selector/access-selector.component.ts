@@ -412,10 +412,8 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
   protected readonlyPermissionLabel(perm: CollectionPermission): string {
     const permission = this.permissionList.find((p) => p.perm == perm);
-    if (permission == null) {
-      return "";
-    }
-    return this.i18nService.t(permissionLabelId(permission, this.vfo1TerminologyService.enabled()));
+    const labelId = permissionLabelId(permission, this.vfo1TerminologyService.enabled());
+    return labelId == null ? "" : this.i18nService.t(labelId);
   }
 
   protected canEditItemPermission(item: AccessItemView) {
