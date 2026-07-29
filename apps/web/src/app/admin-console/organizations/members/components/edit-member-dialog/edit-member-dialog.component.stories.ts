@@ -1,6 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,6 +15,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -382,4 +384,75 @@ export const DetailsTabWithGroups: Story = {
     mockOrganization({ useGroups: true }),
     mockUserDetails({ groups: ["grp-1"] }),
   ),
+};
+
+/**
+ * Details tab with email editing enabled — member is claimed by the org and has no master
+ * password, so the email field is editable.
+ */
+export const DetailsTabEditEmail: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+    mockOrganization({ productTierType: ProductTierType.Enterprise }),
+    mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+  ),
+};
+
+/**
+ * Details tab — server rejects the email change with a domain-not-claimed error, showing the
+ * inline field error after submit.
+ */
+export const DetailsTabEditEmailError: Story = {
+  args: { detailsTabEnabled: true },
+  render: ({ detailsTabEnabled }) => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: defaultParams({
+            claimedByOrganization: true,
+            hasMasterPassword: false,
+            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+          }),
+        },
+        {
+          provide: OrganizationService,
+          useValue: makeOrganizationService(
+            mockOrganization({ productTierType: ProductTierType.Enterprise }),
+          ),
+        },
+        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: UserAdminService,
+          useValue: {
+            ...mockUserAdminService,
+            get: () =>
+              Promise.resolve(
+                mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+              ),
+            saveV2: () =>
+              Promise.reject(
+                new ProblemDetailsErrorResponse(
+                  {
+                    errors: {
+                      email: [
+                        { type: "new_email_domain_not_claimed", detail: "Domain not claimed" },
+                      ],
+                    },
+                  },
+                  400,
+                ),
+              ),
+          },
+        },
+      ],
+    },
+    template: `<app-edit-member-dialog></app-edit-member-dialog>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const submitButton = getByText(canvasElement, "Save");
+    await userEvent.click(submitButton);
+  },
 };

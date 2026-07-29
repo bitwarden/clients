@@ -26,11 +26,20 @@
             <bit-form-field>
               <bit-label>{{ "name" | i18n }}</bit-label>
               <input bitInput type="text" formControlName="name" />
+              @if (!nameEditable()) {
+                <bit-hint>{{ "nameNotClaimedHint" | i18n }}</bit-hint>
+              }
             </bit-form-field>
             <bit-form-field>
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input bitInput type="email" formControlName="email" />
-              <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
+              @if (emailEditable()) {
+                <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
+              } @else if (!params.claimedByOrganization) {
+                <bit-hint>{{ "emailNotClaimedHint" | i18n }}</bit-hint>
+              } @else {
+                <bit-hint>{{ "emailHasMasterPasswordHint" | i18n }}</bit-hint>
+              }
             </bit-form-field>
             <bit-form-field>
               <bit-label>
