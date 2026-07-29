@@ -207,11 +207,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   private focusSearchInput() {
-    if (this.activeDrawerRef != null) {
-      return;
-    }
-    const active = document.activeElement;
-    if (active != null && active !== document.body && !active.closest("bit-search")) {
+    // Don't steal focus if a drawer or dialog is open.
+    if (this.activeDrawerRef != null || document.querySelector("cdk-dialog-container") != null) {
       return;
     }
     setTimeout(() => {
