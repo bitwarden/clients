@@ -5656,6 +5656,12 @@
       }
     }
   },
+  "givenName": {
+    "message": "Given name"
+  },
+  "surname": {
+   "message": "Surname"
+  },
   "copyNoteTitle": {
     "message": "Copy Note - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
