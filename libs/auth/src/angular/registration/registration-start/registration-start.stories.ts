@@ -7,8 +7,10 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of, BehaviorSubject } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { ClientType } from "@bitwarden/common/enums";
 import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -133,6 +135,20 @@ const decorators = (options: {
           useValue: {
             registerSendVerificationEmail: () => Promise.resolve(null),
           } as Partial<AccountApiService>,
+        },
+        // Stubs for the open-invite title override in `ngOnInit`. Returning null / false
+        // keeps stories on the default (non-overridden) title path.
+        {
+          provide: OrganizationInviteService,
+          useValue: {
+            getOrganizationInvite: () => Promise.resolve(null),
+          } as Partial<OrganizationInviteService>,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag: () => Promise.resolve(false),
+          } as Partial<ConfigService>,
         },
       ],
     }),
