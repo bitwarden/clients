@@ -271,6 +271,25 @@ describe("DefaultVaultHealthReportService", () => {
     expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
   });
 
+  it("does not recompute when the same scoped set is re-emitted in a different order", async () => {
+    const a = login("a");
+    const b = login("b");
+    riskById.set("a", risk("a"));
+    riskById.set("b", risk("b"));
+    const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    const sub = service.vaultHealthReport$(userId).subscribe();
+    cipherViews$.next([a, b]);
+    await tick();
+    // Same logins, reversed emission order: the signature is sorted by id, so
+    // this must not be treated as a change.
+    cipherViews$.next([b, a]);
+    await tick();
+    sub.unsubscribe();
+
+    expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
+  });
+
   it("recomputes when a scoped login's password changes", async () => {
     riskById.set("a", risk("a"));
     const tick = () => new Promise((resolve) => setTimeout(resolve, 0));

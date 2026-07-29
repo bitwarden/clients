@@ -50,11 +50,15 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * username, and password (the same fields the SDK risk computation consumes).
    * Two scoped sets with an equal signature produce an identical report, so the
    * recompute (and its HIBP call) can be skipped. Uses a structural JSON encoding
-   * so a space in a username/password cannot collide two distinct sets.
+   * so a space in a username/password cannot collide two distinct sets. The
+   * tuples are sorted by id so the signature is independent of cipherViews$
+   * emission order: only a genuine change to the scoped set triggers a recompute.
    */
   private scopeSignature(logins: CipherView[]): string {
     return JSON.stringify(
-      logins.map((c) => [c.id, c.login?.username ?? "", c.login?.password ?? ""]),
+      logins
+        .map((c) => [c.id, c.login?.username ?? "", c.login?.password ?? ""])
+        .sort((a, b) => a[0].localeCompare(b[0])),
     );
   }
 
