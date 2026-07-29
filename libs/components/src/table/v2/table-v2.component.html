@@ -102,7 +102,12 @@
   } @else if (item.kind === "groupEmpty") {
     <!-- An empty group's `slot="empty"` content, spanning every column. -->
     <div role="row">
-      <div role="cell" [attr.aria-colspan]="columnCount()" class="tw-px-1 tw-py-2">
+      <div
+        role="cell"
+        [attr.aria-colspan]="columnCount()"
+        class="tw-px-1 tw-py-2"
+        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+      >
         <ng-container *ngTemplateOutlet="item.group.emptyTemplate()"></ng-container>
       </div>
     </div>
