@@ -10,13 +10,3 @@ export const RiskCategory = Object.freeze({
 } as const);
 
 export type RiskCategory = (typeof RiskCategory)[keyof typeof RiskCategory];
-
-/**
- * Highest-risk-wins priority order for deduplicating a login into a single
- * category: Exposed beats Weak beats Reused (PM-39227 / PM-35945).
- */
-export const RISK_CATEGORY_PRIORITY: readonly RiskCategory[] = [
-  RiskCategory.Exposed,
-  RiskCategory.Weak,
-  RiskCategory.Reused,
-] as const;
