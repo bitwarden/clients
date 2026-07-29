@@ -150,13 +150,20 @@ export class DesktopAutotypeService implements OnDestroy {
       .subscribe();
 
     // Listen for changes in keyboard shortcut settings
-    this.autotypeKeyboardShortcut$
+    combineLatest([this.autotypeKeyboardShortcut$, autotypeFeatureFlags$(this.configService)])
       .pipe(
-        concatMap(async (keyboardShortcut) => {
+        concatMap(async ([keyboardShortcut, [mvpEnabled, gaEnabled]]) => {
           const config: AutotypeConfig = {
             keyboardShortcut,
           };
-          ipc.autofill.configureAutotypeMvp(config);
+
+          // MVP takes precedence over GA when both flags are on, matching autotypeState$.
+          if (mvpEnabled) {
+            // MVP, delete with PM-41067
+            ipc.autofill.configureAutotypeMvp(config);
+          } else if (gaEnabled) {
+            // TODO: call configureAutotype (the GA implementation), in the PM-40679 part 2 PR
+          }
         }),
         takeUntil(this.destroy$),
       )

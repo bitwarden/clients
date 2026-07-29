@@ -229,6 +229,18 @@ describe("DesktopAutotypeService", () => {
       expect(global.ipc.autofill.configureAutotypeMvp).toHaveBeenCalled();
     });
 
+    it("does not configure MVP when the MVP flag is off", async () => {
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(false);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.configureAutotypeMvp).not.toHaveBeenCalled();
+    });
+
     it("should toggle MVP autotype on when the MVP state is active", async () => {
       autotypeEnabledSubject.next(true);
       mvpFeatureFlagSubject.next(true);
