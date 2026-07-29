@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
@@ -127,6 +128,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   userHasPinSet: boolean;
 
   pinEnabled$: Observable<boolean> = of(true);
+
+  /** Controls whether the quick copy actions setting is shown, matching the vault list feature. */
+  protected readonly showQuickCopyActionsSetting = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM28091_AddCopyAndQuickLaunchActions),
+    { initialValue: false },
+  );
 
   form = this.formBuilder.group({
     // Security

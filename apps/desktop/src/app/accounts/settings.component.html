@@ -198,19 +198,21 @@
                   runInBackgroundDescText
                 }}</small>
               </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="showQuickCopyActions">
-                    <input
-                      id="showQuickCopyActions"
-                      type="checkbox"
-                      formControlName="showQuickCopyActions"
-                      (change)="saveQuickCopyActions()"
-                    />
-                    {{ "showQuickCopyActions" | i18n }}
-                  </label>
+              @if (showQuickCopyActionsSetting()) {
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label for="showQuickCopyActions">
+                      <input
+                        id="showQuickCopyActions"
+                        type="checkbox"
+                        formControlName="showQuickCopyActions"
+                        (change)="saveQuickCopyActions()"
+                      />
+                      {{ "showQuickCopyActions" | i18n }}
+                    </label>
+                  </div>
                 </div>
-              </div>
+              }
               <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">
