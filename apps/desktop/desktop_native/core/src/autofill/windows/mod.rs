@@ -1,17 +1,104 @@
-use std::{fs::File, io::Read, path::PathBuf};
+mod status;
 
-use anyhow::{Context, Result};
-use serde::Deserialize;
+use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
+
+use anyhow::{anyhow, Context, Result};
+use serde::{Deserialize, Serialize};
+use status::{handle_status_request, StatusResponse};
+use win_webauthn::plugin::Clsid;
 use windows::{
     core::HRESULT, ApplicationModel::Package, Win32::Foundation::APPMODEL_ERROR_NO_PACKAGE,
 };
 
+static PLUGIN_ID: OnceLock<Clsid> = OnceLock::new();
+
 /// `Package::Current()` reports this when the process is not running from an Appx package.
 const NO_PACKAGE: HRESULT = HRESULT::from_win32(APPMODEL_ERROR_NO_PACKAGE.0);
 
-#[allow(clippy::unused_async)]
-pub async fn run_command(_value: String) -> Result<String> {
-    todo!("Windows does not support autofill");
+pub async fn run_command(value: String) -> Result<String> {
+    let response = dispatch_command(value).await;
+    serde_json::to_string(&CommandResult::from(response)).context("Failed to serialize response")
+}
+
+async fn dispatch_command(value: String) -> Result<CommandResponse> {
+    let request: RunCommandRequest =
+        serde_json::from_str(&value).context("Failed to deserialize autofill request")?;
+
+    if request.namespace != "autofill" {
+        return Err(anyhow!("Unknown namespace: {}", request.namespace));
+    }
+
+    tokio::task::spawn_blocking(move || match request.command {
+        RunCommand::Status(_) => handle_status_request().map(CommandResponse::from),
+    })
+    .await
+    .context("Autofill command task failed")?
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RunCommandRequest {
+    namespace: String,
+    #[serde(flatten)]
+    command: RunCommand,
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "command", content = "params")]
+#[serde(rename_all = "camelCase")]
+enum RunCommand {
+    Status(()),
+}
+
+#[derive(Serialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+enum CommandResult {
+    Success { value: CommandResponse },
+    Error { error: String },
+}
+
+impl From<anyhow::Result<CommandResponse>> for CommandResult {
+    fn from(value: anyhow::Result<CommandResponse>) -> Self {
+        match value {
+            Ok(response) => Self::Success { value: response },
+            Err(err) => Self::Error {
+                error: format!("{err:#}"),
+            },
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(untagged)]
+enum CommandResponse {
+    Status(StatusResponse),
+}
+
+impl From<StatusResponse> for CommandResponse {
+    fn from(value: StatusResponse) -> Self {
+        Self::Status(value)
+    }
+}
+
+/// Read the CLSID from the Appx config file, then cache it for the lifetime of the process.
+///
+/// Returns `Ok(None)` when this build is not packaged as an Appx and so has no plugin. A failure
+/// to read a config file that *is* present is returned as an error rather than being cached as
+/// "no plugin", which would otherwise wedge the plugin as unavailable until the process restarts.
+fn get_clsid() -> Result<Option<Clsid>> {
+    if let Some(clsid) = PLUGIN_ID.get() {
+        return Ok(Some(*clsid));
+    }
+
+    let Some(config_file) = read_plugin_config_file()? else {
+        return Ok(None);
+    };
+    let clsid = Clsid::try_from(format!("{{{}}}", config_file.clsid).as_str())
+        .context("Failed to parse valid CLSID from package.")?;
+
+    // Multiple threads may race here, but they all parse the same config file, so whichever
+    // value wins is the one they all return.
+    Ok(Some(*PLUGIN_ID.get_or_init(|| clsid)))
 }
 
 /// Reads config file stored in Appx package.
@@ -79,7 +166,39 @@ pub struct ConfigFile {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_config;
+    use serde_json::Value;
+
+    use super::{parse_config, run_command};
+
+    /// Malformed requests are rejected before dispatch, so these never reach Windows.
+    async fn run_command_error(json: &str) -> String {
+        let response = run_command(json.to_string())
+            .await
+            .expect("run_command should report failures in its payload, not reject");
+        let result: Value = serde_json::from_str(&response).unwrap();
+
+        assert_eq!("error", result["type"], "full response: {result}");
+        result["error"]
+            .as_str()
+            .expect("error payload should be a string")
+            .to_string()
+    }
+
+    #[tokio::test]
+    async fn run_command_reports_unknown_namespace_as_error_result() {
+        let json = r#"{"namespace":"not-autofill","command":"status","params":{}}"#;
+
+        let err = run_command_error(json).await;
+
+        assert!(err.contains("Unknown namespace"), "error was: {err}");
+    }
+
+    #[tokio::test]
+    async fn run_command_reports_unknown_command_as_error_result() {
+        let json = r#"{"namespace":"autofill","command":"explode","params":{}}"#;
+
+        run_command_error(json).await;
+    }
 
     #[test]
     fn parse_config_succeeds_with_valid_json() {

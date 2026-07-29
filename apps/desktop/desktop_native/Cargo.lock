@@ -1546,6 +1546,7 @@ dependencies = [
  "tracing",
  "typenum",
  "widestring",
+ "win_webauthn",
  "windows 0.62.2",
  "zbus",
  "zeroizing-alloc",
