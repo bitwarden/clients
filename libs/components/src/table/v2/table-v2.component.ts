@@ -722,7 +722,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         // Empty groups auto-hide unless they project `slot="empty"` content.
         if (group.hasEmptyContent()) {
           items.push({ kind: "group", group, count: 0, level: 0 });
-          items.push({ kind: "groupEmpty", group, level: 0 });
+          if (!(group.collapsible() && group.collapsed())) {
+            items.push({ kind: "groupEmpty", group, level: 0 });
+          }
         }
         continue;
       }
