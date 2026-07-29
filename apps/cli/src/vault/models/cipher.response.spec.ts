@@ -1,5 +1,6 @@
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 
@@ -9,9 +10,11 @@ describe("CipherResponse", () => {
   function createLoginCipherView({
     viewPassword,
     withPasswordHistory,
+    withHiddenField,
   }: {
     viewPassword: boolean;
     withPasswordHistory: boolean;
+    withHiddenField?: boolean;
   }) {
     const cipherView = new CipherView();
     cipherView.id = "11111111-1111-1111-1111-111111111111";
@@ -30,6 +33,20 @@ describe("CipherResponse", () => {
       oldPassword.password = "old-super-secret";
       oldPassword.lastUsedDate = new Date();
       cipherView.passwordHistory = [oldPassword];
+    }
+
+    if (withHiddenField) {
+      const hiddenField = new FieldView();
+      hiddenField.name = "API Key";
+      hiddenField.value = "secret-hidden-value";
+      hiddenField.type = FieldType.Hidden;
+
+      const textField = new FieldView();
+      textField.name = "Notes";
+      textField.value = "not-sensitive";
+      textField.type = FieldType.Text;
+
+      cipherView.fields = [hiddenField, textField];
     }
 
     return cipherView;
@@ -54,6 +71,19 @@ describe("CipherResponse", () => {
         expect.objectContaining({ password: "old-super-secret" }),
       ]);
     });
+
+    it("includes hidden field values", () => {
+      const res = new CipherResponse(
+        createLoginCipherView({
+          viewPassword: true,
+          withPasswordHistory: false,
+          withHiddenField: true,
+        }),
+      );
+
+      expect(res.fields[0]).toEqual(expect.objectContaining({ value: "secret-hidden-value" }));
+      expect(res.fields[1]).toEqual(expect.objectContaining({ value: "not-sensitive" }));
+    });
   });
 
   describe("when the user does not have permission to view the password (viewPassword: false)", () => {
@@ -72,6 +102,19 @@ describe("CipherResponse", () => {
       );
 
       expect(res.passwordHistory).toBeUndefined();
+    });
+
+    it("redacts hidden field values but leaves other field types untouched", () => {
+      const res = new CipherResponse(
+        createLoginCipherView({
+          viewPassword: false,
+          withPasswordHistory: false,
+          withHiddenField: true,
+        }),
+      );
+
+      expect(res.fields[0]).toEqual(expect.objectContaining({ value: null }));
+      expect(res.fields[1]).toEqual(expect.objectContaining({ value: "not-sensitive" }));
     });
   });
 });
