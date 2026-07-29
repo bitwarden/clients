@@ -224,15 +224,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this._autofillFormElements;
   }
 
-  // Explicit request: refresh the latch and force a fresh query when the cache is
-  // "no fields" or hosts are unresolved; cached populated results stay served.
+  // Explicit request: only refresh the latch when a fresh walk will actually consume it —
+  // i.e. the cache is "no fields" or hosts are unresolved. A populated cache is served without
+  // a walk, so refreshing then would pay an O(document) shadow-root scan for an unused latch
+  // (and on shadow-free pages the latch never flips, so that scan runs on every such call).
   prepareForExplicitCollection = () => {
-    this.domQueryService.refreshShadowDomStateForUserRequest();
     if (
       this.noFieldsFound ||
       this.unresolvedShadowHosts.size > 0 ||
       this.hostsAwaitingDefinition.size > 0
     ) {
+      this.domQueryService.refreshShadowDomStateForUserRequest();
       this.noFieldsFound = false;
       this.domRecentlyMutated = true;
     }

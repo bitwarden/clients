@@ -3518,13 +3518,18 @@ describe("CollectAutofillContentService", () => {
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
       });
 
-      it("serves the populated cache on explicit collection when nothing is unresolved", () => {
+      it("serves the populated cache on explicit collection without an O(document) shadow scan", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
         collectAutofillContentService["noFieldsFound"] = false;
         collectAutofillContentService["domRecentlyMutated"] = false;
 
         collectAutofillContentService.prepareForExplicitCollection();
 
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+        // The refresh must not run when a populated cache will be served — otherwise every
+        // explicit collection on a shadow-free page pays a querySelectorAll("*") scan for a
+        // latch that goes unused that round (the fill path lands here).
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
       });
 
       it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
