@@ -14,14 +14,15 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService } from "@bitwarden/components";
+import { enabledFlags } from "@bitwarden/storybook";
 import { RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
@@ -75,9 +76,6 @@ function mockTreeNode(
 const mockCollectionAdminService: Partial<CollectionAdminService> = {};
 const mockDialogService: Partial<DialogService> = {};
 const mockRestrictedItemTypesService: Partial<RestrictedItemTypesService> = { restricted$: of([]) };
-const mockConfigServiceVfo1Enabled = {
-  getFeatureFlag$: () => of(true),
-} as unknown as ConfigService;
 
 const noop = () => of([]);
 const rootProviders = [
@@ -226,21 +224,8 @@ export const ProviderUserNotMember: Story = {
  * placeholder render "shared folder(s)" instead of "collection(s)".
  */
 export const OrgRootVfo1Enabled: Story = {
-  render: (args) => ({
-    props: args,
-    moduleMetadata: {
-      providers: [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }],
-    },
-    template: `
-      <app-org-vault-header
-        [filter]="filter"
-        [organization]="organization"
-        [collection]="collection"
-        [loading]="loading"
-        [searchText]="searchText"
-      ></app-org-vault-header>
-    `,
-  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render,
 };
 
 /**
@@ -248,25 +233,12 @@ export const OrgRootVfo1Enabled: Story = {
  * render "shared folder" terminology.
  */
 export const CollectionSelectedVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
   args: {
     filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
     collection: mockTreeNode(mockCollection("Engineering")),
   },
-  render: (args) => ({
-    props: args,
-    moduleMetadata: {
-      providers: [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }],
-    },
-    template: `
-      <app-org-vault-header
-        [filter]="filter"
-        [organization]="organization"
-        [collection]="collection"
-        [loading]="loading"
-        [searchText]="searchText"
-      ></app-org-vault-header>
-    `,
-  }),
+  render,
 };
 
 /** Collection selected but the current user only has read access — view-only info/access buttons shown. */

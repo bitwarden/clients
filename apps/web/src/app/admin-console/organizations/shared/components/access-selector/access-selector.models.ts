@@ -87,6 +87,22 @@ export type Permission = {
   vfo1LabelId?: string;
 };
 
+/**
+ * Resolves the i18n label id to display for `permission`, honoring the VFO1 terminology
+ * feature flag. Falls back to the legacy `labelId` when the permission has no `vfo1LabelId`
+ * or `vfo1Enabled` is false. All consumers of `getPermissionList()` should render labels
+ * through this helper so they stay consistent with each other.
+ */
+export const permissionLabelId = (
+  permission: Permission | undefined,
+  vfo1Enabled: boolean,
+): string | undefined => {
+  if (permission == null) {
+    return undefined;
+  }
+  return vfo1Enabled ? (permission.vfo1LabelId ?? permission.labelId) : permission.labelId;
+};
+
 export const getPermissionList = (): Permission[] => {
   const permissions = [
     { perm: CollectionPermission.ViewExceptPass, labelId: "viewItemsHidePass" },

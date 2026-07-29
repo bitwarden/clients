@@ -44,6 +44,7 @@ import {
   CollectionPermission,
   getPermissionList,
   Permission,
+  permissionLabelId,
 } from "./access-selector.models";
 import { UserTypePipe } from "./user-type.pipe";
 
@@ -414,10 +415,7 @@ export class AccessSelectorComponent implements ControlValueAccessor {
     if (permission == null) {
       return "";
     }
-    const labelId = this.vfo1TerminologyService.enabled()
-      ? (permission.vfo1LabelId ?? permission.labelId)
-      : permission.labelId;
-    return this.i18nService.t(labelId);
+    return this.i18nService.t(permissionLabelId(permission, this.vfo1TerminologyService.enabled()));
   }
 
   protected canEditItemPermission(item: AccessItemView) {

@@ -14,9 +14,10 @@ import { CollectionAdminView } from "@bitwarden/common/admin-console/models/coll
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, GroupView } from "../../../core";
@@ -108,10 +109,6 @@ const mockAccountService = {
   activeAccount$: new BehaviorSubject({ id: USER_ID, email: "alice@example.com" }),
 };
 
-const mockConfigServiceVfo1Enabled = {
-  getFeatureFlag$: () => of(true),
-};
-
 const mockGroupApiService = {
   getAll: () => of(mockGroups),
 };
@@ -163,7 +160,6 @@ function makeRender(
   params: CollectionDialogParams,
   org: Organization,
   collection?: CollectionAdminView,
-  vfo1Enabled = false,
 ): Story["render"] {
   return () => ({
     moduleMetadata: {
@@ -171,12 +167,6 @@ function makeRender(
         { provide: DIALOG_DATA, useValue: params },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: CollectionAdminService, useValue: makeCollectionAdminService(collection) },
-        // Other stories rely on the global feature-flag toolbar (see .storybook/preview.tsx)
-        // for their ConfigService. Only force it here to guarantee these specific
-        // "Vfo1Enabled" stories always render with the flag on, regardless of the toolbar.
-        ...(vfo1Enabled
-          ? [{ provide: ConfigService, useValue: mockConfigServiceVfo1Enabled }]
-          : []),
       ],
     },
     template: `<app-collection-dialog></app-collection-dialog>`,
@@ -241,7 +231,8 @@ export const EditCollectionDeletedParent: Story = {
  * copy render "shared folder" terminology instead of "collection".
  */
 export const CreateCollectionVfo1Enabled: Story = {
-  render: makeRender({ organizationId: ORG_ID }, mockOrganization(), undefined, true),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: makeRender({ organizationId: ORG_ID }, mockOrganization()),
 };
 
 /**
@@ -249,6 +240,7 @@ export const CreateCollectionVfo1Enabled: Story = {
  * tab's Manage permission label renders "Manage" (not "Manage shared folder").
  */
 export const EditCollectionVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
   render: makeRender(
     {
       organizationId: ORG_ID,
@@ -258,6 +250,5 @@ export const EditCollectionVfo1Enabled: Story = {
     },
     mockOrganization(),
     mockCollection,
-    true,
   ),
 };
