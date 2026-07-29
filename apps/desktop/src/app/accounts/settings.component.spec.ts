@@ -107,6 +107,8 @@ describe("SettingsComponent", () => {
     i18nService.supportedTranslationLocales = [];
     i18nService.t.mockImplementation((key: string) => key);
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [],
       providers: [
@@ -191,7 +193,6 @@ describe("SettingsComponent", () => {
     desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
     desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-    configService.getFeatureFlag$.mockReturnValue(of(false));
   });
 
   afterEach(() => {
