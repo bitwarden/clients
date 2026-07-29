@@ -62,7 +62,7 @@
       ".github/",
       "scripts/",
       "apps/desktop/electron-builder.json",
-      "apps/desktop/electron-builder-beta.json",
+      "apps/desktop/electron-builder.beta.json",
       "apps/desktop/scripts",
       "apps/desktop/stores"
     ],
