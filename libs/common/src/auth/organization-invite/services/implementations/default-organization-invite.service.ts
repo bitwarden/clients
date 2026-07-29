@@ -561,8 +561,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   ): Promise<OrganizationUserAcceptInitRequest> {
     const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey,
     );
 
