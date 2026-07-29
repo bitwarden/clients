@@ -173,6 +173,27 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(disabledFor("bwi-key")).toBe("true");
       expect(disabledFor("bwi-clock")).toBe("true");
     });
+
+    it("keeps empty-value copy actions disabled after disabled toggles off (list refresh)", async () => {
+      // A login with no username: the username quick-copy button should always be disabled.
+      (component.cipher() as any).__copyable = { username: false, password: true, totp: true };
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Simulate a list refresh toggling the disabled input true -> false.
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The empty username button must remain disabled; the populated ones become enabled again.
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
   });
 
   describe("findSingleCopyableItem", () => {
