@@ -1271,29 +1271,6 @@ describe("DefaultOrganizationInviteService", () => {
       await state.update(() => record);
     };
 
-    describe("getSealedOpenOrgInviteSecret", () => {
-      it("returns null when no record exists at all", async () => {
-        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
-        expect(result).toBeNull();
-      });
-
-      it("returns null when the record has no entry for the email", async () => {
-        await writeRecord({
-          "other@example.com": { highEntropySecret: "secret-other", createdAtMs: NOW },
-        });
-        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
-        expect(result).toBeNull();
-      });
-
-      it("returns the highEntropySecret for the stored entry", async () => {
-        await writeRecord({
-          "user@example.com": { highEntropySecret: "secret-user", createdAtMs: NOW },
-        });
-        const result = await sut.getSealedOpenOrgInviteSecret("user@example.com");
-        expect(result).toEqual("secret-user");
-      });
-    });
-
     describe("clearSealedOpenOrgInviteSecret", () => {
       it("removes only the targeted email's entry, leaving other entries intact", async () => {
         await writeRecord({
@@ -1481,15 +1458,6 @@ describe("DefaultOrganizationInviteService", () => {
         expect(await readRecord()).toEqual({
           "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
         });
-      });
-
-      it("getSealedOpenOrgInviteSecret resolves a raw-cased lookup against a normalized entry", async () => {
-        await writeRecord({
-          "foo@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
-        });
-
-        expect(await sut.getSealedOpenOrgInviteSecret("Foo@Example.COM")).toEqual("hes-abc");
-        expect(await sut.getSealedOpenOrgInviteSecret("  foo@example.com  ")).toEqual("hes-abc");
       });
 
       it("unsealOpenOrgInvite finds the stored secret when the caller passes a differently-cased email", async () => {

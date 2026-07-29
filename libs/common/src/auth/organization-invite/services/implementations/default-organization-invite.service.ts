@@ -464,7 +464,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
   }
 
-  async getSealedOpenOrgInviteSecret(email: string): Promise<string | null> {
+  private async getSealedOpenOrgInviteSecret(email: string): Promise<string | null> {
     const key = this.normalizeEmailKey(email);
     const record = await firstValueFrom(this.sealedOpenOrgInviteSecretState.state$);
     return record?.[key]?.highEntropySecret ?? null;

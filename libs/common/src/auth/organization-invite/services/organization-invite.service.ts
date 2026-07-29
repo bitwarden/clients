@@ -121,14 +121,6 @@ export abstract class OrganizationInviteService {
   ): Promise<boolean>;
 
   /**
-   * Returns the base64-encoded `HighEntropySecret` previously paired with a sealed open-invite
-   * blob for the given email, or `null` if none is stored (never registered on this browser
-   * origin, cleared after a successful accept, or swept by the TTL). The secret is the
-   * client-only half of the two-halves the SDK's `unseal_open_org_invite_data` needs.
-   */
-  abstract getSealedOpenOrgInviteSecret(email: string): Promise<string | null>;
-
-  /**
    * Seals an open-org-invite context for the registration-crossing flow: hands the
    * `organizationId`, `inviteLinkCode`, and `inviteKey` to the SDK's
    * `seal_open_org_invite_data`, stores the returned `HighEntropySecret`
