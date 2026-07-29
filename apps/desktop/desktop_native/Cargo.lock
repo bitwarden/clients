@@ -421,6 +421,7 @@ name = "autotype"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "dirs",
  "itertools",
  "mockall 0.15.0",
  "serial_test",

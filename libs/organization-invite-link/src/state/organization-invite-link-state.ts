@@ -8,5 +8,5 @@ export const ORGANIZATION_INVITE_LINK_KEY = UserKeyDefinition.record<
   OrganizationId
 >(ORGANIZATION_INVITE_LINK_DISK, "inviteLink", {
   deserializer: (obj) => OrganizationInviteLink.fromJSON(obj),
-  clearOn: ["logout"],
+  clearOn: ["lock", "logout"],
 });

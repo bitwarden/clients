@@ -1005,7 +1005,7 @@
     "message": "閉じる"
   },
   "done": {
-    "message": "Done"
+    "message": "完了"
   },
   "delete": {
     "message": "削除"
@@ -1195,16 +1195,16 @@
     "message": "共有"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共有フォルダー"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共有フォルダー"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "マイフォルダー"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "マイフォルダー"
   },
   "attachments": {
     "message": "添付ファイル"
@@ -1228,31 +1228,31 @@
     "message": "アイテムの表示"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "ログイン情報を追加",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "カードを追加",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "ID を追加",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "メモを追加",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "セキュアメモを追加",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH 鍵を追加",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "銀行口座を追加",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
@@ -1404,19 +1404,19 @@
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "ログイン情報を表示",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "カードを表示",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "ノートを表示",
     "description": "Header for view note item type"
   },
   "create": {
@@ -1655,6 +1655,83 @@
   "selectAll": {
     "message": "すべて選択"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "Deselect all"
   },
@@ -1702,7 +1779,7 @@
     "message": "ファイル"
   },
   "photo": {
-    "message": "Photo"
+    "message": "写真"
   },
   "selectFile": {
     "message": "ファイルを選択してください。"
@@ -1751,7 +1828,7 @@
     "message": "アイテムの削除"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "$COUNT$ 個のアイテムを削除",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1760,10 +1837,10 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "このアイテムはあなたのゴミ箱に送信されます。30日後に完全に削除されます。"
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "これらのアイテムはあなたのゴミ箱に送られます。30日後に完全に削除されます。"
   },
   "deleteItemPermanently": {
     "message": "Delete item permanently"
@@ -2004,6 +2081,12 @@
   },
   "removePasskey": {
     "message": "パスキーを削除"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "removePasskeyInfo": {
     "message": "すべてのパスキーを削除すると、マスターパスワードなしで新しいデバイスにログインすることはできません。"
@@ -2549,19 +2632,19 @@
     "message": "ファイルパスワードの確認"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass のマスターパスワード"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "キーファイルを追加"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "キーファイルのアップロード"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX ファイルのアップロード"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "受け入れられる形式: kdbx"
   },
   "kdbxCorruptOrOutdated": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2886,7 +2969,7 @@
     "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "アカウントを削除できません"
   },
   "cannotDeleteAccountDesc": {
     "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
@@ -2962,17 +3045,35 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
   },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
   "contact": {
-    "message": "Contact"
+    "message": "お問い合わせ"
   },
   "membership": {
-    "message": "Membership"
+    "message": "メンバーシップ"
   },
   "passport": {
-    "message": "Passport"
+    "message": "パスポート"
   },
   "driverLicense": {
     "message": "Driver's license"
@@ -3939,6 +4040,15 @@
   },
   "cancelSubscription": {
     "message": "契約のキャンセル"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "サブスクリプションの有効期限"
@@ -4981,8 +5091,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5105,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5615,7 +5725,7 @@
     "message": "Past 14 days"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "過去30日間"
   },
   "recentlyActiveOver30Days": {
     "message": "Over 30 days ago"
@@ -6687,13 +6797,13 @@
     "message": "Special characters (e.g. !, @, $)"
   },
   "uppercasePolicy": {
-    "message": "Uppercase"
+    "message": "大文字"
   },
   "lowercasePolicy": {
-    "message": "Lowercase"
+    "message": "小文字"
   },
   "numbersPolicy": {
-    "message": "Numbers"
+    "message": "数字"
   },
   "passwordStrengthScore": {
     "message": "パスワードの強度スコア $SCORE$",
@@ -6729,10 +6839,10 @@
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "生成したパスワード"
   },
   "generatedPassphrase": {
-    "message": "Generated passphrase"
+    "message": "パスフレーズを生成"
   },
   "masterPasswordPolicyInEffect": {
     "message": "組織が求めるマスターパスワードの要件は："
@@ -6849,10 +6959,10 @@
     "message": "選択したものをリストア"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "アーカイブされたアイテムを復元しました"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "アーカイブされたアイテムを復元しました"
   },
   "restoredItem": {
     "message": "リストアされたアイテム"
@@ -7053,7 +7163,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Send を作成",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -7065,7 +7175,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send を作成しました!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
@@ -7194,6 +7304,14 @@
   "expired": {
     "message": "期限切れ"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Sendを検索",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7220,7 +7338,7 @@
     "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "ダウンロード"
   },
   "sendAccessPasswordTitle": {
     "message": "Enter the password to view this Send",
@@ -11934,41 +12052,53 @@
     "message": "Missing features or functionality",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Too difficult to set up or manage",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Not enough usage by our team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Our needs changed",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "1年間無料"

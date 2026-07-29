@@ -804,7 +804,6 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       I18nServiceAbstraction,
       StateProvider,
-      ConfigService,
       CollectionEncryptionService,
     ],
   }),
@@ -1654,6 +1653,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
       SyncService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1779,6 +1779,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       I18nServiceAbstraction,
       GlobalStateProvider,
+      ConfigService,
     ],
   }),
   safeProvider({
