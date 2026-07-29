@@ -3046,6 +3046,15 @@
   "purgedOrganizationVault": {
     "message": "Purged organization vault."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Purged $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Vault accessed by Provider."
   },
@@ -5090,8 +5099,26 @@
   "exportedOrganizationVault": {
     "message": "Exported organization vault."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Exported $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Edited organization settings."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Edited $ORGNAME$ vault settings.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Created item $ID$.",
@@ -5286,6 +5313,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Moved item $ID$ to $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5667,6 +5707,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Staged user $ID$ added.",
     "placeholders": {
@@ -5703,12 +5756,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the two-factor login policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the single organization membership policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5721,12 +5800,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Revoked access for $ID$ for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Restored $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5777,6 +5882,15 @@
   },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Accepted transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Invited user $ID$.",
@@ -5844,12 +5958,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Created $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Added organization $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Added $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5862,12 +6002,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Removed $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Accessed $ID$ organization vault.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Accessed $ID$ $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -13744,6 +13910,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "User $ID$ left $ORGNAME$ vault",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "User $ID$ self-revoked from organization.",
     "placeholders": {
@@ -13755,6 +13934,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revoked for declining transfer to organization ownership."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Revoked for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",

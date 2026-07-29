@@ -148,10 +148,21 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
-      case EventType.Cipher_Shared:
-        msg = this.i18nService.t("movedItemIdToOrg", this.formatCipherId(ev, options));
-        humanReadableMsg = this.i18nService.t("movedItemIdToOrg", this.getShortId(ev.cipherId));
+      case EventType.Cipher_Shared: {
+        const movedItemIdToOrgKey = this.vfo1Key(
+          vfo1Enabled,
+          "movedItemIdToOrg",
+          "movedItemIdToOrgWithName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(movedItemIdToOrgKey, this.formatCipherId(ev, options), orgName);
+        humanReadableMsg = this.i18nService.t(
+          movedItemIdToOrgKey,
+          this.getShortId(ev.cipherId),
+          orgName,
+        );
         break;
+      }
       case EventType.Cipher_ClientViewed:
         msg = this.i18nService.t("viewedItemId", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t("viewedItemId", this.getShortId(ev.cipherId));
@@ -459,20 +470,36 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
-      case EventType.OrganizationUser_Revoked:
-        msg = this.i18nService.t("revokedUserId", this.formatOrgUserId(ev));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.OrganizationUser_Revoked: {
+        const revokedUserIdKey = this.vfo1Key(
+          vfo1Enabled,
           "revokedUserId",
-          this.getShortId(ev.organizationUserId),
+          "revokedUserIdWithOrgName",
         );
-        break;
-      case EventType.OrganizationUser_Restored:
-        msg = this.i18nService.t("restoredUserId", this.formatOrgUserId(ev));
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(revokedUserIdKey, this.formatOrgUserId(ev), orgName);
         humanReadableMsg = this.i18nService.t(
-          "restoredUserId",
+          revokedUserIdKey,
           this.getShortId(ev.organizationUserId),
+          orgName,
         );
         break;
+      }
+      case EventType.OrganizationUser_Restored: {
+        const restoredUserIdKey = this.vfo1Key(
+          vfo1Enabled,
+          "restoredUserId",
+          "restoredUserIdWithOrgName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(restoredUserIdKey, this.formatOrgUserId(ev), orgName);
+        humanReadableMsg = this.i18nService.t(
+          restoredUserIdKey,
+          this.getShortId(ev.organizationUserId),
+          orgName,
+        );
+        break;
+      }
       case EventType.OrganizationUser_Staged:
         msg = this.i18nService.t("stagedUserId", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -501,13 +528,21 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
-      case EventType.OrganizationUser_Left:
-        msg = this.i18nService.t("userLeftOrganization", this.formatOrgUserId(ev));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.OrganizationUser_Left: {
+        const userLeftOrganizationKey = this.vfo1Key(
+          vfo1Enabled,
           "userLeftOrganization",
+          "userLeftOrganizationWithName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(userLeftOrganizationKey, this.formatOrgUserId(ev), orgName);
+        humanReadableMsg = this.i18nService.t(
+          userLeftOrganizationKey,
           this.getShortId(ev.organizationUserId),
+          orgName,
         );
         break;
+      }
       case EventType.OrganizationUser_AutomaticallyConfirmed:
         msg = this.i18nService.t("automaticallyConfirmedUserId", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -515,26 +550,56 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
-      case EventType.OrganizationUser_SelfRevoked:
-        msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
+      case EventType.OrganizationUser_SelfRevoked: {
+        const userSelfRevokedOrganizationOwnershipKey = this.vfo1Key(
+          vfo1Enabled,
+          "userSelfRevokedOrganizationOwnership",
+          "userSelfRevokedOrganizationOwnershipWithName",
+        );
+        msg = humanReadableMsg = this.i18nService.t(
+          userSelfRevokedOrganizationOwnershipKey,
+          this.orgName(ev, options),
+        );
         break;
-      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance:
-        msg = this.i18nService.t("revokedUserIdTwoFactorNonCompliance", this.formatOrgUserId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance: {
+        const revokedUserIdTwoFactorNonComplianceKey = this.vfo1Key(
+          vfo1Enabled,
           "revokedUserIdTwoFactorNonCompliance",
-          this.getShortId(ev.organizationUserId),
+          "revokedUserIdTwoFactorNonComplianceWithOrgName",
         );
-        break;
-      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance:
+        const orgName = this.orgName(ev, options);
         msg = this.i18nService.t(
-          "revokedUserIdSingleOrganizationNonCompliance",
+          revokedUserIdTwoFactorNonComplianceKey,
           this.formatOrgUserId(ev),
+          orgName,
         );
         humanReadableMsg = this.i18nService.t(
-          "revokedUserIdSingleOrganizationNonCompliance",
+          revokedUserIdTwoFactorNonComplianceKey,
           this.getShortId(ev.organizationUserId),
+          orgName,
         );
         break;
+      }
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance: {
+        const revokedUserIdSingleOrganizationNonComplianceKey = this.vfo1Key(
+          vfo1Enabled,
+          "revokedUserIdSingleOrganizationNonCompliance",
+          "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          revokedUserIdSingleOrganizationNonComplianceKey,
+          this.formatOrgUserId(ev),
+          orgName,
+        );
+        humanReadableMsg = this.i18nService.t(
+          revokedUserIdSingleOrganizationNonComplianceKey,
+          this.getShortId(ev.organizationUserId),
+          orgName,
+        );
+        break;
+      }
       case EventType.OrganizationUser_NotificationBannerActionClicked:
         msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
         break;
@@ -553,15 +618,42 @@ export class EventService {
         );
         break;
       // Org
-      case EventType.Organization_Updated:
-        msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
+      case EventType.Organization_Updated: {
+        const editedOrgSettingsKey = this.vfo1Key(
+          vfo1Enabled,
+          "editedOrgSettings",
+          "editedOrgSettingsWithName",
+        );
+        msg = humanReadableMsg = this.i18nService.t(
+          editedOrgSettingsKey,
+          this.orgName(ev, options),
+        );
         break;
-      case EventType.Organization_PurgedVault:
-        msg = humanReadableMsg = this.i18nService.t("purgedOrganizationVault");
+      }
+      case EventType.Organization_PurgedVault: {
+        const purgedOrganizationVaultKey = this.vfo1Key(
+          vfo1Enabled,
+          "purgedOrganizationVault",
+          "purgedOrganizationVaultWithName",
+        );
+        msg = humanReadableMsg = this.i18nService.t(
+          purgedOrganizationVaultKey,
+          this.orgName(ev, options),
+        );
         break;
-      case EventType.Organization_ClientExportedVault:
-        msg = humanReadableMsg = this.i18nService.t("exportedOrganizationVault");
+      }
+      case EventType.Organization_ClientExportedVault: {
+        const exportedOrganizationVaultKey = this.vfo1Key(
+          vfo1Enabled,
+          "exportedOrganizationVault",
+          "exportedOrganizationVaultWithName",
+        );
+        msg = humanReadableMsg = this.i18nService.t(
+          exportedOrganizationVaultKey,
+          this.orgName(ev, options),
+        );
         break;
+      }
       case EventType.Organization_VaultAccessed:
         msg = humanReadableMsg = this.i18nService.t("vaultAccessedByProvider");
         break;
@@ -691,16 +783,37 @@ export class EventService {
         );
         break;
       }
-      case EventType.Organization_ItemOrganization_Accepted:
-        msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
-        break;
-      case EventType.Organization_ItemOrganization_Declined:
-        msg = this.i18nService.t("revokedUserIdDeclinedTransfer", this.formatOrgUserId(ev));
-        humanReadableMsg = this.i18nService.t(
-          "revokedUserIdDeclinedTransfer",
-          this.getShortId(ev.organizationUserId),
+      case EventType.Organization_ItemOrganization_Accepted: {
+        const userAcceptedTransferKey = this.vfo1Key(
+          vfo1Enabled,
+          "userAcceptedTransfer",
+          "userAcceptedTransferWithOrgName",
+        );
+        msg = humanReadableMsg = this.i18nService.t(
+          userAcceptedTransferKey,
+          this.orgName(ev, options),
         );
         break;
+      }
+      case EventType.Organization_ItemOrganization_Declined: {
+        const revokedUserIdDeclinedTransferKey = this.vfo1Key(
+          vfo1Enabled,
+          "revokedUserIdDeclinedTransfer",
+          "revokedUserIdDeclinedTransferWithOrgName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          revokedUserIdDeclinedTransferKey,
+          this.formatOrgUserId(ev),
+          orgName,
+        );
+        humanReadableMsg = this.i18nService.t(
+          revokedUserIdDeclinedTransferKey,
+          this.getShortId(ev.organizationUserId),
+          orgName,
+        );
+        break;
+      }
       case EventType.Organization_AutoConfirmEnabled_Admin:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
         break;
@@ -762,34 +875,82 @@ export class EventService {
         msg = this.i18nService.t("removedUserId", this.formatProviderUserId(ev));
         humanReadableMsg = this.i18nService.t("removedUserId", this.getShortId(ev.providerUserId));
         break;
-      case EventType.ProviderOrganization_Created:
-        msg = this.i18nService.t("createdOrganizationId", this.formatProviderOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      case EventType.ProviderOrganization_Created: {
+        const createdOrganizationIdKey = this.vfo1Key(
+          vfo1Enabled,
           "createdOrganizationId",
+          "createdOrganizationIdWithName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          createdOrganizationIdKey,
+          this.formatProviderOrganizationId(ev),
+          orgName,
+        );
+        humanReadableMsg = this.i18nService.t(
+          createdOrganizationIdKey,
           this.getShortId(ev.providerOrganizationId),
+          orgName,
         );
         break;
-      case EventType.ProviderOrganization_Added:
-        msg = this.i18nService.t("addedOrganizationId", this.formatProviderOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.ProviderOrganization_Added: {
+        const addedOrganizationIdKey = this.vfo1Key(
+          vfo1Enabled,
           "addedOrganizationId",
+          "addedOrganizationIdWithName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          addedOrganizationIdKey,
+          this.formatProviderOrganizationId(ev),
+          orgName,
+        );
+        humanReadableMsg = this.i18nService.t(
+          addedOrganizationIdKey,
           this.getShortId(ev.providerOrganizationId),
+          orgName,
         );
         break;
-      case EventType.ProviderOrganization_Removed:
-        msg = this.i18nService.t("removedOrganizationId", this.formatProviderOrganizationId(ev));
-        humanReadableMsg = this.i18nService.t(
+      }
+      case EventType.ProviderOrganization_Removed: {
+        const removedOrganizationIdKey = this.vfo1Key(
+          vfo1Enabled,
           "removedOrganizationId",
-          this.getShortId(ev.providerOrganizationId),
+          "removedOrganizationIdWithName",
         );
-        break;
-      case EventType.ProviderOrganization_VaultAccessed:
-        msg = this.i18nService.t("accessedClientVault", this.formatProviderOrganizationId(ev));
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          removedOrganizationIdKey,
+          this.formatProviderOrganizationId(ev),
+          orgName,
+        );
         humanReadableMsg = this.i18nService.t(
-          "accessedClientVault",
+          removedOrganizationIdKey,
           this.getShortId(ev.providerOrganizationId),
+          orgName,
         );
         break;
+      }
+      case EventType.ProviderOrganization_VaultAccessed: {
+        const accessedClientVaultKey = this.vfo1Key(
+          vfo1Enabled,
+          "accessedClientVault",
+          "accessedClientVaultWithName",
+        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(
+          accessedClientVaultKey,
+          this.formatProviderOrganizationId(ev),
+          orgName,
+        );
+        humanReadableMsg = this.i18nService.t(
+          accessedClientVaultKey,
+          this.getShortId(ev.providerOrganizationId),
+          orgName,
+        );
+        break;
+      }
       // Org Domain claiming events
       case EventType.OrganizationDomain_Added:
         msg = humanReadableMsg = this.i18nService.t("addedDomain", this.escapeHtml(ev.domainName));
@@ -1330,6 +1491,12 @@ export class EventService {
     return vfo1Enabled ? nextKey : legacyKey;
   }
 
+  // Resolves the organization display name for VFO1 ("Acme Inc vault") copy, falling back to the
+  // generic "Organization" noun when the caller hasn't wired up a resolver or it can't resolve one.
+  private orgName(ev: EventResponse, options: EventOptions): string {
+    return options.getOrganizationName?.(ev) ?? this.i18nService.t("organization");
+  }
+
   private escapeHtml(unsafe: string): string {
     if (!unsafe) {
       return unsafe;
@@ -1376,4 +1543,9 @@ export class EventOptions {
   // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
   // keeps all creator ids linked (for callers that don't gate on membership).
   linkableMemberIds?: ReadonlySet<string>;
+  // Resolves the display name of the organization an event pertains to, used to personalize
+  // organization-level event copy (e.g. "Purged Acme Inc vault."). A function rather than a plain
+  // string because a single batch of events can span multiple organizations (e.g. the provider
+  // events page, where each row references a different client organization).
+  getOrganizationName?: (ev: EventResponse) => string | undefined;
 }

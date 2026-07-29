@@ -7,6 +7,7 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -32,6 +33,10 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
 
   private providerUsersUserIdMap = new Map<string, any>();
   private providerUsersIdMap = new Map<string, any>();
+  // Maps a provider-organization relationship id (EventResponse.providerOrganizationId) to the
+  // client organization's display name, used to personalize VFO1 event copy for events that
+  // reference a client org (e.g. "Created Acme Inc vault ABC12345.").
+  private providerOrganizationNameMap = new Map<string, string>();
 
   constructor(
     private apiService: ApiService,
@@ -39,6 +44,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     eventService: EventService,
     i18nService: I18nService,
     private providerService: ProviderService,
+    private providerApiService: ProviderApiServiceAbstraction,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -92,6 +98,14 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       this.providerUsersIdMap.set(u.id, { name: name, email: u.email });
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
+
+    const providerOrganizations = await this.providerApiService.getProviderOrganizations(
+      this.providerId,
+    );
+    providerOrganizations.data.forEach((o) => {
+      this.providerOrganizationNameMap.set(o.id, o.organizationName);
+    });
+
     await this.refreshEvents();
     this.loaded.set(true);
   }
@@ -115,5 +129,11 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     }
 
     return null;
+  }
+
+  protected override getOrganizationName(r: EventResponse): string | undefined {
+    return r.providerOrganizationId
+      ? this.providerOrganizationNameMap.get(r.providerOrganizationId)
+      : undefined;
   }
 }

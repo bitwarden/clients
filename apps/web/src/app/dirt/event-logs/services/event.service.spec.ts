@@ -201,3 +201,163 @@ describe("EventService collection/shared folder terminology (vfo1-foundation)", 
     },
   );
 });
+
+describe("EventService organization name personalization (vfo1-foundation)", () => {
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}|${p1 ?? ""}|${p2 ?? ""}`,
+  );
+
+  function createSut(vfo1Enabled: boolean): EventService {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(vfo1Enabled);
+
+    return new EventService(i18n, policyService, accountService, configService);
+  }
+
+  const orgName = "Acme Inc";
+
+  // [EventType, legacyKey, nextKey, event response fields]
+  const cases: [EventType, string, string, Partial<EventResponse>][] = [
+    [
+      EventType.Cipher_Shared,
+      "movedItemIdToOrg",
+      "movedItemIdToOrgWithName",
+      { cipherId: "cipher-1", organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_Revoked,
+      "revokedUserId",
+      "revokedUserIdWithOrgName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_Restored,
+      "restoredUserId",
+      "restoredUserIdWithOrgName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_Left,
+      "userLeftOrganization",
+      "userLeftOrganizationWithName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_SelfRevoked,
+      "userSelfRevokedOrganizationOwnership",
+      "userSelfRevokedOrganizationOwnershipWithName",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_Revoked_TwoFactorNonCompliance,
+      "revokedUserIdTwoFactorNonCompliance",
+      "revokedUserIdTwoFactorNonComplianceWithOrgName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance,
+      "revokedUserIdSingleOrganizationNonCompliance",
+      "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.Organization_Updated,
+      "editedOrgSettings",
+      "editedOrgSettingsWithName",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_PurgedVault,
+      "purgedOrganizationVault",
+      "purgedOrganizationVaultWithName",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_ClientExportedVault,
+      "exportedOrganizationVault",
+      "exportedOrganizationVaultWithName",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_ItemOrganization_Accepted,
+      "userAcceptedTransfer",
+      "userAcceptedTransferWithOrgName",
+      { organizationId: "org" },
+    ],
+    [
+      EventType.Organization_ItemOrganization_Declined,
+      "revokedUserIdDeclinedTransfer",
+      "revokedUserIdDeclinedTransferWithOrgName",
+      { organizationUserId: "ou-1", organizationId: "org" },
+    ],
+    [
+      EventType.ProviderOrganization_Created,
+      "createdOrganizationId",
+      "createdOrganizationIdWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_Added,
+      "addedOrganizationId",
+      "addedOrganizationIdWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_Removed,
+      "removedOrganizationId",
+      "removedOrganizationIdWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_VaultAccessed,
+      "accessedClientVault",
+      "accessedClientVaultWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+  ];
+
+  it.each(cases)(
+    "uses the legacy key (not the 'with name' key) for %s when vfo1-foundation is off, even with an org name resolver",
+    async (type, legacyKey, nextKey, evFields) => {
+      const sut = createSut(false);
+      const options = new EventOptions();
+      options.getOrganizationName = () => orgName;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(`${legacyKey}|`);
+      expect(info.humanReadableMessage).not.toContain(nextKey);
+    },
+  );
+
+  it.each(cases)(
+    "uses the 'with name' key and interpolates the resolved organization name for %s when vfo1-foundation is on",
+    async (type, _legacyKey, nextKey, evFields) => {
+      const sut = createSut(true);
+      const options = new EventOptions();
+      options.getOrganizationName = () => orgName;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(nextKey);
+      expect(info.humanReadableMessage).toContain(orgName);
+    },
+  );
+
+  it.each(cases)(
+    "falls back to the generic 'organization' translation for %s when no org name resolver is provided",
+    async (type, _legacyKey, nextKey, evFields) => {
+      const sut = createSut(true);
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse);
+
+      expect(info.humanReadableMessage).toContain(nextKey);
+      expect(info.humanReadableMessage).toContain("organization");
+    },
+  );
+});
