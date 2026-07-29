@@ -42,23 +42,10 @@ export class NavItemComponent extends NavBaseComponent {
   private readonly TREE_BASE_PADDING = 2.25;
 
   /**
-   * Base padding for version 2 nav items (in rem)
-   */
-  private readonly TREE_BASE_PADDING_V2 = 0.5;
-
-  /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
   private readonly TREE_DEPTH_PADDING = 1.5;
-
-  /**
-   * Version-aware base padding. Derived reactively from the side nav version so it tracks the same
-   * source as the template's version gating, rather than a one-time read at construction.
-   */
-  private readonly treeBasePadding = computed(() =>
-    this.sideNavService.version() === "2" ? this.TREE_BASE_PADDING_V2 : this.TREE_BASE_PADDING,
-  );
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
@@ -90,7 +77,7 @@ export class NavItemComponent extends NavBaseComponent {
     const depth = this.treeDepth() ?? 0;
 
     if (open) {
-      return `${this.treeBasePadding() + depth * this.TREE_DEPTH_PADDING}rem`;
+      return `${this.TREE_BASE_PADDING + depth * this.TREE_DEPTH_PADDING}rem`;
     }
 
     return "0";
