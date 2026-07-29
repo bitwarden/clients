@@ -264,6 +264,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (e.variant !== "Api") {
       return { kind: "unexpected", errorMessage: e.message };
     }
+    // Fragile client-side coupling to `bitwarden-core::ApiError::Response`'s Display
+    // format; accepted for MVP. Planned follow-up in next milestones: refactor the SDK to expose a better typed
+    // error variant. If the format drifts before then, extraction fails
+    // and the caller drops to `unexpected` with the raw string.
     // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
     const match = e.message.match(/^Received error message from server: \[(\d+)\] ([\s\S]+)$/);
     if (match == null) {
