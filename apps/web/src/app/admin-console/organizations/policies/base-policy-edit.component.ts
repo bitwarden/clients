@@ -144,7 +144,7 @@ export abstract class BasePolicyEditDefinition {
 
    * Note: this only affects policy editing in Admin Console, it does not affect its enforcement.
    */
-  enabled(policy: PolicyResponse): boolean {
+  enabled(policy: PolicyResponse | PolicyStatusResponse): boolean {
     return policy.enabled;
   }
 }

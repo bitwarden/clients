@@ -46,7 +46,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              [icon]="c.type === DefaultCollectionType ? 'bwi-user' : 'bwi-collection-shared'"
+              [icon]="collectionIcon(c.type)"
             />
           </ng-container>
         </bit-select>
@@ -462,6 +462,11 @@
           &rarr; Select XML Format (*.xml) as Export format &rarr; Click on next &rarr; Choose which
           entries should be included in the export &rarr; Click on next to export into the location
           previously chosen.
+        </ng-container>
+        <ng-container *ngIf="format === 'delineaxml'">
+          Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export
+          format -> Select “QuantumLock” as Authenticator type -> enter your password and select
+          “Export” to save the XML file.
         </ng-container>
       </bit-callout>
       @if (showLastPassOptions) {
