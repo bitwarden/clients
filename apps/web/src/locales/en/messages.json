@@ -6209,6 +6209,12 @@
   "openInviteRegistrationCrossingFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
   },
+  "openInviteAcceptFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "openInviteAcceptFailedMessage": {
+    "message": "We're sorry. Something went wrong, we were unable to accept the organization invite."
+  },
   "rememberEmail": {
     "message": "Remember email"
   },

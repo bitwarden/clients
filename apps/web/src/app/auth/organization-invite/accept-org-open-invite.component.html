@@ -14,5 +14,9 @@
   <p data-testid="open-invite-registration-crossing-failed-message">
     {{ "openInviteRegistrationCrossingFailedMessage" | i18n }}
   </p>
+} @else if (acceptFailed()) {
+  <p data-testid="open-invite-accept-failed-message">
+    {{ "openInviteAcceptFailedMessage" | i18n }}
+  </p>
 }
 <!-- TODO: put the above error states into a switch vs n different else ifs. -->

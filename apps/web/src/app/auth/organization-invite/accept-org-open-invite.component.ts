@@ -44,6 +44,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   protected readonly linkNotFound = signal(false);
   protected readonly planNotSupported = signal(false);
   protected readonly registrationCrossingFailed = signal(false);
+  protected readonly acceptFailed = signal(false);
 
   private readonly failedMessage = "openInviteAcceptFailed";
 
@@ -364,15 +365,39 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "free-admin-limit":
       case "reset-password-key-required":
       case "recovery-key-mismatch":
-        // TODO: dedicated UI per kind pending design. Until then, surface via the
-        // AcceptFlowService generic error path so the user sees the failedMessage toast.
-        // Note: `already-member` is success-adjacent and probably wants distinct UX
-        // (toast + navigate home) but the treatment is design's call. `recovery-key-mismatch`
-        // is a specific security condition (invite-bound org key differs from the
-        // account-recovery public key) and may warrant distinct copy too.
-        throw new Error(`Open invite accept rejected: ${result.kind}`);
+        // TODO: dedicated UI per kind pending design. All fold-through to the shared
+        // "we couldn't accept" state for MVP — per-kind copy is a design follow-up.
+        // Notes: `already-member` is success-adjacent and probably wants distinct UX
+        // (toast + navigate home); `recovery-key-mismatch` is a specific security
+        // condition (invite-bound org key differs from the account-recovery public
+        // key) and may warrant distinct copy too.
+        this.showAcceptFailed();
+        return;
       case "unexpected":
-        throw new Error(result.errorMessage);
+        // Non-classified SDK / server / boundary failure. The SDK error text is
+        // dev-oriented and unsafe to surface directly; route to the shared state and
+        // log the raw message for support.
+        this.logService.warning(
+          "AcceptOrgOpenInviteComponent: unexpected accept-endpoint failure.",
+          result.errorMessage,
+        );
+        this.showAcceptFailed();
+        return;
     }
+  }
+
+  /**
+   * Anon-layout error state used when the accept-endpoint call returns a classified
+   * rejection or an `unexpected` result. Mirrors {@link showRegistrationCrossingFailed}
+   * and the sibling `linkNotFound` / `planNotSupported` / `noSeats` states — sets both
+   * the anon-layout page title / icon and the signal that drives the template branch.
+   */
+  private showAcceptFailed(): void {
+    // TODO: needs finalization
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "openInviteAcceptFailedTitle" },
+      pageIcon: AccountWarning,
+    });
+    this.acceptFailed.set(true);
   }
 }
