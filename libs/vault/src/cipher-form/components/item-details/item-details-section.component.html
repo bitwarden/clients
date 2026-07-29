@@ -52,7 +52,7 @@
     @if (showCollectionsControl) {
       <ng-container>
         <bit-form-field class="tw-w-full" [disableMargin]="config.hideIndividualVaultFields">
-          <bit-label>{{ "collections" | i18n }}</bit-label>
+          <bit-label>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-label>
           <bit-multi-select
             class="tw-w-full"
             formControlName="collectionIds"
@@ -68,7 +68,7 @@
     }
     @if (!config.hideIndividualVaultFields) {
       <bit-form-field disableMargin>
-        <bit-label>{{ "folder" | i18n }}</bit-label>
+        <bit-label>{{ "folder" | vfo1I18n: "myFolders" }}</bit-label>
         <bit-select formControlName="folderId">
           @for (folder of config.folders; track folder.id) {
             <bit-option [value]="folder.id" [label]="folder.name"></bit-option>
