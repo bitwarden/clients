@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, OnInit, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { map, switchMap } from "rxjs";
 
@@ -24,6 +24,7 @@ import { HealthAccessService } from "./services/health-access.service";
   ],
 })
 export class HealthComponent implements OnInit {
+  readonly destroyRef = inject(DestroyRef);
   readonly accountService = inject(AccountService);
   readonly healthAccessService = inject(HealthAccessService);
 
@@ -33,8 +34,6 @@ export class HealthComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.userId();
-    // console.log("HealthComponent initialized for user:", userId);
-
     if (!userId) {
       return;
     }
@@ -44,11 +43,10 @@ export class HealthComponent implements OnInit {
       .pipe(
         switchMap(async (hasBeenOpened) => {
           if (!hasBeenOpened) {
-            // console.log("Setting health report as opened for user:", userId);
             await this.healthAccessService.setHealthHasBeenOpened(userId);
           }
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
