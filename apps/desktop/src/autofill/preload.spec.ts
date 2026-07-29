@@ -1,6 +1,7 @@
 import { ipcRenderer } from "electron";
 
-import { AUTOTYPE_MVP_IPC_CHANNELS } from "./models/ipc-channels";
+import { AutotypeState } from "./models/autotype-state";
+import { AUTOTYPE_IPC_CHANNELS, AUTOTYPE_MVP_IPC_CHANNELS } from "./models/ipc-channels";
 import preload from "./preload";
 
 // Mock electron modules
@@ -23,6 +24,14 @@ describe("autofill preload", () => {
     // persists across tests in this file -- clear it so each test starts
     // with no listener bound.
     preload.stopListeningAutotypeRequestMvp();
+  });
+
+  describe("reportAutotypeState", () => {
+    it("sends the state on the STATE channel", () => {
+      preload.reportAutotypeState(AutotypeState.Mvp);
+
+      expect(ipcRenderer.send).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.STATE, AutotypeState.Mvp);
+    });
   });
 
   describe("listenAutotypeRequestMvp", () => {

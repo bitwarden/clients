@@ -157,6 +157,7 @@ describe("DesktopAutotypeService", () => {
         stopListeningAutotypeRequestMvp: jest.fn(),
         configureAutotypeMvp: jest.fn(),
         toggleAutotypeMvp: jest.fn(),
+        reportAutotypeState: jest.fn(),
       },
     } as any;
 
@@ -239,6 +240,7 @@ describe("DesktopAutotypeService", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(true);
+      expect(global.ipc.autofill.reportAutotypeState).toHaveBeenCalledWith(AutotypeState.Mvp);
     });
 
     it("should not toggle MVP autotype on when only the GA state is active", async () => {
@@ -259,6 +261,7 @@ describe("DesktopAutotypeService", () => {
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
       expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
       expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+      expect(global.ipc.autofill.reportAutotypeState).toHaveBeenCalledWith(AutotypeState.Ga);
     });
 
     it("should not register the autotype request listener when the state is Disabled", async () => {
@@ -276,6 +279,7 @@ describe("DesktopAutotypeService", () => {
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
       expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
       expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+      expect(global.ipc.autofill.reportAutotypeState).toHaveBeenCalledWith(AutotypeState.Disabled);
     });
 
     it("unbinds the MVP listener when transitioning from Mvp to Disabled", async () => {
@@ -610,6 +614,7 @@ describe("DesktopAutotypeService", () => {
 
       expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.reportAutotypeState).toHaveBeenCalledWith(AutotypeState.Disabled);
     });
   });
 });

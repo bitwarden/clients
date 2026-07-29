@@ -3,8 +3,13 @@ import { ipcRenderer } from "electron";
 import { DesktopAutofillPreload } from "./desktop-autofill.preload";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
+import type { AutotypeState } from "./models/autotype-state";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import {
+  AUTOTYPE_IPC_CHANNELS,
+  AUTOTYPE_MVP_IPC_CHANNELS,
+  SSH_AGENT_IPC_CHANNELS,
+} from "./models/ipc-channels";
 
 const sshAgent = {
   init: async (useV2: boolean) => {
@@ -52,6 +57,10 @@ export default {
   desktopAutofill: DesktopAutofillPreload,
 
   sshAgent,
+
+  reportAutotypeState: (state: AutotypeState) => {
+    ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.STATE, state);
+  },
 
   // Autotype methods
   // MVP, delete with PM-41067

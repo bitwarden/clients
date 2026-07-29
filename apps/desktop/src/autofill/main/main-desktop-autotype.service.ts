@@ -8,12 +8,14 @@ import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
+import { AutotypeState } from "../models/autotype-state";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
+import { AUTOTYPE_IPC_CHANNELS, AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 export class MainDesktopAutotypeService {
   private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private autotypeState: AutotypeState = AutotypeState.Disabled;
 
   constructor(
     private logService: LogService,
@@ -21,8 +23,16 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
+    this.registerAutotypeStateListener();
     // TODO: check if mvp or ga via ipc, in the PM-40679 part 2 PR
     this.registerMvpIpcListeners();
+  }
+
+  registerAutotypeStateListener() {
+    ipcMain.on(AUTOTYPE_IPC_CHANNELS.STATE, (_event, state: AutotypeState) => {
+      this.autotypeState = state;
+      this.logService.debug("Autotype state reported:", state);
+    });
   }
 
   // MVP, delete with PM-41067
@@ -81,6 +91,8 @@ export class MainDesktopAutotypeService {
   }
 
   dispose() {
+    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.STATE);
+
     // MVP, delete with PM-41067
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
     ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);

@@ -9,8 +9,9 @@ import { LogService } from "@bitwarden/logging";
 import { WindowMain } from "../../main/window.main";
 import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
+import { AutotypeState } from "../models/autotype-state";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
+import { AUTOTYPE_IPC_CHANNELS, AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
 import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
@@ -125,6 +126,30 @@ describe("MainDesktopAutotypeService", () => {
         AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
         expect.any(Function),
       );
+    });
+  });
+
+  describe("autotype state listener", () => {
+    it("registers a listener on the STATE channel", () => {
+      expect(ipcMain.on).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.STATE, expect.any(Function));
+    });
+
+    it("stores the reported state", () => {
+      const stateHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.STATE);
+
+      stateHandler({}, AutotypeState.Mvp);
+
+      expect(service["autotypeState"]).toBe(AutotypeState.Mvp);
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype state reported:",
+        AutotypeState.Mvp,
+      );
+    });
+
+    it("removes the STATE listener on dispose", () => {
+      service.dispose();
+
+      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.STATE);
     });
   });
 

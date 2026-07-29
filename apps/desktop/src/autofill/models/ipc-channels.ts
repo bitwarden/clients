@@ -1,3 +1,7 @@
+export const AUTOTYPE_IPC_CHANNELS = {
+  STATE: "autofill.reportAutotypeState",
+} as const;
+
 // MVP, delete with PM-41067
 export const AUTOTYPE_MVP_IPC_CHANNELS = {
   TOGGLE: "autofill.toggleAutotypeMvp",
