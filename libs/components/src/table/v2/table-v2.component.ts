@@ -139,7 +139,8 @@ function sortRows<T>(
 /** A flattened body item: a data row, or a group header with its row-group and count. */
 type RenderItem<T> =
   | { kind: "row"; row: T }
-  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number };
+  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
+  | { kind: "groupEmpty"; group: BitRowGroupComponent<T>; level: number };
 
 /**
  * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
@@ -718,6 +719,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     for (const group of this._groups()) {
       const groupRows = top.buckets.get(group);
       if (!groupRows?.length) {
+        // Empty groups auto-hide unless they project `slot="empty"` content.
+        if (group.hasEmptyContent()) {
+          items.push({ kind: "group", group, count: 0, level: 0 });
+          items.push({ kind: "groupEmpty", group, level: 0 });
+        }
         continue;
       }
       // A collapsed group still shows its header (with the full count) but hides its body.
@@ -780,8 +786,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * {@link trackBy}, falling back to row identity.
    */
   protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
-    if (item.kind !== "row") {
+    if (item.kind === "group") {
       return item.group;
+    }
+    // Distinct from the group's header, which is also keyed by `item.group`.
+    if (item.kind === "groupEmpty") {
+      return item.group.emptyTemplate();
     }
     const trackBy = this.trackBy();
     return trackBy ? trackBy(index, item.row) : item.row;

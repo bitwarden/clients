@@ -2,7 +2,10 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
+  computed,
+  contentChild,
   DestroyRef,
+  ElementRef,
   forwardRef,
   inject,
   input,
@@ -19,13 +22,18 @@ import { BitTableV2Component } from "./table-v2.component";
  * the rows passing {@link match}; the projected content is the group's header
  * label (the row count is appended automatically by the table).
  *
- * Rows partition first-match-wins in declaration order, and empty groups render
- * nothing. Registers with the nearest ancestor `<bit-table-v2>` via DI, so a
- * group can sit anywhere in the descendant tree — including emitted by a helper.
+ * Rows partition first-match-wins in declaration order. Empty groups render
+ * nothing by default; project `slot="empty" content to instead
+ * keep the group's header visible and show that content in place of rows (e.g. a
+ * tip). Registers with the nearest ancestor `<bit-table-v2>` via DI, so a group
+ * can sit anywhere in the descendant tree — including emitted by a helper.
  */
 @Component({
   selector: "bit-row-group",
-  template: `<ng-template #header><ng-content></ng-content></ng-template>`,
+  template: `
+    <ng-template #header><ng-content></ng-content></ng-template>
+    <ng-template #empty><ng-content select="[slot=empty]"></ng-content></ng-template>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BitRowGroupComponent<T = unknown> {
@@ -49,6 +57,14 @@ export class BitRowGroupComponent<T = unknown> {
 
   /** The projected header label, stamped by `<bit-table-v2>` once per non-empty group. */
   readonly headerTemplate = viewChild.required<TemplateRef<void>>("header");
+
+  /** The `slot="empty"` content, stamped by `<bit-table-v2>` when the group is empty. */
+  readonly emptyTemplate = viewChild.required<TemplateRef<void>>("empty");
+
+  private readonly slotContainer = contentChild<ElementRef<HTMLElement>>("slotContainer");
+
+  /** Whether `slot="empty"` content is projected; when true the table keeps the header and shows it in place of rows. */
+  readonly hasEmptyContent = computed(() => this.slotContainer() != null);
 
   private readonly _children = signal<BitRowGroupComponent<T>[]>([]);
 
