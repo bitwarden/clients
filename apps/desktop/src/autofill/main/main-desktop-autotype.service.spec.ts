@@ -424,6 +424,9 @@ describe("MainDesktopAutotypeService", () => {
     it("should send window title to renderer on shortcut activation", () => {
       (autotype_mvp.getForegroundWindowTitle as jest.Mock).mockReturnValue("Notepad");
 
+      const stateHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.STATE);
+      stateHandler({}, AutotypeState.Mvp);
+
       const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
       toggleHandler({}, true);
 
@@ -435,6 +438,23 @@ describe("MainDesktopAutotypeService", () => {
       expect(mockWindowMain.win.webContents.send).toHaveBeenCalledWith(
         AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
         { windowTitle: "Notepad" },
+      );
+    });
+
+    it("does not run MVP behavior on shortcut activation when the state is Ga", () => {
+      const stateHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.STATE);
+      stateHandler({}, AutotypeState.Ga);
+
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      toggleHandler({}, true);
+
+      const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
+      registeredCallback();
+
+      expect(autotype_mvp.getForegroundWindowTitle).not.toHaveBeenCalled();
+      expect(mockWindowMain.win.webContents.send).not.toHaveBeenCalled();
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype GA shortcut triggered but GA is not yet implemented.",
       );
     });
   });

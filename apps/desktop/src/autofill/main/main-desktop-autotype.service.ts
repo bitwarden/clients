@@ -24,7 +24,7 @@ export class MainDesktopAutotypeService {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
     this.registerAutotypeStateListener();
-    // TODO: check if mvp or ga via ipc, in the PM-40679 part 2 PR
+    // TODO: register GA IPC listeners here, in the PM-40679 part 2 PR
     this.registerMvpIpcListeners();
   }
 
@@ -113,15 +113,28 @@ export class MainDesktopAutotypeService {
       return;
     }
 
-    // TODO: change this based on MVP or GA, in the PM-40679 part 2 PR
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
-        const windowTitle = autotype_mvp.getForegroundWindowTitle();
+        switch (this.autotypeState) {
+          // MVP, delete with PM-41067
+          case AutotypeState.Mvp: {
+            const windowTitle = autotype_mvp.getForegroundWindowTitle();
 
-        this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
-          windowTitle,
-        });
+            this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
+              windowTitle,
+            });
+            break;
+          }
+          case AutotypeState.Ga: {
+            // TODO: implement GA foreground-window handling, in the PM-40679 part 2 PR
+            this.logService.debug("Autotype GA shortcut triggered but GA is not yet implemented.");
+            break;
+          }
+          default:
+            // Disabled/unknown -- the shortcut should not be registered in these states.
+            break;
+        }
       },
     );
 
