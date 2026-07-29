@@ -749,6 +749,58 @@ export const GroupedVirtualized: Story = {
   }),
 };
 
+const emptyGroupTable = defineTable<GroupedRow>(
+  signal(
+    [...Array(6).keys()].map((i) => ({
+      id: i + 1,
+      name: `Item ${i + 1}`,
+      // Cards and notes only — nothing matches the "autofill suggestions" group.
+      type: (["card", "note"] as const)[i % 2],
+    })),
+  ),
+);
+
+/**
+ * A group with no matching rows renders nothing by default. Project
+ * `slot="empty" #slotContainer` content to instead keep the group's header visible
+ * and show that content in place of rows — here, an empty autofill-suggestions
+ * group's "save a login for this site" tip. The other empty groups still auto-hide.
+ */
+export const GroupedEmptySlot: Story = {
+  render: () => ({
+    props: {
+      table: emptyGroupTable,
+      isAutofill: (row: GroupedRow) => row.type === "login",
+      isCard: (row: GroupedRow) => row.type === "card",
+      isNote: (row: GroupedRow) => row.type === "note",
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [tableDef]="table"
+          presentation="list"
+          [virtualRowHeight]="44"
+          [height]="8"
+        >
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+
+          <bit-row-group [match]="isAutofill">
+            Autofill suggestions
+            <span slot="empty" #slotContainer class="tw-text-sm tw-text-muted">
+              Save a login item for this site to autofill
+            </span>
+          </bit-row-group>
+          <bit-row-group [match]="isCard">Cards</bit-row-group>
+          <bit-row-group [match]="isNote">Notes</bit-row-group>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
 type WideRow = {
   id: number;
   name: string;
