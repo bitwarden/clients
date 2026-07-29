@@ -4,8 +4,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BitwardenIcon } from "../shared/icon";
 
-type SemanticVariant =
-  "primary" | "success" | "danger" | "warning" | "subtle" | "dark" | "contrast";
+type SemanticVariant = "primary" | "success" | "danger" | "warning" | "subtle" | "dark";
 type DecorativeVariant = "brand" | "teal" | "green" | "orange" | "red" | "purple" | "gray";
 
 export type IconTileVariant = SemanticVariant | DecorativeVariant;
@@ -131,7 +130,6 @@ const variantStyles: Record<IconTileVariant, EmphasisStyles> = {
   // no decorative equivalent — keep existing styles
   subtle: emphasisAgnostic(["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"]),
   dark: emphasisAgnostic(["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"]),
-  contrast: emphasisAgnostic(["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-heading"]),
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
