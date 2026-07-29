@@ -101,8 +101,8 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyablePassport(): CipherItem | null {
     const passportItems: CipherItem[] = [
-      { key: "givenName", field: "givenName" },
-      { key: "surname", field: "surname" },
+      { key: "firstName", field: "givenName" },
+      { key: "lastName", field: "surname" },
       { key: "passportNumber", field: "passportNumber" },
       { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
     ];
