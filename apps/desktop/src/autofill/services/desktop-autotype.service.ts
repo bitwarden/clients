@@ -173,11 +173,11 @@ export class DesktopAutotypeService implements OnDestroy {
       .pipe(
         concatMap(async (state) => {
           // Currently, only the MVP implementation is wired up
-          // TODO: Wire up GA, in the follow-up PR
+          // TODO: Wire up GA, in the PM-40679 part 2 PR
           switch (state) {
             // MVP, delete with PM-41067
             case AutotypeState.Mvp: {
-              // TODO: toggle off GA, and stop any GA listeners, in the follow-up PR
+              // TODO: toggle off GA, and stop any GA listeners, in the PM-40679 part 2 PR
 
               // Define the function called within listenAutotypeRequestMvp()
               // in the preload.ts file for the Autotype MVP implementation
@@ -196,7 +196,7 @@ export class DesktopAutotypeService implements OnDestroy {
               ipc.autofill.stopListeningAutotypeRequestMvp();
               ipc.autofill.toggleAutotypeMvp(false);
 
-              // TODO: enable GA, and start the GA listener, in the follow-up PR
+              // TODO: enable GA, and start the GA listener, in the PM-40679 part 2 PR
 
               break;
             }
@@ -204,7 +204,7 @@ export class DesktopAutotypeService implements OnDestroy {
               ipc.autofill.stopListeningAutotypeRequestMvp();
               ipc.autofill.toggleAutotypeMvp(false);
 
-              // TODO: disable GA and stop the GA listener, in the follow-up PR
+              // TODO: disable GA and stop the GA listener, in the PM-40679 part 2 PR
 
               break;
             }
@@ -215,7 +215,7 @@ export class DesktopAutotypeService implements OnDestroy {
               ipc.autofill.stopListeningAutotypeRequestMvp();
               ipc.autofill.toggleAutotypeMvp(false);
 
-              // TODO: disable GA and stop the GA listener, in the follow-up PR
+              // TODO: disable GA and stop the GA listener, in the PM-40679 part 2 PR
 
               // Compile-time exhaustiveness check.
               // Fails to build if AutotypeState ever gains a member not handled above.
@@ -318,7 +318,7 @@ export class DesktopAutotypeService implements OnDestroy {
   ngOnDestroy() {
     ipc.autofill.stopListeningAutotypeRequestMvp();
     ipc.autofill.toggleAutotypeMvp(false);
-    // TODO: stop the GA listener, in the follow-up PR
+    // TODO: stop the GA listener, in the PM-40679 part 2 PR
     this.destroy$.next();
     this.destroy$.complete();
   }

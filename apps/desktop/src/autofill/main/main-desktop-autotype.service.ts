@@ -21,7 +21,7 @@ export class MainDesktopAutotypeService {
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
 
-    // TODO: check if mvp or ga via ipc
+    // TODO: check if mvp or ga via ipc, in the PM-40679 part 2 PR
     this.registerMvpIpcListeners();
   }
 
@@ -101,7 +101,7 @@ export class MainDesktopAutotypeService {
       return;
     }
 
-    // TODO: change this based on MVP or GA
+    // TODO: change this based on MVP or GA, in the PM-40679 part 2 PR
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
