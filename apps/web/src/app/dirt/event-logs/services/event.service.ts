@@ -155,7 +155,11 @@ export class EventService {
           "movedItemIdToOrgWithName",
         );
         const orgName = this.orgName(ev, options);
-        msg = this.i18nService.t(movedItemIdToOrgKey, this.formatCipherId(ev, options), orgName);
+        msg = this.i18nService.t(
+          movedItemIdToOrgKey,
+          this.formatCipherId(ev, options),
+          this.escapeHtml(orgName),
+        );
         humanReadableMsg = this.i18nService.t(
           movedItemIdToOrgKey,
           this.getShortId(ev.cipherId),
@@ -477,7 +481,11 @@ export class EventService {
           "revokedUserIdWithOrgName",
         );
         const orgName = this.orgName(ev, options);
-        msg = this.i18nService.t(revokedUserIdKey, this.formatOrgUserId(ev), orgName);
+        msg = this.i18nService.t(
+          revokedUserIdKey,
+          this.formatOrgUserId(ev),
+          this.escapeHtml(orgName),
+        );
         humanReadableMsg = this.i18nService.t(
           revokedUserIdKey,
           this.getShortId(ev.organizationUserId),
@@ -492,7 +500,11 @@ export class EventService {
           "restoredUserIdWithOrgName",
         );
         const orgName = this.orgName(ev, options);
-        msg = this.i18nService.t(restoredUserIdKey, this.formatOrgUserId(ev), orgName);
+        msg = this.i18nService.t(
+          restoredUserIdKey,
+          this.formatOrgUserId(ev),
+          this.escapeHtml(orgName),
+        );
         humanReadableMsg = this.i18nService.t(
           restoredUserIdKey,
           this.getShortId(ev.organizationUserId),
@@ -535,7 +547,11 @@ export class EventService {
           "userLeftOrganizationWithName",
         );
         const orgName = this.orgName(ev, options);
-        msg = this.i18nService.t(userLeftOrganizationKey, this.formatOrgUserId(ev), orgName);
+        msg = this.i18nService.t(
+          userLeftOrganizationKey,
+          this.formatOrgUserId(ev),
+          this.escapeHtml(orgName),
+        );
         humanReadableMsg = this.i18nService.t(
           userLeftOrganizationKey,
           this.getShortId(ev.organizationUserId),
@@ -556,10 +572,9 @@ export class EventService {
           "userSelfRevokedOrganizationOwnership",
           "userSelfRevokedOrganizationOwnershipWithName",
         );
-        msg = humanReadableMsg = this.i18nService.t(
-          userSelfRevokedOrganizationOwnershipKey,
-          this.orgName(ev, options),
-        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(userSelfRevokedOrganizationOwnershipKey, this.escapeHtml(orgName));
+        humanReadableMsg = this.i18nService.t(userSelfRevokedOrganizationOwnershipKey, orgName);
         break;
       }
       case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance: {
@@ -572,7 +587,7 @@ export class EventService {
         msg = this.i18nService.t(
           revokedUserIdTwoFactorNonComplianceKey,
           this.formatOrgUserId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           revokedUserIdTwoFactorNonComplianceKey,
@@ -591,7 +606,7 @@ export class EventService {
         msg = this.i18nService.t(
           revokedUserIdSingleOrganizationNonComplianceKey,
           this.formatOrgUserId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           revokedUserIdSingleOrganizationNonComplianceKey,
@@ -624,10 +639,9 @@ export class EventService {
           "editedOrgSettings",
           "editedOrgSettingsWithName",
         );
-        msg = humanReadableMsg = this.i18nService.t(
-          editedOrgSettingsKey,
-          this.orgName(ev, options),
-        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(editedOrgSettingsKey, this.escapeHtml(orgName));
+        humanReadableMsg = this.i18nService.t(editedOrgSettingsKey, orgName);
         break;
       }
       case EventType.Organization_PurgedVault: {
@@ -636,10 +650,9 @@ export class EventService {
           "purgedOrganizationVault",
           "purgedOrganizationVaultWithName",
         );
-        msg = humanReadableMsg = this.i18nService.t(
-          purgedOrganizationVaultKey,
-          this.orgName(ev, options),
-        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(purgedOrganizationVaultKey, this.escapeHtml(orgName));
+        humanReadableMsg = this.i18nService.t(purgedOrganizationVaultKey, orgName);
         break;
       }
       case EventType.Organization_ClientExportedVault: {
@@ -648,10 +661,9 @@ export class EventService {
           "exportedOrganizationVault",
           "exportedOrganizationVaultWithName",
         );
-        msg = humanReadableMsg = this.i18nService.t(
-          exportedOrganizationVaultKey,
-          this.orgName(ev, options),
-        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(exportedOrganizationVaultKey, this.escapeHtml(orgName));
+        humanReadableMsg = this.i18nService.t(exportedOrganizationVaultKey, orgName);
         break;
       }
       case EventType.Organization_VaultAccessed:
@@ -789,10 +801,9 @@ export class EventService {
           "userAcceptedTransfer",
           "userAcceptedTransferWithOrgName",
         );
-        msg = humanReadableMsg = this.i18nService.t(
-          userAcceptedTransferKey,
-          this.orgName(ev, options),
-        );
+        const orgName = this.orgName(ev, options);
+        msg = this.i18nService.t(userAcceptedTransferKey, this.escapeHtml(orgName));
+        humanReadableMsg = this.i18nService.t(userAcceptedTransferKey, orgName);
         break;
       }
       case EventType.Organization_ItemOrganization_Declined: {
@@ -805,7 +816,7 @@ export class EventService {
         msg = this.i18nService.t(
           revokedUserIdDeclinedTransferKey,
           this.formatOrgUserId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           revokedUserIdDeclinedTransferKey,
@@ -885,7 +896,7 @@ export class EventService {
         msg = this.i18nService.t(
           createdOrganizationIdKey,
           this.formatProviderOrganizationId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           createdOrganizationIdKey,
@@ -904,7 +915,7 @@ export class EventService {
         msg = this.i18nService.t(
           addedOrganizationIdKey,
           this.formatProviderOrganizationId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           addedOrganizationIdKey,
@@ -923,7 +934,7 @@ export class EventService {
         msg = this.i18nService.t(
           removedOrganizationIdKey,
           this.formatProviderOrganizationId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           removedOrganizationIdKey,
@@ -942,7 +953,7 @@ export class EventService {
         msg = this.i18nService.t(
           accessedClientVaultKey,
           this.formatProviderOrganizationId(ev),
-          orgName,
+          this.escapeHtml(orgName),
         );
         humanReadableMsg = this.i18nService.t(
           accessedClientVaultKey,
