@@ -39,8 +39,6 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       }),
     });
     mockFeatureFlagSubject = new BehaviorSubject<boolean>(true);
-    // GA defaults to off, so existing tests (which only drive mockFeatureFlagSubject,
-    // the MVP flag) are unaffected: mvpEnabled || false === mvpEnabled.
     mockGaFeatureFlagSubject = new BehaviorSubject<boolean>(false);
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,

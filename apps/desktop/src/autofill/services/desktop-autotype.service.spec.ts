@@ -346,7 +346,8 @@ describe("DesktopAutotypeService", () => {
       expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
       expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
       expect(global.ipc.autofill.listenAutotypeRequestMvp).not.toHaveBeenCalled();
-      // Unique to the default branch -- Disabled never logs. Without this, the test
+
+      // Unique to the default switch branch, Disabled never logs. Without this, the test
       // would still pass even if the spy above silently stopped taking effect, since
       // the real pipeline resolves to Disabled and produces the same three calls above.
       expect(mockLogService.error).toHaveBeenCalledWith(
@@ -413,6 +414,7 @@ describe("DesktopAutotypeService", () => {
       autotypeEnabledSubject.next(true);
       mvpFeatureFlagSubject.next(true);
       gaFeatureFlagSubject.next(true);
+
       // Base gate closed: account is not Premium.
       hasPremiumSubject.next(false);
 
