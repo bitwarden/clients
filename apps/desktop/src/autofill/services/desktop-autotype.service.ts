@@ -316,6 +316,7 @@ export class DesktopAutotypeService implements OnDestroy {
 
   ngOnDestroy() {
     ipc.autofill.stopListeningAutotypeRequestMvp();
+    ipc.autofill.toggleAutotypeMvp(false);
     // TODO: stop the GA listener, in the follow-up PR
     this.destroy$.next();
     this.destroy$.complete();

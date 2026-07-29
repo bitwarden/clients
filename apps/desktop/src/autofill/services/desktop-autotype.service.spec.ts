@@ -605,10 +605,11 @@ describe("DesktopAutotypeService", () => {
       expect(destroySpy).toHaveBeenCalled();
     });
 
-    it("unbinds the MVP listener", () => {
+    it("disarms MVP on destroy", () => {
       service.ngOnDestroy();
 
       expect(global.ipc.autofill.stopListeningAutotypeRequestMvp).toHaveBeenCalled();
+      expect(global.ipc.autofill.toggleAutotypeMvp).toHaveBeenCalledWith(false);
     });
   });
 });
