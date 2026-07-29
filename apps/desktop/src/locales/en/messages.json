@@ -1981,10 +1981,10 @@
     "message": "No values to copy"
   },
   "givenName": {
-    "message": "Given name"
+    "message": "First name"
   },
   "surname": {
-   "message": "Surname"
+   "message": "Last name"
   },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
