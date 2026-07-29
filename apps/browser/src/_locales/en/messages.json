@@ -5657,10 +5657,10 @@
     }
   },
   "givenName": {
-    "message": "Given name"
+    "message": "First name"
   },
   "surname": {
-   "message": "Surname"
+   "message": "Last name"
   },
   "copyNoteTitle": {
     "message": "Copy Note - $ITEMNAME$",
