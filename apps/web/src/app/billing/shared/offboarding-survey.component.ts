@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   Inject,
+  inject,
   OnInit,
   signal,
 } from "@angular/core";
@@ -13,6 +14,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -120,6 +123,8 @@ export class OffboardingSurveyComponent implements OnInit {
 
   protected readonly isBusiness: boolean;
 
+  private readonly configService = inject(ConfigService);
+
   protected readonly annualUpgradeOffer = signal<AnnualUpgradeOfferResponseModel | null>(null);
   // The business-reason `value` strings are legacy backend cancellation codes that do
   // not line up with their labels: value "too_complex" is the "Cost was too high"
@@ -191,6 +196,13 @@ export class OffboardingSurveyComponent implements OnInit {
   }
 
   private async loadAnnualUpgradeOffer(organizationId: string): Promise<void> {
+    // Checked here as well as on the server. The endpoint answers 404 when the flag is off, and
+    // the catch below swallows and logs that, so an unguarded call would put an error in the log
+    // for every cancellation dialog in a flag-off environment.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.PM38333_AnnualBillingSavings))) {
+      return;
+    }
+
     // Best-effort: the offer is a bonus prompt, so a failure to load it is logged and
     // swallowed, leaving the survey fully usable without the offer.
     try {

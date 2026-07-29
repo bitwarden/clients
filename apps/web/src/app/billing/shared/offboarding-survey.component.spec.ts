@@ -6,6 +6,8 @@ import { mock } from "jest-mock-extended";
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -28,6 +30,7 @@ describe("OffboardingSurveyComponent", () => {
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
   const mockToastService = mock<ToastService>();
   const mockLogService = mock<LogService>();
+  const mockConfigService = mock<ConfigService>();
 
   describe("annual upgrade offer", () => {
     beforeAll(() => {
@@ -46,7 +49,12 @@ describe("OffboardingSurveyComponent", () => {
 
     let fixture: ComponentFixture<OffboardingSurveyComponent>;
 
-    const build = async (offer: AnnualUpgradeOfferResponseModel | null, loadError?: unknown) => {
+    const build = async (
+      offer: AnnualUpgradeOfferResponseModel | null,
+      loadError?: unknown,
+      flagEnabled = true,
+    ) => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(flagEnabled as never);
       if (loadError !== undefined) {
         mockOrganizationBillingClient.getAnnualUpgradeOffer.mockRejectedValue(loadError);
       } else {
@@ -76,6 +84,7 @@ describe("OffboardingSurveyComponent", () => {
           { provide: I18nService, useValue: mockI18nService },
           { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
           { provide: LogService, useValue: mockLogService },
+          { provide: ConfigService, useValue: mockConfigService },
         ],
       }).compileComponents();
 
@@ -224,6 +233,22 @@ describe("OffboardingSurveyComponent", () => {
       expect(component.annualUpgradeRedeemError()).toBeTruthy();
       expect(mockLogService.error).toHaveBeenCalled();
     });
+
+    it("makes no request and logs nothing when the flag is off", async () => {
+      // RequireFeature answers 404 on the server, and this component swallows and logs GET
+      // failures as best effort, so without this check every cancellation dialog in a flag-off
+      // environment would log an error for nothing.
+      await build(null, undefined, false);
+
+      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
+        FeatureFlag.PM38333_AnnualBillingSavings,
+      );
+      expect(mockOrganizationBillingClient.getAnnualUpgradeOffer).not.toHaveBeenCalled();
+      expect(mockLogService.error).not.toHaveBeenCalled();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]'),
+      ).toBeNull();
+    });
   });
 
   describe("survey behavior", () => {
@@ -241,6 +266,7 @@ describe("OffboardingSurveyComponent", () => {
           { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
           { provide: ToastService, useValue: mockToastService },
           { provide: LogService, useValue: mockLogService },
+          { provide: ConfigService, useValue: mockConfigService },
         ],
       });
 
