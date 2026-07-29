@@ -102,7 +102,7 @@
   </ng-template>
 } @else {
   <div class="tw-cursor-pointer tw-px-3">
-    @if (open || icon()) {
+    @if (open || icon() || hasStartIconTile()) {
       <div
         class="tw-relative tw-rounded-xl tw-p-2 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
         [class]="fvwStyles()"
@@ -111,8 +111,15 @@
         data-spotlight-target
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
-          @if (open) {
-            <div class="">
+          <!--
+            Non-tile leading start content (e.g. the collapse toggle) renders here, outside the
+            interactive element. An icon tile instead renders inside `anchorAndButtonContent` so it
+            is a real click target. There is only one `[slot=start]` ng-content, so it is outlet in
+            exactly one of the two positions — the guard (`hasStartIconTile`) is stable, whereas
+            branching on `open` would lose the projected content on the next collapse toggle.
+          -->
+          @if (open && !hasStartIconTile()) {
+            <div>
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
           }
@@ -175,7 +182,11 @@
       [class.tw-font-normal]="!showActiveStyles()"
       [class.tw-font-semibold]="showActiveStyles()"
     >
-      @if (icon() || treeDepth() > 1) {
+      <!-- Leading icon tile: inside the interactive element and, when collapsed, the sole rail glyph -->
+      @if (hasStartIconTile()) {
+        <ng-container *ngTemplateOutlet="startSlot"></ng-container>
+      }
+      @if ((icon() || treeDepth() > 1) && (open || !hasStartIconTile())) {
         <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
           @if (icon()) {
             <bit-icon

@@ -24,6 +24,7 @@
     [forceActiveStyles]="forceActiveStyles()"
     [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
     [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
+    [hasForwardedIconTile]="!toggleInStartSlot() && hasStartSlotTile()"
   >
     @if (toggleInStartSlot()) {
       <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>

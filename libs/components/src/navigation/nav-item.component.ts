@@ -7,11 +7,13 @@ import {
   signal,
   computed,
   model,
+  contentChildren,
 } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
@@ -51,6 +53,26 @@ export class NavItemComponent extends NavBaseComponent {
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
    */
   readonly forceActiveStyles = input<boolean>(false);
+
+  /**
+   * Leading tile projected directly into this item's `start` slot (standalone use). A composing
+   * nav-group re-projects its tile instead, which this query cannot see — see `hasForwardedIconTile`.
+   */
+  private readonly startSlotTiles = contentChildren(IconTileComponent);
+
+  /**
+   * Set by a composing nav-group when it forwards a `[slot=start]` icon tile into this item.
+   * Re-projected content is invisible to `startSlotTiles`, so the group reports it explicitly.
+   */
+  readonly hasForwardedIconTile = input(false);
+
+  /**
+   * Whether this item's `start` slot holds an icon tile that should act as its leading glyph
+   * (inside the interactive element) and its collapsed-rail glyph.
+   */
+  protected readonly hasStartIconTile = computed(
+    () => this.hasForwardedIconTile() || this.startSlotTiles().length > 0,
+  );
 
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });

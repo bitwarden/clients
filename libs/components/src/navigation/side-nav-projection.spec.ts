@@ -7,6 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { IconTileComponent } from "../icon-tile";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -14,7 +15,7 @@ import { NavigationModule } from "./navigation.module";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
-  imports: [NavigationModule],
+  imports: [NavigationModule, IconTileComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-side-nav>
@@ -24,6 +25,13 @@ import { SideNavService } from "./side-nav.service";
         <bit-nav-item text="Child A" route="a"></bit-nav-item>
         <bit-nav-item text="Child B" route="b"></bit-nav-item>
         <span slot="end">TRAILING</span>
+      </bit-nav-group>
+      <bit-nav-group text="Vault" [route]="['v']" [open]="true">
+        <bit-icon-tile slot="start" icon="bwi-star" data-testid="rail-tile"></bit-icon-tile>
+        <bit-nav-item text="Child C" route="c"></bit-nav-item>
+        <bit-nav-group text="Nested" [route]="['n']" [open]="true">
+          <bit-nav-item text="Child D" route="d"></bit-nav-item>
+        </bit-nav-group>
       </bit-nav-group>
     </bit-side-nav>
   `,
@@ -142,6 +150,58 @@ describe("side-nav v1 content projection", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent as string).toContain("LEADING");
+  });
+
+  // Regression: a v2 nav-group whose only leading glyph is a projected [slot=start] tile (no `icon`
+  // input) disappeared entirely from the collapsed rail. The tile must stay as the rail glyph, and
+  // live inside the interactive element so it is a real click target (not an overlay).
+  it("keeps the start-slot tile inside the interactive element on the collapsed rail in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+
+    const tile = fixture.nativeElement.querySelector("[data-testid='rail-tile']");
+    expect(tile).not.toBeNull();
+    expect(tile.closest("[data-testid='nav-item-interactive']")).not.toBeNull();
+  });
+
+  it("renders the start-slot tile inside the interactive element when open in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const tile = fixture.nativeElement.querySelector("[data-testid='rail-tile']");
+    expect(tile).not.toBeNull();
+    expect(tile.closest("[data-testid='nav-item-interactive']")).not.toBeNull();
+  });
+
+  // Guards the single [slot=start] ng-content surviving repeated open/collapse toggles.
+  it("keeps the start-slot tile across open->collapse->open toggles in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector("[data-testid='rail-tile']")).not.toBeNull();
+  });
+
+  // A nested group's collapse toggle also uses [slot=start], but a <button> must never nest inside
+  // the interactive <a>/<button>. It must render as a sibling, outside the interactive element.
+  it("renders a nested group's start-slot collapse toggle outside the interactive element in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const toggles = fixture.nativeElement.querySelectorAll(
+      "button[data-testid='nav-group-collapse-arrow']",
+    );
+    expect(toggles.length).toBeGreaterThan(0);
+    toggles.forEach((toggle: HTMLElement) => {
+      expect(toggle.closest("[data-testid='nav-item-interactive']")).toBeNull();
+    });
   });
 
   it("renders the nav-group collapse arrow in v2", () => {

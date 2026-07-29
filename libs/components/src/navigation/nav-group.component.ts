@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
@@ -38,6 +39,14 @@ export class NavGroupComponent extends NavBaseComponent {
 
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
+
+  /**
+   * A consumer-projected leading tile (e.g. a `bit-icon-tile`) forwarded into the composed nav
+   * item's `start` slot. Detected here because re-projected content is invisible to the nav item's
+   * own content query.
+   */
+  private readonly startSlotTiles = contentChildren(IconTileComponent, { descendants: false });
+  protected readonly hasStartSlotTile = computed(() => this.startSlotTiles().length > 0);
 
   protected readonly sideNavOpen = this.sideNavService.open;
 
