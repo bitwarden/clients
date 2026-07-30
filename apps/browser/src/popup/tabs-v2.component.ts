@@ -11,12 +11,16 @@ import {
   SendActive,
   SettingsInactive,
   SettingsActive,
+  HealthInactive,
+  HealthActive,
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+
+import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -27,10 +31,12 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 })
 export class TabsV2Component {
   private sendPolicyService = inject(SendPolicyService);
+  private healthAccessService = inject(HealthAccessService);
 
-  private hasActiveBadges$ = this.accountService.activeAccount$
-    .pipe(getUserId)
-    .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private hasActiveBadges$ = this.userId$.pipe(
+    switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)),
+  );
 
   private showSettingsBerry$ = combineLatest([
     this.hasActiveBadges$,
@@ -41,11 +47,16 @@ export class TabsV2Component {
     map((disableSend) => !disableSend),
   );
 
+  private healthEnabled$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthEnabled$(userId)),
+  );
+
   protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
+    this.healthEnabled$.pipe(startWith(false)),
   ]).pipe(
-    map(([showBerry, sendEnabled]) => {
+    map(([showBerry, sendEnabled, healthEnabled]) => {
       const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
@@ -66,6 +77,17 @@ export class TabsV2Component {
                 page: "/tabs/send",
                 icon: SendInactive,
                 iconActive: SendActive,
+              } as BottomNavigationButton,
+            ]
+          : []),
+        ...(healthEnabled
+          ? [
+              {
+                label: "health",
+                page: "/tabs/health",
+                icon: HealthInactive,
+                iconActive: HealthActive,
+                showBerry: true, // TODO: only show berry when the User has not yet run a health report (PM-39075)
               } as BottomNavigationButton,
             ]
           : []),
