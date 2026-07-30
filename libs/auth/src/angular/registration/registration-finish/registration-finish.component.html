@@ -8,13 +8,13 @@
       ></bit-icon>
     </div>
   }
-  @case (RegistrationFinishViewState.OpenInviteDecryptionFailed) {
-    <p data-testid="open-invite-registration-decryption-failed-message">
-      {{ "openInviteRegistrationCrossingFailedMessage" | i18n }}
+  @case (RegistrationFinishViewState.SealedOpenOrgInviteDecryptionFailed) {
+    <p data-testid="sealed-open-org-invite-decryption-failed-message">
+      {{ "registrationSealedOpenOrgInviteDecryptionFailedMessage" | i18n }}
     </p>
   }
-  @case (RegistrationFinishViewState.OpenInviteStatusError) {
-    <p data-testid="open-invite-registration-status-error-message">
+  @case (RegistrationFinishViewState.OpenOrgInviteStatusError) {
+    <p data-testid="open-org-invite-status-error-message">
       {{ openOrgInviteStatusErrorMessageKey() | i18n }}
     </p>
   }

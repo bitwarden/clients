@@ -8,7 +8,7 @@ import { Subject, firstValueFrom } from "rxjs";
 import { openOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountWarning } from "@bitwarden/assets/svg";
+import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
@@ -222,7 +222,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     if (unsealResult.kind !== "ok") {
       this.logUnsealOpenOrgInviteError(unsealResult);
-      this.showOpenOrgInviteDecryptionFailed();
+      this.showSealedOpenOrgInviteDecryptionFailed();
       return false;
     }
 
@@ -244,7 +244,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     if (statusResult.kind !== "ok") {
       // Defensive branch to satisfy the narrowing — logically unreachable given the
       // mapper contract, but the type system doesn't know that.
-      this.showOpenOrgInviteDecryptionFailed();
+      this.showSealedOpenOrgInviteDecryptionFailed();
       return false;
     }
     const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, statusResult.status);
@@ -285,10 +285,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     });
   }
 
-  private showOpenOrgInviteDecryptionFailed(): void {
+  private showSealedOpenOrgInviteDecryptionFailed(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageTitle: { key: "openInviteRegistrationCrossingFailedTitle" },
-      pageIcon: AccountWarning,
+      pageTitle: { key: "registrationSealedOpenOrgInviteDecryptionFailedTitle" },
+      pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
     this.viewState.set(RegistrationFinishViewState.SealedOpenOrgInviteDecryptionFailed);
   }

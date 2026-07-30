@@ -6203,10 +6203,10 @@
   "openInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
-  "openInviteRegistrationCrossingFailedTitle": {
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
     "message": "Could not accept invitation"
   },
-  "openInviteRegistrationCrossingFailedMessage": {
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
   },
   "openInviteAcceptFailedTitle": {
