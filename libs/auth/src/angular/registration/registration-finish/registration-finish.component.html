@@ -18,7 +18,7 @@
       {{ openOrgInviteStatusErrorMessageKey() | i18n }}
     </p>
   }
-  @case (RegistrationFinishViewState.RegistrationFinishForm) {
+  @case (RegistrationFinishViewState.PasswordForm) {
     <auth-input-password
       [email]="email"
       [flow]="inputPasswordFlow"

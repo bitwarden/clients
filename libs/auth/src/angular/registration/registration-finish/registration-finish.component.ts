@@ -57,7 +57,7 @@ export const RegistrationFinishViewState = Object.freeze({
   Loading: "loading",
   SealedOpenOrgInviteDecryptionFailed: "sealed-open-org-invite-decryption-failed",
   OpenOrgInviteStatusError: "open-org-invite-status-error",
-  RegistrationFinishForm: "registration-finish-form",
+  PasswordForm: "password-form",
 } as const);
 export type RegistrationFinishViewState =
   (typeof RegistrationFinishViewState)[keyof typeof RegistrationFinishViewState];
@@ -120,7 +120,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   // Discriminated render state (see {@link RegistrationFinishViewState}). Initial value
   // is `Loading` so the spinner renders while `ngOnInit` runs; the final transition to
-  // `RegistrationFinishForm` or one of the error kinds happens at the end of `ngOnInit`.
+  // `PasswordForm` or one of the error kinds happens at the end of `ngOnInit`.
   protected readonly viewState = signal<RegistrationFinishViewState>(
     RegistrationFinishViewState.Loading,
   );
@@ -179,7 +179,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       await this.registerVerificationEmailClicked(this.email, this.emailVerificationToken);
     }
 
-    this.viewState.set(RegistrationFinishViewState.RegistrationFinishForm);
+    this.viewState.set(RegistrationFinishViewState.PasswordForm);
   }
 
   /**
