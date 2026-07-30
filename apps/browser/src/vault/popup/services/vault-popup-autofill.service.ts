@@ -298,7 +298,7 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      const totpCode = await this.autofillService.doAutoFill({
+      const result = await this.autofillService.doAutoFill({
         tab,
         cipher,
         pageDetails,
@@ -307,10 +307,24 @@ export class VaultPopupAutofillService {
         allowTotpAutofill: true,
       });
 
-      if (totpCode != null) {
-        this.platformUtilService.copyToClipboard(totpCode, { window: window });
+      // A no-fill is reported as a value, not a thrown exception. Branch on it so the caller (and
+      // `doAutofillAndSave`'s URI write) never treats an unfilled attempt as success.
+      if (!result.didAutofill) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("autofillError"),
+        });
+        return false;
       }
-    } catch {
+
+      if (result.totp != null) {
+        this.platformUtilService.copyToClipboard(result.totp, { window: window });
+      }
+    } catch (e) {
+      // Safety net for genuine failures during the fill (e.g. a rejected TOTP or last-used-date
+      // write); the no-fill decision itself is driven by `didAutofill` above.
+      this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
         title: null,

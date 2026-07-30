@@ -190,6 +190,9 @@ describe("OverlayBackground", () => {
     enableNotificationAnimationMock$ = new BehaviorSubject(true);
     enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
     autofillService = mock<AutofillService>();
+    // `doAutoFill` now resolves an outcome object; default to a filled-without-TOTP result so callers
+    // that destructure the outcome do not choke on the mock's undefined default.
+    autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
     autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
     autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
@@ -3716,7 +3719,7 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        autofillService.doAutoFill.mockResolvedValue("totp-code");
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "totp-code" });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",

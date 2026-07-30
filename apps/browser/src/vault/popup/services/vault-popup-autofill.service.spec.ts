@@ -62,6 +62,9 @@ describe("VaultPopupAutofillService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  // A test overwrites `activeAccount$` to exercise the no-active-user path; capture the original
+  // stream so `beforeEach` can restore it and that overwrite cannot leak into later tests.
+  const activeAccountWithUser$ = accountService.activeAccount$;
 
   // Controllable upstream subjects. `showFillAssistActiveBanner$` (and the other banner streams)
   // capture these references at construction via shareReplay({ refCount: false }), so they must be
@@ -78,6 +81,11 @@ describe("VaultPopupAutofillService", () => {
 
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
+
+    // `clearAllMocks` clears call records but not implementations, and `accountService` is a shared
+    // instance, so re-establish both each test to keep cases order-independent.
+    mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+    accountService.activeAccount$ = activeAccountWithUser$;
     jest
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForCreditCardForm")
       .mockReturnValue(true);
@@ -289,6 +297,7 @@ describe("VaultPopupAutofillService", () => {
       mockPageDetails$ = new BehaviorSubject(mockPageDetails);
 
       mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(mockPageDetails$);
+      mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
 
       expectedAutofillArgs = {
         tab: mockCurrentTab,
@@ -307,16 +316,32 @@ describe("VaultPopupAutofillService", () => {
     describe("doAutofill()", () => {
       it("should return true if autofill is successful", async () => {
         mockCipher.id = "test-cipher-id";
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(true);
         expect(mockAutofillService.doAutoFill).toHaveBeenCalledWith(expectedAutofillArgs);
       });
 
       it("should return false if autofill is not successful", async () => {
-        mockAutofillService.doAutoFill.mockRejectedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: null,
+          message: mockI18nService.t("autofillError"),
+        });
+      });
+
+      it("should return false and surface an error toast if doAutoFill rejects unexpectedly", async () => {
+        // `doAutoFill` reports a no-fill as a value, but a genuine failure mid-fill still rejects; the
+        // retained catch keeps that from becoming an unhandled rejection.
+        mockAutofillService.doAutoFill.mockRejectedValue(new Error("boom"));
+        const result = await service.doAutofill(mockCipher);
+        expect(result).toBe(false);
+        // Pin the failure to the catch path specifically: a guard firing before `doAutoFill` would
+        // produce the same result + toast, so assert the rejection was actually reached.
+        expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -325,9 +350,12 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if tab is null", async () => {
-        jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
+        // `currentAutofillTab$` caches its construction-time value, so overriding it is the reliable
+        // way to drive a null tab into the guard.
+        (service as any).currentAutofillTab$ = of(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -336,9 +364,10 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if missing page details", async () => {
-        mockPageDetails$.next([]);
+        (service as any)._currentPageDetails$ = of([]);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -356,7 +385,7 @@ describe("VaultPopupAutofillService", () => {
       it("should copy TOTP code to clipboard if available", async () => {
         mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
-        mockAutofillService.doAutoFill.mockResolvedValue(totpCode);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: totpCode });
         await service.doAutofill(mockCipher);
         expect(mockPlatformUtilsService.copyToClipboard).toHaveBeenCalledWith(
           totpCode,
@@ -367,7 +396,6 @@ describe("VaultPopupAutofillService", () => {
       it("skips password prompt when skipPasswordReprompt is true", async () => {
         mockCipher.id = "cipher-with-reprompt";
         mockCipher.reprompt = CipherRepromptType.Password;
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
 
         const result = await service.doAutofill(mockCipher, true, true);
 
@@ -428,7 +456,6 @@ describe("VaultPopupAutofillService", () => {
         mockPlatformUtilsService.isFirefox.mockReturnValue(true);
 
         // Default to happy path
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
         mockCipherService.updateWithServer.mockResolvedValue(null);
       });
 
@@ -440,7 +467,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if autofill is not successful", async () => {
-        mockAutofillService.doAutoFill.mockRejectedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(false);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -509,7 +536,6 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should show success toast after saving the cipher if closePop is false", async () => {
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
         const result = await service.doAutofillAndSave(mockCipher, false);
         expect(result).toBe(true);
         expect(BrowserApi.closePopup).not.toHaveBeenCalled();
