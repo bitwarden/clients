@@ -1,10 +1,5 @@
 <popup-page>
-  <popup-header
-    slot="header"
-    [pageTitle]="'share' | i18n"
-    showBackButton
-    [backAction]="onBackClick.bind(this)"
-  ></popup-header>
+  <popup-header slot="header" [pageTitle]="'share' | i18n" showBackButton></popup-header>
 
   @if (cipher(); as cipher) {
     <div class="tw-p-4">

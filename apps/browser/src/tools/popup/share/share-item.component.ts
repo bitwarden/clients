@@ -1,4 +1,4 @@
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
@@ -10,7 +10,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { combineLatest, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -46,6 +46,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 import { ShareLink, ShareLinkService } from "./share-link.service";
 
@@ -92,8 +93,7 @@ interface ExpiryChoice {
 })
 export class ShareItemComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  private readonly popupRouterCacheService = inject(PopupRouterCacheService);
   private readonly cipherService = inject(CipherService);
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
@@ -318,8 +318,8 @@ export class ShareItemComponent {
     return `${emails[0]}, +${emails.length - 1}`;
   }
 
-  protected onBackClick(): void {
-    this.location.back();
+  protected async onBackClick(): Promise<void> {
+    await this.popupRouterCacheService.back();
   }
 
   private refreshActiveLinks(cipherId: CipherId): void {
