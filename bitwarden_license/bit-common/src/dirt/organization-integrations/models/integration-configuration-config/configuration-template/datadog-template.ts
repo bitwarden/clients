@@ -30,7 +30,7 @@ export class DatadogTemplate implements OrgIntegrationTemplate {
         actingUserId: "#ActingUserId#",
         installationId: "#InstallationId#",
         date: "#DateIso8601#",
-        deviceType: "#DeviceType#",
+        deviceName: "#DeviceType#",
         device: "#DeviceTypeId#",
         ipAddress: "#IpAddress#",
         systemUser: "#SystemUser#",

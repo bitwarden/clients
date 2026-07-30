@@ -177,7 +177,8 @@ The SVG filename becomes the CSS class name directly, with the `bwi-` prefix add
 Some older icons have legacy aliases (e.g. `bwi-question-circle` → `bwi-help`, `bwi-plus` →
 `bwi-add`) preserved in
 [`scripts/material-icons/migration-map.ts`](../../../../../scripts/material-icons/migration-map.ts).
-These only matter when running the migration (bulk-rename) workflow — see the
+These aliases are still emitted by `npm run icons:build` into `style.scss` and `icon.ts`, so legacy
+names keep working; they are also the input to the migration (bulk-rename) workflow — see the
 [README](../../../../../scripts/material-icons/README.md). New icons don't need any mapping.
 
 ---
