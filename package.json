@@ -119,7 +119,7 @@
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
     "eslint-plugin-storybook": "10.3.6",
-    "eslint-plugin-tailwindcss": "3.18.3",
+    "eslint-plugin-tailwindcss": "4.2.0",
     "fantasticon": "4.1.0",
     "html-loader": "5.1.0",
     "html-webpack-injector": "1.1.4",
