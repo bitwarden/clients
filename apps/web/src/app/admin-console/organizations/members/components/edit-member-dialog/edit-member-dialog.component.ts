@@ -29,6 +29,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -75,6 +76,10 @@ import {
 } from "../../../shared/components/access-selector";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
+import {
+  ProblemDetailsFieldMap,
+  ProblemDetailsService,
+} from "../../services/problem-details/problem-details.service";
 import {
   EditMemberDialogParams,
   MemberDialogResult,
@@ -127,6 +132,7 @@ export class EditMemberDialogComponent {
   private readonly organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
+  private readonly problemDetailsService = inject(ProblemDetailsService);
   private readonly logService = inject(LogService);
 
   protected readonly organizationUserType = OrganizationUserType;
@@ -140,6 +146,12 @@ export class EditMemberDialogComponent {
   protected readonly detailsTabEnabled = toSignal(
     from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
   );
+
+  protected readonly emailEditable = computed(
+    () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
+  );
+
+  protected readonly nameEditable = computed(() => this.params.claimedByOrganization ?? false);
 
   protected readonly collectionAccessItems = signal<AccessItemView[]>([]);
   protected readonly groupAccessItems = signal<AccessItemView[]>([]);
@@ -156,6 +168,20 @@ export class EditMemberDialogComponent {
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
   });
+
+  // Map server Problem Detail Error Keys to client owned i18n keys for fields that support inline errors
+  private readonly problemDetailFieldMap: ProblemDetailsFieldMap = {
+    email: {
+      new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
+      email_already_in_use: "emailErrorAlreadyInUse",
+      email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      member_has_master_password: "emailErrorHasMasterPassword",
+      email_change_failed: "emailErrorChangeFailed",
+    },
+    name: {
+      name_member_not_claimed: "nameErrorNotClaimed",
+    },
+  };
 
   protected readonly permissionsGroup = this.formBuilder.group({
     manageAllCollectionsGroup: this.formBuilder.group<Record<string, boolean>>({
@@ -246,6 +272,14 @@ export class EditMemberDialogComponent {
           : of([] as GroupDetailsView[]),
       ),
     );
+
+    this.formGroup.controls.email.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.email.setErrors(null));
+
+    this.formGroup.controls.name.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.name.setErrors(null));
 
     this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
       if (restrictEditingSelf) {
@@ -371,7 +405,7 @@ export class EditMemberDialogComponent {
 
     this.formGroup.patchValue({
       type: userDetails.type,
-      name: this.params.name,
+      name: this.params.profileName ?? "",
       email: this.params.email ?? "",
       externalId: userDetails.externalId,
       ssoExternalId: userDetails.ssoExternalId,
@@ -379,6 +413,18 @@ export class EditMemberDialogComponent {
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
     });
+
+    if (this.emailEditable()) {
+      this.formGroup.controls.email.enable();
+    } else {
+      this.formGroup.controls.email.disable();
+    }
+
+    if (this.nameEditable()) {
+      this.formGroup.controls.name.enable();
+    } else {
+      this.formGroup.controls.name.disable();
+    }
   }
 
   private setRequestPermissions(p: PermissionsApi, clearPermissions: boolean): PermissionsApi {
@@ -423,15 +469,32 @@ export class EditMemberDialogComponent {
 
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? undefined;
 
+    const email = this.emailEditable()
+      ? (this.formGroup.getRawValue().email ?? undefined)
+      : undefined;
+
+    const name = this.nameEditable() ? (this.formGroup.getRawValue().name ?? undefined) : undefined;
+
     const request = new OrganizationUserUpdateRequest({
       type,
       permissions,
       groups,
       collections,
       accessSecretsManager,
+      email,
+      name,
     });
 
-    await this.userService.saveV2(request, userId, organization);
+    try {
+      await this.userService.saveV2(request, userId, organization);
+    } catch (error: unknown) {
+      if (error instanceof ProblemDetailsErrorResponse && error.statusCode === 400) {
+        this.problemDetailsService.applyErrors(error, this.formGroup, this.problemDetailFieldMap);
+        return;
+      } else {
+        throw error;
+      }
+    }
 
     this.toastService.showToast({
       variant: "success",
