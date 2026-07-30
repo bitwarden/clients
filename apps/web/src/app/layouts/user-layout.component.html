@@ -5,6 +5,8 @@
     @if (vfo1Enabled()) {
       <vault-nav-section />
 
+      <app-pam-user-nav-slot />
+
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item
           icon="bwi-file-text"
