@@ -7504,5 +7504,8 @@
   "expires": {
     "message": "Expires",
     "description": "Label prefix shown before the expiry date of an active share link"
+  },
+  "health": {
+    "message": "Health"
   }
 }
