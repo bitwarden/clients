@@ -4,23 +4,24 @@ import { OrgInviteKind } from "../enums/org-invite-kind.enum";
 import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-invite-status.type";
 
 /**
- * URL contract for the open invite link route:
- * `/#/join/:organizationId/:inviteLinkCode?key={inviteKey}`.
- * `organizationId` scopes the invite to a specific org (matching the anonymous
- * status/policy/accept endpoint contract); `inviteLinkCode` is a server-generated GUID;
- * `inviteKey` is the URL-fragment key, which the browser never transmits to the server in
- * HTTP requests.
+ * The fields that represent an open organization invite.
+ * Canonical carrier is the open invite link URL, which is of the form
+ * `/#/join/:organizationId/:inviteLinkCode?key={inviteKey}`; the same shape also crosses
+ * the sealed-blob round-trip used by the registration-crossing flow.
  */
-export interface OpenOrgInviteUrlParams {
+export interface OpenOrgInviteLinkData {
+  /** Scopes the invite to a specific org */
   organizationId: string;
+  /** Server-generated GUID. */
   inviteLinkCode: string;
+  /** URL-fragment key; the browser never transmits it to the server in HTTP requests. */
   inviteKey: string;
 }
 
 /**
  * Domain object representing one open organization invite (admin published a reusable
  * link that anyone holding the URL can use to join; the link carries no user identity).
- * Hydrated from URL params + the status fetch ({@link fromUrlParamsAndStatus}) or from
+ * Hydrated from link data + the status fetch ({@link fromLinkDataAndStatus}) or from
  * persisted state ({@link fromJSON}). Required fields are enforced by the constructor.
  *
  * Discriminates against {@link DirectOrganizationInvite} via {@link kind}.
@@ -49,17 +50,17 @@ export class OpenOrganizationInvite {
   }
 
   /**
-   * Factory: takes validated URL params + the status snapshot and produces the
+   * Factory: takes validated link data + the status snapshot and produces the
    * fully-formed invite.
    */
-  static fromUrlParamsAndStatus(
-    urlParams: OpenOrgInviteUrlParams,
+  static fromLinkDataAndStatus(
+    linkData: OpenOrgInviteLinkData,
     status: OpenOrgInviteStatus,
   ): OpenOrganizationInvite {
     return new OpenOrganizationInvite({
-      organizationId: urlParams.organizationId,
-      inviteLinkCode: urlParams.inviteLinkCode,
-      inviteKey: urlParams.inviteKey,
+      organizationId: linkData.organizationId,
+      inviteLinkCode: linkData.inviteLinkCode,
+      inviteKey: linkData.inviteKey,
       organizationName: status.organizationName,
       sso: status.sso ?? undefined,
     });

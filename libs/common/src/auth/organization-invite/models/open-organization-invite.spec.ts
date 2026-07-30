@@ -2,7 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-invite-status.type";
 
-import { OpenOrganizationInvite, OpenOrgInviteUrlParams } from "./open-organization-invite";
+import { OpenOrganizationInvite, OpenOrgInviteLinkData } from "./open-organization-invite";
 
 describe("OpenOrganizationInvite", () => {
   const ssoConfig: OpenOrgInviteSsoConfig = {
@@ -49,8 +49,8 @@ describe("OpenOrganizationInvite", () => {
     });
   });
 
-  describe("fromUrlParamsAndStatus", () => {
-    const validUrlParams = (): OpenOrgInviteUrlParams => ({
+  describe("fromLinkDataAndStatus", () => {
+    const validLinkData = (): OpenOrgInviteLinkData => ({
       organizationId: "org-id",
       inviteLinkCode: "invite-link-code",
       inviteKey: "invite-key",
@@ -63,8 +63,8 @@ describe("OpenOrganizationInvite", () => {
     });
 
     it("returns a fully populated OpenOrganizationInvite", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
-        validUrlParams(),
+      const result = OpenOrganizationInvite.fromLinkDataAndStatus(
+        validLinkData(),
         validStatus({ sso: ssoConfig }),
       );
 
@@ -80,8 +80,8 @@ describe("OpenOrganizationInvite", () => {
     });
 
     it("normalizes a null sso from the status to undefined", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
-        validUrlParams(),
+      const result = OpenOrganizationInvite.fromLinkDataAndStatus(
+        validLinkData(),
         validStatus({ sso: null }),
       );
 
@@ -89,8 +89,8 @@ describe("OpenOrganizationInvite", () => {
     });
 
     it("carries sso through when the status includes it", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
-        validUrlParams(),
+      const result = OpenOrganizationInvite.fromLinkDataAndStatus(
+        validLinkData(),
         validStatus({ sso: ssoConfig }),
       );
 

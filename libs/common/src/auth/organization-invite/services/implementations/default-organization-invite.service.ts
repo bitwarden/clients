@@ -54,7 +54,7 @@ import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import {
   OpenOrganizationInvite,
-  OpenOrgInviteUrlParams,
+  OpenOrgInviteLinkData,
 } from "../../models/open-organization-invite";
 import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
@@ -471,10 +471,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return record?.[key]?.highEntropySecret ?? null;
   }
 
-  async sealOpenOrgInvite(
-    email: string,
-    invite: OpenOrgInviteUrlParams, // TODO: figure out different type
-  ): Promise<string | null> {
+  async sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null> {
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return null;
     }

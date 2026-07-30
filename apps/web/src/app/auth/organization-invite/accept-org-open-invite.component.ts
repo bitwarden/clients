@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import {
   OpenOrganizationInvite,
   OpenOrgInviteStatus,
-  OpenOrgInviteUrlParams,
+  OpenOrgInviteLinkData,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -91,7 +91,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return;
     }
 
-    await this.acceptFlowService.run<OpenOrgInviteUrlParams>(
+    await this.acceptFlowService.run<OpenOrgInviteLinkData>(
       { ...params, ...qParams },
       {
         failedMessage: this.failedMessage,
@@ -103,8 +103,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
                 inviteKey: p.key,
               }
             : null,
-        authedHandler: (urlParams) => this.authedHandler(urlParams),
-        unauthedHandler: (urlParams) => this.unauthedHandler(urlParams),
+        authedHandler: (linkData) => this.authedHandler(linkData),
+        unauthedHandler: (linkData) => this.unauthedHandler(linkData),
         // Scoped to the open key so a malformed open-invite URL doesn't wipe a
         // concurrent stashed direct invite.
         onError: () => this.organizationInviteService.clearOpenOrgInvite(),
@@ -156,16 +156,16 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     return null;
   }
 
-  private async unauthedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
+  private async unauthedHandler(linkData: OpenOrgInviteLinkData): Promise<void> {
     const status = await this.fetchStatusOrShowError(
-      urlParams.organizationId,
-      urlParams.inviteLinkCode,
+      linkData.organizationId,
+      linkData.inviteLinkCode,
     );
     if (status == null) {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
+    const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, status);
     await this.organizationInviteService.setOrganizationInvite(invite);
 
     // SSO-required orgs route straight to /sso. The deepLinkGuard() on this route
@@ -185,21 +185,21 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     await this.router.navigate(["/signup"]);
   }
 
-  private async authedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
+  private async authedHandler(linkData: OpenOrgInviteLinkData): Promise<void> {
     // Status is fetched here too (not just in unauthedHandler) because this handler
     // can be reached without going through unauthedHandler first — an authenticated
     // user pasting a `/join/<code>?key=<key>` URL directly into their session has no
     // stashed invite state to hydrate from. The fetch also gives us fresh error
     // surfaces (404 / 400 / no-seats) to render before committing an accept.
     const status = await this.fetchStatusOrShowError(
-      urlParams.organizationId,
-      urlParams.inviteLinkCode,
+      linkData.organizationId,
+      linkData.inviteLinkCode,
     );
     if (status == null) {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
+    const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, status);
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const result = await this.organizationInviteService.acceptOpenOrgInvite(invite, activeUserId);
 

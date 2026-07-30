@@ -5,7 +5,7 @@ import { UserId } from "@bitwarden/user-core";
 import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { DirectOrganizationInvite } from "../models/direct-organization-invite";
-import { OpenOrganizationInvite, OpenOrgInviteUrlParams } from "../models/open-organization-invite";
+import { OpenOrganizationInvite, OpenOrgInviteLinkData } from "../models/open-organization-invite";
 import { AcceptOpenOrgInviteResult } from "../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
 import { OrganizationInvite } from "../types/organization-invite.type";
@@ -129,7 +129,7 @@ export abstract class OrganizationInviteService {
    * when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op without a flag
    * check of their own.
    */
-  abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteUrlParams): Promise<string | null>;
+  abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null>;
 
   /**
    * Unseals a previously-sealed open-org-invite blob using the `HighEntropySecret` stored

@@ -15,7 +15,7 @@ import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redire
 import { RegisterVerificationEmailClickedRequest } from "@bitwarden/common/auth/models/request/registration/register-verification-email-clicked.request";
 import {
   OpenOrganizationInvite,
-  OpenOrgInviteUrlParams,
+  OpenOrgInviteLinkData,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
@@ -230,10 +230,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const urlParams: OpenOrgInviteUrlParams = unsealResult.invite;
+    const linkData: OpenOrgInviteLinkData = unsealResult.invite;
     const statusResult = await this.organizationInviteService.getOpenOrgInviteStatus(
-      urlParams.organizationId,
-      urlParams.inviteLinkCode,
+      linkData.organizationId,
+      linkData.inviteLinkCode,
     );
     const statusErrorUi = openOrgInviteStatusErrorUi(statusResult);
     if (statusErrorUi != null) {
@@ -251,7 +251,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       this.showOpenOrgInviteDecryptionFailed();
       return false;
     }
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, statusResult.status);
+    const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, statusResult.status);
     await this.organizationInviteService.setOrganizationInvite(invite);
     this.unsealedOpenOrgInvite = invite;
     return true;
