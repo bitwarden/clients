@@ -40,6 +40,19 @@ class NoLabelHostComponent {
   control = new FormControl<File[]>([], { nonNullable: true });
 }
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-file-dropzone [formControl]="control" id="custom">
+      <bit-label>Upload files</bit-label>
+    </bit-file-dropzone>
+  `,
+  imports: [FileDropzoneComponent, BitLabelComponent, ReactiveFormsModule],
+})
+class IdHostComponent {
+  control = new FormControl<File[]>([], { nonNullable: true });
+}
+
 const makeFile = (name = "a.txt") => new File(["x"], name);
 
 function selectFiles(fixture: ComponentFixture<HostComponent>, files: File[]): void {
@@ -224,5 +237,18 @@ describe("FileDropzoneComponent", () => {
   it("throws when no bit-label is projected", () => {
     const noLabelFixture = TestBed.createComponent(NoLabelHostComponent);
     expect(() => noLabelFixture.detectChanges()).toThrow();
+  });
+
+  it("propagates an overridden id to the host and derives the native input id from it", () => {
+    const idFixture = TestBed.createComponent(IdHostComponent);
+    idFixture.detectChanges();
+
+    const hostEl = idFixture.debugElement.query(By.css("bit-file-dropzone")).nativeElement;
+    const input = idFixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const label = idFixture.debugElement.query(By.css("bit-form-field label")).nativeElement;
+
+    expect(hostEl.id).toBe("custom");
+    expect(input.id).toBe("custom-input");
+    expect(label.getAttribute("for")).toBe(input.id);
   });
 });

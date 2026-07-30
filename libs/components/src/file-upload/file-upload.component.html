@@ -6,7 +6,7 @@
   <button
     type="button"
     bitPrefix
-    [id]="inputId"
+    [id]="inputId()"
     [attr.aria-describedby]="describedBy()"
     [attr.aria-disabled]="disabled() || null"
     class="tw-whitespace-nowrap tw-border-0 tw-bg-transparent tw-py-2 tw-text-sm tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
@@ -39,8 +39,8 @@
   <input
     #fileInput
     type="file"
-    [id]="fileInputId"
-    [attr.aria-labelledby]="inputId"
+    [id]="fileInputId()"
+    [attr.aria-labelledby]="inputId()"
     class="tw-sr-only"
     tabindex="-1"
     aria-hidden="true"
@@ -49,7 +49,7 @@
     (change)="onFileChange($event)"
   />
 
-  <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
+  <span [id]="statusId()" class="tw-sr-only" aria-live="polite" aria-atomic="true">
     {{ fileName() ? ("fileChosen" | i18n: fileName()) : ("chooseFile" | i18n) }}
   </span>
 

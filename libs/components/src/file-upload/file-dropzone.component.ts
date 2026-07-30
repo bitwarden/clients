@@ -26,8 +26,6 @@ import { BitFormFieldComponent } from "../form-field/form-field.component";
 
 import { FileListComponent } from "./file-list.component";
 
-let nextId = 0;
-
 /**
  * A drag-and-drop file upload rendered as a `bit-form-field`. The component is itself the form
  * control (`ControlValueAccessor`), so consumers bind it with `formControlName` /
@@ -52,9 +50,10 @@ let nextId = 0;
     FileListComponent,
     I18nPipe,
   ],
-  hostDirectives: [BitFormFieldControlDirective],
+  hostDirectives: [{ directive: BitFormFieldControlDirective, inputs: ["id"] }],
   host: {
     class: "tw-block",
+    "[id]": "formFieldControl.id()",
   },
 })
 export class FileDropzoneComponent implements ControlValueAccessor {
@@ -103,9 +102,11 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   private readonly onChange = signal<(value: File[]) => void>(() => {});
   private readonly onTouched = signal<() => void>(() => {});
 
-  protected readonly inputId = `bit-file-dropzone-${nextId++}`;
-  protected readonly statusId = `${this.inputId}-status`;
-  protected readonly maxFileSizeId = `${this.inputId}-size`;
+  // The consumer's `id` (or the directive's auto-generated fallback) lands on the host element; the
+  // native input and other internals derive distinct ids from it so nothing collides.
+  protected readonly inputId = computed(() => `${this.formFieldControl.id()}-input`);
+  protected readonly statusId = computed(() => `${this.inputId()}-status`);
+  protected readonly maxFileSizeId = computed(() => `${this.inputId()}-size`);
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
@@ -132,9 +133,9 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   protected readonly describedBy = computed(() => {
     const ids = [
       this.hint()?.id,
-      this.maxFileSize() != null ? this.maxFileSizeId : null,
+      this.maxFileSize() != null ? this.maxFileSizeId() : null,
       this.formFieldControl.ariaDescribedBy(),
-      this.files().length > 0 ? this.statusId : null,
+      this.files().length > 0 ? this.statusId() : null,
     ].filter(Boolean);
     return [...new Set(ids)].join(" ") || null;
   });
@@ -177,7 +178,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     // Point the field's <label for> at the dropzone's internal file input.
     effect(() => {
       this.label(); // assert a <bit-label> was projected (NG0951 if missing)
-      this.formFieldControl.labelForId.set(this.inputId);
+      this.formFieldControl.labelForId.set(this.inputId());
     });
     // After a removal, restore focus to a sensible neighbor (the next delete button, or the
     // dropzone itself when the list is now empty).

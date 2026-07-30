@@ -23,8 +23,6 @@ import { BitPrefixDirective } from "../form-field/prefix.directive";
 
 import { FileNameComponent } from "./file-name.component";
 
-let nextId = 0;
-
 /**
  * A single-file picker composed over `bit-form-field`. The component hosts
  * `BitFormFieldControlDirective` and is its own `ControlValueAccessor`, so it plugs into
@@ -45,9 +43,10 @@ let nextId = 0;
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BitFormFieldComponent, BitPrefixDirective, FileNameComponent, I18nPipe],
-  hostDirectives: [BitFormFieldControlDirective],
+  hostDirectives: [{ directive: BitFormFieldControlDirective, inputs: ["id"] }],
   host: {
     class: "tw-block",
+    "[id]": "formFieldControl.id()",
   },
 })
 export class FileUploadComponent implements ControlValueAccessor {
@@ -81,9 +80,11 @@ export class FileUploadComponent implements ControlValueAccessor {
   private readonly onChange = signal<(value: File | null) => void>(() => {});
   private readonly onTouched = signal<() => void>(() => {});
 
-  protected readonly inputId = `bit-file-upload-${nextId++}`;
-  protected readonly statusId = `${this.inputId}-status`;
-  protected readonly fileInputId = `${this.inputId}-input`;
+  // The consumer's `id` (or the directive's auto-generated fallback) lands on the host element; the
+  // focusable button and other internals derive distinct ids from it so nothing collides.
+  protected readonly inputId = computed(() => `${this.formFieldControl.id()}-button`);
+  protected readonly statusId = computed(() => `${this.inputId()}-status`);
+  protected readonly fileInputId = computed(() => `${this.inputId()}-input`);
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
   protected readonly fileName = computed(() => this._file()?.name);
@@ -93,7 +94,7 @@ export class FileUploadComponent implements ControlValueAccessor {
    * through our own `<ng-content>`), form-field's error target, and the live status region.
    */
   protected readonly describedBy = computed(() => {
-    const ids = [this.hint()?.id, this.formFieldControl.ariaDescribedBy(), this.statusId].filter(
+    const ids = [this.hint()?.id, this.formFieldControl.ariaDescribedBy(), this.statusId()].filter(
       Boolean,
     );
     return [...new Set(ids)].join(" ") || null;
@@ -106,7 +107,7 @@ export class FileUploadComponent implements ControlValueAccessor {
     // Point the field's <label for> at the focusable "Choose File" button rather than the host.
     effect(() => {
       this.label(); // assert a <bit-label> was projected (NG0951 if missing)
-      this.formFieldControl.labelForId.set(this.inputId);
+      this.formFieldControl.labelForId.set(this.inputId());
     });
   }
 

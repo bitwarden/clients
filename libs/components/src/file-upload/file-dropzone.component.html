@@ -14,7 +14,7 @@
     >
       <input
         #fileInput
-        [id]="inputId"
+        [id]="inputId()"
         type="file"
         class="tw-sr-only tw-pointer-events-none"
         [accept]="accept()"
@@ -37,7 +37,7 @@
         </span>
         @if (maxFileSize() != null) {
           <span
-            [id]="maxFileSizeId"
+            [id]="maxFileSizeId()"
             class="tw-text-xs"
             [class.tw-text-fg-body-subtle]="!disabled()"
             [class.tw-text-fg-inactive]="disabled()"
@@ -60,7 +60,7 @@
       </button>
     </div>
 
-    <span [id]="statusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
+    <span [id]="statusId()" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
 
     <!-- Hint sits between the drop area and the file list; the wrapper owns this layout. -->
     <ng-content select="bit-hint" />
