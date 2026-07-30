@@ -288,7 +288,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (match == null) {
       return { kind: "unexpected", errorMessage: e.message };
     }
-    return this.classifyServerAcceptError(Number(match[1]), match[2]);
+    const statusCode = Number(match[1]);
+    const serverMessage = match[2];
+    return this.classifyServerAcceptError(statusCode, serverMessage);
   }
 
   private classifyServerAcceptError(
