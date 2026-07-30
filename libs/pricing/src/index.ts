@@ -5,5 +5,6 @@ export * from "./components/discount-badge/discount-badge.component";
 
 // Types
 export * from "./types/cart";
+export * from "./types/cart-preview";
 export * from "./types/discount";
 export * from "./types/maybe";
