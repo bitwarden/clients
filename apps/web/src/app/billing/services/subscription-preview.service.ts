@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { adaptCartPreviewToCart, CartPreviewFlowContext } from "@bitwarden/pricing";
+import { adaptInvoicePreviewToCart, InvoicePreviewFlowContext } from "@bitwarden/pricing";
 import { SubscriptionPreview } from "@bitwarden/subscription";
 
 import { SubscriptionPreviewClient } from "../clients/subscription-preview.client";
@@ -18,9 +18,9 @@ export class SubscriptionPreviewService {
   getAccountSubscriptionPreview = async (): Promise<SubscriptionPreview> => {
     const response = await this.subscriptionPreviewClient.getAccountSubscriptionPreview();
 
-    const cart = adaptCartPreviewToCart(
+    const cart = adaptInvoicePreviewToCart(
       response.cart,
-      CartPreviewFlowContext.PremiumSubscriptionPage,
+      InvoicePreviewFlowContext.PremiumSubscriptionPage,
       this.logService,
     );
 
@@ -33,9 +33,9 @@ export class SubscriptionPreviewService {
     const response =
       await this.subscriptionPreviewClient.getOrganizationSubscriptionPreview(organizationId);
 
-    const cart = adaptCartPreviewToCart(
+    const cart = adaptInvoicePreviewToCart(
       response.cart,
-      CartPreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       this.logService,
     );
 

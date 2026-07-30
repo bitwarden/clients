@@ -1,6 +1,6 @@
-import { CartPreviewResponse } from "./cart-preview.response";
+import { InvoicePreviewResponse } from "./invoice-preview.response";
 
-describe("CartPreviewResponse", () => {
+describe("InvoicePreviewResponse", () => {
   const fullResponse = () => ({
     PasswordManager: {
       Seats: {
@@ -29,7 +29,7 @@ describe("CartPreviewResponse", () => {
 
   describe("full parse", () => {
     it("should parse every field", () => {
-      const response = new CartPreviewResponse(fullResponse());
+      const response = new InvoicePreviewResponse(fullResponse());
 
       expect(response.passwordManager.seats).toMatchObject({
         reference: "pm-seat",
@@ -83,7 +83,7 @@ describe("CartPreviewResponse", () => {
     });
 
     it("should leave every optional field undefined when absent", () => {
-      const response = new CartPreviewResponse(minimal());
+      const response = new InvoicePreviewResponse(minimal());
 
       expect(response.secretsManager).toBeUndefined();
       expect(response.passwordManager.additionalStorage).toBeUndefined();
@@ -95,13 +95,13 @@ describe("CartPreviewResponse", () => {
     });
 
     it("should preserve a starting balance of zero rather than dropping it", () => {
-      const response = new CartPreviewResponse({ ...minimal(), StartingBalance: 0 });
+      const response = new InvoicePreviewResponse({ ...minimal(), StartingBalance: 0 });
 
       expect(response.startingBalance).toBe(0);
     });
 
     it("should not set nextPaymentAttempt when the server omits it", () => {
-      const response = new CartPreviewResponse({ ...minimal(), NextPaymentAttempt: null });
+      const response = new InvoicePreviewResponse({ ...minimal(), NextPaymentAttempt: null });
 
       expect(response.nextPaymentAttempt).toBeUndefined();
     });
@@ -118,20 +118,20 @@ describe("CartPreviewResponse", () => {
     });
 
     it("should throw on an invalid cadence", () => {
-      expect(() => new CartPreviewResponse({ ...base(), Cadence: "weekly" })).toThrow(
+      expect(() => new InvoicePreviewResponse({ ...base(), Cadence: "weekly" })).toThrow(
         "Failed to parse invalid cadence: weekly",
       );
     });
 
     it("should throw on an invalid plan tier", () => {
-      expect(() => new CartPreviewResponse({ ...base(), PlanTier: "free" })).toThrow(
+      expect(() => new InvoicePreviewResponse({ ...base(), PlanTier: "free" })).toThrow(
         "Failed to parse invalid plan tier: free",
       );
     });
 
     it("should NOT throw on an unrecognized purchasable reference", () => {
       // Forward compatibility: the translation layer logs and renders an empty label instead.
-      const response = new CartPreviewResponse({
+      const response = new InvoicePreviewResponse({
         ...base(),
         PasswordManager: { Seats: { Reference: "pm-future", Quantity: 1, Cost: 10 } },
       });

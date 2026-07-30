@@ -2,9 +2,9 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { PlanTier, PurchasableReference } from "../../types/cart-preview";
+import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
 
-import { CartPreviewFlowContext } from "./cart-preview-flow-context";
+import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
 
 describe("getCartItemTranslationKey", () => {
@@ -17,41 +17,46 @@ describe("getCartItemTranslationKey", () => {
   /**
    * Transcribed verbatim from the tech breakdown's reference-to-translation-key fan-out table.
    */
-  const fanOut: Array<[PurchasableReference, CartPreviewFlowContext, PlanTier, string]> = [
-    ["pm-seat", CartPreviewFlowContext.PremiumSubscriptionPage, "premium", "premiumMembership"],
-    ["pm-seat", CartPreviewFlowContext.PersonalCheckout, "premium", "premiumMembership"],
-    ["pm-seat", CartPreviewFlowContext.PersonalCheckout, "families", "familiesMembership"],
-    ["pm-seat", CartPreviewFlowContext.PremiumOrgUpgrade, "families", "familiesMembership"],
-    ["pm-seat", CartPreviewFlowContext.PremiumOrgUpgrade, "teams", "teamsMembership"],
-    ["pm-seat", CartPreviewFlowContext.PremiumOrgUpgrade, "enterprise", "enterpriseMembership"],
+  const fanOut: Array<[PurchasableReference, InvoicePreviewFlowContext, PlanTier, string]> = [
+    ["pm-seat", InvoicePreviewFlowContext.PremiumSubscriptionPage, "premium", "premiumMembership"],
+    ["pm-seat", InvoicePreviewFlowContext.PersonalCheckout, "premium", "premiumMembership"],
+    ["pm-seat", InvoicePreviewFlowContext.PersonalCheckout, "families", "familiesMembership"],
+    ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "families", "familiesMembership"],
+    ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "teams", "teamsMembership"],
+    ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "enterprise", "enterpriseMembership"],
     [
       "pm-seat",
-      CartPreviewFlowContext.OrganizationCheckout,
-      "families",
-      "passwordManagerPlanPrice",
-    ],
-    ["pm-seat", CartPreviewFlowContext.OrganizationCheckout, "teams", "passwordManagerPlanPrice"],
-    [
-      "pm-seat",
-      CartPreviewFlowContext.OrganizationCheckout,
-      "enterprise",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      CartPreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.OrganizationCheckout,
       "families",
       "passwordManagerPlanPrice",
     ],
     [
       "pm-seat",
-      CartPreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.OrganizationCheckout,
       "teams",
       "passwordManagerPlanPrice",
     ],
     [
       "pm-seat",
-      CartPreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      "enterprise",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "teams",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       "enterprise",
       "passwordManagerPlanPrice",
     ],
@@ -67,7 +72,7 @@ describe("getCartItemTranslationKey", () => {
     },
   );
 
-  const allFlowContexts = Object.values(CartPreviewFlowContext);
+  const allFlowContexts = Object.values(InvoicePreviewFlowContext);
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
@@ -78,7 +83,7 @@ describe("getCartItemTranslationKey", () => {
 
   describe.each(tierAgnostic)("%s", (reference, expected) => {
     const combinations = allFlowContexts.flatMap((flowContext) =>
-      allTiers.map((planTier): [CartPreviewFlowContext, PlanTier] => [flowContext, planTier]),
+      allTiers.map((planTier): [InvoicePreviewFlowContext, PlanTier] => [flowContext, planTier]),
     );
 
     it.each(combinations)(
@@ -95,13 +100,13 @@ describe("getCartItemTranslationKey", () => {
   describe("combinations absent from the fan-out table", () => {
     // The table is intentionally partial: these combinations are legal to the type system but
     // cannot occur in practice, so they log and return "" rather than inventing a key.
-    const unmapped: Array<[CartPreviewFlowContext, PlanTier]> = [
-      [CartPreviewFlowContext.OrganizationCheckout, "premium"],
-      [CartPreviewFlowContext.OrganizationSubscriptionPage, "premium"],
-      [CartPreviewFlowContext.PremiumSubscriptionPage, "teams"],
-      [CartPreviewFlowContext.PersonalCheckout, "enterprise"],
-      [CartPreviewFlowContext.PremiumOrgUpgrade, "premium"],
-      [CartPreviewFlowContext.OrganizationPlanChange, "teams"],
+    const unmapped: Array<[InvoicePreviewFlowContext, PlanTier]> = [
+      [InvoicePreviewFlowContext.OrganizationCheckout, "premium"],
+      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "premium"],
+      [InvoicePreviewFlowContext.PremiumSubscriptionPage, "teams"],
+      [InvoicePreviewFlowContext.PersonalCheckout, "enterprise"],
+      [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premium"],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, "teams"],
     ];
 
     it.each(unmapped)(
@@ -121,7 +126,7 @@ describe("getCartItemTranslationKey", () => {
         getCartItemTranslationKey(
           outOfUnion,
           "teams",
-          CartPreviewFlowContext.OrganizationCheckout,
+          InvoicePreviewFlowContext.OrganizationCheckout,
           logService,
         ),
       ).not.toThrow();
@@ -129,7 +134,7 @@ describe("getCartItemTranslationKey", () => {
         getCartItemTranslationKey(
           outOfUnion,
           "teams",
-          CartPreviewFlowContext.OrganizationCheckout,
+          InvoicePreviewFlowContext.OrganizationCheckout,
           logService,
         ),
       ).toBe("");
@@ -140,22 +145,22 @@ describe("getCartItemTranslationKey", () => {
 
 describe("getCreditTranslationKey", () => {
   it("should map premium-org-upgrade to premiumSubscriptionCredit", () => {
-    expect(getCreditTranslationKey(CartPreviewFlowContext.PremiumOrgUpgrade)).toBe(
+    expect(getCreditTranslationKey(InvoicePreviewFlowContext.PremiumOrgUpgrade)).toBe(
       "premiumSubscriptionCredit",
     );
   });
 
   it("should map organization-plan-change to appliedSubscriptionCredits", () => {
-    expect(getCreditTranslationKey(CartPreviewFlowContext.OrganizationPlanChange)).toBe(
+    expect(getCreditTranslationKey(InvoicePreviewFlowContext.OrganizationPlanChange)).toBe(
       "appliedSubscriptionCredits",
     );
   });
 
   const noCreditContexts = [
-    CartPreviewFlowContext.PremiumSubscriptionPage,
-    CartPreviewFlowContext.PersonalCheckout,
-    CartPreviewFlowContext.OrganizationCheckout,
-    CartPreviewFlowContext.OrganizationSubscriptionPage,
+    InvoicePreviewFlowContext.PremiumSubscriptionPage,
+    InvoicePreviewFlowContext.PersonalCheckout,
+    InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.OrganizationSubscriptionPage,
   ];
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
@@ -165,6 +170,6 @@ describe("getCreditTranslationKey", () => {
 
 /**
  * The guard asserting every key returned here exists in the web client's `messages.json` lives in
- * `apps/web/src/app/billing/cart-preview-translation-keys.spec.ts`. It cannot live in this file:
+ * `apps/web/src/app/billing/invoice-preview-translation-keys.spec.ts`. It cannot live in this file:
  * `libs/` must not import app-specific code, and the locale file belongs to the web app.
  */

@@ -37,7 +37,7 @@ describe("SubscriptionPreviewResponse", () => {
     ...overrides,
   });
 
-  // The facade adapts the parsed CartPreview before calling toDomain; the adapted cart is opaque
+  // The facade adapts the parsed InvoicePreview before calling toDomain; the adapted cart is opaque
   // to the DTO, so a simple stand-in is sufficient here.
   const adaptedCart: Cart = {
     passwordManager: { seats: { translationKey: "premiumMembership", quantity: 1, cost: 10 } },
@@ -46,7 +46,7 @@ describe("SubscriptionPreviewResponse", () => {
   };
 
   describe("parsing", () => {
-    it("should parse the cart via CartPreviewResponse", () => {
+    it("should parse the cart via InvoicePreviewResponse", () => {
       const response = new SubscriptionPreviewResponse(responseJson());
 
       expect(response.cart.planTier).toBe("premium");

@@ -3,14 +3,14 @@ import { mock, mockReset } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
-import { CartPreviewClient, OrganizationPurchasePreviewRequest } from "./cart-preview.client";
+import { InvoicePreviewClient, OrganizationPurchasePreviewRequest } from "./invoice-preview.client";
 
-describe("CartPreviewClient", () => {
+describe("InvoicePreviewClient", () => {
   const mockApiService = mock<ApiService>();
 
-  let sut: CartPreviewClient;
+  let sut: InvoicePreviewClient;
 
-  const cartPreviewJson = {
+  const invoicePreviewJson = {
     PasswordManager: { Seats: { Reference: "pm-seat", Quantity: 1, Cost: 10 } },
     Cadence: "annually",
     PlanTier: "premium",
@@ -27,13 +27,13 @@ describe("CartPreviewClient", () => {
 
   beforeEach(() => {
     mockReset(mockApiService);
-    mockApiService.send.mockResolvedValue(cartPreviewJson);
+    mockApiService.send.mockResolvedValue(invoicePreviewJson);
 
     TestBed.configureTestingModule({
       providers: [{ provide: ApiService, useValue: mockApiService }],
     });
 
-    sut = TestBed.inject(CartPreviewClient);
+    sut = TestBed.inject(InvoicePreviewClient);
   });
 
   describe("route constants", () => {
@@ -93,7 +93,7 @@ describe("CartPreviewClient", () => {
   });
 
   describe("response parsing", () => {
-    it("should wrap the response in CartPreviewResponse", async () => {
+    it("should wrap the response in InvoicePreviewResponse", async () => {
       const result = await sut.previewPremiumPurchase({ additionalStorage: 0 });
 
       expect(result.planTier).toBe("premium");

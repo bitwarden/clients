@@ -5,7 +5,7 @@ import { Discount } from "./discount";
  * preview into a structure the cart summary can render.
  *
  * These types are the wire contract. They are converted into the render-ready `Cart` view model by
- * `adaptCartPreviewToCart`; components never consume them directly.
+ * `adaptInvoicePreviewToCart`; components never consume them directly.
  */
 
 /**
@@ -24,7 +24,7 @@ export type PlanTier = "families" | "teams" | "enterprise" | "premium";
  */
 export type PurchasableReference = "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account";
 
-export type CartPreviewItem = {
+export type InvoicePreviewItem = {
   reference: PurchasableReference;
   quantity: number;
   cost: number;
@@ -44,15 +44,15 @@ export type PurchasableProration = {
   months: number;
 };
 
-export type CartPreview = {
+export type InvoicePreview = {
   passwordManager: {
-    seats: CartPreviewItem;
-    additionalStorage?: CartPreviewItem;
+    seats: InvoicePreviewItem;
+    additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   secretsManager?: {
-    seats: CartPreviewItem;
-    additionalServiceAccounts?: CartPreviewItem;
+    seats: InvoicePreviewItem;
+    additionalServiceAccounts?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: "annually" | "monthly";

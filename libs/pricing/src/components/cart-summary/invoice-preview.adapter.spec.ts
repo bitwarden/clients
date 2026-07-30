@@ -2,20 +2,20 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { CartPreview, PurchasableReference } from "../../types/cart-preview";
 import { DiscountTypes } from "../../types/discount";
+import { InvoicePreview, PurchasableReference } from "../../types/invoice-preview";
 
-import { CartPreviewFlowContext } from "./cart-preview-flow-context";
-import { adaptCartPreviewToCart } from "./cart-preview.adapter";
+import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
+import { adaptInvoicePreviewToCart } from "./invoice-preview.adapter";
 
-describe("adaptCartPreviewToCart", () => {
+describe("adaptInvoicePreviewToCart", () => {
   let logService: LogService;
 
   beforeEach(() => {
     logService = mock<LogService>();
   });
 
-  const basePreview = (overrides: Partial<CartPreview> = {}): CartPreview => ({
+  const basePreview = (overrides: Partial<InvoicePreview> = {}): InvoicePreview => ({
     passwordManager: {
       seats: { reference: "pm-seat", quantity: 5, cost: 50 },
     },
@@ -29,9 +29,9 @@ describe("adaptCartPreviewToCart", () => {
 
   describe("shape mapping", () => {
     it("should map a Password-Manager-only preview", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview(),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -62,9 +62,9 @@ describe("adaptCartPreviewToCart", () => {
         },
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -91,9 +91,9 @@ describe("adaptCartPreviewToCart", () => {
         passwordManager: { seats: { reference: "pm-seat", quantity: 7, cost: 12.34 } },
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -119,9 +119,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -141,9 +141,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -159,9 +159,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -169,8 +169,8 @@ describe("adaptCartPreviewToCart", () => {
     });
 
     it.each([
-      [CartPreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
-      [CartPreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
+      [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
     ])("should emit a credit row for %s", (flowContext, expectedKey) => {
       const preview = basePreview({
         passwordManager: {
@@ -180,16 +180,16 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(preview, flowContext, logService);
+      const cart = adaptInvoicePreviewToCart(preview, flowContext, logService);
 
       expect(cart.credit).toEqual({ translationKey: expectedKey, value: 25 });
     });
 
     it.each([
-      CartPreviewFlowContext.PremiumSubscriptionPage,
-      CartPreviewFlowContext.PersonalCheckout,
-      CartPreviewFlowContext.OrganizationCheckout,
-      CartPreviewFlowContext.OrganizationSubscriptionPage,
+      InvoicePreviewFlowContext.PremiumSubscriptionPage,
+      InvoicePreviewFlowContext.PersonalCheckout,
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
     ])("should emit no credit row for %s even when prorations exist", (flowContext) => {
       const preview = basePreview({
         passwordManager: {
@@ -199,7 +199,7 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "families",
       });
 
-      const cart = adaptCartPreviewToCart(preview, flowContext, logService);
+      const cart = adaptInvoicePreviewToCart(preview, flowContext, logService);
 
       expect(cart.credit).toBeUndefined();
     });
@@ -218,9 +218,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -240,9 +240,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -259,9 +259,9 @@ describe("adaptCartPreviewToCart", () => {
         planTier: "enterprise",
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.PremiumOrgUpgrade,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
         logService,
       );
 
@@ -271,9 +271,9 @@ describe("adaptCartPreviewToCart", () => {
 
   describe("discount pass-through", () => {
     it("should carry no discounts key when the item has none", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview(),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -295,9 +295,9 @@ describe("adaptCartPreviewToCart", () => {
         },
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -317,9 +317,9 @@ describe("adaptCartPreviewToCart", () => {
         },
       });
 
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         preview,
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -328,9 +328,9 @@ describe("adaptCartPreviewToCart", () => {
 
     it("should map top-level discounts onto cart.discounts", () => {
       const discounts = [{ type: DiscountTypes.PercentOff, value: 10, amount: 25 }];
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview({ discounts }),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -340,9 +340,9 @@ describe("adaptCartPreviewToCart", () => {
 
   describe("total and tax", () => {
     it("should pass the authoritative total through", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview({ total: 412.75 }),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -350,9 +350,9 @@ describe("adaptCartPreviewToCart", () => {
     });
 
     it("should pass a total of zero through rather than dropping it", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview({ total: 0 }),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -362,9 +362,9 @@ describe("adaptCartPreviewToCart", () => {
 
   describe("fields that are deliberately not mapped", () => {
     it("should not map startingBalance onto the cart", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview({ startingBalance: -500 }),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -373,9 +373,9 @@ describe("adaptCartPreviewToCart", () => {
     });
 
     it("should not map amountDue or nextPaymentAttempt onto the cart", () => {
-      const cart = adaptCartPreviewToCart(
+      const cart = adaptInvoicePreviewToCart(
         basePreview({ amountDue: 123, nextPaymentAttempt: new Date("2026-01-01") }),
-        CartPreviewFlowContext.OrganizationCheckout,
+        InvoicePreviewFlowContext.OrganizationCheckout,
         logService,
       );
 
@@ -396,11 +396,11 @@ describe("adaptCartPreviewToCart", () => {
         },
       });
 
-      let cart!: ReturnType<typeof adaptCartPreviewToCart>;
+      let cart!: ReturnType<typeof adaptInvoicePreviewToCart>;
       expect(() => {
-        cart = adaptCartPreviewToCart(
+        cart = adaptInvoicePreviewToCart(
           preview,
-          CartPreviewFlowContext.OrganizationCheckout,
+          InvoicePreviewFlowContext.OrganizationCheckout,
           logService,
         );
       }).not.toThrow();

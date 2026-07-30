@@ -2,24 +2,24 @@ import { TestBed } from "@angular/core/testing";
 import { mock, mockReset } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CartPreview } from "@bitwarden/pricing";
+import { InvoicePreview } from "@bitwarden/pricing";
 
 import {
-  CartPreviewClient,
+  InvoicePreviewClient,
   OrganizationPurchasePreviewRequest,
-} from "../clients/cart-preview.client";
+} from "../clients/invoice-preview.client";
 
-import { CartPreviewService } from "./cart-preview.service";
+import { InvoicePreviewService } from "./invoice-preview.service";
 
-describe("CartPreviewService", () => {
-  const mockClient = mock<CartPreviewClient>();
+describe("InvoicePreviewService", () => {
+  const mockClient = mock<InvoicePreviewClient>();
   const mockLogService = mock<LogService>();
 
-  let sut: CartPreviewService;
+  let sut: InvoicePreviewService;
 
   // The real adapter is used throughout, so each method's baked flow context is observable
   // through the translation keys it produces.
-  const preview = (planTier: CartPreview["planTier"]): CartPreview => ({
+  const preview = (planTier: InvoicePreview["planTier"]): InvoicePreview => ({
     passwordManager: { seats: { reference: "pm-seat", quantity: 5, cost: 50 } },
     cadence: "monthly",
     planTier,
@@ -40,12 +40,12 @@ describe("CartPreviewService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: CartPreviewClient, useValue: mockClient },
+        { provide: InvoicePreviewClient, useValue: mockClient },
         { provide: LogService, useValue: mockLogService },
       ],
     });
 
-    sut = TestBed.inject(CartPreviewService);
+    sut = TestBed.inject(InvoicePreviewService);
   });
 
   describe("previewPremiumPurchaseCart", () => {

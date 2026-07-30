@@ -1,4 +1,4 @@
-import { Cart, CartPreview } from "@bitwarden/pricing";
+import { Cart, InvoicePreview } from "@bitwarden/pricing";
 import {
   Storage,
   SubscriptionPreview,
@@ -8,12 +8,12 @@ import {
 
 import { BaseResponse } from "../../../models/response/base.response";
 
-import { CartPreviewResponse } from "./cart-preview.response";
+import { InvoicePreviewResponse } from "./invoice-preview.response";
 import { StorageResponse } from "./storage.response";
 
 export class SubscriptionPreviewResponse extends BaseResponse {
   status: SubscriptionStatus;
-  cart: CartPreview;
+  cart: InvoicePreview;
   storage?: Storage;
   cancelAt?: Date;
   canceled?: Date;
@@ -37,7 +37,7 @@ export class SubscriptionPreviewResponse extends BaseResponse {
     }
     this.status = status;
 
-    this.cart = new CartPreviewResponse(this.getResponseProperty("Cart"));
+    this.cart = new InvoicePreviewResponse(this.getResponseProperty("Cart"));
 
     // Optional: the server returns no storage for subscribers without a maximum storage allowance.
     const storage = this.getResponseProperty("Storage");
@@ -69,7 +69,7 @@ export class SubscriptionPreviewResponse extends BaseResponse {
   /**
    * Assembles the status union around an already-adapted cart.
    *
-   * The cart is a parameter rather than being derived here because adapting a `CartPreview` into a
+   * The cart is a parameter rather than being derived here because adapting a `InvoicePreview` into a
    * render-ready `Cart` needs a flow context and a logger, both of which belong to the facade.
    * The facade adapts `this.cart` first, then passes the result in.
    */

@@ -1,8 +1,8 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { PlanTier, PurchasableReference } from "../../types/cart-preview";
+import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
 
-import { CartPreviewFlowContext } from "./cart-preview-flow-context";
+import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 
 /**
  * Centralizes the `(reference, planTier, flowContext) -> i18n key` fan-out that each cart surface
@@ -31,7 +31,7 @@ const membershipKeysByTier: Record<PlanTier, string> = {
 export const getCartItemTranslationKey = (
   reference: PurchasableReference,
   planTier: PlanTier,
-  flowContext: CartPreviewFlowContext,
+  flowContext: InvoicePreviewFlowContext,
   logService: LogService,
 ): string => {
   switch (reference) {
@@ -58,27 +58,27 @@ export const getCartItemTranslationKey = (
  */
 const getPasswordManagerSeatTranslationKey = (
   planTier: PlanTier,
-  flowContext: CartPreviewFlowContext,
+  flowContext: InvoicePreviewFlowContext,
   logService: LogService,
 ): string => {
   switch (flowContext) {
-    case CartPreviewFlowContext.PremiumSubscriptionPage:
+    case InvoicePreviewFlowContext.PremiumSubscriptionPage:
       if (planTier === "premium") {
         return membershipKeysByTier.premium;
       }
       break;
-    case CartPreviewFlowContext.PersonalCheckout:
+    case InvoicePreviewFlowContext.PersonalCheckout:
       if (planTier === "premium" || planTier === "families") {
         return membershipKeysByTier[planTier];
       }
       break;
-    case CartPreviewFlowContext.PremiumOrgUpgrade:
+    case InvoicePreviewFlowContext.PremiumOrgUpgrade:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
         return membershipKeysByTier[planTier];
       }
       break;
-    case CartPreviewFlowContext.OrganizationCheckout:
-    case CartPreviewFlowContext.OrganizationSubscriptionPage:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
         return "passwordManagerPlanPrice";
       }
@@ -98,12 +98,12 @@ const getPasswordManagerSeatTranslationKey = (
  * adapter emits no credit row at all.
  */
 export const getCreditTranslationKey = (
-  flowContext: CartPreviewFlowContext,
+  flowContext: InvoicePreviewFlowContext,
 ): string | undefined => {
   switch (flowContext) {
-    case CartPreviewFlowContext.PremiumOrgUpgrade:
+    case InvoicePreviewFlowContext.PremiumOrgUpgrade:
       return "premiumSubscriptionCredit";
-    case CartPreviewFlowContext.OrganizationPlanChange:
+    case InvoicePreviewFlowContext.OrganizationPlanChange:
       return "appliedSubscriptionCredits";
     default:
       return undefined;

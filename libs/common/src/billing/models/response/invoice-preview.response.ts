@@ -1,6 +1,6 @@
 import {
-  CartPreview,
-  CartPreviewItem,
+  InvoicePreview,
+  InvoicePreviewItem,
   Discount,
   PlanTier,
   PurchasableProration,
@@ -12,7 +12,7 @@ import { SubscriptionCadence, SubscriptionCadenceIds } from "../../types/subscri
 
 const PlanTiers: readonly PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
-export class CartPreviewItemResponse extends BaseResponse implements CartPreviewItem {
+export class InvoicePreviewItemResponse extends BaseResponse implements InvoicePreviewItem {
   reference: PurchasableReference;
   quantity: number;
   cost: number;
@@ -53,19 +53,19 @@ export class PurchasableProrationResponse extends BaseResponse implements Purcha
   }
 }
 
-class PasswordManagerCartPreviewResponse extends BaseResponse {
-  seats: CartPreviewItem;
-  additionalStorage?: CartPreviewItem;
+class PasswordManagerInvoicePreviewResponse extends BaseResponse {
+  seats: InvoicePreviewItem;
+  additionalStorage?: InvoicePreviewItem;
   prorations?: PurchasableProration[];
 
   constructor(response: any) {
     super(response);
 
-    this.seats = new CartPreviewItemResponse(this.getResponseProperty("Seats"));
+    this.seats = new InvoicePreviewItemResponse(this.getResponseProperty("Seats"));
 
     const additionalStorage = this.getResponseProperty("AdditionalStorage");
     if (additionalStorage) {
-      this.additionalStorage = new CartPreviewItemResponse(additionalStorage);
+      this.additionalStorage = new InvoicePreviewItemResponse(additionalStorage);
     }
 
     const prorations = this.getResponseProperty("Prorations");
@@ -77,19 +77,19 @@ class PasswordManagerCartPreviewResponse extends BaseResponse {
   }
 }
 
-class SecretsManagerCartPreviewResponse extends BaseResponse {
-  seats: CartPreviewItem;
-  additionalServiceAccounts?: CartPreviewItem;
+class SecretsManagerInvoicePreviewResponse extends BaseResponse {
+  seats: InvoicePreviewItem;
+  additionalServiceAccounts?: InvoicePreviewItem;
   prorations?: PurchasableProration[];
 
   constructor(response: any) {
     super(response);
 
-    this.seats = new CartPreviewItemResponse(this.getResponseProperty("Seats"));
+    this.seats = new InvoicePreviewItemResponse(this.getResponseProperty("Seats"));
 
     const additionalServiceAccounts = this.getResponseProperty("AdditionalServiceAccounts");
     if (additionalServiceAccounts) {
-      this.additionalServiceAccounts = new CartPreviewItemResponse(additionalServiceAccounts);
+      this.additionalServiceAccounts = new InvoicePreviewItemResponse(additionalServiceAccounts);
     }
 
     const prorations = this.getResponseProperty("Prorations");
@@ -101,15 +101,15 @@ class SecretsManagerCartPreviewResponse extends BaseResponse {
   }
 }
 
-export class CartPreviewResponse extends BaseResponse implements CartPreview {
+export class InvoicePreviewResponse extends BaseResponse implements InvoicePreview {
   passwordManager: {
-    seats: CartPreviewItem;
-    additionalStorage?: CartPreviewItem;
+    seats: InvoicePreviewItem;
+    additionalStorage?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   secretsManager?: {
-    seats: CartPreviewItem;
-    additionalServiceAccounts?: CartPreviewItem;
+    seats: InvoicePreviewItem;
+    additionalServiceAccounts?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: SubscriptionCadence;
@@ -124,13 +124,13 @@ export class CartPreviewResponse extends BaseResponse implements CartPreview {
   constructor(response: any) {
     super(response);
 
-    this.passwordManager = new PasswordManagerCartPreviewResponse(
+    this.passwordManager = new PasswordManagerInvoicePreviewResponse(
       this.getResponseProperty("PasswordManager"),
     );
 
     const secretsManager = this.getResponseProperty("SecretsManager");
     if (secretsManager) {
-      this.secretsManager = new SecretsManagerCartPreviewResponse(secretsManager);
+      this.secretsManager = new SecretsManagerInvoicePreviewResponse(secretsManager);
     }
 
     const cadence = this.getResponseProperty("Cadence");

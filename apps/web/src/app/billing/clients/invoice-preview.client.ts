@@ -1,7 +1,10 @@
+// NOTE: `InvoicePreviewClient` (this file) is the preview-driven cart client and is NOT the legacy
+// `PreviewInvoiceClient` in `preview-invoice.client.ts`, which returns only (Tax, Total). The two
+// coexist until the PM-40422 cleanup — check which one you mean before importing.
 import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CartPreviewResponse } from "@bitwarden/common/billing/models/response/cart-preview.response";
+import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/response/invoice-preview.response";
 
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept
@@ -42,20 +45,20 @@ export type OrganizationPlanChangePreviewRequest = {
 
 /**
  * Raw HTTP access to the cart preview endpoints. No adaptation and no flow context — callers go
- * through `CartPreviewService`, which owns both.
+ * through `InvoicePreviewService`, which owns both.
  *
  * Every route below is gated server-side by the `PM36631_PreviewDrivenCart` flag and returns 404
  * until the corresponding server ticket lands. 404s deliberately propagate: while the routes do
  * not exist, "route missing" must stay distinguishable from "no subscription".
  */
 @Injectable({ providedIn: "root" })
-export class CartPreviewClient {
+export class InvoicePreviewClient {
   private apiService = inject(ApiService);
 
   /** Consumed by PM-40222. */
   previewPremiumPurchase = async (
     request: PremiumPurchasePreviewRequest,
-  ): Promise<CartPreviewResponse> => {
+  ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
       "/account/billing/subscriptions/premium/invoice/preview",
@@ -64,13 +67,13 @@ export class CartPreviewClient {
       true,
     );
 
-    return new CartPreviewResponse(json);
+    return new InvoicePreviewResponse(json);
   };
 
   /** Consumed by PM-40223. */
   previewPremiumOrgUpgrade = async (
     request: PremiumOrgUpgradePreviewRequest,
-  ): Promise<CartPreviewResponse> => {
+  ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
       "/account/billing/subscriptions/premium/upgrade/invoice/preview",
@@ -79,13 +82,13 @@ export class CartPreviewClient {
       true,
     );
 
-    return new CartPreviewResponse(json);
+    return new InvoicePreviewResponse(json);
   };
 
   /** Shared route, consumed by PM-40222 (personal checkout) and PM-40231 (organization checkout). */
   previewOrganizationPurchase = async (
     request: OrganizationPurchasePreviewRequest,
-  ): Promise<CartPreviewResponse> => {
+  ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
       "/account/billing/subscriptions/organizations/invoice/preview",
@@ -94,14 +97,14 @@ export class CartPreviewClient {
       true,
     );
 
-    return new CartPreviewResponse(json);
+    return new InvoicePreviewResponse(json);
   };
 
   /** Consumed by PM-40224. */
   previewOrganizationPlanChange = async (
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
-  ): Promise<CartPreviewResponse> => {
+  ): Promise<InvoicePreviewResponse> => {
     const json = await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/subscription/plan-change/invoice/preview`,
@@ -110,6 +113,6 @@ export class CartPreviewClient {
       true,
     );
 
-    return new CartPreviewResponse(json);
+    return new InvoicePreviewResponse(json);
   };
 }

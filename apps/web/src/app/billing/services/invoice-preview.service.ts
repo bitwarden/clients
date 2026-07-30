@@ -1,15 +1,15 @@
 import { inject, Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { adaptCartPreviewToCart, Cart, CartPreviewFlowContext } from "@bitwarden/pricing";
+import { adaptInvoicePreviewToCart, Cart, InvoicePreviewFlowContext } from "@bitwarden/pricing";
 
 import {
-  CartPreviewClient,
+  InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
   PremiumOrgUpgradePreviewRequest,
   PremiumPurchasePreviewRequest,
-} from "../clients/cart-preview.client";
+} from "../clients/invoice-preview.client";
 
 /**
  * The only entry point flag-ON screens use for cart previews. Each method bakes the flow context
@@ -18,16 +18,16 @@ import {
  * Returns a render-ready `Cart` that binds straight to `<billing-cart-summary>`.
  */
 @Injectable({ providedIn: "root" })
-export class CartPreviewService {
-  private cartPreviewClient = inject(CartPreviewClient);
+export class InvoicePreviewService {
+  private invoicePreviewClient = inject(InvoicePreviewClient);
   private logService = inject(LogService);
 
   previewPremiumPurchaseCart = async (request: PremiumPurchasePreviewRequest): Promise<Cart> => {
-    const preview = await this.cartPreviewClient.previewPremiumPurchase(request);
+    const preview = await this.invoicePreviewClient.previewPremiumPurchase(request);
 
-    return adaptCartPreviewToCart(
+    return adaptInvoicePreviewToCart(
       preview,
-      CartPreviewFlowContext.PersonalCheckout,
+      InvoicePreviewFlowContext.PersonalCheckout,
       this.logService,
     );
   };
@@ -35,11 +35,11 @@ export class CartPreviewService {
   previewFamiliesPurchaseCart = async (
     request: OrganizationPurchasePreviewRequest,
   ): Promise<Cart> => {
-    const preview = await this.cartPreviewClient.previewOrganizationPurchase(request);
+    const preview = await this.invoicePreviewClient.previewOrganizationPurchase(request);
 
-    return adaptCartPreviewToCart(
+    return adaptInvoicePreviewToCart(
       preview,
-      CartPreviewFlowContext.PersonalCheckout,
+      InvoicePreviewFlowContext.PersonalCheckout,
       this.logService,
     );
   };
@@ -47,11 +47,11 @@ export class CartPreviewService {
   previewPremiumOrgUpgradeCart = async (
     request: PremiumOrgUpgradePreviewRequest,
   ): Promise<Cart> => {
-    const preview = await this.cartPreviewClient.previewPremiumOrgUpgrade(request);
+    const preview = await this.invoicePreviewClient.previewPremiumOrgUpgrade(request);
 
-    return adaptCartPreviewToCart(
+    return adaptInvoicePreviewToCart(
       preview,
-      CartPreviewFlowContext.PremiumOrgUpgrade,
+      InvoicePreviewFlowContext.PremiumOrgUpgrade,
       this.logService,
     );
   };
@@ -62,11 +62,11 @@ export class CartPreviewService {
   previewOrganizationCheckoutCart = async (
     request: OrganizationPurchasePreviewRequest,
   ): Promise<Cart> => {
-    const preview = await this.cartPreviewClient.previewOrganizationPurchase(request);
+    const preview = await this.invoicePreviewClient.previewOrganizationPurchase(request);
 
-    return adaptCartPreviewToCart(
+    return adaptInvoicePreviewToCart(
       preview,
-      CartPreviewFlowContext.OrganizationCheckout,
+      InvoicePreviewFlowContext.OrganizationCheckout,
       this.logService,
     );
   };
@@ -75,14 +75,14 @@ export class CartPreviewService {
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
   ): Promise<Cart> => {
-    const preview = await this.cartPreviewClient.previewOrganizationPlanChange(
+    const preview = await this.invoicePreviewClient.previewOrganizationPlanChange(
       organizationId,
       request,
     );
 
-    return adaptCartPreviewToCart(
+    return adaptInvoicePreviewToCart(
       preview,
-      CartPreviewFlowContext.OrganizationPlanChange,
+      InvoicePreviewFlowContext.OrganizationPlanChange,
       this.logService,
     );
   };

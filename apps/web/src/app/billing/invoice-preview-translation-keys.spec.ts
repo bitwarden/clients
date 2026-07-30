@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
-  CartPreviewFlowContext,
+  InvoicePreviewFlowContext,
   getCartItemTranslationKey,
   getCreditTranslationKey,
   PlanTier,
@@ -32,7 +32,7 @@ describe("cart preview translation keys", () => {
     "sm-service-account",
   ];
 
-  const lineItemKeys = Object.values(CartPreviewFlowContext).flatMap((flowContext) =>
+  const lineItemKeys = Object.values(InvoicePreviewFlowContext).flatMap((flowContext) =>
     allTiers.flatMap((planTier) =>
       allReferences.map((reference) =>
         getCartItemTranslationKey(reference, planTier, flowContext, logService),
@@ -40,7 +40,7 @@ describe("cart preview translation keys", () => {
     ),
   );
 
-  const creditKeys = Object.values(CartPreviewFlowContext).map((flowContext) =>
+  const creditKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
     getCreditTranslationKey(flowContext),
   );
 

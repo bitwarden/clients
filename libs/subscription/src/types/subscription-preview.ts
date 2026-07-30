@@ -9,12 +9,12 @@ import { Storage } from "./storage";
  * Two deliberate differences from `BitwardenSubscription`:
  * - `storage` is optional, because the server returns no storage for subscribers without a
  *   maximum storage allowance.
- * - There is no `nextCharge`; the billing-period boundary lives on `CartPreview.nextPaymentAttempt`.
+ * - There is no `nextCharge`; the billing-period boundary lives on `InvoicePreview.nextPaymentAttempt`.
  */
 
 type HasCart = {
   /**
-   * The render-ready cart. The facade adapts the raw `CartPreview` before constructing this type,
+   * The render-ready cart. The facade adapts the raw `InvoicePreview` before constructing this type,
    * so components receive data they can bind straight to `<billing-cart-summary>`.
    */
   cart: Cart;

@@ -6,7 +6,7 @@
  * plan price" during organization checkout. Each facade method bakes its own flow context so
  * components never have to pass one.
  */
-export const CartPreviewFlowContext = Object.freeze({
+export const InvoicePreviewFlowContext = Object.freeze({
   PremiumSubscriptionPage: "premium-subscription-page",
   PersonalCheckout: "personal-checkout",
   PremiumOrgUpgrade: "premium-org-upgrade",
@@ -15,5 +15,5 @@ export const CartPreviewFlowContext = Object.freeze({
   OrganizationSubscriptionPage: "organization-subscription-page",
 } as const);
 
-export type CartPreviewFlowContext =
-  (typeof CartPreviewFlowContext)[keyof typeof CartPreviewFlowContext];
+export type InvoicePreviewFlowContext =
+  (typeof InvoicePreviewFlowContext)[keyof typeof InvoicePreviewFlowContext];

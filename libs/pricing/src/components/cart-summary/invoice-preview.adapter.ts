@@ -1,27 +1,31 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { Cart, CartItem } from "../../types/cart";
-import { CartPreview, CartPreviewItem, PurchasableProration } from "../../types/cart-preview";
+import {
+  InvoicePreview,
+  InvoicePreviewItem,
+  PurchasableProration,
+} from "../../types/invoice-preview";
 
-import { CartPreviewFlowContext } from "./cart-preview-flow-context";
+import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 import { getCartItemTranslationKey, getCreditTranslationKey } from "./translation";
 
 /**
- * Converts the server's `CartPreview` wire model into the render-ready `Cart` view model consumed
+ * Converts the server's `InvoicePreview` wire model into the render-ready `Cart` view model consumed
  * by `<billing-cart-summary>`.
  *
  * Pure by design — no DI, no side effects beyond logging — so it is unit-testable in isolation and
  * has exactly one caller per facade method. Server-supplied amounts are authoritative throughout;
  * this adapter reshapes and relabels but never recomputes pricing.
  */
-export const adaptCartPreviewToCart = (
-  preview: CartPreview,
-  flowContext: CartPreviewFlowContext,
+export const adaptInvoicePreviewToCart = (
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
   logService: LogService,
 ): Cart => {
   const { passwordManager, secretsManager, planTier } = preview;
 
-  const toCartItem = (item: CartPreviewItem, hideBreakdown: boolean = false): CartItem => ({
+  const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
     translationKey: getCartItemTranslationKey(item.reference, planTier, flowContext, logService),
     quantity: item.quantity,
     cost: item.cost,
@@ -83,8 +87,8 @@ const hasProrations = (prorations: PurchasableProration[] | undefined): boolean 
  * flow context actually renders credit — only two surfaces do.
  */
 const buildCreditRow = (
-  preview: CartPreview,
-  flowContext: CartPreviewFlowContext,
+  preview: InvoicePreview,
+  flowContext: InvoicePreviewFlowContext,
 ): Cart["credit"] => {
   const translationKey = getCreditTranslationKey(flowContext);
   if (!translationKey) {
