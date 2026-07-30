@@ -6,9 +6,13 @@
   dialogSize="large"
 >
   <span bitDialogTitle>
-    {{ "assignCollectionAccess" | i18n }}
+    {{ "assignCollectionAccess" | vfo1I18n: "assignSharedFolderAccess" }}
     <span class="tw-text-sm tw-normal-case tw-text-muted">
-      {{ numCollections }} {{ (numCollections == 1 ? "collection" : "collections") | i18n }}
+      {{ numCollections }}
+      {{
+        (numCollections == 1 ? "collection" : "collections")
+          | vfo1I18n: (numCollections == 1 ? "sharedFolder" : "sharedFolders")
+      }}
     </span>
   </span>
 

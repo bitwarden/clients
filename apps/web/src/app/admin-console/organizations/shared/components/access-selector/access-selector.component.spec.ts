@@ -50,7 +50,10 @@ describe("AccessSelectorComponent", () => {
     TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
       providers: [
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => false, iconClass: (icon: string) => icon },
+        },
       ],
     }).compileComponents();
   });

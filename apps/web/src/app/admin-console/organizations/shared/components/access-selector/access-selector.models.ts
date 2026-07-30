@@ -81,6 +81,26 @@ export type AccessItemValue = {
 export type Permission = {
   perm: CollectionPermission;
   labelId: string;
+  /**
+   * VFO1 terminology feature flag variant of `labelId`. Falls back to `labelId` when not set.
+   */
+  vfo1LabelId?: string;
+};
+
+/**
+ * Resolves the i18n label id to display for `permission`, honoring the VFO1 terminology
+ * feature flag. Falls back to the legacy `labelId` when the permission has no `vfo1LabelId`
+ * or `vfo1Enabled` is false. All consumers of `getPermissionList()` should render labels
+ * through this helper so they stay consistent with each other.
+ */
+export const permissionLabelId = (
+  permission: Permission | undefined,
+  vfo1Enabled: boolean,
+): string | undefined => {
+  if (permission == null) {
+    return undefined;
+  }
+  return vfo1Enabled ? (permission.vfo1LabelId ?? permission.labelId) : permission.labelId;
 };
 
 export const getPermissionList = (): Permission[] => {
@@ -89,7 +109,9 @@ export const getPermissionList = (): Permission[] => {
     { perm: CollectionPermission.View, labelId: "viewItems" },
     { perm: CollectionPermission.EditExceptPass, labelId: "editItemsHidePass" },
     { perm: CollectionPermission.Edit, labelId: "editItems" },
-    { perm: CollectionPermission.Manage, labelId: "manageCollection" },
+    // "manageCollection" is shortened to "manage" rather than following the usual
+    // collection -> shared folder renaming pattern.
+    { perm: CollectionPermission.Manage, labelId: "manageCollection", vfo1LabelId: "manage" },
   ];
 
   return permissions;

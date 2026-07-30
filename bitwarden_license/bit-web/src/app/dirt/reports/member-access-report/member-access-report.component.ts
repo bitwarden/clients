@@ -29,6 +29,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import {
   CoreOrganizationModule,
@@ -71,6 +72,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
         CipherService,
         LogService,
         GroupApiService,
+        Vfo1TerminologyService,
       ],
     }),
   ],
