@@ -39,6 +39,13 @@ export class WebRegistrationFinishService
     super(keyService, accountApiService, masterPasswordService, configService, sdkService);
   }
 
+  // TODO: delete this method + inline `OrganizationInviteService` usage in
+  // `RegistrationFinishComponent`. Required DI landscape change:
+  // (1) create a no-op `OrganizationInviteService` implementation in libs/angular and
+  //     register it in `jslib-services.module.ts`, replacing the current global binding
+  //     to `DefaultOrganizationInviteService`;
+  // (2) register `DefaultOrganizationInviteService` in web's core module only.
+  // Applies equally to `getMasterPasswordPolicyOptsFromOrgInvite` below.
   override async getOrgNameFromOrgInvite(): Promise<string | null> {
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite == null) {
@@ -48,13 +55,9 @@ export class WebRegistrationFinishService
     return orgInvite.organizationName;
   }
 
-  // TODO: when invite acceptance becomes cross-client (the upcoming extension work),
-  // drop `getMasterPasswordPolicyOptsFromOrgInvite` from `RegistrationFinishService` entirely.
-  // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` (introduced
-  // for PM-35783) is cross-platform and produces the same result, so the registration-finish
-  // component can do the stash-read + projection inline against the org-invite service. The
-  // service contract method here exists only to abstract "MP requirements come from invite vs.
-  // nowhere," which collapses once every client supports invite registration.
+  // TODO: delete this method too — see the plan on `getOrgNameFromOrgInvite` above.
+  // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` is
+  // already cross-platform, so the component can do this read inline.
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
     // If there's a deep linked org invite, use it to get the password policies
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
