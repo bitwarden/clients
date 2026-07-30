@@ -39,11 +39,13 @@
             <div
               class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
               [class.tw-pt-3]="!isOverlay"
-              [class.tw-pt-[calc(0.75rem_+_var(--bit-sidenav-extra-top-padding,_0px))]]="isOverlay"
               [class.tw-flex-col]="!sideNavService.open()"
               [class.tw-gap-1]="!sideNavService.open()"
               [class.tw-gap-2]="sideNavService.open()"
               [class.tw-pe-3]="sideNavService.open()"
+              [style.padding-top]="
+                isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
+              "
             >
               <ng-container *ngTemplateOutlet="logoContent"></ng-container>
               <button
