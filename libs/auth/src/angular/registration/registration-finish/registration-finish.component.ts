@@ -153,76 +153,72 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     const qParams = await firstValueFrom(this.activatedRoute.queryParams);
     this.handleQueryParams(qParams);
 
-    // Open-invite registration-crossing: unseal + status-hydrate + persist to invite
-    // state so the standard org-invite branch below sees the hydrated invite (needed
-    // for `joinOrganizationName` title + MP-policy compliance during password setting).
-    // Runs before the other branches so the sealed-data variant doesn't fall through
-    // to the plain email-verification path (which would leave state empty and skip MP
-    // policy enforcement).
-    if (this.sealedOpenOrgInviteData != null && this.email) {
-      const handoffOk = await this.handleOpenOrgInviteHandoff(
-        this.email,
-        this.sealedOpenOrgInviteData,
-      );
-      // Drop the sealed blob from the URL regardless of outcome; the sealed-secret is
-      // single-use, and a lingering blob on refresh would just re-fail against a cleared secret.
-      await this.stripSealedOpenOrgInviteDataFromUrl();
-      if (!handoffOk) {
-        // Handoff already transitioned `viewState` to the failure kind that renders the
-        // appropriate error block; no further work here.
-        return;
-      }
+    // Precondition: hydrate open-invite state from the sealed URL blob before dispatch.
+    // Runs first so a sealed-data variant doesn't fall through to the plain email-verification
+    // path (which would leave invite state empty and skip MP policy enforcement). On failure,
+    // a classified error UI is already rendered — bail.
+    if (!(await this.tryHydrateOpenInviteFromSealedData())) {
+      return;
     }
 
-    if (this.unsealedOpenOrgInvite != null) {
-      // Open-invite path: use the org-invite branch for title + MP-policy fetch (invite
-      // is now in state). Still fire the verification-click endpoint since the user
-      // reached this component through the verification email (fromEmail=true).
-      await this.initOrgInviteFlowIfPresent();
-      if (qParams.fromEmail === "true" && this.email && this.emailVerificationToken) {
-        await this.registerVerificationEmailClicked(this.email, this.emailVerificationToken);
-      }
-    } else if (
-      qParams.fromEmail &&
-      qParams.fromEmail === "true" &&
-      this.email &&
-      this.emailVerificationToken
-    ) {
-      await this.initEmailVerificationFlow();
-    } else {
-      // Direct-invite-in-state flow OR registration with email verification disabled flow
-      const orgInviteFlow = await this.initOrgInviteFlowIfPresent();
+    // Dispatch: prefer an invite in state (direct or open — `initOrgInviteFlowIfPresent`
+    // reads whichever kind is stashed). Otherwise fall through to the qParams-driven
+    // email-verification vs. no-verification paths.
+    const invitePresent = await this.initOrgInviteFlowIfPresent();
+    const fromEmailLink = this.arrivedViaEmailVerificationLink(qParams);
 
-      if (!orgInviteFlow) {
-        this.initRegistrationWithEmailVerificationDisabledFlow();
-      }
+    if (!invitePresent && fromEmailLink) {
+      await this.initEmailVerificationFlow();
+    } else if (!invitePresent) {
+      this.initRegistrationWithEmailVerificationDisabledFlow();
+    } else if (fromEmailLink) {
+      // Invite path + came-from-email link: also ping the verification-click endpoint
+      // so the server marks the email verified. The invite-flow branch itself doesn't
+      // fire this.
+      await this.registerVerificationEmailClicked(this.email, this.emailVerificationToken);
     }
 
     this.viewState.set(RegistrationFinishViewState.RegistrationFinishForm);
   }
 
   /**
-   * Orchestrates the open-invite registration crossing:
-   *   1. Unseal the URL triple from the sealed blob (crypto-only).
+   * True when the current render is the aftermath of the user opening a
+   * registration-verification email link (URL carries `fromEmail=true` alongside `email`
+   * and `token`).
+   */
+  private arrivedViaEmailVerificationLink(qParams: Params): boolean {
+    return qParams.fromEmail === "true" && !!this.email && !!this.emailVerificationToken;
+  }
+
+  /**
+   * Orchestrates the open-invite registration crossing when the URL carries a sealed
+   * open org invite blob:
+   *   1. Unseal the URL link data from the sealed blob (crypto-only).
    *   2. Freshen the invite via the anonymous status endpoint.
-   *   3. On success, persist the hydrated `OpenOrganizationInvite` to invite state.
+   *   3. On success, persist the hydrated `OpenOrganizationInvite` to invite state so
+   *      the subsequent org-invite dispatch reads the hydrated state.
    *   4. On any classified failure, set the matching template signal so the form is
    *      swapped out for an inline error block.
    *
-   * The single-use sealed-secret entry is invalidated on every branch so a refresh or
-   * back-nav cannot re-fire the crossing against a stale secret.
+   * Both single-use inputs (the sealed secret in state and the sealed URL blob) are
+   * invalidated before any error return so a refresh or back-nav can't retry.
    *
-   * @returns `true` when state now holds a hydrated invite the rest of `ngOnInit` can
-   *   consume; `false` when a failure UI has been rendered and the caller should
-   *   short-circuit.
+   * @returns `true` when the caller should continue (nothing to hydrate, or hydration
+   *   succeeded); `false` when a classified failure UI has been rendered and the caller
+   *   must short-circuit.
    */
-  private async handleOpenOrgInviteHandoff(email: string, sealedData: string): Promise<boolean> {
+  private async tryHydrateOpenInviteFromSealedData(): Promise<boolean> {
+    if (this.sealedOpenOrgInviteData == null || !this.email) {
+      return true;
+    }
+
     const unsealResult = await this.organizationInviteService.unsealOpenOrgInvite(
-      email,
-      sealedData,
+      this.email,
+      this.sealedOpenOrgInviteData,
     );
-    // Single-use — invalidate before any early return so refresh/back-nav can't retry.
-    await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
+    // Both single-use — invalidate before any early return so refresh/back-nav can't retry.
+    await this.organizationInviteService.clearSealedOpenOrgInviteSecret(this.email);
+    await this.stripSealedOpenOrgInviteDataFromUrl();
 
     if (unsealResult.kind !== "ok") {
       this.logUnsealFailure(unsealResult);
