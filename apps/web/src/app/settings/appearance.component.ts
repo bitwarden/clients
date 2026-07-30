@@ -10,7 +10,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { PermitCipherDetailsPopoverComponent, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
@@ -28,7 +32,12 @@ type ThemeOption = {
 @Component({
   selector: "app-appearance",
   templateUrl: "appearance.component.html",
-  imports: [SharedModule, HeaderModule, PermitCipherDetailsPopoverComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    PermitCipherDetailsPopoverComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppearanceComponent implements OnInit {

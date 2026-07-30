@@ -45,10 +45,15 @@
     </div>
 
     @if (showQuickCopyActionsSetting()) {
-      <bit-form-control>
-        <input type="checkbox" bitCheckbox formControlName="showQuickCopyActions" />
-        <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
-      </bit-form-control>
+      <div class="tw-flex tw-items-start tw-gap-1.5">
+        <bit-form-control>
+          <input type="checkbox" bitCheckbox formControlName="showQuickCopyActions" />
+          <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
+        </bit-form-control>
+        <div class="-tw-mt-0.5">
+          <show-quick-copy-actions-details-popover></show-quick-copy-actions-details-popover>
+        </div>
+      </div>
     }
   </form>
 </bit-container>
