@@ -3709,6 +3709,39 @@ describe("OverlayBackground", () => {
         );
       });
 
+      it("does not record last-used (reorder the ciphers map) when no fill occurs", async () => {
+        const cipher1 = mock<CipherView>({ id: "inline-menu-cipher-1" });
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        const cipher3 = mock<CipherView>({ id: "inline-menu-cipher-3" });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["inline-menu-cipher-1", cipher1],
+          ["inline-menu-cipher-2", cipher2],
+          ["inline-menu-cipher-3", cipher3],
+        ]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        // The fill was attempted, but a no-fill must not mark the cipher last-used, so order is kept.
+        expect(autofillService.doAutoFill).toHaveBeenCalled();
+        expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
+          new Map([
+            ["inline-menu-cipher-1", cipher1],
+            ["inline-menu-cipher-2", cipher2],
+            ["inline-menu-cipher-3", cipher3],
+          ]).entries(),
+        );
+      });
+
       it("copies the cipher's totp code to the clipboard after filling", async () => {
         const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);

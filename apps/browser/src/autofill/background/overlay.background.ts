@@ -1477,7 +1477,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    if (result.didAutofill && result.totp) {
+    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
+    if (!result.didAutofill) {
+      return;
+    }
+
+    if (result.totp) {
       this.platformUtilsService.copyToClipboard(result.totp);
     }
 
