@@ -1809,17 +1809,8 @@
   "syncNow": {
     "message": "Sync now"
   },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
   "changeMasterPassword": {
     "message": "Change master password"
-  },
-  "continueToWebApp": {
-    "message": "Continue to web app?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",

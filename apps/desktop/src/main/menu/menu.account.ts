@@ -38,8 +38,6 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
-  // TODO: PM-32419 - remove once multi client password management is fully rolled out
-  private readonly _multiClientPasswordManagement: boolean;
   // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
   private readonly _desktopAddDevices: boolean;
 
@@ -50,7 +48,6 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
-    multiClientPasswordManagement: boolean = false,
     private shell: SafeShell,
     desktopAddDevices: boolean = false,
   ) {
@@ -60,8 +57,6 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
-    // TODO: PM-32419 - remove once multi client password management is fully rolled out
-    this._multiClientPasswordManagement = multiClientPasswordManagement;
     // TODO: PM-34438 - remove this assignment
     this._desktopAddDevices = desktopAddDevices;
   }
@@ -77,34 +72,10 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   private get changeMasterPassword(): MenuItemConstructorOptions {
-    // TODO: PM-32419 - remove feature flag check once fully rolled out
-    if (this._multiClientPasswordManagement) {
-      return {
-        // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
-        label: this.localize("changeMasterPassword"),
-        id: "changeMasterPassword",
-        click: () => this.sendMessage("openChangePasswordDialog"),
-        enabled: !this._isLocked,
-      };
-    }
-    // TODO: PM-32419 - remove old change password menu item once multi client password management is fully rolled out
     return {
-      label: this.localize("changeMasterPass"),
-      id: "changeMasterPass",
-      click: async () => {
-        const result = await dialog.showMessageBox(this._window, {
-          title: this.localize("continueToWebApp"),
-          message: this.localize("continueToWebApp"),
-          detail: this.localize("changeMasterPasswordOnWebConfirmation"),
-          buttons: [this.localize("continue"), this.localize("cancel")],
-          cancelId: 1,
-          defaultId: 0,
-          noLink: true,
-        });
-        if (result.response === 0) {
-          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
-        }
-      },
+      label: this.localize("changeMasterPassword"),
+      id: "changeMasterPassword",
+      click: () => this.sendMessage("openChangePasswordDialog"),
       enabled: !this._isLocked,
     };
   }
