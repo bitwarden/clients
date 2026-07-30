@@ -225,15 +225,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   // Explicit request: only refresh the latch when a fresh walk will actually consume it —
-  // i.e. the cache is "no fields" or hosts are unresolved. A populated cache is served without
-  // a walk, so refreshing then would pay an O(document) shadow-root scan for an unused latch
-  // (and on shadow-free pages the latch never flips, so that scan runs on every such call).
+  // i.e. no fields are cached, or a host is unresolved and awaiting its shadow root. Note we
+  // deliberately do NOT gate on hostsAwaitingDefinition: on framework pages every unregistered
+  // component selector (<app-root>, <mat-form-field>, …) is a valid-but-:not(:defined)
+  // custom-element name, so it parks permanently and would otherwise keep this gate — and its
+  // O(document) shadow scan, plus a discarded field cache — firing on every fill. Real late
+  // hydration still lands: once a parked host is `define`d it flips `:defined`, the retry sweep
+  // (enrollUpgradedParkedHosts) promotes it into unresolvedShadowHosts, and this gate catches it
+  // there.
   prepareForExplicitCollection = () => {
-    if (
-      this.noFieldsFound ||
-      this.unresolvedShadowHosts.size > 0 ||
-      this.hostsAwaitingDefinition.size > 0
-    ) {
+    if (this.noFieldsFound || this.unresolvedShadowHosts.size > 0) {
       this.domQueryService.refreshShadowDomStateForUserRequest();
       this.noFieldsFound = false;
       this.domRecentlyMutated = true;

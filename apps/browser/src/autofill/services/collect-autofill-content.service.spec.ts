@@ -3532,6 +3532,28 @@ describe("CollectAutofillContentService", () => {
         expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
       });
 
+      it("keeps serving the populated cache when only hosts are awaiting definition", () => {
+        // Steady state on framework pages: every unregistered component selector (<app-root>,
+        // <mat-form-field>, …) parks in hostsAwaitingDefinition permanently. That must NOT force
+        // the O(document) refresh (or discard the field cache) on the fill path — real late
+        // hydration is picked up when a parked host flips :defined and is promoted into
+        // unresolvedShadowHosts, which is the arm that still gates.
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["hostsAwaitingDefinition"].set(
+          "app-root",
+          new Set([document.createElement("app-root")]),
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+
+        collectAutofillContentService["hostsAwaitingDefinition"].clear();
+      });
+
       it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
         collectAutofillContentService["noFieldsFound"] = false;
         collectAutofillContentService["domRecentlyMutated"] = false;
