@@ -1065,7 +1065,7 @@ export class EventService {
   private formatCipherId(ev: EventResponse, options: EventOptions) {
     const shortId = this.getShortId(ev.cipherId);
     if (ev.organizationId == null || !options.cipherInfo) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
@@ -1216,7 +1216,9 @@ export class EventService {
   private makeAnchor(shortId: string) {
     const a = document.createElement("a");
     a.title = this.i18nService.t("view");
-    a.innerHTML = "<code>" + shortId + "</code>";
+    const code = document.createElement("code");
+    code.textContent = shortId;
+    a.appendChild(code);
     return a;
   }
 
@@ -1242,7 +1244,7 @@ export class EventService {
     const shortId = this.getShortId(ev.userId);
     // Render plain text (no link) when the creator is not a member we can open events for
     if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.title = this.i18nService.t("viewMemberEvents", shortId);
