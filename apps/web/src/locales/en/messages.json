@@ -11976,7 +11976,7 @@
     "message": "Assign collection access"
   },
   "assignSharedFolderAccess": {
-    "message": "Assign shared folder access",
+    "message": "Assign access",
     "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
   },
   "editedCollections": {
