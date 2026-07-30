@@ -54,11 +54,9 @@ import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import { autotypeMvpOrGaEnabled$ } from "../../autofill/services/autotype-feature-flags";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import {
-  autotypeMvpOrGaEnabled$,
-  DesktopAutotypeService,
-} from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";

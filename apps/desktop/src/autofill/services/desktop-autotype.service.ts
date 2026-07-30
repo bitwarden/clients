@@ -18,7 +18,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -36,6 +35,7 @@ import { AutotypeState } from "../models/autotype-state";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
+import { autotypeFeatureFlags$ } from "./autotype-feature-flags";
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 // Holds the stored user setting if Autotype is enabled or not. Possible values:
@@ -332,35 +332,6 @@ export class DesktopAutotypeService implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-}
-
-// Combines the MVP and GA feature flags into a single observable so the feature flags
-// are only subscribed to in one location.
-//
-// `autotypeState$` and `autotypeMvpOrGaEnabled$` both consume this.
-function autotypeFeatureFlags$(configService: ConfigService): Observable<[boolean, boolean]> {
-  return combineLatest([
-    configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype), // mvp
-    configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA), // ga
-  ]);
-}
-
-/**
- * Emits true when either the MVP or GA Autotype implementation is feature-flagged on,
- * independent of user setting, premium status, or lock state. Consumers that only care
- * "is some Autotype implementation available" (Settings UI visibility, the org
- * default-enable policy) should use this instead of checking a single flag directly --
- * `DesktopAutotypeService.autotypeState$` is the only place that needs the two flags
- * individually, to decide MVP-vs-GA precedence.
- */
-export function autotypeMvpOrGaEnabled$(configService: ConfigService): Observable<boolean> {
-  return autotypeFeatureFlags$(configService).pipe(
-    map(([mvpEnabled, gaEnabled]) => mvpEnabled || gaEnabled),
-    // Consumers feed this into a switchMap chain or a signal.set(), so suppressing
-    // no-op re-emissions avoids restarting downstream subscriptions or triggering
-    // unnecessary change detection.
-    distinctUntilChanged(),
-  );
 }
 
 /**

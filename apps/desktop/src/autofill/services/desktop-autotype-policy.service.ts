@@ -10,7 +10,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { autotypeMvpOrGaEnabled$ } from "./desktop-autotype.service";
+import { autotypeMvpOrGaEnabled$ } from "./autotype-feature-flags";
 
 @Injectable({ providedIn: "root" })
 export class DesktopAutotypeDefaultSettingPolicy {

@@ -17,11 +17,7 @@ import { LogService } from "@bitwarden/logging";
 import { AutotypeState } from "../models/autotype-state";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import {
-  autotypeMvpOrGaEnabled$,
-  DesktopAutotypeService,
-  getAutotypeVaultData,
-} from "./desktop-autotype.service";
+import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
 
 describe("DesktopAutotypeService", () => {
   let service: DesktopAutotypeService;
@@ -437,61 +433,6 @@ describe("DesktopAutotypeService", () => {
       const state = await firstValueFrom(service["autotypeState$"]);
 
       expect(state).toBe(AutotypeState.Disabled);
-    });
-  });
-
-  describe("autotypeMvpOrGaEnabled$", () => {
-    it("emits false when neither flag is enabled", async () => {
-      mvpFeatureFlagSubject.next(false);
-      gaFeatureFlagSubject.next(false);
-
-      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
-
-      expect(result).toBe(false);
-    });
-
-    it("emits true when only the MVP flag is enabled", async () => {
-      mvpFeatureFlagSubject.next(true);
-      gaFeatureFlagSubject.next(false);
-
-      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
-
-      expect(result).toBe(true);
-    });
-
-    it("emits true when only the GA flag is enabled", async () => {
-      mvpFeatureFlagSubject.next(false);
-      gaFeatureFlagSubject.next(true);
-
-      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
-
-      expect(result).toBe(true);
-    });
-
-    it("emits true when both flags are enabled", async () => {
-      mvpFeatureFlagSubject.next(true);
-      gaFeatureFlagSubject.next(true);
-
-      const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
-
-      expect(result).toBe(true);
-    });
-
-    it("does not re-emit when the resolved value is unchanged", () => {
-      mvpFeatureFlagSubject.next(false);
-      gaFeatureFlagSubject.next(false);
-
-      const emissions: boolean[] = [];
-      const subscription = autotypeMvpOrGaEnabled$(mockConfigService).subscribe((value) =>
-        emissions.push(value),
-      );
-
-      mvpFeatureFlagSubject.next(true); // false -> true: a real change
-      gaFeatureFlagSubject.next(true); // true || true is still true: no new emission
-
-      subscription.unsubscribe();
-
-      expect(emissions).toEqual([false, true]);
     });
   });
 
