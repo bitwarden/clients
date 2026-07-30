@@ -80,7 +80,9 @@ describe("SendOptionsComponent", () => {
         notes: "My private note",
       } as SendView);
       cycleChangeDetection();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       expect(maxAccessCountEl.attributes.readonly).toEqual("");
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
@@ -90,6 +92,24 @@ describe("SendOptionsComponent", () => {
       expect(privateNoteEl).toBeTruthy();
       expect(privateNoteEl.attributes.readonly).toEqual("");
     });
+  });
+
+  describe("maxAccessCount serialization", () => {
+    // Regression: editing a send whose maxAccessCount is unset must patch null, not NaN.
+    // An undefined patch value used to flow through Number(undefined) === NaN and the SDK
+    // rejected it ("invalid type: floating point `NaN`, expected u32").
+    it.each([null, undefined])(
+      "patches null when the original maxAccessCount is %s",
+      (maxAccessCount) => {
+        mockSendFormService.patchSend.mockClear();
+        mockSendFormService.originalSendView.mockReturnValue({ maxAccessCount } as SendView);
+        cycleChangeDetection();
+
+        expect(mockSendFormService.patchSend).toHaveBeenCalled();
+        const updateFn = mockSendFormService.patchSend.mock.calls.at(-1)![0];
+        expect(updateFn({} as SendView).maxAccessCount).toBeNull();
+      },
+    );
   });
 
   describe("Edit mode", () => {
@@ -106,7 +126,9 @@ describe("SendOptionsComponent", () => {
         sendType: SendType.Text,
       });
       fixture.detectChanges();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
       expect(hideEmailEl).toBeTruthy();

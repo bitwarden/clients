@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -16,6 +16,8 @@ import {
   IconTileComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 export const AddItemGridResult = Object.freeze({
   Cipher: "cipher",
@@ -42,6 +44,7 @@ type GridItem = {
   imports: [CommonModule, I18nPipe, IconTileComponent, IconComponent, ItemModule, TypographyModule],
 })
 export class AddItemGridComponent {
+  readonly canCreateCipher = input(true);
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
@@ -54,18 +57,20 @@ export class AddItemGridComponent {
 
   readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
-    const items: GridItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
-      if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
-        return false;
-      }
-      return !restrictedTypes.some((r) => r.cipherType === item.type);
-    }).map((item) => ({
-      icon: item.icon as BitwardenIcon,
-      labelKey: item.labelKey,
-      subtitleKey: item.subtitleKey,
-      action: () =>
-        this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
-    }));
+    const items: GridItem[] = this.canCreateCipher()
+      ? DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
+          if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
+            return false;
+          }
+          return !restrictedTypes.some((r) => r.cipherType === item.type);
+        }).map((item) => ({
+          icon: item.icon as BitwardenIcon,
+          labelKey: item.labelKey,
+          subtitleKey: item.subtitleKey,
+          action: () =>
+            this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
+        }))
+      : [];
 
     if (this.canCreateFolder()) {
       items.push({
@@ -78,7 +83,7 @@ export class AddItemGridComponent {
 
     if (this.canCreateCollection()) {
       items.push({
-        icon: "bwi-collection-shared",
+        icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
         labelKey: "collection",
         subtitleKey: "collectionSubtitle",
         action: () => this.itemSelected.emit({ result: AddItemGridResult.Collection }),
@@ -87,6 +92,8 @@ export class AddItemGridComponent {
 
     return items;
   });
+
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {}
 }

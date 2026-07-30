@@ -1,11 +1,12 @@
 // webmapper context-menu items, nested under the Bitwarden root menu and gated
-// by the same feature flag as autofill triage. IDs encode the action so a click
+// by the same dev flag as autofill triage. IDs encode the action so a click
 // routes without extra lookup. Plain-English titles match the triage menu's
-// convention — both are developer-facing tools behind EnableAutofillTriage.
+// convention — both are developer-facing tools behind the fillAssistDevTools
+// dev flag (dev builds only).
 
 import { ROOT_ID } from "@bitwarden/common/autofill/constants";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
+import { DevFlags } from "../../platform/flags";
 import { InitContextMenuItems } from "../browser/abstractions/main-context-menu-handler";
 
 import { ACTION_KEYS, FIELD_KEYS } from "./keys";
@@ -49,9 +50,9 @@ export function parseWebmapperMenuId(id: string): WebmapperMenuAction | null {
 
 /** The full webmapper menu tree, ready to append to the main context menu. */
 export function webmapperContextMenuItems(): InitContextMenuItems[] {
-  const requiresFeatureFlag = FeatureFlag.EnableAutofillTriage;
+  const requiresDevFlag: keyof DevFlags = "fillAssistDevTools";
   const items: InitContextMenuItems[] = [
-    { id: WEBMAPPER_ROOT_ID, parentId: ROOT_ID, title: "Webmapper", requiresFeatureFlag },
+    { id: WEBMAPPER_ROOT_ID, parentId: ROOT_ID, title: "Webmapper", requiresDevFlag },
   ];
 
   for (const [group, keys] of Object.entries(FIELD_KEYS)) {
@@ -60,14 +61,14 @@ export function webmapperContextMenuItems(): InitContextMenuItems[] {
       id: groupId,
       parentId: WEBMAPPER_ROOT_ID,
       title: `Field › ${group}`,
-      requiresFeatureFlag,
+      requiresDevFlag,
     });
     for (const key of keys) {
       items.push({
         id: `${FIELD_PREFIX}${key}`,
         parentId: groupId,
         title: key,
-        requiresFeatureFlag,
+        requiresDevFlag,
       });
     }
   }
@@ -76,14 +77,14 @@ export function webmapperContextMenuItems(): InitContextMenuItems[] {
     id: ACTION_GROUP_ID,
     parentId: WEBMAPPER_ROOT_ID,
     title: "Action",
-    requiresFeatureFlag,
+    requiresDevFlag,
   });
   for (const key of ACTION_KEYS) {
     items.push({
       id: `${ACTION_PREFIX}${key}`,
       parentId: ACTION_GROUP_ID,
       title: key,
-      requiresFeatureFlag,
+      requiresDevFlag,
     });
   }
 
@@ -91,13 +92,13 @@ export function webmapperContextMenuItems(): InitContextMenuItems[] {
     id: WEBMAPPER_CONTAINER_ID,
     parentId: WEBMAPPER_ROOT_ID,
     title: "Pick form container…",
-    requiresFeatureFlag,
+    requiresDevFlag,
   });
   items.push({
     id: WEBMAPPER_IRRELEVANT_ID,
     parentId: WEBMAPPER_ROOT_ID,
     title: "Toggle page irrelevant (null)",
-    requiresFeatureFlag,
+    requiresDevFlag,
   });
 
   return items;

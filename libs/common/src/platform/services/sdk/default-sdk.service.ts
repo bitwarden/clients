@@ -16,7 +16,6 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
-  debounceTime,
   filter,
 } from "rxjs";
 
@@ -200,8 +199,6 @@ export class DefaultSdkService implements SdkService {
       v2UpgradeToken$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
-      // Do not emit when multiple state values are written in quick succession
-      debounceTime(20),
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(
         ([

@@ -60,6 +60,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
 
@@ -218,6 +220,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private toastService: ToastService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
@@ -300,13 +303,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       const batchBarEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM37785_VaultBatchBar,
       );
-      const assignedMessage = batchBarEnabled
-        ? this.i18nService.t(
-            this.params.ciphers.length === 1
-              ? "itemAssignedToCollections"
-              : "itemsAssignedToCollections",
-          )
-        : this.i18nService.t("successfullyAssignedCollections");
+      const selectedCollectionsCount = this.formGroup.controls.collections.value.length;
+      const ciphersCount = this.params.ciphers.length;
+      let assignedMessageKey: string;
+
+      if (batchBarEnabled) {
+        assignedMessageKey = this.collectionAssignmentToastKey(
+          ciphersCount,
+          selectedCollectionsCount,
+        );
+      } else {
+        assignedMessageKey = "successfullyAssignedCollections";
+      }
+      const assignedMessage = this.i18nService.t(assignedMessageKey);
 
       this.toastService.showToast({
         variant: "success",
@@ -356,8 +365,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         );
       })
       .map((c) => ({
-        icon:
+        icon: this.vfo1TerminologyService.iconClass(
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+        ),
         id: c.id,
         labelName: c.name,
         listName: c.name,
@@ -370,7 +380,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection-shared",
+          icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -417,7 +427,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.editableItems = this.params.ciphers;
       this.editableItemCount = this.params.ciphers.length;
       this.personalItemsCount = this.params.ciphers.length;
-      this.editableItemCountChange.emit(this.editableItemCount);
+      // Using setTimeout to defer the call until the next event loop cycle
+      setTimeout(() => this.editableItemCountChange.emit(this.editableItemCount));
       return;
     }
 
@@ -462,8 +473,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon:
+          icon: this.vfo1TerminologyService.iconClass(
             c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+          ),
           id: c.id,
           labelName: c.name,
           listName: c.name,
@@ -505,6 +517,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     );
   }
 
+  private collectionAssignmentToastKey(ciphersCount: number, collectionsCount: number): string {
+    if (ciphersCount === 1) {
+      return collectionsCount === 1 ? "itemMovedToCollection" : "itemMovedToCollections";
+    }
+    return collectionsCount === 1 ? "itemsMovedToCollection" : "itemsMovedToCollections";
+  }
+
   private async moveToOrganization(
     organizationId: OrganizationId,
     shareableCiphers: CipherView[],
@@ -518,14 +537,28 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       userId,
     );
 
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t(
-        shareableCiphers.length === 1 ? "itemMovedToOrg" : "itemsMovedToOrg",
-        this.orgName ?? this.i18nService.t("organization"),
-      ),
-    });
+    const batchBarEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM37785_VaultBatchBar,
+    );
+
+    if (batchBarEnabled) {
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.collectionAssignmentToastKey(shareableCiphers.length, selectedCollectionIds.length),
+        ),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          shareableCiphers.length === 1 ? "itemMovedToOrg" : "itemsMovedToOrg",
+          this.orgName ?? this.i18nService.t("organization"),
+        ),
+      });
+    }
   }
 
   private async bulkUpdateCollections(cipherIds: CipherId[], userId: UserId) {

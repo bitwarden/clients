@@ -73,6 +73,7 @@ import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/v
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import {
   NewItemDropdownComponent,
   NewItemInitialValues,
@@ -96,6 +97,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
   templateUrl: "vault.component.html",
   imports: [
     BlockedInjectionBanner,
+    FillAssistActiveBannerComponent,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -212,6 +214,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
+
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected canCreateCipher$: Observable<boolean> =
+    this.vaultPopupItemsService.showDeactivatedOrg$.pipe(map((isDeactivated) => !isDeactivated));
 
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
@@ -345,7 +354,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.autoConfirmService.upsert(userId, newState);
+          await this.autoConfirmService.upsert(userId, newState);
+
+          if (result) {
+            await this.autoConfirmService.bulkAutoConfirmPendingUsers(userId);
+          }
         }),
         takeUntilDestroyed(this.destroyRef),
       )

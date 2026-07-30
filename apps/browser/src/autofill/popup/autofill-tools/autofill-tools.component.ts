@@ -14,7 +14,7 @@ type ToolsView = "triage" | "webmapper";
 
 /**
  * Shell for the complementary autofill authoring tools — Triage and Webmapper —
- * sharing one side-panel surface and the EnableAutofillTriage flag. Both views
+ * sharing one side-panel surface and the fillAssistDevTools dev flag. Both views
  * stay mounted and are toggled by visibility (not destroyed) so each keeps its
  * live state across switches. The initial view is chosen by the `view` query
  * param the opening context-menu item sets.

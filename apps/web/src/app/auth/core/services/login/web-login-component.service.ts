@@ -12,7 +12,7 @@ import {
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -31,6 +31,7 @@ import { RouterService } from "../../../../core/router.service";
  */
 const SsoRedirectErrorCode = Object.freeze({
   InviteAcceptanceRequired: "ssoOrgInviteAcceptanceRequired",
+  OrgMembershipRequired: "ssoOrgMembershipRequired",
   // Future: AccessRevoked: "ssoOrganizationAccessRevoked", etc.
 } as const);
 type SsoRedirectErrorCode = (typeof SsoRedirectErrorCode)[keyof typeof SsoRedirectErrorCode];
@@ -90,7 +91,19 @@ export class WebLoginComponentService
     }
 
     switch (params.error) {
-      case SsoRedirectErrorCode.InviteAcceptanceRequired: {
+      case SsoRedirectErrorCode.InviteAcceptanceRequired:
+      case SsoRedirectErrorCode.OrgMembershipRequired: {
+        // Both errorCodes resolve to the same client-side UX: try to match a
+        // stashed invite for the redirect organization; on match auto-progress to MP
+        // entry, on no-match surface a generic toast and stay on email entry.
+        //
+        // They're modeled as distinct lanes on the server because the server-side
+        // preconditions differ — InviteAcceptanceRequired means the user has an
+        // Invited OrganizationUser row, OrgMembershipRequired means they have no
+        // OrganizationUser row at all — but at this layer the rejection-to-recovery
+        // contract is identical, so we share the handler.
+
+        // TODO: PM-39706 - open org invite work will have to consider org invite kind.
         const orgInvite = await this.organizationInviteService.getOrganizationInvite();
         // Match on organizationId (stable) AND email (defensive). Org display names can
         // drift between when an invite is sent and when SSO is attempted; the id is the
@@ -112,8 +125,8 @@ export class WebLoginComponentService
           };
         }
 
-        // Case B: no matching stash — the redirect-back UI's invite-acceptance claim
-        // does not apply to this session, so warn the user and stay at email entry.
+        // Case B: no matching stash. Two reasons can land here: an unclicked direct
+        // invite (InviteAcceptanceRequired) or no invite at all (OrgMembershipRequired).
         this.toastService.showToast({
           variant: "warning",
           title: null,
@@ -151,7 +164,7 @@ export class WebLoginComponentService
       return undefined;
     }
 
-    const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
+    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
 
     if (policies == null) {
       return undefined;

@@ -40,9 +40,10 @@ import {
   elementIsSelectElement,
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
-  nodeIsAnchorElement,
-  nodeIsButtonElement,
-  nodeIsTypeSubmitElement,
+  isSubFramePositioningMessageData,
+  elementIsAnchorElement,
+  elementIsButtonElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
   throttle,
 } from "../utils";
@@ -52,7 +53,7 @@ import { getSubFrameUrlVariations } from "../utils/url-variations";
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+  SubFrameOffsetWindowMessageData,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
@@ -62,6 +63,7 @@ import {
   loginQualifiers,
   cardQualifiers,
   identityQualifiers,
+  targetedFormCategoryFillTypes,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -287,6 +289,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
 
   getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  isElementInlineMenu = (element: Element): boolean =>
+    this.inlineMenuContentService?.isElementInlineMenu(element as HTMLElement) ?? false;
 
   getUnownedTopLayerItems = (includeCandidates?: boolean) =>
     this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
@@ -589,7 +594,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const genericSubmitElement = await this.querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       return genericSubmitElement;
@@ -598,15 +603,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitButtonElement = await this.querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element) => elementIsButtonElement(element),
     );
     if (submitButtonElement) {
       return submitButtonElement;
     }
 
     // If the submit button is not a traditional button element, check for an anchor element that contains submission keywords.
-    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (node: Node) =>
-      nodeIsAnchorElement(node),
+    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (element) =>
+      elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;
@@ -625,7 +630,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = this.domQueryService.query<HTMLButtonElement>(
       element,
@@ -945,9 +950,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
-    const identityLoginFields: AutofillFieldQualifierType[] = [
+    // Identifier fields that double as the login username when saving a login.
+    // Heuristic (identity) and targeting-rule (email/phone) qualifiers both flow
+    // through here, so both namespaces are listed; targeting `username` already
+    // stores directly under the username key below.
+    const identityLoginFields: (AutofillFieldQualifierType | AutofillTargetingRuleType)[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
+      AutofillFieldQualifier.identityPhone,
+      AutofillTargetingRuleTypes.email,
+      AutofillTargetingRuleTypes.phone,
     ];
     if (!this.userFilledFields) {
       return;
@@ -1227,6 +1239,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (qualifier === AutofillTargetingRuleTypes.newPassword) {
       autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      return;
+    }
+
+    // The form category is authoritative for single-cipher-type forms, so it
+    // takes precedence over inferring the cipher type from the individual field
+    // qualifier. This is what routes an account-login form's email/phone field
+    // to Login rather than Identity. Categories needing qualifier-level fill
+    // sub-types fall through to the qualifier checks below.
+    const categoryFillType =
+      autofillFieldData.formCategory != null
+        ? targetedFormCategoryFillTypes[autofillFieldData.formCategory]
+        : undefined;
+
+    if (categoryFillType != null) {
+      autofillFieldData.inlineMenuFillType = categoryFillType;
       return;
     }
 
@@ -1580,17 +1607,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param message - The message object from the extension.
    */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
+    // `postMessage` accepts `any` message, which disables typechecking, so typecheck it early
+    const subFrameData: SubFrameOffsetWindowMessageData = {
+      frameId: message.subFrameId,
+      left: 0,
+      top: 0,
+      parentFrameIds: [0],
+      subFrameDepth: 0,
+    };
+
     globalThis.parent.postMessage(
       {
         command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-          parentFrameIds: [0],
-          subFrameDepth: 0,
-        } as SubFrameDataFromWindowMessage,
+        subFrameData,
       },
       "*",
     );
@@ -1635,8 +1664,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The message event.
    */
-  private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+  private calculateSubFramePositioning = async (event: MessageEvent<unknown>) => {
+    if (!isSubFramePositioningMessageData(event.data)) {
+      return;
+    }
+    const { subFrameData } = event.data;
 
     subFrameData.subFrameDepth++;
     if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
@@ -1651,7 +1683,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         const iframeElement = iframes[i];
         subFrameOffsets = this.calculateSubFrameOffsets(
           iframeElement,
-          subFrameData.url,
+          undefined,
           subFrameData.frameId,
         );
 
