@@ -240,8 +240,9 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-apps/web/src/app/pam  @bitwarden/team-pam-dev
-libs/pam              @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
+apps/web/src/app/pam                   @bitwarden/team-pam-dev
+libs/pam                               @bitwarden/team-pam-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
@@ -254,6 +255,7 @@ apps/web/src/locales/en/messages.json
 .github/workflows/retrieve-current-desktop-rollout.yml  @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop.yml         @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop-signal.yml  @bitwarden/dept-bre
+.github/workflows/publish-cli.yml                       @bitwarden/dept-bre
 
 ## Docker-related files
 **/Dockerfile          @bitwarden/team-appsec  @bitwarden/dept-bre
@@ -280,3 +282,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.mcp.json                          @bitwarden/team-ai-sme

@@ -32,8 +32,16 @@ import {
   MenuModule,
   SimpleDialogOptions,
   IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1I18nPipe,
+  Vfo1TerminologyService,
+  Vfo1IconPipe,
+} from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -55,10 +63,14 @@ import { PipesModule } from "../pipes/pipes.module";
     NewCipherMenuComponent,
     CoachmarkComponent,
     IconModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   protected readonly Unassigned = Unassigned;
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
@@ -156,6 +168,23 @@ export class VaultHeaderComponent {
     return this.organizations?.find((org) => org.id === organizationId);
   }
 
+  /**
+   * Query params for the organization breadcrumb. Mirrors the param-swap logic
+   * in {@link RoutedVaultFilterService.createRoute}: with the VFO1 flag enabled
+   * the organization is stored as `vaultId`, otherwise as `organizationId`. The
+   * opposite key is nulled so `queryParamsHandling="merge"` cannot leave a stale
+   * param behind.
+   */
+  protected get organizationBreadcrumbQueryParams() {
+    const organizationId = this.activeOrganizationId ?? null;
+    return {
+      ...(this.vfo1TerminologyService.enabled()
+        ? { vaultId: organizationId, organizationId: null }
+        : { organizationId, vaultId: null }),
+      collectionId: this.All,
+    };
+  }
+
   protected get showBreadcrumbs() {
     return this.filter?.collectionId !== undefined && this.filter.collectionId !== All;
   }
@@ -191,7 +220,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"
@@ -306,9 +335,13 @@ export class VaultHeaderComponent {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        organization.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
+        this.vfo1TerminologyService.enabled()
+          ? organization.canEditSubscription
+            ? "freeOrgMaxSharedFolderReachedManageBilling"
+            : "freeOrgMaxSharedFolderReachedNoManageBilling"
+          : organization.canEditSubscription
+            ? "freeOrgMaxCollectionReachedManageBilling"
+            : "freeOrgMaxCollectionReachedNoManageBilling",
         organization.maxCollections,
       ),
       type: "primary",
