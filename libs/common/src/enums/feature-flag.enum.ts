@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
@@ -89,6 +88,7 @@ export enum FeatureFlag {
   PasskeyLoginReport = "inno-passkey-directory-report",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
+  BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -147,7 +147,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
@@ -183,6 +182,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
+  [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
