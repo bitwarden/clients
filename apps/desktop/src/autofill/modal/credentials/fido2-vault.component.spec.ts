@@ -10,7 +10,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -66,9 +65,7 @@ describe("Fido2VaultComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-      .overrideProvider(DialogService, { useValue: mock<DialogService>() })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Fido2VaultComponent);
     component = fixture.componentInstance;

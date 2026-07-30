@@ -1,12 +1,8 @@
-//! Error types for desktop_core operations.
-
 use std::fmt::Debug;
 
 use thiserror::Error;
 
-/// Errors that can occur in desktop_core operations.
 #[derive(Error, Debug)]
-#[allow(missing_docs)]
 pub enum Error {
     #[error("Error parsing CipherString: {0}")]
     InvalidCipherString(#[from] CSParseError),
@@ -15,9 +11,7 @@ pub enum Error {
     Crypto(#[from] CryptoError),
 }
 
-/// Errors during cipher string parsing.
 #[derive(Debug, Error)]
-#[allow(missing_docs)]
 pub enum CSParseError {
     #[error("No type detected, missing '.' separator")]
     NoType,
@@ -29,21 +23,27 @@ pub enum CSParseError {
     InvalidBase64Length { expected: usize, got: usize },
 }
 
-/// Errors during cryptographic operations.
 #[derive(Debug, Error)]
-#[allow(missing_docs)]
 pub enum CryptoError {
     #[error("Error while decrypting cipher string")]
     KeyDecrypt,
 }
 
-/// Errors during KDF parameter validation.
 #[derive(Debug, Error)]
-#[allow(missing_docs)]
 pub enum KdfParamError {
     #[error("Invalid KDF parameters: {0}")]
     InvalidParams(String),
 }
 
-/// Convenience Result type using [`Error`].
+// Ensure that the error messages implement Send and Sync
+#[cfg(test)]
+const _: () = {
+    fn assert_send<T: Send>() {}
+    fn assert_sync<T: Sync>() {}
+    fn assert_all() {
+        assert_send::<Error>();
+        assert_sync::<Error>();
+    }
+};
+
 pub type Result<T, E = Error> = std::result::Result<T, E>;

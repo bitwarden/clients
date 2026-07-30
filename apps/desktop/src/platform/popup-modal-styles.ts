@@ -4,7 +4,7 @@ import { WindowState } from "./models/domain/window-state";
 
 // change as needed, however limited by mainwindow minimum size
 const popupWidth = 600;
-const popupHeight = 600;
+const popupHeight = 660;
 
 type Position = { x: number; y: number };
 
@@ -49,11 +49,11 @@ export function applyMainWindowStyles(window: BrowserWindow, existingWindowState
   // need to guard against null/undefined values
 
   if (existingWindowState?.width && existingWindowState?.height) {
-    window.setSize(Math.floor(existingWindowState.width), Math.floor(existingWindowState.height));
+    window.setSize(existingWindowState.width, existingWindowState.height);
   }
 
   if (existingWindowState?.x && existingWindowState?.y) {
-    window.setPosition(Math.floor(existingWindowState.x), Math.floor(existingWindowState.y));
+    window.setPosition(existingWindowState.x, existingWindowState.y);
   }
 
   window.setWindowButtonVisibility?.(true);

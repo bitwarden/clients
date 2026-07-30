@@ -1,0 +1,107 @@
+@import "../../../../libs/components/src/tw-theme-preflight.css";
+
+/*
+ * Web specific global styling.
+ *
+ * Be mindful of what is added here. Generally use Tailwind classes directly in Angular components.
+ *
+ * Some valid scenarios for adding styles here:
+ *
+ * - Duplicated styling for CL components used in non Angular pages like connectors and 404.
+ * - Shared styles like Logo.
+ */
+@layer components {
+  body {
+    @apply tw-bg-background;
+    @apply tw-text-main;
+  }
+
+  /**
+   * Stripe form control styling
+   */
+  .tw-stripe-form-control {
+    @apply tw-block tw-w-full tw-h-11 tw-rounded-lg tw-bg-background tw-border tw-border-solid tw-border-secondary-500 tw-px-3 tw-py-2 tw-text-main;
+
+    @apply hover:tw-border-primary-600;
+
+    @apply focus:tw-outline-none focus:tw-border-primary-600 focus:tw-border-2 focus:tw-ring-1 focus:tw-ring-inset focus:tw-ring-primary-600;
+
+    &.is-invalid {
+      @apply tw-border-danger-600 hover:tw-border-danger-700;
+    }
+
+    &.is-focused {
+      @apply tw-outline-none tw-border-primary-600 focus:tw-border-primary-600;
+
+      &.is-invalid {
+        @apply tw-border-danger-600;
+      }
+    }
+  }
+
+  /**
+   * Loading page
+   */
+  body.layout_frontend {
+    /* We apply the background color here since body classes are dynamically added and removed */
+    @apply tw-bg-background-alt !important;
+
+    /* Spinner requires fixed height and width to appear centered */
+    .spinner-container {
+      @apply tw-fixed tw-inset-2/4 -tw-translate-x-1/2 -tw-translate-y-1/2;
+
+      height: 42px;
+      width: 42px;
+    }
+  }
+
+  /**
+   * Logo on old `FrontendLayoutComponent`. Remove when the component is gone.
+   */
+  img.logo {
+    display: block;
+    height: 43px;
+    margin: 0 auto;
+    width: 284px;
+  }
+
+  /**
+   * Logo, used both in loading and on "frontend" pages.
+   */
+  img.new-logo-themed {
+    @apply tw-block;
+
+    width: 128px;
+  }
+  .theme_light img.new-logo-themed {
+    content: url("../images/logo.svg");
+  }
+  .theme_dark img.new-logo-themed {
+    content: url("../images/logo-white.svg");
+  }
+}
+
+/**
+ * 404 page styling.
+ */
+@layer components {
+  .tw-h1 {
+    @apply tw-text-3xl tw-font-semibold;
+  }
+
+  .tw-btn {
+    @apply tw-font-semibold tw-py-1.5 tw-px-3 tw-rounded-full tw-transition tw-border-2 tw-border-solid tw-text-center tw-no-underline focus:tw-outline-none;
+  }
+
+  .tw-btn-secondary {
+    @apply tw-btn;
+
+    @apply tw-bg-transparent tw-text-primary-600 tw-border-primary-600 hover:tw-bg-hover-default;
+  }
+
+  .tw-link {
+    @apply tw-font-semibold hover:tw-underline hover:tw-decoration-1;
+
+    @apply tw-text-primary-600 hover:tw-text-primary-700 focus-visible:before:tw-ring-primary-600;
+  }
+}

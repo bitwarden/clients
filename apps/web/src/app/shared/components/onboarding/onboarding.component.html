@@ -1,0 +1,28 @@
+<details #details class="tw-rounded-sm tw-bg-background-alt tw-text-main" (toggle)="toggle()" open>
+  <summary class="tw-list-none tw-p-2 tw-px-4">
+    <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
+      <div class="tw-text-lg">{{ title }}</div>
+      <bit-progress class="tw-flex-1" [showText]="false" [barWidth]="barWidth"></bit-progress>
+      <span *ngIf="tasks.length > 0; else spinner">
+        {{ "complete" | i18n: amountCompleted : tasks.length }}
+      </span>
+      <i
+        class="bwi tw-my-auto"
+        [ngClass]="open ? 'bwi-angle-down' : 'bwi-angle-up'"
+        aria-hidden="true"
+      ></i>
+    </div>
+  </summary>
+  <ul class="tw-mb-0 tw-ml-6 tw-flex tw-flex-col tw-gap-4">
+    <ng-content></ng-content>
+  </ul>
+  <div class="tw-p-4 tw-pt-0">
+    <button bitLink type="button" class="tw-ml-auto tw-block" (click)="dismiss.emit()">
+      {{ "dismiss" | i18n }}
+    </button>
+  </div>
+</details>
+
+<ng-template #spinner>
+  <i class="bwi bwi-spinner bwi-spin"></i>
+</ng-template>

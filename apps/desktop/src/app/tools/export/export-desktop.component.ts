@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component, signal } from "@angular/core";
+import { Component } from "@angular/core";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -11,7 +11,7 @@ import { ExportComponent } from "@bitwarden/vault-export-ui";
   templateUrl: "export-desktop.component.html",
   imports: [
     CommonModule,
-    I18nPipe,
+    JslibModule,
     DialogModule,
     AsyncActionsModule,
     ButtonModule,
@@ -21,7 +21,6 @@ import { ExportComponent } from "@bitwarden/vault-export-ui";
 export class ExportDesktopComponent {
   protected disabled = false;
   protected loading = false;
-  protected readonly skippedAttachmentCount = signal(0);
 
   constructor(public dialogRef: DialogRef) {}
 
@@ -29,10 +28,6 @@ export class ExportDesktopComponent {
    * Callback that is called after a successful export.
    */
   protected async onSuccessfulExport(organizationId: string): Promise<void> {
-    // Skip closing dialog when attachments were skipped so the user can see the warning callout
-    if (this.skippedAttachmentCount() > 0) {
-      return;
-    }
-    await this.dialogRef.close();
+    this.dialogRef.close();
   }
 }

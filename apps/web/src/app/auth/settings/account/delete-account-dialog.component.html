@@ -1,0 +1,21 @@
+<form [formGroup]="deleteForm" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="'deleteAccount' | i18n">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ "deleteAccountDesc" | i18n }}</p>
+      <bit-callout type="warning">{{ "deleteAccountWarning" | i18n }}</bit-callout>
+      <app-user-verification-form-input
+        formControlName="verification"
+        name="verification"
+        [(invalidSecret)]="invalidSecret"
+      ></app-user-verification-form-input>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="danger">
+        {{ "deleteAccount" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

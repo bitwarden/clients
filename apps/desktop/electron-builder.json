@@ -1,12 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+
   "extraMetadata": {
     "name": "bitwarden"
   },
   "productName": "Bitwarden",
   "appId": "com.bitwarden.desktop",
   "buildDependenciesFromSource": true,
-  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
@@ -14,15 +15,13 @@
   },
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "beforePack": "scripts/before-pack.js",
   "files": [
-    "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
     "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "41.7.2",
+  "electronVersion": "36.9.3",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -71,7 +70,6 @@
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
-    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
@@ -85,41 +83,25 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
-      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+      "Contents/Plugins/autofill-extension.appex"
     ],
     "target": ["dmg", "zip"]
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
-    "signExts": [".dll", ".node"],
     "signtoolOptions": {
       "sign": "./sign.js",
-      "publisherName": "Bitwarden Inc."
+      "publisherName": "CN=com.bitwarden.localdevelopment"
     },
     "extraFiles": [
       {
-        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
         "to": "desktop_proxy.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
-      },
-      {
-        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
-        "to": "bitwarden_plugin_authenticator.exe"
-      }
-    ],
-    "extraResources": [
-      {
-        "from": "resources/windows_plugin_authenticator_config.json",
-        "to": "plugin_authenticator_config.json"
-      },
-      {
-        "from": "resources/windows_plugin_authenticator_logo.svg",
-        "to": "plugin_authenticator_logo.svg"
       }
     ]
   },
@@ -136,7 +118,7 @@
         "to": "libprocess_isolation.so"
       }
     ],
-    "target": ["deb", "rpm", "AppImage", "snap"],
+    "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
     "desktop": {
       "entry": {
         "Name": "Bitwarden",
@@ -147,7 +129,6 @@
   },
   "dmg": {
     "icon": "dmg.icns",
-    "background": "resources/background.png",
     "sign": false,
     "contents": [
       {
@@ -168,7 +149,6 @@
     }
   },
   "mas": {
-    "identity": "Bitwarden Inc",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
@@ -194,9 +174,10 @@
   "appx": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
     "backgroundColor": "#175DDC",
+    "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "bitwardendesktop",
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
-    "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
+    "publisher": "CN=Bitwarden Inc., O=Bitwarden Inc., L=Santa Barbara, S=California, C=US, SERIALNUMBER=7654941, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Delaware, OID.1.3.6.1.4.1.311.60.2.1.3=US",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [
       "en-US",
@@ -274,6 +255,9 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}",
     "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
+  "freebsd": {
+    "artifactName": "${productName}-${version}-${arch}.${ext}"
+  },
   "snap": {
     "summary": "Bitwarden is a secure and free password manager for all of your devices.",
     "description": "Password Manager\n**Installation**\nBitwarden requires access to the `password-manager-service`. Please enable it through permissions or by running `sudo snap connect bitwarden:password-manager-service` after installation. See https://btwrdn.com/install-snap for details.",
@@ -287,17 +271,6 @@
       {
         "polkit": {
           "action-prefix": "com.bitwarden.Bitwarden"
-        }
-      },
-      {
-        "personal-files": {
-          "read": [],
-          "write": [
-            "$HOME/.config/chromium/NativeMessagingHosts",
-            "$HOME/.config/microsoft-edge/NativeMessagingHosts",
-            "$HOME/.config/google-chrome/NativeMessagingHosts",
-            "$HOME/.mozilla/native-messaging-hosts"
-          ]
         }
       },
       "u2f-devices"

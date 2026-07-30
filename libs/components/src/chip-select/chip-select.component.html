@@ -1,0 +1,111 @@
+<div
+  bitTypography="body2"
+  class="tw-inline-flex tw-items-center tw-rounded-full tw-w-full tw-border-solid tw-border tw-gap-1.5 tw-group/chip-select"
+  [ngClass]="{
+    'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:!tw-border-secondary-700':
+      selectedOption && !disabled,
+    'tw-bg-transparent hover:tw-border-secondary-700 !tw-text-muted hover:tw-bg-secondary-100':
+      !selectedOption && !disabled,
+    'tw-bg-secondary-300 tw-text-muted tw-border-transparent': disabled,
+    'tw-border-text-muted': !disabled,
+    'tw-ring-2 tw-ring-primary-600 tw-ring-offset-1': focusVisibleWithin(),
+  }"
+>
+  <!-- Primary button -->
+  <button
+    type="button"
+    class="tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-ps-3 last:tw-pe-3 [&:not(:last-child)]:tw-pe-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
+    data-fvw-target
+    [ngClass]="{
+      'tw-cursor-not-allowed': disabled,
+      'group-hover/chip-select:tw-text-secondary-700': !selectedOption && !disabled,
+    }"
+    [bitMenuTriggerFor]="menu"
+    [disabled]="disabled"
+    [title]="label"
+    #menuTrigger="menuTrigger"
+    (click)="setMenuWidth()"
+    #chipSelectButton
+  >
+    <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
+      <i class="bwi !tw-text-[inherit]" [ngClass]="icon" aria-hidden="true"></i>
+      <span class="tw-truncate">{{ label }}</span>
+    </span>
+    @if (!selectedOption) {
+      <i
+        class="bwi tw-mt-0.5"
+        [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
+        aria-hidden="true"
+      ></i>
+    }
+  </button>
+
+  <!-- Close button -->
+  @if (selectedOption) {
+    <button
+      type="button"
+      [attr.aria-label]="'removeItem' | i18n: label"
+      [disabled]="disabled"
+      class="tw-bg-transparent hover:tw-bg-hover-contrast tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-me-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast hover:disabled:tw-bg-transparent"
+      [ngClass]="{
+        'tw-cursor-not-allowed': disabled,
+      }"
+      (click)="clear()"
+    >
+      <i class="bwi bwi-close tw-text-xs" aria-hidden="true"></i>
+    </button>
+  }
+</div>
+
+<bit-menu #menu (closed)="handleMenuClosed()">
+  @if (renderedOptions) {
+    <div
+      class="tw-max-h-80 tw-min-w-32 tw-max-w-80 tw-text-sm"
+      [ngStyle]="menuWidth && { width: menuWidth + 'px' }"
+    >
+      @if (getParent(renderedOptions); as parent) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="viewOption(parent, $event)"
+          class="tw-text-[length:inherit]"
+          [title]="'backTo' | i18n: parent.label ?? placeholderText()"
+        >
+          <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
+          {{ "backTo" | i18n: parent.label ?? placeholderText() }}
+        </button>
+        <button
+          type="button"
+          bitMenuItem
+          (click)="selectOption(renderedOptions, $event)"
+          [title]="'viewItemsIn' | i18n: renderedOptions.label"
+          class="tw-text-[length:inherit]"
+        >
+          <i slot="start" class="bwi bwi-list" aria-hidden="true"></i>
+          {{ "viewItemsIn" | i18n: renderedOptions.label }}
+        </button>
+      }
+      @for (option of renderedOptions.children; track option) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="
+            option.children?.length ? viewOption(option, $event) : selectOption(option, $event)
+          "
+          [disabled]="option.disabled"
+          [title]="option.label"
+          class="tw-text-[length:inherit]"
+          [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
+        >
+          @if (option.icon) {
+            <i slot="start" class="bwi" [ngClass]="option.icon" aria-hidden="true"></i>
+          }
+          {{ option.label }}
+          @if (option.children?.length) {
+            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+          }
+        </button>
+      }
+    </div>
+  }
+</bit-menu>

@@ -1,5 +1,3 @@
-//! IPC client for connecting to and communicating with the IPC server.
-
 use std::path::PathBuf;
 
 use futures::{SinkExt, StreamExt};
@@ -9,7 +7,6 @@ use interprocess::local_socket::{
 };
 use tracing::{error, info};
 
-/// Connects to an IPC server and handles bidirectional message passing.
 pub async fn connect(
     path: PathBuf,
     send: tokio::sync::mpsc::Sender<String>,

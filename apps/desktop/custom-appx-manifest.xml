@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--suppress XmlUnusedNamespaceDeclaration -->
-<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+<!-- <Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"> -->
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+    IgnorableNamespaces="uap rescap com uap10 build"
+    xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
-    <Identity Name="${identityName}"
+    <Identity Name="${applicationId}"
         ProcessorArchitecture="${arch}"
         Publisher='${publisher}'
         Version="${version}" />
@@ -71,7 +78,6 @@
         <Resource Language="sl" />
         <Resource Language="sr-cyrl" />
         <Resource Language="sv" />
-        <Resource Language="ta" />
         <Resource Language="te" />
         <Resource Language="th" />
         <Resource Language="tr" />
@@ -81,9 +87,8 @@
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <!-- MinVersion 10.0.14393.0 = Windows 10 Anniversary Update (1607), required for com:Extension -->
-        <TargetDeviceFamily Name="Windows.Desktop"
-          MinVersion="10.0.14393.0" MaxVersionTested="10.0.14393.0" />
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22635.4515"
+            MaxVersionTested="10.0.26120.4250" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
@@ -97,22 +102,22 @@
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
                 Description="A secure and free password manager for all of your devices.">
+                <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="assets\BadgeLogo.png" />
                 <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
             </uap:VisualElements>
             <Extensions>
                 <uap:Extension Category="windows.protocol">
                     <uap:Protocol Name="bitwarden">
-                        <uap:DisplayName>Bitwarden</uap:DisplayName>
+                        <uap:DisplayName>${displayName}</uap:DisplayName>
                     </uap:Protocol>
                 </uap:Extension>
                 <com:Extension Category="windows.comServer">
                     <com:ComServer>
-                        <com:ExeServer Executable="app\bitwarden_plugin_authenticator.exe"
-                            Arguments="serve"
-                            DisplayName="${displayName} Passkey Manager">
+                        <com:ExeServer Executable='${executable}'
+                            DisplayName="Bitwarden Passkey Manager">
                             <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062"
-                                DisplayName="${displayName} Passkey Manager" />
+                                DisplayName="Bitwarden Passkey Manager" />
                         </com:ExeServer>
                     </com:ComServer>
                 </com:Extension>

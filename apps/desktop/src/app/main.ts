@@ -1,7 +1,7 @@
 import "core-js/proposals/explicit-resource-management";
 
-import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
-import { platformBrowser } from "@angular/platform-browser";
+import { enableProdMode } from "@angular/core";
+import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/styles.scss");
@@ -14,9 +14,7 @@ if (!ipc.platform.isDev) {
   enableProdMode();
 }
 
-void platformBrowser().bootstrapModule(AppModule, {
-  applicationProviders: [provideZoneChangeDetection()],
-});
+void platformBrowserDynamic().bootstrapModule(AppModule);
 
 // Disable drag and drop to prevent malicious links from executing in the context of the app
 document.addEventListener("dragover", (event) => event.preventDefault());

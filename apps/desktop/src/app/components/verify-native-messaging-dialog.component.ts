@@ -1,13 +1,7 @@
 import { Component, Inject } from "@angular/core";
 
-import {
-  DIALOG_DATA,
-  ButtonModule,
-  DialogModule,
-  DialogService,
-  CenterPositionStrategy,
-} from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DIALOG_DATA, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 
 export type VerifyNativeMessagingDialogData = {
   applicationName: string;
@@ -17,7 +11,7 @@ export type VerifyNativeMessagingDialogData = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "verify-native-messaging-dialog.component.html",
-  imports: [I18nPipe, ButtonModule, DialogModule],
+  imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class VerifyNativeMessagingDialogComponent {
   constructor(@Inject(DIALOG_DATA) protected data: VerifyNativeMessagingDialogData) {}
@@ -25,7 +19,6 @@ export class VerifyNativeMessagingDialogComponent {
   static open(dialogService: DialogService, data: VerifyNativeMessagingDialogData) {
     return dialogService.open<boolean>(VerifyNativeMessagingDialogComponent, {
       data,
-      positionStrategy: new CenterPositionStrategy(),
     });
   }
 }

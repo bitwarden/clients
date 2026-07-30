@@ -32,7 +32,7 @@ pub(crate) fn split_encrypted_string_and_validate<'a>(
 }
 
 /// Decrypt using AES-128 in CBC mode.
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos", test))]
 pub(crate) fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
     use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
 
@@ -41,8 +41,7 @@ pub(crate) fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> R
         .map_err(|e| anyhow!("Failed to decrypt: {}", e))
 }
 
-/// Derives a PBKDF2 key from the static "saltysalt" salt with the given password and iteration
-/// count.
+/// Derives a PBKDF2 key from the static "saltysalt" salt with the given password and iteration count.
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub(crate) fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u8>> {
     use pbkdf2::{hmac::Hmac, pbkdf2};
@@ -56,8 +55,26 @@ pub(crate) fn derive_saltysalt(password: &[u8], iterations: u32) -> Result<Vec<u
 
 #[cfg(test)]
 mod tests {
+    use aes::cipher::{
+        block_padding::Pkcs7,
+        generic_array::{sequence::GenericSequence, GenericArray},
+        ArrayLength, BlockEncryptMut, KeyIvInit,
+    };
+
+    const LENGTH16: usize = 16;
     const LENGTH10: usize = 10;
     const LENGTH0: usize = 0;
+
+    fn generate_vec(length: usize, offset: u8, increment: u8) -> Vec<u8> {
+        (0..length).map(|i| offset + i as u8 * increment).collect()
+    }
+
+    fn generate_generic_array<N: ArrayLength<u8>>(
+        offset: u8,
+        increment: u8,
+    ) -> GenericArray<u8, N> {
+        GenericArray::generate(|i| offset + i as u8 * increment)
+    }
 
     fn run_split_encrypted_string_test<'a, const N: usize>(
         successfully_split: bool,
@@ -127,28 +144,8 @@ mod tests {
         run_split_encrypted_string_and_validate_test(false, "v10EncryptMe!", &[]);
     }
 
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
     #[test]
     fn test_decrypt_aes_128_cbc() {
-        use aes::cipher::{
-            block_padding::Pkcs7,
-            generic_array::{sequence::GenericSequence, GenericArray},
-            ArrayLength, BlockEncryptMut, KeyIvInit,
-        };
-
-        const LENGTH16: usize = 16;
-
-        fn generate_generic_array<N: ArrayLength<u8>>(
-            offset: u8,
-            increment: u8,
-        ) -> GenericArray<u8, N> {
-            GenericArray::generate(|i| offset + i as u8 * increment)
-        }
-
-        fn generate_vec(length: usize, offset: u8, increment: u8) -> Vec<u8> {
-            (0..length).map(|i| offset + i as u8 * increment).collect()
-        }
-
         let offset = 0;
         let increment = 1;
 

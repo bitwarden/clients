@@ -1,17 +1,4 @@
-import { Injectable, OnDestroy } from "@angular/core";
-import {
-  combineLatest,
-  concatMap,
-  distinctUntilChanged,
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -28,14 +15,11 @@ import {
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { LogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
-import { AutotypeConfig } from "../models/autotype-config";
-import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
-
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+
+export const defaultWindowsAutotypeKeyboardShortcut: string[] = ["Control", "Shift", "B"];
 
 export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
@@ -43,13 +27,11 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
   { deserializer: (b) => b },
 );
 
-export type Result<T, E = Error> = [E, null] | [null, T];
-
 /*
   Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
   Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z
 
-  See Electron keyboard shortcut docs for more info:
+  See Electron keyboard shorcut docs for more info:
   https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
 */
 export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
@@ -58,24 +40,15 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   { deserializer: (b) => b },
 );
 
-@Injectable({
-  providedIn: "root",
-})
-export class DesktopAutotypeService implements OnDestroy {
+export class DesktopAutotypeService {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
   );
 
-  // if the user's account is Premium
-  private readonly isPremiumAccount$: Observable<boolean>;
-
-  // The enabled/disabled state from the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
-
-  autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
-
-  private destroy$ = new Subject<void>();
+  resolvedAutotypeEnabled$: Observable<boolean> = of(false);
+  autotypeKeyboardShortcut$: Observable<string[]> = of(defaultWindowsAutotypeKeyboardShortcut);
 
   constructor(
     private accountService: AccountService,
@@ -86,110 +59,79 @@ export class DesktopAutotypeService implements OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
-    private logService: LogService,
   ) {
-    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
-      map((enabled) => enabled ?? false),
-      distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
-    );
-
-    this.isPremiumAccount$ = this.accountService.activeAccount$.pipe(
-      filter((account): account is Account => !!account),
-      switchMap((account) =>
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      ),
-      distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
-    );
-
-    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
-      map((shortcut) => shortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
-      takeUntil(this.destroy$),
-    );
-  }
-
-  async init() {
-    // Currently Autotype is only supported for Windows
-    if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
-      return;
-    }
-
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
-      const [error, vaultData] = getAutotypeVaultData(firstCipher);
-      callback(error, vaultData);
-    });
 
-    // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
-    // user has never changed their local autotype setting (`autotypeEnabledState`),
-    // we set their local setting to `true` (once the local user setting is changed
-    // by this policy or the user themselves, the default policy should
-    // never change the user setting again).
-    combineLatest([
-      this.autotypeEnabledState.state$,
-      this.desktopAutotypePolicy.autotypeDefaultSetting$,
-    ])
-      .pipe(
-        concatMap(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-          try {
+      return callback(null, {
+        username: firstCipher?.login?.username,
+        password: firstCipher?.login?.password,
+      });
+    });
+  }
+
+  async init() {
+    this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+      map((shortcut) => shortcut ?? defaultWindowsAutotypeKeyboardShortcut),
+    );
+
+    // Currently Autotype is only supported for Windows
+    if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+      // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
+      // user has never changed their local autotype setting (`autotypeEnabledState`),
+      // we set their local setting to `true` (once the local user setting is changed
+      // by this policy or the user themselves, the default policy should
+      // never change the user setting again).
+      combineLatest([
+        this.autotypeEnabledState.state$,
+        this.desktopAutotypePolicy.autotypeDefaultSetting$,
+      ])
+        .pipe(
+          map(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
             if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
               await this.setAutotypeEnabledState(true);
             }
-          } catch {
-            this.logService.error("Failed to set Autotype enabled state.");
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+          }),
+        )
+        .subscribe();
 
-    // listen for changes in keyboard shortcut settings
-    this.autotypeKeyboardShortcut$
-      .pipe(
-        concatMap(async (keyboardShortcut) => {
-          const config: AutotypeConfig = {
-            keyboardShortcut,
-          };
-          ipc.autofill.configureAutotype(config);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+      // autotypeEnabledUserSetting$ publicly represents the value the
+      // user has set for autotyeEnabled in their local settings.
+      this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$;
 
-    this.autotypeFeatureEnabled$
-      .pipe(
-        concatMap(async (enabled) => {
-          ipc.autofill.toggleAutotype(enabled);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-  }
+      // resolvedAutotypeEnabled$ represents the final determination if the Autotype
+      // feature should be on or off.
+      this.resolvedAutotypeEnabled$ = combineLatest([
+        this.autotypeEnabledState.state$,
+        this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+        this.accountService.activeAccount$.pipe(
+          map((activeAccount) => activeAccount?.id),
+          switchMap((userId) => this.authService.authStatusFor$(userId)),
+        ),
+        this.accountService.activeAccount$.pipe(
+          filter((account): account is Account => !!account),
+          switchMap((account) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+          ),
+        ),
+      ]).pipe(
+        map(
+          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
+            autotypeEnabled &&
+            windowsDesktopAutotypeFeatureFlag &&
+            authStatus == AuthenticationStatus.Unlocked &&
+            hasPremium,
+        ),
+      );
 
-  // Returns an observable that represents whether autotype is enabled for the current user.
-  private get autotypeFeatureEnabled$(): Observable<boolean> {
-    return combineLatest([
-      // if the user has enabled the setting
-      this.autotypeEnabledUserSetting$,
-      // if the feature flag is set
-      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
-      // if there is an active account with an unlocked vault
-      this.authService.activeAccountStatus$,
-      // if the active user's account is Premium
-      this.isPremiumAccount$,
-    ]).pipe(
-      map(
-        ([settingsEnabled, ffEnabled, authStatus, isPremiumAcct]) =>
-          settingsEnabled &&
-          ffEnabled &&
-          authStatus === AuthenticationStatus.Unlocked &&
-          isPremiumAcct,
-      ),
-      distinctUntilChanged(), // Only emit when the boolean result changes
-      takeUntil(this.destroy$),
-    );
+      combineLatest([this.resolvedAutotypeEnabled$, this.autotypeKeyboardShortcut$]).subscribe(
+        ([resolvedAutotypeEnabled, autotypeKeyboardShortcut]) => {
+          ipc.autofill.configureAutotype(resolvedAutotypeEnabled, autotypeKeyboardShortcut);
+        },
+      );
+    }
   }
 
   async setAutotypeEnabledState(enabled: boolean): Promise<void> {
@@ -232,30 +174,5 @@ export class DesktopAutotypeService implements OnDestroy {
     });
 
     return possibleCiphers;
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-}
-
-/**
- * @return an `AutotypeVaultData` object or an `Error` if the
- * cipher or vault data within are undefined.
- */
-export function getAutotypeVaultData(
-  cipherView: CipherView | undefined,
-): Result<AutotypeVaultData> {
-  if (!cipherView) {
-    return [Error("No matching vault item."), null];
-  } else if (cipherView.login.username === undefined || cipherView.login.password === undefined) {
-    return [Error("Vault item is undefined."), null];
-  } else {
-    const vaultData: AutotypeVaultData = {
-      username: cipherView.login.username,
-      password: cipherView.login.password,
-    };
-    return [null, vaultData];
   }
 }

@@ -1,0 +1,160 @@
+<bit-section
+  *ngIf="cipherGroups().length > 0 || description()"
+  [disableMargin]="disableSectionMargin()"
+>
+  <ng-container *ngIf="collapsibleKey()">
+    <button
+      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      [ngClass]="{
+        'tw-border-b-secondary-300 tw-rounded-b-none [&:is(:hover,:focus-visible)]:tw-border-b-transparent [&:is(:hover,:focus-visible)]:tw-rounded-b-md':
+          !sectionOpenState(),
+        'tw-border-b-transparent': sectionOpenState(),
+      }"
+      type="button"
+      [bitDisclosureTriggerFor]="disclosureRef"
+      (click)="toggleSectionOpen()"
+    >
+      <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
+    </button>
+    <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
+    <bit-disclosure #disclosureRef [open]="sectionOpenState()" (openChange)="rerenderViewport()">
+      <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
+    </bit-disclosure>
+  </ng-container>
+
+  <ng-container *ngIf="!collapsibleKey()">
+    <div class="tw-pl-1">
+      <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
+    </div>
+    <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
+    <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
+  </ng-container>
+</bit-section>
+
+<ng-template #sectionHeader>
+  <bit-section-header class="tw-p-0.5 -tw-mx-0.5">
+    <h2 bitTypography="h6">
+      {{ title() }}
+    </h2>
+    <button
+      *ngIf="showRefresh()"
+      bitIconButton="bwi-refresh"
+      type="button"
+      size="small"
+      (click)="onRefresh.emit()"
+      [label]="'refresh' | i18n"
+    ></button>
+    <span bitTypography="body2" slot="end">
+      <span
+        [ngClass]="{
+          'group-hover/vault-section-header:tw-hidden group-focus-visible/vault-section-header:tw-hidden':
+            collapsibleKey() && sectionOpenState(),
+          'tw-hidden': collapsibleKey() && !sectionOpenState(),
+        }"
+      >
+        {{ ciphers().length }}
+      </span>
+      <span class="tw-pr-1" *ngIf="collapsibleKey()">
+        <i
+          class="bwi tw-text-main"
+          [ngClass]="{
+            'bwi-angle-down tw-inline-block': !sectionOpenState(),
+            'bwi-angle-up tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
+              sectionOpenState(),
+          }"
+          aria-hidden="true"
+        ></i>
+      </span>
+    </span>
+  </bit-section-header>
+</ng-template>
+
+<ng-template #descriptionText>
+  <div
+    *ngIf="description()"
+    class="tw-text-muted tw-px-1 tw-mb-2"
+    [ngClass]="{ '!tw-mb-0': disableDescriptionMargin() }"
+    bitTypography="body2"
+  >
+    {{ description() }}
+  </div>
+</ng-template>
+
+<ng-template #itemGroup>
+  <bit-item-group>
+    <ng-container *ngFor="let group of cipherGroups()">
+      <ng-container *ngIf="group.subHeaderKey">
+        <h3 class="tw-text-muted tw-text-xs tw-font-semibold tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
+          {{ group.subHeaderKey | i18n }}
+        </h3>
+      </ng-container>
+
+      <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
+          <button
+            bit-item-content
+            type="button"
+            (click)="primaryActionOnSelect(cipher)"
+            (dblclick)="launchCipher(cipher)"
+            [appA11yTitle]="
+              cipherItemTitleKey()(cipher)
+                | i18n: cipher.name : CipherViewLikeUtils.getLogin(cipher)?.username
+            "
+            class="{{ itemHeightClass }}"
+          >
+            <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+              <app-vault-icon [cipher]="cipher"></app-vault-icon>
+            </div>
+            <span data-testid="item-name">{{ cipher.name }}</span>
+            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
+              <i
+                *ngIf="cipher.organizationId"
+                slot="default-trailing"
+                appOrgIcon
+                [tierType]="cipher.organization!.productTierType"
+                [size]="'small'"
+                [appA11yTitle]="orgIconTooltip(cipher)"
+              ></i>
+              <i
+                *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
+                class="bwi bwi-paperclip bwi-sm"
+                [appA11yTitle]="'attachments' | i18n"
+              ></i>
+            </div>
+            <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
+          </button>
+
+          <ng-container slot="end">
+            <bit-item-action *ngIf="!hideAutofillButton()">
+              <button
+                type="button"
+                bitBadge
+                variant="primary"
+                (click)="doAutofill(cipher)"
+                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
+                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
+              >
+                {{ "fill" | i18n }}
+              </button>
+            </bit-item-action>
+            <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
+              <button
+                type="button"
+                bitIconButton="bwi-external-link"
+                size="small"
+                (click)="launchCipher(cipher)"
+                [label]="'launchWebsiteName' | i18n: cipher.name"
+              ></button>
+            </bit-item-action>
+            <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            <app-item-more-options
+              [cipher]="cipher"
+              [hideAutofillOptions]="hideAutofillMenuOptions()"
+              [showViewOption]="primaryActionAutofill()"
+            ></app-item-more-options>
+          </ng-container>
+        </bit-item>
+      </cdk-virtual-scroll-viewport>
+    </ng-container>
+  </bit-item-group>
+</ng-template>

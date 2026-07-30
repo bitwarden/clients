@@ -1,0 +1,139 @@
+@let usePlaceHolderEvents = !organization?.useEvents;
+<app-header>
+  <span
+    bitBadge
+    variant="primary"
+    slot="title-suffix"
+    class="tw-ml-2 tw-mt-1.5 tw-inline-flex tw-items-center"
+    *ngIf="usePlaceHolderEvents"
+  >
+    {{ "upgrade" | i18n }}
+  </span>
+</app-header>
+<div class="tw-mb-4" [formGroup]="eventsForm">
+  <div class="tw-mt-4 tw-flex tw-items-center">
+    <bit-form-field>
+      <bit-label>{{ "from" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        placeholder="{{ 'startDate' | i18n }}"
+        formControlName="start"
+        (change)="dirtyDates = true"
+      />
+    </bit-form-field>
+    <span class="tw-mx-2">-</span>
+    <bit-form-field>
+      <bit-label>{{ "to" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        placeholder="{{ 'endDate' | i18n }}"
+        formControlName="end"
+        (change)="dirtyDates = true"
+      />
+    </bit-form-field>
+    <form>
+      <button
+        class="tw-mx-3 tw-mt-1"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [bitAction]="refreshEvents"
+        [disabled]="usePlaceHolderEvents"
+      >
+        {{ "update" | i18n }}
+      </button>
+    </form>
+    <form>
+      <button
+        type="button"
+        class="tw-mt-1"
+        bitButton
+        bitFormButton
+        [bitAction]="exportEvents"
+        [disabled]="dirtyDates || usePlaceHolderEvents"
+      >
+        <span>{{ "export" | i18n }}</span>
+        <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+      </button>
+    </form>
+  </div>
+</div>
+<bit-callout
+  type="info"
+  [title]="'upgradeEventLogTitleMessage' | i18n"
+  *ngIf="loaded && usePlaceHolderEvents"
+>
+  {{ "upgradeEventLogMessage" | i18n }}
+</bit-callout>
+<ng-container *ngIf="!loaded">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+<ng-container *ngIf="loaded">
+  @let displayedEvents = organization?.useEvents ? events : placeholderEvents;
+
+  <p *ngIf="!displayedEvents || !displayedEvents.length">{{ "noEventsInList" | i18n }}</p>
+  <bit-table *ngIf="displayedEvents && displayedEvents.length">
+    <ng-container header>
+      <tr>
+        <th bitCell>{{ "timestamp" | i18n }}</th>
+        <th bitCell>{{ "client" | i18n }}</th>
+        <th bitCell>{{ "member" | i18n }}</th>
+        <th bitCell>{{ "event" | i18n }}</th>
+      </tr>
+    </ng-container>
+    <ng-template body>
+      <tr bitRow *ngFor="let e of displayedEvents; index as i" alignContent="top">
+        <td bitCell class="tw-whitespace-nowrap">
+          {{ i > 4 && usePlaceHolderEvents ? "******" : (e.date | date: "medium") }}
+        </td>
+        <td bitCell>
+          <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
+        </td>
+        <td bitCell>
+          <span title="{{ e.userEmail }}">{{ e.userName }}</span>
+        </td>
+        <td bitCell [innerHTML]="e.message"></td>
+      </tr>
+    </ng-template>
+  </bit-table>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    [bitAction]="loadMoreEvents"
+    *ngIf="continuationToken"
+  >
+    {{ "loadMore" | i18n }}
+  </button>
+</ng-container>
+
+<ng-container *ngIf="loaded && usePlaceHolderEvents">
+  <div
+    class="tw-relative tw--top-72 tw-bg-background tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center tw-h-[19rem]"
+  >
+    <div
+      class="tw-bg-background tw-max-w-xl tw-flex-col tw-justify-center tw-text-center tw-p-5 tw-px-10 tw-rounded tw-border-0 tw-border-b tw-border-secondary-300 tw-border-solid tw-mt-5"
+    >
+      <i class="bwi bwi-2x bwi-business tw-text-primary-600"></i>
+
+      <p class="tw-font-bold tw-mt-2">
+        {{ "upgradeEventLogTitleMessage" | i18n }}
+      </p>
+      <p>
+        {{ "upgradeForFullEventsMessage" | i18n }}
+      </p>
+
+      <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">
+        {{ "changeBillingPlan" | i18n }}
+      </button>
+    </div>
+  </div>
+</ng-container>

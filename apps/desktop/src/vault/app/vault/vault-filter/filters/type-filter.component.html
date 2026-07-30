@@ -1,0 +1,39 @@
+<div class="filter-heading">
+  <h2>
+    <button
+      type="button"
+      class="no-btn"
+      (click)="toggleCollapse()"
+      [attr.aria-expanded]="!isCollapsed"
+      aria-controls="type-filters"
+    >
+      <i
+        class="bwi bwi-fw"
+        aria-hidden="true"
+        [ngClass]="{
+          'bwi-angle-right': isCollapsed,
+          'bwi-angle-down': !isCollapsed,
+        }"
+      ></i>
+      &nbsp;{{ typesNode.name | i18n }}
+    </button>
+  </h2>
+</div>
+<ul id="type-filters" *ngIf="!isCollapsed" class="filter-options">
+  @for (typeFilter of typeFilters$ | async; track typeFilter) {
+    <li class="filter-option" [ngClass]="{ active: activeFilter.cipherType === typeFilter.type }">
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter(typeFilter.type)"
+          [attr.aria-pressed]="activeFilter.cipherType === typeFilter.type"
+        >
+          <i class="bwi bwi-fw {{ typeFilter.icon }}" aria-hidden="true"></i>&nbsp;{{
+            typeFilter.labelKey | i18n
+          }}
+        </button>
+      </span>
+    </li>
+  }
+</ul>

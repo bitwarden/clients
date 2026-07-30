@@ -1,0 +1,191 @@
+.left-nav {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  width: 22%;
+  min-width: 175px;
+  max-width: 250px;
+  border-right: 1px solid #000000;
+  flex-grow: 1;
+  justify-content: space-between;
+
+  @include themify($themes) {
+    background-color: themed("backgroundColorAlt");
+    border-right-color: themed("borderColor");
+  }
+}
+
+.vault-filters {
+  user-select: none;
+  scrollbar-gutter: stable;
+  padding: 10px 15px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+
+  .filter {
+    hr {
+      margin: 1em 0 1em 0;
+      @include themify($themes) {
+        border-color: themed("hrColor");
+      }
+    }
+  }
+}
+
+.filter-heading {
+  display: flex;
+  text-transform: uppercase;
+  font-weight: normal;
+  margin-bottom: 5px;
+  align-items: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  h2 {
+    @include themify($themes) {
+      color: themed("headingColor");
+    }
+    font-size: $font-size-base;
+  }
+
+  button {
+    @extend .no-btn;
+    text-transform: uppercase;
+
+    @include themify($themes) {
+      color: themed("headingButtonColor");
+    }
+
+    &:hover,
+    &:focus {
+      @include themify($themes) {
+        color: themed("headingButtonHoverColor");
+      }
+    }
+  }
+
+  button.add-button {
+    margin-left: auto;
+    margin-right: 5px;
+  }
+
+  &.active {
+    .filter-button {
+      font-weight: bold;
+      @include themify($themes) {
+        color: themed("primaryColor");
+      }
+    }
+  }
+
+  .filter-button {
+    &:hover {
+      @include themify($themes) {
+        color: themed("primaryColor");
+      }
+    }
+  }
+}
+
+.filter-options {
+  word-break: break-all;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  margin: 0 0 15px 0;
+  .nested-filter-options {
+    list-style: none;
+    margin-bottom: 0px;
+    padding-left: 0.85em;
+  }
+}
+
+.filter-option {
+  top: 8px;
+  width: 100%;
+
+  @include themify($themes) {
+    color: themed("textColor");
+  }
+
+  &.active {
+    > .filter-buttons {
+      .filter-button {
+        @include themify($themes) {
+          color: themed("primaryColor");
+          font-weight: bold;
+        }
+        max-width: 90%;
+      }
+
+      .edit-button {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.filter-buttons {
+  padding: 5px 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  button {
+    @extend .no-btn;
+  }
+
+  .edit-button,
+  .toggle-button {
+    @include themify($themes) {
+      color: themed("headingButtonColor");
+    }
+
+    margin-right: 0.25rem;
+
+    &:hover,
+    &:focus {
+      @include themify($themes) {
+        color: themed("headingButtonHoverColor");
+      }
+    }
+  }
+
+  .edit-button {
+    visibility: hidden;
+    margin-left: auto;
+    margin-right: 5px;
+  }
+
+  .filter-button {
+    white-space: nowrap;
+  }
+}
+
+.nav {
+  height: 55px;
+  width: 100%;
+  display: flex;
+  .btn {
+    width: 100%;
+    font-size: $font-size-base * 0.8;
+    flex: 1;
+    border: 0;
+    border-radius: 0;
+    padding-bottom: 4px;
+
+    &:not(.active) {
+      @include themify($themes) {
+        background-color: themed("backgroundColorAlt");
+      }
+    }
+
+    i {
+      font-size: $font-size-base * 1.5;
+      display: block;
+      margin-bottom: 2px;
+      text-align: center;
+    }
+  }
+}

@@ -1,0 +1,139 @@
+.filter {
+  padding-bottom: 10px;
+}
+
+.filter-heading {
+  display: flex;
+  align-items: center;
+
+  * {
+    font-size: 1rem;
+  }
+
+  button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  h3,
+  button.filter-button {
+    margin: 0;
+    color: rgb(var(--color-text-muted));
+  }
+
+  .filter-button {
+    h3,
+    button {
+      &:hover,
+      &:focus,
+      &.active {
+        color: rgb(var(--color-primary-600));
+      }
+      &.active {
+        font-weight: bold;
+      }
+    }
+  }
+
+  button.toggle-button,
+  button.add-button {
+    margin-right: 0.25rem;
+  }
+}
+
+.filter-options {
+  padding: 0;
+  list-style: none;
+  margin: 0 0 15px 0;
+  .nested-filter-options {
+    list-style: none;
+    margin-bottom: 0px;
+    padding-left: 0.85em;
+  }
+}
+
+.filter-option {
+  color: rgb(var(--color-text-main));
+
+  &.active {
+    > .filter-buttons {
+      .filter-button {
+        color: rgb(var(--color-primary-600));
+        font-weight: bold;
+      }
+
+      .edit-button {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.filter-buttons {
+  display: flex;
+  align-items: center;
+
+  button,
+  a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .contents {
+    display: contents;
+  }
+
+  .toggle-button {
+    margin-right: 0.25rem;
+  }
+
+  .filter-button {
+    max-width: 90%;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: rgb(var(--color-primary-600));
+      text-decoration: none;
+    }
+
+    &.disabled-organization {
+      max-width: 78%;
+    }
+  }
+
+  .edit-button {
+    visibility: hidden;
+    margin-left: auto;
+
+    color: rgb(var(--color-primary-600));
+
+    &:hover,
+    &:focus {
+      color: rgb(var(--color-text-main));
+    }
+  }
+
+  .filter-options-icon {
+    padding: 0 2px;
+  }
+}
+
+.filter {
+  ul:last-child {
+    margin-bottom: 0;
+  }
+
+  li.active {
+    > button:first-of-type,
+    > div button:first-of-type {
+      color: rgb(var(--color-primary-600));
+    }
+
+    > .bwi,
+    > div > .bwi {
+      color: rgb(var(--color-primary-600));
+    }
+  }
+}
