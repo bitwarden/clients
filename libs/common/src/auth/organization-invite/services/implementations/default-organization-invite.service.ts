@@ -20,12 +20,14 @@ import {
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
 import {
+  HighEntropySecret,
   isInviteLinkError,
   isRegistrationError,
   OpenOrgInvite,
   OrganizationId as SdkOrganizationId,
   PasswordManagerClient,
   SealedOpenOrgInvite,
+  SealedOpenOrgInviteData,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
@@ -497,7 +499,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       const unsealed: OpenOrgInvite = client
         .auth()
         .registration()
-        .unseal_open_org_invite_data({ sealedData, highEntropySecret });
+        .unseal_open_org_invite_data({
+          sealedData: sealedData as SealedOpenOrgInviteData,
+          highEntropySecret: highEntropySecret as HighEntropySecret,
+        });
       return {
         kind: "ok",
         invite: {
