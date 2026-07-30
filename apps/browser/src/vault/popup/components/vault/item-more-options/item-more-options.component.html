@@ -38,9 +38,9 @@
           </a>
         }
         @if (showShareViaLink$ | async) {
-          <a bitMenuItem (click)="shareViaLink()">
+          <button type="button" bitMenuItem (click)="shareViaLink()">
             {{ "shareViaLink" | i18n }}
-          </a>
+          </button>
         }
       }
       @if (canArchive$ | async) {
