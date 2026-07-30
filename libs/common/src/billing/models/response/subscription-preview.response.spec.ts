@@ -1,0 +1,162 @@
+import { Cart } from "@bitwarden/pricing";
+
+import { SubscriptionPreviewResponse } from "./subscription-preview.response";
+
+// The `@bitwarden/subscription` barrel re-exports Angular components, which this package's
+// non-Angular Jest environment cannot parse. The file under test needs only the status constants,
+// so stub the barrel down to those. Keep in sync with `types/bitwarden-subscription.ts`.
+jest.mock("@bitwarden/subscription", () => ({
+  SubscriptionStatuses: {
+    Incomplete: "incomplete",
+    IncompleteExpired: "incomplete_expired",
+    Trialing: "trialing",
+    Active: "active",
+    PastDue: "past_due",
+    Canceled: "canceled",
+    Unpaid: "unpaid",
+  },
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { SubscriptionStatuses } = require("@bitwarden/subscription");
+
+describe("SubscriptionPreviewResponse", () => {
+  const cartJson = {
+    PasswordManager: { Seats: { Reference: "pm-seat", Quantity: 1, Cost: 10 } },
+    Cadence: "annually",
+    PlanTier: "premium",
+    EstimatedTax: 0,
+    Total: 10,
+    AmountDue: 10,
+  };
+
+  const responseJson = (overrides: Record<string, unknown> = {}) => ({
+    Status: "active",
+    Cart: cartJson,
+    Storage: { Used: 1, Total: 5, Remaining: 4 },
+    ...overrides,
+  });
+
+  // The facade adapts the parsed CartPreview before calling toDomain; the adapted cart is opaque
+  // to the DTO, so a simple stand-in is sufficient here.
+  const adaptedCart: Cart = {
+    passwordManager: { seats: { translationKey: "premiumMembership", quantity: 1, cost: 10 } },
+    cadence: "annually",
+    estimatedTax: 0,
+  };
+
+  describe("parsing", () => {
+    it("should parse the cart via CartPreviewResponse", () => {
+      const response = new SubscriptionPreviewResponse(responseJson());
+
+      expect(response.cart.planTier).toBe("premium");
+      expect(response.cart.passwordManager.seats.reference).toBe("pm-seat");
+    });
+
+    it("should parse storage when present", () => {
+      const response = new SubscriptionPreviewResponse(responseJson());
+
+      expect(response.storage).toBeDefined();
+    });
+
+    it("should leave storage undefined when the server omits it", () => {
+      const response = new SubscriptionPreviewResponse(responseJson({ Storage: null }));
+
+      expect(response.storage).toBeUndefined();
+    });
+
+    it("should throw on an invalid status", () => {
+      expect(() => new SubscriptionPreviewResponse(responseJson({ Status: "bogus" }))).toThrow(
+        "Failed to parse invalid subscription status: bogus",
+      );
+    });
+  });
+
+  describe("toDomain across all seven statuses", () => {
+    const suspensionJson = {
+      Suspension: "2026-03-01T00:00:00.000Z",
+      GracePeriod: 14,
+    };
+
+    it.each([
+      SubscriptionStatuses.Incomplete,
+      SubscriptionStatuses.IncompleteExpired,
+      SubscriptionStatuses.PastDue,
+      SubscriptionStatuses.Unpaid,
+    ])("should build the suspension arm for %s", (status) => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({ Status: status, ...suspensionJson }),
+      );
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain).toEqual({
+        cart: adaptedCart,
+        storage: response.storage,
+        status,
+        suspension: new Date("2026-03-01T00:00:00.000Z"),
+        gracePeriod: 14,
+      });
+    });
+
+    it.each([SubscriptionStatuses.Trialing, SubscriptionStatuses.Active])(
+      "should build the billable arm for %s",
+      (status) => {
+        const response = new SubscriptionPreviewResponse(
+          responseJson({ Status: status, CancelAt: "2026-12-01T00:00:00.000Z" }),
+        );
+
+        const domain = response.toDomain(adaptedCart);
+
+        expect(domain).toEqual({
+          cart: adaptedCart,
+          storage: response.storage,
+          status,
+          cancelAt: new Date("2026-12-01T00:00:00.000Z"),
+        });
+      },
+    );
+
+    it("should build the billable arm without cancelAt when absent", () => {
+      const response = new SubscriptionPreviewResponse(responseJson({ Status: "active" }));
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain).toMatchObject({ status: "active", cancelAt: undefined });
+    });
+
+    it("should build the canceled arm", () => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({ Status: "canceled", Canceled: "2026-05-01T00:00:00.000Z" }),
+      );
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain).toEqual({
+        cart: adaptedCart,
+        storage: response.storage,
+        status: "canceled",
+        canceled: new Date("2026-05-01T00:00:00.000Z"),
+      });
+    });
+  });
+
+  describe("toDomain cart handling", () => {
+    it("should use the supplied adapted cart, not the raw parsed preview", () => {
+      const response = new SubscriptionPreviewResponse(responseJson());
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain.cart).toBe(adaptedCart);
+      expect(domain.cart).not.toBe(response.cart);
+    });
+
+    it("should carry undefined storage through to the domain", () => {
+      const response = new SubscriptionPreviewResponse(responseJson({ Storage: null }));
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain.storage).toBeUndefined();
+    });
+  });
+});
