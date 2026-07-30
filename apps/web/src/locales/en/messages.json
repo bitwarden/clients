@@ -12094,6 +12094,12 @@
   "seatLimitReachedContactYourProvider": {
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   },
+  "noPaymentMethodOnFileInviteLimitReached": {
+    "message": "Your organization does not have a payment method on file and cannot add more seats. Add a payment method to continue."
+  },
+  "noPaymentMethodContactOwner": {
+    "message": "Your organization does not have a payment method on file to add more seats. Contact your organization owner to add one."
+  },
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
   },

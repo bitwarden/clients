@@ -30,6 +30,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
@@ -580,7 +581,21 @@ export class MemberDialogComponent implements OnDestroy {
   private async handleInviteUsers(userView: OrganizationUserAdminView) {
     const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
 
-    await this.userService.invite(emails, userView);
+    try {
+      await this.userService.invite(emails, userView);
+    } catch (error) {
+      // Show the server's specific reason (e.g. seat limit, no payment method) instead of
+      // letting it fall through to the generic "An error has occurred." toast.
+      if (error instanceof ErrorResponse) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: error.getSingleMessage(),
+        });
+        return;
+      }
+      throw error;
+    }
 
     this.toastService.showToast({
       variant: "success",

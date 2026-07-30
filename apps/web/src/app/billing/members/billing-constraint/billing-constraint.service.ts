@@ -16,7 +16,7 @@ import {
 
 export interface SeatLimitResult {
   canAddUsers: boolean;
-  reason?: "reseller-limit" | "fixed-seat-limit" | "no-billing-permission";
+  reason?: "reseller-limit" | "fixed-seat-limit" | "no-billing-permission" | "no-payment-method";
   shouldShowUpgradeDialog?: boolean;
 }
 
@@ -60,6 +60,16 @@ export class BillingConstraintService {
       };
     }
 
+    // Dynamic-seat plans (Teams, Enterprise) can auto-purchase seats on demand, but only if
+    // the organization has a payment method on file to charge for the new seats.
+    if (!billingMetadata.hasPaymentMethod) {
+      return {
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: organization.canEditSubscription,
+      };
+    }
+
     return { canAddUsers: true };
   }
 
@@ -90,6 +100,18 @@ export class BillingConstraintService {
           await this.showSeatLimitReachedDialog(organization, action);
           return true;
         }
+
+      case "no-payment-method":
+        if (result.shouldShowUpgradeDialog) {
+          await this.showNoPaymentMethodDialog(organization);
+        } else {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("seatLimitReached"),
+            message: this.i18nService.t("noPaymentMethodContactOwner"),
+          });
+        }
+        return true;
 
       default:
         return true;
@@ -136,6 +158,20 @@ export class BillingConstraintService {
 
     if (result && organization.canEditSubscription) {
       await this.handleUpgradeNavigation(organization);
+    }
+  }
+
+  private async showNoPaymentMethodDialog(organization: Organization): Promise<void> {
+    const simpleDialog = this.dialogService.openSimpleDialogRef({
+      title: this.i18nService.t("seatLimitReached"),
+      content: this.i18nService.t("noPaymentMethodOnFileInviteLimitReached"),
+      type: "primary",
+      acceptButtonText: this.i18nService.t("addPaymentMethod"),
+    });
+
+    const result = await lastValueFrom(simpleDialog.closed);
+    if (result) {
+      await this.navigateToPaymentMethod(organization);
     }
   }
 

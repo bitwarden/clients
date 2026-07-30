@@ -115,16 +115,59 @@ describe("BillingConstraintService", () => {
       expect(result).toEqual({ canAddUsers: true });
     });
 
-    it("should allow users when occupied seats equal total seats for non-fixed seat plans", () => {
+    it("should allow users when occupied seats equal total seats for non-fixed seat plans with a payment method on file", () => {
       const organization = createMockOrganization({
         seats: 10,
         productTierType: ProductTierType.Teams,
       });
-      const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
+      const billingMetadata = createMockBillingMetadata({
+        organizationOccupiedSeats: 10,
+        hasPaymentMethod: true,
+      });
 
       const result = service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({ canAddUsers: true });
+    });
+
+    it("should block users with no-payment-method reason when a dynamic-seat plan has no payment method on file", () => {
+      const organization = createMockOrganization({
+        seats: 10,
+        productTierType: ProductTierType.Teams,
+        canEditSubscription: true,
+      });
+      const billingMetadata = createMockBillingMetadata({
+        organizationOccupiedSeats: 10,
+        hasPaymentMethod: false,
+      });
+
+      const result = service.checkSeatLimit(organization, billingMetadata);
+
+      expect(result).toEqual({
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: true,
+      });
+    });
+
+    it("should set shouldShowUpgradeDialog to false for no-payment-method when organization cannot edit subscription", () => {
+      const organization = createMockOrganization({
+        seats: 10,
+        productTierType: ProductTierType.Teams,
+        canEditSubscription: false,
+      });
+      const billingMetadata = createMockBillingMetadata({
+        organizationOccupiedSeats: 10,
+        hasPaymentMethod: false,
+      });
+
+      const result = service.checkSeatLimit(organization, billingMetadata);
+
+      expect(result).toEqual({
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: false,
+      });
     });
 
     it("should block users with reseller-limit reason when organization has reseller", () => {
@@ -273,6 +316,63 @@ describe("BillingConstraintService", () => {
 
       const seatLimitReached = await service.seatLimitReached(result, organization);
 
+      expect(seatLimitReached).toBe(true);
+    });
+
+    it("should show add-payment-method dialog and navigate on accept for no-payment-method when organization can edit subscription", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: true,
+      };
+      const organization = createMockOrganization({ canEditSubscription: true });
+      const mockSimpleDialogRef = { closed: of(true) };
+      dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
+
+      const seatLimitReached = await service.seatLimitReached(result, organization);
+
+      expect(dialogService.openSimpleDialogRef).toHaveBeenCalled();
+      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodOnFileInviteLimitReached");
+      expect(router.navigate).toHaveBeenCalledWith(
+        ["organizations", organization.id, "billing", "payment-method"],
+        { state: { launchPaymentModalAutomatically: true } },
+      );
+      expect(seatLimitReached).toBe(true);
+    });
+
+    it("should not navigate when add-payment-method dialog is dismissed for no-payment-method", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: true,
+      };
+      const organization = createMockOrganization({ canEditSubscription: true });
+      const mockSimpleDialogRef = { closed: of(false) };
+      dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
+
+      const seatLimitReached = await service.seatLimitReached(result, organization);
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(seatLimitReached).toBe(true);
+    });
+
+    it("should show contact-owner toast for no-payment-method when organization cannot edit subscription", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "no-payment-method",
+        shouldShowUpgradeDialog: false,
+      };
+      const organization = createMockOrganization({ canEditSubscription: false });
+
+      const seatLimitReached = await service.seatLimitReached(result, organization);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "translated-text",
+        message: "translated-text",
+      });
+      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReached");
+      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodContactOwner");
       expect(seatLimitReached).toBe(true);
     });
 
