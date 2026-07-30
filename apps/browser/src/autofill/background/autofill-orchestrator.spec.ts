@@ -261,7 +261,7 @@ describe("AutofillOrchestrator", () => {
     });
 
     it("records activity and refreshes the overlay but does not fill when the frame has no fields", async () => {
-      // An empty collection short-circuits before doAutoFillOnTab (which throws on empty details),
+      // An empty collection short-circuits before doAutoFillOnTab,
       // while the surrounding side effects still run.
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
@@ -276,8 +276,8 @@ describe("AutofillOrchestrator", () => {
 
     it("does not fill when the reported frame is fresh but has zero fields", async () => {
       // Isolates the fields guard from the freshness check: the url matches (frame is fresh), but
-      // the collected detail has no fields, so doAutoFillOnTab (which throws on empty details) must
-      // still be skipped while the side effects run.
+      // the collected detail has no fields, so doAutoFillOnTab must still be skipped
+      // while the side effects run.
       const tab = createChromeTabMock({ id: 1 });
       const pd = createPageDetailMock({
         frameId: 0,
