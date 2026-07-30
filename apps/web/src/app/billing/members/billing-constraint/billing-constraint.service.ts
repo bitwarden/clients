@@ -18,6 +18,9 @@ export interface SeatLimitResult {
   canAddUsers: boolean;
   reason?: "reseller-limit" | "fixed-seat-limit" | "no-billing-permission" | "no-payment-method";
   shouldShowUpgradeDialog?: boolean;
+  /** Seats currently occupied, included whenever a seat limit reason is returned so the UI can
+   *  show the user exactly how many of their seats are in use. */
+  occupiedSeats?: number;
 }
 
 export type SeatLimitAction = "invite" | "restore";
@@ -49,6 +52,7 @@ export class BillingConstraintService {
       return {
         canAddUsers: false,
         reason: "reseller-limit",
+        occupiedSeats,
       };
     }
 
@@ -57,6 +61,7 @@ export class BillingConstraintService {
         canAddUsers: false,
         reason: "fixed-seat-limit",
         shouldShowUpgradeDialog: organization.canEditSubscription,
+        occupiedSeats,
       };
     }
 
@@ -67,6 +72,7 @@ export class BillingConstraintService {
         canAddUsers: false,
         reason: "no-payment-method",
         shouldShowUpgradeDialog: organization.canEditSubscription,
+        occupiedSeats,
       };
     }
 
@@ -87,7 +93,11 @@ export class BillingConstraintService {
         this.toastService.showToast({
           variant: "error",
           title: this.i18nService.t("seatLimitReached"),
-          message: this.i18nService.t("contactYourProvider"),
+          message: this.i18nService.t(
+            "contactYourProvider",
+            result.occupiedSeats,
+            organization.seats,
+          ),
         });
         return true;
 
@@ -97,18 +107,22 @@ export class BillingConstraintService {
           // If the plan was successfully changed, the seat limit is no longer blocking
           return dialogResult !== ChangePlanDialogResultType.Submitted;
         } else {
-          await this.showSeatLimitReachedDialog(organization, action);
+          await this.showSeatLimitReachedDialog(organization, action, result.occupiedSeats);
           return true;
         }
 
       case "no-payment-method":
         if (result.shouldShowUpgradeDialog) {
-          await this.showNoPaymentMethodDialog(organization);
+          await this.showNoPaymentMethodDialog(organization, result.occupiedSeats);
         } else {
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("seatLimitReached"),
-            message: this.i18nService.t("noPaymentMethodContactOwner"),
+            message: this.i18nService.t(
+              "noPaymentMethodContactOwner",
+              result.occupiedSeats,
+              organization.seats,
+            ),
           });
         }
         return true;
@@ -139,8 +153,13 @@ export class BillingConstraintService {
   private async showSeatLimitReachedDialog(
     organization: Organization,
     action: SeatLimitAction,
+    occupiedSeats: number | undefined,
   ): Promise<void> {
-    const dialogContent = this.getSeatLimitReachedDialogContent(organization, action);
+    const dialogContent = this.getSeatLimitReachedDialogContent(
+      organization,
+      action,
+      occupiedSeats,
+    );
     const acceptButtonText = this.getSeatLimitReachedDialogAcceptButtonText(organization);
 
     const orgUpgradeSimpleDialogOpts = {
@@ -161,10 +180,17 @@ export class BillingConstraintService {
     }
   }
 
-  private async showNoPaymentMethodDialog(organization: Organization): Promise<void> {
+  private async showNoPaymentMethodDialog(
+    organization: Organization,
+    occupiedSeats: number | undefined,
+  ): Promise<void> {
     const simpleDialog = this.dialogService.openSimpleDialogRef({
       title: this.i18nService.t("seatLimitReached"),
-      content: this.i18nService.t("noPaymentMethodOnFileInviteLimitReached"),
+      content: this.i18nService.t(
+        "noPaymentMethodOnFileInviteLimitReached",
+        occupiedSeats,
+        organization.seats,
+      ),
       type: "primary",
       acceptButtonText: this.i18nService.t("addPaymentMethod"),
     });
@@ -190,9 +216,10 @@ export class BillingConstraintService {
   private getSeatLimitReachedDialogContent(
     organization: Organization,
     action: SeatLimitAction,
+    occupiedSeats: number | undefined,
   ): string {
     const productKey = this.getProductKey(organization, action);
-    return this.i18nService.t(productKey, organization.seats);
+    return this.i18nService.t(productKey, occupiedSeats, organization.seats);
   }
 
   private getSeatLimitReachedDialogAcceptButtonText(organization: Organization): string {

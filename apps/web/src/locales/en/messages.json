@@ -10868,73 +10868,105 @@
     "message": "Switch products"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this free organization. Upgrade to a paid plan to invite more members.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "2"
+      },
+      "total": {
+        "content": "$2",
         "example": "2"
       }
     }
   },
   "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this free organization. Contact your organization owner to upgrade.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "2"
+      },
+      "total": {
+        "content": "$2",
         "example": "2"
       }
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this Teams Starter plan. Upgrade your plan to invite more members.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
         "example": "10"
       }
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this Teams Starter plan. Contact your organization owner to upgrade your plan and invite more members.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
         "example": "10"
       }
     }
   },
   "freeOrgRestoreLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this free organization. Upgrade to a paid plan to restore this member's access.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "2"
+      },
+      "total": {
+        "content": "$2",
         "example": "2"
       }
     }
   },
   "freeOrgRestoreLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this free organization. Contact your organization owner to upgrade.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "2"
+      },
+      "total": {
+        "content": "$2",
         "example": "2"
       }
     }
   },
   "teamsStarterPlanRestoreLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this Teams Starter plan. Upgrade your plan to restore this member's access.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
         "example": "10"
       }
     }
   },
   "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this Teams Starter plan. Contact your organization owner to upgrade your plan and restore this member's access.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
         "example": "10"
       }
     }
@@ -12089,16 +12121,46 @@
     "message": "Seat limit has been reached"
   },
   "contactYourProvider": {
-    "message": "Contact your provider to purchase additional seats."
+    "message": "$COUNT$ of $TOTAL$ seats used. Contact your provider to purchase additional seats.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   },
   "noPaymentMethodOnFileInviteLimitReached": {
-    "message": "Your organization does not have a payment method on file and cannot add more seats. Add a payment method to continue."
+    "message": "You've used $COUNT$ of $TOTAL$ seats and your organization does not have a payment method on file to add more. Add a payment method to continue.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "noPaymentMethodContactOwner": {
-    "message": "Your organization does not have a payment method on file to add more seats. Contact your organization owner to add one."
+    "message": "You've used $COUNT$ of $TOTAL$ seats and your organization does not have a payment method on file to add more. Contact your organization owner to add one.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
@@ -13385,37 +13447,53 @@
     "message": "SSO Authentication"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this families organization. Upgrade to a paid plan to invite more members.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "6"
+      },
+      "total": {
+        "content": "$2",
         "example": "6"
       }
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this families organization. Contact your organization owner to upgrade.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "6"
+      },
+      "total": {
+        "content": "$2",
         "example": "6"
       }
     }
   },
   "familiesPlanRestoreLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this families organization. Upgrade to a paid plan to restore this member's access.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "6"
+      },
+      "total": {
+        "content": "$2",
         "example": "6"
       }
     }
   },
   "familiesPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "You've used $COUNT$ of $TOTAL$ seats on this families organization. Contact your organization owner to upgrade.",
     "placeholders": {
-      "seatcount": {
+      "count": {
         "content": "$1",
+        "example": "6"
+      },
+      "total": {
+        "content": "$2",
         "example": "6"
       }
     }

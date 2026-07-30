@@ -147,6 +147,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "no-payment-method",
         shouldShowUpgradeDialog: true,
+        occupiedSeats: 10,
       });
     });
 
@@ -167,6 +168,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "no-payment-method",
         shouldShowUpgradeDialog: false,
+        occupiedSeats: 10,
       });
     });
 
@@ -182,6 +184,7 @@ describe("BillingConstraintService", () => {
       expect(result).toEqual({
         canAddUsers: false,
         reason: "reseller-limit",
+        occupiedSeats: 10,
       });
     });
 
@@ -199,6 +202,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "fixed-seat-limit",
         shouldShowUpgradeDialog: true,
+        occupiedSeats: 10,
       });
     });
 
@@ -216,6 +220,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "fixed-seat-limit",
         shouldShowUpgradeDialog: false,
+        occupiedSeats: 10,
       });
     });
 
@@ -242,8 +247,12 @@ describe("BillingConstraintService", () => {
     });
 
     it("should show toast and return true for reseller-limit", async () => {
-      const result: SeatLimitResult = { canAddUsers: false, reason: "reseller-limit" };
-      const organization = createMockOrganization();
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "reseller-limit",
+        occupiedSeats: 10,
+      };
+      const organization = createMockOrganization({ seats: 10 });
 
       const seatLimitReached = await service.seatLimitReached(result, organization);
 
@@ -253,7 +262,7 @@ describe("BillingConstraintService", () => {
         message: "translated-text",
       });
       expect(i18nService.t).toHaveBeenCalledWith("seatLimitReached");
-      expect(i18nService.t).toHaveBeenCalledWith("contactYourProvider");
+      expect(i18nService.t).toHaveBeenCalledWith("contactYourProvider", 10, 10);
       expect(seatLimitReached).toBe(true);
     });
 
@@ -324,15 +333,16 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "no-payment-method",
         shouldShowUpgradeDialog: true,
+        occupiedSeats: 10,
       };
-      const organization = createMockOrganization({ canEditSubscription: true });
+      const organization = createMockOrganization({ canEditSubscription: true, seats: 10 });
       const mockSimpleDialogRef = { closed: of(true) };
       dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
 
       const seatLimitReached = await service.seatLimitReached(result, organization);
 
       expect(dialogService.openSimpleDialogRef).toHaveBeenCalled();
-      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodOnFileInviteLimitReached");
+      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodOnFileInviteLimitReached", 10, 10);
       expect(router.navigate).toHaveBeenCalledWith(
         ["organizations", organization.id, "billing", "payment-method"],
         { state: { launchPaymentModalAutomatically: true } },
@@ -361,8 +371,9 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "no-payment-method",
         shouldShowUpgradeDialog: false,
+        occupiedSeats: 10,
       };
-      const organization = createMockOrganization({ canEditSubscription: false });
+      const organization = createMockOrganization({ canEditSubscription: false, seats: 10 });
 
       const seatLimitReached = await service.seatLimitReached(result, organization);
 
@@ -372,7 +383,7 @@ describe("BillingConstraintService", () => {
         message: "translated-text",
       });
       expect(i18nService.t).toHaveBeenCalledWith("seatLimitReached");
-      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodContactOwner");
+      expect(i18nService.t).toHaveBeenCalledWith("noPaymentMethodContactOwner", 10, 10);
       expect(seatLimitReached).toBe(true);
     });
 
@@ -381,6 +392,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "fixed-seat-limit",
         shouldShowUpgradeDialog: false,
+        occupiedSeats: 5,
       };
       const organization = createMockOrganization({
         productTierType: ProductTierType.Free,
@@ -391,10 +403,11 @@ describe("BillingConstraintService", () => {
       await service.seatLimitReached(result, organization, "restore");
 
       expect(i18nService.t).toHaveBeenCalledWith("cannotRestoreAccessError");
-      expect(i18nService.t).toHaveBeenCalledWith("freeOrgRestoreLimitReachedNoManageBilling", 5);
+      expect(i18nService.t).toHaveBeenCalledWith("freeOrgRestoreLimitReachedNoManageBilling", 5, 5);
       expect(i18nService.t).not.toHaveBeenCalledWith("upgradeOrganization");
       expect(i18nService.t).not.toHaveBeenCalledWith(
         "freeOrgInvLimitReachedNoManageBilling",
+        expect.anything(),
         expect.anything(),
       );
     });
@@ -404,6 +417,7 @@ describe("BillingConstraintService", () => {
         canAddUsers: false,
         reason: "fixed-seat-limit",
         shouldShowUpgradeDialog: false,
+        occupiedSeats: 5,
       };
       const organization = createMockOrganization({
         productTierType: ProductTierType.Free,
@@ -414,7 +428,7 @@ describe("BillingConstraintService", () => {
       await service.seatLimitReached(result, organization);
 
       expect(i18nService.t).toHaveBeenCalledWith("upgradeOrganization");
-      expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5);
+      expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5, 5);
       expect(i18nService.t).not.toHaveBeenCalledWith("cannotRestoreAccessError");
     });
   });
@@ -441,6 +455,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 5,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.Free,
@@ -450,7 +465,7 @@ describe("BillingConstraintService", () => {
 
         await service.seatLimitReached(result, organization);
 
-        expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5);
+        expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5, 5);
       });
 
       it("should get correct dialog content for TeamsStarter organization", async () => {
@@ -458,6 +473,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 3,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.TeamsStarter,
@@ -470,6 +486,7 @@ describe("BillingConstraintService", () => {
         expect(i18nService.t).toHaveBeenCalledWith(
           "teamsStarterPlanInvLimitReachedNoManageBilling",
           3,
+          3,
         );
       });
 
@@ -478,6 +495,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 6,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.Families,
@@ -487,7 +505,11 @@ describe("BillingConstraintService", () => {
 
         await service.seatLimitReached(result, organization);
 
-        expect(i18nService.t).toHaveBeenCalledWith("familiesPlanInvLimitReachedNoManageBilling", 6);
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "familiesPlanInvLimitReachedNoManageBilling",
+          6,
+          6,
+        );
       });
 
       it("should throw error for unsupported product type in getProductKey", async () => {
@@ -495,6 +517,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 10,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.Enterprise,
@@ -511,6 +534,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 3,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.TeamsStarter,
@@ -523,6 +547,7 @@ describe("BillingConstraintService", () => {
         expect(i18nService.t).toHaveBeenCalledWith(
           "teamsStarterPlanRestoreLimitReachedNoManageBilling",
           3,
+          3,
         );
       });
 
@@ -531,6 +556,7 @@ describe("BillingConstraintService", () => {
           canAddUsers: false,
           reason: "fixed-seat-limit",
           shouldShowUpgradeDialog: false,
+          occupiedSeats: 6,
         };
         const organization = createMockOrganization({
           productTierType: ProductTierType.Families,
@@ -542,6 +568,7 @@ describe("BillingConstraintService", () => {
 
         expect(i18nService.t).toHaveBeenCalledWith(
           "familiesPlanRestoreLimitReachedNoManageBilling",
+          6,
           6,
         );
       });
