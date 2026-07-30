@@ -8,7 +8,7 @@ import { devFlagEnabled } from "../../../platform/flags";
  * dev flag. The flag is only ever on in development builds, so this route is
  * unreachable in production. Redirects to the vault when the flag is off.
  */
-export const autofillToolsDevFlagGuard: CanActivateFn = () => {
+export const autofillToolsDevFlagGuard: CanActivateFn = (_route, _state) => {
   if (devFlagEnabled("fillAssistDevTools")) {
     return true;
   }
