@@ -12,6 +12,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -124,10 +126,15 @@ describe("UserLayoutComponent", () => {
   const flag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
 
+  const hasPremium$ = new BehaviorSubject<boolean>(true);
+  const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
   const policyService = mock<PolicyService>();
+  const cipherArchiveService = mock<CipherArchiveService>();
+  const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
 
   /** Trimmed text of every rendered nav item and group, in document order. */
   const navText = () =>
@@ -154,9 +161,16 @@ describe("UserLayoutComponent", () => {
     flag$.next(false);
     viewModel$.next(emptyViewModel);
 
+    jest.clearAllMocks();
+
+    hasPremium$.next(true);
+    archivedCiphers$.next([]);
+
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
+    cipherArchiveService.userHasPremium$.mockReturnValue(hasPremium$);
+    cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
     await TestBed.configureTestingModule({
@@ -175,6 +189,8 @@ describe("UserLayoutComponent", () => {
           useValue: { getSubscriptionRoute$: () => of(null) },
         },
         { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
+        { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
       ],
     })
       .overrideComponent(UserLayoutComponent, {
@@ -241,6 +257,58 @@ describe("UserLayoutComponent", () => {
       const children = childText(expandGroup("settings"));
 
       expect(children[children.length - 1]).toBe("exportNoun");
+    });
+
+    describe("Archive upgrade path", () => {
+      const clickArchive = () => {
+        const archive = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
+          (el) => (el as HTMLElement).textContent?.includes("archiveNoun"),
+        ) as HTMLElement;
+        archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+      };
+
+      it("filters to the archive for a premium user", () => {
+        clickArchive();
+
+        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: { type: "archive" },
+          queryParamsHandling: "merge",
+        });
+        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      });
+
+      it("prompts to upgrade when a non-premium user has nothing archived", () => {
+        hasPremium$.next(false);
+        fixture.detectChanges();
+
+        clickArchive();
+
+        expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+
+      it("still filters to the archive when a non-premium user has archived items", () => {
+        hasPremium$.next(false);
+        archivedCiphers$.next([{}]);
+        fixture.detectChanges();
+
+        clickArchive();
+
+        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: { type: "archive" },
+          queryParamsHandling: "merge",
+        });
+        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      });
+
+      it("badges Archive for a non-premium user", () => {
+        expect(fixture.nativeElement.querySelector("bit-badge")).toBeNull();
+
+        hasPremium$.next(false);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-badge")).not.toBeNull();
+      });
     });
 
     describe("free account with only a personal vault", () => {
