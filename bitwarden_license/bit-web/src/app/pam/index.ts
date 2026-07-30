@@ -16,6 +16,24 @@ export {
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
 export { apiErrorBodyMessage } from "./abstractions/api-error";
 
+export type {
+  AccessDeciderKind,
+  AccessDecisionVerdict,
+  AccessLeaseExtensionRequest,
+  AccessLeaseId,
+  AccessLeaseRevokeRequest,
+  AccessLeaseStatus,
+  AccessLeaseView,
+  AccessRequestDecisionView,
+  AccessRequestId,
+  AccessRequestStatus,
+  AccessRequestView,
+  LeasingError,
+} from "./abstractions/access-lease";
+export { isLeasingError } from "./abstractions/access-lease";
+export { AccessRequestSdkService } from "./abstractions/access-request-sdk.service";
+export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
+
 export {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_NAME_MAX_LENGTH,
@@ -38,6 +56,11 @@ export {
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
+export { formatRemaining } from "./date/format-remaining";
+export { findHumanDecision } from "./helpers/find-human-decision";
+export { requestedWindowSeconds } from "./helpers/requested-window";
+export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
+export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
