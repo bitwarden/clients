@@ -15004,6 +15004,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add three quick-copy action buttons next to items to specifically copy your username, password, or verification code to the clipboard."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
