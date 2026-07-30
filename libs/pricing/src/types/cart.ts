@@ -7,7 +7,7 @@ export type CartItem = {
   translationParams?: Array<string | number>;
   quantity: number;
   cost: number;
-  discount?: Discount;
+  discounts?: Discount[];
   hideBreakdown?: boolean;
 };
 
@@ -24,4 +24,9 @@ export type Cart = {
   discounts?: Discount[];
   credit?: Credit;
   estimatedTax: number;
+  /**
+   * The authoritative invoice total, set by the preview adapter. Absent on legacy carts, in
+   * which case the renderer falls back to computing the total from the cart's line items.
+   */
+  total?: number;
 };

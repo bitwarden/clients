@@ -600,10 +600,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
@@ -631,10 +633,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 0.25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 0.25,
+              },
+            ],
           },
         },
       };
@@ -663,10 +667,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.AmountOff,
-              value: 15,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.AmountOff,
+                value: 15,
+              },
+            ],
           },
         },
       };
@@ -693,10 +699,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
@@ -723,10 +731,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
         discounts: [

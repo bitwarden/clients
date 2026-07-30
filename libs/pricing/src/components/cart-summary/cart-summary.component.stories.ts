@@ -453,10 +453,12 @@ export const WithItemDiscount: Story = {
           quantity: 1,
           translationKey: "premiumMembership",
           cost: 10.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
         },
       },
       cadence: "annually",
@@ -485,10 +487,12 @@ export const WithCartAndItemDiscount: Story = {
           quantity: 5,
           translationKey: "members",
           cost: 50.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
         },
         additionalStorage: {
           quantity: 2,
