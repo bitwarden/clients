@@ -1029,7 +1029,7 @@ describe("AutofillService", () => {
       expect(autofillResult).toEqual({ didAutofill: true });
     });
 
-    it("returns a null value if the cipher type is not for a Login", async () => {
+    it("reports a fill with no TOTP if the cipher type is not for a Login", async () => {
       autofillOptions.cipher.type = CipherType.Identity;
       autofillOptions.cipher.identity = mock<IdentityView>();
 
@@ -1038,7 +1038,7 @@ describe("AutofillService", () => {
       expect(autofillResult).toEqual({ didAutofill: true });
     });
 
-    it("returns a null value if the login does not contain a TOTP value", async () => {
+    it("reports a fill with no TOTP if the login does not contain a TOTP value", async () => {
       autofillOptions.cipher.login.totp = undefined;
       jest.spyOn(autofillService, "getShouldAutoCopyTotp");
       jest.spyOn(totpService, "getCode$");
@@ -1050,7 +1050,7 @@ describe("AutofillService", () => {
       expect(autofillResult).toEqual({ didAutofill: true });
     });
 
-    it("returns a null value if the user cannot access premium and the organization does not use TOTP", async () => {
+    it("reports a fill with no TOTP if the user cannot access premium and the organization does not use TOTP", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = false;
       jest
@@ -1062,7 +1062,7 @@ describe("AutofillService", () => {
       expect(autofillResult).toEqual({ didAutofill: true });
     });
 
-    it("returns a null value if the user has disabled `auto TOTP copy`", async () => {
+    it("reports a fill with no TOTP if the user has disabled `auto TOTP copy`", async () => {
       autofillOptions.cipher.login.totp = "totp";
       autofillOptions.cipher.organizationUseTotp = true;
       jest
@@ -1109,7 +1109,7 @@ describe("AutofillService", () => {
     });
 
     describe("given a tab url which does not match a cipher", () => {
-      it("will skip autofill and return a null value when triggering on page load", async () => {
+      it("will skip autofill and report no fill when triggering on page load", async () => {
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl");
         jest.spyOn(cipherService, "getLastLaunchedForUrl").mockResolvedValueOnce(null);
@@ -1124,7 +1124,7 @@ describe("AutofillService", () => {
         expect(result).toEqual({ didAutofill: false });
       });
 
-      it("will skip autofill and return a null value when triggering from a keyboard shortcut", async () => {
+      it("will skip autofill and report no fill when triggering from a keyboard shortcut", async () => {
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(null);
         jest.spyOn(cipherService, "getLastLaunchedForUrl").mockResolvedValueOnce(null);
@@ -1241,7 +1241,7 @@ describe("AutofillService", () => {
         expect(result).toEqual({ didAutofill: true, totp: totpCode });
       });
 
-      it("will skip autofill, launch the password reprompt window, and return a null value if the cipher re-prompt type is not `None`", async () => {
+      it("will skip autofill, launch the password reprompt window, and report no fill if the cipher re-prompt type is not `None`", async () => {
         cipher.reprompt = CipherRepromptType.Password;
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(cipher);
@@ -1313,7 +1313,7 @@ describe("AutofillService", () => {
       ];
     });
 
-    it("returns a null vault without doing autofill if the page details does not contain fields ", async () => {
+    it("reports no fill without doing autofill if the page details does not contain fields", async () => {
       pageDetails[0].details.fields = [];
       jest.spyOn(autofillService as any, "getActiveTab");
       jest.spyOn(autofillService, "doAutoFill");
@@ -1325,7 +1325,7 @@ describe("AutofillService", () => {
       expect(result).toEqual({ didAutofill: false });
     });
 
-    it("returns a null value without doing autofill if the active tab cannot be found", async () => {
+    it("reports no fill without doing autofill if the active tab cannot be found", async () => {
       jest.spyOn(autofillService as any, "getActiveTab").mockResolvedValueOnce(undefined);
       jest.spyOn(autofillService, "doAutoFill");
 
@@ -1336,7 +1336,7 @@ describe("AutofillService", () => {
       expect(result).toEqual({ didAutofill: false });
     });
 
-    it("returns a null value without doing autofill if the active tab url cannot be found", async () => {
+    it("reports no fill without doing autofill if the active tab url cannot be found", async () => {
       jest.spyOn(autofillService as any, "getActiveTab").mockResolvedValueOnce({
         id: 1,
         url: undefined,
