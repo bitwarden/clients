@@ -5,6 +5,7 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
@@ -29,6 +30,7 @@ const mockEnvironmentService = {
 const mockDialogService: Partial<DialogService> = {};
 const mockToastService = { showToast: () => {} };
 const mockRouter = { navigate: () => Promise.resolve(true) };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Individual/Self-Hosted Premium",
@@ -46,6 +48,7 @@ export default {
         { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

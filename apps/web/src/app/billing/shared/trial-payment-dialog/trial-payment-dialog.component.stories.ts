@@ -11,6 +11,7 @@ import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/bill
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -108,6 +109,7 @@ const mockStripeService: Partial<StripeService> = {
   setupCardPaymentMethod: () => Promise.resolve("mock-payment-method"),
   setupBankAccountPaymentMethod: () => Promise.resolve("mock-payment-method"),
 };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Shared/Trial Payment Dialog",
@@ -141,6 +143,7 @@ export default {
         { provide: BraintreeService, useValue: mockBraintreeService },
         { provide: StripeService, useValue: mockStripeService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

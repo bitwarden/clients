@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -50,6 +51,7 @@ const mockVaultTimeoutSettingsService = { availableVaultTimeoutActions$: () => o
 const mockLogoutService = { logout: () => Promise.resolve() };
 const mockLockService = { lock: () => Promise.resolve() };
 const mockAvatarService = { avatarColor$: of("#175DDC") };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Settings/Sponsored Families",
@@ -77,6 +79,7 @@ export default {
         { provide: LogoutService, useValue: mockLogoutService },
         { provide: LockService, useValue: mockLockService },
         { provide: AvatarService, useValue: mockAvatarService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

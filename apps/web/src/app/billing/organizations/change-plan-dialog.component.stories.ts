@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -188,6 +189,7 @@ const mockBillingNotificationService: Partial<BillingNotificationService> = {
 const mockOrganizationWarningsService: Partial<OrganizationWarningsService> = {
   refreshInactiveSubscriptionWarning: () => {},
 };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Organizations/Change Plan Dialog",
@@ -212,6 +214,7 @@ export default {
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

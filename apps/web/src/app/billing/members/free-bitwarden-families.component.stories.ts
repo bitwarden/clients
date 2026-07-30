@@ -14,6 +14,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -56,6 +57,7 @@ const mockVaultTimeoutSettingsService = { availableVaultTimeoutActions$: () => o
 const mockLogoutService = { logout: () => Promise.resolve() };
 const mockLockService = { lock: () => Promise.resolve() };
 const mockAvatarService = { avatarColor$: of("#175DDC") };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Members/Free Bitwarden Families",
@@ -91,6 +93,7 @@ export default {
         { provide: LogoutService, useValue: mockLogoutService },
         { provide: LockService, useValue: mockLockService },
         { provide: AvatarService, useValue: mockAvatarService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

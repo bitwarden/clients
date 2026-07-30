@@ -13,6 +13,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -174,6 +175,7 @@ const mockSubscriptionDiscountService = {
   isDiscountExpiredError: () => false,
   refresh: () => {},
 };
+const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 export default {
   title: "Billing/Organizations/Organization Plans",
@@ -203,6 +205,7 @@ export default {
         },
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({
