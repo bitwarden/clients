@@ -174,6 +174,11 @@ export const Secondary: StoryObj<NavGroupComponent> = {
   }),
 };
 
+export const SecondaryVfo1: StoryObj<NavGroupComponent> = {
+  ...Secondary,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const NestedGroups: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,
