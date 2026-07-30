@@ -373,7 +373,7 @@ export const RealisticSideNavV2: Story = {
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
           <bit-nav-group text="My vault" [open]="true">
-            <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
+            <bit-icon-tile slot="start" icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
             <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>

@@ -29,7 +29,7 @@ export class SideNavService {
    * otherwise let the nav collapse to nothing. Matches the siderail width the layout
    * reserves for the closed nav.
    */
-  readonly CLOSED_WIDTH = 3.75;
+  readonly CLOSED_WIDTH = 4;
 
   private rootFontSizePx: number;
 

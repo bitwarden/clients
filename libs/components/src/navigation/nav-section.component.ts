@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core
 import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
 
+import { NavGroupComponent } from "./nav-group.component";
 import { SideNavService } from "./side-nav.service";
 
 let nextId = 0;
@@ -20,6 +21,10 @@ let nextId = 0;
 })
 export class NavSectionComponent {
   protected readonly sideNavService = inject(SideNavService);
+  private readonly parentNavGroup = inject(NavGroupComponent, { optional: true });
+
+  /** `true` when this section is rendered inside a `bit-nav-group`. */
+  protected readonly isInNavGroup = this.parentNavGroup != null;
 
   /** Section heading text, e.g. "Manage". Displayed uppercased via CSS. */
   readonly label = input.required<string>();

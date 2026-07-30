@@ -74,9 +74,10 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       } @else {
         <!-- Magic number needed for visual consistency -->
-        <div class="tw-ps-[31px] tw-py-0.5">
+        <div class="tw-ps-[19px] tw-py-0.5">
           <div
-            class="tw-flex tw-flex-col tw-gap-0.5"
+            class="tw-flex tw-flex-col tw-gap-0.5 tw-ps-3"
+            [class.tw-items-center]="!sideNavOpen()"
             [class]="
               treeDepth() === 0
                 ? 'tw-border-0 tw-border-l tw-border-solid tw-border-border-nav-divider'

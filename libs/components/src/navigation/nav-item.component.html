@@ -101,11 +101,12 @@
     </div>
   </ng-template>
 } @else {
-  <div class="tw-cursor-pointer tw-px-3">
+  <div class="tw-cursor-pointer">
     @if (open || icon() || hasStartIconTile()) {
       <div
         class="tw-relative tw-rounded-xl tw-p-2 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
         [class]="fvwStyles()"
+        [class.tw-px-0]="hasStartIconTile() && !open"
         [style]="showActiveStyles() ? '--color-nav-bg-brand: var(--color-nav-bg-brand-soft);' : ''"
         data-testid="nav-item-container"
         data-spotlight-target
@@ -177,6 +178,7 @@
     <div
       [title]="text()"
       class="tw-py-0 tw-flex tw-items-center tw-h-full"
+      [class.tw-gap-2]="hasStartIconTile()"
       [class.tw-text-center]="!open"
       [class.tw-justify-center]="!open"
       [class.tw-font-normal]="!showActiveStyles()"
@@ -190,7 +192,7 @@
         <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
           @if (icon()) {
             <bit-icon
-              class="!tw-m-0 tw-text-xl tw-shrink-0"
+              class="!tw-m-0 tw-text-2xl tw-shrink-0"
               [name]="icon()"
               [attr.aria-hidden]="open"
               [attr.aria-label]="text()"
