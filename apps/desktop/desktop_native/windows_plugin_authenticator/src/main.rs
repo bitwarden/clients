@@ -17,6 +17,8 @@ mod util;
 use std::{mem::MaybeUninit, path::PathBuf};
 
 #[cfg(target_os = "windows")]
+use desktop_core::autofill::read_plugin_config_file;
+#[cfg(target_os = "windows")]
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 // Re-export main functionality
 #[cfg(target_os = "windows")]
@@ -105,7 +107,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let thread_id = unsafe { GetCurrentThreadId() };
             tracing::info!(%thread_id, "Starting plugin authenticator...");
             let clsid = {
-                let com_id = windows_plugin_authenticator::read_config_file()?.clsid;
+                let com_id = read_plugin_config_file()?
+                    .ok_or("Plugin authenticator is not running from an Appx package")?
+                    .clsid;
                 Clsid::try_from(format!("{{{}}}", com_id).as_str()).map_err(|err| {
                     format!("Could not read plugin authenticator CLSID from config file: {err}")
                 })?

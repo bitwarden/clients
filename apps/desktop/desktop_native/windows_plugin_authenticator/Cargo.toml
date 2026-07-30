@@ -8,15 +8,12 @@ publish = { workspace = true }
 [target.'cfg(windows)'.dependencies]
 autofill_provider = { path = "../autofill_provider" }
 base64 = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
+desktop_core = { path = "../core" }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
-    "ApplicationModel_PackageExtensions",
     "System",
-    "Storage_Search",
     "Win32_Foundation",
     "Win32_Security",
     "Win32_System_Com",

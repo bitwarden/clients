@@ -257,6 +257,10 @@ impl WebAuthnPlugin {
         }
     }
 
+    pub fn get_authenticator_state(&self) -> Result<AuthenticatorState, WinWebAuthnError> {
+        get_authenticator_state(&self.clsid)
+    }
+
     /// Registers a COM server with Windows and starts the COM message loop on a dedicated thread.
     ///
     /// The handler should be an instance of your type that implements [PluginAuthenticator].
