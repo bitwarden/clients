@@ -350,14 +350,28 @@ describe("EventService organization name personalization (vfo1-foundation)", () 
   );
 
   it.each(cases)(
-    "falls back to the generic 'organization' translation for %s when no org name resolver is provided",
-    async (type, _legacyKey, nextKey, evFields) => {
+    "falls back to the legacy key for %s when vfo1-foundation is on but no org name resolver is provided",
+    async (type, legacyKey, nextKey, evFields) => {
       const sut = createSut(true);
 
       const info = await sut.getEventInfo({ type, ...evFields } as EventResponse);
 
-      expect(info.humanReadableMessage).toContain(nextKey);
-      expect(info.humanReadableMessage).toContain("organization");
+      expect(info.humanReadableMessage).toContain(`${legacyKey}|`);
+      expect(info.humanReadableMessage).not.toContain(nextKey);
+    },
+  );
+
+  it.each(cases)(
+    "falls back to the legacy key for %s when vfo1-foundation is on but the resolver returns undefined",
+    async (type, legacyKey, nextKey, evFields) => {
+      const sut = createSut(true);
+      const options = new EventOptions();
+      options.getOrganizationName = () => undefined;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(`${legacyKey}|`);
+      expect(info.humanReadableMessage).not.toContain(nextKey);
     },
   );
 });

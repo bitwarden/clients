@@ -6025,7 +6025,7 @@
     }
   },
   "accessedClientVaultWithName": {
-    "message": "Accessed $ID$ $ORGNAME$ vault.",
+    "message": "Accessed $ID$ in $ORGNAME$ vault.",
     "placeholders": {
       "id": {
         "content": "$1",

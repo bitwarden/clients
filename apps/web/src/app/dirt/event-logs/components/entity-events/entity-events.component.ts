@@ -76,8 +76,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   protected name: string;
   private providerId?: string;
   // Resolved once for the lifetime of the dialog (params.organizationId doesn't change across
-  // switchEntity calls); used to personalize VFO1 event copy (e.g. "Moved item ABC1234 to
-  // Acme Inc vault.").
+  // switchEntity calls).
   private organizationName?: string;
 
   get showUser() {

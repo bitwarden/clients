@@ -190,7 +190,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
   }
 
   /**
-   * Name of the organization an event pertains to, used to personalize VFO1 event copy
+   * Name of the organization an event pertains to, used to personalize event copy
    * (e.g. "Purged Acme Inc vault."). The default resolves nothing — subclasses that have
    * organization context (or a per-event org lookup, for pages spanning multiple organizations)
    * override this.

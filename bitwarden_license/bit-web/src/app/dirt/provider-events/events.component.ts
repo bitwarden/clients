@@ -12,6 +12,8 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -34,8 +36,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
   private providerUsersUserIdMap = new Map<string, any>();
   private providerUsersIdMap = new Map<string, any>();
   // Maps a provider-organization relationship id (EventResponse.providerOrganizationId) to the
-  // client organization's display name, used to personalize VFO1 event copy for events that
-  // reference a client org (e.g. "Created Acme Inc vault ABC12345.").
+  // client organization's display name.
   private providerOrganizationNameMap = new Map<string, string>();
 
   constructor(
@@ -54,6 +55,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     toastService: ToastService,
     accountService: AccountService,
     organizationService: OrganizationService,
+    private configService: ConfigService,
   ) {
     super(
       eventService,
@@ -99,12 +101,16 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
 
-    const providerOrganizations = await this.providerApiService.getProviderOrganizations(
-      this.providerId,
-    );
-    providerOrganizations.data.forEach((o) => {
-      this.providerOrganizationNameMap.set(o.id, o.organizationName);
-    });
+    // Only needed to personalize event copy with the client org name, which is gated behind this
+    // flag, so skip the extra request entirely when it's off.
+    if (await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation)) {
+      const providerOrganizations = await this.providerApiService.getProviderOrganizations(
+        this.providerId,
+      );
+      providerOrganizations.data.forEach((o) => {
+        this.providerOrganizationNameMap.set(o.id, o.organizationName);
+      });
+    }
 
     await this.refreshEvents();
     this.loaded.set(true);
