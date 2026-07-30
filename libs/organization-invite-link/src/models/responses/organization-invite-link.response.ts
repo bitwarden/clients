@@ -1,7 +1,11 @@
 import { Jsonify } from "type-fest";
 
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { Invite } from "@bitwarden/sdk-internal";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  Invite,
+  OrganizationInviteLink as SdkOrganizationInviteLink,
+} from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkResponseModel extends BaseResponse {
   /** The unique identifier of the invite link. */
@@ -47,7 +51,7 @@ export class OrganizationInviteLink {
   /** The ISO-8601 date the invite link was created. */
   creationDate: string;
 
-  constructor(response: OrganizationInviteLinkResponseModel) {
+  constructor(response: Jsonify<OrganizationInviteLinkResponseModel>) {
     this.id = response.id;
     this.code = response.code;
     this.organizationId = response.organizationId;
@@ -59,5 +63,17 @@ export class OrganizationInviteLink {
 
   static fromJSON(obj: Jsonify<OrganizationInviteLink>): OrganizationInviteLink {
     return Object.assign(new OrganizationInviteLink(obj as any), obj);
+  }
+
+  static fromSdk(obj: SdkOrganizationInviteLink): OrganizationInviteLink {
+    return new OrganizationInviteLink({
+      id: uuidAsString(obj.id),
+      code: uuidAsString(obj.code),
+      organizationId: uuidAsString(obj.organizationId),
+      allowedDomains: obj.allowedDomains,
+      invite: obj.invite,
+      supportsConfirmation: obj.supportsConfirmation,
+      creationDate: obj.creationDate,
+    });
   }
 }
