@@ -190,6 +190,22 @@ describe("FileDropzoneComponent", () => {
     expect(input.closest("label")).toBeNull();
   });
 
+  it("does not set aria-label on the native input", () => {
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+
+    // An aria-label would override the projected <bit-label> as the accessible name, so the
+    // field's name would never be announced. The label must remain the accessible name.
+    expect(input.hasAttribute("aria-label")).toBe(false);
+  });
+
+  it("describes the native input with the drop instruction", () => {
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const instructions = fixture.nativeElement.querySelector(`#${input.id}-instructions`);
+
+    expect(instructions).not.toBeNull();
+    expect(input.getAttribute("aria-describedby")).toContain(instructions.id);
+  });
+
   it("opens the file picker when the drop area is clicked", () => {
     const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
     const clickSpy = jest.spyOn(input, "click");

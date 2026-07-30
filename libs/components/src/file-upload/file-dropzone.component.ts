@@ -107,6 +107,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   protected readonly inputId = computed(() => `${this.formFieldControl.id()}-input`);
   protected readonly statusId = computed(() => `${this.inputId()}-status`);
   protected readonly maxFileSizeId = computed(() => `${this.inputId()}-size`);
+  protected readonly instructionsId = computed(() => `${this.inputId()}-instructions`);
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
@@ -126,12 +127,14 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   });
 
   /**
-   * The projected hint id (queried here because `bit-form-field` can't see a hint we re-project
-   * through our own `<ng-content>`), the max-file-size text, form-field's error target, and the
-   * live status region.
+   * The visible drop instruction (the input's accessible name is the projected `<bit-label>`, so
+   * the instruction is exposed as a description instead), the projected hint id (queried here
+   * because `bit-form-field` can't see a hint we re-project through our own `<ng-content>`), the
+   * max-file-size text, form-field's error target, and the live status region.
    */
   protected readonly describedBy = computed(() => {
     const ids = [
+      this.instructionsId(),
       this.hint()?.id,
       this.maxFileSize() != null ? this.maxFileSizeId() : null,
       this.formFieldControl.ariaDescribedBy(),

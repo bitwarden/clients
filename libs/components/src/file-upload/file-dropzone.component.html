@@ -20,7 +20,6 @@
         [accept]="accept()"
         [multiple]="multiple()"
         [disabled]="disabled() || null"
-        [attr.aria-label]="'clickToUploadOrDragAndDrop' | i18n"
         [attr.aria-describedby]="describedBy()"
         (click)="onInputClick($event)"
         (change)="onInputChange($event)"
@@ -29,6 +28,7 @@
 
       <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
         <span
+          [id]="instructionsId()"
           class="tw-text-sm tw-font-medium"
           [class.tw-text-fg-body-subtle]="!disabled()"
           [class.tw-text-fg-inactive]="disabled()"
