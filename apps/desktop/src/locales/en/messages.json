@@ -3451,6 +3451,18 @@
   "options": {
     "message": "Options"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
   },
