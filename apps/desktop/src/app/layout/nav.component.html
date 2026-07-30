@@ -1,0 +1,13 @@
+<ng-container *ngFor="let item of items">
+  <button
+    type="button"
+    [routerLink]="item.link"
+    class="btn primary"
+    routerLinkActive="active"
+    [title]="item.label"
+    #rla="routerLinkActive"
+    [attr.aria-pressed]="rla.isActive"
+  >
+    <i class="bwi" [ngClass]="item.icon"></i>{{ item.label }}
+  </button>
+</ng-container>

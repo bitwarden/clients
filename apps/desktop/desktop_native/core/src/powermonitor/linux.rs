@@ -1,7 +1,7 @@
-use std::{borrow::Cow, time::Duration};
+use std::borrow::Cow;
 
 use futures::TryStreamExt;
-use zbus::{connection::Builder, Connection, MatchRule};
+use zbus::{Connection, MatchRule};
 
 struct ScreenLock {
     interface: Cow<'static, str>,
@@ -43,18 +43,10 @@ pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn st
     Ok(())
 }
 
-async fn lock_monitor_connection() -> zbus::Result<Connection> {
-    Builder::session()?
-        .method_timeout(Duration::from_secs(2))
-        .build()
-        .await
-}
-
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub async fn is_lock_monitor_available() -> bool {
-    let connection = match lock_monitor_connection().await {
-        Ok(connection) => connection,
-        Err(_) => return false,
-    };
+    let connection = Connection::session().await.unwrap();
     for monitor in SCREEN_LOCK_MONITORS {
         let res = connection
             .call_method(

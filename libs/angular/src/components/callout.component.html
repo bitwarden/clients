@@ -1,0 +1,26 @@
+<bit-callout [icon]="icon" [title]="title" [type]="$any(type)" [useAlertRole]="useAlertRole">
+  <div class="tw-pl-7 tw-m-0" *ngIf="enforcedPolicyOptions">
+    {{ enforcedPolicyMessage }}
+    <ul>
+      <li *ngIf="enforcedPolicyOptions?.minComplexity > 0">
+        {{ "policyInEffectMinComplexity" | i18n: getPasswordScoreAlertDisplay() }}
+      </li>
+      <li *ngIf="enforcedPolicyOptions?.minLength > 0">
+        {{ "policyInEffectMinLength" | i18n: enforcedPolicyOptions?.minLength.toString() }}
+      </li>
+      <li *ngIf="enforcedPolicyOptions?.requireUpper">
+        {{ "policyInEffectUppercase" | i18n }}
+      </li>
+      <li *ngIf="enforcedPolicyOptions?.requireLower">
+        {{ "policyInEffectLowercase" | i18n }}
+      </li>
+      <li *ngIf="enforcedPolicyOptions?.requireNumbers">
+        {{ "policyInEffectNumbers" | i18n }}
+      </li>
+      <li *ngIf="enforcedPolicyOptions?.requireSpecial">
+        {{ "policyInEffectSpecial" | i18n: "!@#$%^&*" }}
+      </li>
+    </ul>
+  </div>
+  <ng-content></ng-content>
+</bit-callout>

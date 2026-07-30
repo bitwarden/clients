@@ -1,0 +1,109 @@
+#web-authn-frame {
+  height: 40px;
+
+  iframe {
+    border: none;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+// MFA Types for logo styling with no dark theme alternative
+$mfaTypes: 0, 2, 3, 4, 6;
+
+@each $mfaType in $mfaTypes {
+  .mfaType#{$mfaType} {
+    content: url("../images/two-factor/" + $mfaType + ".png");
+    max-width: 120px;
+  }
+}
+
+.mfaType0 {
+  content: url("../images/two-factor/0.png");
+  max-width: 120px;
+  max-height: 62px;
+}
+
+.mfaType1 {
+  max-width: 120px;
+  max-height: 62px;
+
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/1.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/1-w.png");
+  }
+}
+
+.mfaType7 {
+  max-width: 120px;
+
+  &:is(.theme_light *) {
+    content: url("../images/two-factor/7.png");
+  }
+
+  &:is(.theme_dark *) {
+    content: url("../images/two-factor/7-w.png");
+  }
+}
+
+// Braintree
+
+#bt-dropin-container {
+  min-height: 50px;
+  &:is(.theme_light *) {
+    background: url("../images/loading.svg") center center no-repeat;
+  }
+
+  &:is(.theme_dark *) {
+    background: url("../images/loading-white.svg") center center no-repeat;
+  }
+}
+
+.braintree-placeholder,
+.braintree-sheet__header {
+  display: none;
+}
+
+.braintree-sheet__content--button {
+  min-height: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.braintree-sheet__container {
+  margin-bottom: 0;
+}
+
+.braintree-sheet {
+  border: none;
+}
+
+// hide duplicate paypal iframe
+.braintree-sheet__content--button
+  .braintree-sheet__button--paypal
+  iframe.zoid-prerender-frame.zoid-invisible {
+  display: none !important;
+}
+
+[data-braintree-id="upper-container"]::before {
+  background-color: rgba(var(--color-background));
+}
+
+.card [data-braintree-id="upper-container"]::before {
+  background-color: rgba(var(--color-background-alt));
+}
+
+[data-braintree-id="paypal-button"] {
+  background-color: rgba(var(--color-background));
+}
+
+.card [data-braintree-id="paypal-button"] {
+  background-color: rgba(var(--color-background-alt));
+}
+
+.paypal-button-text {
+  color: rgba(var(--color-text-main));
+}

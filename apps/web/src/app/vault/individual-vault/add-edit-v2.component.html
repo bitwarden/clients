@@ -1,0 +1,32 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ headerText }}
+  </span>
+  <ng-container bitDialogContent>
+    <vault-cipher-form
+      *ngIf="!loading"
+      formId="cipherForm"
+      [config]="config"
+      [submitBtn]="submitBtn"
+      (cipherSaved)="onCipherSaved($event)"
+    >
+      <bit-item slot="attachment-button">
+        <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+          {{ "attachments" | i18n }}
+          <span *ngIf="!canAccessAttachments" bitBadge variant="success" slot="default-trailing">
+            {{ "premium" | i18n }}
+          </span>
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </button>
+      </bit-item>
+    </vault-cipher-form>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+      {{ "save" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -4,45 +4,36 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use oo7::XDG_SCHEMA_ATTRIBUTE;
 
-use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
-    util,
-};
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
+
+use crate::util;
 
 //
 // Public API
 //
 
-// TODO: It's possible that there might be multiple possible data directories, depending on the
-// installation method (e.g., snap, flatpak, etc.).
+// TODO: It's possible that there might be multiple possible data directories, depending on the installation method (e.g., snap, flatpak, etc.).
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
-        data_dir: &[".config/google-chrome", "snap/chromium/common/chromium"],
-        bundle_id: None,
+        data_dir: ".config/google-chrome",
     },
     BrowserConfig {
         name: "Chromium",
-        data_dir: &["snap/chromium/common/chromium"],
-        bundle_id: None,
+        data_dir: "snap/chromium/common/chromium",
     },
     BrowserConfig {
         name: "Brave",
-        data_dir: &[
-            "snap/brave/current/.config/BraveSoftware/Brave-Browser",
-            ".config/BraveSoftware/Brave-Browser",
-        ],
-        bundle_id: None,
+        data_dir: "snap/brave/current/.config/BraveSoftware/Brave-Browser",
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: &["snap/opera/current/.config/opera", ".config/opera"],
-        bundle_id: None,
+        data_dir: "snap/opera/current/.config/opera",
     },
 ];
 
 pub(crate) fn get_crypto_service(
-    browser_name: &str,
+    browser_name: &String,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
     let config = KEYRING_CONFIG

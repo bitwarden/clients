@@ -11,9 +11,6 @@
   "favorites": {
     "message": "我的最愛"
   },
-  "unfavorite": {
-    "message": "取消最愛"
-  },
   "types": {
     "message": "類型"
   },
@@ -21,7 +18,7 @@
     "message": "登入"
   },
   "typeCard": {
-    "message": "付款卡"
+    "message": "支付卡"
   },
   "typeIdentity": {
     "message": "身分"
@@ -34,57 +31,6 @@
   },
   "typeSshKey": {
     "message": "SSH 金鑰"
-  },
-  "typeBankAccount": {
-    "message": "銀行帳戶"
-  },
-  "typeLoginSubtitle": {
-    "message": "網站或應用程式"
-  },
-  "typeCardSubtitle": {
-    "message": "信用卡或金融卡"
-  },
-  "typeIdentitySubtitle": {
-    "message": "個人資料"
-  },
-  "typeNoteSubtitle": {
-    "message": "重要文字"
-  },
-  "typeSshKeySubtitle": {
-    "message": "伺服器登入憑證"
-  },
-  "typeBankAccountSubtitle": {
-    "message": "銀行資料"
-  },
-  "typePassport": {
-    "message": "護照"
-  },
-  "passportDetails": {
-    "message": "護照詳細資訊"
-  },
-  "passportAdded": {
-    "message": "護照已新增"
-  },
-  "typePassportSubtitle": {
-    "message": "旅行證件"
-  },
-  "folderSubtitle": {
-    "message": "整理您的項目"
-  },
-  "collectionSubtitle": {
-    "message": "整理共享項目"
-  },
-  "typeDriversLicense": {
-    "message": "駕照"
-  },
-  "typeDriversLicenseSubtitle": {
-    "message": "駕照或身分證件"
-  },
-  "chooseItemToAdd": {
-    "message": "選擇要新增的項目"
-  },
-  "chooseItemToAddDesc": {
-    "message": "選擇要新增到保險庫的項目類型。"
   },
   "folders": {
     "message": "資料夾"
@@ -103,18 +49,6 @@
   },
   "shared": {
     "message": "已共享"
-  },
-  "sharedFolder": {
-    "message": "Shared folder"
-  },
-  "sharedFolders": {
-    "message": "Shared folders"
-  },
-  "myFolder": {
-    "message": "My folder"
-  },
-  "myFolders": {
-    "message": "My folders"
   },
   "share": {
     "message": "共享"
@@ -135,10 +69,7 @@
       }
     }
   },
-  "noEditPermissions": {
-    "message": "你沒有權限編輯這個項目"
-  },
-  "loginPageMasterPasswordEntryScreenTitle": {
+  "welcomeBack": {
     "message": "歡迎回來"
   },
   "moveToOrgDesc": {
@@ -147,180 +78,8 @@
   "attachments": {
     "message": "附件"
   },
-  "attachmentsNeedFix": {
-    "message": "此項目包含需要修正的舊檔案附件。"
-  },
   "viewItem": {
     "message": "檢視項目"
-  },
-  "viewCollectionWithName": {
-    "message": "檢視集合 - $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Collection1"
-      }
-    }
-  },
-  "viewItemHeaderLogin": {
-    "message": "檢視登入資訊",
-    "description": "Header for view login item type"
-  },
-  "viewItemHeaderCard": {
-    "message": "檢視付款卡",
-    "description": "Header for view card item type"
-  },
-  "viewItemHeaderIdentity": {
-    "message": "檢視身分",
-    "description": "Header for view identity item type"
-  },
-  "viewItemHeaderNote": {
-    "message": "檢視備註",
-    "description": "Header for view note item type"
-  },
-  "viewItemHeaderSecureNote": {
-    "message": "檢視安全筆記",
-    "description": "Header for view secure note item type"
-  },
-  "viewItemHeaderSshKey": {
-    "message": "檢視 SSH 金鑰",
-    "description": "Header for view SSH key item type"
-  },
-  "viewItemHeaderBankAccount": {
-    "message": "檢視銀行帳戶",
-    "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderLicense": {
-    "message": "檢視駕照",
-    "description": "Header for view license item type"
-  },
-  "viewItemHeaderPassport": {
-    "message": "檢視護照",
-    "description": "Header for view passport item type"
-  },
-  "addItemHeaderLogin": {
-    "message": "新增登入資料",
-    "description": "Header for new login item type"
-  },
-  "addItemHeaderCard": {
-    "message": "新增付款卡",
-    "description": "Header for new card item type"
-  },
-  "addItemHeaderIdentity": {
-    "message": "新增身分資料",
-    "description": "Header for new identity item type"
-  },
-  "addItemHeaderNote": {
-    "message": "新增備註",
-    "description": "Header for new note item type"
-  },
-  "addItemHeaderSecureNote": {
-    "message": "新增安全筆記",
-    "description": "Header for new secure note item type"
-  },
-  "addItemHeaderSshKey": {
-    "message": "新增 SSH 金鑰",
-    "description": "Header for new SSH key item type"
-  },
-  "addItemHeaderBankAccount": {
-    "message": "新增銀行帳戶",
-    "description": "Header for new bank account item type"
-  },
-  "addItemHeaderDriversLicense": {
-    "message": "新增駕照",
-    "description": "Header for new license item type"
-  },
-  "addItemHeaderPassport": {
-    "message": "新增護照",
-    "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "新增登入資料",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增付款卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身分",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增備註",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全筆記",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 金鑰",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增銀行帳戶",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增駕照",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增護照",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "編輯登入資訊",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "編輯付款卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "編輯身分",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "編輯備註",
-    "description": "Header for edit note item type"
-  },
-  "editItemHeaderSecureNote": {
-    "message": "編輯安全筆記",
-    "description": "Header for edit secure note item type"
-  },
-  "editItemHeaderLoginSentenceCase": {
-    "message": "編輯登入資訊",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCardSentenceCase": {
-    "message": "編輯付款卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentitySentenceCase": {
-    "message": "新增身分資訊",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNoteSentenceCase": {
-    "message": "編輯筆記",
-    "description": "Header for edit note item type"
-  },
-  "editItemHeaderSshKey": {
-    "message": "編輯 SSH 金鑰",
-    "description": "Header for edit SSH key item type"
-  },
-  "editItemHeaderBankAccount": {
-    "message": "編輯銀行帳戶",
-    "description": "Header for edit bank account item type"
-  },
-  "editItemHeaderLicense": {
-    "message": "編輯駕照",
-    "description": "Header for edit license item type"
-  },
-  "editItemHeaderPassport": {
-    "message": "編輯護照",
-    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "名稱"
@@ -338,93 +97,6 @@
       }
     }
   },
-  "deletionDateDescV2": {
-    "message": "此 Send 將在指定的日期後被永久刪除。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "fileToShare": {
-    "message": "要分享的文件"
-  },
-  "hideTextByDefault": {
-    "message": "默認隱藏文字"
-  },
-  "hideYourEmail": {
-    "message": "對查看者隱藏您的電子郵件地址。"
-  },
-  "limitSendViews": {
-    "message": "限制查看"
-  },
-  "limitSendViewsCount": {
-    "message": "剩餘 $ACCESSCOUNT$ 次查看次數",
-    "description": "Displayed under the limit views field on Send",
-    "placeholders": {
-      "accessCount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "limitSendViewsHint": {
-    "message": "在達到限額後，沒有人能查看此 Send。",
-    "description": "Displayed under the limit views field on Send"
-  },
-  "privateNote": {
-    "message": "私人備註"
-  },
-  "sendDetails": {
-    "message": "Send 詳細資訊",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTypeTextToShare": {
-    "message": "要分享的文字"
-  },
-  "newItemHeaderTextSendV2": {
-    "message": "新增文字",
-    "description": "Header for new text send"
-  },
-  "newItemHeaderFileSendV2": {
-    "message": "新增檔案",
-    "description": "Header for new file send"
-  },
-  "editItemHeaderTextSendV2": {
-    "message": "編輯文字",
-    "description": "Header for edit text send"
-  },
-  "editItemHeaderFileSendV2": {
-    "message": "編輯檔案",
-    "description": "Header for edit file send"
-  },
-  "deleteSendPermanentConfirmation": {
-    "message": "您確定要永久刪除此 Send 嗎？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "viewItemHeaderLoginSentenceCase": {
-    "message": "檢視登入",
-    "description": "Header for view login item type"
-  },
-  "viewItemHeaderCardSentenceCase": {
-    "message": "檢視付款卡",
-    "description": "Header for view card item type"
-  },
-  "viewItemHeaderIdentitySentenceCase": {
-    "message": "檢視身分",
-    "description": "Header for view identity item type"
-  },
-  "viewItemHeaderNoteSentenceCase": {
-    "message": "檢視筆記",
-    "description": "Header for view note item type"
-  },
-  "create": {
-    "message": "建立",
-    "description": "for adding new items"
-  },
-  "addCollection": {
-    "message": "新增集合"
-  },
-  "new": {
-    "message": "新增",
-    "description": "for adding new items"
-  },
   "newUri": {
     "message": "新增 URI"
   },
@@ -437,21 +109,8 @@
   "passphrase": {
     "message": "密碼短語"
   },
-  "passwordAnnounceSpace": {
-    "message": "space",
-    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
-  },
   "editItem": {
     "message": "編輯項目"
-  },
-  "editItemWithName": {
-    "message": "編輯項目 - $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Google Login"
-      }
-    }
   },
   "emailAddress": {
     "message": "電子郵件地址"
@@ -474,18 +133,6 @@
   "copyValue": {
     "message": "複製值",
     "description": "Copy value to clipboard"
-  },
-  "copyWebsite": {
-    "message": "Copy website"
-  },
-  "copyCustomField": {
-    "message": "Copy $FIELD$",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Custom field label"
-      }
-    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "複製到剪貼簿後最小化"
@@ -526,42 +173,6 @@
   },
   "passportNumber": {
     "message": "護照號碼"
-  },
-  "sex": {
-    "message": "性別"
-  },
-  "copySex": {
-    "message": "複製性別"
-  },
-  "birthPlace": {
-    "message": "出生地"
-  },
-  "copyBirthPlace": {
-    "message": "複製出生地"
-  },
-  "nationality": {
-    "message": "國籍"
-  },
-  "copyNationality": {
-    "message": "複製國籍"
-  },
-  "copyIssuingCountry": {
-    "message": "複製簽發國家"
-  },
-  "passportType": {
-    "message": "護照類型"
-  },
-  "copyPassportType": {
-    "message": "複製護照類型"
-  },
-  "copyNationalIdentificationNumber": {
-    "message": "複製身分證字號"
-  },
-  "nationalIdentificationNumber": {
-    "message": "身分證字號"
-  },
-  "copyIssuingAuthority": {
-    "message": "複製簽發機關／單位"
   },
   "licenseNumber": {
     "message": "許可證編號"
@@ -627,10 +238,10 @@
     "message": "啟用 SSH 代理程式"
   },
   "enableSshAgentDesc": {
-    "message": "啟用 SSH 代理以從 Bitwarden 密碼庫直接簽署 SSH 請求。"
+    "message": "啟用SSBitwardenH代理以從 Bitwarden 密碼庫簽發SSH請求"
   },
   "enableSshAgentHelp": {
-    "message": "SSH 代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽署 SSH 請求。"
+    "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
   },
   "sshAgentPromptBehavior": {
     "message": "使用 SSH 代理程式時要求授權"
@@ -655,22 +266,6 @@
   },
   "premiumRequiredDesc": {
     "message": "進階會員才可使用此功能。"
-  },
-  "syncWithBrowser": {
-    "message": "與瀏覽器同步"
-  },
-  "acquireCookieSpeedbumpContent": {
-    "message": "若要連線至 $VAULTURL$，您需要將預設瀏覽器與 Bitwarden 應用程式同步。瀏覽器同步完成後，您將被重新導向回此應用程式。",
-    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
-    "placeholders": {
-      "vaultUrl": {
-        "content": "$1",
-        "example": "https://vault.bitwarden.com"
-      }
-    }
-  },
-  "launchBrowser": {
-    "message": "開啟瀏覽器"
   },
   "errorOccurred": {
     "message": "發生錯誤。"
@@ -765,9 +360,6 @@
   "type": {
     "message": "類型"
   },
-  "items": {
-    "message": "Items"
-  },
   "firstName": {
     "message": "名"
   },
@@ -838,42 +430,14 @@
       }
     }
   },
-  "appUri": {
-    "message": "應用程式（URI）"
-  },
-  "appUriCount": {
-    "message": "應用程式（URI）$COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
   "websiteAdded": {
     "message": "已新增網站"
   },
   "addWebsite": {
     "message": "新增網站"
   },
-  "addWebsiteOrApp": {
-    "message": "新增網站或應用程式"
-  },
-  "app": {
-    "message": "應用程式"
-  },
   "deleteWebsite": {
     "message": "刪除網站"
-  },
-  "deleteCustomField": {
-    "message": "Delete $LABEL$",
-    "placeholders": {
-      "label": {
-        "content": "$1",
-        "example": "Custom field"
-      }
-    }
   },
   "owner": {
     "message": "擁有者"
@@ -883,15 +447,6 @@
   },
   "editField": {
     "message": "編輯欄位"
-  },
-  "editFieldLabel": {
-    "message": "Edit $LABEL$",
-    "placeholders": {
-      "label": {
-        "content": "$1",
-        "example": "Custom field"
-      }
-    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "你確定要永久刪除此附件嗎？"
@@ -917,8 +472,8 @@
   "linkedHelpText": {
     "message": "使用連結欄位若您在特定網站上遇到自動填入問題。"
   },
-  "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+  "linkedLabelHelpText": {
+    "message": "填入欄位的 html id、名稱、標籤或預留字元"
   },
   "folder": {
     "message": "資料夾"
@@ -964,77 +519,14 @@
   "editedItem": {
     "message": "項目已儲存"
   },
-  "itemAddedToFavorites": {
-    "message": "項目已加入到最愛"
-  },
-  "itemRemovedFromFavorites": {
-    "message": "項目已從最愛中移除"
-  },
   "deleteItem": {
     "message": "刪除項目"
-  },
-  "deleteItemsCount": {
-    "message": "刪除 $COUNT$ 個項目",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "deleteItemDesc": {
-    "message": "此項目將移至垃圾桶，並於 30 天後永久刪除。"
-  },
-  "deleteItemsDesc": {
-    "message": "這些項目將移至垃圾桶，並於 30 天後永久刪除。"
-  },
-  "deleteItemPermanently": {
-    "message": "永久刪除項目"
-  },
-  "deleteItemsPermanentlyCount": {
-    "message": "永久刪除 $COUNT$ 個項目",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "deleteItemPermanentlyDesc": {
-    "message": "您將無法復原此項目。"
-  },
-  "deleteItemsPermanentlyDesc": {
-    "message": "您將無法復原這些項目。"
-  },
-  "deleteSelection": {
-    "message": "刪除選取項目"
-  },
-  "deleteItemsAndCollectionsDesc": {
-    "message": "選取的項目與收藏集將永久刪除。"
   },
   "deleteFolder": {
     "message": "刪除資料夾"
   },
   "deleteAttachment": {
     "message": "刪除附件"
-  },
-  "deleteAttachmentName": {
-    "message": "刪除附檔 $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Attachment Name"
-      }
-    }
-  },
-  "downloadAttachmentName": {
-    "message": "下載 $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Attachment Name"
-      }
-    }
   },
   "deleteItemConfirmation": {
     "message": "確定要刪除此項目嗎?"
@@ -1096,15 +588,6 @@
         "example": "Login Item"
       }
     }
-  },
-  "copyPrivateKey": {
-    "message": "複製私鑰"
-  },
-  "copyPublicKey": {
-    "message": "複製公鑰"
-  },
-  "copyFingerprint": {
-    "message": "複製指紋"
   },
   "length": {
     "message": "長度"
@@ -1222,26 +705,11 @@
   "addAttachment": {
     "message": "新增附件"
   },
-  "itemsTransferred": {
-    "message": "項目已轉移"
-  },
-  "fixEncryption": {
-    "message": "修正加密"
-  },
-  "fixEncryptionTooltip": {
-    "message": "此檔案使用了過時的加密方式。"
-  },
-  "attachmentUpdated": {
-    "message": "附件已更新"
-  },
   "maxFileSizeSansPunctuation": {
     "message": "最大檔案大小為 500MB"
   },
   "file": {
     "message": "檔案"
-  },
-  "photo": {
-    "message": "Photo"
   },
   "selectFile": {
     "message": "選取檔案"
@@ -1282,7 +750,7 @@
   "logIn": {
     "message": "登入"
   },
-  "loginPageEmailEntryScreenTitle": {
+  "logInToBitwarden": {
     "message": "登入 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1304,7 +772,7 @@
     "message": "使用單一登入"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的組織要求使用單一登入。"
+    "message": "Your organization requires single sign-on."
   },
   "submit": {
     "message": "送出"
@@ -1349,9 +817,6 @@
   "masterPassHintLabel": {
     "message": "主密碼提示"
   },
-  "masterPasswordChanged": {
-    "message": "主密碼已儲存"
-  },
   "passwordStrengthScore": {
     "message": "密碼強度分數 $SCORE$",
     "placeholders": {
@@ -1390,6 +855,9 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
+  },
+  "getMasterPasswordHint": {
+    "message": "取得主密碼提示"
   },
   "emailRequired": {
     "message": "必須填入電子郵件地址。"
@@ -1437,21 +905,11 @@
   "unexpectedError": {
     "message": "發生了未預期的錯誤。"
   },
-  "unexpectedErrorShort": {
-    "message": "未預期的錯誤"
-  },
-  "closeThisBitwardenWindow": {
-    "message": "關閉此 Bitwarden 視窗後再試一次。"
-  },
   "itemInformation": {
     "message": "項目資訊"
   },
   "noItemsInList": {
     "message": "沒有可列出的項目。"
-  },
-  "noValueEntered": {
-    "message": "未輸入任何值",
-    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "傳送驗證碼至您的電子郵件信箱"
@@ -1479,9 +937,6 @@
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
-  },
-  "invalidEmailOrVerificationCode": {
-    "message": "電子郵件或驗證碼無效"
   },
   "continue": {
     "message": "繼續"
@@ -1580,9 +1035,6 @@
   "selfHostedEnvFormInvalid": {
     "message": "您必須新增伺服器網域 URL 或至少一個自訂環境。"
   },
-  "selfHostedEnvMustUseHttps": {
-    "message": "URL 必須使用 HTTPS。"
-  },
   "customEnvironment": {
     "message": "自訂環境"
   },
@@ -1614,9 +1066,6 @@
   "iconsUrl": {
     "message": "圖示伺服器 URL"
   },
-  "sendUrl": {
-    "message": "傳送伺服器網址"
-  },
   "environmentSaved": {
     "message": "已儲存環境網址"
   },
@@ -1637,45 +1086,6 @@
   },
   "learnMore": {
     "message": "了解更多"
-  },
-  "migrationsFailed": {
-    "message": "更新加密設定時發生錯誤。"
-  },
-  "updateEncryptionSettingsTitle": {
-    "message": "更新您的加密設定"
-  },
-  "updateEncryptionSettingsDesc": {
-    "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
-  },
-  "rotateAccountEncKey": {
-    "message": "同時輪換帳戶的加密金鑰"
-  },
-  "impactOfRotatingYourEncryptionKey": {
-    "message": "輪換加密金鑰的影響"
-  },
-  "oldAttachmentsNeedFixDesc": {
-    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
-  },
-  "rotateEncKeyTitle": {
-    "message": "輪換加密金鑰"
-  },
-  "rotateEncKeyConfirmation": {
-    "message": "確定要輪換帳戶的加密金鑰嗎？"
-  },
-  "updateEncryptionKeyWarning": {
-    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
-  },
-  "updateEncryptionKeyAccountExportWarning": {
-    "message": "您保存的任何受限制匯出帳號將失效。"
-  },
-  "confirmIdentityToContinue": {
-    "message": "請先確認身分後再繼續"
-  },
-  "enterYourMasterPassword": {
-    "message": "輸入您的主密碼"
-  },
-  "updateSettings": {
-    "message": "更新設定"
   },
   "featureUnavailable": {
     "message": "功能不可用"
@@ -1746,13 +1156,10 @@
   "followUs": {
     "message": "關注我們"
   },
-  "syncNow": {
-    "message": "立即同步"
+  "syncVault": {
+    "message": "同步密碼庫"
   },
   "changeMasterPass": {
-    "message": "變更主密碼"
-  },
-  "changeMasterPassword": {
     "message": "變更主密碼"
   },
   "continueToWebApp": {
@@ -1833,11 +1240,17 @@
   "twoStepLogin": {
     "message": "兩步驟登入"
   },
+  "vaultTimeoutHeader": {
+    "message": "密碼庫逾時時間"
+  },
   "vaultTimeout": {
     "message": "密碼庫逾時時間"
   },
   "vaultTimeout1": {
     "message": "逾時"
+  },
+  "vaultTimeoutAction1": {
+    "message": "逾時後動作"
   },
   "vaultTimeoutDesc": {
     "message": "選擇密碼庫何時執行密碼庫逾時動作。"
@@ -1904,20 +1317,65 @@
   "showIconsChangePasswordUrls": {
     "message": "顯示網站圖示並取得變更密碼網址"
   },
-  "runInBackground": {
-    "message": "保持 Bitwarden 在背景運行"
+  "enableMinToTray": {
+    "message": "最小化至系統匣圖示"
   },
-  "runInBackgroundDesc": {
-    "message": "關閉視窗後，Bitwarden 仍可透過系統托盤存取。建議在使用 SSH 代理程式或瀏覽器整合時使用此功能。"
+  "enableMinToTrayDesc": {
+    "message": "最小化視窗時，改為於系統匣中顯示一個圖示。"
   },
-  "runInBackgroundDescMac": {
-    "message": "關閉視窗後，Bitwarden 仍可透過選單列存取。建議在使用 SSH 代理或瀏覽器整合時使用此方法。"
+  "enableMinToMenuBar": {
+    "message": "最小化至選單列"
+  },
+  "enableMinToMenuBarDesc": {
+    "message": "最小化視窗時，改為於選單列顯示一個圖示。"
+  },
+  "enableCloseToTray": {
+    "message": "關閉至系統匣圖示"
+  },
+  "enableCloseToTrayDesc": {
+    "message": "關閉視窗時，改為於系統匣中顯示一個圖示。"
+  },
+  "enableCloseToMenuBar": {
+    "message": "關閉至選單列"
+  },
+  "enableCloseToMenuBarDesc": {
+    "message": "關閉視窗時，改為於選單列中顯示一個圖示。"
+  },
+  "enableTray": {
+    "message": "顯示系統匣圖示"
+  },
+  "enableTrayDesc": {
+    "message": "總是在系統匣中顯示圖示。"
+  },
+  "startToTray": {
+    "message": "啟動時隱藏至系統匣"
+  },
+  "startToTrayDesc": {
+    "message": "應用程式首次啟動時，只在系統匣顯示一個圖示。"
+  },
+  "startToMenuBar": {
+    "message": "啟動到選單列"
+  },
+  "startToMenuBarDesc": {
+    "message": "應用程式首次啟動時，只在選單列顯示一個圖示。"
   },
   "openAtLogin": {
     "message": "登入時自動啟動"
   },
   "openAtLoginDesc": {
     "message": "登入後自動啟動 Bitwarden 桌面應用程式。"
+  },
+  "alwaysShowDock": {
+    "message": "總是在 Dock 中顯示"
+  },
+  "alwaysShowDockDesc": {
+    "message": "即使最小化到選單列，也在 Dock 中顯示 Bitwarden 圖示。"
+  },
+  "confirmTrayTitle": {
+    "message": "確認隱藏系統匣"
+  },
+  "confirmTrayDesc": {
+    "message": "禁用此設定也將禁用所有其他系統匣相關設定。"
   },
   "language": {
     "message": "語言"
@@ -1988,28 +1446,12 @@
   "unknown": {
     "message": "不詳"
   },
-  "copyAddress": {
-    "message": "複製地址"
-  },
-  "copyPhone": {
-    "message": "複製電話"
-  },
-  "copyNote": {
-    "message": "複製備註"
-  },
-  "copyVerificationCode": {
-    "message": "複製驗證碼"
-  },
   "copyUsername": {
     "message": "複製使用者名稱"
   },
   "copyNumber": {
     "message": "複製號碼",
     "description": "Copy credit card number"
-  },
-  "copyName": {
-    "message": "複製名稱",
-    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "複製電子郵件地址"
@@ -2041,15 +1483,6 @@
   },
   "premiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
-  },
-  "premiumSignUpStorageV2": {
-    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
   },
   "premiumSignUpTwoStepOptions": {
     "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
@@ -2087,21 +1520,6 @@
       }
     }
   },
-  "month": {
-    "message": "月"
-  },
-  "monthly": {
-    "message": "每月"
-  },
-  "year": {
-    "message": "年"
-  },
-  "annually": {
-    "message": "每年"
-  },
-  "annual": {
-    "message": "每年"
-  },
   "refreshComplete": {
     "message": "刷新完成"
   },
@@ -2114,8 +1532,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除產生器歷史記錄"
   },
-  "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  "cleargGeneratorHistoryDescription": {
+    "message": "若繼續，所有產生器曾經產生的記錄會被刪除。您確定要繼續？"
   },
   "clear": {
     "message": "清除",
@@ -2149,35 +1567,6 @@
   },
   "selectAll": {
     "message": "全選"
-  },
-  "selected": {
-    "message": "已選擇"
-  },
-  "selectedLowercase": {
-    "message": "已選取",
-    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
-  },
-  "bulkActionsBar": {
-    "message": "大量操作"
-  },
-  "bulkActionsBarAnnouncement": {
-    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      },
-      "shortcutBinding": {
-        "content": "$2",
-        "example": "Ctrl+B"
-      }
-    }
-  },
-  "selectionCleared": {
-    "message": "已清除選取項目"
-  },
-  "additionalActions": {
-    "message": "其他操作"
   },
   "zoomIn": {
     "message": "放大"
@@ -2296,12 +1685,6 @@
     "message": "預設一致性偵測",
     "description": "Default URI match detection for auto-fill."
   },
-  "showMatchDetectionNoPlaceholder": {
-    "message": "顯示比對偵測"
-  },
-  "hideMatchDetectionNoPlaceholder": {
-    "message": "隱藏比對偵測"
-  },
   "toggleOptions": {
     "message": "切換選項"
   },
@@ -2315,9 +1698,9 @@
   "exit": {
     "message": "結束"
   },
-  "show": {
-    "message": "顯示",
-    "description": "Tray menu item that brings the Bitwarden window to the foreground."
+  "showHide": {
+    "message": "顯示/隱藏",
+    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
   },
   "hideToTray": {
     "message": "隱藏至系統匣"
@@ -2341,21 +1724,8 @@
   "exportFrom": {
     "message": "匯出自"
   },
-  "exportNoun": {
-    "message": "匯出",
-    "description": "The noun form of the word Export"
-  },
-  "exportVerb": {
-    "message": "匯出",
-    "description": "The verb form of the word Export"
-  },
-  "importNoun": {
-    "message": "匯入",
-    "description": "The noun form of the word Import"
-  },
-  "importVerb": {
-    "message": "匯入",
-    "description": "The verb form of the word Import"
+  "exportVault": {
+    "message": "匯出密碼庫"
   },
   "fileFormat": {
     "message": "檔案格式"
@@ -2390,8 +1760,8 @@
   "restrictCardTypeImportDesc": {
     "message": "由於一或多個組織設有政策，您無法匯入卡片至您的保險庫。"
   },
-  "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "「檔案密碼」與「確認檔案密碼」不一致。"
   },
   "done": {
     "message": "完成"
@@ -2403,8 +1773,8 @@
   "confirmVaultExport": {
     "message": "確認匯出密碼庫"
   },
-  "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+  "exportWarningDesc": {
+    "message": "此匯出包含未加密格式的密碼庫檔案。您不應將它存放或經由不安全的方式（例如電子郵件）傳送。用完後請立即將它刪除。"
   },
   "encExportKeyWarningDesc": {
     "message": "將使用您帳戶的加密金鑰來加密匯出資料，若您更新了帳戶的加密金鑰，請重新匯出，才有辦法解密匯出的檔案。"
@@ -2500,12 +1870,6 @@
   "deleteAccountWarning": {
     "message": "刪除您的帳戶是永久性的。並且無法復原。"
   },
-  "deleteAccountOrganizationOwnerWarning": {
-    "message": "您至少是一個組織的擁有者。刪除帳戶時，也會刪除所有由您單獨擁有的組織。"
-  },
-  "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "當您仍是組織擁有者時，無法刪除帳戶。請先轉移擁有權或刪除該組織。"
-  },
   "cannotDeleteAccount": {
     "message": "無法刪除帳號"
   },
@@ -2520,6 +1884,12 @@
   },
   "preferences": {
     "message": "偏好設定"
+  },
+  "enableMenuBar": {
+    "message": "顯示選單列圖示"
+  },
+  "enableMenuBarDesc": {
+    "message": "總是在選單列中顯示圖示。"
   },
   "hideToMenuBar": {
     "message": "隱藏至選單列"
@@ -2552,15 +1922,6 @@
   "unsavedChangesTitle": {
     "message": "有尚未儲存的變更"
   },
-  "unsavedChangesUpdateBody": {
-    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
-  },
-  "installLater": {
-    "message": "稍後安裝"
-  },
-  "continueWithInstall": {
-    "message": "繼續安裝"
-  },
   "clone": {
     "message": "克隆"
   },
@@ -2576,6 +1937,9 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新驗證才能再次存取密碼庫。"
   },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
   "lock": {
     "message": "鎖定",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2587,24 +1951,6 @@
   "searchTrash": {
     "message": "搜尋垃圾桶"
   },
-  "searchArchive": {
-    "message": "搜尋封存"
-  },
-  "searchLogin": {
-    "message": "搜尋登入資料"
-  },
-  "searchCard": {
-    "message": "搜尋卡片"
-  },
-  "searchIdentity": {
-    "message": "搜尋身分"
-  },
-  "searchSecureNote": {
-    "message": "搜尋安全筆記"
-  },
-  "searchSshKey": {
-    "message": "搜尋 SSH 金鑰"
-  },
   "permanentlyDeleteItem": {
     "message": "永久刪除項目"
   },
@@ -2614,41 +1960,11 @@
   "permanentlyDeletedItem": {
     "message": "項目已永久刪除"
   },
-  "archivedItemRestored": {
-    "message": "已還原封存項目"
-  },
-  "archivedItemsRestored": {
-    "message": "已還原封存項目"
-  },
   "restoredItem": {
-    "message": "項目已還原"
-  },
-  "restoredItems": {
     "message": "項目已還原"
   },
   "permanentlyDelete": {
     "message": "永久刪除"
-  },
-  "permanentlyDeletedItems": {
-    "message": "項目已永久刪除"
-  },
-  "deletedItems": {
-    "message": "項目已移至垃圾桶"
-  },
-  "deletedCollections": {
-    "message": "已刪除的集合"
-  },
-  "collectionDeleted": {
-    "message": "收藏集已刪除"
-  },
-  "collectionsDeleted": {
-    "message": "收藏集已刪除"
-  },
-  "movedItem": {
-    "message": "項目已移動"
-  },
-  "movedItems": {
-    "message": "項目已移動"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "選擇登出將會在密碼庫逾時後移除對密碼庫的所有存取權限，若要重新驗證則需連線網路。確定要使用此設定嗎？"
@@ -2696,9 +2012,6 @@
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
-  },
-  "copyNotes": {
-    "message": "複製備註"
   },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"
@@ -2789,11 +2102,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
   },
-  "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "一個或多個組織原則要求主密碼須符合下列條件："
-  },
-  "receiveMarketingEmails": {
-    "message": "在您的收件匣中接收來自 Bitwarden 的更新資訊。"
+  "receiveMarketingEmailsV2": {
+    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
   },
   "unsubscribe": {
     "message": "取消訂閱"
@@ -2813,11 +2123,41 @@
   "acceptPoliciesRequired": {
     "message": "尚未接受服務條款與隱私權政策。"
   },
+  "enableBrowserIntegration": {
+    "message": "允許瀏覽器整合"
+  },
+  "enableBrowserIntegrationDesc1": {
+    "message": "用於在非 Safari 的瀏覽器中啟用生物辨識解鎖。"
+  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "允許 DuckDuckGo 瀏覽器整合"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "當使用 DuckDuckGo 瀏覽時，使用您的 Bitwarden 密碼庫。"
+  },
+  "browserIntegrationUnsupportedTitle": {
+    "message": "不支援瀏覽器整合"
+  },
+  "browserIntegrationErrorTitle": {
+    "message": "啟用瀏覽器整合時發生錯誤"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "啟用瀏覽器整合時發生錯誤。"
+  },
+  "browserIntegrationMasOnlyDesc": {
+    "message": "很遺憾，目前僅 Mac App Store 版本支援瀏覽器整合功能。"
+  },
+  "browserIntegrationWindowsStoreDesc": {
+    "message": "很遺憾，Microsoft Store 版本目前尚不支援瀏覽器整合功能。"
+  },
+  "browserIntegrationLinuxDesc": {
+    "message": "很遺憾，Linux 版本目前尚未支援瀏覽器整合功能。"
+  },
+  "enableBrowserIntegrationFingerprint": {
+    "message": "要求瀏覽器整合驗證"
+  },
+  "enableBrowserIntegrationFingerprintDesc": {
+    "message": "在您的桌面和瀏覽器閒建立連綫時，透過要求指紋短語確認，以添加一個額外的安全層。每次建立連綫都需要使用者干預和驗證。"
   },
   "enableHardwareAcceleration": {
     "message": "使用硬體加速"
@@ -2827,6 +2167,12 @@
   },
   "approve": {
     "message": "核准"
+  },
+  "verifyBrowserTitle": {
+    "message": "確認與瀏覽器間的連線"
+  },
+  "verifyBrowserDesc": {
+    "message": "請確保顯示的指紋與瀏覽器擴充套件中顯示的指紋一致。"
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ 想要連線至 Bitwarden",
@@ -2861,9 +2207,6 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "你的新密碼不能與目前的密碼相同。"
   },
-  "hint": {
-    "message": "提示"
-  },
   "hintEqualsPassword": {
     "message": "密碼提示不能與您的密碼相同。"
   },
@@ -2882,10 +2225,6 @@
   "contactInfo": {
     "message": "聯絡資訊"
   },
-  "send": {
-    "message": "Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "allSends": {
     "message": "所有 Send",
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2903,9 +2242,6 @@
   "editSend": {
     "message": "編輯 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "me": {
-    "message": "我"
   },
   "myVault": {
     "message": "我的密碼庫"
@@ -2985,10 +2321,6 @@
     "message": "建立新 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "createSendV2": {
-    "message": "創建 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTextDesc": {
     "message": "您想要傳送的文字。"
   },
@@ -3012,10 +2344,6 @@
   },
   "deleteSendConfirmation": {
     "message": "您確定要刪除此 Send 嗎？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "copySendLink": {
-    "message": "複製 Send 連結",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -3066,8 +2394,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全金鑰操作中……"
   },
-  "hideMyEmail": {
-    "message": "向收件者隱藏我的電子郵件地址。"
+  "hideEmail": {
+    "message": "對收件人隱藏我的電子郵件位址。"
   },
   "sendOptionsPolicyInEffect": {
     "message": "一個或多個組織原則正影響您的 Send 選項。"
@@ -3201,6 +2529,9 @@
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "企業政策已套用至您的逾時選項中"
+  },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
     "placeholders": {
@@ -3253,6 +2584,9 @@
   },
   "removedMasterPassword": {
     "message": "主密碼已移除"
+  },
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下組織的成員已不再需要主密碼。請與你的組織管理員確認下方的網域。"
   },
   "organizationName": {
     "message": "機構名稱"
@@ -3311,18 +2645,33 @@
   "exportingPersonalVaultTitle": {
     "message": "正匯出個人密碼庫"
   },
+  "exportingIndividualVaultDescription": {
+    "message": "僅匯出與 $EMAIL$ 關聯的個人密碼庫項目。組織密碼庫項目將不包括在內。僅匯出密碼庫項目資訊，不包括關聯的附件。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "只會匯出與 $EMAIL$ 關聯的個人密碼庫（包含附件）。組織密碼庫的項目不包含在內。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "正匯出組織密碼庫"
   },
-  "exportingIndividualVaultScopeDescription": {
-    "message": "只會匯出您個人保管庫中的項目。"
-  },
-  "exportingOrganizationVaultScopeDescription": {
-    "message": "只會匯出與 $ORGANIZATION$ 保管庫相關聯的項目。個人保管庫中的項目不會被匯出。",
+  "exportingOrganizationVaultDesc": {
+    "message": "僅匯出與 $ORGANIZATION$ 相關的組織密碼庫項目。個人密碼庫項目或其他組織中的項目將不包括在内。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "My Org Name"
+        "example": "ACME Moving Co."
       }
     }
   },
@@ -3518,8 +2867,8 @@
       }
     }
   },
-  "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+  "forwaderInvalidToken": {
+    "message": "無效的 $SERVICENAME$ API 權杖",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3528,8 +2877,8 @@
       }
     }
   },
-  "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+  "forwaderInvalidTokenWithMessage": {
+    "message": "無效的 $SERVICENAME$ API 權杖：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3542,8 +2891,8 @@
       }
     }
   },
-  "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒絕了你的請求。請聯絡你的服務提供者以取得協助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3552,8 +2901,8 @@
       }
     }
   },
-  "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒絕了你的請求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3626,8 +2975,8 @@
   "apiKey": {
     "message": "API 金鑰"
   },
-  "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+  "premiumSubcriptionRequired": {
+    "message": "需要進階版訂閲"
   },
   "organizationIsDisabled": {
     "message": "組織已停用"
@@ -3639,8 +2988,10 @@
     "message": "您確定要使用「永不」選項嗎？將鎖定選項設定為「永不」會將密碼庫的加密金鑰儲存在您的裝置上。如果使用此選項，應確保您的裝置是安全的。"
   },
   "vault": {
-    "message": "密碼庫",
-    "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
+    "message": "密碼庫"
+  },
+  "loginWithMasterPassword": {
+    "message": "使用主密碼登入"
   },
   "rememberEmail": {
     "message": "記住電子郵件地址"
@@ -3949,63 +3300,6 @@
   "deviceTrusted": {
     "message": "裝置已信任"
   },
-  "device": {
-    "message": "裝置"
-  },
-  "devices": {
-    "message": "裝置"
-  },
-  "whatIsADevice": {
-    "message": "什麼是裝置？"
-  },
-  "aDeviceIs": {
-    "message": "裝置是您登入 Bitwarden 應用程式的唯一安裝環境。重新安裝、清除應用程式資料或清除 Cookie 可能導致裝置出現多次。"
-  },
-  "deviceListDescriptionTemp": {
-    "message": "你的帳號已在下列各裝置登入。"
-  },
-  "loginStatus": {
-    "message": "登入狀態"
-  },
-  "recentlyActive": {
-    "message": "最近活動"
-  },
-  "recentlyActiveToday": {
-    "message": "今天"
-  },
-  "recentlyActivePast7Days": {
-    "message": "過去 7 天"
-  },
-  "recentlyActivePast14Days": {
-    "message": "過去 14 天"
-  },
-  "recentlyActivePast30Days": {
-    "message": "過去 30 天"
-  },
-  "recentlyActiveOver30Days": {
-    "message": "30 天前以上"
-  },
-  "firstLogin": {
-    "message": "首次登入"
-  },
-  "trusted": {
-    "message": "已信任"
-  },
-  "currentSession": {
-    "message": "目前工作階段"
-  },
-  "requestPending": {
-    "message": "等待請求"
-  },
-  "deviceIdMissing": {
-    "message": "缺少裝置 ID"
-  },
-  "deviceTypeMissing": {
-    "message": "缺少裝置類型"
-  },
-  "deviceCreationDateMissing": {
-    "message": "缺少裝置建立日期"
-  },
   "trustOrganization": {
     "message": "目前組織"
   },
@@ -4087,9 +3381,6 @@
   "multipleInputEmails": {
     "message": "一或多個電子郵件地址無效"
   },
-  "sendEmailsCharacterLimitReached": {
-    "message": "電子郵件收件人清單不能超過 2,500 個字元。請刪除一個或多個收件者以繼續。"
-  },
   "inputTrimValidator": {
     "message": "輸入內容不得只有空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4151,6 +3442,10 @@
   "aliasDomain": {
     "message": "別名網域"
   },
+  "importData": {
+    "message": "匯入資料",
+    "description": "Used for the desktop menu item and the header of the import dialog"
+  },
   "importError": {
     "message": "匯入時發生錯誤"
   },
@@ -4211,54 +3506,6 @@
   "importNothingError": {
     "message": "未匯入任何內容。"
   },
-  "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
-  },
-  "contact": {
-    "message": "Contact"
-  },
-  "membership": {
-    "message": "Membership"
-  },
-  "passport": {
-    "message": "Passport"
-  },
-  "driverLicense": {
-    "message": "Driver's license"
-  },
-  "ssnCard": {
-    "message": "Identity card"
-  },
-  "birthCertificate": {
-    "message": "Birth certificate"
-  },
-  "databaseCredentials": {
-    "message": "Database credentials"
-  },
-  "serverCredentials": {
-    "message": "Server credentials"
-  },
-  "softwareLicense": {
-    "message": "Software license"
-  },
-  "healthInsurance": {
-    "message": "Health insurance"
-  },
-  "wifiCredentials": {
-    "message": "Wi-Fi credentials"
-  },
-  "general": {
-    "message": "General"
-  },
   "importEncKeyError": {
     "message": "解密匯出的檔案時發生錯誤，您的加密金鑰與匯出資料時使用的金鑰不同。"
   },
@@ -4295,9 +3542,6 @@
   "chooseFile": {
     "message": "選擇檔案"
   },
-  "chooseFileSentenceCase": {
-    "message": "選擇檔案"
-  },
   "noFileChosen": {
     "message": "未選擇任何檔案"
   },
@@ -4323,47 +3567,8 @@
   "confirmFilePassword": {
     "message": "確認檔案密碼"
   },
-  "keePassMasterPassword": {
-    "message": "KeePass master password"
-  },
-  "addKeyFile": {
-    "message": "Add key file"
-  },
-  "keyFileUpload": {
-    "message": "Key file upload"
-  },
-  "kdbxFileUpload": {
-    "message": "KDBX file upload"
-  },
-  "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
-  },
-  "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
-  },
-  "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
-  },
-  "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
-  },
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
-  },
-  "exportError": {
-    "message": "匯出密碼庫資料時發生錯誤"
-  },
-  "exportSuccessSkippedAttachment": {
-    "message": "匯出時已略過 1 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。"
-  },
-  "exportSuccessSkippedAttachments": {
-    "message": "匯出時已略過 $COUNT$ 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
@@ -4385,9 +3590,6 @@
   },
   "multifactorAuthenticationFailed": {
     "message": "多因素驗證失敗"
-  },
-  "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
   },
   "includeSharedFolders": {
     "message": "包含共用的資料夾"
@@ -4447,195 +3649,6 @@
   "lastPassYubikeyDesc": {
     "message": "將與您的 LastPass 帳戶連結的 YubiKey 插入電腦的 USB 連接埠，然後按下按鈕。"
   },
-  "keeperEmail": {
-    "message": "Keeper email"
-  },
-  "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
-  },
-  "dataCenterLocation": {
-    "message": "Data center location"
-  },
-  "keeperMasterPassword": {
-    "message": "Keeper master password"
-  },
-  "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
-  },
-  "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
-  },
-  "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
-  },
-  "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
-  },
-  "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
-  },
-  "adminApproval": {
-    "message": "Admin approval"
-  },
-  "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
-  },
-  "method": {
-    "message": "Method"
-  },
-  "directImporter": {
-    "message": "Direct importer"
-  },
-  "csv": {
-    "message": "CSV"
-  },
-  "json": {
-    "message": "Json"
-  },
-  "ssoAuthRequired": {
-    "message": "SSO authentication required"
-  },
-  "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
-  },
-  "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
-  },
-  "ssoToken": {
-    "message": "SSO token"
-  },
-  "keeperAuthRequired": {
-    "message": "Keeper authentication required"
-  },
-  "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
-  },
-  "selectApprovalMethod": {
-    "message": "Approval methods"
-  },
-  "deviceApprovalNeeded": {
-    "message": "Device approval needed"
-  },
-  "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
-  },
-  "keeperPush": {
-    "message": "Keeper Push"
-  },
-  "twoFactorMethod": {
-    "message": "Two-factor method"
-  },
-  "emailVerification": {
-    "message": "Email verification"
-  },
-  "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
-  },
-  "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
-  },
-  "keeperPushSent": {
-    "message": "Keeper Push sent"
-  },
-  "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
-  },
-  "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
-  },
-  "cancelRequest": {
-    "message": "Cancel request"
-  },
-  "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
-  },
-  "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
-  },
-  "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
-  },
-  "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
-  },
-  "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
-  },
-  "textMessageSms": {
-    "message": "Text message (SMS)"
-  },
-  "duoSecurity": {
-    "message": "Duo Security"
-  },
-  "rsaSecurId": {
-    "message": "RSA SecurID"
-  },
-  "backupCodes": {
-    "message": "Backup codes"
-  },
-  "securityKeyU2f": {
-    "message": "Security key (U2F)"
-  },
-  "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
-  },
-  "keeperDna": {
-    "message": "Keeper DNA"
-  },
-  "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
-  },
-  "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
-  },
-  "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
-  },
-  "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
-  },
-  "pushNotification": {
-    "message": "Push notification"
-  },
-  "enterCodeManually": {
-    "message": "Enter code manually"
-  },
-  "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
-  },
-  "unknownMethod": {
-    "message": "Unknown method"
-  },
-  "selectDuoMethod": {
-    "message": "Select Duo method"
-  },
-  "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
-  },
-  "duoPush": {
-    "message": "Duo Push"
-  },
-  "phoneCall": {
-    "message": "Phone call"
-  },
-  "duoVerification": {
-    "message": "Duo verification"
-  },
-  "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
-  },
-  "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
-  },
-  "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
-  },
-  "tryAnotherMethod": {
-    "message": "Try another method"
-  },
-  "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
-  },
   "commonImportFormats": {
     "message": "常見格式",
     "description": "Label indicating the most common import formats"
@@ -4669,22 +3682,6 @@
   },
   "troubleshooting": {
     "message": "疑難排解"
-  },
-  "downloadDiagnosticReport": {
-    "message": "下載診斷報告"
-  },
-  "experiencingAnIssue": {
-    "message": "遇到問題了嗎？"
-  },
-  "downloadDiagnosticReportWith": {
-    "message": "下載後將診斷報告分享給"
-  },
-  "bitwardenSupport": {
-    "message": "Bitwarden 支援團隊",
-    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
-  },
-  "download": {
-    "message": "下載"
   },
   "disableHardwareAccelerationRestart": {
     "message": "停用硬體加速並重新啟動"
@@ -4854,75 +3851,6 @@
   "fileSavedToDevice": {
     "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "從 2025 年 2 月開始，Bitwarden 會傳送代碼到您的帳號電子郵件中來驗證新裝置的登入。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以啟動兩階段認證來保護您的帳號或更改您可以存取的電子郵件位址。"
-  },
-  "remindMeLater": {
-    "message": "稍後再提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以存取您的電子郵件位址 $EMAIL$ 嗎？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不行"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是，我可以存取我的電子郵件位址"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "啟動兩階段登入"
-  },
-  "changeAcctEmail": {
-    "message": "更改帳號電子郵件位址"
-  },
-  "passkeyLogin": {
-    "message": "使用密碼金鑰登入？"
-  },
-  "savePasskeyQuestion": {
-    "message": "儲存密碼金鑰？"
-  },
-  "saveNewPasskey": {
-    "message": "儲存為新的登入資訊"
-  },
-  "savePasskeyNewLogin": {
-    "message": "將密碼金鑰儲存為新的登入資訊"
-  },
-  "noMatchingLoginsForSite": {
-    "message": "未找到此網站的登入資訊"
-  },
-  "overwritePasskey": {
-    "message": "要覆寫密碼金鑰嗎？"
-  },
-  "unableToSavePasskey": {
-    "message": "無法儲存通行金鑰"
-  },
-  "alreadyContainsPasskey": {
-    "message": "該項目已包含一個密碼金鑰。您確定要覆寫目前的密碼金鑰嗎？"
-  },
-  "passkeyAlreadyExists": {
-    "message": "用於這個應用程式的密碼金鑰已經存在。"
-  },
-  "applicationDoesNotSupportDuplicates": {
-    "message": "此應用程式不支援重複項目。"
-  },
-  "closeThisWindow": {
-    "message": "關閉此視窗"
-  },
   "allowScreenshots": {
     "message": "允許螢幕擷取"
   },
@@ -4947,17 +3875,8 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "此登入資訊存在風險，且缺少網站。請新增網站並變更密碼以提升安全性。"
   },
-  "vulnerablePassword": {
-    "message": "有安全疑慮的密碼。"
-  },
-  "changeNow": {
-    "message": "立即變更"
-  },
   "missingWebsite": {
     "message": "缺少網站"
-  },
-  "missingPermissions": {
-    "message": "您欠缺執行本動作必要的權限。"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
@@ -4984,15 +3903,9 @@
     "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsTitleNoSearchResults": {
-    "message": "沒有搜尋結果"
-  },
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsBodyNoSearchResults": {
-    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "generatorNudgeTitle": {
     "message": "快速建立密碼"
@@ -5124,6 +4037,9 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "1 個項目會被永久移到選擇的組織。您將不再擁有此項目。"
+  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 個項目會被永久移到 $ORG$。您將不再擁有此項目。",
     "placeholders": {
@@ -5133,51 +4049,8 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 個項目會被永久移到選擇的組織。您將不再擁有此項目。"
-  },
-  "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ 個項目會被永久移到選擇的組織。您將不再擁有這些項目。",
-    "placeholders": {
-      "personal_items_count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ 個項目會被永久移到 $ORG$。您將不再擁有這些項目。",
-    "placeholders": {
-      "personal_items_count": {
-        "content": "$1",
-        "example": "2"
-      },
-      "org": {
-        "content": "$2",
-        "example": "Organization name"
-      }
-    }
-  },
   "successfullyAssignedCollections": {
     "message": "指派集合成功"
-  },
-  "itemMovedToCollection": {
-    "message": "項目已移至收藏集"
-  },
-  "itemMovedToCollections": {
-    "message": "項目已移至收藏集"
-  },
-  "itemsMovedToCollection": {
-    "message": "項目已移至收藏集"
-  },
-  "itemsMovedToCollections": {
-    "message": "項目已移至收藏集"
-  },
-  "itemAssignedToCollections": {
-    "message": "項目已指派至收藏集"
-  },
-  "itemsAssignedToCollections": {
-    "message": "項目已指派至收藏集"
   },
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
@@ -5252,15 +4125,11 @@
   "typeShortcut": {
     "message": "輸入快捷鍵"
   },
-  "editAutotypeKeyboardModifiersDescription": {
+  "editAutotypeShortcutDescription": {
     "message": "請包含以下修飾鍵之一或兩個：Ctrl、Alt、Win 或 Shift，再加上一個字母。"
   },
   "invalidShortcut": {
     "message": "無效的捷徑"
-  },
-  "breadcrumbs": {
-    "message": "導覽路徑",
-    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "更多導覽階層",
@@ -5295,9 +4164,6 @@
   "unArchive": {
     "message": "取消封存"
   },
-  "archived": {
-    "message": "已封存"
-  },
   "itemsInArchive": {
     "message": "封存中的項目"
   },
@@ -5307,668 +4173,22 @@
   "noItemsInArchiveDesc": {
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
-  "itemArchiveToast": {
-    "message": "項目已封存"
+  "itemWasSentToArchive": {
+    "message": "項目已移至封存"
   },
-  "itemUnarchivedToast": {
-    "message": "項目已取消封存"
+  "itemWasUnarchived": {
+    "message": "項目取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
   },
-  "archiveItemDialogContent": {
-    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
-  },
-  "unArchiveAndSave": {
-    "message": "取消封存並儲存"
-  },
-  "archiveItemsPlural": {
-    "message": "封存 $NUM$ 個項目",
-    "description": "Title of the archive items dialog when multiple items are selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "5"
-      }
-    }
-  },
-  "archiveItemTitle": {
-    "message": "封存項目",
-    "description": "Title of the archive items dialog when a single item is selected"
-  },
-  "archiveItemsPluralDescription": {
-    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
-  },
-  "bulkArchiveItems": {
-    "message": "項目已封存"
-  },
-  "bulkUnarchiveItems": {
-    "message": "項目已取消封存"
-  },
-  "moveSelectedItemsDesc": {
-    "message": "選擇要將這 $COUNT$ 個項目移動至哪個資料夾。",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
-  },
-  "selectFolder": {
-    "message": "選擇資料夾"
-  },
-  "restartPremium": {
-    "message": "重新啟用進階版"
-  },
-  "premiumSubscriptionEnded": {
-    "message": "您的進階版訂閱已到期"
-  },
-  "premiumSubscriptionEndedDesc": {
-    "message": "若要重新存取您的封存項目，請重新啟用進階版訂閱。若您在重新啟用前編輯封存項目的詳細資料，它將會被移回您的密碼庫。"
-  },
-  "itemRestored": {
-    "message": "已還原項目"
+  "archiveItemConfirmDesc": {
+    "message": "封存的項目將不會出現在一般搜尋結果或自動填入建議中。確定要封存此項目嗎？"
   },
   "zipPostalCodeLabel": {
     "message": "郵編 / 郵政代碼"
   },
   "cardNumberLabel": {
-    "message": "卡號"
-  },
-  "upgradeNow": {
-    "message": "立即升級"
-  },
-  "builtInAuthenticator": {
-    "message": "內建驗證器"
-  },
-  "secureFileStorage": {
-    "message": "安全檔案儲存"
-  },
-  "emergencyAccess": {
-    "message": "緊急存取"
-  },
-  "breachMonitoring": {
-    "message": "外洩監控"
-  },
-  "andMoreFeatures": {
-    "message": "以及其他功能功能！"
-  },
-  "advancedOnlineSecurity": {
-    "message": "進階線上安全防護"
-  },
-  "upgradeToPremium": {
-    "message": "升級到 Premium"
-  },
-  "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "您的組織已不再使用主密碼登入 Bitwarden。若要繼續，請驗證組織與網域。"
-  },
-  "continueWithLogIn": {
-    "message": "繼續登入"
-  },
-  "doNotContinue": {
-    "message": "不要繼續"
-  },
-  "domain": {
-    "message": "網域"
-  },
-  "keyConnectorDomainTooltip": {
-    "message": "此網域將儲存您帳號的加密金鑰，請確認您信任它。若不確定，請洽詢您的管理員。"
-  },
-  "verifyYourOrganization": {
-    "message": "驗證您的組織以登入"
-  },
-  "organizationVerified": {
-    "message": "組織已驗證"
-  },
-  "domainVerified": {
-    "message": "已驗證網域"
-  },
-  "leaveOrganizationContent": {
-    "message": "若您未驗證組織，將會被撤銷對該組織的存取權限。"
-  },
-  "leaveNow": {
-    "message": "立即離開"
-  },
-  "verifyYourDomainToLogin": {
-    "message": "驗證您的網域以登入"
-  },
-  "verifyYourDomainDescription": {
-    "message": "若要繼續登入，請驗證此網域。"
-  },
-  "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "若要繼續登入，請驗證組織與網域。"
-  },
-  "sessionTimeoutSettingsAction": {
-    "message": "逾時後動作"
-  },
-  "errorCannotDecrypt": {
-    "message": "錯誤：無法解密"
-  },
-  "sessionTimeoutHeader": {
-    "message": "工作階段逾時"
-  },
-  "browserAccessDenied": {
-    "message": "選取的瀏覽器目錄無效，或存取權限遭到拒絕"
-  },
-  "resizeSideNavigation": {
-    "message": "調整側邊欄大小"
-  },
-  "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "此設定由您的組織管理。"
-  },
-  "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "您的組織已將最長工作階段逾時設為 $HOURS$ 小時與 $MINUTES$ 分鐘。",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "8"
-      },
-      "minutes": {
-        "content": "$2",
-        "example": "2"
-      }
-    }
-  },
-  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "您的組織已將預設工作階段逾時設定為「在系統鎖定時」。"
-  },
-  "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "您的組織已將預設工作階段逾時設定為「在重新啟動時」。"
-  },
-  "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "最長逾時時間不可超過 $HOURS$ 小時 $MINUTES$ 分鐘",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "5"
-      },
-      "minutes": {
-        "content": "$2",
-        "example": "5"
-      }
-    }
-  },
-  "sessionTimeoutOnRestart": {
-    "message": "重新啟動時"
-  },
-  "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
-  },
-  "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "工作階段逾時由桌面應用程式控制"
-  },
-  "chromiumImporterBrowserNotInstalled": {
-    "message": "$BROWSER$ 尚未安裝。請先安裝 $BROWSER$ 後再從中匯入密碼。",
-    "placeholders": {
-      "browser": {
-        "content": "$1",
-        "example": "Chrome"
-      }
-    }
-  },
-  "chromiumImporterPickerMessage": {
-    "message": "請選擇您的 $BROWSER$ 資料夾",
-    "placeholders": {
-      "browser": {
-        "content": "$1",
-        "example": "Chrome"
-      }
-    }
-  },
-  "chromiumImporterPickerExpectedLocation": {
-    "message": "預期位置："
-  },
-  "chromiumImporterPickerPrompt": {
-    "message": "授予存取權限"
-  },
-  "upgrade": {
-    "message": "升級"
-  },
-  "leaveConfirmationDialogTitle": {
-    "message": "確定要離開嗎？"
-  },
-  "leaveConfirmationDialogContentOne": {
-    "message": "若選擇拒絕，您的個人項目將保留在帳號中，但您將失去對共用項目與組織功能的存取權。"
-  },
-  "leaveConfirmationDialogContentTwo": {
-    "message": "請聯絡您的管理員以重新取得存取權限。"
-  },
-  "leaveConfirmationDialogConfirmButton": {
-    "message": "離開 $ORGANIZATION$",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
-  },
-  "howToManageMyVault": {
-    "message": "我要如何管理我的密碼庫？"
-  },
-  "transferItemsToOrganizationTitle": {
-    "message": "將項目轉移至 $ORGANIZATION$",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
-  },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "點擊「接受」以轉移您項目的擁有權。"
-  },
-  "openTransferItemsHelpArticle": {
-    "message": "開啟關於轉移項目的說明文章"
-  },
-  "acceptTransfer": {
-    "message": "同意轉移"
-  },
-  "declineAndLeave": {
-    "message": "拒絕並離開"
-  },
-  "organizationIsSuspended": {
-    "message": "組織已停用"
-  },
-  "organizationIsSuspendedDesc": {
-    "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
-  },
-  "percentageCompleted": {
-    "message": "完成 $PERCENT$%",
-    "placeholders": {
-      "percent": {
-        "content": "$1",
-        "example": "75"
-      }
-    }
-  },
-  "noItemsInTrash": {
-    "message": "垃圾桶中沒有項目"
-  },
-  "noItemsInTrashDesc": {
-    "message": "您刪除的項目會在此顯示，並會在 30 天之後永久刪除"
-  },
-  "noItemsInVault": {
-    "message": "密碼庫中沒有項目"
-  },
-  "emptyVaultDescription": {
-    "message": "除了密碼之外，您也可以儲存安全的登入資訊、身分資訊、支付卡及筆記在您的密碼庫。"
-  },
-  "emptyFavorites": {
-    "message": "您尚未將任何項目設為收藏"
-  },
-  "emptyFavoritesDesc": {
-    "message": "將常用項目加入收藏以快速存取。"
-  },
-  "noSearchResults": {
-    "message": "沒有搜尋結果"
-  },
-  "clearFiltersOrTryAnother": {
-    "message": "清除過濾器或更換另一個搜尋條件"
-  },
-  "sendPasswordHelperText": {
-    "message": "對方必須輸入密碼才能檢視此 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "emailProtected": {
-    "message": "電子郵件已受保護"
-  },
-  "emails": {
-    "message": "電子郵件"
-  },
-  "noAuth": {
-    "message": "任何持有連結的人"
-  },
-  "anyOneWithPassword": {
-    "message": "任何持有您設定之密碼的人"
-  },
-  "whoCanView": {
-    "message": "誰可以檢視"
-  },
-  "specificPeople": {
-    "message": "特定人員"
-  },
-  "emailVerificationDesc": {
-    "message": "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。"
-  },
-  "enterMultipleEmailsSeparatedByComma": {
-    "message": "請以逗號分隔輸入多個電子郵件地址。"
-  },
-  "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
-  },
-  "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
-  },
-  "reorderToggleButton": {
-    "message": "重新排序 $LABEL$。使用方向鍵來往上或下移動。",
-    "placeholders": {
-      "label": {
-        "content": "$1",
-        "example": "Custom field"
-      }
-    }
-  },
-  "userVerificationFailed": {
-    "message": "使用者驗證失敗。"
-  },
-  "domainNotAllowed": {
-    "message": "請只包含以下網域：$DOMAINS$。請檢查並重試",
-    "placeholders": {
-      "domains": {
-        "content": "$1"
-      }
-    }
-  },
-  "more": {
-    "message": "更多"
-  },
-  "enterMonth": {
-    "message": "請輸入月份。"
-  },
-  "enterDay": {
-    "message": "請輸入日期。"
-  },
-  "enterYear": {
-    "message": "請輸入年份。"
-  },
-  "sendTypes": {
-    "message": "Send 類型",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "any": {
-    "message": "任何"
-  },
-  "invalidDay": {
-    "message": "請輸入有效的日期。"
-  },
-  "invalidYear": {
-    "message": "請輸入有效的年份。"
-  },
-  "searchDriversLicense": {
-    "message": "搜尋駕照"
-  },
-  "bankAccount": {
-    "message": "銀行帳戶"
-  },
-  "bankAccountDetails": {
-    "message": "銀行帳號資料"
-  },
-  "bankName": {
-    "message": "銀行名稱"
-  },
-  "nameOnAccount": {
-    "message": "帳戶名稱"
-  },
-  "bankAccountType": {
-    "message": "帳戶類型"
-  },
-  "bankAccountTypeCompany": {
-    "message": "公司"
-  },
-  "bankAccountTypeIndividual": {
-    "message": "個人"
-  },
-  "accountNumber": {
-    "message": "帳號"
-  },
-  "bankRoutingNumber": {
-    "message": "匯款路徑編號",
-    "description": "Used in the bank account cipher type"
-  },
-  "branchNumber": {
-    "message": "分行／機構代碼"
-  },
-  "swiftCode": {
-    "message": "SWIFT 代碼"
-  },
-  "iban": {
-    "message": "IBAN"
-  },
-  "bankContactPhone": {
-    "message": "銀行聯絡電話"
-  },
-  "searchBankAccount": {
-    "message": "搜尋銀行帳戶"
-  },
-  "searchPassport": {
-    "message": "搜尋護照"
-  },
-  "copyAccountNumber": {
-    "message": "複製帳號"
-  },
-  "copyRoutingNumber": {
-    "message": "複製匯款路徑編號"
-  },
-  "copyPin": {
-    "message": "複製 PIN 碼"
-  },
-  "copyIban": {
-    "message": "複製 IBAN"
-  },
-  "copyNameOnAccount": {
-    "message": "複製帳戶名稱"
-  },
-  "copyBranchNumber": {
-    "message": "複製分行代碼"
-  },
-  "copySwiftCode": {
-    "message": "複製 SWIFT 代碼"
-  },
-  "copyFirstName": {
-    "message": "複製名字"
-  },
-  "copyMiddleName": {
-    "message": "複製中間名"
-  },
-  "copyLastName": {
-    "message": "複製姓氏"
-  },
-  "copyLicenseNumber": {
-    "message": "複製證照號碼"
-  },
-  "copyPassportNumber": {
-    "message": "複製護照號碼"
-  },
-  "bankAccountTypeChecking": {
-    "message": "支票帳戶"
-  },
-  "bankAccountTypeSavings": {
-    "message": "儲蓄帳戶"
-  },
-  "bankAccountTypeCertificateOfDeposit": {
-    "message": "定期存款"
-  },
-  "bankAccountTypeLineOfCredit": {
-    "message": "信用額度"
-  },
-  "bankAccountTypeInvestmentBrokerage": {
-    "message": "投資／券商帳戶"
-  },
-  "bankAccountTypeMoneyMarket": {
-    "message": "貨幣市場帳戶"
-  },
-  "bankAccountTypeOther": {
-    "message": "其他"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "安全地儲存您的銀行資料"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "儲存您的銀行帳戶資訊，以便在各裝置間輕鬆且安全地存取。"
-  },
-  "sendDeletionDate": {
-    "message": "刪除日期"
-  },
-  "discardEditsTitle": {
-    "message": "放棄變更"
-  },
-  "discardEditsConfirmation": {
-    "message": "若關閉此畫面，尚未儲存的變更將會遺失。"
-  },
-  "discardEdits": {
-    "message": "放棄變更"
-  },
-  "keepEditing": {
-    "message": "繼續編輯"
-  },
-  "sendHasUnsavedEdits": {
-    "message": "Send 有未儲存的變更。確定要離開嗎？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "viewTextSendHeader": {
-    "message": "檢視文字"
-  },
-  "viewFileSendHeader": {
-    "message": "檢視檔案"
-  },
-  "sendCreated": {
-    "message": "Send 已建立",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "numericInputError": {
-    "message": "輸入內容必須為數字"
-  },
-  "integerInputError": {
-    "message": "輸入內容必須為整數"
-  },
-  "hideEmailPolicyInEffect": {
-    "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
-  },
-  "sideNavigation": {
-    "message": "側邊導覽"
-  },
-  "skipLink": {
-    "message": "略過連結"
-  },
-  "callout": {
-    "message": "提示區塊",
-    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
-  },
-  "progressBar": {
-    "message": "進度條",
-    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "不符合您組織的傳送原則",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "若要編輯此 Send，請先複製一份。如果此 Send 會在設定的刪除日期過期，則無需執行任何操作",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "orgDoesNotAllowTextSends": {
-    "message": "您的組織不允許使用文字 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "orgDoesNotAllowFileSends": {
-    "message": "您的組織不允許使用檔案 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendWillAutomaticallyExpire": {
-    "message": "此 Send 將在設定的刪除日期自動過期",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "makeACopy": {
-    "message": "製作副本"
-  },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
-  },
-  "driversLicenseDetails": {
-    "message": "駕照詳細資訊"
-  },
-  "dateOfBirth": {
-    "message": "出生日期"
-  },
-  "birthMonth": {
-    "message": "出生月份"
-  },
-  "birthDay": {
-    "message": "出生日期"
-  },
-  "birthYear": {
-    "message": "出生年份"
-  },
-  "issuingCountry": {
-    "message": "簽發國家"
-  },
-  "issuingState": {
-    "message": "簽發州／省"
-  },
-  "issueDate": {
-    "message": "簽發日期"
-  },
-  "issueMonth": {
-    "message": "簽發月份"
-  },
-  "issueDay": {
-    "message": "簽發日期"
-  },
-  "issueYear": {
-    "message": "簽發年份"
-  },
-  "expirationDay": {
-    "message": "到期日"
-  },
-  "issuingAuthority": {
-    "message": "簽發機關"
-  },
-  "licenseClass": {
-    "message": "駕照類別"
-  },
-  "cannotSaveItemNoConfirmedOrgs": {
-    "message": "無法儲存項目。您必須先獲得組織的認證才能儲存項目。"
-  },
-  "sendDeletionDateSetByOrg": {
-    "message": "此刪除日期由 $ORGNAME$ 設定",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Unknown organization"
-      }
-    }
-  },
-  "addToFolder": {
-    "message": "新增到資料夾"
-  },
-  "deleteCollection": {
-    "message": "刪除收藏集"
-  },
-  "deleteCollectionsCount": {
-    "message": "刪除 $COUNT$ 個收藏集",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "deleteCollectionDesc": {
-    "message": "此收藏集將永久刪除。"
-  },
-  "deleteCollectionsDesc": {
-    "message": "這些收藏集將永久刪除。"
-  },
-  "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
-  },
-  "labelWithNotification": {
-    "message": "$LABEL$：新通知",
-    "description": "Label for the notification with a new login suggestion.",
-    "placeholders": {
-      "label": {
-        "content": "$1",
-        "example": "Login"
-      }
-    }
+    "message": "支付卡號碼"
   }
 }

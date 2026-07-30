@@ -1,0 +1,11 @@
+<div class="search" *ngIf="state.enabled">
+  <input
+    type="search"
+    [placeholder]="state.placeholderText"
+    id="search"
+    autocomplete="off"
+    [formControl]="searchText"
+    appAutofocus
+  />
+  <i class="bwi bwi-search" aria-hidden="true"></i>
+</div>

@@ -1,0 +1,51 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'moreFromBitwarden' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-item-group>
+    <bit-item *ngIf="!(canAccessPremium$ | async)">
+      <a type="button" bit-item-content routerLink="/premium">
+        {{ "premiumMembership" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item
+      *ngIf="
+        (familySponsorshipAvailable$ | async) &&
+        !((isFreeFamilyPolicyEnabled$ | async) && (hasSingleEnterpriseOrg$ | async))
+      "
+    >
+      <button type="button" bit-item-content (click)="openFreeBitwardenFamiliesPage()">
+        {{ "freeBitwardenFamilies" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="openBitwardenForBusinessPage()">
+        {{ "bitwardenForBusiness" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="openAuthenticatorPage()">
+        {{ "bitwardenAuthenticator" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="openSecretsManagerPage()">
+        {{ "bitwardenSecretsManager" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="openPasswordlessDotDevPage()">
+        {{ "passwordlessDotDev" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+  </bit-item-group>
+</popup-page>

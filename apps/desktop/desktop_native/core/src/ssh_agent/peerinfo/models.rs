@@ -1,10 +1,9 @@
 use std::sync::{atomic::AtomicBool, Arc, Mutex};
 
 /**
- * Peerinfo represents the information of a peer process connecting over a socket.
- * This can be later extended to include more information (icon, app name) for the corresponding
- * application.
- */
+* Peerinfo represents the information of a peer process connecting over a socket.
+* This can be later extended to include more information (icon, app name) for the corresponding application.
+*/
 #[derive(Debug, Clone)]
 pub struct PeerInfo {
     uid: u32,
@@ -52,9 +51,9 @@ impl PeerInfo {
             .load(std::sync::atomic::Ordering::Relaxed)
     }
 
-    pub fn set_forwarding(&self) {
+    pub fn set_forwarding(&self, value: bool) {
         self.is_forwarding
-            .store(true, std::sync::atomic::Ordering::Relaxed);
+            .store(value, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub fn set_host_key(&self, host_key: Vec<u8>) {

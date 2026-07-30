@@ -28,14 +28,14 @@ export class DesktopCredentialStorageListener {
         let val: string | boolean = null;
         if (message.action && message.key) {
           if (message.action === "getPassword") {
-            val = await passwords.getPassword(serviceName, message.key);
+            val = await this.getPassword(serviceName, message.key, message.keySuffix);
           } else if (message.action === "hasPassword") {
             const result = await passwords.getPassword(serviceName, message.key);
             val = result != null;
           } else if (message.action === "setPassword" && message.value) {
-            await passwords.setPassword(serviceName, message.key, message.value);
+            await this.setPassword(serviceName, message.key, message.value, message.keySuffix);
           } else if (message.action === "deletePassword") {
-            await passwords.deletePassword(serviceName, message.key);
+            await this.deletePassword(serviceName, message.key, message.keySuffix);
           }
         }
         return val;
@@ -49,5 +49,26 @@ export class DesktopCredentialStorageListener {
         this.logService.error("[Credential Storage Listener] %s failed", message.action, e);
       }
     });
+  }
+
+  // Gracefully handle old keytar values, and if detected updated the entry to the proper format
+  private async getPassword(serviceName: string, key: string, keySuffix: string) {
+    const val = await passwords.getPassword(serviceName, key);
+
+    try {
+      JSON.parse(val);
+    } catch (e) {
+      throw new Error("Password in bad format" + e + val);
+    }
+
+    return val;
+  }
+
+  private async setPassword(serviceName: string, key: string, value: string, keySuffix: string) {
+    await passwords.setPassword(serviceName, key, value);
+  }
+
+  private async deletePassword(serviceName: string, key: string, keySuffix: string) {
+    await passwords.deletePassword(serviceName, key);
   }
 }

@@ -1,0 +1,111 @@
+<!-- Please remove this disable statement when editing this file! -->
+<!-- eslint-disable @angular-eslint/template/button-has-type -->
+<ng-container *ngIf="view$ | async as view">
+  <button
+    class="account-switcher"
+    (click)="toggle()"
+    cdkOverlayOrigin
+    #trigger="cdkOverlayOrigin"
+    [hidden]="!view.showSwitcher"
+    [disabled]="disabled"
+    aria-haspopup="dialog"
+  >
+    <ng-container *ngIf="view.activeAccount; else noActiveAccount">
+      <app-avatar
+        [text]="view.activeAccount.name ?? view.activeAccount.email"
+        [id]="view.activeAccount.id"
+        [color]="view.activeAccount.avatarColor"
+        [size]="25"
+        [circle]="true"
+        [fontSize]="14"
+        [dynamic]="true"
+        *ngIf="view.activeAccount.email != null"
+        aria-hidden="true"
+      ></app-avatar>
+      <div class="active-account">
+        <div>{{ view.activeAccount.email }}</div>
+        <span>{{ view.activeAccount.server }}</span>
+        <span class="sr-only">&nbsp;({{ "switchAccount" | i18n }})</span>
+      </div>
+    </ng-container>
+    <ng-template #noActiveAccount>
+      <span>{{ "switchAccount" | i18n }}</span>
+    </ng-template>
+    <i
+      class="bwi"
+      aria-hidden="true"
+      [ngClass]="{ 'bwi-angle-down': !isOpen, 'bwi-angle-up': isOpen }"
+    ></i>
+  </button>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+    (backdropClick)="close()"
+    (detach)="close()"
+    [cdkConnectedOverlayOpen]="view.showSwitcher && isOpen"
+    [cdkConnectedOverlayPositions]="overlayPosition"
+    cdkConnectedOverlayMinWidth="250px"
+  >
+    <div
+      class="account-switcher-dropdown"
+      [@transformPanel]="'open'"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="accounts" *ngIf="view.numberOfAccounts > 0">
+        <button
+          *ngFor="let account of view.inactiveAccounts | keyvalue"
+          class="account"
+          (click)="switch(account.key)"
+        >
+          <app-avatar
+            [text]="account.value.name ?? account.value.email"
+            [id]="account.value.id"
+            [size]="25"
+            [circle]="true"
+            [fontSize]="14"
+            [dynamic]="true"
+            [color]="account.value.avatarColor"
+            *ngIf="account.value.email != null"
+            aria-hidden="true"
+          ></app-avatar>
+          <div class="accountInfo">
+            <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
+            <span class="email">{{ account.value.email }}</span>
+            <span class="server"> <span class="sr-only"> / </span>{{ account.value.server }} </span>
+            <span class="status">
+              <span class="sr-only">&nbsp;(</span
+              >{{
+                (account.value.authenticationStatus === authStatus.Unlocked ? "unlocked" : "locked")
+                  | i18n
+              }}<span class="sr-only">)</span></span
+            >
+          </div>
+          <i
+            class="bwi bwi-2x text-muted"
+            [ngClass]="
+              account.value.authenticationStatus === authStatus.Unlocked ? 'bwi-unlock' : 'bwi-lock'
+            "
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
+      <ng-container *ngIf="view.activeAccount">
+        <div class="border" *ngIf="view.numberOfAccounts > 0"></div>
+        <ng-container *ngIf="view.numberOfAccounts < 4">
+          <button type="button" class="add" (click)="addAccount()">
+            <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="view.numberOfAccounts === 4">
+          <span class="accountLimitReached">{{ "accountSwitcherLimitReached" | i18n }} </span>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-template>
+</ng-container>

@@ -1,13 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 
-import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -20,7 +16,7 @@ import {
   BadgeModule,
   ButtonModule,
   DialogModule,
-  SvgModule,
+  IconModule,
   ItemModule,
   SectionComponent,
   TableModule,
@@ -28,7 +24,6 @@ import {
   BitIconButtonComponent,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
@@ -46,17 +41,15 @@ import {
     SectionHeaderComponent,
     BitIconButtonComponent,
     TableModule,
-    I18nPipe,
-    SvgModule,
+    JslibModule,
+    IconModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
     ItemModule,
     BadgeModule,
-    IconComponent,
   ],
   templateUrl: "fido2-create.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
@@ -116,7 +109,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   async ngOnDestroy(): Promise<void> {
     this.destroy$.next();
     this.destroy$.complete();
-    await this.closeModal();
+    // If we want to hide the UI while prompting for UV from the OS, we cannot call closeModal().
+    // await this.closeModal();
   }
 
   async addCredentialToCipher(cipher: CipherView): Promise<void> {
@@ -142,7 +136,10 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         throw new Error("Missing session");
       }
 
-      this.session.notifyConfirmCreateCredential(true);
+      // TODO: We should know the username by now; we should pass that context here.
+      const username = "New Account" // placeholder
+      const isConfirmed = await this.session.promptForUserVerification("New Account", "Verify it's you to create a new credential")
+      this.session.notifyConfirmCreateCredential(isConfirmed);
     } catch {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
     }
@@ -169,7 +166,9 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
+    const userHandle = Fido2Utils.bufferToString(
+      new Uint8Array(lastRegistrationRequest.userHandle),
+    );
 
     this.ciphers$ = combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -213,7 +212,9 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    return true;
+    let cred = cipher.login.fido2Credentials[0];
+    const username = cred.userName ?? cred.userDisplayName
+    return this.session.promptForUserVerification(username, "Verify it's you to overwrite a credential")
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {

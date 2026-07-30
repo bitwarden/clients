@@ -1,0 +1,16 @@
+<ng-container>
+  <hr />
+  <p *ngIf="fingerprint">
+    {{ fingerprintLabel }}:
+    <a
+      href="https://bitwarden.com/help/fingerprint-phrase/"
+      target="_blank"
+      rel="noreferrer"
+      appA11yTitle="{{ 'learnMoreAboutYourAccountFingerprintPhrase' | i18n }}"
+    >
+      <i class="bwi bwi-question-circle" aria-hidden="true"></i
+    ></a>
+    <br />
+    <code class="tw-text-code">{{ fingerprint }}</code>
+  </p>
+</ng-container>

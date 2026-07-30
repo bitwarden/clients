@@ -1,9 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 import {
   firstValueFrom,
@@ -16,7 +12,7 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,14 +24,13 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
-  SvgModule,
+  IconModule,
   ItemModule,
   SectionComponent,
   TableModule,
   BitIconButtonComponent,
   SectionHeaderComponent,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -52,17 +47,15 @@ import {
     SectionHeaderComponent,
     BitIconButtonComponent,
     TableModule,
-    I18nPipe,
-    SvgModule,
+    JslibModule,
+    IconModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
     ItemModule,
     BadgeModule,
-    IconComponent,
   ],
   templateUrl: "fido2-vault.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2VaultComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
@@ -160,8 +153,10 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
     if (cipher.reprompt !== CipherRepromptType.None) {
       return this.passwordRepromptService.showPasswordPrompt();
+    } else {
+      let cred = cipher.login.fido2Credentials[0];
+      const username = cred.userName ?? cred.userDisplayName
+      return this.session.promptForUserVerification(username, "Verify it's you to log in")
     }
-
-    return true;
   }
 }

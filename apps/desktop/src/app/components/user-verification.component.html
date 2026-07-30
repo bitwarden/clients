@@ -1,0 +1,48 @@
+<ng-container *ngIf="hasMasterPassword">
+  <div class="box-content-row" appBoxRow>
+    <label for="masterPassword">{{ "masterPass" | i18n }}</label>
+    <input
+      id="masterPassword"
+      type="password"
+      name="MasterPasswordHash"
+      aria-describedby="confirmIdentityHelp"
+      class="form-control"
+      [formControl]="secret"
+      required
+      appAutofocus
+      appInputVerbatim
+    />
+  </div>
+</ng-container>
+<ng-container *ngIf="!hasMasterPassword">
+  <div class="box-content-row" appBoxRow>
+    <label class="d-block">{{ "sendVerificationCode" | i18n }}</label>
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="requestOTP()"
+      [disabled]="disableRequestOTP"
+    >
+      {{ "sendCode" | i18n }}
+    </button>
+    <span class="ml-2 text-success" role="alert" @sent *ngIf="sentCode">
+      <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+      {{ "codeSent" | i18n }}
+    </span>
+  </div>
+
+  <div class="box-content-row" appBoxRow>
+    <label for="verificationCode">{{ "verificationCode" | i18n }}</label>
+    <input
+      id="verificationCode"
+      type="input"
+      name="verificationCode"
+      aria-describedby="confirmIdentityHelp"
+      class="form-control"
+      [formControl]="secret"
+      required
+      appAutofocus
+      appInputVerbatim
+    />
+  </div>
+</ng-container>

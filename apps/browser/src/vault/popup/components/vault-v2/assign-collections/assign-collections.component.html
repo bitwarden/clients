@@ -1,0 +1,31 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'assignToCollections' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-card>
+    <assign-collections
+      *ngIf="params"
+      [params]="params"
+      [submitBtn]="assignSubmitButton"
+      (onCollectionAssign)="navigateBack()"
+    ></assign-collections>
+  </bit-card>
+
+  <popup-footer slot="footer">
+    <button
+      #assignSubmitButton
+      bitButton
+      form="assign_collections_form"
+      buttonType="primary"
+      type="submit"
+    >
+      {{ "assign" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" (click)="navigateBack()">
+      {{ "cancel" | i18n }}
+    </a>
+  </popup-footer>
+</popup-page>

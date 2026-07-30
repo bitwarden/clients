@@ -1,0 +1,19 @@
+name: Enforce PR labels
+
+on:
+  workflow_call:
+  pull_request:
+    types: [labeled, unlabeled, opened, edited, synchronize]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  enforce-label:
+    name: EnforceLabel
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Enforce Label
+        uses: yogevbd/enforce-label-action@a3c219da6b8fa73f6ba62b68ff09c469b3a1c024 # 2.2.2
+        with:
+          BANNED_LABELS: "hold,needs-qa"
+          BANNED_LABELS_DESCRIPTION: "PRs with the hold or needs-qa labels cannot be merged"

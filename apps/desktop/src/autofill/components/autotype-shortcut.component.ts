@@ -9,6 +9,7 @@ import {
   ValidationErrors,
 } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -20,7 +21,6 @@ import {
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -29,7 +29,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [
     DialogModule,
     CommonModule,
-    I18nPipe,
+    JslibModule,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,
@@ -58,7 +58,7 @@ export class AutotypeShortcutComponent {
       return;
     }
 
-    await this.dialogRef.close(this.shortcutArray);
+    this.dialogRef.close(this.shortcutArray);
   };
 
   static open(dialogService: DialogService) {
@@ -77,31 +77,25 @@ export class AutotypeShortcutComponent {
     }
   }
 
-  // <https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent>
   private buildShortcutFromEvent(event: KeyboardEvent): string | null {
     const hasCtrl = event.ctrlKey;
     const hasAlt = event.altKey;
     const hasShift = event.shiftKey;
-    const hasSuper = event.metaKey; // Windows key on Windows, Command on macOS
+    const hasMeta = event.metaKey; // Windows key on Windows, Command on macOS
 
-    // Require at least one valid modifier (Control, Alt, Super)
-    if (!hasCtrl && !hasAlt && !hasSuper) {
+    // Require at least one modifier (Control, Alt, Shift, or Super)
+    if (!hasCtrl && !hasAlt && !hasShift && !hasMeta) {
       return null;
     }
 
     const key = event.key;
 
-    // disallow pure modifier keys themselves
-    if (key === "Control" || key === "Alt" || key === "Meta") {
+    // Ignore pure modifier keys themselves
+    if (key === "Control" || key === "Alt" || key === "Shift" || key === "Meta") {
       return null;
     }
 
-    // disallow shift modifier
-    if (hasShift) {
-      return null;
-    }
-
-    // require a single alphabetical letter as the base key
+    // Accept a single alphabetical letter as the base key
     const isAlphabetical = typeof key === "string" && /^[a-z]$/i.test(key);
     if (!isAlphabetical) {
       return null;
@@ -114,7 +108,10 @@ export class AutotypeShortcutComponent {
     if (hasAlt) {
       parts.push("Alt");
     }
-    if (hasSuper) {
+    if (hasShift) {
+      parts.push("Shift");
+    }
+    if (hasMeta) {
       parts.push("Super");
     }
     parts.push(key.toUpperCase());
@@ -132,9 +129,10 @@ export class AutotypeShortcutComponent {
       }
 
       // Must include exactly 1-2 modifiers and end with a single letter
-      // Valid examples: Ctrl+A, Alt+B, Ctrl+Alt+X, Alt+Control+Q, Win+B, Ctrl+Win+A
+      // Valid examples: Ctrl+A, Shift+Z, Ctrl+Shift+X, Alt+Shift+Q
       // Allow modifiers in any order, but only 1-2 modifiers total
-      const pattern = /^(?=.*\b(Control|Alt|Win)\b)(?:Control\+|Alt\+|Win\+){1,2}[A-Z]$/i;
+      const pattern =
+        /^(?=.*\b(Control|Alt|Shift|Win)\b)(?:Control\+|Alt\+|Shift\+|Win\+){1,2}[A-Z]$/i;
       return pattern.test(value)
         ? null
         : { invalidShortcut: { message: this.i18nService.t("invalidShortcut") } };
