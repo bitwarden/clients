@@ -27,7 +27,11 @@ import {
   Option,
   SelectModule,
 } from "@bitwarden/components";
-import { PermitCipherDetailsPopoverComponent, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { PopupWidthOption } from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -52,6 +56,7 @@ import { PopupSizeService } from "../../../platform/popup/layout/popup-size.serv
     ReactiveFormsModule,
     CheckboxModule,
     PermitCipherDetailsPopoverComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class AppearanceComponent implements OnInit {
