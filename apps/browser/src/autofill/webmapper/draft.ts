@@ -50,9 +50,7 @@ export interface WebmapperDraft {
 }
 
 export type Slot =
-  | { kind: "fields"; key: string }
-  | { kind: "actions"; key: string }
-  | { kind: "container" };
+  { kind: "fields"; key: string } | { kind: "actions"; key: string } | { kind: "container" };
 
 function entry(
   selector: SelectorValue,

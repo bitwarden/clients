@@ -4,7 +4,6 @@
       "base": "https://localhost:8080"
     },
     "skipWelcomeOnInstall": true,
-    "configRetrievalIntervalMs": 5000,
-    "fillAssistDevTools": true
+    "configRetrievalIntervalMs": 5000
   }
 }
