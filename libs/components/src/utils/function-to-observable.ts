@@ -3,9 +3,7 @@ import { from, Observable, of, throwError } from "rxjs";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 export type FunctionReturningAwaitable =
-  | (() => unknown)
-  | (() => Promise<unknown>)
-  | (() => Observable<unknown>);
+  (() => unknown) | (() => Promise<unknown>) | (() => Observable<unknown>);
 
 export function functionToObservable(func: FunctionReturningAwaitable): Observable<unknown> {
   let awaitable: unknown;

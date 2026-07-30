@@ -19,13 +19,14 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -62,7 +63,7 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
   }
 
-  override enabled(policy: PolicyResponse): boolean {
+  override enabled(policy: PolicyResponse | PolicyStatusResponse): boolean {
     // This policy is always enabled, and is driven entirely through its `policy.data` configuration.
     // The 'enabled' UI reflects whether the Send feature is enabled, rather than whether the policy is enabled.
 
@@ -256,6 +257,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const orgId = this.policyResponse()?.organizationId;
     const hasExistingDomains = this.policyResponse()?.data?.allowedDomains != null;
     if (!orgId || hasExistingDomains) {
+      return;
+    }
+
+    // Claimed domains come from an SSO/domain-gated endpoint. A user without that permission
+    // (e.g. a custom role with only Manage policies) gets a 401, which ApiService turns into a
+    // forced logout before this method's catch can run.
+    const organization = await firstValueFrom(this.organization$);
+    if (!organization?.canManageDomainVerification) {
       return;
     }
 

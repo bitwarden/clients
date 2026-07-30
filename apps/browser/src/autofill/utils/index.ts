@@ -302,38 +302,19 @@ export function nodeIsElement(node: Node): node is Element {
   return node?.nodeType === Node.ELEMENT_NODE;
 }
 
-/**
- * Identifies whether a node is an input element.
- *
- * @param node - The node to check.
- */
-export function nodeIsInputElement(node: Node): node is HTMLInputElement {
-  return nodeIsElement(node) && elementIsInputElement(node);
+export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
+  return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }
 
-/**
- * Identifies whether a node is a form element.
- *
- * @param node - The node to check.
- */
-export function nodeIsFormElement(node: Node): node is HTMLFormElement {
-  return nodeIsElement(node) && elementIsFormElement(node);
-}
-
-export function nodeIsTypeSubmitElement(node: Node): node is HTMLElement {
-  return nodeIsElement(node) && getPropertyOrAttribute(node as HTMLElement, "type") === "submit";
-}
-
-export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
+export function elementIsButtonElement(element: Element): element is HTMLButtonElement {
   return (
-    nodeIsElement(node) &&
-    (elementIsInstanceOf<HTMLButtonElement>(node, "button") ||
-      getPropertyOrAttribute(node as HTMLElement, "type") === "button")
+    elementIsInstanceOf<HTMLButtonElement>(element, "button") ||
+    getPropertyOrAttribute(element as HTMLElement, "type") === "button"
   );
 }
 
-export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
-  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+export function elementIsAnchorElement(element: Element): element is HTMLAnchorElement {
+  return elementIsInstanceOf<HTMLAnchorElement>(element, "a");
 }
 
 /**
