@@ -16,6 +16,8 @@ export class ShowQuickCopyActionsDetailsPopoverComponent {
 
   openLearnMore(e: Event) {
     e.preventDefault();
-    this.platformUtilService.launchUri("https://bitwarden.com/help/website-icons/");
+    this.platformUtilService.launchUri(
+      "https://bitwarden.com/help/auto-fill-browser/#copy-credentials",
+    );
   }
 }
