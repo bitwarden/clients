@@ -114,7 +114,10 @@ export class BitFormFieldComponent implements AfterContentChecked {
   ngAfterContentChecked(): void {
     const input = this.input();
     if (input == null) {
-      return;
+      throw new Error(
+        "bit-form-field requires a BitFormFieldControlDirective, either projected into its " +
+          "content or supplied via the [control] input.",
+      );
     }
     const error = this.error();
     const hint = this.hint();
