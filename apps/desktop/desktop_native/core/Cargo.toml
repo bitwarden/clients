@@ -57,6 +57,7 @@ zbus = { workspace = true, optional = true }
 core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 homedir = { workspace = true }
+libc = { workspace = true }
 secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
@@ -65,8 +66,13 @@ security-framework-sys = { workspace = true, optional = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
+win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
+    "ApplicationModel_PackageExtensions",
+    "Storage_Search",
     "Win32_Foundation",
     "Win32_Security_Credentials",
     "Win32_System_Pipes",
