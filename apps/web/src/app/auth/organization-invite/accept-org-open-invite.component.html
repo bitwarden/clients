@@ -1,22 +1,23 @@
-@if (loading()) {
-  <div class="tw-flex tw-justify-center tw-py-8">
-    <bit-spinner variant="primary" size="lg" [title]="'loading' | i18n"></bit-spinner>
-  </div>
-} @else if (noSeats()) {
-  <p data-testid="open-invite-no-seats-message">{{ "openInviteNoSeatsMessage" | i18n }}</p>
-} @else if (linkNotFound()) {
-  <p data-testid="open-invite-not-found-message">{{ "openInviteNotFoundMessage" | i18n }}</p>
-} @else if (planNotSupported()) {
-  <p data-testid="open-invite-plan-not-supported-message">
-    {{ "openInvitePlanNotSupportedMessage" | i18n }}
-  </p>
-} @else if (registrationCrossingFailed()) {
-  <p data-testid="open-invite-registration-crossing-failed-message">
-    {{ "openInviteRegistrationCrossingFailedMessage" | i18n }}
-  </p>
-} @else if (acceptFailed()) {
-  <p data-testid="open-invite-accept-failed-message">
-    {{ "openInviteAcceptFailedMessage" | i18n }}
-  </p>
+@switch (viewState()) {
+  @case (AcceptOrgOpenInviteViewState.Loading) {
+    <div class="tw-flex tw-justify-center tw-py-8">
+      <bit-spinner variant="primary" size="lg" [title]="'loading' | i18n"></bit-spinner>
+    </div>
+  }
+  @case (AcceptOrgOpenInviteViewState.NoSeats) {
+    <p data-testid="open-invite-no-seats-message">{{ "openInviteNoSeatsMessage" | i18n }}</p>
+  }
+  @case (AcceptOrgOpenInviteViewState.NotFound) {
+    <p data-testid="open-invite-not-found-message">{{ "openInviteNotFoundMessage" | i18n }}</p>
+  }
+  @case (AcceptOrgOpenInviteViewState.PlanNotSupported) {
+    <p data-testid="open-invite-plan-not-supported-message">
+      {{ "openInvitePlanNotSupportedMessage" | i18n }}
+    </p>
+  }
+  @case (AcceptOrgOpenInviteViewState.AcceptFailed) {
+    <p data-testid="open-invite-accept-failed-message">
+      {{ "openInviteAcceptFailedMessage" | i18n }}
+    </p>
+  }
 }
-<!-- TODO: put the above error states into a switch vs n different else ifs. -->

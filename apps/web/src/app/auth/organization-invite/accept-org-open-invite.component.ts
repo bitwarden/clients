@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
+import { openOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { AccountWarning } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -23,6 +24,27 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+/**
+ * Discriminated render state for `AcceptOrgOpenInviteComponent`. Exactly one kind is
+ * active at a time — the template `@switch (viewState())` renders the matching branch,
+ * so mutual exclusion between spinner and each classified error is enforced by the type
+ * rather than by parallel boolean flags.
+ *
+ * `Loading` is also the terminal state on every non-error path: the component immediately
+ * dispatches a `router.navigate(…)` (or gets replaced by a logout-driven redirect for
+ * `stashed-for-mp-policy-detour`), so keeping the spinner up until Angular tears the view
+ * down avoids a blank frame between init and navigation.
+ */
+export const AcceptOrgOpenInviteViewState = Object.freeze({
+  Loading: "loading",
+  NotFound: "not-found",
+  NoSeats: "no-seats",
+  PlanNotSupported: "plan-not-supported",
+  AcceptFailed: "accept-failed",
+} as const);
+export type AcceptOrgOpenInviteViewState =
+  (typeof AcceptOrgOpenInviteViewState)[keyof typeof AcceptOrgOpenInviteViewState];
+
 @Component({
   templateUrl: "accept-org-open-invite.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,46 +61,33 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
 
-  protected readonly loading = signal(true);
-  protected readonly noSeats = signal(false);
-  protected readonly linkNotFound = signal(false);
-  protected readonly planNotSupported = signal(false);
-  protected readonly registrationCrossingFailed = signal(false);
-  protected readonly acceptFailed = signal(false);
+  // Template access to the view-state kinds so the `@switch` cases below can compare
+  // against symbolic references (`AcceptOrgOpenInviteViewState.Loading`) instead of
+  // magic-string literals — same pattern as `LoginComponent` / `LoginUiState`.
+  protected readonly AcceptOrgOpenInviteViewState = AcceptOrgOpenInviteViewState;
+
+  protected readonly viewState = signal<AcceptOrgOpenInviteViewState>(
+    AcceptOrgOpenInviteViewState.Loading,
+  );
 
   private readonly failedMessage = "openInviteAcceptFailed";
 
   async ngOnInit() {
-    // Two entry points map to this component:
-    //   1. `/join/:organizationId/:inviteLinkCode?key=<key>` — direct open-invite landing
-    //      with `organizationId`, `inviteLinkCode`, and `inviteKey` (as `?key=`) all
-    //      present on the URL.
-    //   2. `/join?sealedOpenOrgInviteData=<blob>` — registration-crossing replay from
-    //      RegistrationFinishComponent post-login; those three fields live inside the
-    //      sealed blob and must be recovered via
-    //      `OrganizationInviteService.unsealOpenOrgInvite`.
+    // Sole entry point: `/join/:organizationId/:inviteLinkCode?key=<key>` — the direct
+    // open-invite landing URL. Reached either from the user clicking the invite link or
+    // from the post-registration deep-link replay (RegistrationFinishComponent
+    // reconstructs the same URL after unsealing the sealed-data blob).
     const [params, qParams] = await Promise.all([
       firstValueFrom(this.route.params),
       firstValueFrom(this.route.queryParams),
     ]);
 
-    const sealedOpenOrgInviteData =
-      typeof qParams.sealedOpenOrgInviteData === "string" && qParams.sealedOpenOrgInviteData !== ""
-        ? qParams.sealedOpenOrgInviteData
-        : null;
     const hasPathParams = params.organizationId != null && params.inviteLinkCode != null;
-
-    if (sealedOpenOrgInviteData == null && !hasPathParams) {
+    if (!hasPathParams) {
       // Bare `/join` landing with no context — silent redirect to root. Nothing to accept,
-      // no error to surface (user did not attempt anything actionable).
-      this.loading.set(false);
+      // no error to surface (user did not attempt anything actionable). Leave `viewState`
+      // as `Loading` so the spinner stays up through the navigation.
       await this.router.navigate(["/"], { replaceUrl: true });
-      return;
-    }
-
-    if (sealedOpenOrgInviteData != null) {
-      await this.registrationCrossingHandler(sealedOpenOrgInviteData);
-      this.loading.set(false);
       return;
     }
 
@@ -101,124 +110,18 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         onError: () => this.organizationInviteService.clearOpenOrgInvite(),
       },
     );
-    this.loading.set(false);
+    // Handlers above have either dispatched a `router.navigate(…)` or transitioned
+    // `viewState` to a classified error kind. `Loading` remains on the non-error paths
+    // so the spinner covers the pre-navigation frame.
   }
 
   /**
-   * Handles the registration-crossing entry: unseals the blob via the service, and on
-   * success hands the recovered invite context to {@link authedHandler} so the accept path
-   * is shared with the direct-landing flow. Strips the `sealedOpenOrgInviteData` query
-   * param from the URL up-front so back-nav / refresh cannot re-run the crossing after it
-   * has been handled once. Every unseal-failure branch — plus any throw from
-   * `authedHandler` (accept-endpoint failure, server error, revoked link, etc.) — surfaces
-   * the unified registration-crossing error state; the HighEntropySecret entry is cleared
-   * on every branch (success or failure) so the crossing is single-use.
-   */
-  private async registrationCrossingHandler(sealedOpenOrgInviteData: string): Promise<void> {
-    // Strip the sealed blob from the URL immediately so this branch cannot re-fire on
-    // refresh, back-nav, or history revisit regardless of the outcome below.
-    await this.stripSealedOpenOrgInviteDataFromUrl();
-
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    const email = account?.email;
-    if (email == null) {
-      // The route is gated to authed users, so this is a defensive fallback for the
-      // rare "no active account" edge case (e.g. concurrent logout tab).
-      this.logService.warning(
-        "AcceptOrgOpenInviteComponent: registration-crossing entry hit without an active account.",
-      );
-      this.showRegistrationCrossingFailed();
-      return;
-    }
-
-    const result = await this.organizationInviteService.unsealOpenOrgInvite(
-      email,
-      sealedOpenOrgInviteData,
-    );
-
-    switch (result.kind) {
-      case "ok": {
-        try {
-          await this.authedHandler(result.invite);
-        } catch (e) {
-          // Post-unseal accept-endpoint failure (server error, invite revoked between
-          // unseal and accept, network drop, or an unclassified acceptOpenOrgInvite kind
-          // that rethrew) — treat as a registration-crossing failure per the unified
-          // error copy.
-          this.logService.warning(
-            "AcceptOrgOpenInviteComponent: accept threw after successful unseal.",
-            e,
-          );
-          this.showRegistrationCrossingFailed();
-        }
-        // Clear regardless of success/failure — the crossing is complete for this
-        // browser and the paired secret has no further use.
-        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
-        return;
-      }
-      case "secret-miss": {
-        // No HighEntropySecret stored for this email on this origin (cross-device attempt,
-        // state wiped, or TTL-swept). Nothing to clear.
-        this.logService.warning(
-          "AcceptOrgOpenInviteComponent: no HighEntropySecret stored for the active account's email.",
-        );
-        this.showRegistrationCrossingFailed();
-        return;
-      }
-      case "crypto-failure": {
-        // Wrong secret paired with this blob, or the blob has been tampered. The stored
-        // HighEntropySecret is now known-bad; clear it defensively.
-        this.logService.warning(
-          "AcceptOrgOpenInviteComponent: SDK reported a Crypto failure while unsealing.",
-        );
-        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
-        this.showRegistrationCrossingFailed();
-        return;
-      }
-      case "unexpected": {
-        // WASM boundary or unclassified throw. Clear defensively; the entry is unlikely
-        // to succeed on a retry.
-        this.logService.warning(
-          `AcceptOrgOpenInviteComponent: unexpected unseal failure: ${result.errorMessage}`,
-        );
-        await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
-        this.showRegistrationCrossingFailed();
-        return;
-      }
-    }
-  }
-
-  /**
-   * Replaces the current URL with the same path minus the `sealedOpenOrgInviteData`
-   * query param. `replaceUrl: true` keeps the history entry from growing so back-nav
-   * still returns to whatever came before the crossing.
-   */
-  private async stripSealedOpenOrgInviteDataFromUrl(): Promise<void> {
-    await this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {},
-      replaceUrl: true,
-    });
-  }
-
-  // TODO: placeholder — pending design. Icon (AccountWarning) and copy
-  // (openInviteRegistrationCrossingFailedTitle / openInviteRegistrationCrossingFailedMessage
-  // in apps/web/src/locales/en/messages.json) are stand-ins until design provides the final
-  // asset + strings. Reused across every registration-crossing failure branch per the
-  // unified error copy in the tech breakdown.
-  private showRegistrationCrossingFailed(): void {
-    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageTitle: { key: "openInviteRegistrationCrossingFailedTitle" },
-      pageIcon: AccountWarning,
-    });
-    this.registrationCrossingFailed.set(true);
-  }
-
-  /**
-   * Fetches the open-invite status and dispatches on the service's discriminated result:
-   * pushes the matching anon-layout error state and returns null for classified
-   * failures so the caller can short-circuit. `unexpected` re-throws into
-   * `AcceptFlowService`'s generic error path.
+   * Fetches the open-invite status and delegates classified-failure anon-layout data to
+   * the shared {@link openOrgInviteStatusErrorUi} mapper so this component and the
+   * registration-crossing flow render identical UI for the same status kinds. Sets the
+   * matching per-kind signal for the template body branch and returns null so callers
+   * short-circuit. `unexpected` re-throws via the mapper into `AcceptFlowService`'s
+   * generic error path.
    */
   private async fetchStatusOrShowError(
     organizationId: string,
@@ -228,47 +131,29 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       organizationId,
       code,
     );
-    switch (result.kind) {
-      case "ok":
-        return result.status;
-      case "not-found":
-        // TODO: placeholder — pending design. Icon (AccountWarning) and copy
-        // (openInviteNotFoundTitle / openInviteNotFoundMessage in
-        // apps/web/src/locales/en/messages.json) are stand-ins until design
-        // provides the final asset + strings. Server response for 404 carries
-        // no org name, so copy stays generic.
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInviteNotFoundTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.linkNotFound.set(true);
-        return null;
-      case "plan-not-supported":
-        // TODO: placeholder — pending design. Icon (AccountWarning) and copy
-        // (openInvitePlanNotSupportedTitle / openInvitePlanNotSupportedMessage
-        // in apps/web/src/locales/en/messages.json) are stand-ins until design
-        // provides the final asset + strings. `organizationName` is available on
-        // this result kind and should feed the title once design approves the
-        // interpolated copy.
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInvitePlanNotSupportedTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.planNotSupported.set(true);
-        return null;
-      case "no-seats":
-        // TODO: placeholder — pending design. `organizationName` is available on
-        // this result kind and should feed the title once design approves the
-        // interpolated copy.
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInviteNoSeatsTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.noSeats.set(true);
-        return null;
-      case "unexpected":
-        throw new Error(result.errorMessage);
+    if (result.kind === "ok") {
+      return result.status;
     }
+
+    const errorUi = openOrgInviteStatusErrorUi(result);
+    // `errorUi` is only null when `result.kind === 'ok'`, which is handled above; the
+    // narrowing here is defensive against a future kind being added without mapper support.
+    if (errorUi == null) {
+      return null;
+    }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(errorUi.anonLayoutData);
+    switch (result.kind) {
+      case "not-found":
+        this.viewState.set(AcceptOrgOpenInviteViewState.NotFound);
+        break;
+      case "plan-not-supported":
+        this.viewState.set(AcceptOrgOpenInviteViewState.PlanNotSupported);
+        break;
+      case "no-seats":
+        this.viewState.set(AcceptOrgOpenInviteViewState.NoSeats);
+        break;
+    }
+    return null;
   }
 
   private async unauthedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
@@ -332,28 +217,22 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         // re-authenticate, LoginComponent will replay the invite acceptance.
         return;
       case "link-not-found":
-        // TODO: placeholder — pending design. Reuses the same not-found stand-ins as
-        // fetchStatusOrShowError; final asset + copy land together.
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInviteNotFoundTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.linkNotFound.set(true);
+        // TODO: placeholder — pending design. Reuses the same `openInvite*Title` +
+        // `AccountWarning` stand-ins as the fetchStatusOrShowError path; final asset
+        // + copy for the not-found state will land together across both paths.
+        this.showNotFound();
         return;
       case "plan-not-supported":
         // TODO: placeholder — pending design. Reuses the plan-not-supported stand-ins.
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInvitePlanNotSupportedTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.planNotSupported.set(true);
+        // `openInvitePlanNotSupportedTitle` should feed off `organizationName` once
+        // design approves the interpolated copy (see mapper TODO for the status path).
+        this.showPlanNotSupported();
         return;
       case "no-seats":
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "openInviteNoSeatsTitle" },
-          pageIcon: AccountWarning,
-        });
-        this.noSeats.set(true);
+        // TODO: placeholder — pending design. `openInviteNoSeatsTitle` should feed off
+        // `organizationName` once design approves the interpolated copy (see mapper
+        // TODO for the status path).
+        this.showNoSeats();
         return;
       case "already-member":
       case "email-domain-not-allowed":
@@ -387,17 +266,46 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   /**
-   * Anon-layout error state used when the accept-endpoint call returns a classified
-   * rejection or an `unexpected` result. Mirrors {@link showRegistrationCrossingFailed}
-   * and the sibling `linkNotFound` / `planNotSupported` / `noSeats` states — sets both
-   * the anon-layout page title / icon and the signal that drives the template branch.
+   * Sets the anon-layout page title + icon and transitions `viewState` to the given
+   * error kind. Central helper so every classified-error site (from `authedHandler` and
+   * `fetchStatusOrShowError`) sets both the layout chrome and the view state in one call.
    */
-  private showAcceptFailed(): void {
-    // TODO: needs finalization
+  private showError(anonLayoutTitleKey: string, kind: AcceptOrgOpenInviteViewState): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageTitle: { key: "openInviteAcceptFailedTitle" },
+      pageTitle: { key: anonLayoutTitleKey },
       pageIcon: AccountWarning,
     });
-    this.acceptFailed.set(true);
+    this.viewState.set(kind);
+  }
+
+  // TODO: placeholders — pending design. Anon-layout `openInvite*Title` copy + the
+  // `AccountWarning` icon are stand-ins until design provides finals. Kept as thin
+  // wrappers so call sites read as intent, and so a future distinct-per-kind design pass
+  // only edits this file (not each caller). Per-kind follow-ups (org-name interpolation
+  // for plan-not-supported and no-seats) are noted on the mapper and the authedHandler
+  // call sites — they should land together across both the status and accept paths.
+  private showNotFound(): void {
+    this.showError("openInviteNotFoundTitle", AcceptOrgOpenInviteViewState.NotFound);
+  }
+
+  private showPlanNotSupported(): void {
+    this.showError(
+      "openInvitePlanNotSupportedTitle",
+      AcceptOrgOpenInviteViewState.PlanNotSupported,
+    );
+  }
+
+  private showNoSeats(): void {
+    this.showError("openInviteNoSeatsTitle", AcceptOrgOpenInviteViewState.NoSeats);
+  }
+
+  // TODO: needs finalization. This is the catch-all state for classified accept-endpoint
+  // rejections (already-member, email-domain-not-allowed, org-access-revoked, 2FA-required,
+  // etc.) — see the `authedHandler` switch for the full list. Several of those probably
+  // want distinct UX once design lands (`already-member` is success-adjacent;
+  // `recovery-key-mismatch` is a specific security condition), which will splinter this
+  // helper into a handful of per-kind ones.
+  private showAcceptFailed(): void {
+    this.showError("openInviteAcceptFailedTitle", AcceptOrgOpenInviteViewState.AcceptFailed);
   }
 }

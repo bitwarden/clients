@@ -1,16 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { openOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountWarning } from "@bitwarden/assets/svg";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
 import { RegisterVerificationEmailClickedRequest } from "@bitwarden/common/auth/models/request/registration/register-verification-email-clicked.request";
+import {
+  OpenOrganizationInvite,
+  OpenOrgInviteUrlParams,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -39,6 +46,21 @@ const MarketingInitiative = Object.freeze({
 
 type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingInitiative];
 
+/**
+ * Discriminated render state for `RegistrationFinishComponent`. Exactly one kind is
+ * active at a time — the template `@switch (viewState())` renders the matching branch,
+ * so mutual exclusion between "form", "spinner", and each error variant is enforced by
+ * the type rather than by disciplined use of parallel boolean flags.
+ */
+export const RegistrationFinishViewState = Object.freeze({
+  Loading: "loading",
+  SealedOpenOrgInviteDecryptionFailed: "sealed-open-org-invite-decryption-failed",
+  OpenOrgInviteStatusError: "open-org-invite-status-error",
+  RegistrationFinishForm: "registration-finish-form",
+} as const);
+export type RegistrationFinishViewState =
+  (typeof RegistrationFinishViewState)[keyof typeof RegistrationFinishViewState];
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -50,7 +72,6 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
-  loading = true;
   submitting = false;
   email: string;
 
@@ -79,11 +100,35 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   providerInviteToken: string;
   providerUserId: string;
 
-  // Sealed open-org-invite blob carried on the verification-email URL fragment when the
-  // registrant reached this flow from an open-invite link. Not consumed here — persisted to
-  // the deep-link state before login so the guard replays `/join?sealedOpenOrgInviteData=<blob>`
-  // after auth completes; the accept component owns unseal + error UX.
+  // Sealed open-org-invite blob carried on the verification-email URL when the registrant
+  // reached this flow from an open-invite link. Extracted from the URL, unsealed in
+  // ngOnInit, then dropped from the URL so page reloads cannot re-fire the single-use
+  // crossing. `unsealedOpenOrgInvite` below holds the hydrated result.
   sealedOpenOrgInviteData: string | null = null;
+
+  // Populated on `ngOnInit` when the sealed blob unseals + status-hydrates successfully.
+  // Held on the component so `handlePasswordFormSubmit` can reconstruct the direct-landing
+  // URL (`/join/:organizationId/:inviteLinkCode?key=<key>`) for the post-login deep-link
+  // replay without re-reading state.
+  unsealedOpenOrgInvite: OpenOrganizationInvite | null = null;
+
+  // Template access to the view-state kinds so the `@switch` cases below can compare
+  // against symbolic references (`RegistrationFinishViewState.Loading`) instead of
+  // magic-string literals — same pattern as `LoginComponent` / `LoginUiState`.
+  protected readonly RegistrationFinishViewState = RegistrationFinishViewState;
+
+  // Discriminated render state (see {@link RegistrationFinishViewState}). Initial value
+  // is `Loading` so the spinner renders while `ngOnInit` runs; the final transition to
+  // `RegistrationFinishForm` or one of the error kinds happens at the end of `ngOnInit`.
+  protected readonly viewState = signal<RegistrationFinishViewState>(
+    RegistrationFinishViewState.Loading,
+  );
+
+  // Payload signal for `open-invite-status-error`. Empty string is only observable
+  // when `viewState()` is not `'open-invite-status-error'`, in which case the template
+  // never reads this — the mutual exclusion is enforced by the discriminated view state
+  // rather than by parallel independent flags.
+  protected readonly openOrgInviteStatusErrorMessageKey = signal<string>("");
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
@@ -101,13 +146,43 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private premiumInterestStateService: PremiumInterestStateService,
     private deepLinkRedirectService: DeepLinkRedirectService,
+    private organizationInviteService: OrganizationInviteService,
   ) {}
 
   async ngOnInit() {
     const qParams = await firstValueFrom(this.activatedRoute.queryParams);
     this.handleQueryParams(qParams);
 
-    if (
+    // Open-invite registration-crossing: unseal + status-hydrate + persist to invite
+    // state so the standard org-invite branch below sees the hydrated invite (needed
+    // for `joinOrganizationName` title + MP-policy compliance during password setting).
+    // Runs before the other branches so the sealed-data variant doesn't fall through
+    // to the plain email-verification path (which would leave state empty and skip MP
+    // policy enforcement).
+    if (this.sealedOpenOrgInviteData != null && this.email) {
+      const handoffOk = await this.handleOpenOrgInviteHandoff(
+        this.email,
+        this.sealedOpenOrgInviteData,
+      );
+      // Drop the sealed blob from the URL regardless of outcome; the sealed-secret is
+      // single-use, and a lingering blob on refresh would just re-fail against a cleared secret.
+      await this.stripSealedOpenOrgInviteDataFromUrl();
+      if (!handoffOk) {
+        // Handoff already transitioned `viewState` to the failure kind that renders the
+        // appropriate error block; no further work here.
+        return;
+      }
+    }
+
+    if (this.unsealedOpenOrgInvite != null) {
+      // Open-invite path: use the org-invite branch for title + MP-policy fetch (invite
+      // is now in state). Still fire the verification-click endpoint since the user
+      // reached this component through the verification email (fromEmail=true).
+      await this.initOrgInviteFlowIfPresent();
+      if (qParams.fromEmail === "true" && this.email && this.emailVerificationToken) {
+        await this.registerVerificationEmailClicked(this.email, this.emailVerificationToken);
+      }
+    } else if (
       qParams.fromEmail &&
       qParams.fromEmail === "true" &&
       this.email &&
@@ -115,7 +190,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     ) {
       await this.initEmailVerificationFlow();
     } else {
-      // Org Invite flow OR registration with email verification disabled Flow
+      // Direct-invite-in-state flow OR registration with email verification disabled flow
       const orgInviteFlow = await this.initOrgInviteFlowIfPresent();
 
       if (!orgInviteFlow) {
@@ -123,7 +198,106 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.loading = false;
+    this.viewState.set(RegistrationFinishViewState.RegistrationFinishForm);
+  }
+
+  /**
+   * Orchestrates the open-invite registration crossing:
+   *   1. Unseal the URL triple from the sealed blob (crypto-only).
+   *   2. Freshen the invite via the anonymous status endpoint.
+   *   3. On success, persist the hydrated `OpenOrganizationInvite` to invite state.
+   *   4. On any classified failure, set the matching template signal so the form is
+   *      swapped out for an inline error block.
+   *
+   * The single-use sealed-secret entry is invalidated on every branch so a refresh or
+   * back-nav cannot re-fire the crossing against a stale secret.
+   *
+   * @returns `true` when state now holds a hydrated invite the rest of `ngOnInit` can
+   *   consume; `false` when a failure UI has been rendered and the caller should
+   *   short-circuit.
+   */
+  private async handleOpenOrgInviteHandoff(email: string, sealedData: string): Promise<boolean> {
+    const unsealResult = await this.organizationInviteService.unsealOpenOrgInvite(
+      email,
+      sealedData,
+    );
+    // Single-use — invalidate before any early return so refresh/back-nav can't retry.
+    await this.organizationInviteService.clearSealedOpenOrgInviteSecret(email);
+
+    if (unsealResult.kind !== "ok") {
+      this.logUnsealFailure(unsealResult);
+      this.showOpenOrgInviteDecryptionFailed();
+      return false;
+    }
+
+    const urlParams: OpenOrgInviteUrlParams = unsealResult.invite;
+    const statusResult = await this.organizationInviteService.getOpenOrgInviteStatus(
+      urlParams.organizationId,
+      urlParams.inviteLinkCode,
+    );
+    const statusErrorUi = openOrgInviteStatusErrorUi(statusResult);
+    if (statusErrorUi != null) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(statusErrorUi.anonLayoutData);
+      this.openOrgInviteStatusErrorMessageKey.set(statusErrorUi.bodyMessageKey);
+      this.viewState.set(RegistrationFinishViewState.OpenOrgInviteStatusError);
+      return false;
+    }
+
+    // Status was ok — hydrate + persist. `statusResult.status` is narrowed by the null
+    // check on `statusErrorUi` above (mapper returns null iff kind === 'ok').
+    if (statusResult.kind !== "ok") {
+      // Defensive branch to satisfy the narrowing — logically unreachable given the
+      // mapper contract, but the type system doesn't know that.
+      this.showOpenOrgInviteDecryptionFailed();
+      return false;
+    }
+    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, statusResult.status);
+    await this.organizationInviteService.setOrganizationInvite(invite);
+    this.unsealedOpenOrgInvite = invite;
+    return true;
+  }
+
+  private logUnsealFailure(result: {
+    kind: "secret-miss" | "crypto-failure" | "unexpected";
+    errorMessage?: string;
+  }): void {
+    switch (result.kind) {
+      case "secret-miss":
+        this.logService.warning(
+          "RegistrationFinishComponent: no HighEntropySecret stored for email during open-org-invite handoff.",
+        );
+        return;
+      case "crypto-failure":
+        this.logService.warning(
+          "RegistrationFinishComponent: SDK crypto failure unsealing open-org-invite.",
+        );
+        return;
+      case "unexpected":
+        this.logService.warning(
+          `RegistrationFinishComponent: unexpected open-org-invite unseal failure: ${result.errorMessage}`,
+        );
+        return;
+    }
+  }
+
+  private async stripSealedOpenOrgInviteDataFromUrl(): Promise<void> {
+    // `queryParamsHandling: 'merge'` + null-valued key removes only the sealed blob,
+    // leaving `email`, `token`, and `fromEmail` intact so post-refresh routing still
+    // works. `replaceUrl: true` avoids growing the history stack.
+    await this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { sealedOpenOrgInviteData: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  private showOpenOrgInviteDecryptionFailed(): void {
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "openInviteRegistrationCrossingFailedTitle" },
+      pageIcon: AccountWarning,
+    });
+    this.viewState.set(RegistrationFinishViewState.SealedOpenOrgInviteDecryptionFailed);
   }
 
   private handleQueryParams(qParams: Params) {
@@ -216,9 +390,10 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       // Persist before login so the deep-link guard on `/vault` replays this once auth
       // completes — pipes the redirect through 2FA, set-initial-password, and any other
       // intermediate auth stops without threading state through each.
-      if (this.sealedOpenOrgInviteData != null) {
+      if (this.unsealedOpenOrgInvite != null) {
+        const { organizationId, inviteLinkCode, inviteKey } = this.unsealedOpenOrgInvite;
         await this.deepLinkRedirectService.persistPostLoginRedirectUrl(
-          `/join?sealedOpenOrgInviteData=${encodeURIComponent(this.sealedOpenOrgInviteData)}`,
+          `/join/${encodeURIComponent(organizationId)}/${encodeURIComponent(inviteLinkCode)}?key=${encodeURIComponent(inviteKey)}`,
         );
       }
 

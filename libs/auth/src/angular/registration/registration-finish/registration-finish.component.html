@@ -1,13 +1,31 @@
-<div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
-  <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x" [ariaLabel]="'loading' | i18n"></bit-icon>
-</div>
-
-<auth-input-password
-  *ngIf="!loading"
-  [email]="email"
-  [flow]="inputPasswordFlow"
-  [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
-  [loading]="submitting"
-  [primaryButtonText]="{ key: 'createAccount' }"
-  (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
-></auth-input-password>
+@switch (viewState()) {
+  @case (RegistrationFinishViewState.Loading) {
+    <div class="tw-flex tw-items-center tw-justify-center">
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin bwi-3x"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
+    </div>
+  }
+  @case (RegistrationFinishViewState.OpenInviteDecryptionFailed) {
+    <p data-testid="open-invite-registration-decryption-failed-message">
+      {{ "openInviteRegistrationCrossingFailedMessage" | i18n }}
+    </p>
+  }
+  @case (RegistrationFinishViewState.OpenInviteStatusError) {
+    <p data-testid="open-invite-registration-status-error-message">
+      {{ openOrgInviteStatusErrorMessageKey() | i18n }}
+    </p>
+  }
+  @case (RegistrationFinishViewState.RegistrationFinishForm) {
+    <auth-input-password
+      [email]="email"
+      [flow]="inputPasswordFlow"
+      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      [loading]="submitting"
+      [primaryButtonText]="{ key: 'createAccount' }"
+      (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+    ></auth-input-password>
+  }
+}

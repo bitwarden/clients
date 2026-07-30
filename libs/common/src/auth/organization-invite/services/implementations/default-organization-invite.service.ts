@@ -499,7 +499,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         .auth()
         .registration()
         .unseal_open_org_invite_data({ sealedData, highEntropySecret });
-
       return {
         kind: "ok",
         invite: {

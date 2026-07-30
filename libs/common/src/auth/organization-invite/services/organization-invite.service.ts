@@ -132,10 +132,8 @@ export abstract class OrganizationInviteService {
   abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteUrlParams): Promise<string | null>;
 
   /**
-   * Unseals a previously-sealed open-org-invite blob using the `HighEntropySecret` stored for
-   * `email`. Returns a discriminated {@link UnsealOpenOrgInviteResult} — `ok` with the invite
-   * on success, `secret-miss` when no secret is stored, `crypto-failure` when the SDK reports
-   * a `RegistrationError.Crypto`, or `unexpected` with a best-effort message for anything else.
+   * Unseals a previously-sealed open-org-invite blob using the `HighEntropySecret` stored
+   * for `email`. See {@link UnsealOpenOrgInviteResult} for the discriminated outcome kinds.
    */
   abstract unsealOpenOrgInvite(
     email: string,

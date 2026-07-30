@@ -116,6 +116,12 @@
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Finish joining this organization by setting a master password."
   },
+  "openInviteRegistrationCrossingFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "openInviteRegistrationCrossingFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
   "tab": {
     "message": "Tab"
   },

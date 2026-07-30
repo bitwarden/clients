@@ -17,6 +17,7 @@ import { OpenOrgInviteUrlParams } from "../models/open-organization-invite";
  *    caller can render something meaningful.
  */
 export type UnsealOpenOrgInviteResult =
+  // TODO: evaluate not re-using OpenOrgInviteUrlParams here
   | { kind: "ok"; invite: OpenOrgInviteUrlParams }
   | { kind: "secret-miss" }
   | { kind: "crypto-failure" }

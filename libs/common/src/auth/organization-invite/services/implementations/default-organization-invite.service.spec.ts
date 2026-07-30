@@ -1364,7 +1364,7 @@ describe("DefaultOrganizationInviteService", () => {
         expect(registrationClient.unseal_open_org_invite_data).not.toHaveBeenCalled();
       });
 
-      it("returns { kind: 'ok' } with the domain-shaped invite when the SDK unseal succeeds", async () => {
+      it("returns { kind: 'ok' } with the URL triple on successful SDK unseal", async () => {
         await writeRecord({
           "user@example.com": { highEntropySecret: "hes-abc", createdAtMs: NOW },
         });
@@ -1380,7 +1380,8 @@ describe("DefaultOrganizationInviteService", () => {
           sealedData: "sealed-blob",
           highEntropySecret: "hes-abc",
         });
-        // SDK -> domain field rename: inviteSecret -> inviteKey.
+        // SDK -> domain field rename: inviteSecret -> inviteKey. No status fetch here —
+        // hydration to OpenOrganizationInvite is the caller's responsibility.
         expect(result).toEqual({
           kind: "ok",
           invite: {
@@ -1468,6 +1469,13 @@ describe("DefaultOrganizationInviteService", () => {
           organizationId: "org-id",
           inviteLinkCode: "code",
           inviteSecret: "invite-key",
+        } as any);
+        // unseal now hydrates via the anonymous status endpoint before returning `ok`.
+        organizationInviteLinkApiService.getStatus.mockResolvedValue({
+          organizationName: "Acme",
+          linksEnabled: true,
+          seatsAvailable: true,
+          sso: null,
         } as any);
 
         const result = await sut.unsealOpenOrgInvite("Foo@Example.COM", "sealed-blob");
