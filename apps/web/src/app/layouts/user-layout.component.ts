@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Params, Router, RouterModule } from "@angular/router";
-import { map, Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -15,7 +15,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { BadgeModule, PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -43,6 +45,7 @@ import { WebLayoutModule } from "./web-layout.module";
     I18nPipe,
     WebLayoutModule,
     SvgModule,
+    BadgeModule,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -61,6 +64,8 @@ export class UserLayoutComponent implements OnInit {
 
   private readonly router = inject(Router);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly cipherArchiveService = inject(CipherArchiveService);
+  private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
   protected readonly vfo1Enabled: Signal<boolean> = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -70,6 +75,31 @@ export class UserLayoutComponent implements OnInit {
   protected readonly vaultNav: Signal<VaultsNavViewModel | undefined> = toSignal(
     this.vaultNavService.viewModel$,
   );
+
+  /**
+   * Archive stays in the nav for non-premium users as the upgrade path, carrying the same badge
+   * and upgrade prompt the vault filter panel applies today.
+   */
+  private readonly archiveUpsell = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        combineLatest([
+          this.cipherArchiveService.userHasPremium$(userId),
+          this.cipherArchiveService
+            .archivedCiphers$(userId)
+            .pipe(map((ciphers) => ciphers.length > 0)),
+        ]),
+      ),
+      map(([hasPremium, hasArchivedCiphers]) => ({
+        showBadge: !hasPremium,
+        promptForPremium: !hasPremium && !hasArchivedCiphers,
+      })),
+    ),
+    { initialValue: { showBadge: false, promptForPremium: false } },
+  );
+
+  protected readonly showArchivePremiumBadge = computed(() => this.archiveUpsell().showBadge);
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
@@ -119,6 +149,14 @@ export class UserLayoutComponent implements OnInit {
 
   protected async selectItemType(type: RoutedVaultFilterItemType) {
     await this.navigateToVault({ type });
+  }
+
+  protected async selectArchive() {
+    if (this.archiveUpsell().promptForPremium) {
+      await this.premiumUpgradePromptService.promptForPremium();
+      return;
+    }
+    await this.selectItemType("archive");
   }
 
   private vaultIdParam(vault: VaultNavItemViewModel): string | null {
