@@ -21,3 +21,9 @@ export type UnsealOpenOrgInviteResult =
   | { kind: "secret-miss" }
   | { kind: "crypto-failure" }
   | { kind: "unexpected"; errorMessage: string };
+
+/**
+ * Non-`ok` arms of {@link UnsealOpenOrgInviteResult}. Derived via `Exclude` so a new
+ * failure kind added to the parent union automatically shows up here.
+ */
+export type UnsealOpenOrgInviteError = Exclude<UnsealOpenOrgInviteResult, { kind: "ok" }>;

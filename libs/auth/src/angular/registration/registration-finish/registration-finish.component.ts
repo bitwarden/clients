@@ -17,6 +17,7 @@ import {
   OpenOrganizationInvite,
   OpenOrgInviteLinkData,
   OrganizationInviteService,
+  UnsealOpenOrgInviteError,
 } from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -195,8 +196,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
    * open org invite blob:
    *   1. Unseal the URL link data from the sealed blob (crypto-only).
    *   2. Freshen the invite via the anonymous status endpoint.
-   *   3. On success, persist the hydrated `OpenOrganizationInvite` to invite state so
-   *      the subsequent org-invite dispatch reads the hydrated state.
+   *   3. On success, persist the hydrated `OpenOrganizationInvite` to invite state
    *   4. On any classified failure, set the matching template signal so the form is
    *      swapped out for an inline error block.
    *
@@ -221,7 +221,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     await this.stripSealedOpenOrgInviteDataFromUrl();
 
     if (unsealResult.kind !== "ok") {
-      this.logUnsealFailure(unsealResult);
+      this.logUnsealOpenOrgInviteError(unsealResult);
       this.showOpenOrgInviteDecryptionFailed();
       return false;
     }
@@ -253,10 +253,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private logUnsealFailure(result: {
-    kind: "secret-miss" | "crypto-failure" | "unexpected";
-    errorMessage?: string;
-  }): void {
+  private logUnsealOpenOrgInviteError(result: UnsealOpenOrgInviteError): void {
     switch (result.kind) {
       case "secret-miss":
         this.logService.warning(
