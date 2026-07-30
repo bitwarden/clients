@@ -76,10 +76,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * open-organization-invite registration crossings. Web-only (`disk-local`); pruned by
    * {@link clearExpiredSealedOpenOrgInviteSecrets} on APP_INITIALIZER boot.
    */
-  private sealedOpenOrgInviteSecretState: GlobalState<Record<
-    string,
-    SealedOpenOrgInviteSecretState
-  > | null>;
+  private sealedOpenOrgInviteSecretState: GlobalState<
+    Record<string, SealedOpenOrgInviteSecretState>
+  >;
   /**
    * Merged stream of the two variant-specific state keys. Mutual exclusion is enforced
    * by {@link setOrganizationInvite} so at most one of the two is non-null; the merge
