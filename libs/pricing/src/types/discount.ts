@@ -10,6 +10,16 @@ export type DiscountType = (typeof DiscountTypes)[keyof typeof DiscountTypes];
 export type Discount = {
   type: DiscountType;
   value: number;
+  /**
+   * The authoritative applied amount in dollars, supplied by the server (cents / 100).
+   * When present, renderers prefer this over deriving the amount via {@link getAmount}.
+   */
+  amount?: number;
+  /**
+   * The server-supplied coupon name. When present, {@link getLabel} returns it instead of
+   * deriving a label from `type` and `value`.
+   */
+  label?: string;
 };
 
 /**
@@ -34,7 +44,16 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
   }
 };
 
+/**
+ * Resolves the display label for a discount, preferring the server-supplied
+ * {@link Discount.label} (the coupon name) when present and otherwise deriving
+ * one from the discount's type and value.
+ */
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
+  if (discount.label) {
+    return discount.label;
+  }
+
   switch (discount.type) {
     case DiscountTypes.AmountOff: {
       const formattedAmount = new Intl.NumberFormat("en-US", {
