@@ -80,6 +80,9 @@ export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
+/**
+ * Shared disk (session on web) storage for both organization-invite variants (direct and open).
+ */
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
 export const OPEN_ORG_INVITE_DISK_LOCAL = new StateDefinition("openOrgInvite", "disk", {
   web: "disk-local",
