@@ -46,3 +46,12 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "free-admin-limit" }
   | { kind: "reset-password-key-required" }
   | { kind: "unexpected"; errorMessage: string };
+
+/**
+ * Error arms of {@link AcceptOpenOrgInviteResult} — Derived via
+ * `Exclude` so a new failure kind added to the parent union automatically shows up here.
+ */
+export type AcceptOpenOrgInviteError = Exclude<
+  AcceptOpenOrgInviteResult,
+  { kind: "accepted" } | { kind: "stashed-for-mp-policy-detour" }
+>;

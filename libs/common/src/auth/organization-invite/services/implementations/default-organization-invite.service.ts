@@ -56,7 +56,10 @@ import {
   OpenOrganizationInvite,
   OpenOrgInviteLinkData,
 } from "../../models/open-organization-invite";
-import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
+import {
+  AcceptOpenOrgInviteError,
+  AcceptOpenOrgInviteResult,
+} from "../../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
 import { OpenOrgInviteSsoConfig } from "../../types/open-org-invite-status.type";
 import { OrganizationInvite } from "../../types/organization-invite.type";
@@ -262,14 +265,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * The SDK wraps HTTP failures as `variant: "Api"` with a display string of the form
-   * `Received error message from server: [{status}] {server-message}` (from
-   * `bitwarden-core::ApiError::Response`). Unwrap once, delegate to
-   * {@link classifyServerAcceptError}; unrecognized status/message falls through to
-   * `unexpected` with the raw text. `RecoveryKeyMismatch` gets its own kind because
-   * it signals org-key substitution.
+   * Top-level classifier for accept-flow errors. Branches, in order:
+   *   1. Not an `InviteLinkError` → `unexpected` with an extracted message.
+   *   2. `RecoveryKeyMismatch` → `recovery-key-mismatch`; signals org-key substitution.
+   *   3. Any other non-`Api` variant → `unexpected` with the SDK message.
+   *   4. `Api` variant → unwrap the `ApiError::Response` display string and delegate to
+   *      {@link classifyAcceptOpenOrgInviteApiError}, or `unexpected` if the format has drifted.
    */
-  private classifyAcceptOpenOrgInviteError(e: unknown): AcceptOpenOrgInviteResult {
+  private classifyAcceptOpenOrgInviteError(e: unknown): AcceptOpenOrgInviteError {
     if (!isInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
@@ -290,13 +293,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
     const statusCode = Number(match[1]);
     const serverMessage = match[2];
-    return this.classifyServerAcceptError(statusCode, serverMessage);
+    return this.classifyAcceptOpenOrgInviteApiError(statusCode, serverMessage);
   }
 
-  private classifyServerAcceptError(
+  private classifyAcceptOpenOrgInviteApiError(
     statusCode: number,
     message: string,
-  ): AcceptOpenOrgInviteResult {
+  ): AcceptOpenOrgInviteError {
     if (statusCode === 404) {
       return { kind: "link-not-found" };
     }
