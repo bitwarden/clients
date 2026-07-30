@@ -140,6 +140,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   protected organization?: Organization;
 
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected showShareViaLink$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -150,6 +151,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
+    this.showShareViaLink$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM34203TemporaryItemSharing,
     );
   }
 
@@ -466,6 +470,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  protected shareViaLink() {
+    this.onEvent.emit({ type: "shareViaLink", item: this.cipher });
   }
 
   async openUri(selectedUri: string) {

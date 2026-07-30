@@ -14,4 +14,5 @@ export type VaultItemEvent<C extends CipherViewLike> =
       readonly: boolean;
       initialPermission?: CollectionPermission;
     }
-  | { type: "editCollection"; item: CollectionView; readonly: boolean };
+  | { type: "editCollection"; item: CollectionView; readonly: boolean }
+  | { type: "shareViaLink"; item: C };

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -16,20 +15,16 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/vault";
 
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 import { ShareItemComponent } from "./share-item.component";
-import { ShareLinkService } from "./share-link.service";
 
 describe("ShareItemComponent", () => {
   let component: ShareItemComponent;
   let fixture: ComponentFixture<ShareItemComponent>;
   let cipherService: MockProxy<CipherService>;
-  let platformUtilsService: MockProxy<PlatformUtilsService>;
-  let toastService: MockProxy<ToastService>;
-  let shareLinkService: ShareLinkService;
-  let i18nService: MockProxy<I18nService>;
 
   const queryParams$ = new BehaviorSubject<Record<string, string>>({
     cipherId: "cipher-123" as CipherId,
@@ -46,11 +41,7 @@ describe("ShareItemComponent", () => {
 
   beforeEach(async () => {
     cipherService = mock<CipherService>();
-    platformUtilsService = mock<PlatformUtilsService>();
-    toastService = mock<ToastService>();
-    i18nService = mock<I18nService>();
-    shareLinkService = new ShareLinkService();
-
+    const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
 
     cipherService.cipherView$.mockReturnValue(of(mockCipher));
@@ -62,7 +53,7 @@ describe("ShareItemComponent", () => {
     folderService.folderViews$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, RouterTestingModule, ShareItemComponent],
+      imports: [RouterTestingModule, ShareItemComponent],
       providers: [
         {
           provide: ActivatedRoute,
@@ -81,10 +72,10 @@ describe("ShareItemComponent", () => {
           },
         },
         { provide: CipherService, useValue: cipherService },
-        { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: ToastService, useValue: toastService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: i18nService },
-        { provide: ShareLinkService, useValue: shareLinkService },
+        { provide: ShareLinkService, useValue: new ShareLinkService() },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
         {
@@ -107,86 +98,7 @@ describe("ShareItemComponent", () => {
     expect(cipherService.cipherView$).toHaveBeenCalledWith(mockUserId, "cipher-123");
   });
 
-  it("should start with accordion collapsed", () => {
-    expect(component["accordionExpanded"]()).toBe(false);
-  });
-
-  it("should not create link when form is invalid", async () => {
-    component["form"].controls.emails.setValue("");
-    await component["createAndCopyLink"]();
-    expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
-  });
-
-  it("should create and copy link when form is valid", async () => {
-    component["form"].controls.emails.setValue("recipient@example.com");
-
-    await component["createAndCopyLink"]();
-
-    expect(platformUtilsService.copyToClipboard).toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variant: "success",
-        message: "linkSavedAndCopied",
-      }),
-    );
-  });
-
-  it("should parse comma-delimited emails correctly", async () => {
-    const createSpy = jest.spyOn(shareLinkService, "createShareLink");
-    component["form"].controls.emails.setValue("a@test.com, b@test.com, c@test.com");
-
-    await component["createAndCopyLink"]();
-
-    expect(createSpy).toHaveBeenCalledWith(
-      "cipher-123",
-      ["a@test.com", "b@test.com", "c@test.com"],
-      168,
-      false,
-    );
-  });
-
-  it("should copy link to clipboard", async () => {
-    const mockLink = {
-      id: "link-1",
-      cipherId: "cipher-123" as CipherId,
-      emails: ["test@test.com"],
-      expiresAt: new Date(),
-      oneTimeShare: false,
-      url: "https://vault.bitwarden.com/share/abc",
-    };
-
-    await component["copyLink"](mockLink);
-
-    expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
-      "https://vault.bitwarden.com/share/abc",
-    );
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variant: "success",
-        message: "linkCopiedToClipboard",
-      }),
-    );
-  });
-
-  it("should delete a link and show toast", async () => {
-    const deleteSpy = jest.spyOn(shareLinkService, "deleteLink");
-    const mockLink = {
-      id: "link-1",
-      cipherId: "cipher-123" as CipherId,
-      emails: ["test@test.com"],
-      expiresAt: new Date(),
-      oneTimeShare: false,
-      url: "https://vault.bitwarden.com/share/abc",
-    };
-
-    await component["deleteLink"](mockLink);
-
-    expect(deleteSpy).toHaveBeenCalledWith("link-1");
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        variant: "success",
-        message: "shareLinkDeleted",
-      }),
-    );
+  it("should set cipher signal after loading from route", () => {
+    expect(component["cipher"]()).toEqual(mockCipher);
   });
 });

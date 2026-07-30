@@ -144,6 +144,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
+import { ShareItemDrawerComponent } from "./share-item-drawer/share-item-drawer.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -729,6 +730,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "editCipher":
           await this.editCipher(event.item);
           break;
+        case "shareViaLink":
+          await this.shareViaLink(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
@@ -1084,6 +1088,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     };
 
     await this.openVaultItemDialog("form", cipherFormConfig);
+  }
+
+  async shareViaLink(cipher: CipherViewLike) {
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, cipher.id as CipherId),
+    );
+    if (!cipherView) {
+      return;
+    }
+    await ShareItemDrawerComponent.openDrawer(this.dialogService, cipherView);
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
