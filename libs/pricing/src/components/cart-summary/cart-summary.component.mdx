@@ -450,7 +450,7 @@ Show cart with fixed amount discount:
 Show cart with an item-level discount applied to a specific line item (e.g., Premium renewal
 discount):
 
-<Canvas of={CartSummaryStories.WithItemDiscount} />
+<Canvas of={CartSummaryStories.SinglePerLineDiscount} />
 
 ```html
 <billing-cart-summary
@@ -481,7 +481,7 @@ Show cart with both a cart-level discount and an item-level discount. The item-l
 renders inline under its line item, while the cart-level discount renders in the dedicated discount
 section:
 
-<Canvas of={CartSummaryStories.WithCartAndItemDiscount} />
+<Canvas of={CartSummaryStories.PerLineAndCartWideStacked} />
 
 ```html
 <billing-cart-summary
