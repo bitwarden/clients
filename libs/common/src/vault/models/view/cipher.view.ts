@@ -366,7 +366,9 @@ export class CipherView implements View, InitializerMetadata {
                 return view;
               })
               .filter((cred): cred is Fido2CredentialView => !!cred);
-          } catch {
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(`Failed to decrypt Fido2 credentials for cipher ${cipherView.id}: ${e}`);
             cipherView.login.fido2Credentials = [];
           }
         }
