@@ -874,6 +874,7 @@ describe("AutofillService", () => {
           allowTotpAutofill: autofillOptions.allowTotpAutofill || false,
           autoSubmitLogin: autofillOptions.allowTotpAutofill || false,
           cipher: autofillOptions.cipher,
+          canAccessTotp: true,
           tabUrl: autofillOptions.tab.url,
           defaultUriMatch: 0,
         },
@@ -1065,6 +1066,8 @@ describe("AutofillService", () => {
 
     it("does not return a TOTP value if the user does not have premium features", async () => {
       autofillOptions.cipher.login.totp = "totp";
+      // `mock<CipherView>` auto-stubs this to a truthy function; it is a boolean on a real cipher.
+      autofillOptions.cipher.organizationUseTotp = false;
       jest
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(false));
@@ -1075,6 +1078,35 @@ describe("AutofillService", () => {
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toBeNull();
+    });
+
+    it("leaves the passed cipher's TOTP seed intact when the user does not have premium features", async () => {
+      autofillOptions.cipher.login.totp = "totp";
+      // `mock<CipherView>` auto-stubs this to a truthy function; it is a boolean on a real cipher.
+      autofillOptions.cipher.organizationUseTotp = false;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      expect(autofillOptions.cipher.login.totp).toBe("totp");
+    });
+
+    it("returns a TOTP value for a non-premium user when the organization uses TOTP", async () => {
+      const totpCode = "123456";
+      autofillOptions.cipher.login.totp = "totp";
+      autofillOptions.cipher.organizationUseTotp = true;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+      totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+
+      const autofillResult = await autofillService.doAutoFill(autofillOptions);
+
+      expect(totpService.getCode$).toHaveBeenCalledWith("totp");
+      expect(autofillResult).toBe(totpCode);
     });
 
     it("returns a null value if the cipher type is not for a Login", async () => {
@@ -2326,6 +2358,7 @@ describe("AutofillService", () => {
         options.cipher.login.username = "username";
         options.cipher.login.password = "password";
         options.cipher.login.totp = "totp";
+        options.canAccessTotp = true;
       });
 
       it("attempts to load the password fields from hidden and read only elements if no visible password fields are found within the page details", async () => {
@@ -2513,7 +2546,7 @@ describe("AutofillService", () => {
           pageDetails.forms = undefined;
           pageDetails.fields = []; // Clear fields to start fresh
           options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
-          options.cipher.login.totp = null; // Disable TOTP for these tests
+          options.canAccessTotp = false; // Disable TOTP for these tests
         });
 
         it("includes all password fields from the same form when filling with password generation", async () => {
@@ -2603,7 +2636,7 @@ describe("AutofillService", () => {
           pageDetails.forms = undefined;
           pageDetails.fields = []; // Clear fields to start fresh
           options.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
-          options.cipher.login.totp = null; // Disable TOTP for these tests
+          options.canAccessTotp = false; // Disable TOTP for these tests
         });
 
         it("includes all password fields from the same form when updating current password", async () => {
