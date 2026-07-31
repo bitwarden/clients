@@ -53,6 +53,7 @@
         <a
           bitMenuItem
           [routerLink]="product.appRoute"
+          [attr.aria-current]="product.isActive ? 'page' : null"
           [attr.icon]="product.icon"
           [class.tw-bg-bg-brand-softer]="product.isActive"
           [class.tw-text-fg-heading]="product.isActive"
