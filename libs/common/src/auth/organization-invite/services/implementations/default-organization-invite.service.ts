@@ -704,12 +704,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Whether the org's ResetPassword policy has auto-enroll on. Drives the
-   * `enrollIntoAccountRecovery` bool passed to the SDK's
-   * `accept_and_optionally_confirm`; when true, the SDK fetches the org public key,
-   * verifies its thumbprint against the invite's bound key, and encapsulates the
-   * user key to it. Shares its policy fetch with the MP-policy check via the
-   * per-invite `policyCache`, so both checks cost one round-trip.
+   * Whether accepting this open org invite should enroll the user in account recovery,
+   * per the org's ResetPassword policy.
    */
   private async openOrgInviteRequiresResetPasswordAutoEnroll(
     openOrgInvite: OpenOrganizationInvite,
