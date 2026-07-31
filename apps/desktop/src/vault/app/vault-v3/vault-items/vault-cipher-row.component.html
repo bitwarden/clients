@@ -87,7 +87,7 @@
       <vault-item-copy-actions
         class="tw-inline-flex tw-items-center tw-gap-2 tw-align-middle [&_button[biticonbutton]]:-tw-mx-1"
         [cipher]="cipher()"
-        [showQuickCopyActions]="showQuickCopyActions()"
+        [showQuickCopyActions]="showQuickCopyActions() && quickCopyIconFeatureFlag()"
         [disabled]="disabled()"
       ></vault-item-copy-actions>
     }
