@@ -228,6 +228,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // user hasn't been through the detour yet (no matching stash), persist + log out
     // so login can re-check the MP against their current password.
     if (await this.openOrgInviteMasterPasswordPolicyCheckRequired(invite)) {
+      // TODO: this will need to be fixed in a similar way to PM-41303 once
+      // https://github.com/bitwarden/clients/pull/22184 merges
       await this.setOrganizationInvite(invite);
       this.authService.logOut(() => {
         /* Do nothing */
