@@ -1,6 +1,7 @@
 import { CurrencyPipe } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -146,6 +147,25 @@ describe("OffboardingSurveyComponent", () => {
       expect(
         fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]'),
       ).not.toBeNull();
+    });
+
+    it("wires the redeem button to the enclosing form so it cannot race the cancellation", async () => {
+      // Regression guard: without bitFormButton, BitFormButtonDirective is never instantiated and
+      // neither the form-disables-button nor the button-disables-form subscription is installed.
+      const offer = new AnnualUpgradeOfferResponseModel({
+        CurrentAnnualCost: 60,
+        NewAnnualCost: 48,
+        Savings: 12,
+      });
+      await build(offer);
+      selectReason("too_complex");
+      fixture.detectChanges();
+
+      const button = fixture.debugElement.query(
+        By.css('[data-testid="annual-upgrade-offer"] button'),
+      );
+
+      expect(button.attributes["bitFormButton"]).toBeDefined();
     });
 
     it("does not render the callout for the 'needs changed' reason", async () => {
