@@ -10674,17 +10674,29 @@
   "editGroupMembersDesc": {
     "message": "Grant members access to the group's assigned collections."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "Grant access to collections by adding them to this group."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "You can only assign collections you manage."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "Select members"
   },
   "selectCollections": {
     "message": "Select collections"
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
   },
   "role": {
     "message": "Role"
@@ -10713,6 +10725,9 @@
   },
   "noCollectionsAdded": {
     "message": "No collections added"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "No members added"
