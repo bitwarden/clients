@@ -59,7 +59,7 @@ describe("VaultCipherRowComponent", () => {
         },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
         },
         {
           provide: EnvironmentService,
