@@ -38,6 +38,7 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
@@ -82,36 +83,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
-  private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
-  private pendingShadowDomCheck = false;
-  private pendingMutationAddedElements: Set<Element> = new Set();
-  private pendingMutationAddedElementsOverflowed = false;
-  // Caps the batch handed to suppressDescendantsInBatch; on cap the kept set is scanned incrementally.
-  private readonly pendingMutationAddedElementsCap = 256;
-  // Shadow-less custom elements awaiting lazy hydration (attachShadow after the
-  // candidate window closes emits no mutation). Value = deadline (epoch ms).
-  private unresolvedShadowHosts: Map<Element, number> = new Map();
-  private expiredShadowHostCandidates = new WeakSet<Element>();
-  private unresolvedShadowHostRetryTimeout: NodeJS.Timeout | number | null = null;
-  private unresolvedShadowHostRetryRound = 0;
-  // A deadline, not a scan count: coverage stays independent of page churn.
-  private readonly unresolvedShadowHostLifetimeMs = 30000;
-  private readonly unresolvedShadowHostRetryCapMs = 8000;
-  // Tighter than the one-shot 256 intake; overflow rotates FIFO (delay, not starvation).
-  private readonly unresolvedShadowHostTrackingCap = 64;
-  private unresolvedShadowHostOverflow: Element[] = [];
-  private readonly unresolvedShadowHostOverflowCap = 192;
-  // Undefined-tag hosts park here scan-free until customElements.whenDefined fires.
-  private hostsAwaitingDefinition: Map<string, Set<Element>> = new Map();
-  private readonly awaitingDefinitionCap = 64;
-  // Per-host park deadline. Longer than the host lifetime so a slow-loading definition still
-  // upgrades, but finite so a tag that never registers can't keep the retry timer alive forever.
-  private parkedHostDeadlines = new WeakMap<Element, number>();
-  private readonly awaitingDefinitionLifetimeMs = 60000;
-  private hookedCustomElementTags: Set<string> = new Set();
+  // Constructed in the constructor body, not here: it closes over a field declared further down.
+  private readonly shadowTracker: ShadowHostHydrationTracker;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
-  private readonly shadowDomCheckTimeoutMs = 500;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
   private mutationBurstCount = 0;
@@ -162,6 +137,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domQueryService.setOwnedShadowHostPredicate(
       (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
     );
+
+    this.shadowTracker = new ShadowHostHydrationTracker(
+      this.domQueryService,
+      this.mutationObserver,
+      () => this.debouncedRequirePageDetailsUpdate(),
+    );
   }
 
   /**
@@ -194,10 +175,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
       this.updateAfterMutationIdleCallback = null;
     }
-    if (this.shadowDomCheckTimeout) {
-      clearTimeout(this.shadowDomCheckTimeout);
-      this.shadowDomCheckTimeout = null;
-    }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
@@ -207,16 +184,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.autofillFieldsByOpid.clear();
     this.elementInitializingIntersectionObserver.clear();
     // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
-    if (this.unresolvedShadowHostRetryTimeout) {
-      clearTimeout(this.unresolvedShadowHostRetryTimeout);
-      this.unresolvedShadowHostRetryTimeout = null;
-    }
-    this.unresolvedShadowHosts.clear();
-    this.unresolvedShadowHostOverflow.length = 0;
-    this.hostsAwaitingDefinition.clear();
+    this.shadowTracker.reset();
     this.noFieldsFound = false;
     this.domRecentlyMutated = true;
-    this.pendingShadowDomCheck = false;
     this.currentLocationHref = "";
   }
 
@@ -224,17 +194,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this._autofillFormElements;
   }
 
-  // Explicit request: only refresh the latch when a fresh walk will actually consume it —
-  // i.e. no fields are cached, or a host is unresolved and awaiting its shadow root. Note we
-  // deliberately do NOT gate on hostsAwaitingDefinition: on framework pages every unregistered
-  // component selector (<app-root>, <mat-form-field>, …) is a valid-but-:not(:defined)
-  // custom-element name, so it parks permanently and would otherwise keep this gate — and its
-  // O(document) shadow scan, plus a discarded field cache — firing on every fill. Real late
-  // hydration still lands: once a parked host is `define`d it flips `:defined`, the retry sweep
-  // (enrollUpgradedParkedHosts) promotes it into unresolvedShadowHosts, and this gate catches it
-  // there.
+  // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
+  // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
   prepareForExplicitCollection = () => {
-    if (this.noFieldsFound || this.unresolvedShadowHosts.size > 0) {
+    if (this.noFieldsFound || this.shadowTracker.hasHostsAwaitingShadowRoot()) {
       this.domQueryService.refreshShadowDomStateForUserRequest();
       this.noFieldsFound = false;
       this.domRecentlyMutated = true;
@@ -1415,7 +1378,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.mutationObserver,
       );
 
-    this.trackUnresolvedShadowHosts(unresolvedHosts);
+    this.shadowTracker.reconcileFromScan(unresolvedHosts);
 
     if (formElements.length || formFieldElements.length) {
       return { formElements, formFieldElements };
@@ -1507,22 +1470,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // attribute/character-data mutations can't introduce shadow roots.
     const hasAddedNodes = mutations.some((m) => (m.addedNodes?.length ?? 0) > 0);
     if (hasAddedNodes) {
-      this.collectAddedShadowRootCandidates(mutations);
-
-      if (!this.pendingShadowDomCheck) {
-        this.pendingShadowDomCheck = true;
-
-        if (this.shadowDomCheckTimeout) {
-          clearTimeout(this.shadowDomCheckTimeout);
-        }
-
-        this.shadowDomCheckTimeout = setTimeout(() => {
-          this.handleNewShadowRoots();
-          this.pendingShadowDomCheck = false;
-          this.pendingMutationAddedElements.clear();
-          this.pendingMutationAddedElementsOverflowed = false;
-        }, this.shadowDomCheckTimeoutMs);
-      }
+      this.shadowTracker.noteAddedNodes(mutations);
     }
 
     // Drain only when idle AND this batch added work; no-op drains are pure overhead.
@@ -1594,10 +1542,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
-    this.unresolvedShadowHosts.clear();
-    this.unresolvedShadowHostOverflow.length = 0;
-    this.hostsAwaitingDefinition.clear();
-    this.scheduleUnresolvedShadowHostRetry();
+    this.shadowTracker.reset();
 
     this.updateAutofillElementsAfterMutation();
   }
@@ -1709,245 +1654,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.updateAutofillElementsAfterMutation();
   }, this.shadowDomCheckDebounceMs);
 
-  /**
-   * Detects new shadow roots and schedules a page details update if any are found.
-   * This is called periodically to catch shadow roots added after initial page load.
-   * The update is debounced to prevent excessive collection triggers.
-   * @private
-   */
-  private handleNewShadowRoots = () => {
-    this.enrollUpgradedParkedHosts();
-    // Hosts added by mutation may have been removed during the 500ms debounce.
-    const batch: Element[] = [];
-    for (const element of this.pendingMutationAddedElements) {
-      if (element.isConnected) {
-        batch.push(element);
-      }
-    }
-    // Re-scan hosts awaiting hydration; their attachShadow emits no mutation record.
-    for (const element of this.unresolvedShadowHosts.keys()) {
-      if (element.isConnected && !this.pendingMutationAddedElements.has(element)) {
-        batch.push(element);
-      }
-    }
-
-    const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(
-      batch,
-      this.mutationObserver,
-    );
-    if (foundNewRoot) {
-      this.debouncedRequirePageDetailsUpdate();
-    }
-    this.trackUnresolvedShadowHosts(unresolvedHosts);
-  };
-
-  // Single source of the admission rule: deadline map under cap, else FIFO overflow.
-  private admitUnresolvedHost(element: Element, expiresAt: number) {
-    if (this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap) {
-      this.unresolvedShadowHosts.set(element, expiresAt);
-    } else if (this.unresolvedShadowHostOverflow.length < this.unresolvedShadowHostOverflowCap) {
-      this.unresolvedShadowHostOverflow.push(element);
-    }
-  }
-
-  // Rebuilt from the sink each scan: hydrated/disconnected hosts drop out; survivors
-  // keep their original deadline; expired ones are tombstoned against resurrection.
-  private trackUnresolvedShadowHosts(scannedUnresolvedHosts: Set<Element>) {
-    const previousDeadlines = this.unresolvedShadowHosts;
-    this.unresolvedShadowHosts = new Map();
-    const now = Date.now();
-    let sinkHasNewHost = false;
-
-    for (const element of scannedUnresolvedHosts) {
-      if (this.expiredShadowHostCandidates.has(element)) {
-        continue;
-      }
-      const tagName = element.tagName.toLowerCase();
-      // The isolated-world registry never sees page definitions; `:defined` reflects
-      // shared DOM state and is the only cross-world signal for upgrade.
-      if (!element.matches(":defined")) {
-        this.parkHostAwaitingDefinition(tagName, element);
-        continue;
-      }
-      if (!previousDeadlines.has(element)) {
-        sinkHasNewHost = true;
-      }
-      const expiresAt = previousDeadlines.get(element) ?? now + this.unresolvedShadowHostLifetimeMs;
-      if (now >= expiresAt) {
-        this.expiredShadowHostCandidates.add(element);
-        continue;
-      }
-      this.admitUnresolvedHost(element, expiresAt);
-    }
-
-    this.drainShadowHostOverflow();
-
-    // Only new work restarts backoff; otherwise churn would pin it at the floor.
-    if (sinkHasNewHost) {
-      this.unresolvedShadowHostRetryRound = 0;
-    }
-
-    this.scheduleUnresolvedShadowHostRetry();
-  }
-
-  private drainShadowHostOverflow() {
-    const now = Date.now();
-    while (
-      this.unresolvedShadowHostOverflow.length > 0 &&
-      this.unresolvedShadowHosts.size < this.unresolvedShadowHostTrackingCap
-    ) {
-      const element = this.unresolvedShadowHostOverflow.shift();
-      if (
-        element &&
-        element.isConnected &&
-        !this.expiredShadowHostCandidates.has(element) &&
-        !this.unresolvedShadowHosts.has(element)
-      ) {
-        // while-guard keeps size < cap, so admit always seats in the map here.
-        this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
-      }
-    }
-  }
-
-  // Sweep parked hosts for the `:defined` flip the cross-realm `define` won't signal.
-  private enrollUpgradedParkedHosts() {
-    let enrolled = false;
-    const now = Date.now();
-    for (const [tagName, hosts] of this.hostsAwaitingDefinition) {
-      for (const element of hosts) {
-        if (!element.isConnected) {
-          hosts.delete(element);
-          continue;
-        }
-        if (element.matches(":defined")) {
-          hosts.delete(element);
-          enrolled = true;
-          this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
-          continue;
-        }
-        // Still undefined past its park deadline: give up and tombstone, so the tag can't
-        // re-park and the retry timer can eventually settle.
-        const parkDeadline = this.parkedHostDeadlines.get(element);
-        if (parkDeadline !== undefined && now >= parkDeadline) {
-          hosts.delete(element);
-          this.expiredShadowHostCandidates.add(element);
-        }
-      }
-      if (hosts.size === 0) {
-        this.hostsAwaitingDefinition.delete(tagName);
-      }
-    }
-    if (enrolled) {
-      this.unresolvedShadowHostRetryRound = 0;
-    }
-  }
-
-  private parkHostAwaitingDefinition(tagName: string, element: Element) {
-    let parkedCount = 0;
-    for (const hosts of this.hostsAwaitingDefinition.values()) {
-      parkedCount += hosts.size;
-    }
-    if (parkedCount >= this.awaitingDefinitionCap) {
-      return;
-    }
-    let hosts = this.hostsAwaitingDefinition.get(tagName);
-    if (!hosts) {
-      hosts = new Set();
-      this.hostsAwaitingDefinition.set(tagName, hosts);
-    }
-    if (!hosts.has(element)) {
-      hosts.add(element);
-      // Stamp once — re-parking on later scans must not refresh the deadline, or a tag that
-      // never defines would postpone expiry forever.
-      this.parkedHostDeadlines.set(element, Date.now() + this.awaitingDefinitionLifetimeMs);
-    }
-    this.hookCustomElementDefinition(tagName);
-  }
-
-  private scheduleUnresolvedShadowHostRetry() {
-    if (this.unresolvedShadowHostRetryTimeout) {
-      clearTimeout(this.unresolvedShadowHostRetryTimeout);
-      this.unresolvedShadowHostRetryTimeout = null;
-    }
-    if (this.unresolvedShadowHosts.size === 0 && this.hostsAwaitingDefinition.size === 0) {
-      this.unresolvedShadowHostRetryRound = 0;
-      return;
-    }
-    // Exponential backoff (deadlines bound total work). Parked-only: sweep at cap cadence.
-    const delay =
-      this.unresolvedShadowHosts.size === 0
-        ? this.unresolvedShadowHostRetryCapMs
-        : Math.min(
-            // Clamp the exponent: `<<` is a 32-bit shift, so an unclamped round would
-            // eventually wrap to a tiny delay. 5 already exceeds the cap (500 << 5 = 16s).
-            this.shadowDomCheckTimeoutMs << Math.min(this.unresolvedShadowHostRetryRound, 5),
-            this.unresolvedShadowHostRetryCapMs,
-          );
-    this.unresolvedShadowHostRetryRound++;
-    this.unresolvedShadowHostRetryTimeout = setTimeout(() => {
-      this.unresolvedShadowHostRetryTimeout = null;
-      this.handleNewShadowRoots();
-    }, delay);
-  }
-
-  // Undefined tags have an exact event (whenDefined), so they pay no polling budget.
-  private hookCustomElementDefinition(tagName: string) {
-    if (this.hookedCustomElementTags.has(tagName) || !globalThis.customElements) {
-      return;
-    }
-    this.hookedCustomElementTags.add(tagName);
-    globalThis.customElements.whenDefined(tagName).then(
-      () => this.enrollDefinedHosts(tagName),
-      (error) => {
-        // eslint-disable-next-line no-console
-        console.warn(`Unexpected whenDefined rejection for custom element "${tagName}"`, error);
-      },
-    );
-  }
-
-  private enrollDefinedHosts(tagName: string) {
-    const parked = this.hostsAwaitingDefinition.get(tagName);
-    this.hostsAwaitingDefinition.delete(tagName);
-    if (!parked) {
-      return;
-    }
-    let enrolled = false;
-    const now = Date.now();
-    for (const element of parked) {
-      if (!element.isConnected) {
-        continue;
-      }
-      enrolled = true;
-      this.admitUnresolvedHost(element, now + this.unresolvedShadowHostLifetimeMs);
-    }
-    if (enrolled) {
-      // Upgrade runs attachShadow soon after definition; check at base delay.
-      this.unresolvedShadowHostRetryRound = 0;
-      this.scheduleUnresolvedShadowHostRetry();
-    }
-  }
-
-  // Residual gap: a plain (non-custom) element given `attachShadow()` later is never
-  // a candidate and emits no mutation. Custom elements are covered by the re-scans.
-  private collectAddedShadowRootCandidates(mutations: MutationRecord[]) {
-    if (this.pendingMutationAddedElementsOverflowed) {
-      return;
-    }
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes ?? []) {
-        if (!this.isShadowRootCandidate(node)) {
-          continue;
-        }
-        this.pendingMutationAddedElements.add(node);
-        if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
-          this.pendingMutationAddedElementsOverflowed = true;
-          // Keep the capped set so the debounced check scans it incrementally, not a re-walk.
-          return;
-        }
-      }
-    }
-  }
-
   private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
     return (
       this.nodeListContainsFormField(mutation.addedNodes) ||
@@ -1971,20 +1677,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
     return false;
-  }
-
-  private isShadowRootCandidate(node: Node): node is Element {
-    if (!nodeIsElement(node)) {
-      return false;
-    }
-    if (node.shadowRoot) {
-      return true;
-    }
-    // Custom element — `attachShadow` may run after observation.
-    if (node.tagName.includes("-")) {
-      return true;
-    }
-    return node.firstElementChild !== null;
   }
 
   private setupTopLayerCandidateListener = (element: Element) => {

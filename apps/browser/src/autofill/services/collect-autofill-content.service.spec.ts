@@ -2860,7 +2860,10 @@ describe("CollectAutofillContentService", () => {
       jest.useFakeTimers();
       collectAutofillContentService["currentLocationHref"] = window.location.href;
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest.spyOn(collectAutofillContentService as any, "collectAddedShadowRootCandidates");
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
       const attributeMutation: MutationRecord = {
         type: "attributes",
         addedNodes: document.querySelectorAll("nothing"),
@@ -2875,10 +2878,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleMutationObserverMutation"]([attributeMutation]);
 
-      expect(
-        collectAutofillContentService["collectAddedShadowRootCandidates"],
-      ).not.toHaveBeenCalled();
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
+      expect(noteAddedNodesSpy).not.toHaveBeenCalled();
       jest.useRealTimers();
     });
 
@@ -2936,7 +2936,7 @@ describe("CollectAutofillContentService", () => {
       jest.useRealTimers();
     });
 
-    it("schedules a debounced check for new shadow roots", () => {
+    it("hands batches that added nodes to the shadow host tracker", () => {
       jest.useFakeTimers();
       const div = document.createElement("div");
       document.body.appendChild(div);
@@ -2953,55 +2953,17 @@ describe("CollectAutofillContentService", () => {
         target: document.body,
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      collectAutofillContentService["pendingShadowDomCheck"] = false;
 
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest
-        .spyOn(domQueryService, "checkForNewShadowRoots")
-        .mockReturnValue({ foundNewRoot: false, unresolvedHosts: new Set() });
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(true);
-      expect(collectAutofillContentService["shadowDomCheckTimeout"]).not.toBeNull();
+      expect(noteAddedNodesSpy).toHaveBeenCalledWith([mutationRecord]);
 
-      // Fast-forward time to trigger the debounced check
-      jest.advanceTimersByTime(500);
-
-      expect(domQueryService.checkForNewShadowRoots).toHaveBeenCalled();
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
-
-      jest.useRealTimers();
-    });
-
-    it("does not schedule duplicate shadow root checks when already pending", () => {
-      jest.useFakeTimers();
-      const div = document.createElement("div");
-      document.body.appendChild(div);
-
-      const mutationRecord: MutationRecord = {
-        type: "childList",
-        addedNodes: document.querySelectorAll("div"),
-        attributeName: null,
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        removedNodes: document.querySelectorAll("nonexistent"),
-        target: document.body,
-      };
-      collectAutofillContentService["currentLocationHref"] = window.location.href;
-      collectAutofillContentService["pendingShadowDomCheck"] = true;
-
-      const initialTimeout = setTimeout(() => {}, 500);
-      collectAutofillContentService["shadowDomCheckTimeout"] = initialTimeout;
-
-      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
-
-      // Should not change the timeout since check is already pending
-      expect(collectAutofillContentService["shadowDomCheckTimeout"]).toBe(initialTimeout);
-
-      clearTimeout(initialTimeout);
       jest.useRealTimers();
     });
 
@@ -3065,163 +3027,7 @@ describe("CollectAutofillContentService", () => {
       }, 350);
     });
 
-    describe("collectAddedShadowRootCandidates (filter at observation)", () => {
-      const buildMutation = (added: Node[]): MutationRecord =>
-        ({
-          type: "childList",
-          addedNodes: added as unknown as NodeList,
-          attributeName: null,
-          attributeNamespace: null,
-          nextSibling: null,
-          oldValue: null,
-          previousSibling: null,
-          removedNodes: document.querySelectorAll("nonexistent"),
-          target: document.body,
-        }) as MutationRecord;
-
-      beforeEach(() => {
-        collectAutofillContentService["pendingMutationAddedElements"].clear();
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = false;
-      });
-
-      it("retains elements that already have a shadowRoot", () => {
-        const host = document.createElement("div");
-        host.attachShadow({ mode: "open" });
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
-      });
-
-      it("retains custom-element hosts by hyphenated tag name", () => {
-        const widget = document.createElement("my-widget");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([widget]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
-          true,
-        );
-      });
-
-      it("retains a shadow host adopted from an iframe realm (PM-39772)", () => {
-        const iframe = document.createElement("iframe");
-        document.body.appendChild(iframe);
-        // Cross-realm host: constructor comes from the iframe's realm, so
-        // top-frame `host instanceof Element` returns false.
-        const host = iframe.contentDocument!.createElement("foreign-host");
-        host.attachShadow({ mode: "open" });
-
-        // Precondition: confirm the cross-realm condition — if this fails,
-        // jsdom didn't give us a foreign realm and the regression can't fire.
-        expect(host instanceof Element).toBe(false);
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
-      });
-
-      it("retains plain elements that have descendants", () => {
-        const parent = document.createElement("section");
-        parent.appendChild(document.createElement("span"));
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([parent]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(parent)).toBe(
-          true,
-        );
-      });
-
-      it("skips pure-leaf, non-custom elements with no children", () => {
-        const span = document.createElement("span");
-        const input = document.createElement("input");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([span, input]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-      });
-
-      it("skips non-Element nodes (text)", () => {
-        const text = document.createTextNode("hello");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([text])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-      });
-
-      it("trips the overflow flag at the cap and keeps the capped set for incremental scan", () => {
-        const cap = collectAutofillContentService["pendingMutationAddedElementsCap"];
-        const widgets = Array.from({ length: cap + 50 }, () => document.createElement("my-widget"));
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation(widgets)]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(true);
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(cap);
-      });
-
-      it("is a no-op once overflow has been tripped (later batches are ignored)", () => {
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
-        const widget = document.createElement("my-widget");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([widget]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
-          false,
-        );
-      });
-
-      it("resets pending state and overflow flag after the debounced check fires", () => {
-        jest.useFakeTimers();
-        collectAutofillContentService["currentLocationHref"] = window.location.href;
-        collectAutofillContentService["pendingShadowDomCheck"] = false;
-        jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-        jest
-          .spyOn(domQueryService, "checkForNewShadowRoots")
-          .mockReturnValue({ foundNewRoot: false, unresolvedHosts: new Set() });
-
-        const widget = document.createElement("my-widget");
-        document.body.appendChild(widget);
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
-        collectAutofillContentService["pendingMutationAddedElements"].add(widget);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([widget])]);
-        jest.advanceTimersByTime(500);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(false);
-
-        document.body.removeChild(widget);
-        jest.useRealTimers();
-      });
-    });
-
-    describe("unresolved shadow host retries (late hydration)", () => {
-      const buildMutation = (added: Node[]): MutationRecord =>
-        ({
-          type: "childList",
-          addedNodes: added as unknown as NodeList,
-          attributeName: null,
-          attributeNamespace: null,
-          nextSibling: null,
-          oldValue: null,
-          previousSibling: null,
-          removedNodes: document.querySelectorAll("nonexistent"),
-          target: document.body,
-        }) as MutationRecord;
-
-      const flushMicrotasks = async () => {
-        for (let i = 0; i < 5; i++) {
-          await Promise.resolve();
-        }
-      };
-
+    describe("late hydration wiring", () => {
       beforeEach(() => {
         jest.useFakeTimers();
         collectAutofillContentService["currentLocationHref"] = window.location.href;
@@ -3233,193 +3039,24 @@ describe("CollectAutofillContentService", () => {
         jest.useRealTimers();
       });
 
-      it("re-scans a custom element that attaches its shadow root after the candidate window", () => {
-        // Defined-but-lazy proxy (Stencil-style): exercises the polling path.
-        customElements.define("lazy-login", class extends HTMLElement {});
-        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
-        const lazyHost = document.createElement("lazy-login");
-        document.body.appendChild(lazyHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([lazyHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-
-        // First check ran before hydration: nothing found, host tracked for re-scan.
-        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: false }));
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(lazyHost)).toBe(true);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).not.toBeNull();
-
-        // Lazy hydration: attachShadow emits no mutation records.
-        const shadowRoot = lazyHost.attachShadow({ mode: "open" });
-        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
-
-        jest.advanceTimersByTime(500);
-
-        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
-        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
-
-        document.body.removeChild(lazyHost);
-      });
-
-      it("re-scans a nested host that hydrates inside an already-registered root", () => {
-        customElements.define("sign-in-form", class extends HTMLElement {});
-        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
-        const outerHost = document.createElement("global-login");
-        const outerRoot = outerHost.attachShadow({ mode: "open" });
-        domQueryService["knownShadowRoots"].add(outerRoot);
-        const innerHost = document.createElement("sign-in-form");
-        outerRoot.appendChild(innerHost);
-        document.body.appendChild(outerHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([outerHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-
-        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: false }));
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(innerHost)).toBe(true);
-
-        const innerRoot = innerHost.attachShadow({ mode: "open" });
-        innerRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
-
-        jest.advanceTimersByTime(500);
-
-        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-
-        document.body.removeChild(outerHost);
-      });
-
-      it("stops re-scanning a host that never hydrates and tombstones it", () => {
-        // Icon-library case: tag defined, renders light DOM, never attaches a root.
-        customElements.define("inert-widget", class extends HTMLElement {});
-        const inertHost = document.createElement("inert-widget");
-        document.body.appendChild(inertHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([inertHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(inertHost)).toBe(true);
-
-        // Backoff retries continue until the first scan past the 30s lifetime.
-        jest.advanceTimersByTime(32000);
-
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
-        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(inertHost)).toBe(
-          true,
+      it("feeds the collection walk's unresolved hosts to the tracker", async () => {
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const reconcileSpy = jest.spyOn(
+          collectAutofillContentService["shadowTracker"],
+          "reconcileFromScan",
         );
 
-        // A later candidate window cannot resurrect a tombstoned host.
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([inertHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
 
-        document.body.removeChild(inertHost);
-      });
-
-      it("parks an undefined-tag host scan-free and enrolls it when the definition lands", async () => {
-        const lazyHost = document.createElement("late-defined-login");
-        document.body.appendChild(lazyHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([lazyHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-
-        // Undefined tag: no polling budget; parked on the whenDefined hook instead.
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-        expect(
-          collectAutofillContentService["hostsAwaitingDefinition"].get("late-defined-login"),
-        ).toEqual(new Set([lazyHost]));
-
-        customElements.define(
-          "late-defined-login",
-          class extends HTMLElement {
-            constructor() {
-              super();
-              this.attachShadow({ mode: "open" });
-            }
-          },
-        );
-        await flushMicrotasks();
-
-        // Definition landed: parked host enrolled with a fresh budget at base delay.
-        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(lazyHost)).toBe(true);
-
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-
-        document.body.removeChild(lazyHost);
-      });
-
-      it("does not expire a parked host while its definition is still loading", async () => {
-        const slowHost = document.createElement("slow-network-login");
-        document.body.appendChild(slowHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([slowHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-
-        // Far past the polling budget window: parked hosts pay no scans, never expire.
-        jest.advanceTimersByTime(30000);
-        expect(
-          collectAutofillContentService["hostsAwaitingDefinition"].get("slow-network-login"),
-        ).toEqual(new Set([slowHost]));
-        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(slowHost)).toBe(
-          false,
-        );
-
-        customElements.define(
-          "slow-network-login",
-          class extends HTMLElement {
-            constructor() {
-              super();
-              this.attachShadow({ mode: "open" });
-            }
-          },
-        );
-        await flushMicrotasks();
-        jest.advanceTimersByTime(500);
-
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
-
-        document.body.removeChild(slowHost);
-      });
-
-      it("expires a parked host whose definition never lands so the retry timer settles", () => {
-        const ghostHost = document.createElement("never-defined-widget");
-        document.body.appendChild(ghostHost);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([
-          buildMutation([ghostHost]),
-        ]);
-        jest.advanceTimersByTime(500);
-
-        // Parked, waiting on a definition that never comes.
-        expect(
-          collectAutofillContentService["hostsAwaitingDefinition"].get("never-defined-widget"),
-        ).toEqual(new Set([ghostHost]));
-
-        // Past the 60s park deadline: a retry sweep evicts + tombstones it and stops re-arming.
-        jest.advanceTimersByTime(65000);
-
-        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
-        expect(collectAutofillContentService["expiredShadowHostCandidates"].has(ghostHost)).toBe(
-          true,
-        );
-        expect(collectAutofillContentService["unresolvedShadowHostRetryTimeout"]).toBeNull();
-
-        document.body.removeChild(ghostHost);
+        expect(reconcileSpy).toHaveBeenCalledWith(expect.any(Set));
       });
 
       it("enrolls pre-existing un-hydrated hosts during collection and recovers without any mutations", async () => {
@@ -3441,7 +3078,9 @@ describe("CollectAutofillContentService", () => {
         await jest.advanceTimersByTimeAsync(200);
         await pageDetailsPromise;
 
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(host)).toBe(true);
+        expect(
+          collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].has(host),
+        ).toBe(true);
 
         const shadowRoot = host.attachShadow({ mode: "open" });
         shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
@@ -3450,60 +3089,28 @@ describe("CollectAutofillContentService", () => {
         await jest.advanceTimersByTimeAsync(2000);
 
         expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
+        expect(collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].size).toBe(
+          0,
+        );
 
         document.body.removeChild(host);
       });
 
-      it("enrolls a parked host when :defined flips even though this realm's whenDefined never fires", () => {
-        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
-        const host = document.createElement("isolated-world-widget");
-        document.body.appendChild(host);
+      it("resets the tracker when monitoring stops", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
 
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([host])]);
-        jest.advanceTimersByTime(500);
-        expect(
-          collectAutofillContentService["hostsAwaitingDefinition"].get("isolated-world-widget"),
-        ).toEqual(new Set([host]));
+        collectAutofillContentService.startMonitoring();
+        collectAutofillContentService.stopMonitoring();
 
-        // Page-world define: invisible to this realm's registry, but the shared
-        // element's :defined state flips and the upgrade attaches the root.
-        jest.spyOn(host, "matches").mockImplementation((selector) => selector === ":defined");
-        const shadowRoot = host.attachShadow({ mode: "open" });
-        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
-
-        // Parked-only sweep runs at the retry cap cadence.
-        jest.advanceTimersByTime(8000);
-
-        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
-        expect(collectAutofillContentService["hostsAwaitingDefinition"].size).toBe(0);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(0);
-
-        document.body.removeChild(host);
+        expect(resetSpy).toHaveBeenCalled();
       });
 
-      it("restarts the backoff only for new unresolved work, not already-tracked hosts", () => {
-        customElements.define("backoff-a", class extends HTMLElement {});
-        customElements.define("backoff-b", class extends HTMLElement {});
-        const hostA = document.createElement("backoff-a");
-        document.body.appendChild(hostA);
+      it("resets the tracker on navigation", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
 
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([hostA])]);
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(1);
+        collectAutofillContentService["handleWindowLocationMutation"]();
 
-        // Retry with no new hosts: backoff climbs instead of resetting.
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(2);
-
-        const hostB = document.createElement("backoff-b");
-        document.body.appendChild(hostB);
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([hostB])]);
-        jest.advanceTimersByTime(500);
-        expect(collectAutofillContentService["unresolvedShadowHostRetryRound"]).toBe(1);
-
-        document.body.removeChild(hostA);
-        document.body.removeChild(hostB);
+        expect(resetSpy).toHaveBeenCalled();
       });
 
       it("bypasses a cached empty result on explicit collection", () => {
@@ -3536,28 +3143,26 @@ describe("CollectAutofillContentService", () => {
         // Steady state on framework pages: every unregistered component selector (<app-root>,
         // <mat-form-field>, …) parks in hostsAwaitingDefinition permanently. That must NOT force
         // the O(document) refresh (or discard the field cache) on the fill path — real late
-        // hydration is picked up when a parked host flips :defined and is promoted into
-        // unresolvedShadowHosts, which is the arm that still gates.
+        // hydration is picked up when a parked host flips :defined and is promoted into the
+        // awaiting-shadow-root pool, which is the arm that still gates.
         jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
         collectAutofillContentService["noFieldsFound"] = false;
         collectAutofillContentService["domRecentlyMutated"] = false;
-        collectAutofillContentService["hostsAwaitingDefinition"].set(
-          "app-root",
-          new Set([document.createElement("app-root")]),
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingDefinition"].set(
+          document.createElement("app-root"),
+          Date.now() + 60000,
         );
 
         collectAutofillContentService.prepareForExplicitCollection();
 
         expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
-
-        collectAutofillContentService["hostsAwaitingDefinition"].clear();
       });
 
       it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
         collectAutofillContentService["noFieldsFound"] = false;
         collectAutofillContentService["domRecentlyMutated"] = false;
-        collectAutofillContentService["unresolvedShadowHosts"].set(
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].set(
           document.createElement("pending-host"),
           3,
         );
@@ -3565,40 +3170,6 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService.prepareForExplicitCollection();
 
         expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
-
-        collectAutofillContentService["unresolvedShadowHosts"].clear();
-      });
-
-      it("rotates overflow hosts into tracking as earlier hosts expire", () => {
-        customElements.define("inert-rotation-widget", class extends HTMLElement {});
-        const cap = collectAutofillContentService["unresolvedShadowHostTrackingCap"];
-        const hosts = Array.from({ length: cap + 6 }, () =>
-          document.createElement("inert-rotation-widget"),
-        );
-        for (const host of hosts) {
-          document.body.appendChild(host);
-        }
-
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation(hosts)]);
-        jest.advanceTimersByTime(500);
-
-        expect(collectAutofillContentService["unresolvedShadowHosts"].size).toBe(cap);
-        expect(collectAutofillContentService["unresolvedShadowHostOverflow"].length).toBe(6);
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(hosts[cap + 5])).toBe(
-          false,
-        );
-
-        // The first cohort tombstones past its 30s lifetime; the queue drains into freed slots.
-        jest.advanceTimersByTime(32000);
-
-        expect(collectAutofillContentService["unresolvedShadowHosts"].has(hosts[cap + 5])).toBe(
-          true,
-        );
-        expect(collectAutofillContentService["unresolvedShadowHostOverflow"].length).toBe(0);
-
-        for (const host of hosts) {
-          document.body.removeChild(host);
-        }
       });
     });
   });
