@@ -105,16 +105,22 @@
     "message": "共有"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共有フォルダー"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共有フォルダー"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "マイフォルダー"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "マイフォルダー"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
   },
   "share": {
     "message": "共有"
@@ -438,7 +444,7 @@
     "message": "パスフレーズ"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "スペース",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
@@ -476,10 +482,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "ウェブサイトをコピー"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "$FIELD$ をコピー",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -766,7 +772,7 @@
     "message": "タイプ"
   },
   "items": {
-    "message": "Items"
+    "message": "アイテム"
   },
   "firstName": {
     "message": "名"
@@ -839,10 +845,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "アプリ (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "アプリ (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -858,16 +864,16 @@
     "message": "ウェブサイトを追加"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "ウェブサイトまたはアプリを追加"
   },
   "app": {
-    "message": "App"
+    "message": "アプリ"
   },
   "deleteWebsite": {
     "message": "ウェブサイトを削除"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "$LABEL$ を削除",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -878,6 +884,60 @@
   "owner": {
     "message": "所有者"
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "フィールドを追加"
   },
@@ -885,7 +945,7 @@
     "message": "フィールドを編集"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ を編集",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -918,7 +978,7 @@
     "message": "特定のウェブサイトで自動入力の問題が発生している場合は、リンクされたフィールドを使用します。"
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "フィールドの HTML ID、名前、aria-label、またはプレースホルダを入力してください。"
   },
   "folder": {
     "message": "フォルダー"
@@ -983,10 +1043,10 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "このアイテムはあなたのゴミ箱に送信されます。30日後に完全に削除されます。"
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "これらのアイテムはあなたのゴミ箱に送られます。30日後に完全に削除されます。"
   },
   "deleteItemPermanently": {
     "message": "Delete item permanently"
@@ -2150,6 +2210,92 @@
   "selectAll": {
     "message": "すべて選択"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "完了"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "selected": {
     "message": "選択中"
   },
@@ -2392,9 +2538,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "“File password” and “Confirm file password” do not match."
-  },
-  "done": {
-    "message": "完了"
   },
   "warning": {
     "message": "警告",
@@ -2880,7 +3023,7 @@
     "message": "ID"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "お問い合わせ先"
   },
   "send": {
     "message": "Send",
@@ -3106,10 +3249,10 @@
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "パスワード変更後は、新しいパスワードでログインする必要があります。他のデバイスのアクティブなセッションは、1時間以内にログアウトされます。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "アカウントの復旧を完了するには、マスターパスワードを変更してください。"
   },
   "updateMasterPasswordSubtitle": {
     "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
@@ -3202,7 +3345,7 @@
     "message": "保管庫のタイムアウトが組織によって設定された制限を超えています。"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "あなたの組織ポリシーは保管庫のタイムアウトに影響を与えています。最大保管庫のタイムアウト時間は $HOURS$ 時間 $MINUTES$ 分です。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3327,7 +3470,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "$ORGANIZATION$ に関連付けられた組織の保管庫のみがエクスポートされます。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3336,7 +3479,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "$ORGANIZATION$ に関連付けられた組織の保管庫のみがエクスポートされます。自分のアイテムコレクションは含まれません。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3519,7 +3662,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "不正な $SERVICENAME$ API トークン",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3529,7 +3672,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "不正な $SERVICENAME$ API トークン: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3543,7 +3686,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ はリクエストを拒否しました。サービスプロバイダーにお問い合わせください。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3553,7 +3696,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ があなたのリクエストを拒否しました: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3616,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "ホスト名",
     "description": "Part of a URL."
@@ -3627,7 +3778,7 @@
     "message": "API キー"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "プレミアムサブスクリプションが必要です"
   },
   "organizationIsDisabled": {
     "message": "組織は無効です。"
@@ -4220,44 +4371,65 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "Contact"
   },
   "membership": {
-    "message": "Membership"
+    "message": "メンバーシップ"
   },
   "passport": {
-    "message": "Passport"
+    "message": "パスポート"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "運転免許証"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "ID カード"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "出生証明書"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "データベース資格情報"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "サーバー資格情報"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "ソフトウェアライセンス"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "健康保険"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 資格情報"
   },
   "general": {
-    "message": "General"
+    "message": "全般"
   },
   "importEncKeyError": {
     "message": "エクスポートされたファイルの復号でエラーが発生しました。暗号化キーが、データをエクスポートするために使用された暗号化キーと一致しません。"
@@ -4278,10 +4450,10 @@
     "message": "コレクションを選択"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "インポートしたファイルコンテンツをフォルダーに移動したい場合は、このオプションを選択してください"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -4324,25 +4496,25 @@
     "message": "ファイルパスワードの確認"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass のマスターパスワード"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "キーファイルを追加"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "キーファイルのアップロード"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX ファイルのアップロード"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "受け入れられる形式: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "データが正しい形式ではありません。インポートするファイルを確認してやり直してください。"
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "このファイルは有効な KeePass データベース (.kdbx) ではありません。.kdbx ファイルを選択して再度お試し下さい。"
   },
   "kdbxFileTooLarge": {
     "message": "This KeePass database is too large to import."
@@ -4490,7 +4662,7 @@
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
     "message": "SSO authentication required"
@@ -4520,13 +4692,13 @@
     "message": "Approve this device by selecting a method below"
   },
   "keeperPush": {
-    "message": "Keeper Push"
+    "message": "Keeper プッシュ通知"
   },
   "twoFactorMethod": {
     "message": "Two-factor method"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "メールアドレス認証"
   },
   "approvalEmailDesc": {
     "message": "Please check your email and enter the verification code below"
@@ -4559,10 +4731,10 @@
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "認証アプリ (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "テキストメッセージ（SMS）"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4571,19 +4743,19 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "バックアップコード"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "セキュリティキー (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "セキュリティキー (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA 認証"
   },
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device"
@@ -4604,7 +4776,7 @@
     "message": "Two-factor authentication"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "不明な方法"
   },
   "selectDuoMethod": {
     "message": "Select Duo method"
@@ -4694,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "パスキーを削除"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "passkeyRemoved": {
     "message": "パスキーを削除しました"
@@ -5709,16 +5887,16 @@
     "message": "口座名義"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "口座種別"
   },
   "bankAccountTypeCompany": {
-    "message": "Company"
+    "message": "企業"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "個人"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "口座番号"
   },
   "bankRoutingNumber": {
     "message": "Routing number",
@@ -5728,7 +5906,7 @@
     "message": "Branch/institution number"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT コード"
   },
   "iban": {
     "message": "IBAN"
@@ -5825,13 +6003,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "テキストを表示"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "ファイルを表示"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Send を作成しました",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
@@ -5847,14 +6025,14 @@
     "message": "Side navigation"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "リンクをスキップ"
   },
   "callout": {
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "進捗バー",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "sendNotCompliantWithYourOrgsPolicy": {
@@ -5962,7 +6140,7 @@
     "message": "Items cannot have multiple attachments with the same file name"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: 新しい通知",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
