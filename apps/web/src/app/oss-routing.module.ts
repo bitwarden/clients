@@ -67,6 +67,7 @@ import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-rou
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
 import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
 import { AcceptOrgOpenInviteComponent } from "./auth/organization-invite/accept-org-open-invite.component";
+import { OpenOrgInviteLinkInvalidComponent } from "./auth/organization-invite/open-org-invite-link-invalid.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
@@ -222,6 +223,17 @@ const routes: Routes = [
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
         component: AcceptOrgOpenInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
+      },
+      {
+        // Consolidated error view for the pre-auth open org invite link domain check
+        // when the server returns 404. Reached via `router.navigate` from
+        // `LoginComponent` / `RegistrationStartComponent`; component reads
+        // `orgName` + `returnTo` query params to configure the anon-layout title
+        // and the CTA. Feature-flag guarded so a stale link cannot land here after
+        // the feature is disabled.
+        path: "organization-invite-link-invalid",
+        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
+        component: OpenOrgInviteLinkInvalidComponent,
       },
       {
         path: AuthRoute.Login,

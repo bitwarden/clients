@@ -10,6 +10,7 @@ import { AcceptOpenOrgInviteResult } from "../types/accept-open-org-invite-resul
 import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
 import { OrganizationInvite } from "../types/organization-invite.type";
 import { UnsealOpenOrgInviteResult } from "../types/unseal-open-org-invite-result.type";
+import { ValidateOpenOrgInviteEmailDomainResult } from "../types/validate-open-org-invite-email-domain-result.type";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy
@@ -112,13 +113,13 @@ export abstract class OrganizationInviteService {
    * `AllowedDomains` configuration, scoped to `(organizationId, code)` for parity with the
    * status / accept endpoints. Pre-auth UX check consumed by `LoginComponent` and
    * `RegistrationStartComponent`; server-side enforcement runs at accept time regardless.
-   * @returns true if the email's domain is allowed, false if not.
+   * See {@link ValidateOpenOrgInviteEmailDomainResult} for the discriminated outcome kinds.
    */
   abstract validateOpenOrgInviteEmailDomain(
     organizationId: string,
     code: string,
     email: string,
-  ): Promise<boolean>;
+  ): Promise<ValidateOpenOrgInviteEmailDomainResult>;
 
   /**
    * Seals an open-org-invite context for the registration-crossing flow: hands the

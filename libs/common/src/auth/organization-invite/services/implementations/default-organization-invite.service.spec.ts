@@ -1202,7 +1202,7 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("validateOpenOrgInviteEmailDomain", () => {
-    it("returns true when the API reports the email is allowed", async () => {
+    it("returns allowed when the API reports the email is allowed", async () => {
       organizationInviteLinkApiService.validateEmailDomain.mockResolvedValue({
         isAllowed: true,
       } as any);
@@ -1213,7 +1213,7 @@ describe("DefaultOrganizationInviteService", () => {
         "user@example.com",
       );
 
-      expect(result).toBe(true);
+      expect(result).toEqual({ kind: "allowed" });
       expect(organizationInviteLinkApiService.validateEmailDomain).toHaveBeenCalledWith(
         expect.objectContaining({
           organizationId: "org-id",
@@ -1223,7 +1223,7 @@ describe("DefaultOrganizationInviteService", () => {
       );
     });
 
-    it("returns false when the API reports the email is not allowed", async () => {
+    it("returns not-allowed when the API reports the email is not allowed", async () => {
       organizationInviteLinkApiService.validateEmailDomain.mockResolvedValue({
         isAllowed: false,
       } as any);
@@ -1234,7 +1234,67 @@ describe("DefaultOrganizationInviteService", () => {
         "user@example.com",
       );
 
-      expect(result).toBe(false);
+      expect(result).toEqual({ kind: "not-allowed" });
+    });
+
+    it("returns link-invalid when the server responds with 404", async () => {
+      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
+        statusCode: 404,
+      });
+      organizationInviteLinkApiService.validateEmailDomain.mockRejectedValue(errorResponse);
+
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
+
+      expect(result).toEqual({ kind: "link-invalid" });
+    });
+
+    it("returns unexpected with the server's message for non-404 ErrorResponse", async () => {
+      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
+        statusCode: 500,
+        message: "boom",
+        getSingleMessage() {
+          return "boom";
+        },
+      });
+      organizationInviteLinkApiService.validateEmailDomain.mockRejectedValue(errorResponse);
+
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
+    });
+
+    it("returns unexpected with .message for non-ErrorResponse Error throws", async () => {
+      organizationInviteLinkApiService.validateEmailDomain.mockRejectedValue(
+        new Error("network gone"),
+      );
+
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
+    });
+
+    it("returns unexpected with String(e) for unknown throws", async () => {
+      organizationInviteLinkApiService.validateEmailDomain.mockRejectedValue("bare string");
+
+      const result = await sut.validateOpenOrgInviteEmailDomain(
+        "org-id",
+        "abc",
+        "user@example.com",
+      );
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
     });
   });
 

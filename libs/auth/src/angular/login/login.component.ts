@@ -633,12 +633,19 @@ export class LoginComponent implements OnInit, OnDestroy {
   /**
    * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
    * is in state, validates the entered email's domain against the link's `AllowedDomains`
-   * via the server. Sets a form-control error on the email field when the domain isn't
-   * allowed and returns false; returns true in all other cases (no open invite stashed,
-   * or domain allowed).
+   * via the server. Handles four classified outcomes:
+   *   - `allowed` / no open invite stashed / feature off → returns true.
+   *   - `not-allowed` → sets a form-control error on the email field and returns false.
+   *   - `link-invalid` (server 404) → clears open-invite state and navigates to
+   *     `/organization-invite-link-invalid` (with the org name + `returnTo=login`) so the
+   *     shared error component renders. Returns false.
+   *   - `unexpected` (non-404 throw / transport failure) → surfaces the error via
+   *     `ValidationService` and fails open (returns true). The accept endpoint enforces
+   *     the invite validity server-side; a transient error here shouldn't block login.
    *
-   * Server-side enforcement also runs at accept time — this is layered UX, not a security
-   * boundary. The submit button stays enabled so the user can correct and retry.
+   * Server-side enforcement of the allowed-domains policy also runs at accept time — this
+   * pre-check is layered UX, not a security boundary. The submit button stays enabled so
+   * the user can correct and retry.
    */
   private async openInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOrganizationInvite();
@@ -652,17 +659,29 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
-    const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+    const result = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
       invite.organizationId,
       invite.inviteLinkCode,
       email,
     );
-    if (!allowed) {
-      this.emailFormControl.setErrors({
-        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
-      });
+    switch (result.kind) {
+      case "allowed":
+        return true;
+      case "not-allowed":
+        this.emailFormControl.setErrors({
+          error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+        });
+        return false;
+      case "link-invalid":
+        await this.organizationInviteService.clearOpenOrgInvite();
+        await this.router.navigate(["/organization-invite-link-invalid"], {
+          queryParams: { orgName: invite.organizationName, returnTo: "login" },
+        });
+        return false;
+      case "unexpected":
+        this.validationService.showError(result.errorMessage);
+        return true;
     }
-    return allowed;
   }
 
   /**

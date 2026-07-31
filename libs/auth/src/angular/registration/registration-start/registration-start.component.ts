@@ -19,6 +19,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -112,6 +113,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private organizationInviteService: OrganizationInviteService,
     private i18nService: I18nService,
     private configService: ConfigService,
+    private validationService: ValidationService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -284,12 +286,19 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   /**
    * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
    * is in state, validates the entered email's domain against the link's `AllowedDomains`
-   * via the server. Sets a form-control error on the email field when the domain isn't
-   * allowed and returns false; returns true in all other cases (no open invite stashed,
-   * or domain allowed).
+   * via the server. Handles four classified outcomes:
+   *   - `allowed` / no open invite stashed / feature off → returns true.
+   *   - `not-allowed` → sets a form-control error on the email field and returns false.
+   *   - `link-invalid` (server 404) → clears open-invite state and navigates to
+   *     `/organization-invite-link-invalid` (with the org name + `returnTo=registration`)
+   *     so the shared error component renders. Returns false.
+   *   - `unexpected` (non-404 throw / transport failure) → surfaces the error via
+   *     `ValidationService` and fails open (returns true). The accept endpoint enforces
+   *     the invite validity server-side; a transient error here shouldn't block registration.
    *
-   * Server-side enforcement also runs at accept time — this is layered UX, not a security
-   * boundary. The submit button stays enabled so the user can correct and retry.
+   * Server-side enforcement of the allowed-domains policy also runs at accept time — this
+   * pre-check is layered UX, not a security boundary. The submit button stays enabled so
+   * the user can correct and retry.
    */
   private async openInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOrganizationInvite();
@@ -303,17 +312,29 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
-    const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+    const result = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
       invite.organizationId,
       invite.inviteLinkCode,
       email,
     );
-    if (!allowed) {
-      this.email.setErrors({
-        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
-      });
+    switch (result.kind) {
+      case "allowed":
+        return true;
+      case "not-allowed":
+        this.email.setErrors({
+          error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+        });
+        return false;
+      case "link-invalid":
+        await this.organizationInviteService.clearOpenOrgInvite();
+        await this.router.navigate(["/organization-invite-link-invalid"], {
+          queryParams: { orgName: invite.organizationName, returnTo: "registration" },
+        });
+        return false;
+      case "unexpected":
+        this.validationService.showError(result.errorMessage);
+        return true;
     }
-    return allowed;
   }
 
   goBack() {

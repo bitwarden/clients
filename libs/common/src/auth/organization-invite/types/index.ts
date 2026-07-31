@@ -3,3 +3,4 @@ export * from "./open-org-invite-status-result.type";
 export * from "./open-org-invite-status.type";
 export * from "./organization-invite.type";
 export * from "./unseal-open-org-invite-result.type";
+export * from "./validate-open-org-invite-email-domain-result.type";

@@ -64,6 +64,7 @@ import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-re
 import { OpenOrgInviteSsoConfig } from "../../types/open-org-invite-status.type";
 import { OrganizationInvite } from "../../types/organization-invite.type";
 import { UnsealOpenOrgInviteResult } from "../../types/unseal-open-org-invite-result.type";
+import { ValidateOpenOrgInviteEmailDomainResult } from "../../types/validate-open-org-invite-email-domain-result.type";
 import { OrganizationInviteService } from "../organization-invite.service";
 
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite.state";
@@ -440,24 +441,22 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * `RegistrationStartComponent` as a pre-auth UX check; server-side enforcement
    * runs at accept time regardless.
    */
-  // TODO: needs product input on error handling. The endpoint can throw (404 when the
-  // invite link has been deleted, plus 5xx/transport). Today the throw propagates through
-  // LoginComponent.openInviteDomainAllowed / RegistrationStartComponent.openInviteDomainAllowed
-  // into continue() / submit() and only the global LoggingErrorHandler catches it — the user
-  // sees no toast, no form error, and the button click looks like a silent no-op. Options
-  // discussed: (a) fail-open and let the accept-flow's classified error path show
-  // "invite not found" post-auth; (b) fail-open + clear open-invite state on a definitive
-  // 404 so pre-auth "Joining <org>" hints stop lying; (c) also surface a toast at the
-  // domain-check step. Awaiting product's call.
   async validateOpenOrgInviteEmailDomain(
     organizationId: string,
     code: string,
     email: string,
-  ): Promise<boolean> {
-    const response = await this.organizationInviteLinkApiService.validateEmailDomain(
-      new OrganizationInviteLinkValidateEmailDomainRequest({ organizationId, code, email }),
-    );
-    return response.isAllowed;
+  ): Promise<ValidateOpenOrgInviteEmailDomainResult> {
+    try {
+      const response = await this.organizationInviteLinkApiService.validateEmailDomain(
+        new OrganizationInviteLinkValidateEmailDomainRequest({ organizationId, code, email }),
+      );
+      return response.isAllowed ? { kind: "allowed" } : { kind: "not-allowed" };
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        return { kind: "link-invalid" };
+      }
+      return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+    }
   }
 
   async getMasterPasswordPolicyOptionsForInvite(
