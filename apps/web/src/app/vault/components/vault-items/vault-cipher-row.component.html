@@ -130,7 +130,7 @@
               type="button"
               (click)="openUri(launchUri)"
               data-testid="launch-website"
-              [label]="'launchWebsiteName' | i18n: cipher.name"
+              [label]="'launchWebsiteForName' | i18n: cipher.name"
             ></button>
           }
 
@@ -149,7 +149,7 @@
         bitIconButton="bwi-ellipsis-v"
         type="button"
         appStopProp
-        label="{{ 'options' | i18n }}"
+        label="{{ 'moreOptions' | i18n }}"
       ></button>
       <bit-menu #cipherOptions>
         @if (!(showCopyAndLaunchActions$ | async)) {

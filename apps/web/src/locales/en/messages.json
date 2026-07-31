@@ -1778,6 +1778,15 @@
       }
     }
   },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Me"
   },
@@ -3343,6 +3352,9 @@
   },
   "options": {
     "message": "Options"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "preferences": {
     "message": "Preferences"
