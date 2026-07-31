@@ -234,6 +234,7 @@ const Template: Story = {
           </bit-nav-group>
           <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
           <ng-container slot="product-switcher">
+            <bit-nav-divider></bit-nav-divider>
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
         </bit-side-nav>
