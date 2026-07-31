@@ -12,10 +12,10 @@ import {
   ShadowRootScanResult,
 } from "./abstractions/dom-query.service";
 
-// Per-scan cap; the persistent cap lives in the collector.
+// Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-// Every shadow root we observe is watched the same way; shared so the three observe sites can't drift.
+// Shared so the observe sites can't drift apart.
 const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
   attributes: true,
   childList: true,
@@ -23,11 +23,11 @@ const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
 };
 
 /**
- * The two output bins a shadow-root scan fills: hosts to re-scan, and newly seen roots.
- * When `observer` is supplied, the scan also enrolls each newly discovered root (observe + add
- * to knownShadowRoots) as it finds it, instead of leaving that to a later collection walk.
+ * The two bins one shadow-root scan fills — hosts to re-scan, roots not seen before — plus the
+ * observer to enroll discovered roots with. With no `observer` the scan still reports what it
+ * found but enrolls nothing; a later walk that supplies one will.
  */
-type ShadowScan = {
+type ShadowScanContext = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
   observer?: MutationObserver;
@@ -84,38 +84,36 @@ export class DomQueryService implements DomQueryServiceInterface {
     forceDeepQueryAttempt?: boolean,
   ): T[] {
     if (!forceDeepQueryAttempt) {
-      return this.queryAllTreeWalkerNodes<T>(
-        root,
-        treeWalkerFilter,
-        this.ignoredTreeWalkerNodes,
-        mutationObserver,
-      ).elements;
+      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
+        .elements;
     }
 
     try {
       return this.deepQueryElements<T>(root, queryString, mutationObserver);
     } catch {
-      return this.queryAllTreeWalkerNodes<T>(
-        root,
-        treeWalkerFilter,
-        this.ignoredTreeWalkerNodes,
-        mutationObserver,
-      ).elements;
+      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
+        .elements;
     }
   }
 
-  /** Like {@link query}, but also returns the un-hydrated custom-element hosts found in the walk. */
+  /** {@link query} plus the un-hydrated custom-element hosts seen along the way. */
   queryWithUnresolvedShadowHosts<T>(
     root: Document | ShadowRoot | Element,
     treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
   ): { elements: T[]; unresolvedHosts: Set<Element> } {
-    return this.queryAllTreeWalkerNodes<T>(
+    const elements: T[] = [];
+    const unresolvedHosts = new Set<Element>();
+
+    this.buildTreeWalkerNodesQueryResults(
       root,
+      elements,
       treeWalkerFilter,
-      this.ignoredTreeWalkerNodes,
       mutationObserver,
+      unresolvedHosts,
     );
+
+    return { elements, unresolvedHosts };
   }
 
   /**
@@ -160,15 +158,12 @@ export class DomQueryService implements DomQueryServiceInterface {
     this.isOwnedShadowHost = predicate;
   };
 
-  /**
-   * Scans added subtrees for unobserved shadow roots, collecting still-shadow-less hosts
-   * so the caller can re-scan them after hydration.
-   */
+  /** Also collects still-shadow-less hosts, so the caller can re-scan them after hydration. */
   checkForNewShadowRoots = (
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
   ): ShadowRootScanResult => {
-    const scan: ShadowScan = {
+    const scan: ShadowScanContext = {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
@@ -185,7 +180,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     return { foundNewRoot, unresolvedHosts: scan.unresolvedHosts };
   };
 
-  private findNewShadowRootInBatch = (elements: Element[], scan: ShadowScan): void => {
+  private findNewShadowRootInBatch = (elements: Element[], scan: ShadowScanContext): void => {
     // Drop descendants of other batch elements — same subtree, re-walked.
     const roots = this.suppressDescendantsInBatch(elements);
     for (const el of roots) {
@@ -413,7 +408,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   private scanForNewShadowRootInSubtree = (
     subtree: Element | ShadowRoot,
     depth: number,
-    scan: ShadowScan,
+    scan: ShadowScanContext,
   ): void => {
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
       return;
@@ -428,17 +423,29 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
   };
 
-  /** Sorts one candidate into the scan's bins, descending through any root to reach nested hosts. */
-  private visitShadowHostCandidate = (element: Element, depth: number, scan: ShadowScan): void => {
+  /**
+   * Bounded per scan, and never a host we own — the extension must not walk its own inline menu.
+   * The one home for this rule; both sink sites go through it.
+   */
+  private sinkUnresolvedHost = (element: Element, sink: Set<Element>): void => {
+    if (
+      sink.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
+      element.tagName.includes("-") &&
+      !element.shadowRoot &&
+      !this.isOwnedShadowHost(element)
+    ) {
+      sink.add(element);
+    }
+  };
+
+  private visitShadowHostCandidate = (
+    element: Element,
+    depth: number,
+    scan: ShadowScanContext,
+  ): void => {
     const root = this.getShadowRoot(element);
     if (!root) {
-      if (
-        scan.unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
-        element.tagName.includes("-") &&
-        !this.isOwnedShadowHost(element)
-      ) {
-        scan.unresolvedHosts.add(element);
-      }
+      this.sinkUnresolvedHost(element, scan.unresolvedHosts);
       return;
     }
     if (!this.knownShadowRoots.has(root)) {
@@ -453,9 +460,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Observes a shadow root and records it as known — always both, in that order, so
-   * `knownShadowRoots` never holds a root we aren't watching. Callers with no observer to pair
-   * the entry with simply don't enroll (a later walk that supplies one will).
+   * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
    */
   private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
     observer.observe(root, SHADOW_ROOT_OBSERVE_OPTIONS);
@@ -562,54 +567,18 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Queries the DOM for all the nodes that match the given filter callback
-   * and returns a collection of nodes.
-   * @param rootNode
-   * @param filterCallback
-   * @param ignoredTreeWalkerNodes
-   * @param mutationObserver
-   */
-  private queryAllTreeWalkerNodes<T>(
-    rootNode: Node,
-    filterCallback: (element: Element) => boolean,
-    ignoredTreeWalkerNodes: Set<string>,
-    mutationObserver?: MutationObserver,
-  ): { elements: T[]; unresolvedHosts: Set<Element> } {
-    const treeWalkerQueryResults: T[] = [];
-    const unresolvedHosts = new Set<Element>();
-
-    this.buildTreeWalkerNodesQueryResults(
-      rootNode,
-      treeWalkerQueryResults,
-      filterCallback,
-      ignoredTreeWalkerNodes,
-      mutationObserver,
-      unresolvedHosts,
-    );
-
-    return { elements: treeWalkerQueryResults, unresolvedHosts };
-  }
-
-  /**
-   * Recursively builds a collection of nodes that match the given filter callback.
-   * If a node has a ShadowRoot, it will be observed for mutations.
-   *
-   * @param rootNode
-   * @param treeWalkerQueryResults
-   * @param filterCallback
-   * @param ignoredTreeWalkerNodes
-   * @param mutationObserver
+   * Recursively collects filter-matching nodes, descending through each shadow boundary.
+   * `unresolvedHosts` is the only enrollment source for hosts that predate observer attachment.
    */
   private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
     treeWalkerQueryResults: T[],
     filterCallback: (element: Element) => boolean,
-    ignoredTreeWalkerNodes: Set<string>,
     mutationObserver: MutationObserver | undefined,
     unresolvedHosts: Set<Element>,
   ) {
     const treeWalker = document?.createTreeWalker(rootNode, NodeFilter.SHOW_ELEMENT, (node) =>
-      ignoredTreeWalkerNodes.has(node.nodeName?.toLowerCase())
+      this.ignoredTreeWalkerNodes.has(node.nodeName?.toLowerCase())
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
@@ -632,10 +601,8 @@ export class DomQueryService implements DomQueryServiceInterface {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
-      // Probe for a shadow root only when the page is known to have shadow DOM: the open root
-      // via element.shadowRoot (free), else the extension API for closed roots. `nodeShadowRoot`
-      // is declared out here — not inside the latch check — so the unresolved-host sink below
-      // still runs when the latch is false.
+      // Declared outside the latch check on purpose: the sink below must still run when the
+      // latch is false, which is when no probe happens at all.
       let nodeShadowRoot: ShadowRoot | null = null;
       if (this.pageContainsShadowDom) {
         nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
@@ -649,18 +616,11 @@ export class DomQueryService implements DomQueryServiceInterface {
           nodeShadowRoot,
           treeWalkerQueryResults,
           filterCallback,
-          ignoredTreeWalkerNodes,
           mutationObserver,
           unresolvedHosts,
         );
-      } else if (
-        unresolvedHosts.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
-        currentElement.tagName.includes("-") &&
-        !currentElement.shadowRoot &&
-        !this.isOwnedShadowHost(currentElement)
-      ) {
-        // Only enrollment source for hosts that predate observer attachment.
-        unresolvedHosts.add(currentElement);
+      } else {
+        this.sinkUnresolvedHost(currentElement, unresolvedHosts);
       }
     } while (treeWalker.nextNode());
   }
