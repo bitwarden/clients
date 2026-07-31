@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Saját mappák"
   },
+  "addSharedFolder": {
+    "message": "Megosztott mappa hozzadása"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "newSharedFolder": {
+    "message": "Új megosztott mappa"
+  },
+  "searchSharedFolder": {
+    "message": "Új megosztott mappa"
+  },
+  "searchMyFolder": {
+    "message": "Saját mappák keresése"
+  },
+  "addToMyFolder": {
+    "message": "Hozzáadás saját mappához"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Válasszuk ki a megosztott mappa elemet."
+  },
+  "viewSharedFolderWithName": {
+    "message": "Megosztott mappa megtekintése - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Ez a megosztott mappa csak a adminisztrációs konzolról érhető el."
+  },
+  "editSharedFolder": {
+    "message": "Megosztott mappa szerkesztése"
+  },
+  "deleteSharedFolder": {
+    "message": "Megosztott mappa törlése"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ megosztott mappa törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "A megosztott mappa véglegesen törlésre kerül."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "$NAME$ megosztott mappa véglegesen törlésre kerül.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Ezek a megosztott mappák véglegesen törlésre kerülnek."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ megosztott mappa véglegesen törlésre kerül.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "A kiválasztott elemek és megosztott mappák végleges törlésre kerülnek."
+  },
+  "sharedFolderDeleted": {
+    "message": "A megosztott mappa törlésre került."
+  },
+  "sharedFoldersDeleted": {
+    "message": "A megosztott mappák törlésre kerültek."
+  },
+  "deletedSharedFolders": {
+    "message": "Törölt megosztott mappák"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Az ingyenes szervezeteknek legfeljebb $COLLECTIONCOUNT$ megosztott mappái lehetnek. Térjünk át egy fizetett csomagra további megosztott mappák hozzáadásához.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Az ingyenes szervezeteknek legfeljebb $COLLECTIONCOUNT$ megosztott mappái lehetnek. Vegyük fel a kapcsolatot a szervezet tulajdonosával az áttéréshez.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Ha egy elemet megosztott mappába helyezünk, biztonságosan megoszthatjuk azt más széf tagokkal."
+  },
   "attachments": {
     "message": "Mellékletek"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Nincs engedély ehhez a gyűjteményhez"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "Nincs jogosultság ehhez a megosztott mappához.",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Nincsenek megjeleníthető gyűjtemények."
@@ -4042,13 +4151,13 @@
     "message": "Előfizetés megszüntetése"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Lemondás véglegesítése"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "Segítsük a  fejlődést. Miért mondjuk le?"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "További adatok"
   },
   "subscriptionExpiration": {
     "message": "Előfizetés lejárat"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Alapértelmezett gyűjtemény"
   },
+  "defaultSharedFolder": {
+    "message": "Alapértelmezett megosztott mappa"
+  },
   "getHelp": {
     "message": "Segítségkérés"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Gyűjtemény beágyazása:"
   },
+  "nestSharedFolderUnder": {
+    "message": "Megosztott mappa beágyazása ez alatt:",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Hozzáférés vezérlés"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Gyűjtemény megtekintése"
   },
+  "viewSharedFolder": {
+    "message": "Megosztott mappa megtekintése",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Gyűjtemény adatok"
   },
+  "sharedFolderInfo": {
+    "message": "Megosztott mappa infó",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Biztosan törlésre kerüljön ez a gyűjtemény?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Biztos, hogy törölni szeretnénk ezt a megosztorr mappát?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Tag szerkesztése"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Tulajdonos"
+  },
+  "ownerAriaLabel": {
+    "message": "Tulajdonos $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Széf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "A legmagasabb hozzáféréssel rendelkező felhasználó kezelheti a szervezet összes lehetőségét."
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "$ID$ megosztott mappa létrejött.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "$ID$ azonosítójú gyűjtemény módosításra került.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "$ID$ megosztott mappa szerkesztésre került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Törölt gyűjtemények"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "$ID$ megosztott mappa törlésre került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Szerkesztések elvetése"
@@ -7305,11 +7481,11 @@
     "message": "Lejárt"
   },
   "expiringSoon": {
-    "message": "Expiring soon",
+    "message": "Hamarosan lejár",
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "Aktív",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Webhely előtag hozzáadása",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ha engedélyezve van, az aktuális webhely tartománya a generált email cím előtagjaként kerül felhasználásra.",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Kiszolglónév",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Nincs gyűjtemény."
   },
+  "noSharedFolder": {
+    "message": "Nincs megosztott mappa.",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Nem lett gyűjtemény hozzáadva."
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Az email cím frissül a mentéskor."
+  },
+  "emailNotClaimedHint": {
+    "message": "Ez a tag nem rendelkezik igényelt fiókkal. Lépjünk kapcsolatba a taggal az email cím frissítéséhez."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Ez a tag mesterjelszóval rendelkezik. Lépjünk kapcsolatba a taggal az email cím frissítéséhez."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Az új email címnek meg kell egyeznie a szervezet által igényelt tartománnyal."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Az email címet egy szervezeti tag már használja."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Az email cím már használatban van. Ehelyett meghívhatjuk őket a szervezetbe."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Nem módosítható a mesterjelszóval rendelkező tag email címe."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Nem sikerült megváltoztatni az email címet. Próbáljuk újra."
+  },
+  "nameErrorNotClaimed": {
+    "message": "A szervezet szerint nem-besorolt tag nevét nem lehet megváltoztatni."
+  },
+  "nameNotClaimedHint": {
+    "message": "Ez a tag nem rendelkezik igényelt fiókkal. Lépjünk kapcsolatba a taggal a nevek frissítéséhez."
   },
   "createdDate": {
     "message": "Létrehozás dátuma"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Gyűjtemény elérés hozzárendelése"
   },
+  "assignSharedFolderAccess": {
+    "message": "Hozzáférés hozzárendelése",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Szerkesztett gyűjtemények"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "A gyűjtemény szerkesztésre került."
   },
+  "sharedFolderEdited": {
+    "message": "A megosztott mappa szerkesztésre került.",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "A gyűjtemények szerkesztésre kerültek."
+  },
+  "sharedFoldersEdited": {
+    "message": "A megosztott mappák szerkesztésre kerültek.",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Szerver webcím"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Nincs jogosultság ennek a gyűjteménynek a kezelésére."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "Nincs jogosultság ennek a megosztott mappának a kezelésére.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Hiányzó gyűjtemény kezelési engedélyek"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Hiányzó kezelési engedélyek",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Adjunk gyűjtemény kezelési engedélyeket, hogy lehetővé tegyük a teljes gyűjtemény kezelést, beleértve a gyűjtemény törlését is."
   },
+  "grantManagePermissionsWarning": {
+    "message": "A jogosultságok kezelése a teljes megosztott mappakezelés engedélyezéséhez, beleértve a megosztott mappa törlését.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Adjunk hozzáférést csoportoknak vagy személyeknek ennél a megosztott mappánál.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "A tagok hozzáférésének megadása ehhez a gyűjteményhez."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Adjunk hozzáférést személyeknek ennél a megosztott mappánál.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Az adminisztrátorok elérhetik és kezelhetik a gyűjteményeket."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Az adminisztrátorok elérhetik és kezelhetik a megosztott mappákat.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "A szolgáltatás fiók elérése frissítésre került."
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Valami, amire szükség van, nem volt elérhető.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "A beüzemelés, az adminisztráció vagy napi használat túl bonyolult volt.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "A költség túl magas volt.",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "Az ár nem egyezik azzal, amit ki lehet hozni belőle.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "Nem lehetett rávenni az embereket, hogy jelenleg használják.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Újraszervezés, beszerzés, prioritásváltás vagy már nincs szükség jelszókezelőre.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "Gyenge ügyfélszolgálat.",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "Nem a támogatástól vagy az ügyfélszolgálattól érkezett a szükséges segítség.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "Írjuk le a lemondás okát",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Megosztott mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Gyűjtemény $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Saját mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Nincs semmilyen gyűjtemény kiválasztva."
+  },
+  "noSharedFoldersSelected": {
+    "message": "Nincs semmilyen megosztott mappa kiválasztva.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Név frissítés"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Az ingyenes szervezetek legfeljebb 2 megosztott mappával rendelkezhetnek. Térjünk át fizetős csomagra további megosztott mappák hozzáadásához.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Keresés archívum"

@@ -1195,16 +1195,121 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "sharedFolders": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "myFolder": {
     "message": "我的文件夹"
   },
   "myFolders": {
     "message": "我的文件夹"
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "addToSharedFolder": {
+    "message": "添加到共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
+  },
+  "searchSharedFolder": {
+    "message": "搜索共享文件夹"
+  },
+  "searchMyFolder": {
+    "message": "搜索我的文件夹"
+  },
+  "addToMyFolder": {
+    "message": "添加到我的文件夹"
+  },
+  "sharedFolderItemSelect": {
+    "message": "选择共享文件夹项目"
+  },
+  "viewSharedFolderWithName": {
+    "message": "查看共享文件夹 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "此共享文件夹只能从 Admin Console 访问"
+  },
+  "editSharedFolder": {
+    "message": "编辑共享文件夹"
+  },
+  "deleteSharedFolder": {
+    "message": "删除共享文件夹"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "删除 $COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "此共享文件夹将被永久删除。"
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "共享文件夹 $NAME$ 将被永久删除。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "这些共享文件夹将被永久删除。"
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ 个共享文件夹将被永久删除。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "所选项目和共享文件夹将被永久删除。"
+  },
+  "sharedFolderDeleted": {
+    "message": "共享文件夹已删除"
+  },
+  "sharedFoldersDeleted": {
+    "message": "共享文件夹已删除"
+  },
+  "deletedSharedFolders": {
+    "message": "删除了共享文件夹"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个共享文件夹。请升级到付费版方案以添加更多共享文件夹。",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个共享文件夹。请联系您的组织所有者升级。",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "通过将项目移动到共享文件夹，您可以与其他密码库成员安全地共享该项目。"
   },
   "attachments": {
     "message": "附件"
@@ -1656,13 +1761,13 @@
     "message": "全选"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "选择所有行"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "选择行"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "显示 $START$ - $END$ / $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1679,10 +1784,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "每页行数"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "每页 $COUNT$ 行",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1691,7 +1796,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ 个项目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1700,10 +1805,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "清除全部"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "已选择 $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1712,16 +1817,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "上一页"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "下一页"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "跳转至..."
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "/ $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1730,7 +1835,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "没有匹配的项目"
   },
   "deselectAll": {
     "message": "取消全选"
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "您没有此集合的权限"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "您没有此共享文件夹的权限",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "没有可列出的集合。"
@@ -3046,7 +3155,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ 个项目将被跳过",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3058,13 +3167,13 @@
     "message": "以下项目无法读取，将不会包含在您的导入中："
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "此 SSH 密钥无法导入"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "不受支持的项目类型"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "此项目无法导入"
   },
   "contact": {
     "message": "联系人"
@@ -4042,13 +4151,13 @@
     "message": "取消订阅"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "完全取消"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "帮助我们改进。您为什么取消？"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "更多详细信息"
   },
   "subscriptionExpiration": {
     "message": "订阅过期"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "默认集合"
   },
+  "defaultSharedFolder": {
+    "message": "默认共享文件夹"
+  },
   "getHelp": {
     "message": "获取帮助"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "嵌套于集合下"
   },
+  "nestSharedFolderUnder": {
+    "message": "嵌套于共享文件夹下",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "访问控制"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "查看集合"
   },
+  "viewSharedFolder": {
+    "message": "查看共享文件夹",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "集合信息"
   },
+  "sharedFolderInfo": {
+    "message": "共享文件夹信息",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "确定要删除此集合吗？"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "确定要删除此共享文件夹吗？",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "编辑成员"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "所有者"
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "管理您组织的所有方面，包括计费和订阅"
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "创建了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "编辑了集合 $ID$。",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "编辑了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "删除了集合"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "删除了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "放弃编辑"
@@ -7305,11 +7481,11 @@
     "message": "已到期"
   },
   "expiringSoon": {
-    "message": "Expiring soon",
+    "message": "即将到期",
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "有效",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "没有集合"
   },
+  "noSharedFolder": {
+    "message": "没有共享文件夹",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "未添加任何集合"
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "电子邮箱将在保存时更新"
+  },
+  "emailNotClaimedHint": {
+    "message": "此成员尚未认领账户。请联系成员更新其电子邮箱地址。"
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "此成员设置了主密码。请联系成员更新其电子邮箱地址。"
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "新的电子邮箱地址必须匹配组织声明的域名。"
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "电子邮箱地址已被组织中的某个成员使用。"
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "电子邮箱地址已被使用。您可以改为邀请他们加入您的组织。"
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "无法更改已设置主密码的成员的电子邮箱地址。"
+  },
+  "emailErrorChangeFailed": {
+    "message": "更改电子邮箱地址失败。请重试。"
+  },
+  "nameErrorNotClaimed": {
+    "message": "无法更改未被组织声明的成员的名称。"
+  },
+  "nameNotClaimedHint": {
+    "message": "此成员尚未认领账户。请联系成员更新其名称。"
   },
   "createdDate": {
     "message": "创建日期"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "分配集合访问权限"
   },
+  "assignSharedFolderAccess": {
+    "message": "分配访问权限",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "编辑了集合"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "集合已编辑"
   },
+  "sharedFolderEdited": {
+    "message": "共享文件夹已编辑",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "集合已编辑"
+  },
+  "sharedFoldersEdited": {
+    "message": "共享文件夹已编辑",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "您没有管理此集合的权限。"
   },
+  "readOnlySharedFolderAccess": {
+    "message": "您没有管理此共享文件夹的权限。",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "缺少「管理集合」权限"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "缺少「管理」权限",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "授予「管理集合」权限以允许完整的集合管理，包括删除集合。"
   },
+  "grantManagePermissionsWarning": {
+    "message": "授予「管理」权限以允许完整的共享文件夹管理，包括删除共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "授予群组或成员对此集合的访问权限。"
+  },
+  "grantSharedFolderAccess": {
+    "message": "授予群组或成员对此共享文件夹的访问权限。",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "授予成员对此集合的访问权限。"
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "授予成员对此共享文件夹的访问权限。",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "管理员可以访问和管理集合。"
+  },
+  "adminSharedFolderAccess": {
+    "message": "管理员可以访问和管理共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "服务账户访问权限已更新"
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "我们需要的某些功能没有提供。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "配置、 管理或日常使用过于复杂。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "费用太高",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "价格与我们获得的实际价值不匹配。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "我们无法让成员真正去使用它。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "重组、收购、优先级调整，或者我们不再需要密码管理器了。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "客户服务体验太差",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "我们没有从技术支持或客户服务那里获得所需的帮助。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "请描述您取消的原因",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "创建一个新的客户组织作为提供商来管理。附加席位将反映在下一个计费周期中。"
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "您尚未选择任何集合。"
+  },
+  "noSharedFoldersSelected": {
+    "message": "您尚未选择任何共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "更新名称"
@@ -13596,7 +13887,7 @@
     "message": "处理中"
   },
   "claimedDomainsDescription": {
-    "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已声明的账户。"
+    "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已认领的账户。"
   },
   "invalidDomainNameClaimMessage": {
     "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行声明。"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "免费版组织最多拥有 2 个集合。请升级到付费版方案以添加更多集合。"
+  },
+  "cannotCreateSharedFolder": {
+    "message": "免费版组织最多拥有 2 个共享文件夹。请升级到付费版方案以添加更多共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "搜索归档"
@@ -15259,7 +15554,7 @@
     "message": "安全地与他人共享项目"
   },
   "coachmarkShareWithCollectionsDescription": {
-    "message": "通过将项目移入集合，您可以与组织中的其他人安全地共享该项目。"
+    "message": "通过将项目移动到集合，您可以与组织中的其他人安全地共享该项目。"
   },
   "coachmarkMonitorSecurityTitle": {
     "message": "监测您的密码安全性"

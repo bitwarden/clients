@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Mijn mappen"
   },
+  "addSharedFolder": {
+    "message": "Gedeelde map toevoegen"
+  },
+  "addToSharedFolder": {
+    "message": "Toevoegen aan gedeelde map"
+  },
+  "newSharedFolder": {
+    "message": "Nieuwe gedeelde map"
+  },
+  "searchSharedFolder": {
+    "message": "Gedeelde map doorzoeken"
+  },
+  "searchMyFolder": {
+    "message": "Mijn mappen doorzoeken"
+  },
+  "addToMyFolder": {
+    "message": "Aan mijn map toevoegen"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Selecteer gedeeld mapitem"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Gedeelde map bekijken - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Deze gedeelde map is alleen toegankelijk vanaf de admin console"
+  },
+  "editSharedFolder": {
+    "message": "Gedeelde map bewerken"
+  },
+  "deleteSharedFolder": {
+    "message": "Gedeelde map verwijderen"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ gedeelde mappen verwijderen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Deze gedeelde map wordt definitief verwijderd."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "De gedeelde map $NAME$ wordt definitief verwijderd.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Deze gedeelde mappen worden definitief verwijderd."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ gedeelde mappen worden definitief verwijderd.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "De geselecteerde items en gedeelde mappen worden definitief verwijderd."
+  },
+  "sharedFolderDeleted": {
+    "message": "Gedeelde map verwijderd"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Gedeelde mappen verwijderd"
+  },
+  "deletedSharedFolders": {
+    "message": "Gedeelde mappen verwijderen"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Gratis organisaties kunnen maximaal $COLLECTIONCOUNT$ gedeelde mappen hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer gedeelde mappen.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Gratis organisaties kunnen maximaal $COLLECTIONCOUNT$ gedeelde mappen hebben. Neem contact op met de eigenaar van je organisatie om te upgraden.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Door een item in een gedeelde map te plaatsen, kun je het veilig delen met andere leden van de kluis."
+  },
   "attachments": {
     "message": "Bijlagen"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Je hebt geen rechten op deze collectie"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Er zijn geen verzamelingen om weer te geven."
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Standaardverzameling"
   },
+  "defaultSharedFolder": {
+    "message": "Standaard gedeelde map"
+  },
   "getHelp": {
     "message": "Hulp vragen"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Plaats collectie onder"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Toegangsbeheer"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Collectie weergeven"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Collectieinformatie"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Weet je zeker dat je deze verzameling wilt verwijderen?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Lid wijzigen"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Eigenaar"
+  },
+  "ownerAriaLabel": {
+    "message": "Eigenaar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kluis $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "De gebruiker met de hoogste toegangsrechten. Deze gebruiker kan alle aspecten van je organisatie beheren"
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Verzameling gewijzigd $ID$.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Verwijderde collecties"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Bewerkingen verwerpen"
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Website-prefix toevoegen",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Wanneer ingeschakeld, zal het huidige domein van de website worden gebruikt als prefix voor het gegenereerde e-mailadres",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Hostnaam",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Geen collectie"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Geen collecties toegevoegd"
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "E-mail wordt bijgewerkt bij opslaan"
+  },
+  "emailNotClaimedHint": {
+    "message": "Dit lid heeft geen geclaimd account. Vraag het lid het e-mailadres bij te werken."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Dit lid heeft een hoofdwachtwoord. Vraag het lid het e-mailadres bij te werken."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Het nieuwe e-mailadres moet overeenkomen met een domein dat door je organisatie is geclaimd."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Dit e-mailadres wordt al gebruikt door een lid van je organisatie."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Dit e-mailadres is al in gebruik. Je kunt het in plaats daarvan uitnodigen tot je organisatie."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Kan het e-mailadres van een lid met een hoofdwachtwoord niet wijzigen."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Wijzigen van e-mailadres mislukt. Probeer het opnieuw."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Kan de naam van een lid die niet is geclaimd door de organisatie niet veranderen."
+  },
+  "nameNotClaimedHint": {
+    "message": "Dit lid heeft geen geclaimd account. Vraag het lid de naam bij te werken."
   },
   "createdDate": {
     "message": "Datum aangemaakt"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Toegang collectie toewijzen"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Bewerkte collecties"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Collectie bewerkt"
   },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Collecties bewerkt"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Je hebt geen toegang om deze collectie te beheren."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Recht voor het beheren van machtigingen ontbreekt"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Beheren van machtigingen toekennen voor het toestaan van het volledig verzamelingenbeheer, inclusief het verwijderen van een verzameling."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Groepen of mensen toegang tot deze collectie geven."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Leden toegang tot deze collectie geven."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Toegang tot serviceaccount bijgewerkt"
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Gedeelde map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collectie $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Mijn map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Maak een nieuwe clientorganisatie aan om te beheren als Aanbieder. Extra plaatsen worden weergegeven in de volgende factureringscyclus."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Je hebt geen verzamelingen geselecteerd."
+  },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Naam bijwerken"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Archief doorzoeken"
