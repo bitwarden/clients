@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, FormGroup, FormRecord, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -10,13 +10,14 @@ import { userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { AsyncActionsModule } from "../../async-actions";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule } from "../../filter-menu";
-import { IconButtonModule } from "../../icon-button";
+import { FormFieldModule } from "../../form-field";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
@@ -386,17 +387,6 @@ const SEAT_ROWS: SeatRow[] = [
   { id: 4, name: "Robin Vale", email: "robin.vale@example.com" },
 ];
 
-type SeatForm = FormGroup<{ name: FormControl<string>; email: FormControl<string> }>;
-
-/**
- * Editable rows backed by a `FormRecord` keyed by row id. Each cell already has the
- * whole row, so it looks its own control up by `row.id` — no positional index, and
- * nothing that breaks when the table sorts, filters, or pages.
- *
- * Cells bind a single control (`[formControl]`) rather than nesting `formGroupName`
- * / `formControlName`: a row's cells are separate templates, so there's no one row
- * element to hang a `ControlContainer` on.
- */
 @Component({
   selector: "demo-form-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -407,156 +397,62 @@ type SeatForm = FormGroup<{ name: FormControl<string>; email: FormControl<string
     BitCellDefDirective,
     BitHeaderCellComponent,
     BitCellComponent,
+    FormFieldModule,
     InputModule,
+    ButtonModule,
+    AsyncActionsModule,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" [trackBy]="trackBy">
-      <bit-column sortable defaultSort="asc">
-        <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.name; let row">
-          <input
-            bitInput
-            [formControl]="seat(row).controls.name"
-            aria-label="Name for {{ row.name }}"
-          />
-        </bit-cell>
-      </bit-column>
-      <bit-column sortable>
-        <bit-header-cell>Email</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.email; let row">
-          <input
-            bitInput
-            [formControl]="seat(row).controls.email"
-            aria-label="Email for {{ row.name }}"
-          />
-        </bit-cell>
-      </bit-column>
-    </bit-table-v2>
+    <form [formGroup]="emails" [bitSubmit]="submit">
+      <bit-table-v2 [tableDef]="table" [trackBy]="trackBy">
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Email</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <bit-form-field disableMargin>
+              <bit-label class="tw-sr-only">Email for {{ row.name }}</bit-label>
+              <input bitInput [formControlName]="row.id" />
+            </bit-form-field>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+
+      <button bitButton bitFormButton buttonType="primary" type="submit" class="tw-mt-4">
+        Submit
+      </button>
+    </form>
+
+    @if (submitted(); as json) {
+      <pre class="tw-mt-4 tw-text-xs">{{ json }}</pre>
+    }
   `,
 })
 class DemoFormTableComponent {
-  /** One `FormGroup` per row, keyed by the row's id. */
-  protected readonly seats = new FormRecord<SeatForm>(
+  protected readonly emails = new FormRecord<FormControl<string>>(
     Object.fromEntries(
-      SEAT_ROWS.map((seat) => [
-        seat.id,
-        new FormGroup({
-          name: new FormControl(seat.name, { nonNullable: true }),
-          email: new FormControl(seat.email, { nonNullable: true }),
-        }),
-      ]),
+      SEAT_ROWS.map((seat) => [seat.id, new FormControl(seat.email, { nonNullable: true })]),
     ),
   );
 
   protected readonly table = defineTable<SeatRow>(signal(SEAT_ROWS));
 
-  /** Keeps a row's inputs alive across a re-sort, so focus survives the reorder. */
   protected readonly trackBy = (_: number, row: SeatRow) => row.id;
 
-  protected seat(row: SeatRow): SeatForm {
-    return this.seats.controls[row.id];
-  }
-}
+  protected readonly submitted = signal<string | undefined>(undefined);
 
-/**
- * The same `FormRecord`, but controls are created when a row is put into edit mode
- * rather than up front — so the form holds only the rows someone actually touched.
- *
- * Creation happens in the click handler, deliberately not in the `[formControl]`
- * binding: a binding runs during change detection (so `addControl` would mutate the
- * form mid-pass) and it runs per *render*, which under virtualization or pagination
- * would make the submitted value depend on what happened to scroll into view.
- */
-@Component({
-  selector: "demo-lazy-form-table",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    BitTableV2Component,
-    BitColumnComponent,
-    BitCellDefDirective,
-    BitHeaderCellComponent,
-    BitCellComponent,
-    InputModule,
-    IconButtonModule,
-  ],
-  template: `
-    <bit-table-v2 [tableDef]="table" [trackBy]="trackBy">
-      <bit-column sortable defaultSort="asc">
-        <bit-header-cell>Name</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.name; let row">
-          @if (editing().has(row.id)) {
-            <input
-              bitInput
-              [formControl]="seat(row).controls.name"
-              aria-label="Name for {{ row.name }}"
-            />
-          } @else {
-            {{ row.name }}
-          }
-        </bit-cell>
-      </bit-column>
-      <bit-column sortable>
-        <bit-header-cell>Email</bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.email; let row">
-          @if (editing().has(row.id)) {
-            <input
-              bitInput
-              [formControl]="seat(row).controls.email"
-              aria-label="Email for {{ row.name }}"
-            />
-          } @else {
-            {{ row.email }}
-          }
-        </bit-cell>
-      </bit-column>
-      <bit-column width="64px">
-        <bit-header-cell></bit-header-cell>
-        <bit-cell *bitCellDef="table.columns.actions; let row">
-          @if (!editing().has(row.id)) {
-            <button
-              bitIconButton="bwi-pencil-square"
-              buttonType="primaryGhost"
-              type="button"
-              label="Edit {{ row.name }}"
-              (click)="edit(row)"
-            ></button>
-          }
-        </bit-cell>
-      </bit-column>
-    </bit-table-v2>
-  `,
-})
-class DemoLazyFormTableComponent {
-  /** Controls for edited rows only, keyed by row id. */
-  protected readonly seats = new FormRecord<SeatForm>({});
-
-  /**
-   * Which rows show inputs. Mirrors the record's keys — it exists because a
-   * `FormRecord` isn't reactive, so the template needs a signal to read.
-   */
-  protected readonly editing = signal<ReadonlySet<number>>(new Set());
-
-  protected readonly table = defineTable<SeatRow, "actions">(signal(SEAT_ROWS));
-
-  protected readonly trackBy = (_: number, row: SeatRow) => row.id;
-
-  protected edit(row: SeatRow): void {
-    if (!this.seats.controls[row.id]) {
-      this.seats.addControl(
-        String(row.id),
-        new FormGroup({
-          name: new FormControl(row.name, { nonNullable: true }),
-          email: new FormControl(row.email, { nonNullable: true }),
-        }),
-      );
+  protected readonly submit = async () => {
+    // `bitSubmit` only disables buttons, so lock the fields here.
+    this.emails.disable();
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      this.submitted.set(JSON.stringify(this.emails.getRawValue(), null, 2));
+    } finally {
+      this.emails.enable();
     }
-    this.editing.update((ids) => new Set(ids).add(row.id));
-  }
-
-  protected seat(row: SeatRow): SeatForm {
-    return this.seats.controls[row.id];
-  }
+  };
 }
 
 export default {
@@ -581,7 +477,6 @@ export default {
         DemoFilterableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
-        DemoLazyFormTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
@@ -1278,27 +1173,13 @@ export const Pagination: Story = {
 };
 
 /**
- * A table used as a form. Controls live in a `FormRecord` keyed by row id, so each
- * cell resolves its control from the row it was handed — no dependence on row order
- * or on row object identity. Sort by Name, then edit: the edit lands on the row you
- * typed in.
+ * A table used as a form. Controls live in a `FormRecord` keyed by row id rather than
+ * a `FormArray` indexed by position, so sorting can't repoint a cell at the wrong
+ * control.
  */
 export const FormRecordRows: Story = {
   render: () => ({
     template: `<demo-form-table></demo-form-table>`,
-  }),
-};
-
-/**
- * The same pattern with controls created on demand: rows start read-only, and the
- * edit button adds that row's control to the `FormRecord`. Useful when only a few of
- * many rows get edited — the submitted value holds just the touched rows. Creation
- * lives in the click handler, not in the `[formControl]` binding, so it can't depend
- * on which rows happened to render.
- */
-export const FormRecordLazyRows: Story = {
-  render: () => ({
-    template: `<demo-lazy-form-table></demo-lazy-form-table>`,
   }),
 };
 
