@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
@@ -11,6 +12,7 @@ import { IconTileComponent } from "../icon-tile";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
+import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 import { SideNavService } from "./side-nav.service";
 
@@ -24,6 +26,9 @@ import { SideNavService } from "./side-nav.service";
         <span slot="start">LEADING</span>
         <bit-nav-item text="Child A" route="a"></bit-nav-item>
         <bit-nav-item text="Child B" route="b"></bit-nav-item>
+        <button slot="end" type="button" data-testid="end-action" (click)="endActionClicked = true">
+          Edit
+        </button>
         <span slot="end">TRAILING</span>
       </bit-nav-group>
       <bit-nav-group text="Vault" [route]="['v']" [open]="true">
@@ -38,6 +43,7 @@ import { SideNavService } from "./side-nav.service";
 })
 class HostComponent {
   logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
+  endActionClicked = false;
 }
 
 // Regression: duplicating `<ng-content>` across the side-nav version `@if`/`@else` branches broke
@@ -223,5 +229,52 @@ describe("side-nav v1 content projection", () => {
     const interactive = fixture.nativeElement.querySelector("[data-testid='nav-item-interactive']");
     expect(interactive?.getAttribute("aria-expanded")).toBe("true");
     expect(interactive?.getAttribute("aria-controls")).toBeTruthy();
+  });
+
+  // The v2 top-level chevron is decorative and sits in the trailing `end` slot, a sibling of the
+  // interactive row. Clicking it must behave like clicking the row and toggle the group.
+  it("toggles a v2 top-level group when its decorative collapse chevron is clicked", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const toolsGroup = fixture.debugElement
+      .queryAll(By.directive(NavGroupComponent))
+      .find((de) => de.componentInstance.text() === "Tools")!;
+    expect(toolsGroup.componentInstance.open()).toBe(true);
+
+    const chevron = toolsGroup.nativeElement.querySelector(
+      "bit-icon[data-testid='nav-group-collapse-arrow']",
+    ) as HTMLElement;
+    expect(chevron).not.toBeNull();
+
+    chevron.click();
+    fixture.detectChanges();
+
+    expect(toolsGroup.componentInstance.open()).toBe(false);
+  });
+
+  // The `end` slot is an interactive island only when it holds a control: clicking a projected
+  // button runs its own action without toggling the group.
+  it("does not toggle the group when an interactive end-slot control is clicked in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const toolsGroup = fixture.debugElement
+      .queryAll(By.directive(NavGroupComponent))
+      .find((de) => de.componentInstance.text() === "Tools")!;
+    expect(toolsGroup.componentInstance.open()).toBe(true);
+
+    const button = toolsGroup.nativeElement.querySelector(
+      "button[data-testid='end-action']",
+    ) as HTMLElement;
+    expect(button).not.toBeNull();
+
+    button.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.endActionClicked).toBe(true);
+    expect(toolsGroup.componentInstance.open()).toBe(true);
   });
 });

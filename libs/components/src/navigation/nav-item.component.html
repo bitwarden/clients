@@ -163,7 +163,7 @@
           @if (open) {
             <div
               class="tw-flex tw-items-center tw-gap-1 empty:tw-hidden"
-              (click)="$event.stopPropagation()"
+              (click)="onEndSlotClick($event)"
             >
               <ng-container *ngTemplateOutlet="endSlot"></ng-container>
             </div>

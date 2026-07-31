@@ -163,6 +163,22 @@ export class NavItemComponent extends NavBaseComponent {
     this.focusVisibleWithin.set(false);
   }
 
+  /**
+   * Routes clicks in the trailing `end` slot: clicks on a control (e.g. a consumer action button)
+   * stay contained and don't trigger the row, while clicks on decorative content — like a nav
+   * group's collapse chevron — behave like a click on the row itself.
+   */
+  protected onEndSlotClick(event: MouseEvent) {
+    const isInteractive = (event.target as HTMLElement).closest(
+      "a, button, input, select, textarea, [role='button']",
+    );
+    if (isInteractive) {
+      event.stopPropagation();
+    } else {
+      this.mainContentClicked.emit();
+    }
+  }
+
   constructor() {
     super();
 
