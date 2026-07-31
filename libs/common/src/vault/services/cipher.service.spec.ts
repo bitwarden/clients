@@ -996,6 +996,98 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("decryptCiphers with PAM gated rows", () => {
+    const gated_id = "33333333-3333-3333-3333-333333333333";
+    const normal_id = "44444444-4444-4444-4444-444444444444";
+    let gatedCipher: Cipher;
+    let normalCipher: Cipher;
+
+    beforeEach(() => {
+      const keys = {
+        userKey: new SymmetricCryptoKey(new Uint8Array(32)) as UserKey,
+        orgKeys: { [orgId]: new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey },
+      } as CipherDecryptionKeys;
+      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+
+      gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
+      gatedCipher.partialData = '{"Name":"enc-name"}';
+
+      normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
+
+      jest.spyOn(gatedCipher, "decrypt").mockResolvedValue({
+        id: gated_id,
+        name: "Gated item",
+        partialData: gatedCipher.partialData,
+      } as CipherView);
+    });
+
+    it("keeps gated ciphers out of the SDK and merges them into the results", async () => {
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [{ id: normal_id, name: "Normal item" } as CipherView],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphers(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+
+      // The SDK has no partial-data decrypt path, so it must only see the normal cipher.
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [normalCipher],
+        userId,
+      );
+      expect(gatedCipher.decrypt).toHaveBeenCalledTimes(1);
+      expect(successes.map((c: CipherView) => c.name)).toEqual(["Gated item", "Normal item"]);
+    });
+
+    it("keeps gated ciphers out of the lightweight SDK path too", async () => {
+      cipherEncryptionService.decryptManyWithFailures.mockResolvedValue([
+        [{ id: normal_id, name: "Normal item" } as unknown as CipherListView],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphersWithSdk(
+        [gatedCipher, normalCipher],
+        userId,
+        false,
+      );
+
+      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
+        [normalCipher],
+        userId,
+      );
+      expect(successes).toHaveLength(2);
+    });
+
+    it("renders a gated row with an empty name when no key is available for its scope", async () => {
+      const unknownOrgCipher = new Cipher({
+        ...cipherData,
+        id: gated_id,
+        organizationId: "99999999-9999-9999-9999-999999999999",
+      });
+      unknownOrgCipher.partialData = '{"Name":"enc-name"}';
+      const decryptSpy = jest.spyOn(unknownOrgCipher, "decrypt");
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[], []]);
+
+      const [successes] = await (cipherService as any).decryptCiphers([unknownOrgCipher], userId);
+
+      // Dropping the row would silently hide a vault item; show it nameless instead.
+      expect(decryptSpy).not.toHaveBeenCalled();
+      expect(successes).toHaveLength(1);
+      expect(successes[0].name).toBe("");
+      expect(successes[0].partialData).toBe('{"Name":"enc-name"}');
+    });
+
+    it("does not fetch decryption keys when there are no gated ciphers", async () => {
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[], []]);
+
+      await (cipherService as any).decryptCiphers([normalCipher], userId);
+
+      expect(keyService.cipherDecryptionKeys$).not.toHaveBeenCalled();
+    });
+  });
+
   describe("softDelete", () => {
     it("clears archivedDate when soft deleting", async () => {
       const cipherId = "cipher-id-1" as CipherId;
