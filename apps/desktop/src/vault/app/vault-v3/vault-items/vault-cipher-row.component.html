@@ -79,7 +79,7 @@
         [disabled]="disabled()"
         bitIconButton="bwi-external-link"
         type="button"
-        label="{{ 'launch' | i18n }}"
+        [label]="'launchWebsiteForName' | i18n: cipher().name"
         (click)="handleLaunch()"
       ></button>
     }

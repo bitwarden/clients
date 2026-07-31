@@ -477,6 +477,15 @@
   "launch": {
     "message": "Launch"
   },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "copyValue": {
     "message": "Copy value",
     "description": "Copy value to clipboard"
