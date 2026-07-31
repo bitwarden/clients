@@ -116,6 +116,12 @@
   "myFolders": {
     "message": "Moje priečinky"
   },
+  "addSharedFolder": {
+    "message": "Pridať zdieľaný priečinok"
+  },
+  "newSharedFolder": {
+    "message": "Nový zdieľaný priečinok"
+  },
   "share": {
     "message": "Zdieľať"
   },
@@ -877,6 +883,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Zdieľaný priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Zbierka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Môj priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Pridať pole"
@@ -2150,6 +2210,92 @@
   "selectAll": {
     "message": "Vybrať Všetko"
   },
+  "selectAllRows": {
+    "message": "Vybrať všetky riadky"
+  },
+  "selectRow": {
+    "message": "Vybrať riadok"
+  },
+  "showingItemRange": {
+    "message": "Zobrazuje sa $START$ – $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Riadkov na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ riadkov na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položiek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Všetko"
+  },
+  "clearAll": {
+    "message": "Vyčistiť všetko"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "Vybrané: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Predchádzajúca stránka"
+  },
+  "nextPage": {
+    "message": "Ďalšia stránka"
+  },
+  "goToPage": {
+    "message": "Prejsť na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žiadne zodpovedajúce položky"
+  },
   "selected": {
     "message": "Vybrané"
   },
@@ -2392,9 +2538,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "\"Heslo súboru\" a \"Potvrdiť heslo súboru\" sa nezhodujú."
-  },
-  "done": {
-    "message": "Hotovo"
   },
   "warning": {
     "message": "UPOZORNENIE",
@@ -3616,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Pridať predponu webovej stránky",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ak je táto funkcia zapnutá, doména aktuálnej webovej stránky sa použije ako predpona pre vygenerovanú e-mailovú adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Názov hostiteľa",
     "description": "Part of a URL."
@@ -4220,8 +4371,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude preskočená",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Nasledujúce položky sa nepodarilo načítať a nebudú zahrnuté do importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento kľúč SSH sa nepodarilo importovať"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Túto položku sa nepodarilo importovať"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -4694,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "Odstrániť prístupový kľúč"
+  },
+  "deletePasskey": {
+    "message": "Odstrániť prístupový kľúč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento prístupový kľúč bude natrvalo odstránený z položky prihlásenia. Túto akciu nie je možné vrátiť späť."
   },
   "passkeyRemoved": {
     "message": "Prístupový kľúč bol odstránený"
