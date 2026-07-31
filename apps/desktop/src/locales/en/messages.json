@@ -3492,6 +3492,9 @@
   "options": {
     "message": "Options"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
   },
