@@ -36,8 +36,7 @@ pub(crate) fn split_encrypted_string_and_validate<'a>(
 pub(crate) fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
     use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
 
-    cbc::Decryptor::<aes::Aes128>::new_from_slices(key, iv)
-        .map_err(|e| anyhow!("Failed to create decryptor: {}", e))?
+    cbc::Decryptor::<aes::Aes128>::new_from_slices(key, iv)?
         .decrypt_padded_vec_mut::<Pkcs7>(ciphertext)
         .map_err(|e| anyhow!("Failed to decrypt: {}", e))
 }
