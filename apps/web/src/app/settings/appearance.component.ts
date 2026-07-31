@@ -46,7 +46,7 @@ export class AppearanceComponent implements OnInit {
 
   /** Controls whether the quick copy actions setting is shown, matching the vault list feature. */
   protected readonly showQuickCopyActionsSetting = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM28091_AddCopyAndQuickLaunchActions),
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
     { initialValue: false },
   );
 
