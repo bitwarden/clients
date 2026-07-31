@@ -18,6 +18,7 @@ import {
   Urls,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -136,12 +137,13 @@ const decorators = (options: {
             registerSendVerificationEmail: () => Promise.resolve(null),
           } as Partial<AccountApiService>,
         },
-        // Stubs for the open-org-invite title override in `ngOnInit`. Returning null / false
-        // keeps stories on the default (non-overridden) title path.
+        // Stubs for the open-org-invite paths in `ngOnInit` and `submit`. Returning null /
+        // false keeps stories on the default (non-overridden) title path and short-circuits
+        // the domain-check / seal-blob branches before they touch the network.
         {
           provide: OrganizationInviteService,
           useValue: {
-            getOrganizationInvite: () => Promise.resolve(null),
+            getOpenOrgInvite: () => Promise.resolve(null),
           } as Partial<OrganizationInviteService>,
         },
         {
@@ -149,6 +151,12 @@ const decorators = (options: {
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
           } as Partial<ConfigService>,
+        },
+        {
+          provide: ValidationService,
+          useValue: {
+            showError: () => [],
+          } as Partial<ValidationService>,
         },
       ],
     }),
