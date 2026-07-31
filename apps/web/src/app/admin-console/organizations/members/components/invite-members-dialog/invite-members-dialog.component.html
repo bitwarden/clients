@@ -61,7 +61,7 @@
   </ng-container>
 
   <ng-template #byEmailForm let-organization="organization">
-    <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+    <p bitTypography="body1">{{ "inviteUserDesc" | vfo1I18n: "inviteUserDescSharedFolders" }}</p>
     @if (
       {
         remainingSeats: remainingSeats$ | async,

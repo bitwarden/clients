@@ -4975,6 +4975,10 @@
   "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite new users to your organization vault by entering their email address below.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
     "placeholders": {
