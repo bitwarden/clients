@@ -291,6 +291,28 @@ protected readonly table = defineTable<User, "actions">(this.users);
 
 Every column needs a `<bit-header-cell>`, even an empty one — screen readers rely on it.
 
+## Forms
+
+v1 renders rows in the order you hand it, so `formArrayName` plus a positional `[formGroupName]="i"`
+is safe there. v2 owns row order, so that index stops matching and cells bind to the wrong controls
+with no error.
+
+**v1**
+
+```html
+<tr bitRow [formGroupName]="i">
+  <td bitCell><input bitInput formControlName="email" /></td>
+</tr>
+```
+
+**v2** — re-key the controls by row id with a `FormRecord`:
+
+```html
+<bit-cell *bitCellDef="table.columns.email; let row">
+  <input bitInput [formControlName]="row.id" />
+</bit-cell>
+```
+
 ## Manual mode
 
 For static tables with no data source, sort, filter, or selection, skip the model and
