@@ -8,10 +8,11 @@
     [cdkTrapFocusAutoCapture]="ariaRole() === 'dialog'"
     tabindex="0"
   >
-    <div class="tw-p-2 tw-flex tw-flex-col tw-gap-1">
+    <div role="none" class="tw-p-2 tw-flex tw-flex-col tw-gap-1">
       <ng-content></ng-content>
     </div>
     <div
+      role="none"
       class="tw-p-2 tw-border-0 tw-border-t tw-border-solid tw-border-border-base empty:tw-hidden"
     >
       <ng-content select="[slot=footer]"></ng-content>
