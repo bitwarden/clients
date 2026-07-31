@@ -83,9 +83,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * has not passed this check, they will be logged out and the invite will be stored for later use.
    * @param invite an organization invite
    * @param userId the user ID of the active user accepting the invite
+   * @param postAuthRedirectUrl the URL to persist for the deep-link guard to replay after re-auth on the MP-policy detour; ignored on clients without a deep-link redirect service
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
-  async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
+  async validateAndAcceptInvite(
+    invite: OrganizationInvite,
+    userId: UserId,
+    postAuthRedirectUrl: string,
+  ): Promise<boolean> {
     // Creation of a new org
     if (invite.initOrganization) {
       await this.acceptAndInitOrganization(invite, userId);
@@ -105,7 +110,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       await this.setOrganizationInvite(invite);
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
-      await this.deepLinkRedirectService.persistPostLoginRedirectUrl(invite.toAcceptOrgUrl());
+      await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
       await this.logoutService.logout(userId);
       return false;
     }

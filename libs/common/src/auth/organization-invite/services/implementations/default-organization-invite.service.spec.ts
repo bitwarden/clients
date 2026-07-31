@@ -123,6 +123,9 @@ describe("DefaultOrganizationInviteService", () => {
 
   describe("validateAndAcceptInvite", () => {
     const activeUserId = newGuid() as UserId;
+    // Callers pass their current page URL so the deep-link guard can replay
+    // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
+    const acceptOrgUrl = "/accept-organization?token=xyz&email=user@example.com";
 
     it("initializes an organization when given an invite where initOrganization is true", async () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
@@ -137,7 +140,7 @@ describe("DefaultOrganizationInviteService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
-      const result = await sut.validateAndAcceptInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAcceptInit).toHaveBeenCalled();
@@ -162,7 +165,11 @@ describe("DefaultOrganizationInviteService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       configService.getFeatureFlag.mockResolvedValue(false);
 
-      await sut.validateAndAcceptInvite(createOrgInvite({ initOrganization: true }), activeUserId);
+      await sut.validateAndAcceptInvite(
+        createOrgInvite({ initOrganization: true }),
+        activeUserId,
+        acceptOrgUrl,
+      );
 
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
       expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
@@ -180,7 +187,11 @@ describe("DefaultOrganizationInviteService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       configService.getFeatureFlag.mockResolvedValue(true);
 
-      await sut.validateAndAcceptInvite(createOrgInvite({ initOrganization: true }), activeUserId);
+      await sut.validateAndAcceptInvite(
+        createOrgInvite({ initOrganization: true }),
+        activeUserId,
+        acceptOrgUrl,
+      );
 
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
       expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
@@ -195,12 +206,12 @@ describe("DefaultOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(false);
       expect(logoutService.logout).toHaveBeenCalled();
       expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
-        invite.toAcceptOrgUrl(),
+        acceptOrgUrl,
       );
       // Persist must happen before logout so any state-clearing side effects of logout
       // cannot wipe the URL the deep-link guard will replay after re-auth.
@@ -222,7 +233,7 @@ describe("DefaultOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(providedInvite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(providedInvite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(false);
       expect(logoutService.logout).toHaveBeenCalled();
@@ -234,7 +245,7 @@ describe("DefaultOrganizationInviteService", () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
-      const result = await sut.validateAndAcceptInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
@@ -259,7 +270,7 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      await sut.validateAndAcceptInvite(invite, activeUserId);
+      await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
@@ -282,7 +293,7 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
@@ -320,7 +331,7 @@ describe("DefaultOrganizationInviteService", () => {
         true,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
@@ -357,9 +368,9 @@ describe("DefaultOrganizationInviteService", () => {
           mockOrgKey,
         ]);
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
 
@@ -369,9 +380,9 @@ describe("DefaultOrganizationInviteService", () => {
           { encryptedString: null } as unknown as EncString,
         ]);
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
 
@@ -380,9 +391,9 @@ describe("DefaultOrganizationInviteService", () => {
           encryptedString: null,
         } as unknown as EncString);
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
     });
@@ -413,7 +424,9 @@ describe("DefaultOrganizationInviteService", () => {
       it("throws when organization keys cannot be fetched", async () => {
         organizationApiService.getKeys.mockResolvedValue(null as any);
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow();
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow();
         expect(i18nService.t).toHaveBeenCalledWith("resetPasswordOrgKeysError");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
@@ -421,9 +434,9 @@ describe("DefaultOrganizationInviteService", () => {
       it("throws when the user key is null", async () => {
         keyService.userKey$.mockReturnValue(new BehaviorSubject(null as any));
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
-          "User key is required to enroll in password reset.",
-        );
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("User key is required to enroll in password reset.");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
 
@@ -432,9 +445,9 @@ describe("DefaultOrganizationInviteService", () => {
           encryptedString: null,
         } as unknown as EncString);
 
-        await expect(sut.validateAndAcceptInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt user key for password reset enrollment.",
-        );
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt user key for password reset enrollment.");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
     });
