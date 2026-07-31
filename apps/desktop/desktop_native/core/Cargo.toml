@@ -67,6 +67,7 @@ scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+serde_with = { workspace = true, features = ["base64"] }
 widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [

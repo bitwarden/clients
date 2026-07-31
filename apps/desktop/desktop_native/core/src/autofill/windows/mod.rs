@@ -1,10 +1,12 @@
 mod status;
+mod sync;
 
 use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
 
 use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
 use status::{handle_status_request, StatusResponse};
+use sync::{handle_sync_request, SyncParameters, SyncResponse};
 use win_webauthn::plugin::Clsid;
 use windows::{
     core::HRESULT, ApplicationModel::Package, Win32::Foundation::APPMODEL_ERROR_NO_PACKAGE,
@@ -30,6 +32,7 @@ async fn dispatch_command(value: String) -> Result<CommandResponse> {
 
     tokio::task::spawn_blocking(move || match request.command {
         RunCommand::Status(_) => handle_status_request().map(CommandResponse::from),
+        RunCommand::Sync(params) => handle_sync_request(params).map(CommandResponse::from),
     })
     .await
     .context("Autofill command task failed")?
@@ -48,6 +51,7 @@ struct RunCommandRequest {
 #[serde(rename_all = "camelCase")]
 enum RunCommand {
     Status(()),
+    Sync(SyncParameters),
 }
 
 #[derive(Serialize)]
@@ -72,6 +76,7 @@ impl From<anyhow::Result<CommandResponse>> for CommandResult {
 #[serde(untagged)]
 enum CommandResponse {
     Status(StatusResponse),
+    Sync(SyncResponse),
 }
 
 impl From<StatusResponse> for CommandResponse {
@@ -196,6 +201,26 @@ mod tests {
     #[tokio::test]
     async fn run_command_reports_unknown_command_as_error_result() {
         let json = r#"{"namespace":"autofill","command":"explode","params":{}}"#;
+
+        run_command_error(json).await;
+    }
+
+    #[tokio::test]
+    async fn run_command_reports_missing_sync_params_as_error_result() {
+        let json = r#"{"namespace":"autofill","command":"sync"}"#;
+
+        run_command_error(json).await;
+    }
+
+    #[tokio::test]
+    async fn run_command_reports_non_base64_credential_id_as_error_result() {
+        let json = r#"{"namespace":"autofill","command":"sync","params":{"credentials":[{
+            "type":"fido2",
+            "credentialId":"not valid base64!!",
+            "rpId":"example.com",
+            "userHandle":"dXNlckhhbmRsZQ",
+            "userName":"user@example.com"
+        }]}}"#;
 
         run_command_error(json).await;
     }
