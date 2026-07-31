@@ -6197,28 +6197,28 @@
       }
     }
   },
-  "openInviteAcceptFailed": {
+  "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openInviteNoSeatsTitle": {
+  "openOrgInviteNoSeatsTitle": {
     "message": "Cannot accept invitation"
   },
-  "openInviteNoSeatsMessage": {
+  "openOrgInviteNoSeatsMessage": {
     "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
   },
-  "openInviteNotFoundTitle": {
+  "openOrgInviteNotFoundTitle": {
     "message": "Invitation link not found"
   },
-  "openInviteNotFoundMessage": {
+  "openOrgInviteNotFoundMessage": {
     "message": "This invitation link is invalid or no longer available."
   },
-  "openInvitePlanNotSupportedTitle": {
+  "openOrgInvitePlanNotSupportedTitle": {
     "message": "Invitation link not available"
   },
-  "openInvitePlanNotSupportedMessage": {
+  "openOrgInvitePlanNotSupportedMessage": {
     "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
   },
-  "openInviteEmailDomainNotAllowed": {
+  "openOrgInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
@@ -6227,10 +6227,10 @@
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
   },
-  "openInviteAcceptFailedTitle": {
+  "openOrgInviteAcceptFailedTitle": {
     "message": "Could not accept invitation"
   },
-  "openInviteAcceptFailedMessage": {
+  "openOrgInviteAcceptFailedMessage": {
     "message": "We're sorry. Something went wrong, we were unable to accept the organization invite."
   },
   "rememberEmail": {

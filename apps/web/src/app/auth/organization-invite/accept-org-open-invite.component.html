@@ -5,19 +5,21 @@
     </div>
   }
   @case (AcceptOrgOpenInviteViewState.NoSeats) {
-    <p data-testid="open-invite-no-seats-message">{{ "openInviteNoSeatsMessage" | i18n }}</p>
+    <p data-testid="open-org-invite-no-seats-message">{{ "openOrgInviteNoSeatsMessage" | i18n }}</p>
   }
   @case (AcceptOrgOpenInviteViewState.NotFound) {
-    <p data-testid="open-invite-not-found-message">{{ "openInviteNotFoundMessage" | i18n }}</p>
+    <p data-testid="open-org-invite-not-found-message">
+      {{ "openOrgInviteNotFoundMessage" | i18n }}
+    </p>
   }
   @case (AcceptOrgOpenInviteViewState.PlanNotSupported) {
-    <p data-testid="open-invite-plan-not-supported-message">
-      {{ "openInvitePlanNotSupportedMessage" | i18n }}
+    <p data-testid="open-org-invite-plan-not-supported-message">
+      {{ "openOrgInvitePlanNotSupportedMessage" | i18n }}
     </p>
   }
   @case (AcceptOrgOpenInviteViewState.AcceptFailed) {
-    <p data-testid="open-invite-accept-failed-message">
-      {{ "openInviteAcceptFailedMessage" | i18n }}
+    <p data-testid="open-org-invite-accept-failed-message">
+      {{ "openOrgInviteAcceptFailedMessage" | i18n }}
     </p>
   }
 }

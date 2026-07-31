@@ -70,11 +70,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     AcceptOrgOpenInviteViewState.Loading,
   );
 
-  private readonly failedMessage = "openInviteAcceptFailed";
+  private readonly failedMessage = "openOrgInviteAcceptFailed";
 
   async ngOnInit() {
-    // Sole entry point: `/join/:organizationId/:inviteLinkCode?key=<key>` — the direct
-    // open-invite landing URL. Reached either from the user clicking the invite link or
+    // Sole entry point: `/join/:organizationId/:inviteLinkCode?key=<key>` — the
+    // open-org-invite landing URL. Reached either from the user clicking the invite link or
     // from the post-registration deep-link replay (RegistrationFinishComponent
     // reconstructs the same URL after unsealing the sealed-data blob).
     const [params, qParams] = await Promise.all([
@@ -96,7 +96,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
             : null,
         authedHandler: (linkData) => this.authedHandler(linkData),
         unauthedHandler: (linkData) => this.unauthedHandler(linkData),
-        // Scoped to the open key so a malformed open-invite URL doesn't wipe a
+        // Scoped to the open key so a malformed open-org-invite URL doesn't wipe a
         // concurrent stashed direct invite.
         onError: () => this.organizationInviteService.clearOpenOrgInvite(),
       },
@@ -107,7 +107,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   /**
-   * Fetches the open-invite status and delegates classified-failure anon-layout data to
+   * Fetches the open-org-invite status and delegates classified-failure anon-layout data to
    * the shared {@link openOrgInviteStatusErrorUi} mapper so this component and the
    * registration-crossing flow render identical UI for the same status kinds. Sets the
    * matching per-kind signal for the template body branch and returns null so callers
@@ -208,19 +208,19 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         // re-authenticate, LoginComponent will replay the invite acceptance.
         return;
       case "link-not-found":
-        // TODO: placeholder — pending design. Reuses the same `openInvite*Title` +
+        // TODO: placeholder — pending design. Reuses the same `openOrgInvite*Title` +
         // `AccountWarning` stand-ins as the fetchStatusOrShowError path; final asset
         // + copy for the not-found state will land together across both paths.
         this.showNotFound();
         return;
       case "plan-not-supported":
         // TODO: placeholder — pending design. Reuses the plan-not-supported stand-ins.
-        // `openInvitePlanNotSupportedTitle` should feed off `organizationName` once
+        // `openOrgInvitePlanNotSupportedTitle` should feed off `organizationName` once
         // design approves the interpolated copy (see mapper TODO for the status path).
         this.showPlanNotSupported();
         return;
       case "no-seats":
-        // TODO: placeholder — pending design. `openInviteNoSeatsTitle` should feed off
+        // TODO: placeholder — pending design. `openOrgInviteNoSeatsTitle` should feed off
         // `organizationName` once design approves the interpolated copy (see mapper
         // TODO for the status path).
         this.showNoSeats();
@@ -269,25 +269,25 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     this.viewState.set(kind);
   }
 
-  // TODO: placeholders — pending design. Anon-layout `openInvite*Title` copy + the
+  // TODO: placeholders — pending design. Anon-layout `openOrgInvite*Title` copy + the
   // `AccountWarning` icon are stand-ins until design provides finals. Kept as thin
   // wrappers so call sites read as intent, and so a future distinct-per-kind design pass
   // only edits this file (not each caller). Per-kind follow-ups (org-name interpolation
   // for plan-not-supported and no-seats) are noted on the mapper and the authedHandler
   // call sites — they should land together across both the status and accept paths.
   private showNotFound(): void {
-    this.showError("openInviteNotFoundTitle", AcceptOrgOpenInviteViewState.NotFound);
+    this.showError("openOrgInviteNotFoundTitle", AcceptOrgOpenInviteViewState.NotFound);
   }
 
   private showPlanNotSupported(): void {
     this.showError(
-      "openInvitePlanNotSupportedTitle",
+      "openOrgInvitePlanNotSupportedTitle",
       AcceptOrgOpenInviteViewState.PlanNotSupported,
     );
   }
 
   private showNoSeats(): void {
-    this.showError("openInviteNoSeatsTitle", AcceptOrgOpenInviteViewState.NoSeats);
+    this.showError("openOrgInviteNoSeatsTitle", AcceptOrgOpenInviteViewState.NoSeats);
   }
 
   // TODO: needs finalization. This is the catch-all state for classified accept-endpoint
@@ -297,6 +297,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   // `recovery-key-mismatch` is a specific security condition), which will splinter this
   // helper into a handful of per-kind ones.
   private showAcceptFailed(): void {
-    this.showError("openInviteAcceptFailedTitle", AcceptOrgOpenInviteViewState.AcceptFailed);
+    this.showError("openOrgInviteAcceptFailedTitle", AcceptOrgOpenInviteViewState.AcceptFailed);
   }
 }

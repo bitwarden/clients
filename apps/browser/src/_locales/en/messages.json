@@ -110,7 +110,7 @@
       }
     }
   },
-  "openInviteEmailDomainNotAllowed": {
+  "openOrgInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
@@ -121,6 +121,24 @@
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
+  "openOrgInviteNotFoundTitle": {
+    "message": "Invitation link not found"
+  },
+  "openOrgInviteNotFoundMessage": {
+    "message": "This invitation link is invalid or no longer available."
+  },
+  "openOrgInvitePlanNotSupportedTitle": {
+    "message": "Invitation link not available"
+  },
+  "openOrgInvitePlanNotSupportedMessage": {
+    "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
+  },
+  "openOrgInviteNoSeatsTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
   },
   "tab": {
     "message": "Tab"

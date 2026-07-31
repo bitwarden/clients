@@ -104,8 +104,8 @@ export class WebLoginComponentService
          * How a stashed invite is matched to this SSO redirect, by invite kind:
          *  - Direct: org id + email. Email defends against a stashed invite meant
          *    for a different SSO'd identity.
-         *  - Open: org id only (open invites carry no user identity). Rare here —
-         *    would require both a stashed open invite and a pending direct-invite
+         *  - Open: org id only (open org invites carry no user identity). Rare here —
+         *    would require both a stashed open org invite and a pending direct-invite
          *    row on the server for the same org.
          *
          * No match → warning toast. Covers: no invite stashed, a stashed invite
@@ -213,7 +213,7 @@ export class WebLoginComponentService
        *
        * Open invites carry no user identity, so this check doesn't apply — the
        * AcceptOrgOpenInviteComponent and the pre-auth domain check in LoginComponent
-       * handle the open-invite equivalents.
+       * handle the open-org-invite equivalents.
        */
       if (orgInvite.email !== email.toLowerCase()) {
         await this.routerService.getAndClearLoginRedirectUrl();
@@ -225,7 +225,7 @@ export class WebLoginComponentService
         return undefined;
       }
     } else {
-      // Defense in depth: even though the open-invite landing route is gated by
+      // Defense in depth: even though the open-org-invite landing route is gated by
       // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
       // could persist into a flag-off session. Treat as no invite when disabled.
       if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {

@@ -1,5 +1,5 @@
 /**
- * SSO configuration snapshot for an open invite link, captured from the open-invite
+ * SSO configuration snapshot for an open org invite link, captured from the open-invite
  * status endpoint. Present only when the inviting org has SSO both configured and
  * enabled. Persisted on {@link OpenOrganizationInvite} so login/registration can
  * decide SSO routing without re-calling status.

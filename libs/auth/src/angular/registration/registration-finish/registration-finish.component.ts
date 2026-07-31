@@ -102,7 +102,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   providerUserId: string;
 
   // Sealed open-org-invite blob carried on the verification-email URL when the registrant
-  // reached this flow from an open-invite link. Extracted from the URL, unsealed in
+  // reached this flow from an open-org-invite link. Extracted from the URL, unsealed in
   // ngOnInit, then dropped from the URL so page reloads cannot re-fire the single-use
   // crossing. `unsealedOpenOrgInvite` below holds the hydrated result.
   sealedOpenOrgInviteData: string | null = null;
@@ -125,8 +125,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     RegistrationFinishViewState.Loading,
   );
 
-  // Payload signal for `open-invite-status-error`. Empty string is only observable
-  // when `viewState()` is not `'open-invite-status-error'`, in which case the template
+  // Payload signal for `open-org-invite-status-error`. Empty string is only observable
+  // when `viewState()` is not `'open-org-invite-status-error'`, in which case the template
   // never reads this — the mutual exclusion is enforced by the discriminated view state
   // rather than by parallel independent flags.
   protected readonly openOrgInviteStatusErrorMessageKey = signal<string>("");
@@ -154,7 +154,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     const qParams = await firstValueFrom(this.activatedRoute.queryParams);
     this.handleQueryParams(qParams);
 
-    // Precondition: hydrate open-invite state from the sealed URL blob before dispatch.
+    // Precondition: hydrate open-org-invite state from the sealed URL blob before dispatch.
     // Runs first so a sealed-data variant doesn't fall through to the plain email-verification
     // path (which would leave invite state empty and skip MP policy enforcement). On failure,
     // a classified error UI is already rendered — bail.
@@ -192,7 +192,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Orchestrates the open-invite registration crossing when the URL carries a sealed
+   * Orchestrates the open-org-invite registration crossing when the URL carries a sealed
    * open org invite blob:
    *   1. Unseal the URL link data from the sealed blob (crypto-only).
    *   2. Freshen the invite via the anonymous status endpoint.
@@ -394,7 +394,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
       // 2FA is reachable on a freshly-created account when the joining org enables email 2FA
       // at account creation via policy (direct-invite path). The deep-link persistence above
-      // handles the open-invite path: `/2fa` completes to `/vault`, firing the guard replay.
+      // handles the open-org-invite path: `/2fa` completes to `/vault`, firing the guard replay.
       if (authenticationResult?.requiresTwoFactor) {
         await this.router.navigate(["/2fa"]);
         return;

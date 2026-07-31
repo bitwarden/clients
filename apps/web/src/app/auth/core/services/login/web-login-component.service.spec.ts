@@ -190,7 +190,7 @@ describe("WebLoginComponentService", () => {
     });
 
     describe("given an open organization invite is in state", () => {
-      const openInvite = new OpenOrganizationInvite({
+      const openOrgInvite = new OpenOrganizationInvite({
         organizationId: "11111111-1111-1111-1111-111111111111",
         inviteLinkCode: "link-code",
         inviteKey: "link-key",
@@ -198,7 +198,7 @@ describe("WebLoginComponentService", () => {
       });
 
       it("returns undefined when the GenerateInviteLink flag is off", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
         configService.getFeatureFlag
           .calledWith(FeatureFlag.GenerateInviteLink)
           .mockResolvedValue(false);
@@ -214,7 +214,7 @@ describe("WebLoginComponentService", () => {
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
         configService.getFeatureFlag
           .calledWith(FeatureFlag.GenerateInviteLink)
           .mockResolvedValue(true);
@@ -386,7 +386,7 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("returns autoSubmit=true with the MP-entry layout override when a stashed open invite matches org id", async () => {
+      it("returns autoSubmit=true with the MP-entry layout override when a stashed open org invite matches org id", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             organizationId: mockOrganizationId,
@@ -407,7 +407,7 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("falls through to the warning toast when a stashed open invite is for a different org", async () => {
+      it("falls through to the warning toast when a stashed open org invite is for a different org", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             organizationId: "22222222-2222-2222-2222-222222222222",
@@ -500,7 +500,7 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).toHaveBeenCalled();
       });
 
-      it("returns autoSubmit=true with the MP-entry layout override when a stashed open invite matches org id", async () => {
+      it("returns autoSubmit=true with the MP-entry layout override when a stashed open org invite matches org id", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             organizationId: mockOrganizationId,
@@ -521,7 +521,7 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("falls through to the warning toast when a stashed open invite is for a different org", async () => {
+      it("falls through to the warning toast when a stashed open org invite is for a different org", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             organizationId: "22222222-2222-2222-2222-222222222222",

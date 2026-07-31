@@ -187,7 +187,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
 
     const emailValue = this.email.value;
-    if (emailValue && !(await this.openInviteDomainAllowed(emailValue))) {
+    if (emailValue && !(await this.openOrgInviteDomainAllowed(emailValue))) {
       return;
     }
 
@@ -267,7 +267,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * When an `OpenOrganizationInvite` is stashed, seals its `organizationId`,
    * `inviteLinkCode`, and `inviteKey` via the
    * organization-invite service so the sealed blob can ride the verification-email
-   * URL fragment through the tab-boundary. Returns `undefined` when no open invite is
+   * URL fragment through the tab-boundary. Returns `undefined` when no open org invite is
    * stashed. The caller is responsible for feature-flag gating.
    */
   private async sealOpenOrgInviteIfPresent(email: string): Promise<string | undefined> {
@@ -284,12 +284,12 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
+   * Pre-auth UX check for open-org-invite domain restrictions. When an `OpenOrganizationInvite`
    * is in state, validates the entered email's domain against the link's `AllowedDomains`
    * via the server. Handles four classified outcomes:
-   *   - `allowed` / no open invite stashed / feature off → returns true.
+   *   - `allowed` / no open org invite stashed / feature off → returns true.
    *   - `not-allowed` → sets a form-control error on the email field and returns false.
-   *   - `link-invalid` (server 404) → clears open-invite state and navigates to
+   *   - `link-invalid` (server 404) → clears open-org-invite state and navigates to
    *     `/organization-invite-link-invalid` (with the org name + `returnTo=registration`)
    *     so the shared error component renders. Returns false.
    *   - `unexpected` (non-404 throw / transport failure) → surfaces the error via
@@ -300,12 +300,12 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * pre-check is layered UX, not a security boundary. The submit button stays enabled so
    * the user can correct and retry.
    */
-  private async openInviteDomainAllowed(email: string): Promise<boolean> {
+  private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOrganizationInvite();
     if (invite?.kind !== OrgInviteKind.Open) {
       return true;
     }
-    // Defense in depth: even though the open-invite landing route is gated by
+    // Defense in depth: even though the open-org-invite landing route is gated by
     // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
     // could persist into a flag-off session. Skip the domain check when the
     // feature is disabled.
@@ -322,7 +322,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
         return true;
       case "not-allowed":
         this.email.setErrors({
-          error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+          error: { message: this.i18nService.t("openOrgInviteEmailDomainNotAllowed") },
         });
         return false;
       case "link-invalid":

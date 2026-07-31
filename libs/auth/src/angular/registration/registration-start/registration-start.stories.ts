@@ -136,7 +136,7 @@ const decorators = (options: {
             registerSendVerificationEmail: () => Promise.resolve(null),
           } as Partial<AccountApiService>,
         },
-        // Stubs for the open-invite title override in `ngOnInit`. Returning null / false
+        // Stubs for the open-org-invite title override in `ngOnInit`. Returning null / false
         // keeps stories on the default (non-overridden) title path.
         {
           provide: OrganizationInviteService,

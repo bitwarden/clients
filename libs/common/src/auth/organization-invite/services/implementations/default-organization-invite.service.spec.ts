@@ -239,13 +239,13 @@ describe("DefaultOrganizationInviteService", () => {
       expect(stored).toEqual(providedInvite);
     });
 
-    it("fires the master-password-policy detour even when an open invite is stashed", async () => {
+    it("fires the master-password-policy detour even when an open org invite is stashed", async () => {
       // A stash of the opposite kind must not count as "policy already checked" for
       // the incoming direct invite — different invites can't share a detour breadcrumb.
       const stashedOpen = new OpenOrganizationInvite({
         organizationId: "open-org-id",
         inviteLinkCode: "open-link-code",
-        inviteKey: "open-invite-key",
+        inviteKey: "open-org-invite-key",
         organizationName: "OpenOrg",
       });
       await sut.setOrganizationInvite(stashedOpen);
@@ -628,7 +628,7 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("setOrganizationInvite (mutual exclusion across kinds)", () => {
-    it("clears any stashed open invite when a direct invite is set", async () => {
+    it("clears any stashed open org invite when a direct invite is set", async () => {
       const open = createOpenOrgInvite();
       await sut.setOrganizationInvite(open);
 
@@ -638,7 +638,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(await sut.getOrganizationInvite()).toEqual(direct);
     });
 
-    it("clears any stashed direct invite when an open invite is set", async () => {
+    it("clears any stashed direct invite when an open org invite is set", async () => {
       const direct = createOrgInvite();
       await sut.setOrganizationInvite(direct);
 
@@ -650,7 +650,7 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("clearOpenOrgInvite", () => {
-    it("clears the open invite", async () => {
+    it("clears the open org invite", async () => {
       const open = createOpenOrgInvite();
       await sut.setOrganizationInvite(open);
 
@@ -683,7 +683,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(result).toEqual(direct);
     });
 
-    it("emits the open invite when one is stashed", async () => {
+    it("emits the open org invite when one is stashed", async () => {
       const open = createOpenOrgInvite();
       await sut.setOrganizationInvite(open);
 
@@ -693,7 +693,7 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("getOrgPoliciesForInvite (open branch)", () => {
-    it("routes open invites to getPoliciesByInviteLinkCode keyed by (organizationId, inviteLinkCode)", async () => {
+    it("routes open org invites to getPoliciesByInviteLinkCode keyed by (organizationId, inviteLinkCode)", async () => {
       const open = createOpenOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
@@ -708,7 +708,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(policyApiService.getPoliciesByToken).not.toHaveBeenCalled();
     });
 
-    it("caches the open-invite policy list by inviteLinkCode", async () => {
+    it("caches the open-org-invite policy list by inviteLinkCode", async () => {
       const open = createOpenOrgInvite();
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
 
@@ -864,7 +864,7 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("fires the master-password-policy detour even when a direct invite is stashed", async () => {
       // A stash of the opposite kind must not count as "policy already checked" for
-      // the incoming open invite — different invites can't share a detour breadcrumb.
+      // the incoming open org invite — different invites can't share a detour breadcrumb.
       const stashedDirect = createOrgInvite();
       await sut.setOrganizationInvite(stashedDirect);
       const open = createOpenOrgInvite({ organizationId });

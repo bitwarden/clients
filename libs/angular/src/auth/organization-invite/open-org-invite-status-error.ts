@@ -30,15 +30,15 @@ export function openOrgInviteStatusErrorUi(
     case "ok":
       return null;
     case "not-found":
-      // TODO: placeholder — pending design. Icon + copy (openInviteNotFoundTitle /
-      // openInviteNotFoundMessage) are stand-ins. Server response for 404 carries no
+      // TODO: placeholder — pending design. Icon + copy (openOrgInviteNotFoundTitle /
+      // openOrgInviteNotFoundMessage) are stand-ins. Server response for 404 carries no
       // org name, so copy stays generic even after design lands.
       return {
         anonLayoutData: {
-          pageTitle: { key: "openInviteNotFoundTitle" },
+          pageTitle: { key: "openOrgInviteNotFoundTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openInviteNotFoundMessage",
+        bodyMessageKey: "openOrgInviteNotFoundMessage",
       };
     case "plan-not-supported":
       // TODO: placeholder — pending design. Icon + copy are stand-ins.
@@ -46,20 +46,20 @@ export function openOrgInviteStatusErrorUi(
       // interpolated title once design approves the copy.
       return {
         anonLayoutData: {
-          pageTitle: { key: "openInvitePlanNotSupportedTitle" },
+          pageTitle: { key: "openOrgInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openInvitePlanNotSupportedMessage",
+        bodyMessageKey: "openOrgInvitePlanNotSupportedMessage",
       };
     case "no-seats":
       // TODO: placeholder — pending design. `status.organizationName` is available on
       // this kind and should feed an interpolated title once design approves the copy.
       return {
         anonLayoutData: {
-          pageTitle: { key: "openInviteNoSeatsTitle" },
+          pageTitle: { key: "openOrgInviteNoSeatsTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openInviteNoSeatsMessage",
+        bodyMessageKey: "openOrgInviteNoSeatsMessage",
       };
     case "unexpected":
       throw new Error(status.errorMessage);

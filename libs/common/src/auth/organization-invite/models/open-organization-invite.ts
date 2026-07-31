@@ -5,7 +5,7 @@ import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-i
 
 /**
  * The fields that represent an open organization invite.
- * Canonical carrier is the open invite link URL, which is of the form
+ * Canonical carrier is the open org invite link URL, which is of the form
  * `/#/join/:organizationId/:inviteLinkCode?key={inviteKey}`; the same shape also crosses
  * the sealed-blob round-trip used by the registration-crossing flow.
  */

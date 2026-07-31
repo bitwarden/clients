@@ -45,8 +45,8 @@ export abstract class OrganizationInviteService {
   abstract clearOrganizationInvite(): Promise<void>;
 
   /**
-   * Clears only the open-invite state key. Used by the open-invite landing-page error
-   * path so a malformed open-invite URL cannot wipe a concurrent stashed direct invite.
+   * Clears only the open-org-invite state key. Used by the open-org-invite landing-page error
+   * path so a malformed open-org-invite URL cannot wipe a concurrent stashed direct invite.
    */
   abstract clearOpenOrgInvite(): Promise<void>;
 
@@ -96,7 +96,7 @@ export abstract class OrganizationInviteService {
   ): Promise<MasterPasswordPolicyOptions | undefined>;
 
   /**
-   * Fetches the public status of an open invite link (anonymous endpoint), scoped to
+   * Fetches the public status of an open org invite link (anonymous endpoint), scoped to
    * `(organizationId, code)`. Returns a discriminated {@link OpenOrgInviteStatusResult} —
    * `ok` with the status payload on success, or one of the classified failure kinds
    * (`not-found`, `plan-not-supported`) matching the server's known error surfaces.
@@ -109,7 +109,7 @@ export abstract class OrganizationInviteService {
   ): Promise<OpenOrgInviteStatusResult>;
 
   /**
-   * Validates whether an email's domain is permitted by an open invite link's
+   * Validates whether an email's domain is permitted by an open org invite link's
    * `AllowedDomains` configuration, scoped to `(organizationId, code)` for parity with the
    * status / accept endpoints. Pre-auth UX check consumed by `LoginComponent` and
    * `RegistrationStartComponent`; server-side enforcement runs at accept time regardless.
