@@ -25,11 +25,15 @@ describe("VaultItemCopyActionsComponent", () => {
   let component: VaultItemCopyActionsComponent;
 
   let i18nService: jest.Mocked<I18nService>;
+  let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
 
   beforeEach(async () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+
+    copyCipherFieldService = mock<CopyCipherFieldService>();
+    copyCipherFieldService.totpAllowed.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -42,7 +46,7 @@ describe("VaultItemCopyActionsComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: i18nService },
-        { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+        { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
       ],
