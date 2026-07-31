@@ -331,17 +331,21 @@ describe("VaultPopupAutofillService", () => {
           title: null,
           message: mockI18nService.t("autofillError"),
         });
+        // A no-fill is a normal outcome, not an error to log.
+        expect(mockLogService.error).not.toHaveBeenCalled();
       });
 
       it("should return false and surface an error toast if doAutoFill rejects unexpectedly", async () => {
         // `doAutoFill` reports a no-fill as a value, but a genuine failure mid-fill still rejects; the
         // retained catch keeps that from becoming an unhandled rejection.
-        mockAutofillService.doAutoFill.mockRejectedValue(new Error("boom"));
+        const error = new Error("boom");
+        mockAutofillService.doAutoFill.mockRejectedValue(error);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
         // Pin the failure to the catch path specifically: a guard firing before `doAutoFill` would
-        // produce the same result + toast, so assert the rejection was actually reached.
+        // produce the same result + toast, so assert the rejection was actually reached and logged.
         expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
+        expect(mockLogService.error).toHaveBeenCalledWith(error);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,

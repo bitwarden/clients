@@ -307,34 +307,34 @@ export class VaultPopupAutofillService {
         allowTotpAutofill: true,
       });
 
-      // A no-fill is reported as a value, not a thrown exception. Branch on it so the caller (and
-      // `doAutofillAndSave`'s URI write) never treats an unfilled attempt as success.
       if (!result.didAutofill) {
-        this.toastService.showToast({
-          variant: "error",
-          title: null,
-          message: this.i18nService.t("autofillError"),
-        });
+        this._reportAutofillFailure();
         return false;
       }
 
       if (result.totp != null) {
         this.platformUtilService.copyToClipboard(result.totp, { window: window });
       }
-    } catch (e) {
-      // Safety net for genuine failures during the fill (e.g. a rejected TOTP or last-used-date
-      // write); the no-fill decision itself is driven by `didAutofill` above.
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("autofillError"),
-      });
+    } catch (e: unknown) {
+      // unexpected error occurred during autofill
+      this._reportAutofillFailure(e);
       return false;
     }
-    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
     return true;
+  }
+
+  private _reportAutofillFailure(e?: unknown) {
+    if (e) {
+      this.logService.error(e);
+    }
+
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("autofillError"),
+    });
   }
 
   private async _closePopup(cipher: CipherView, tab: chrome.tabs.Tab | null) {
