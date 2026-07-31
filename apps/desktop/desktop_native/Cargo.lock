@@ -492,7 +492,7 @@ dependencies = [
  "bitwarden-crypto",
  "bitwarden-random",
  "bitwarden-sensitive-value",
- "chacha20poly1305 0.10.1",
+ "chacha20poly1305",
  "desktop_core",
  "rand_core 0.10.1",
  "scopeguard",
@@ -559,7 +559,7 @@ dependencies = [
  "bitwarden-random",
  "bitwarden-sensitive-value",
  "cbc 0.2.1",
- "chacha20poly1305 0.11.0-rc.3",
+ "chacha20poly1305",
  "ciborium",
  "coset",
  "ed25519-dalek 3.0.0-rc.1",
@@ -688,10 +688,10 @@ dependencies = [
 name = "bitwarden_chromium_import_helper"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "base64",
- "chacha20poly1305 0.10.1",
+ "chacha20poly1305",
  "chromium_importer",
  "clap",
  "embed-resource",
@@ -926,22 +926,9 @@ dependencies = [
 
 [[package]]
 name = "chacha20poly1305"
-version = "0.10.1"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
-dependencies = [
- "aead 0.5.2",
- "chacha20 0.9.1",
- "cipher 0.4.4",
- "poly1305 0.8.0",
- "zeroize",
-]
-
-[[package]]
-name = "chacha20poly1305"
-version = "0.11.0-rc.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c9ed179664f12fd6f155f6dd632edf5f3806d48c228c67ff78366f2a0eb6b5e"
+checksum = "9b89e1c441e926b9c82a8d023f6e1b7ae0adcfaa7d621814e4d60789bac751cb"
 dependencies = [
  "aead 0.6.1",
  "chacha20 0.10.1",
@@ -955,7 +942,7 @@ name = "chromium_importer"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "async-trait",
  "base64",
@@ -1512,7 +1499,6 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
@@ -4462,7 +4448,7 @@ dependencies = [
 name = "secure_memory"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "linux-keyutils",
  "memsec",
  "rand 0.9.3",

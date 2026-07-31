@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
@@ -131,12 +131,11 @@ impl CryptoService for WindowsCryptoService {
             .master_key
             .as_ref()
             .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
-        let key = Key::<Aes256Gcm>::from_slice(key);
-        let cipher = Aes256Gcm::new(key);
-        let nonce = Nonce::from_slice(&no_prefix[..IV_SIZE]);
+        let cipher = Aes256Gcm::new_from_slice(key)?;
+        let nonce = Nonce::try_from(&no_prefix[..IV_SIZE])?;
 
         let decrypted_bytes = cipher
-            .decrypt(nonce, no_prefix[IV_SIZE..].as_ref())
+            .decrypt(&nonce, no_prefix[IV_SIZE..].as_ref())
             .map_err(|e| anyhow!("Decryption failed: {}", e))?;
 
         let plaintext = String::from_utf8(decrypted_bytes)
