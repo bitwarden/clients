@@ -26,10 +26,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import {
-  OrgInviteKind,
-  OrganizationInviteService,
-} from "@bitwarden/common/auth/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -648,8 +645,8 @@ export class LoginComponent implements OnInit, OnDestroy {
    * the user can correct and retry.
    */
   private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    if (invite?.kind !== OrgInviteKind.Open) {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
       return true;
     }
     // Defense in depth: even though the open-org-invite landing route is gated by
@@ -693,8 +690,8 @@ export class LoginComponent implements OnInit, OnDestroy {
    * prior flag-on session could persist into a flag-off session.
    */
   private async getActiveOpenOrgInvite(): Promise<{ organizationName: string } | null> {
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    if (invite?.kind !== OrgInviteKind.Open) {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
       return null;
     }
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {

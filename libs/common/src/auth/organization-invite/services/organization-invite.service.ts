@@ -31,6 +31,14 @@ export abstract class OrganizationInviteService {
   abstract getOrganizationInvite(): Promise<OrganizationInvite | null>;
 
   /**
+   * Returns the currently stored open org invite, or `null` when no open invite is
+   * stashed (including when a direct invite is stashed). Use this over
+   * {@link getOrganizationInvite} at call sites that only care about the open variant so
+   * the reader doesn't need a `kind` discriminator at every consumer.
+   */
+  abstract getOpenOrgInvite(): Promise<OpenOrganizationInvite | null>;
+
+  /**
    * Stores a new organization invite. Writes to the state key matching `invite.kind`
    * and clears the opposite key (mutual exclusion). Callers that want to remove the
    * stored invite should use {@link clearOrganizationInvite} or {@link clearOpenOrgInvite}.

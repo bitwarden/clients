@@ -10,10 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
-import {
-  OrgInviteKind,
-  OrganizationInviteService,
-} from "@bitwarden/common/auth/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -146,8 +143,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * prior flag-on session could persist into a flag-off session.
    */
   private async applyOpenInviteTitleOverride(): Promise<void> {
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    if (invite?.kind !== OrgInviteKind.Open) {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
       return;
     }
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
@@ -271,8 +268,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * stashed. The caller is responsible for feature-flag gating.
    */
   private async sealOpenOrgInviteIfPresent(email: string): Promise<string | undefined> {
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    if (invite?.kind !== OrgInviteKind.Open) {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
       return undefined;
     }
     const sealed = await this.organizationInviteService.sealOpenOrgInvite(email, {
@@ -301,8 +298,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * the user can correct and retry.
    */
   private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    if (invite?.kind !== OrgInviteKind.Open) {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
       return true;
     }
     // Defense in depth: even though the open-org-invite landing route is gated by

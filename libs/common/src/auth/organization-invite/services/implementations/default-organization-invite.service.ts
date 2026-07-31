@@ -129,16 +129,17 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Kind-specific reads of the two segregated state keys. Used internally by paths
-   * (e.g. the MP-policy detour checks) that must not treat a stash of the opposite
-   * kind as belonging to the invite in hand. External callers should keep using
-   * {@link getOrganizationInvite} for the merged view.
+   * Kind-specific read of the direct-invite state key. Used internally by paths (e.g.
+   * the MP-policy detour checks) that must not treat a stashed open invite as belonging
+   * to the direct-invite flow. External callers should keep using
+   * {@link getOrganizationInvite} for the merged view — there is no external consumer
+   * that needs the direct variant in isolation today.
    */
   private async getDirectOrgInvite(): Promise<DirectOrganizationInvite | null> {
     return await firstValueFrom(this.directInviteState.state$);
   }
 
-  private async getOpenOrgInvite(): Promise<OpenOrganizationInvite | null> {
+  async getOpenOrgInvite(): Promise<OpenOrganizationInvite | null> {
     return await firstValueFrom(this.openOrgInviteState.state$);
   }
 
