@@ -1,6 +1,8 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -29,6 +31,17 @@ import {
 } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
+
+/** Stand-in for a host-provided row badge; captures the cipher the slot passes through. */
+@Component({
+  selector: "test-vault-row-lease-badge",
+  template: "<span data-testid='test-badge'></span>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestLeaseBadgeComponent {
+  readonly cipher = input<CipherViewLike>();
+}
 
 // eslint-disable-next-line no-console
 const originalError = console.error;
@@ -257,6 +270,82 @@ describe("VaultCipherRowComponent", () => {
       component.organizations = [];
 
       expect(component["showAssignToCollections"]).toBeFalsy();
+    });
+  });
+
+  describe("lease badge slot (VAULT_ROW_LEASE_BADGE)", () => {
+    async function setupBadge(provideBadge: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        declarations: [VaultCipherRowComponent],
+        imports: [
+          CommonModule,
+          RouterModule.forRoot([]),
+          MenuModule,
+          IconButtonModule,
+          JslibModule,
+          CopyCipherFieldDirective,
+          OrganizationNameBadgeComponent,
+          PremiumBadgeComponent,
+          TestLeaseBadgeComponent,
+        ],
+        providers: [
+          { provide: I18nService, useValue: { t: (key: string) => key } },
+          {
+            provide: EnvironmentService,
+            useValue: { environment$: new BehaviorSubject({}).asObservable() },
+          },
+          {
+            provide: DomainSettingsService,
+            useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
+          },
+          { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+          { provide: AccountService, useValue: mock<AccountService>() },
+          { provide: CipherService, useValue: mock<CipherService>() },
+          { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mock<BillingAccountProfileStateService>(),
+          },
+          { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+          ...(provideBadge
+            ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadgeComponent }]
+            : []),
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(VaultCipherRowComponent);
+      component = fixture.componentInstance;
+
+      const cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      component.cipher = cipher;
+      component.organizations = [];
+      component.collections = [];
+      fixture.detectChanges();
+    }
+
+    it("injects null and renders no badge when the host provides none", async () => {
+      await setupBadge(false);
+
+      expect(component["leaseBadge"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestLeaseBadgeComponent))).toBeNull();
+    });
+
+    it("renders the host badge with the row's cipher", async () => {
+      await setupBadge(true);
+
+      expect(component["leaseBadge"]).toBe(TestLeaseBadgeComponent);
+      const badge = fixture.debugElement.query(By.directive(TestLeaseBadgeComponent));
+      expect(badge).not.toBeNull();
+      expect((badge.componentInstance as TestLeaseBadgeComponent).cipher()).toBe(component.cipher);
     });
   });
 });

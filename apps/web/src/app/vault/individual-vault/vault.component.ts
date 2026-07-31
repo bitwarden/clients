@@ -1,10 +1,12 @@
 import {
   ChangeDetectorRef,
   Component,
+  Inject,
   inject,
   NgZone,
   OnDestroy,
   OnInit,
+  Optional,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -144,6 +146,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
+import { CIPHER_OPEN_GATE, CipherOpenGate } from "./cipher-open-gate";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -358,6 +361,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private webVaultPromptService: WebVaultPromptService,
     private vaultBatchBarService: VaultBatchBarService<C>,
     private configService: ConfigService,
+    @Optional() @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate | null,
   ) {}
 
   async ngOnInit() {
@@ -1162,11 +1166,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
+    // Consult the open gate, if a host provides one. It may hand back a full cipher fetched
+    // under privileged access; unprovided means every cipher opens from local state.
+    const verdict = (await this.cipherOpenGate?.check(cipher, activeUserId)) ?? "open";
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
+
+    if (typeof verdict === "object" && verdict.kind === "openWith") {
+      // Render the substituted cipher without touching the local cache, so the cached copy
+      // stays partial.
+      cipherFormConfig.originalCipher = verdict.cipher;
+    }
 
     await this.openVaultItemDialog(
       "view",

@@ -1,10 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
+import { concatMap, firstValueFrom, from, Observable, of, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -60,6 +68,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "../tokens/gated-cipher-reloader.token";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -260,8 +269,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
+  /**
+   * True when the cipher arrived as partial data — gated with no access, so the server
+   * suppressed its sensitive fields. Such a cipher must not be edited: saving would
+   * clobber the suppressed fields with the blanks the client holds.
+   */
+  protected get isPartialData() {
+    return this.cipher?.partialData != null;
+  }
+
   protected get showEdit() {
-    return this.showCipherView && !this.isTrashFilter && !this.showRestore;
+    // Hide Edit for a partial-data cipher — the host banner owns the access flow until
+    // the full cipher is revealed.
+    return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
   }
 
   protected get showCipherView() {
@@ -337,6 +357,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
+    @Optional()
+    @Inject(GATED_CIPHER_RELOADER)
+    private gatedCipherReloader: GatedCipherReloader | null,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -345,6 +368,100 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe();
+    this.revealGatedCipherWhenLeased();
+  }
+
+  /**
+   * A gated cipher opens with a partial-data copy. When a {@link GatedCipherReloader} is
+   * provided, track whether the caller may open this cipher: while they may, swap the
+   * partial copy for the full, decryptable one in place (the normal view appears without a
+   * reopen); when access later ends, swap the partial copy back so the secrets re-lock,
+   * also without a reopen. Inert for non-gated ciphers and platforms without the seam.
+   */
+  private revealGatedCipherWhenLeased(): void {
+    const partialCipher = this.params.formConfig.originalCipher;
+    if (this.gatedCipherReloader == null || partialCipher?.partialData == null) {
+      return;
+    }
+
+    // `fullCipher$` emits the full cipher while access holds and `null` when it does not.
+    // Only a `null` that follows a reveal is a re-lock — an initial `null` leaves in place
+    // the partial view ngOnInit already set up.
+    let revealed = false;
+
+    this.gatedCipherReloader
+      .fullCipher$(partialCipher.id)
+      .pipe(
+        // concatMap, not switchMap: reveal and re-lock both mutate the same component
+        // fields via async work. switchMap would unsubscribe an in-flight reveal while its
+        // promise kept running, so a reveal could land *after* a re-lock and leave secrets
+        // on screen. Running each transition to completion in emission order guarantees the
+        // final state matches the final access state.
+        concatMap((fullCipher) => {
+          if (fullCipher != null) {
+            revealed = true;
+            return from(this.revealFullCipher(fullCipher));
+          }
+          if (revealed) {
+            revealed = false;
+            return from(this.relockToPartial(partialCipher));
+          }
+          return of(undefined);
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Swaps the partial cipher for the full one and refreshes the derived view state,
+   * mirroring the initial load in {@link ngOnInit}.
+   */
+  private async revealFullCipher(cipher: Cipher): Promise<void> {
+    const view = await this.swapInCipher(cipher);
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(view, this.params.isAdminConsoleAction),
+    );
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(view, this.params.isAdminConsoleAction),
+    );
+    this.updateTitle();
+  }
+
+  /**
+   * Swaps the full cipher back out for the partial copy and forces the read-only view — the
+   * inverse of {@link revealFullCipher}. Called when access ends under an open dialog so the
+   * revealed secrets re-lock in place.
+   */
+  private async relockToPartial(partialCipher: Cipher): Promise<void> {
+    await this.swapInCipher(partialCipher);
+    // Force the read-only view AND unmount the form. The user may have been mid-edit on the
+    // revealed cipher; leaving the form mounted would keep its editable fields — and its
+    // component-scoped form cache, which holds the full decrypted cipher — alive past the
+    // point access ended.
+    this.loadForm = false;
+    this.params.mode = "view";
+    this.canEdit = false;
+    this.canDelete = false;
+    this.updateTitle();
+  }
+
+  /**
+   * Swaps the dialog's cipher for `cipher`, decrypts it, and re-derives the collection and
+   * organization view state — the shared half of {@link revealFullCipher} and
+   * {@link relockToPartial}. Returns the decrypted view so the caller can apply its own
+   * edit gating before calling {@link updateTitle}.
+   */
+  private async swapInCipher(cipher: Cipher): Promise<CipherView> {
+    const activeUserId = await firstValueFrom(this.userId$);
+    this.formConfig.originalCipher = cipher;
+    const view = await this.cipherService.decrypt(cipher, activeUserId);
+    this.cipher = view;
+    this.collections = this.formConfig.collections.filter((c) =>
+      view.collectionIds?.includes(c.id),
+    );
+    this.organization = this.formConfig.organizations.find((o) => o.id === view.organizationId);
+    return view;
   }
 
   async ngOnInit() {
@@ -380,8 +497,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
+      // Force a form-mode open back to view when the cipher can't be edited — either the
+      // user lacks permission (disableEdit) or it's partial data, which is blocked
+      // regardless of permission. Routes direct-edit attempts (row Edit menu, ?action=edit
+      // deep link, refresh) to the read-only view.
+      if ((this.disableEdit || this.isPartialData) && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();

@@ -447,6 +447,45 @@ describe("VaultComponent", () => {
     });
   });
 
+  describe("cipher open gate", () => {
+    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes,
+    // so kick it off and drain the pending microtasks instead of awaiting it.
+    async function openAndFlush(): Promise<void> {
+      void component.viewCipherById(TEST_CIPHER_ID);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    it("opens straight from local state when no host provides a gate", async () => {
+      // The token is unprovided in this TestBed, so the gate must be skipped entirely.
+      await openAndFlush();
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+      const params = openVaultItemDialogSpy.mock.lastCall[1];
+      expect(params.formConfig.originalCipher).toBe(mockCipher);
+    });
+
+    it("renders the substituted cipher when the gate returns openWith", async () => {
+      const substitute = { id: TEST_CIPHER_ID } as unknown as Cipher;
+      const gate = { check: jest.fn().mockResolvedValue({ kind: "openWith", cipher: substitute }) };
+      component["cipherOpenGate"] = gate;
+
+      await openAndFlush();
+
+      expect(gate.check).toHaveBeenCalledWith(mockCipher, expect.anything());
+      const params = openVaultItemDialogSpy.mock.lastCall[1];
+      expect(params.formConfig.originalCipher).toBe(substitute);
+    });
+
+    it("leaves the config untouched when the gate returns open", async () => {
+      component["cipherOpenGate"] = { check: jest.fn().mockResolvedValue("open") };
+
+      await openAndFlush();
+
+      const params = openVaultItemDialogSpy.mock.lastCall[1];
+      expect(params.formConfig.originalCipher).toBe(mockCipher);
+    });
+  });
+
   describe("addCollection", () => {
     let dialogOpen: jest.Mock;
 

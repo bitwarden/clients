@@ -221,6 +221,58 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("partial-data (gated) ciphers", () => {
+    beforeEach(() => {
+      component.setTestParams({ mode: "view" });
+      component["canEdit"] = true;
+      component["canDelete"] = true;
+    });
+
+    it("isPartialData is false for a normal cipher", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["isPartialData"]).toBe(false);
+    });
+
+    it("isPartialData is true when the cipher carries partialData", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partialData: "{}" } as any);
+
+      expect(component["isPartialData"]).toBe(true);
+    });
+
+    it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partialData: "{}" } as any);
+
+      // Saving a partial cipher would clobber the server-suppressed fields.
+      expect(component["showEdit"]).toBe(false);
+    });
+
+    it("shows Edit for the same cipher once it is no longer partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["showEdit"]).toBe(true);
+    });
+
+    it("relockToPartial forces the read-only view and unmounts the form", async () => {
+      const partial = { id: "c1", partialData: "{}" } as any;
+      cipherServiceMock.decrypt.mockResolvedValue({
+        id: "c1",
+        partialData: "{}",
+        collectionIds: [],
+      } as any);
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+
+      await component["relockToPartial"](partial);
+
+      // The form must unmount: it caches the full decrypted cipher and its fields were editable.
+      expect(component["loadForm"]).toBe(false);
+      expect(component["params"].mode).toBe("view");
+      expect(component["canEdit"]).toBe(false);
+      expect(component["canDelete"]).toBe(false);
+    });
+  });
+
   describe("submitButtonText$", () => {
     it("returns 'unArchiveAndSave' when user has no premium and cipher is archived", async () => {
       Object.defineProperty(component, "userHasPremium$", {
