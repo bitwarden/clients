@@ -60,7 +60,7 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 | Input                | Type                     | Description                                                                                                                   |
 | -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence                                               |
+| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discounts, tax, and cadence                                              |
 | `header`             | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                                                            |
 | `hidePricingTerm`    | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
 | `showDiscountBadges` | `boolean`                | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
@@ -99,9 +99,10 @@ export type Cart = {
     additionalServiceAccounts?: CartItem; // Optional service accounts
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
-  discount?: Discount; // Optional cart-level discount
+  discounts?: Discount[]; // Optional cart-level discounts, rendered in the discount section
   credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
+  total?: number; // Optional authoritative total; when absent the component computes it
 };
 
 export type Credit = {
@@ -171,10 +172,10 @@ The cart summary component provides flexibility through its structured Cart inpu
       }
     },
     cadence: 'monthly',
-    discount: {
+    discounts: [{
       type: 'percent-off',
       value: 20
-    },
+    }],
     estimatedTax: 8.00
   }"
 >
@@ -401,10 +402,10 @@ Show cart with percentage-based discount:
       }
     },
     cadence: 'monthly',
-    discount: {
+    discounts: [{
       type: 'percent-off',
       value: 20
-    },
+    }],
     estimatedTax: 10.40
   }"
 >
@@ -435,10 +436,10 @@ Show cart with fixed amount discount:
       }
     },
     cadence: 'annually',
-    discount: {
+    discounts: [{
       type: 'amount-off',
       value: 50.00
-    },
+    }],
     estimatedTax: 95.00
   }"
 >
@@ -505,10 +506,10 @@ section:
       }
     },
     cadence: 'monthly',
-    discount: {
+    discounts: [{
       type: 'percent-off',
       value: 10
-    },
+    }],
     estimatedTax: 8.55
   }"
 >
@@ -537,10 +538,10 @@ Show cart with both discount and credit applied:
       }
     },
     cadence: 'annually',
-    discount: {
+    discounts: [{
       type: 'percent-off',
       value: 15
-    },
+    }],
     credit: {
       translationKey: 'accountCredit',
       value: 50.00
