@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Thư mục của tôi"
   },
+  "addSharedFolder": {
+    "message": "Thêm thư mục chia sẻ"
+  },
+  "addToSharedFolder": {
+    "message": "Thêm vào thư mục chia sẻ"
+  },
+  "newSharedFolder": {
+    "message": "Thư mục chia sẻ mới"
+  },
+  "searchSharedFolder": {
+    "message": "Tìm kiếm thư mục chia sẻ"
+  },
+  "searchMyFolder": {
+    "message": "Tìm kiếm thư mục của tôi"
+  },
+  "addToMyFolder": {
+    "message": "Thêm vào thư mục của tôi"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Chọn mục trong thư mục chia sẻ"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Xem thư mục chia sẻ - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Thư mục chia sẻ này chỉ có thể truy cập từ bảng điều khiển quản trị"
+  },
+  "editSharedFolder": {
+    "message": "Chỉnh sửa thư mục chia sẻ"
+  },
+  "deleteSharedFolder": {
+    "message": "Xóa thư mục chia sẻ"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Xóa $COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "Thư mục chia sẻ $NAME$ sẽ bị xóa vĩnh viễn.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ thư mục chia sẻ sẽ bị xóa vĩnh viễn.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Các mục và thư mục chia sẻ đã chọn sẽ bị xóa vĩnh viễn."
+  },
+  "sharedFolderDeleted": {
+    "message": "Đã xóa thư mục chia sẻ"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Đã xóa các thư mục chia sẻ"
+  },
+  "deletedSharedFolders": {
+    "message": "Các thư mục chia sẻ đã xóa"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Các tổ chức miễn phí có thể có tối đa $COLLECTIONCOUNT$ thư mục chia sẻ. Nâng cấp lên gói trả phí để thêm nhiều thư mục chia sẻ hơn.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Các tổ chức miễn phí có thể có tối đa $COLLECTIONCOUNT$ thư mục chia sẻ. Liên hệ với chủ sở hữu tổ chức của bạn để nâng cấp.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Bằng cách di chuyển một mục vào thư mục chia sẻ, bạn có thể chia sẻ mục đó một cách an toàn với các thành viên khác trong kho lưu trữ."
+  },
   "attachments": {
     "message": "Đính kèm"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Bạn không có quyền truy cập vào bộ sưu tập này"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "Bạn không có quyền đối với thư mục chia sẻ này",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Chưa có bộ sưu tập nào."
@@ -4042,13 +4151,13 @@
     "message": "Hủy gói"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Hoàn tất hủy"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "Giúp chúng tôi cải thiện. Tại sao bạn lại hủy?"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "Chi tiết bổ sung"
   },
   "subscriptionExpiration": {
     "message": "Gói hết hạn vào"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Bộ sưu tập mặc định"
   },
+  "defaultSharedFolder": {
+    "message": "Thư mục chia sẻ mặc định"
+  },
   "getHelp": {
     "message": "Nhận trợ giúp"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Lồng bộ sưu tập vào dưới"
   },
+  "nestSharedFolderUnder": {
+    "message": "Đặt thư mục chia sẻ dưới",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Kiểm soát truy cập"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Xem bộ sưu tập"
   },
+  "viewSharedFolder": {
+    "message": "Xem thư mục chia sẻ",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Thông tin bộ sưu tập"
   },
+  "sharedFolderInfo": {
+    "message": "Thông tin thư mục chia sẻ",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Bạn có chắc chắn muốn xóa bộ sưu tập này không?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Bạn có chắc chắn muốn xóa thư mục chia sẻ này không?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Sửa thành viên"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Chủ sở hữu"
+  },
+  "ownerAriaLabel": {
+    "message": "Chủ sở hữu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kho lưu trữ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Quản lý tất cả các khía cạnh của tổ chức của bạn, bao gồm thanh toán và đăng ký"
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Đã tạo thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Đã sửa bộ sưu tập $ID$.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Đã chỉnh sửa thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Đã xóa các bộ sưu tập"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Đã xóa thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Hủy bỏ các chỉnh sửa"
@@ -7305,11 +7481,11 @@
     "message": "Đã hết hạn"
   },
   "expiringSoon": {
-    "message": "Expiring soon",
+    "message": "Sắp hết hạn",
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "Đang hoạt động",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Thêm tiền tố trang web",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Khi bật, tên miền của trang web hiện tại sẽ được dùng làm tiền tố cho địa chỉ email được tạo",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Tên máy chủ",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Chưa có bộ sưu tập nào"
   },
+  "noSharedFolder": {
+    "message": "Không có thư mục chia sẻ nào",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Chưa thêm bộ sưu tập nào"
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Email sẽ được cập nhật sau khi lưu"
+  },
+  "emailNotClaimedHint": {
+    "message": "Thành viên này không có tài khoản được xác nhận quyền sở hữu. Liên hệ với thành viên để cập nhật địa chỉ email của họ."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Thành viên này có mật khẩu chính. Liên hệ với thành viên để cập nhật địa chỉ email của họ."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Email mới phải khớp với tên miền đã được tổ chức của bạn xác nhận quyền sở hữu."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email đã được một thành viên trong tổ chức của bạn sử dụng."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email đã được sử dụng. Thay vào đó, bạn có thể mời họ tham gia tổ chức của mình."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Không thể thay đổi email của thành viên có mật khẩu chính."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Thay đổi email thất bại. Vui lòng thử lại."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Không thể thay đổi tên của thành viên không được tổ chức xác nhận quyền sở hữu."
+  },
+  "nameNotClaimedHint": {
+    "message": "Thành viên này không có tài khoản được xác nhận quyền sở hữu. Liên hệ với thành viên để cập nhật tên của họ."
   },
   "createdDate": {
     "message": "Ngày tạo"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Gán quyền truy cập bộ sưu tập"
   },
+  "assignSharedFolderAccess": {
+    "message": "Cấp quyền truy cập",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Đã chỉnh sửa bộ sưu tập"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Bộ sưu tập đã được chỉnh sửa"
   },
+  "sharedFolderEdited": {
+    "message": "Đã chỉnh sửa thư mục chia sẻ",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Các miền đã được chỉnh sửa"
+  },
+  "sharedFoldersEdited": {
+    "message": "Đã chỉnh sửa các thư mục chia sẻ",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Bạn không có quyền quản lý bộ sưu tập này."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "Bạn không có quyền truy cập để quản lý thư mục chia sẻ này.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Thiếu quyền Quản lý bộ sưu tập"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Thiếu quyền Quản lý",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Cấp quyền Quản lý bộ sưu tập để cho phép quản lý đầy đủ bộ sưu tập, bao gồm cả việc xóa bộ sưu tập."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Cấp quyền Quản lý để cho phép quản lý toàn bộ thư mục chia sẻ bao gồm cả việc xóa thư mục chia sẻ.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Cấp quyền truy cập bộ sưu tập này cho nhóm hoặc thành viên."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Cấp cho các nhóm hoặc thành viên quyền truy cập vào thư mục chia sẻ này.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Cấp quyền truy cập bộ sưu tập này cho thành viên."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Cấp cho các thành viên quyền truy cập vào thư mục chia sẻ này.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Quản trị viên có thể truy cập và quản lý các bộ sưu tập."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Quản trị viên có thể truy cập và quản lý các thư mục chia sẻ.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Quyền truy cập tài khoản dịch vụ đã được cập nhật"
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Thiếu tính năng mà chúng tôi cần.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "Việc hướng dẫn, quản trị hoặc sử dụng hàng ngày quá phức tạp.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "Chi phí quá cao",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "Giá cả không tương xứng với những gì chúng tôi nhận được.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "Chúng tôi không thể thuyết phục mọi người thực sự sử dụng.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Tái cấu trúc, sáp nhập, thay đổi ưu tiên hoặc không còn cần trình quản lý mật khẩu.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "Dịch vụ chăm sóc khách hàng kém",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "Chúng tôi không nhận được sự hỗ trợ cần thiết từ bộ phận chăm sóc khách hàng.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "Mô tả lý do hủy của bạn",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Thư mục chia sẻ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Bộ sưu tập $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Thư mục của tôi $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Thư mục $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Tạo một tổ chức khách hàng mới để quản lý với tư cách Nhà cung cấp. Các ghế bổ sung sẽ được phản ánh trong chu kỳ thanh toán tiếp theo."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Bạn chưa chọn bộ sưu tập nào."
+  },
+  "noSharedFoldersSelected": {
+    "message": "Bạn chưa chọn bất kỳ thư mục chia sẻ nào.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Cập nhật tên"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Các tổ chức miễn phí có thể có tối đa 2 bộ sưu tập. Nâng cấp lên gói trả phí để thêm nhiều bộ sưu tập hơn."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Các tổ chức dùng gói miễn phí có thể có tối đa 2 thư mục chia sẻ. Hãy nâng cấp lên gói trả phí để thêm nhiều thư mục chia sẻ hơn.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Tìm kiếm kho lưu trữ"

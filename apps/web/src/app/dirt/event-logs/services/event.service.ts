@@ -539,6 +539,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_InviteLinkConfirmed:
+        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventMemberConfirmed",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -672,6 +679,12 @@ export class EventService {
         break;
       case EventType.Organization_InviteLinkRefreshed:
         msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
+        break;
+      case EventType.Organization_InviteLinkConfirmEnabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmEnabled");
+        break;
+      case EventType.Organization_InviteLinkConfirmDisabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmDisabled");
         break;
 
       // Policies
@@ -1409,7 +1422,7 @@ export class EventService {
   private formatCipherId(ev: EventResponse, options: EventOptions) {
     const shortId = this.getShortId(ev.cipherId);
     if (ev.organizationId == null || !options.cipherInfo) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
@@ -1560,7 +1573,9 @@ export class EventService {
   private makeAnchor(shortId: string) {
     const a = document.createElement("a");
     a.title = this.i18nService.t("view");
-    a.innerHTML = "<code>" + shortId + "</code>";
+    const code = document.createElement("code");
+    code.textContent = shortId;
+    a.appendChild(code);
     return a;
   }
 
@@ -1586,7 +1601,7 @@ export class EventService {
     const shortId = this.getShortId(ev.userId);
     // Render plain text (no link) when the creator is not a member we can open events for
     if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.title = this.i18nService.t("viewMemberEvents", shortId);

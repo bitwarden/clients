@@ -1,13 +1,19 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="large">
   <span bitDialogTitle>
     @if (editMode) {
-      {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}
+      {{
+        (dialogReadonly ? "viewCollection" : "editCollection")
+          | vfo1I18n: (dialogReadonly ? "viewSharedFolder" : "editSharedFolder")
+      }}
       @if (!loading()) {
         <span class="tw-text-sm tw-normal-case tw-text-muted">{{ collection()?.name }}</span>
       }
     }
     @if (!editMode) {
-      {{ (btnTextAddCreateFeatureFlag() ? "addCollection" : "newCollection") | i18n }}
+      {{
+        (btnTextAddCreateFeatureFlag() ? "addCollection" : "newCollection")
+          | vfo1I18n: (btnTextAddCreateFeatureFlag() ? "addSharedFolder" : "newSharedFolder")
+      }}
     }
   </span>
   <div bitDialogContent>
@@ -18,7 +24,7 @@
     }
     @if (!loading()) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
-        <bit-tab label="{{ 'collectionInfo' | i18n }}">
+        <bit-tab label="{{ 'collectionInfo' | vfo1I18n: 'sharedFolderInfo' }}">
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput appAutofocus formControlName="name" />
@@ -41,9 +47,10 @@
             </bit-form-field>
           }
           <bit-form-field>
-            <bit-label>{{ "nestCollectionUnder" | i18n }}</bit-label>
+            <bit-label>{{ "nestCollectionUnder" | vfo1I18n: "nestSharedFolderUnder" }}</bit-label>
             <bit-select bitInput formControlName="parent">
-              <bit-option [value]="undefined" [label]="'noCollection' | i18n"> </bit-option>
+              <bit-option [value]="undefined" [label]="'noCollection' | vfo1I18n: 'noSharedFolder'">
+              </bit-option>
               @if (deletedParentName()) {
                 <bit-option
                   disabled
@@ -67,26 +74,32 @@
         <bit-tab [label]="accessTabLabel">
           <div class="tw-mb-3">
             @if (dialogReadonly) {
-              <span>{{ "readOnlyCollectionAccess" | i18n }}</span>
+              <span>{{ "readOnlyCollectionAccess" | vfo1I18n: "readOnlySharedFolderAccess" }}</span>
             }
             @if (!dialogReadonly) {
               @if (showAddAccessWarning()) {
                 <bit-callout
-                  title="{{ 'grantManageCollectionWarningTitle' | i18n }}"
+                  title="{{
+                    'grantManageCollectionWarningTitle'
+                      | vfo1I18n: 'grantManagePermissionsWarningTitle'
+                  }}"
                   type="warning"
                 >
-                  {{ "grantManageCollectionWarning" | i18n }}
+                  {{ "grantManageCollectionWarning" | vfo1I18n: "grantManagePermissionsWarning" }}
                 </bit-callout>
               }
               @if (organization()?.useGroups) {
-                <span>{{ "grantCollectionAccess" | i18n }}</span>
+                <span>{{ "grantCollectionAccess" | vfo1I18n: "grantSharedFolderAccess" }}</span>
               }
               @if (!organization()?.useGroups) {
-                <span>{{ "grantCollectionAccessMembersOnly" | i18n }}</span>
+                <span>{{
+                  "grantCollectionAccessMembersOnly"
+                    | vfo1I18n: "grantSharedFolderAccessMembersOnly"
+                }}</span>
               }
               @if (organization()?.allowAdminAccessToAllCollectionItems) {
                 <span>
-                  {{ " " + ("adminCollectionAccess" | i18n) }}
+                  {{ " " + ("adminCollectionAccess" | vfo1I18n: "adminSharedFolderAccess") }}
                 </span>
               }
             }

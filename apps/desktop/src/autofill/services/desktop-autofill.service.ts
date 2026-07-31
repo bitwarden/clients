@@ -153,7 +153,7 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     const cipherViewMap = await firstValueFrom(this.cipherService.cipherViews$(userId));
-    this.logService.info("Performing AdHoc sync", Object.values(cipherViewMap ?? []));
+    this.logService.info(`Performing AdHoc sync over ${cipherViewMap?.length ?? 0} ciphers`);
     await this.sync(Object.values(cipherViewMap ?? []));
   }
 
@@ -203,8 +203,8 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     this.logService.info("Syncing autofill credentials", {
-      fido2Credentials,
-      passwordCredentials,
+      fido2Credentials: fido2Credentials.length,
+      passwordCredentials: passwordCredentials.length,
     });
 
     const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
