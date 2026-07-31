@@ -293,9 +293,7 @@ Every column needs a `<bit-header-cell>`, even an empty one — screen readers r
 
 ## Forms
 
-v1 renders rows in the order you hand it, so `formArrayName` plus a positional `[formGroupName]="i"`
-is safe there. v2 owns row order, so that index stops matching and cells bind to the wrong controls
-with no error.
+Re-key controls from a positional `FormArray` index to a `FormRecord` keyed by row id.
 
 **v1**
 
@@ -305,7 +303,7 @@ with no error.
 </tr>
 ```
 
-**v2** — re-key the controls by row id with a `FormRecord`:
+**v2**
 
 ```html
 <bit-cell *bitCellDef="table.columns.email; let row">
