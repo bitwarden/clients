@@ -14,7 +14,7 @@ the user takes after clicking the email link.
 
 ### 1. Client-orchestrated acceptance
 
-The client calls `OrganizationInviteService.validateAndAcceptInvite(invite, userId)`,
+The client calls `OrganizationInviteService.validateAndAcceptInvite(invite, userId, postAuthRedirectUrl)`,
 which posts to either `postOrganizationUserAccept` or `postOrganizationUserAcceptInit`.
 Only one production caller exists:
 [`AcceptOrgDirectInviteComponent.authedHandler`](./accept-org-direct-invite.component.ts).
@@ -86,7 +86,7 @@ flow below. The SSO sections cover **new** users JIT-provisioned via SSO.
 
 ### authedHandler
 
-Calls `validateAndAcceptInvite(invite, activeUserId)`. Returns `true` → show
+Calls `validateAndAcceptInvite(invite, activeUserId, this.router.url)`. Returns `true` → show
 success toast + navigate to `/`. Returns `false` → silently exit.
 
 ---
