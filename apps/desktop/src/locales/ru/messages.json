@@ -116,6 +116,12 @@
   "myFolders": {
     "message": "Мои папки"
   },
+  "addSharedFolder": {
+    "message": "Добавить общую папку"
+  },
+  "newSharedFolder": {
+    "message": "Новая общая папка"
+  },
   "share": {
     "message": "Поделиться"
   },
@@ -877,6 +883,60 @@
   },
   "owner": {
     "message": "Владелец"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Общая папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Коллекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моя папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Владелец $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Хранилище $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Добавить поле"
@@ -2150,6 +2210,92 @@
   "selectAll": {
     "message": "Выбрать все"
   },
+  "selectAllRows": {
+    "message": "Выбрать все строки"
+  },
+  "selectRow": {
+    "message": "Выбрать строку"
+  },
+  "showingItemRange": {
+    "message": "Показаны $START$ - $END$ из $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Строк на странице"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ строк на странице",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ элементов",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Все"
+  },
+  "clearAll": {
+    "message": "Очистить все"
+  },
+  "done": {
+    "message": "Готово"
+  },
+  "filter": {
+    "message": "Фильтр"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ выбрано",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предыдущая страница"
+  },
+  "nextPage": {
+    "message": "Следующая страница"
+  },
+  "goToPage": {
+    "message": "Перейти на страницу"
+  },
+  "ofPageCount": {
+    "message": "из $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Нет подходящих элементов"
+  },
   "selected": {
     "message": "Выбрано"
   },
@@ -2392,9 +2538,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "“Пароль к файлу“ и “Подтверждение пароля к файлу“ не совпадают."
-  },
-  "done": {
-    "message": "Готово"
   },
   "warning": {
     "message": "ВНИМАНИЕ",
@@ -3616,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавить префикс сайта",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Если эта опция включена, домен текущего сайта будет использоваться в качестве префикса для сгенерированного адреса email",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Имя хоста",
     "description": "Part of a URL."
@@ -4220,8 +4371,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ элемент будет пропущен",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Следующие элементы не удалось прочитать, и они не будут включены в ваш импорт:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Этот ключ SSH не может быть импортирован"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдерживаемый тип элемента"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Этот элемент не может быть импортирован"
+  },
+  "identifier": {
+    "message": "Идентификатор"
   },
   "contact": {
     "message": "Контакт"
@@ -4694,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "Удалить passkey"
+  },
+  "deletePasskey": {
+    "message": "Удалить passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Этот passkey будет навсегда удален из вашего логина. Действие невозможно отменить."
   },
   "passkeyRemoved": {
     "message": "Passkey удален"

@@ -8,7 +8,7 @@
       >
         {{ organization().name }}
         <span>
-          {{ "collections" | i18n | lowercase }}
+          {{ "collections" | vfo1I18n: "sharedFolders" | lowercase }}
         </span>
       </bit-breadcrumb>
       <ng-container>
@@ -37,7 +37,7 @@
           [bitMenuTriggerFor]="editCollectionMenu"
           size="small"
           type="button"
-          [label]="'editCollection' | i18n"
+          [label]="'editCollection' | vfo1I18n: 'editSharedFolder'"
         ></button>
         <bit-menu #editCollectionMenu>
           @if (canEditCollection()) {
@@ -104,7 +104,7 @@
       class="tw-grow"
       [ngModel]="searchText()"
       (ngModelChange)="onSearchTextChanged($event)"
-      [placeholder]="'searchCollection' | i18n"
+      [placeholder]="'searchCollection' | vfo1I18n: 'searchSharedFolder'"
     ></bit-search>
   }
 
