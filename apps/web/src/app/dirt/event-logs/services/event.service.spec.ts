@@ -91,3 +91,79 @@ describe("EventService Send events", () => {
     expect(info.humanReadableMessage).toContain(sendId.substring(0, 8));
   });
 });
+
+describe("EventService shortcode escaping", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}${p1 ?? ""}${p2 ?? ""}`,
+  );
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+
+    sut = new EventService(i18n, policyService, accountService);
+  });
+
+  // getShortId only keeps the first 8 characters, so the payloads below are crafted so those first
+  // 8 characters are HTML-significant. "<script>" is exactly 8 characters.
+  const scriptId = "<script>alert(1)";
+  const ampId = "a&b<c>def-tail"; // first 8 chars: a&b<c>de
+
+  it("escapes the id in the plain (unlinked) cipher shortcode", async () => {
+    // organizationId == null forces the non-anchor `<code>` branch of formatCipherId
+    const info = await sut.getEventInfo({
+      type: EventType.Cipher_Created,
+      cipherId: scriptId,
+      organizationId: null,
+    } as EventResponse);
+
+    expect(info.message).toContain("<code>&lt;script&gt;</code>");
+    expect(info.message).not.toContain("<script>");
+  });
+
+  it("escapes ampersands and angle brackets in the plain cipher shortcode", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Cipher_Created,
+      cipherId: ampId,
+      organizationId: null,
+    } as EventResponse);
+
+    expect(info.message).toContain("<code>a&amp;b&lt;c&gt;de</code>");
+  });
+
+  it("escapes the id inside the linked (anchor) cipher shortcode", async () => {
+    // organizationId set + default cipherInfo=true routes through makeAnchor
+    const info = await sut.getEventInfo({
+      type: EventType.Cipher_Created,
+      cipherId: scriptId,
+      organizationId: "org",
+    } as EventResponse);
+
+    // The rendered id lives in the <code> child and must be escaped, even though the raw id still
+    // appears inside the (attribute-quoted) href.
+    expect(info.message).toContain("<code>&lt;script&gt;</code>");
+  });
+
+  it("escapes the creator id in the plain (non-linkable member) send shortcode", async () => {
+    const options = new EventOptions();
+    options.linkableMemberIds = new Set<string>(); // creator absent => not linkable => plain text
+
+    const info = await sut.getEventInfo(
+      {
+        type: EventType.Send_Accessed_Text,
+        sendId: "send-1234-5678",
+        userId: scriptId,
+        organizationId: "org",
+      } as EventResponse,
+      options,
+    );
+
+    expect(info.message).toContain("<code>&lt;script&gt;</code>");
+    expect(info.message).not.toContain("<code><script></code>");
+  });
+});
