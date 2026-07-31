@@ -28,13 +28,10 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
 
-    // Array elements are passed through raw rather than parsed via `DiscountResponse`, which
-    // assumes the server serializes discount members as camelCase (`type`, `value`, `amount`,
-    // `label`) even though every enclosing field is PascalCase. That assumption is unverified —
-    // no real PM-39925 response has been observed yet. If the server emits PascalCase members,
-    // every field here silently deserializes to `undefined`.
-    // TODO(PM-39926): confirm discount member casing against a real response at the PM-39925
-    // integration checkpoint; if PascalCase, map elements through `DiscountResponse`.
+    // Discount members are serialized camelCase (`type`, `value`, `amount`, `label`) per the
+    // PM-39925/PM-39926 preview contract, unlike the PascalCase enclosing fields, so array
+    // elements pass through raw rather than through the PascalCase-aware `DiscountResponse`.
+    // The same contract applies to the top-level `InvoicePreviewResponse.discounts`.
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
       this.discounts = discounts;
