@@ -105,6 +105,7 @@ export class MemberDialogManagerService {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        profileName: user.name,
         email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
@@ -112,6 +113,7 @@ export class MemberDialogManagerService {
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
         initialTab: resolvedTab,
         claimedByOrganization: user.claimedByOrganization,
+        hasMasterPassword: user.hasMasterPassword,
       },
     });
 

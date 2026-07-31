@@ -15,7 +15,7 @@
           @for (p of permissionList; track p) {
             <bit-option
               [value]="p.perm"
-              [label]="p.labelId | vfo1I18n: vfo1PermissionLabelId(p.labelId)"
+              [label]="p.labelId | vfo1I18n: p.vfo1LabelId ?? p.labelId"
             />
           }
         </bit-select>
@@ -128,7 +128,7 @@
                     @for (p of permissionList; track p) {
                       <bit-option
                         [value]="p.perm"
-                        [label]="p.labelId | vfo1I18n: vfo1PermissionLabelId(p.labelId)"
+                        [label]="p.labelId | vfo1I18n: p.vfo1LabelId ?? p.labelId"
                       />
                     }
                   </bit-select>
@@ -137,17 +137,9 @@
                 @if (item.readonly || disabled()) {
                   <div
                     class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-medium tw-text-muted"
-                    [title]="
-                      permissionLabelId(item.readonlyPermission)
-                        | vfo1I18n
-                          : vfo1PermissionLabelId(permissionLabelId(item.readonlyPermission))
-                    "
+                    [title]="readonlyPermissionLabel(item.readonlyPermission)"
                   >
-                    {{
-                      permissionLabelId(item.readonlyPermission)
-                        | vfo1I18n
-                          : vfo1PermissionLabelId(permissionLabelId(item.readonlyPermission))
-                    }}
+                    {{ readonlyPermissionLabel(item.readonlyPermission) }}
                   </div>
                 }
               }
