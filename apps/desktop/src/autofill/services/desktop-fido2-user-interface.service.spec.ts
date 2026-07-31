@@ -1,6 +1,6 @@
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ModalModeState } from "../../platform/models/domain/window-state";
@@ -143,15 +144,15 @@ describe("DesktopFido2UserInterfaceSession", () => {
       masterPasswordRepromptRequired: false,
     };
 
-    it("returns the single cipher without showing UI when user presence is assumed", async () => {
+    it("returns the single cipher without showing UI when user presence is assumed and user verification is not required", async () => {
       await expect(
         session.pickCredential({
           cipherIds: ["cipher-1"],
-          userVerification: true,
+          userVerification: false,
           assumeUserPresence: true,
           masterPasswordRepromptRequired: false,
         }),
-      ).resolves.toEqual({ cipherId: "cipher-1", userVerified: true });
+      ).resolves.toEqual({ cipherId: "cipher-1", userVerified: false });
 
       expect(desktopSettingsService.setModalMode).not.toHaveBeenCalledWith(
         true,
@@ -355,6 +356,99 @@ describe("DesktopFido2UserInterfaceSession", () => {
         assumeUserPresence: false,
         masterPasswordRepromptRequired: true,
       });
+
+    /** Makes `singleCipherId` the only credential in the vault. */
+    const stubSingleCipher = () => {
+      const cipher = new CipherView();
+      cipher.id = singleCipherId;
+      cipherService.cipherListViews$.mockReturnValue(of([cipher] as unknown as CipherListView[]));
+    };
+
+    /** Picks the lone credential, which needs no picker UI. */
+    const pickSingleCredential = () =>
+      session.pickCredential({
+        cipherIds: [singleCipherId],
+        userVerification: true,
+        assumeUserPresence: false,
+        masterPasswordRepromptRequired: false,
+      });
+
+    it("returns the single cipher as verified when the OS verifies the user, without showing UI", async () => {
+      stubSingleCipher();
+      userVerificationService.verify.mockResolvedValue(true);
+
+      await expect(pickSingleCredential()).resolves.toEqual({
+        cipherId: singleCipherId,
+        userVerified: true,
+      });
+      expect(desktopSettingsService.setModalMode).not.toHaveBeenCalledWith(
+        true,
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("attaches the prompt to the client window while our own UI is hidden", async () => {
+      stubSingleCipher();
+      userVerificationService.verify.mockResolvedValue(true);
+
+      await pickSingleCredential();
+
+      expect(userVerificationService.verify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operation: "assertion",
+          rpId: "example.com",
+          requestContext: "request-context",
+          windowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("rejects the ceremony as NotAllowed when the user dismisses the silent prompt", async () => {
+      stubSingleCipher();
+      userVerificationService.verify.mockRejectedValue(new UserVerificationCanceled());
+
+      await expect(pickSingleCredential()).rejects.toMatchObject({
+        errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+      });
+    });
+
+    it("falls back to the picker when silent verification fails for a recoverable reason", async () => {
+      stubSingleCipher();
+      userVerificationService.verify.mockRejectedValueOnce(new Error("no biometrics enrolled"));
+      userVerificationService.verify.mockResolvedValue(true);
+
+      const result = pickSingleCredential();
+      await tick();
+      session.confirmChosenCipher(Object.assign(new CipherView(), { id: singleCipherId }));
+
+      await expect(result).resolves.toEqual({
+        cipherId: singleCipherId,
+        userVerified: true,
+      });
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(
+        true,
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("does not prompt when the user unlocked their vault during this ceremony", async () => {
+      stubSingleCipher();
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+
+      const unlocked = session.ensureUnlockedVault();
+      await tick();
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await unlocked;
+
+      await expect(pickSingleCredential()).resolves.toEqual({
+        cipherId: singleCipherId,
+        userVerified: true,
+      });
+      expect(userVerificationService.verify).not.toHaveBeenCalled();
+    });
 
     it("attaches the prompt to the Bitwarden window while our own UI is showing", async () => {
       userVerificationService.verify.mockResolvedValue(true);
