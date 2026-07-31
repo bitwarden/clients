@@ -3,25 +3,31 @@ import { OpenOrgInviteStatusResult } from "@bitwarden/common/auth/organization-i
 import { AnonLayoutWrapperData } from "@bitwarden/components";
 
 /**
- * UI descriptor produced by {@link openOrgInviteStatusErrorUi} for any classified
- * non-`ok` `OpenOrgInviteStatusResult`. Two-part payload so consumers can drive both
- * the anon-layout chrome (page title + icon) and their own template body without
+ * UI descriptor produced by {@link openOrgInviteStatusErrorUi} for any non-`ok`
+ * `OpenOrgInviteStatusResult`. Two-part payload so consumers can drive both the
+ * anon-layout chrome (page title + icon) and their own template body without
  * switching on the raw status kind themselves.
  */
 export interface OpenOrgInviteStatusErrorUi {
   anonLayoutData: AnonLayoutWrapperData;
   /** i18n key for the body-message paragraph that replaces the normal flow content. */
-  bodyMessageKey: string;
+  bodyMessageI18nKey: string;
+  /**
+   * Populated only for the `unexpected` kind — the raw server-side error detail. Pass to
+   * `LogService` for diagnostics; do not render it. The user sees only the generic copy
+   * behind `bodyMessageI18nKey`.
+   */
+  errorMessageToLog?: string;
 }
 
 /**
- * Maps a status-endpoint result to the shared UI descriptor for its classified failure
- * kinds. `ok` returns null (caller proceeds with the fresh status). `unexpected` rethrows
- * so the caller's generic error path — typically `AcceptFlowService`'s `failedMessage`
- * handling — surfaces the underlying message rather than a silently-classified failure.
+ * Maps a status-endpoint result to the shared UI descriptor for its non-`ok` kinds.
+ * `ok` returns null (caller proceeds with the fresh status). `unexpected` returns a
+ * generic-copy descriptor with `errorMessageToLog` populated so callers can log the raw
+ * detail without surfacing it to the user.
  *
- * Centralized here (rather than duplicated in the two consumer components) so any future
- * status kind, copy update, or icon swap lands in one place.
+ * Centralized here (rather than duplicated in the two consumer components) so any
+ * future status kind, copy update, or icon swap lands in one place.
  */
 export function openOrgInviteStatusErrorUi(
   status: OpenOrgInviteStatusResult,
@@ -38,7 +44,7 @@ export function openOrgInviteStatusErrorUi(
           pageTitle: { key: "openOrgInviteNotFoundTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openOrgInviteNotFoundMessage",
+        bodyMessageI18nKey: "openOrgInviteNotFoundMessage",
       };
     case "plan-not-supported":
       // TODO: placeholder — pending design. Icon + copy are stand-ins.
@@ -49,7 +55,7 @@ export function openOrgInviteStatusErrorUi(
           pageTitle: { key: "openOrgInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openOrgInvitePlanNotSupportedMessage",
+        bodyMessageI18nKey: "openOrgInvitePlanNotSupportedMessage",
       };
     case "no-seats":
       // TODO: placeholder — pending design. `status.organizationName` is available on
@@ -59,9 +65,19 @@ export function openOrgInviteStatusErrorUi(
           pageTitle: { key: "openOrgInviteNoSeatsTitle" },
           pageIcon: AccountWarning,
         },
-        bodyMessageKey: "openOrgInviteNoSeatsMessage",
+        bodyMessageI18nKey: "openOrgInviteNoSeatsMessage",
       };
     case "unexpected":
-      throw new Error(status.errorMessage);
+      // TODO: placeholder — pending design. Icon + copy stand-ins for the generic
+      // server-error surface. `errorMessageToLog` carries the raw server detail for
+      // LogService diagnostics; not shown to the user.
+      return {
+        anonLayoutData: {
+          pageTitle: { key: "openOrgInviteStatusUnexpectedErrorTitle" },
+          pageIcon: AccountWarning,
+        },
+        bodyMessageI18nKey: "openOrgInviteStatusUnexpectedErrorMessage",
+        errorMessageToLog: status.errorMessage,
+      };
   }
 }

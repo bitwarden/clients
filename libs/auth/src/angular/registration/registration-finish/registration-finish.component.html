@@ -8,14 +8,9 @@
       ></bit-icon>
     </div>
   }
-  @case (RegistrationFinishViewState.SealedOpenOrgInviteDecryptionFailed) {
-    <p data-testid="sealed-open-org-invite-decryption-failed-message">
-      {{ "registrationSealedOpenOrgInviteDecryptionFailedMessage" | i18n }}
-    </p>
-  }
-  @case (RegistrationFinishViewState.OpenOrgInviteStatusError) {
-    <p data-testid="open-org-invite-status-error-message">
-      {{ openOrgInviteStatusErrorMessageKey() | i18n }}
+  @case (RegistrationFinishViewState.Error) {
+    <p data-testid="registration-finish-error-message">
+      {{ errorMessageI18nKey() | i18n }}
     </p>
   }
   @case (RegistrationFinishViewState.PasswordForm) {

@@ -6218,6 +6218,12 @@
   "openOrgInvitePlanNotSupportedMessage": {
     "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
   },
+  "openOrgInviteStatusUnexpectedErrorTitle": {
+    "message": "Could not retrieve invitation status"
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "We're sorry. Something went wrong, we were unable to obtain the status of the organization invite."
+  },
   "openOrgInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },

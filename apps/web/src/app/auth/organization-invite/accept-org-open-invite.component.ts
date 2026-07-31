@@ -27,20 +27,22 @@ import { I18nPipe } from "@bitwarden/ui-common";
 /**
  * Discriminated render state for `AcceptOrgOpenInviteComponent`. Exactly one kind is
  * active at a time — the template `@switch (viewState())` renders the matching branch,
- * so mutual exclusion between spinner and each classified error is enforced by the type
+ * so mutual exclusion between spinner and the error state is enforced by the type
  * rather than by parallel boolean flags.
  *
  * `Loading` is also the terminal state on every non-error path: the component immediately
  * dispatches a `router.navigate(…)` (or gets replaced by a logout-driven redirect for
  * `stashed-for-mp-policy-detour`), so keeping the spinner up until Angular tears the view
  * down avoids a blank frame between init and navigation.
+ *
+ * `Error` is the shared terminal-failure state for both status-endpoint and accept-endpoint
+ * failure kinds. The specific title + icon come from
+ * `anonLayoutWrapperDataService.setAnonLayoutWrapperData(...)`; the body copy comes from
+ * `errorMessageI18nKey()`.
  */
 export const AcceptOrgOpenInviteViewState = Object.freeze({
   Loading: "loading",
-  NotFound: "not-found",
-  NoSeats: "no-seats",
-  PlanNotSupported: "plan-not-supported",
-  AcceptFailed: "accept-failed",
+  Error: "error",
 } as const);
 export type AcceptOrgOpenInviteViewState =
   (typeof AcceptOrgOpenInviteViewState)[keyof typeof AcceptOrgOpenInviteViewState];
@@ -69,6 +71,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   protected readonly viewState = signal<AcceptOrgOpenInviteViewState>(
     AcceptOrgOpenInviteViewState.Loading,
   );
+
+  // Body-message i18n key rendered by the `Error` view state. Empty string is only
+  // observable when `viewState()` is not `'error'`, in which case the template never
+  // reads this — the mutual exclusion is enforced by the discriminated view state.
+  protected readonly errorMessageI18nKey = signal<string>("");
 
   private readonly failedMessage = "openOrgInviteAcceptFailed";
 
@@ -107,12 +114,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   /**
-   * Fetches the open-org-invite status and delegates classified-failure anon-layout data to
-   * the shared {@link openOrgInviteStatusErrorUi} mapper so this component and the
-   * registration-crossing flow render identical UI for the same status kinds. Sets the
-   * matching per-kind signal for the template body branch and returns null so callers
-   * short-circuit. `unexpected` re-throws via the mapper into `AcceptFlowService`'s
-   * generic error path.
+   * Fetches the open-org-invite status and delegates non-`ok` UI to the shared
+   * {@link openOrgInviteStatusErrorUi} mapper so this component and the registration-crossing
+   * flow render identical UI for the same status kinds. Sets anon-layout chrome + the
+   * body-key signal and returns null so callers short-circuit. `unexpected` maps to a
+   * generic-copy descriptor; the raw server detail on the descriptor is logged, not shown.
    */
   private async fetchStatusOrShowError(
     organizationId: string,
@@ -132,18 +138,14 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     if (errorUi == null) {
       return null;
     }
-    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(errorUi.anonLayoutData);
-    switch (result.kind) {
-      case "not-found":
-        this.viewState.set(AcceptOrgOpenInviteViewState.NotFound);
-        break;
-      case "plan-not-supported":
-        this.viewState.set(AcceptOrgOpenInviteViewState.PlanNotSupported);
-        break;
-      case "no-seats":
-        this.viewState.set(AcceptOrgOpenInviteViewState.NoSeats);
-        break;
+    if (errorUi.errorMessageToLog != null) {
+      this.logService.warning(
+        `AcceptOrgOpenInviteComponent: open-org-invite status fetch failed: ${errorUi.errorMessageToLog}`,
+      );
     }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(errorUi.anonLayoutData);
+    this.errorMessageI18nKey.set(errorUi.bodyMessageI18nKey);
+    this.viewState.set(AcceptOrgOpenInviteViewState.Error);
     return null;
   }
 
@@ -257,16 +259,17 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   /**
-   * Sets the anon-layout page title + icon and transitions `viewState` to the given
-   * error kind. Central helper so every classified-error site (from `authedHandler` and
-   * `fetchStatusOrShowError`) sets both the layout chrome and the view state in one call.
+   * Sets the anon-layout page title + icon, the body-key signal, and transitions `viewState`
+   * to `Error`. Central helper so every failure site (from `authedHandler` and
+   * `fetchStatusOrShowError`) sets all three in one call.
    */
-  private showError(anonLayoutTitleKey: string, kind: AcceptOrgOpenInviteViewState): void {
+  private showError(anonLayoutTitleI18nKey: string, bodyMessageI18nKey: string): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageTitle: { key: anonLayoutTitleKey },
+      pageTitle: { key: anonLayoutTitleI18nKey },
       pageIcon: AccountWarning,
     });
-    this.viewState.set(kind);
+    this.errorMessageI18nKey.set(bodyMessageI18nKey);
+    this.viewState.set(AcceptOrgOpenInviteViewState.Error);
   }
 
   // TODO: placeholders — pending design. Anon-layout `openOrgInvite*Title` copy + the
@@ -276,18 +279,15 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   // for plan-not-supported and no-seats) are noted on the mapper and the authedHandler
   // call sites — they should land together across both the status and accept paths.
   private showNotFound(): void {
-    this.showError("openOrgInviteNotFoundTitle", AcceptOrgOpenInviteViewState.NotFound);
+    this.showError("openOrgInviteNotFoundTitle", "openOrgInviteNotFoundMessage");
   }
 
   private showPlanNotSupported(): void {
-    this.showError(
-      "openOrgInvitePlanNotSupportedTitle",
-      AcceptOrgOpenInviteViewState.PlanNotSupported,
-    );
+    this.showError("openOrgInvitePlanNotSupportedTitle", "openOrgInvitePlanNotSupportedMessage");
   }
 
   private showNoSeats(): void {
-    this.showError("openOrgInviteNoSeatsTitle", AcceptOrgOpenInviteViewState.NoSeats);
+    this.showError("openOrgInviteNoSeatsTitle", "openOrgInviteNoSeatsMessage");
   }
 
   // TODO: needs finalization. This is the catch-all state for classified accept-endpoint
@@ -297,6 +297,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   // `recovery-key-mismatch` is a specific security condition), which will splinter this
   // helper into a handful of per-kind ones.
   private showAcceptFailed(): void {
-    this.showError("openOrgInviteAcceptFailedTitle", AcceptOrgOpenInviteViewState.AcceptFailed);
+    this.showError("openOrgInviteAcceptFailedTitle", "openOrgInviteAcceptFailedMessage");
   }
 }

@@ -50,13 +50,17 @@ type MarketingInitiative = (typeof MarketingInitiative)[keyof typeof MarketingIn
 /**
  * Discriminated render state for `RegistrationFinishComponent`. Exactly one kind is
  * active at a time — the template `@switch (viewState())` renders the matching branch,
- * so mutual exclusion between "form", "spinner", and each error variant is enforced by
- * the type rather than by disciplined use of parallel boolean flags.
+ * so mutual exclusion between "form", "spinner", and the error state is enforced by the
+ * type rather than by disciplined use of parallel boolean flags.
+ *
+ * `Error` is the shared terminal-failure state for both the sealed-blob unseal path and
+ * the open-org-invite status-endpoint path. The specific title + icon come from
+ * `anonLayoutWrapperDataService.setAnonLayoutWrapperData(...)`; the body copy comes from
+ * `errorMessageI18nKey()`.
  */
 export const RegistrationFinishViewState = Object.freeze({
   Loading: "loading",
-  SealedOpenOrgInviteDecryptionFailed: "sealed-open-org-invite-decryption-failed",
-  OpenOrgInviteStatusError: "open-org-invite-status-error",
+  Error: "error",
   PasswordForm: "password-form",
 } as const);
 export type RegistrationFinishViewState =
@@ -125,11 +129,11 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     RegistrationFinishViewState.Loading,
   );
 
-  // Payload signal for `open-org-invite-status-error`. Empty string is only observable
-  // when `viewState()` is not `'open-org-invite-status-error'`, in which case the template
-  // never reads this — the mutual exclusion is enforced by the discriminated view state
-  // rather than by parallel independent flags.
-  protected readonly openOrgInviteStatusErrorMessageKey = signal<string>("");
+  // Body-message i18n key rendered by the `Error` view state. Empty string is only
+  // observable when `viewState()` is not `'error'`, in which case the template never
+  // reads this — the mutual exclusion is enforced by the discriminated view state rather
+  // than by parallel independent flags.
+  protected readonly errorMessageI18nKey = signal<string>("");
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
@@ -233,9 +237,14 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     );
     const statusErrorUi = openOrgInviteStatusErrorUi(statusResult);
     if (statusErrorUi != null) {
+      if (statusErrorUi.errorMessageToLog != null) {
+        this.logService.warning(
+          `RegistrationFinishComponent: open-org-invite status fetch failed: ${statusErrorUi.errorMessageToLog}`,
+        );
+      }
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(statusErrorUi.anonLayoutData);
-      this.openOrgInviteStatusErrorMessageKey.set(statusErrorUi.bodyMessageKey);
-      this.viewState.set(RegistrationFinishViewState.OpenOrgInviteStatusError);
+      this.errorMessageI18nKey.set(statusErrorUi.bodyMessageI18nKey);
+      this.viewState.set(RegistrationFinishViewState.Error);
       return false;
     }
 
@@ -290,7 +299,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       pageTitle: { key: "registrationSealedOpenOrgInviteDecryptionFailedTitle" },
       pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
-    this.viewState.set(RegistrationFinishViewState.SealedOpenOrgInviteDecryptionFailed);
+    this.errorMessageI18nKey.set("registrationSealedOpenOrgInviteDecryptionFailedMessage");
+    this.viewState.set(RegistrationFinishViewState.Error);
   }
 
   private handleQueryParams(qParams: Params) {

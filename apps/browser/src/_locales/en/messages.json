@@ -140,6 +140,12 @@
   "openOrgInviteNoSeatsMessage": {
     "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
   },
+  "openOrgInviteStatusUnexpectedErrorTitle": {
+    "message": "Could not retrieve invitation status"
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "We're sorry. Something went wrong, we were unable to obtain the status of the organization invite."
+  },
   "tab": {
     "message": "Tab"
   },

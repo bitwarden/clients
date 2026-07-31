@@ -4,22 +4,9 @@
       <bit-spinner variant="primary" size="lg" [title]="'loading' | i18n"></bit-spinner>
     </div>
   }
-  @case (AcceptOrgOpenInviteViewState.NoSeats) {
-    <p data-testid="open-org-invite-no-seats-message">{{ "openOrgInviteNoSeatsMessage" | i18n }}</p>
-  }
-  @case (AcceptOrgOpenInviteViewState.NotFound) {
-    <p data-testid="open-org-invite-not-found-message">
-      {{ "openOrgInviteNotFoundMessage" | i18n }}
-    </p>
-  }
-  @case (AcceptOrgOpenInviteViewState.PlanNotSupported) {
-    <p data-testid="open-org-invite-plan-not-supported-message">
-      {{ "openOrgInvitePlanNotSupportedMessage" | i18n }}
-    </p>
-  }
-  @case (AcceptOrgOpenInviteViewState.AcceptFailed) {
-    <p data-testid="open-org-invite-accept-failed-message">
-      {{ "openOrgInviteAcceptFailedMessage" | i18n }}
+  @case (AcceptOrgOpenInviteViewState.Error) {
+    <p data-testid="accept-org-open-invite-error-message">
+      {{ errorMessageI18nKey() | i18n }}
     </p>
   }
 }
