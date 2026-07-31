@@ -29,13 +29,15 @@
     @if (toggleInStartSlot()) {
       <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>
     } @else {
-      <!--
-        Forwarded consumer content (e.g. a `bit-icon-tile`). Only available when the collapse
-        toggle is not occupying the start slot, i.e. v2 top-level groups. `[slot=start]` on v1
-        groups or v2 nested groups (treeDepth > 0) is intentionally ignored.
-      -->
+      <!-- Consumer leading content, forwarded only for v2 top-level groups. -->
       <ng-container slot="start">
         <ng-content select="[slot=start]"></ng-content>
+      </ng-container>
+    }
+    <!-- ngProjectAs so the re-projected tile (invisible to static-node matching) reaches the item's tile slot. -->
+    @if (!toggleInStartSlot()) {
+      <ng-container ngProjectAs="bit-icon-tile">
+        <ng-content select="bit-icon-tile"></ng-content>
       </ng-container>
     }
     <ng-container slot="end">

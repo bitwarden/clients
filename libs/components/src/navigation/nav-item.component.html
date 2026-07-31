@@ -3,6 +3,8 @@
 @let interactiveElClass =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none !tw-text-fg-nav tw-text-start hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
+<!-- Declared before `startSlot` so an icon tile is matched as a tile, never as generic start content. -->
+<ng-template #iconTileSlot><ng-content select="bit-icon-tile"></ng-content></ng-template>
 <ng-template #startSlot><ng-content select="[slot=start]"></ng-content></ng-template>
 <ng-template #endSlot><ng-content select="[slot=end]"></ng-content></ng-template>
 
@@ -112,14 +114,8 @@
         data-spotlight-target
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
-          <!--
-            Non-tile leading start content (e.g. the collapse toggle) renders here, outside the
-            interactive element. An icon tile instead renders inside `anchorAndButtonContent` so it
-            is a real click target. There is only one `[slot=start]` ng-content, so it is outlet in
-            exactly one of the two positions — the guard (`hasStartIconTile`) is stable, whereas
-            branching on `open` would lose the projected content on the next collapse toggle.
-          -->
-          @if (open && !hasStartIconTile()) {
+          <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead. -->
+          @if (open) {
             <div>
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
@@ -185,9 +181,7 @@
       [class.tw-font-semibold]="showActiveStyles()"
     >
       <!-- Leading icon tile: inside the interactive element and, when collapsed, the sole rail glyph -->
-      @if (hasStartIconTile()) {
-        <ng-container *ngTemplateOutlet="startSlot"></ng-container>
-      }
+      <ng-container *ngTemplateOutlet="iconTileSlot"></ng-container>
       @if ((icon() || treeDepth() > 1) && (open || !hasStartIconTile())) {
         <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
           @if (icon()) {

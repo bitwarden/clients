@@ -32,7 +32,7 @@ import { SideNavService } from "./side-nav.service";
         <span slot="end">TRAILING</span>
       </bit-nav-group>
       <bit-nav-group text="Vault" [route]="['v']" [open]="true">
-        <bit-icon-tile slot="start" icon="bwi-star" data-testid="rail-tile"></bit-icon-tile>
+        <bit-icon-tile icon="bwi-star" data-testid="rail-tile"></bit-icon-tile>
         <bit-nav-item text="Child C" route="c"></bit-nav-item>
         <bit-nav-group text="Nested" [route]="['n']" [open]="true">
           <bit-nav-item text="Child D" route="d"></bit-nav-item>
@@ -181,7 +181,8 @@ describe("side-nav v1 content projection", () => {
     expect(tile.closest("[data-testid='nav-item-interactive']")).not.toBeNull();
   });
 
-  // Guards the single [slot=start] ng-content surviving repeated open/collapse toggles.
+  // The tile ng-content is stamped once inside the interactive element (not moved between two
+  // positions), so it survives repeated open/collapse toggles.
   it("keeps the start-slot tile across open->collapse->open toggles in v2", () => {
     vfo1Enabled.next(true);
     sideNavService.open.set(true);
@@ -192,6 +193,31 @@ describe("side-nav v1 content projection", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector("[data-testid='rail-tile']")).not.toBeNull();
+  });
+
+  // The tile is matched by its `bit-icon-tile` selector, not `slot="start"` — a forwarded tile with
+  // no slot attribute must still route into the group's interactive row.
+  it("routes a slot-less bit-icon-tile into the interactive element in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const tile = fixture.nativeElement.querySelector("[data-testid='rail-tile']");
+    expect(tile).not.toBeNull();
+    expect(tile.closest("[data-testid='nav-item-interactive']")).not.toBeNull();
+  });
+
+  // The forwarded tile is the group's own leading glyph — it must not fall through into the group's
+  // expandable child-item region (`role="group"`).
+  it("does not render the forwarded tile among the group's child items in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const submenus = fixture.nativeElement.querySelectorAll("[role='group']");
+    submenus.forEach((submenu: HTMLElement) => {
+      expect(submenu.querySelector("[data-testid='rail-tile']")).toBeNull();
+    });
   });
 
   // A nested group's collapse toggle also uses [slot=start], but a <button> must never nest inside

@@ -313,12 +313,7 @@ const RealisticTemplate: StoryObj<
           <bit-nav-item text="Vault" icon="bwi-lock" route="vault"></bit-nav-item>
           <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
           <bit-nav-group text="All items" route="all" [open]="true">
-            <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
-            <bit-nav-section label="Views">
-              <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
-              <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
-              <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
-            </bit-nav-section>
+            
             <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
               <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
               <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
@@ -373,7 +368,7 @@ export const RealisticSideNavV2: Story = {
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
           <bit-nav-group text="My vault" [open]="true">
-            <bit-icon-tile slot="start" icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
             <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>

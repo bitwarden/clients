@@ -266,10 +266,11 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
 };
 
 /**
- * A `bit-icon-tile` (or other leading content) can be projected into the `start` slot of a
- * top-level nav group. The start slot is only available for v2 top-level groups (this story
- * enables the VFO1Foundation flag) — the collapse toggle owns the start slot for v1 groups and
- * v2 nested groups.
+ * A `bit-icon-tile` projected into a top-level nav group becomes its leading glyph — no `slot`
+ * attribute needed, the tile is matched by its own selector. (Other leading content still uses
+ * `slot="start"`.) This is only available for v2 top-level groups (this story enables the
+ * VFO1Foundation flag) — the collapse toggle owns the leading position for v1 groups and v2
+ * nested groups.
  */
 export const WithStartSlot: StoryObj<NavGroupComponent> = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
@@ -278,12 +279,12 @@ export const WithStartSlot: StoryObj<NavGroupComponent> = {
     template: /*html*/ `
       <bit-side-nav>
         <bit-nav-group text="With Icon Tile" [route]="['a']">
-          <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+          <bit-icon-tile class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
           <bit-nav-item text="Child A" route="aa"></bit-nav-item>
           <bit-nav-item text="Child B" route="ab"></bit-nav-item>
         </bit-nav-group>
         <bit-nav-group text="Alongside an icon" [route]="['b']" icon="bwi-filter">
-          <bit-icon-tile slot="start" class="tw-me-2" icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
+          <bit-icon-tile class="tw-me-2" icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
           <bit-nav-item text="Child A" route="ba"></bit-nav-item>
           <bit-nav-item text="Child B" route="bb"></bit-nav-item>
         </bit-nav-group>
