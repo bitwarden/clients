@@ -11839,13 +11839,19 @@
     "message": "Collection management"
   },
   "sharedFolderManagement": {
-    "message": "Shared folder management"
+    "message": "Shared folders settings"
   },
   "collectionManagementDescription": {
     "message": "Configure the collection behavior for the organization"
   },
   "sharedFolderManagementDescription": {
-    "message": "Configure the shared folder behavior for the organization"
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Allow owners and admins to manage all collections and items from the Admin Console"
