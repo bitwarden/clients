@@ -58,7 +58,6 @@
     "t:feature": ["libs/common/src/enums/feature-flag.enum.ts"],
     "t:tech-debt": [],
     "t:ci": [
-      ".checkmarx/",
       ".github/",
       "scripts/",
       "apps/desktop/electron-builder.json",
