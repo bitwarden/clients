@@ -82,15 +82,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       firstValueFrom(this.route.queryParams),
     ]);
 
-    const hasPathParams = params.organizationId != null && params.inviteLinkCode != null;
-    if (!hasPathParams) {
-      // Bare `/join` landing with no context — silent redirect to root. Nothing to accept,
-      // no error to surface (user did not attempt anything actionable). Leave `viewState`
-      // as `Loading` so the spinner stays up through the navigation.
-      await this.router.navigate(["/"], { replaceUrl: true });
-      return;
-    }
-
     await this.acceptFlowService.run<OpenOrgInviteLinkData>(
       { ...params, ...qParams },
       {
