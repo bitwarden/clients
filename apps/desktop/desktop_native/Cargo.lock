@@ -492,7 +492,7 @@ dependencies = [
  "bitwarden-crypto",
  "bitwarden-random",
  "bitwarden-sensitive-value",
- "chacha20poly1305 0.10.1",
+ "chacha20poly1305",
  "desktop_core",
  "rand_core 0.10.1",
  "scopeguard",
@@ -559,7 +559,7 @@ dependencies = [
  "bitwarden-random",
  "bitwarden-sensitive-value",
  "cbc 0.2.1",
- "chacha20poly1305 0.11.0-rc.3",
+ "chacha20poly1305",
  "ciborium",
  "coset",
  "ed25519-dalek 3.0.0-rc.1",
@@ -688,10 +688,10 @@ dependencies = [
 name = "bitwarden_chromium_import_helper"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "base64",
- "chacha20poly1305 0.10.1",
+ "chacha20poly1305",
  "chromium_importer",
  "clap",
  "embed-resource",
@@ -926,22 +926,9 @@ dependencies = [
 
 [[package]]
 name = "chacha20poly1305"
-version = "0.10.1"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
-dependencies = [
- "aead 0.5.2",
- "chacha20 0.9.1",
- "cipher 0.4.4",
- "poly1305 0.8.0",
- "zeroize",
-]
-
-[[package]]
-name = "chacha20poly1305"
-version = "0.11.0-rc.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c9ed179664f12fd6f155f6dd632edf5f3806d48c228c67ff78366f2a0eb6b5e"
+checksum = "9b89e1c441e926b9c82a8d023f6e1b7ae0adcfaa7d621814e4d60789bac751cb"
 dependencies = [
  "aead 0.6.1",
  "chacha20 0.10.1",
@@ -955,7 +942,7 @@ name = "chromium_importer"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "anyhow",
  "async-trait",
  "base64",
@@ -1512,7 +1499,6 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
- "aes-gcm 0.10.3",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
@@ -1535,6 +1521,9 @@ dependencies = [
  "secmem-proc",
  "security-framework",
  "security-framework-sys",
+ "serde",
+ "serde_json",
+ "serde_with",
  "sha2 0.10.9",
  "ssh-key",
  "sysinfo",
@@ -1544,6 +1533,7 @@ dependencies = [
  "tracing",
  "typenum",
  "widestring",
+ "win_webauthn",
  "windows 0.62.2",
  "zbus",
  "zeroizing-alloc",
@@ -2257,14 +2247,17 @@ name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+dependencies = [
+ "foldhash 0.2.0",
+]
 
 [[package]]
 name = "hashlink"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "824e001ac4f3012dd16a264bec811403a67ca9deb6c102fc5049b32c4574b35f"
+checksum = "32069d97bb81e38fa67eab65e3393bf804bb85969f2bc06bf13f64aef5aba248"
 dependencies = [
- "hashbrown 0.16.1",
+ "hashbrown 0.17.1",
 ]
 
 [[package]]
@@ -2804,9 +2797,9 @@ dependencies = [
 
 [[package]]
 name = "libsqlite3-sys"
-version = "0.37.0"
+version = "0.38.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1f111c8c41e7c61a49cd34e44c7619462967221a6443b0ec299e0ac30cfb9b1"
+checksum = "f6c19a05435c21ac299d71b6a9c13db3e3f47c520517d58990a462a1397a61db"
 dependencies = [
  "cc",
  "pkg-config",
@@ -4172,9 +4165,9 @@ dependencies = [
 
 [[package]]
 name = "rusqlite"
-version = "0.39.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0d2b0146dd9661bf67bb107c0bb2a55064d556eeb3fc314151b957f313bcd4e"
+checksum = "11438310b19e3109b6446c33d1ed5e889428cf2e278407bc7896bc4aaea43323"
 dependencies = [
  "bitflags",
  "fallible-iterator",
@@ -4456,7 +4449,7 @@ dependencies = [
 name = "secure_memory"
 version = "0.0.0"
 dependencies = [
- "aes-gcm 0.10.3",
+ "aes-gcm 0.11.0",
  "linux-keyutils",
  "memsec",
  "rand 0.9.3",
@@ -6295,8 +6288,7 @@ version = "0.0.0"
 dependencies = [
  "autofill_provider",
  "base64",
- "serde",
- "serde_json",
+ "desktop_core",
  "tracing",
  "tracing-subscriber",
  "win_webauthn",

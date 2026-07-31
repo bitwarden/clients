@@ -185,7 +185,10 @@ async function createComponent(
       { provide: ConfigService, useValue: configService },
       { provide: ValidationService, useValue: validationService },
       { provide: LogService, useValue: logService },
-      { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+      {
+        provide: Vfo1TerminologyService,
+        useValue: { enabled: () => false, iconClass: (icon: string) => icon },
+      },
     ],
   }).compileComponents();
 
