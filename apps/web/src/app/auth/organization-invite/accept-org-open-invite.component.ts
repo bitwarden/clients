@@ -25,20 +25,10 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Discriminated render state for `AcceptOrgOpenInviteComponent`. Exactly one kind is
- * active at a time — the template `@switch (viewState())` renders the matching branch,
- * so mutual exclusion between spinner and the error state is enforced by the type
- * rather than by parallel boolean flags.
- *
- * `Loading` is also the terminal state on every non-error path: the component immediately
- * dispatches a `router.navigate(…)` (or gets replaced by a logout-driven redirect for
- * `stashed-for-mp-policy-detour`), so keeping the spinner up until Angular tears the view
- * down avoids a blank frame between init and navigation.
- *
- * `Error` is the shared terminal-failure state for both status-endpoint and accept-endpoint
- * failure kinds. The specific title + icon come from
- * `anonLayoutWrapperDataService.setAnonLayoutWrapperData(...)`; the body copy comes from
- * `errorMessageI18nKey()`.
+ * Render state for `AcceptOrgOpenInviteComponent`, exactly one active at a time.
+ * `Loading` is also the terminal state on non-error paths so the spinner stays
+ * visible until navigation tears the view down. `Error` is the shared terminal
+ * state for every failure the component surfaces.
  */
 export const AcceptOrgOpenInviteViewState = Object.freeze({
   Loading: "loading",
