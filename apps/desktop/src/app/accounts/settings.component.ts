@@ -134,9 +134,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
-  /** Controls whether the quick copy actions setting is shown, matching the vault list feature. */
+  /** Controls whether the quick copy actions setting is shown */
   protected readonly showQuickCopyActionsSetting = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM28091_AddCopyAndQuickLaunchActions),
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
     { initialValue: false },
   );
 
