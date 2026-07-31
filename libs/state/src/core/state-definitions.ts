@@ -116,6 +116,16 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
+  web: "disk-local",
+});
 
 // Platform
 
@@ -247,13 +257,6 @@ export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
 );
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
-export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
-  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",

@@ -50,13 +50,17 @@ export class TabsV2Component {
   private healthEnabled$ = this.userId$.pipe(
     switchMap((userId) => this.healthAccessService.healthEnabled$(userId)),
   );
+  private healthTabOpened$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthHasBeenOpened$(userId)),
+  );
 
   protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
     this.healthEnabled$.pipe(startWith(false)),
+    this.healthTabOpened$.pipe(startWith(true)),
   ]).pipe(
-    map(([showBerry, sendEnabled, healthEnabled]) => {
+    map(([showBerry, sendEnabled, healthEnabled, healthTabOpened]) => {
       const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
@@ -87,7 +91,7 @@ export class TabsV2Component {
                 page: "/tabs/health",
                 icon: HealthInactive,
                 iconActive: HealthActive,
-                showBerry: true, // TODO: only show berry when the User has not yet run a health report (PM-39075)
+                showBerry: !healthTabOpened,
               } as BottomNavigationButton,
             ]
           : []),

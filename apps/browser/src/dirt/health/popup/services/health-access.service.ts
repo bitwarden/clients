@@ -10,6 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
+import { HEALTH_TAB_VIEWED_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 /**
  * Service responsible for determining access to the browser extension Health report feature.
@@ -18,10 +19,9 @@ import { ToastService } from "@bitwarden/components";
   providedIn: "root",
 })
 export class HealthAccessService {
-  constructor(
-    private configService: ConfigService,
-    private organizationService: OrganizationService,
-  ) {}
+  private configService = inject(ConfigService);
+  private organizationService = inject(OrganizationService);
+  private stateProvider = inject(StateProvider);
 
   /**
    * Given a UserId, returns an observable that emits true when the User has access to the Health report feature.
@@ -55,7 +55,37 @@ export class HealthAccessService {
       map(([healthFlagEnabled, userHasHealthAccess]) => healthFlagEnabled && userHasHealthAccess),
     );
   }
+
+  /**
+   * Given a UserId, returns an observable that emits true/false based on whether the User has opened the Health report feature.
+   *
+   * @param userId A User's ID.
+   * @returns An observable that emits true if the User has opened the Health report feature, false otherwise.
+   */
+  healthHasBeenOpened$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUserState$(HEALTH_TAB_OPENED_KEY, userId)
+      .pipe(map((hasBeenOpened) => hasBeenOpened ?? false));
+  }
+
+  /**
+   * For the provided UserId, updates a flag that indicates the User has navigated into the Health report feature.
+   *
+   * @param userId - A User's ID.
+   */
+  async setHealthHasBeenOpened(userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(HEALTH_TAB_OPENED_KEY, true, userId);
+  }
 }
+
+const HEALTH_TAB_OPENED_KEY = new UserKeyDefinition<boolean>(
+  HEALTH_TAB_VIEWED_DISK,
+  "healthTabOpened",
+  {
+    deserializer: (value) => value ?? false,
+    clearOn: [],
+  },
+);
 
 export const canAccessHealth: CanActivateFn = () => {
   const router = inject(Router);
