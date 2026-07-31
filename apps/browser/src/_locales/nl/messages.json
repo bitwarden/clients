@@ -1367,16 +1367,16 @@
   "additionalOptions": {
     "message": "Extra instellingen"
   },
-  "enableFillAssist": {
-    "message": "Invulassistent gebruiken"
+  "fillAssistActiveNotice": {
+    "message": "Autofill gebruikt invulassistentie op deze pagina."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Invulassistent inschakelen"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "Invulassistent verbetert de nauwkeurigheid op ondersteunde websites door sitespecifieke regels te gebruiken. Er worden geen gegevens verzameld of opgeslagen wanneer je deze functie gebruikt."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "Over invulassistent"
   },
   "enableContextMenuItem": {
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "Mijn mappen"
+  },
+  "addSharedFolder": {
+    "message": "Gedeelde map toevoegen"
+  },
+  "newSharedFolder": {
+    "message": "Nieuwe gedeelde map"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Met Bitwarden voor Business kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com."
@@ -2594,6 +2600,92 @@
     "message": "Wissen",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Alle rijen selecteren"
+  },
+  "selectRow": {
+    "message": "Rij selecteren"
+  },
+  "showingItemRange": {
+    "message": "Toont $START$ - $END$ van $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rijen per pagina"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rijen per pagina",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Alle"
+  },
+  "clearAll": {
+    "message": "Alles wissen"
+  },
+  "done": {
+    "message": "Klaar"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ geselecteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Vorige pagina"
+  },
+  "nextPage": {
+    "message": "Volgende pagina"
+  },
+  "goToPage": {
+    "message": "Ga naar pagina"
+  },
+  "ofPageCount": {
+    "message": "van $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Geen overeenkomende items"
+  },
   "selected": {
     "message": "Geselecteerd"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Risicovolle wachtwoorden"
+  },
+  "atRisk": {
+    "message": "in gevaar",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ vraagt je om één wachtwoord te wijzigen omdat deze een risico vormt.",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Website-prefix toevoegen",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Wanneer ingeschakeld, zal het huidige domein van de website worden gebruikt als prefix voor het gegenereerde e-mailadres",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Hostnaam",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item wordt overgeslagen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "De volgende items konden niet worden gelezen en zullen niet worden meegenomen met je import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Kon deze SSH-sleutel niet importeren"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Niet-ondersteund itemtype"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Kon dit item niet importeren"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "Contact"
@@ -5466,6 +5591,12 @@
   "removePasskey": {
     "message": "Passkey verwijderen"
   },
+  "deletePasskey": {
+    "message": "Passkey verwijderen"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Deze passkey zal permanent worden verwijderd uit je inlogitem. Je kunt dit niet ongedaan maken."
+  },
   "passkeyRemoved": {
     "message": "Passkey verwijderd"
   },
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Eigenaar"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Gedeelde map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collectie $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Mijn map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Eigenaar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kluis $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Jij",
@@ -7034,6 +7219,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Wanneer ingeschakeld, wordt de ontgrendelstatus gedeeld met Bitwarden webkluizen."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Gedeelde ontgrendelen is niet beschikbaar omdat je ervoor hebt gekozen dit apparaat niet te onthouden. Probeer opnieuw aan te melden om deze instelling in te schakelen."
+  },
   "newPermissionNeeded": {
     "message": "Nieuwe machtiging vereist"
   },
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Gezondheid"
   }
 }

@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
@@ -15,9 +16,11 @@ describe("AddItemGridComponent", () => {
   let fixture: ComponentFixture<AddItemGridComponent>;
 
   const restricted$ = new BehaviorSubject<any[]>([]);
+  const vfo1Enabled = signal(false);
 
   beforeEach(async () => {
     restricted$.next([]);
+    vfo1Enabled.set(false);
 
     await TestBed.configureTestingModule({
       imports: [AddItemGridComponent, NoopAnimationsModule],
@@ -27,7 +30,10 @@ describe("AddItemGridComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$ },
         },
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: vfo1Enabled },
+        },
       ],
     }).compileComponents();
   });
@@ -129,6 +135,20 @@ describe("AddItemGridComponent", () => {
 
     const items = component["items"]();
     expect(items.map((i) => i.labelKey)).toContain("collection");
+  });
+
+  it("labels the collection tile as a shared folder when the VFO1 terminology flag is on", () => {
+    vfo1Enabled.set(true);
+
+    createComponent({
+      canCreateFolder: false,
+      canCreateCollection: true,
+      canCreateSshKey: false,
+    });
+
+    const items = component["items"]();
+    expect(items.map((i) => i.labelKey)).toContain("sharedFolder");
+    expect(items.map((i) => i.labelKey)).not.toContain("collection");
   });
 
   it("hides collection when canCreateCollection=false", () => {
