@@ -10,6 +10,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -49,6 +50,11 @@ import { RowHeightClass } from "./vault-items.component";
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  protected readonly quickCopyIconFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
 
   protected RowHeightClass = RowHeightClass;
 
