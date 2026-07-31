@@ -1,6 +1,5 @@
-import { Discount } from "..";
-
 import { Credit } from "./credit";
+import { Discount } from "./discount";
 
 export type CartItem = {
   translationKey: string;
