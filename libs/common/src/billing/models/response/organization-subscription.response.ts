@@ -3,12 +3,13 @@
 import { OrganizationResponse } from "../../../admin-console/models/response/organization.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
-import { PlanResponse } from "./plan.response";
+import { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
 import {
-  BillingSubscriptionItemResponse,
   BillingSubscriptionResponse,
   BillingSubscriptionUpcomingInvoiceResponse,
 } from "./subscription.response";
+
+export { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
 
 export class OrganizationSubscriptionResponse extends OrganizationResponse {
   storageName: string;
@@ -65,22 +66,5 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.appliesTo = this.getResponseProperty("AppliesTo") || [];
     this.isFromSchedule = this.getResponseProperty("IsFromSchedule") ?? false;
-  }
-}
-
-export class PendingAnnualUpgradeResponse extends BaseResponse {
-  plan: PlanResponse;
-  lineItems: BillingSubscriptionItemResponse[] = [];
-  effectiveDate: Date;
-
-  constructor(response: any) {
-    super(response);
-    const plan = this.getResponseProperty("Plan");
-    this.plan = plan == null ? null : new PlanResponse(plan);
-    const lineItems = this.getResponseProperty("LineItems");
-    if (lineItems != null) {
-      this.lineItems = lineItems.map((i: any) => new BillingSubscriptionItemResponse(i));
-    }
-    this.effectiveDate = new Date(this.getResponseProperty("EffectiveDate"));
   }
 }
