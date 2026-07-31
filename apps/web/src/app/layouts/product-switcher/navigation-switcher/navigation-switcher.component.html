@@ -48,6 +48,7 @@
       </div>
     </ng-template>
     <div
+      role="none"
       class="tw-flex tw-flex-col tw-gap-1"
       [style.width]="'calc(' + sideNavWidthRem() + 'rem - 32px)'"
     >
@@ -75,7 +76,7 @@
     @if (moreProducts && moreProducts.length > 0) {
       <div slot="footer">
         @for (more of moreProducts; track more.name) {
-          <div>
+          <div role="none">
             @if (more.marketingRoute.external) {
               <!-- <a> for when the marketing route is external -->
               <a
