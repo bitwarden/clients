@@ -10,6 +10,8 @@ import {
 import { BaseResponse } from "../../../models/response/base.response";
 import { SubscriptionCadence, SubscriptionCadenceIds } from "../../types/subscription-pricing-tier";
 
+import { DiscountResponse } from "./discount.response";
+
 const PlanTiers: readonly PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
 export class InvoicePreviewItemResponse extends BaseResponse implements InvoicePreviewItem {
@@ -28,13 +30,13 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
 
-    // Discount members are serialized camelCase (`type`, `value`, `amount`, `label`) per the
-    // PM-39925/PM-39926 preview contract, unlike the PascalCase enclosing fields, so array
-    // elements pass through raw rather than through the PascalCase-aware `DiscountResponse`.
-    // The same contract applies to the top-level `InvoicePreviewResponse.discounts`.
+    // Discount members are serialized PascalCase like the enclosing fields, per the
+    // PM-39925/PM-39926 preview contract. `DiscountResponse` tolerates either casing via
+    // `getResponseProperty`, so a serializer surprise degrades gracefully instead of leaving
+    // every member `undefined`. The same contract applies to `InvoicePreviewResponse.discounts`.
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
-      this.discounts = discounts;
+      this.discounts = discounts.map((discount: any) => new DiscountResponse(discount));
     }
   }
 }
@@ -151,7 +153,7 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
 
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
-      this.discounts = discounts;
+      this.discounts = discounts.map((discount: any) => new DiscountResponse(discount));
     }
 
     const startingBalance = this.getResponseProperty("StartingBalance");

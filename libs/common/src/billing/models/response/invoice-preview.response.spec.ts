@@ -7,7 +7,7 @@ describe("InvoicePreviewResponse", () => {
         Reference: "pm-seat",
         Quantity: 5,
         Cost: 50,
-        Discounts: [{ type: "percent-off", value: 20, amount: 50 }],
+        Discounts: [{ Type: "percent-off", Value: 20, Amount: 50 }],
       },
       AdditionalStorage: { Reference: "pm-storage", Quantity: 2, Cost: 10 },
       Prorations: [{ Credit: 12.5, Charge: 30, Tax: 1.5, Total: 19, Months: 6 }],
@@ -19,7 +19,7 @@ describe("InvoicePreviewResponse", () => {
     },
     Cadence: "monthly",
     PlanTier: "teams",
-    Discounts: [{ type: "amount-off", value: 15, amount: 15, label: "Loyalty" }],
+    Discounts: [{ Type: "amount-off", Value: 15, Amount: 15, Label: "Loyalty" }],
     StartingBalance: -250,
     EstimatedTax: 9.6,
     Total: 259.6,
@@ -36,9 +36,12 @@ describe("InvoicePreviewResponse", () => {
         quantity: 5,
         cost: 50,
       });
-      expect(response.passwordManager.seats.discounts).toEqual([
-        { type: "percent-off", value: 20, amount: 50 },
-      ]);
+      expect(response.passwordManager.seats.discounts).toHaveLength(1);
+      expect(response.passwordManager.seats.discounts![0]).toMatchObject({
+        type: "percent-off",
+        value: 20,
+        amount: 50,
+      });
       expect(response.passwordManager.additionalStorage).toMatchObject({
         reference: "pm-storage",
         quantity: 2,
@@ -61,9 +64,13 @@ describe("InvoicePreviewResponse", () => {
 
       expect(response.cadence).toBe("monthly");
       expect(response.planTier).toBe("teams");
-      expect(response.discounts).toEqual([
-        { type: "amount-off", value: 15, amount: 15, label: "Loyalty" },
-      ]);
+      expect(response.discounts).toHaveLength(1);
+      expect(response.discounts![0]).toMatchObject({
+        type: "amount-off",
+        value: 15,
+        amount: 15,
+        label: "Loyalty",
+      });
       expect(response.startingBalance).toBe(-250);
       expect(response.estimatedTax).toBe(9.6);
       expect(response.total).toBe(259.6);
