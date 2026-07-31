@@ -1,37 +1,20 @@
 /**
- * Result contract returned by `OrganizationInviteService.acceptOpenOrgInvite`.
- * The service classifies known outcomes into typed kinds so consumers can
- * `switch` exhaustively instead of catching an error object and inspecting it.
- *
- * Client-side kinds:
- *  - `accepted` — the accept call succeeded and the invite has been cleared.
- *  - `stashed-for-mp-policy-detour` — the org has an MP policy the user hasn't
- *    yet satisfied. The invite is stashed and the user has been logged out; the
- *    caller need not take further action.
- *
- * SDK-native kind:
- *  - `recovery-key-mismatch` — the account-recovery public key returned by the
- *    server did not match the org public key thumbprint bound into the invite,
- *    so the SDK refused to enroll. Distinct security condition; means the org
- *    key was substituted.
- *
- * Server-classified kinds — mirror the errors defined at:
- *  - `server/src/Core/AdminConsole/OrganizationFeatures/InviteLinks/Errors.cs`
- *  - `server/src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AcceptMembership/Errors.cs`
- *  - `server/src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AutoConfirmUser/Errors.cs`
- *  - `server/src/Core/AdminConsole/OrganizationFeatures/Policies/PolicyRequirements/Errors/SingleOrganizationPolicyErrors.cs`
- *
- * The accept call is owned by the SDK (`InviteLinkClient.accept_and_optionally_confirm`),
- * which surfaces HTTP failures as a display-formatted string of the form
- * `Received error message from server: [{status}] {server-message}`. The classifier
- * unwraps that once and then matches on the exact server strings below — the union
- * type IS the server contract. Any message change or unrecognized status falls
- * through to `unexpected` and the server's raw text is surfaced, so failures
- * degrade gracefully instead of breaking.
+ * Result returned by `OrganizationInviteService.acceptOpenOrgInvite`. Consumers should
+ * `switch` on `kind` exhaustively; `unexpected` catches unclassified failures so
+ * consumers always have a case to render.
  */
 export type AcceptOpenOrgInviteResult =
+  /** Accept call succeeded and the stashed invite has been cleared. */
   | { kind: "accepted" }
+  /**
+   * Org has a master-password policy the user hasn't yet satisfied. The invite is
+   * stashed and the user has been logged out; the caller need not take further action.
+   */
   | { kind: "stashed-for-mp-policy-detour" }
+  /**
+   * Account-recovery public key returned by the server did not match the org public
+   * key thumbprint bound into the invite; indicates key substitution.
+   */
   | { kind: "recovery-key-mismatch" }
   | { kind: "link-not-found" }
   | { kind: "plan-not-supported" }
@@ -40,11 +23,29 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "org-access-revoked" }
   | { kind: "no-seats" }
   | { kind: "two-factor-required" }
+  /**
+   * User is subject to a single-organization policy from another org that prevents
+   * joining a second one.
+   */
   | { kind: "single-org-policy-violation" }
+  /**
+   * User is subject to an auto-confirm policy from another org that prevents this
+   * membership.
+   */
   | { kind: "auto-confirm-policy-violation" }
+  /** Provider users cannot join organizations via invite link. */
   | { kind: "provider-user" }
+  /** User can only be an admin of one free organization. */
   | { kind: "free-admin-limit" }
+  /**
+   * Org requires reset-password enrollment on accept but the client did not supply
+   * the required key.
+   */
   | { kind: "reset-password-key-required" }
+  /**
+   * Fallback for unclassified failures (unknown status, unrecognized message, non-error
+   * throws). `errorMessage` carries a best-effort user-facing string.
+   */
   | { kind: "unexpected"; errorMessage: string };
 
 /**
