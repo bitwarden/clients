@@ -1,6 +1,8 @@
 <form [formGroup]="updateLicenseForm" [bitSubmit]="submit">
   <bit-file-upload formControlName="file">
-    <bit-label>{{ "licenseFile" | i18n }}</bit-label>
+    <bit-label [class.tw-sr-only]="!showAutomaticSyncAndManualUpload">{{
+      "licenseFile" | i18n
+    }}</bit-label>
     <bit-hint>{{
       "licenseFileDesc"
         | i18n
