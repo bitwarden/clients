@@ -56,24 +56,54 @@
     [bitSubmit]="submitCollectionManagement"
     [formGroup]="collectionManagementFormGroup"
   >
-    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "collectionManagement" | i18n }}</h1>
-    <p bitTypography="body1">{{ "collectionManagementDescription" | i18n }}</p>
+    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">
+      {{ "collectionManagement" | vfo1I18n: "sharedFolderManagement" }}
+    </h1>
+    <p bitTypography="body1">
+      {{ "collectionManagementDescription" | vfo1I18n: "sharedFolderManagementDescription" }}
+      <a
+        bitLink
+        href="https://bitwarden.com/help/collection-management/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        {{
+          "learnMoreAboutCollectionManagement" | vfo1I18n: "learnMoreAboutSharedFolderManagement"
+        }}
+        <bit-icon name="bwi-external-link"></bit-icon>
+      </a>
+    </p>
     <bit-form-control>
-      <bit-label>{{ "allowAdminAccessToAllCollectionItemsDescription" | i18n }}</bit-label>
+      <bit-label>
+        {{
+          "allowAdminAccessToAllCollectionItemsDescription"
+            | vfo1I18n: "allowAdminAccessToAllSharedFoldersDescription"
+        }}
+      </bit-label>
       <input type="checkbox" bitCheckbox formControlName="allowAdminAccessToAllCollectionItems" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "restrictCollectionCreationDescription" | i18n }}</bit-label>
+      <bit-label>
+        {{
+          "restrictCollectionCreationDescription"
+            | vfo1I18n: "restrictSharedFolderCreationDescription"
+        }}
+      </bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionCreation" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "restrictCollectionDeletionDescription" | i18n }}</bit-label>
+      <bit-label>
+        {{
+          "restrictCollectionDeletionDescription"
+            | vfo1I18n: "restrictSharedFolderDeletionDescription"
+        }}
+      </bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
     </bit-form-control>
     <bit-form-control>
       <bit-label>
         {{ "restrictItemDeletionDescriptionStart" | i18n }}
-        <span class="tw-italic">{{ "manageCollection" | i18n }}</span>
+        <span class="tw-italic">{{ "manageCollection" | vfo1I18n: "manage" }}</span>
         {{ "restrictItemDeletionDescriptionEnd" | i18n }}
       </bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
