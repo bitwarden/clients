@@ -1367,16 +1367,16 @@
   "additionalOptions": {
     "message": "Ďalšie možnosti"
   },
-  "enableFillAssist": {
-    "message": "Pomáhať pri vypĺňaní"
+  "fillAssistActiveNotice": {
+    "message": "Automatické vypĺňanie na tejto stránke využíva pomoc pri vypĺňaní."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Zapnúť pomoc pri vypĺňaní"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "Info o pomoci pri vypĺňaní"
   },
   "enableContextMenuItem": {
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "Moje priečinky"
+  },
+  "addSharedFolder": {
+    "message": "Pridať zdieľaný priečinok"
+  },
+  "newSharedFolder": {
+    "message": "Nový zdieľaný priečinok"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pre podniky vám umožňuje zdieľať položky trezoru s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com."
@@ -2594,6 +2600,92 @@
     "message": "Vyčistiť",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Vybrať všetky riadky"
+  },
+  "selectRow": {
+    "message": "Vybrať riadok"
+  },
+  "showingItemRange": {
+    "message": "Zobrazuje sa $START$ – $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Riadkov na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ riadkov na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položiek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Všetko"
+  },
+  "clearAll": {
+    "message": "Vyčistiť všetko"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "Vybrané: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Predchádzajúca stránka"
+  },
+  "nextPage": {
+    "message": "Ďalšia stránka"
+  },
+  "goToPage": {
+    "message": "Prejsť na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žiadne zodpovedajúce položky"
+  },
   "selected": {
     "message": "Vybrané"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Rizikové heslá"
+  },
+  "atRisk": {
+    "message": "v ohrození",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ vás žiada o zmenu hesla, pretože je ohrozené.",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Pridať predponu webovej stránky",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ak je táto funkcia zapnutá, doména aktuálnej webovej stránky sa použije ako predpona pre vygenerovanú e-mailovú adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Názov hostiteľa",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude preskočená",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Nasledujúce položky sa nepodarilo načítať a nebudú zahrnuté do importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento kľúč SSH sa nepodarilo importovať"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Túto položku sa nepodarilo importovať"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -5466,6 +5591,12 @@
   "removePasskey": {
     "message": "Odstrániť prístupový kľúč"
   },
+  "deletePasskey": {
+    "message": "Odstrániť prístupový kľúč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento prístupový kľúč bude natrvalo odstránený z položky prihlásenia. Túto akciu nie je možné vrátiť späť."
+  },
   "passkeyRemoved": {
     "message": "Prístupový kľúč bol odstránený"
   },
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Zdieľaný priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Zbierka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Môj priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Vy",
@@ -7034,6 +7219,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s webovým trezorom."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Funkcia zdieľaného odomknutia nie je k dispozícii, pretože ste sa rozhodli nezapamätať si toto zariadenie. Ak chcete túto funkciu aktivovať, skúste sa prihlásiť znova."
+  },
   "newPermissionNeeded": {
     "message": "Vyžaduje sa nové povolenie"
   },
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Zdravie"
   }
 }

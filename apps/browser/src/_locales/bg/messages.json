@@ -1367,16 +1367,16 @@
   "additionalOptions": {
     "message": "Допълнителни настройки"
   },
-  "enableFillAssist": {
-    "message": "Използване на асистираното попълване"
+  "fillAssistActiveNotice": {
+    "message": "Автоматичното попълване използва асистираното попълване на тази страница."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Включване на асистираното попълване"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, чрез използване на определени правила. Никакви данни не се събират или съхраняват, когато използвате тази функционалност."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "Относно асистираното попълване"
   },
   "enableContextMenuItem": {
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "Моите папки"
+  },
+  "addSharedFolder": {
+    "message": "Добавяне на споделена папка"
+  },
+  "newSharedFolder": {
+    "message": "Нова споделена папка"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Битуорден за бизнеса позволява да споделяте части от трезора си чрез използването на организация. Научете повече в уеб сайта bitwarden.com."
@@ -2594,11 +2600,97 @@
     "message": "Изчистване",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Избиране на всички редове"
+  },
+  "selectRow": {
+    "message": "Избиране на реда"
+  },
+  "showingItemRange": {
+    "message": "Показани: $START$ – $END$ от $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Редове на страница"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ реда на страница",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Всички"
+  },
+  "clearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "done": {
+    "message": "Готово"
+  },
+  "filter": {
+    "message": "Филтриране"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ избрани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предходна страница"
+  },
+  "nextPage": {
+    "message": "Следваща страница"
+  },
+  "goToPage": {
+    "message": "Към страница"
+  },
+  "ofPageCount": {
+    "message": "от $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Няма съвпадащи елементи"
+  },
   "selected": {
     "message": "Избрано"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "избрани",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Пароли в риск"
+  },
+  "atRisk": {
+    "message": "в риск",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ изисква да промените една парола, тъй като е в риск.",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавяне на преставка на уеб сайт",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Когато това е включено, домейнът на текущия уеб сайт ще се използва като представка за създадения адрес на е-поща",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Име на сървъра",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ елемент ще бъде пропуснат",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Тези обекти не могат да бъдат прочетени и няма да бъдат включени в импорта:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Този SSH ключ не може да бъде внесен"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдържан вид елемент"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Този елемент не може да бъде внесен"
+  },
+  "identifier": {
+    "message": "Идентификатор"
   },
   "contact": {
     "message": "Контакт"
@@ -5466,6 +5591,12 @@
   "removePasskey": {
     "message": "Премахване на секретния ключ"
   },
+  "deletePasskey": {
+    "message": "Изтриване на секретния ключ"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Секретният ключ ще бъде изтрит завинаги от записа за вписване. Това действие е необратимо."
+  },
   "passkeyRemoved": {
     "message": "Секретният ключ е премахнат"
   },
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Собственик"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Споделена папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Колекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моята папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Собственик $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Трезор $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Вие",
@@ -7034,6 +7219,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Когато е включено, отключеното състояние ще се споделя с трезорите по уеб на Битуорден."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Споделеното отключване не е налично, тъй като сте избрали това устройство да не се запомня. Ако искате да включите тази настройка, впишете се отново."
+  },
   "newPermissionNeeded": {
     "message": "Необходимо е ново разрешение"
   },
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Здраве"
   }
 }

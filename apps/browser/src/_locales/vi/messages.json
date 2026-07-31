@@ -1367,17 +1367,17 @@
   "additionalOptions": {
     "message": "Tùy chọn bổ sung"
   },
-  "enableFillAssist": {
-    "message": "Sử dụng hỗ trợ điền"
+  "fillAssistActiveNotice": {
+    "message": "Tự động điền đang sử dụng Hỗ trợ điền trên trang này.\n"
   },
-  "turnOnFillAssist": {
-    "message": "Bật hỗ trợ điền"
+  "activateFillAssist": {
+    "message": "Bật Hỗ trợ điền"
   },
-  "enableFillAssistDescription": {
-    "message": "Hỗ trợ điền giúp cải thiện độ chính xác của tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng của trang web. Không có dữ liệu nào được thu thập hoặc lưu lại khi bạn sử dụng tính năng này."
+  "activateFillAssistDescription": {
+    "message": "Hỗ trợ điền cải thiện độ chính xác tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng cho từng trang. Không có dữ liệu nào bị thu thập hoặc lưu trữ khi bạn sử dụng tính năng này."
   },
-  "aboutFillAssist": {
-    "message": "Giới thiệu về hỗ trợ điền"
+  "aboutFillAssistLabel": {
+    "message": "Giới thiệu về Hỗ trợ điền"
   },
   "enableContextMenuItem": {
     "message": "Hiển thị tuỳ chọn menu ngữ cảnh"
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "Thư mục của tôi"
+  },
+  "addSharedFolder": {
+    "message": "Thêm thư mục chia sẻ"
+  },
+  "newSharedFolder": {
+    "message": "Thư mục chia sẻ mới"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden cho Doanh Nghiệp cho phép bạn chia sẻ các mục trong kho mật khẩu với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com."
@@ -2594,6 +2600,92 @@
     "message": "Xoá",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Chọn tất cả các hàng"
+  },
+  "selectRow": {
+    "message": "Chọn hàng"
+  },
+  "showingItemRange": {
+    "message": "Đang hiển thị $START$ - $END$ trong tổng số $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Số hàng trên mỗi trang"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ hàng trên mỗi trang",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ mục",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Tất cả"
+  },
+  "clearAll": {
+    "message": "Xoá tất cả"
+  },
+  "done": {
+    "message": "Xong"
+  },
+  "filter": {
+    "message": "Bộ lọc"
+  },
+  "filtersSelected": {
+    "message": "Đã chọn $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Trang trước"
+  },
+  "nextPage": {
+    "message": "Trang tiếp theo"
+  },
+  "goToPage": {
+    "message": "Đi đến trang"
+  },
+  "ofPageCount": {
+    "message": "của $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Không có mục nào phù hợp"
+  },
   "selected": {
     "message": "Đã chọn"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Mật khẩu có rủi ro cao"
+  },
+  "atRisk": {
+    "message": "có rủi ro",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ yêu cầu bạn thay đổi mật khẩu vì mật khẩu hiện tại đang gặp rủi ro.",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Thêm tiền tố trang web",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Khi bật, tên miền của trang web hiện tại sẽ được dùng làm tiền tố cho địa chỉ email được tạo",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Tên máy chủ",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ mục sẽ bị bỏ qua",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Không thể đọc các mục sau đây và chúng sẽ không được bao gồm trong dữ liệu nhập của bạn:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Không thể nhập khóa SSH này"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Loại mục không được hỗ trợ"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Không thể nhập mục này"
+  },
+  "identifier": {
+    "message": "Định danh"
   },
   "contact": {
     "message": "Danh bạ"
@@ -5466,6 +5591,12 @@
   "removePasskey": {
     "message": "Xóa mã khoá"
   },
+  "deletePasskey": {
+    "message": "Xóa mã khóa"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Mã khóa này sẽ bị xóa vĩnh viễn khỏi mục đăng nhập của bạn. Hành động này không thể hoàn tác."
+  },
   "passkeyRemoved": {
     "message": "Đã xóa mã khoá"
   },
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Chủ sở hữu"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Thư mục chia sẻ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Bộ sưu tập $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Thư mục của tôi $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Thư mục $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Chủ sở hữu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kho lưu trữ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Bạn",
@@ -7020,7 +7205,7 @@
     "message": "Xác minh người dùng thất bại."
   },
   "sharedUnlock": {
-    "message": "Cùng mở khóa"
+    "message": "Chia sẻ trạng thái mở khóa"
   },
   "sharedUnlockWithDesktop": {
     "message": "Chia sẻ trạng thái mở khóa với ứng dụng máy tính"
@@ -7034,11 +7219,14 @@
   "sharedUnlockWithWebDescription": {
     "message": "Khi được bật, trạng thái mở khóa sẽ được chia sẻ với các kho lưu trữ web Bitwarden."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Chia sẻ trạng thái mở khóa không khả dụng vì bạn đã chọn không lưu thiết bị này. Để bật cài đặt này, hãy thử đăng nhập lại."
+  },
   "newPermissionNeeded": {
     "message": "Cần có quyền mới"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "Để sử dụng tính năng cùng mở khóa, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
+    "message": "Để sử dụng tính năng chia sẻ trạng thái mở khóa, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
   },
   "sharedUnlockDesktopPermissionWarning": {
     "message": "Bitwarden sẽ khóa và tải lại. Sau khi bạn phê duyệt, tiện ích mở rộng sẽ tải lại và sẽ khóa kho lưu trữ của bạn."
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Sức khoẻ"
   }
 }

@@ -1367,16 +1367,16 @@
   "additionalOptions": {
     "message": "Kiegészítő opciók"
   },
-  "enableFillAssist": {
-    "message": "Kitöltési segédlet használata"
+  "fillAssistActiveNotice": {
+    "message": "Az automatikus kitöltés a Kitöltési segédet használja ezen az oldalon."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Kitöltési segéd bekapcsolása"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "A kitöltési segédl a webhely specifikus szabályok használatával javítja az automatikus kitöltési pontosságot a támogatott webhelyeken. A funkció használatakor nincs adat gyűjtés vagy mentés."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "A kitöltési segédről"
   },
   "enableContextMenuItem": {
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "Saját mappák"
+  },
+  "addSharedFolder": {
+    "message": "Megosztott mappa hozzadása"
+  },
+  "newSharedFolder": {
+    "message": "Új megosztott mappa"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
@@ -2594,6 +2600,92 @@
     "message": "Kiürítés",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Összes sor kiválasztása"
+  },
+  "selectRow": {
+    "message": "Sor kiválasztása"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$ / $TOTAL$ megjelenítése",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Sorok száma oldalanként"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ sor oldalanként",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ elem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Összes"
+  },
+  "clearAll": {
+    "message": "Összes törlése"
+  },
+  "done": {
+    "message": "Kész"
+  },
+  "filter": {
+    "message": "Szűrő"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ lett kiválasztva.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Előző oldal"
+  },
+  "nextPage": {
+    "message": "Következő oldal"
+  },
+  "goToPage": {
+    "message": "Ugrás oldalra:"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nincsenek egyező elemek."
+  },
   "selected": {
     "message": "Kiválasztva"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
+  },
+  "atRisk": {
+    "message": "veszélyben",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ egy jelszó megváltoztatását kéri, mert az kockázatos.",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Webhely előtag hozzáadása",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ha engedélyezve van, az aktuális webhely tartománya a generált email cím előtagjaként kerül felhasználásra.",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Kiszolglónév",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ elem kimarad.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "A következő elemeket nem sikerült olvasni és nem szerepelnek az importálásban:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Ezt az SSH kulcsot nem sikerült importálni."
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nem támogatott elemtípus."
+  },
+  "importSkipReasonGeneric": {
+    "message": "Ezt az elemet nem sikerült importálni."
+  },
+  "identifier": {
+    "message": "Azonosító"
   },
   "contact": {
     "message": "Kapcsolat"
@@ -5466,6 +5591,12 @@
   "removePasskey": {
     "message": "Jelszó eltávolítása"
   },
+  "deletePasskey": {
+    "message": "Belépőkulcs törlése"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Ez a belépőkulcs véglegesen törlődik a bejelentkezési elemből. Ezt nem lehet visszavonni."
+  },
   "passkeyRemoved": {
     "message": "A jelszó eltávolításra került."
   },
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Tulajdonos"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Megosztott mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Gyűjtemény $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Saját mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Tulajdonos $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Széf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Saját magam",
@@ -7034,6 +7219,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Ha engedélyezve van, a feloldási állapot megosztásra kerül a Bitwarden web széffel."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "A megosztott feloldás nem érhető el, mert azt választottuk, hogy nem emlékszünk erre az eszközre. A beállítás engedélyezéséhez próbáljunk meg újra bejelentkezni."
+  },
   "newPermissionNeeded": {
     "message": "Új jogosultság szükséges"
   },
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Egészség"
   }
 }
