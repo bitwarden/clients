@@ -102,4 +102,27 @@ export class OrganizationInvite {
     }
     return new OrganizationInvite(json);
   }
+
+  /**
+   * Rebuilds the accept-organization URL emitted by the server for this invite. Symmetric
+   * inverse of {@link fromUrlParams} - every field the server encodes into the emailed
+   * link (including `organizationId`) lives in the query string; the route itself takes
+   * no path parameters. Used to persist a post-login redirect target when accept must
+   * detour through re-authentication (e.g., MP-policy enforcement).
+   */
+  toAcceptOrgUrl(): string {
+    const params = new URLSearchParams({
+      organizationId: this.organizationId,
+      organizationUserId: this.organizationUserId,
+      email: this.email,
+      organizationName: this.organizationName,
+      token: this.token,
+      initOrganization: String(this.initOrganization),
+      orgUserHasExistingUser: String(this.orgUserHasExistingUser),
+    });
+    if (this.orgSsoIdentifier != null) {
+      params.set("orgSsoIdentifier", this.orgSsoIdentifier);
+    }
+    return `/accept-organization?${params.toString()}`;
+  }
 }

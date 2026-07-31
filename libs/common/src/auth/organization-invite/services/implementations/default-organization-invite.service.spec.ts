@@ -4,6 +4,9 @@ import { BehaviorSubject } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutService } from "@bitwarden/auth/common";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -28,7 +31,7 @@ import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../../platform/abstractions/log.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { OrgKey } from "../../../../types/key";
-import { AuthService } from "../../../abstractions/auth.service";
+import { DeepLinkRedirectService } from "../../../deep-link-redirect";
 import { OrganizationInvite } from "../../models/organization-invite";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
@@ -36,7 +39,7 @@ import { DefaultOrganizationInviteService } from "./default-organization-invite.
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;
   let apiService: MockProxy<ApiService>;
-  let authService: MockProxy<AuthService>;
+  let logoutService: MockProxy<LogoutService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
@@ -47,10 +50,11 @@ describe("DefaultOrganizationInviteService", () => {
   let i18nService: MockProxy<I18nService>;
   let globalStateProvider: FakeGlobalStateProvider;
   let configService: MockProxy<ConfigService>;
+  let deepLinkRedirectService: MockProxy<DeepLinkRedirectService>;
 
   beforeEach(() => {
     apiService = mock();
-    authService = mock();
+    logoutService = mock();
     keyService = mock();
     encryptService = mock();
     policyApiService = mock();
@@ -61,10 +65,11 @@ describe("DefaultOrganizationInviteService", () => {
     i18nService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
     configService = mock();
+    deepLinkRedirectService = mock();
 
     sut = new DefaultOrganizationInviteService(
       apiService,
-      authService,
+      logoutService,
       keyService,
       encryptService,
       policyApiService,
@@ -75,6 +80,7 @@ describe("DefaultOrganizationInviteService", () => {
       i18nService,
       globalStateProvider,
       configService,
+      deepLinkRedirectService,
     );
   });
 
@@ -139,7 +145,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
     });
@@ -180,7 +186,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
-    it("logs out the user and stores the invite when a master password policy check is required", async () => {
+    it("stashes + persists + logs out on the paste-URL MP-policy detour", async () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([
         {
@@ -192,7 +198,15 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(invite, activeUserId);
 
       expect(result).toBe(false);
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
+      expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
+        invite.toAcceptOrgUrl(),
+      );
+      // Persist must happen before logout so any state-clearing side effects of logout
+      // cannot wipe the URL the deep-link guard will replay after re-auth.
+      expect(
+        deepLinkRedirectService.persistPostLoginRedirectUrl.mock.invocationCallOrder[0],
+      ).toBeLessThan(logoutService.logout.mock.invocationCallOrder[0]);
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
@@ -211,7 +225,7 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(providedInvite, activeUserId);
 
       expect(result).toBe(false);
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(providedInvite);
     });
@@ -226,7 +240,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
     });
@@ -275,7 +289,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     it("accepts the invite and enrolls when autoenroll is enabled", async () => {
@@ -317,7 +331,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     describe("acceptAndInitOrganization encryption guards", () => {
