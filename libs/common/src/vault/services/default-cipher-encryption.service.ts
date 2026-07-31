@@ -142,6 +142,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
 
+          // The SDK round trip drops the client-only PAM markers; re-attach them from the
+          // source cipher so gating surfaces still see them on the decrypted view.
+          clientCipherView.partialData = cipher.partialData;
+          clientCipherView.leaseGated = cipher.leaseGated;
+
           // Decrypt Fido2 credentials if available
           if (
             clientCipherView.type === CipherType.Login &&
@@ -191,6 +196,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             try {
               const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
               const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
+
+              // Re-attach the client-only PAM markers dropped by the SDK round trip;
+              // see CipherView.partialData.
+              clientCipherView.partialData = cipher.partialData;
+              clientCipherView.leaseGated = cipher.leaseGated;
 
               // Handle FIDO2 credentials if present
               if (

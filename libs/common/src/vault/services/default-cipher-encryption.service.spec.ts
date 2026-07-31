@@ -540,6 +540,22 @@ describe("DefaultCipherEncryptionService", () => {
       );
       expect(Fido2CredentialView.fromSdkFido2CredentialView).toHaveBeenCalledTimes(1);
     });
+
+    it("re-attaches the client-only PAM markers the SDK round trip drops", async () => {
+      cipherObj.partialData = '{"Name":"enc-name"}';
+      cipherObj.leaseGated = true;
+
+      mockSdkClient.vault().ciphers().decrypt.mockReturnValue(sdkCipherView);
+      jest.spyOn(CipherView, "fromSdkCipherView").mockReturnValue({
+        id: cipherId as string,
+        type: CipherType.Login,
+      } as CipherView);
+
+      const result = await cipherEncryptionService.decrypt(cipherObj, userId);
+
+      expect(result.partialData).toBe('{"Name":"enc-name"}');
+      expect(result.leaseGated).toBe(true);
+    });
   });
 
   describe("decryptManyLegacy", () => {
@@ -580,6 +596,28 @@ describe("DefaultCipherEncryptionService", () => {
       expect(failedDecryptions).toEqual([]);
       expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
+    });
+
+    it("re-attaches the client-only PAM markers the SDK round trip drops", async () => {
+      const gated = new Cipher(cipherData);
+      gated.partialData = '{"Name":"enc-name"}';
+      gated.leaseGated = true;
+
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt.mockReturnValue({ id: cipherId } as unknown as SdkCipherView);
+      jest
+        .spyOn(CipherView, "fromSdkCipherView")
+        .mockReturnValue({ id: cipherId as string } as CipherView);
+
+      const [successfulDecryptions] = await cipherEncryptionService.decryptManyLegacy(
+        [gated],
+        userId,
+      );
+
+      expect(successfulDecryptions[0].partialData).toBe('{"Name":"enc-name"}');
+      expect(successfulDecryptions[0].leaseGated).toBe(true);
     });
   });
 

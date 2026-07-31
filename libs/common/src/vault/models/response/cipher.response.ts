@@ -53,6 +53,14 @@ export class CipherResponse extends BaseResponse {
   reprompt: CipherRepromptType;
   key: string;
   data?: string;
+  /**
+   * Raw JSON-string payload the server returns on PAM-gated rows in place of the
+   * sensitive fields: the encrypted name and, for logins, the encrypted URIs.
+   * Its presence is the "this row is gated" marker used by the vault-row badge
+   * and the cipher-open gate. Distinct from {@link data}, which carries the full
+   * (blob-encrypted) payload for ciphers the caller may open.
+   */
+  partialData: string | null = null;
 
   constructor(response: any) {
     super(response);
@@ -135,5 +143,32 @@ export class CipherResponse extends BaseResponse {
     this.reprompt = this.getResponseProperty("Reprompt") || CipherRepromptType.None;
     this.key = this.getResponseProperty("Key") || null;
     this.data = this.getResponseProperty("Data");
+
+    // PAM gated rows ship a `partialData` JSON blob in place of the sensitive fields.
+    // Keep the raw string as the gating marker, and lift the encrypted `Name` from the
+    // blob into the top-level `name` so the standard cipher decrypt path can decrypt it
+    // like any other cipher name.
+    const partialData = this.getResponseProperty("PartialData");
+    if (partialData != null) {
+      this.partialData =
+        typeof partialData === "string" ? partialData : JSON.stringify(partialData);
+      try {
+        const parsed = JSON.parse(this.partialData);
+        if (parsed?.Name != null && this.name == null) {
+          this.name = parsed.Name;
+        }
+        // Likewise lift the encrypted login URIs so the partial view exposes a domain
+        // (favicon, launch). Only `Uris` ships in the blob — the secret login fields
+        // (password, TOTP, …) stay gated — so the decrypted partial view gains a domain
+        // but no credentials. Build the login from `Uris` alone so an expanded blob can
+        // never leak more onto the gated view.
+        if (this.type === CipherType.Login && this.login == null && parsed?.Uris?.length > 0) {
+          this.login = new LoginApi({ Uris: parsed.Uris });
+        }
+      } catch {
+        // Malformed blob — leave name as-is. The cipher renders with an empty name, but
+        // the gating signal (partialData) is still preserved, so it stays gated.
+      }
+    }
   }
 }
