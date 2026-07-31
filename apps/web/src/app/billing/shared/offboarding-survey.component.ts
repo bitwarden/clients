@@ -124,6 +124,9 @@ export class OffboardingSurveyComponent implements OnInit {
   protected readonly isBusiness: boolean;
 
   private readonly configService = inject(ConfigService);
+  private readonly organizationBillingClient = inject(OrganizationBillingClient);
+  private readonly logService = inject(LogService);
+  private readonly currencyPipe = inject(CurrencyPipe);
 
   protected readonly annualUpgradeOffer = signal<AnnualUpgradeOfferResponseModel | null>(null);
   // The business-reason `value` strings are legacy backend cancellation codes that do
@@ -151,12 +154,9 @@ export class OffboardingSurveyComponent implements OnInit {
     private readonly dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
     private readonly formBuilder: FormBuilder,
     private readonly billingApiService: BillingApiService,
-    private readonly organizationBillingClient: OrganizationBillingClient,
     private readonly i18nService: I18nService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly toastService: ToastService,
-    private readonly logService: LogService,
-    private readonly currencyPipe: CurrencyPipe,
   ) {
     this.isBusiness = this.isBusinessPlan();
 
