@@ -38,6 +38,7 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  private readonly _hasPremium: boolean;
   // TODO: PM-32419 - remove once multi client password management is fully rolled out
   private readonly _multiClientPasswordManagement: boolean;
   // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
@@ -50,6 +51,7 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    hasPremium: boolean,
     multiClientPasswordManagement: boolean = false,
     private shell: SafeShell,
     desktopAddDevices: boolean = false,
@@ -60,6 +62,7 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    this._hasPremium = hasPremium;
     // TODO: PM-32419 - remove once multi client password management is fully rolled out
     this._multiClientPasswordManagement = multiClientPasswordManagement;
     // TODO: PM-34438 - remove this assignment
@@ -71,7 +74,8 @@ export class AccountMenu implements IMenubarMenu {
       label: this.localize("premiumMembership"),
       click: () => this.sendMessage("openPremium"),
       id: "premiumMembership",
-      visible: !isWindowsStore() && !isMacAppStore(),
+      // Only an upgrade path — hidden once the user already has premium (PM-39452).
+      visible: !isWindowsStore() && !isMacAppStore() && !this._hasPremium,
       enabled: !this._isLocked,
     };
   }
