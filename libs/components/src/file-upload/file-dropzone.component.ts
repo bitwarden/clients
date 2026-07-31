@@ -255,29 +255,36 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   }
 
   protected onDragEnter(event: DragEvent): void {
+    // Cancel before the disabled check: an element only becomes a valid drop target if its
+    // drag handlers call preventDefault. Skipping it on a disabled dropzone would let the
+    // browser fall back to its default file-drop action and navigate the tab to the file.
+    event.preventDefault();
+    event.stopPropagation();
     if (this.disabled()) {
       return;
     }
-    event.preventDefault();
-    event.stopPropagation();
     this.dragDepth.update((d) => d + 1);
     this.isDragOver.set(true);
   }
 
   protected onDragOver(event: DragEvent): void {
-    if (this.disabled()) {
-      return;
-    }
     event.preventDefault();
     event.stopPropagation();
+    if (this.disabled()) {
+      // Keep the "not allowed" cursor so the disabled state still reads correctly.
+      if (event.dataTransfer != null) {
+        event.dataTransfer.dropEffect = "none";
+      }
+      return;
+    }
   }
 
   protected onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
     if (this.disabled()) {
       return;
     }
-    event.preventDefault();
-    event.stopPropagation();
     this.dragDepth.update((d) => d - 1);
     if (this.dragDepth() <= 0) {
       this.dragDepth.set(0);

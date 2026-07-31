@@ -62,6 +62,13 @@ function selectFiles(fixture: ComponentFixture<HostComponent>, files: File[]): v
   fixture.detectChanges();
 }
 
+/** The drag-and-drop area, located by its drag listeners rather than a brittle DOM path. */
+function dropzone(fixture: ComponentFixture<HostComponent>) {
+  return fixture.debugElement
+    .queryAll(By.all())
+    .find((de) => de.listeners.some((l) => l.name === "dragover"))!;
+}
+
 describe("FileDropzoneComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -227,6 +234,21 @@ describe("FileDropzoneComponent", () => {
     dropzone.click();
 
     expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  it("cancels dragover while disabled so the browser does not navigate to the dropped file", () => {
+    host.control.disable();
+    fixture.detectChanges();
+
+    const event = {
+      preventDefault: jest.fn(),
+      stopPropagation: jest.fn(),
+      dataTransfer: { dropEffect: "copy" },
+    };
+    dropzone(fixture).triggerEventHandler("dragover", event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(event.dataTransfer.dropEffect).toBe("none");
   });
 
   it("shows an error once a required control is touched", () => {
