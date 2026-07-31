@@ -3764,7 +3764,7 @@
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "启用后，当前网站的域名将被用作生成的电子邮箱地址的前缀",
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
