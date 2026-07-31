@@ -38,6 +38,15 @@ export interface SdkRecordMapper<ClientType, SdkType> {
   userKeyDefinition(): UserKeyDefinition<Record<string, ClientType>>;
   toSdk(value: ClientType): SdkType;
   fromSdk(value: SdkType): ClientType;
+  /**
+   * Optional predicate to exclude entries from the SDK-visible view of state.
+   * Returning `false` makes {@link RepositoryRecord.get} return null and excludes
+   * the entry from {@link RepositoryRecord.list}. Use for records the SDK cannot
+   * represent, so it never has to parse them. Writes are unaffected — the entry
+   * still lives in client state and can be read through the client's own services.
+   * Defaults to including everything.
+   */
+  shouldInclude?(value: ClientType): boolean;
 }
 
 /**
@@ -67,12 +76,20 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   async get(id: string): Promise<SdkType | null> {
     const record = await this.getRecord();
     const element = record[id];
-    return element ? this.mapper.toSdk(element) : null;
+    if (!element || this.mapper.shouldInclude?.(element) === false) {
+      return null;
+    }
+    return this.mapper.toSdk(element);
   }
 
   async list(): Promise<SdkType[]> {
     const record = await this.getRecord();
-    return Object.values(record).map((element) => this.mapper.toSdk(element));
+    const elements = Object.values(record);
+    const included =
+      this.mapper.shouldInclude != null
+        ? elements.filter((element) => this.mapper.shouldInclude!(element))
+        : elements;
+    return included.map((element) => this.mapper.toSdk(element));
   }
 
   async set(id: string, value: SdkType): Promise<void> {
