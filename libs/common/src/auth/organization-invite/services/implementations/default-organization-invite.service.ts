@@ -723,53 +723,61 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return enabled && options.autoEnrollEnabled;
   }
 
-  private async directInviteMasterPasswordPolicyCheckRequired(
-    invite: DirectOrganizationInvite,
+  /**
+   * Whether this invite requires the user to re-authenticate against the org's
+   * master-password policy before it can be accepted.
+   *
+   * @param invite - The invite being validated.
+   * @param readStash - Returns the invite stashed on a prior re-authentication
+   *   attempt, or null if none exists.
+   * @param matchesStash - Whether a stashed invite pertains to the same invite as
+   *   the one being validated; a mismatch is treated as stale.
+   * @returns True when the user must be re-authenticated before the invite can be
+   *   accepted.
+   */
+  private async masterPasswordPolicyCheckRequired<T extends OrganizationInvite>(
+    invite: T,
+    readStash: () => Promise<T | null>,
+    matchesStash: (stored: T) => boolean,
   ): Promise<boolean> {
     const policies = await this.getOrgPoliciesForInvite(invite);
-
     if (policies == null || policies.length === 0) {
       return false;
     }
     const hasMasterPasswordPolicy = policies.some(
       (p) => p.type === PolicyType.MasterPassword && p.enabled,
     );
-
-    // Read only the direct-invite stash. A stashed open org invite must not count as
-    // "policy already checked" for this direct invite — they represent different
-    // ceremonies and cannot share a detour breadcrumb.
-    let storedInvite = await this.getDirectOrgInvite();
-    if (storedInvite != null && storedInvite.email !== invite.email) {
-      // Different-email stash is stale for this invite; clear so the detour fires fresh.
-      await this.clearOrganizationInvite();
-      storedInvite = null;
+    if (!hasMasterPasswordPolicy) {
+      return false;
     }
-    // If we don't have an org invite stored, we know the user hasn't been redirected
-    // yet to check the MP policy.
-    const hasNotCheckedMasterPasswordYet = storedInvite == null;
-    return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
+
+    const storedInvite = await readStash();
+    if (storedInvite != null && !matchesStash(storedInvite)) {
+      // Stale same-kind stash from a different ceremony; clear so the detour fires fresh.
+      await this.clearOrganizationInvite();
+      return true;
+    }
+    // No stash → user hasn't been redirected through the MP check yet.
+    return storedInvite == null;
   }
 
-  private async openOrgInviteMasterPasswordPolicyCheckRequired(
+  private directInviteMasterPasswordPolicyCheckRequired(
+    invite: DirectOrganizationInvite,
+  ): Promise<boolean> {
+    return this.masterPasswordPolicyCheckRequired(
+      invite,
+      () => this.getDirectOrgInvite(),
+      (stored) => stored.email === invite.email,
+    );
+  }
+
+  private openOrgInviteMasterPasswordPolicyCheckRequired(
     invite: OpenOrganizationInvite,
   ): Promise<boolean> {
-    const policies = await this.getOrgPoliciesForInvite(invite);
-    if (policies == null || policies.length === 0) {
-      return false;
-    }
-    const hasMasterPasswordPolicy = policies.some(
-      (p) => p.type === PolicyType.MasterPassword && p.enabled,
+    return this.masterPasswordPolicyCheckRequired(
+      invite,
+      () => this.getOpenOrgInvite(),
+      (stored) => stored.inviteLinkCode === invite.inviteLinkCode,
     );
-
-    // Read only the open-org-invite stash. A stashed direct invite must not count as
-    // "policy already checked" for this open org invite. Open invites carry no user
-    // identity, so the same-kind mismatch signal is inviteLinkCode.
-    let storedInvite = await this.getOpenOrgInvite();
-    if (storedInvite != null && storedInvite.inviteLinkCode !== invite.inviteLinkCode) {
-      await this.clearOrganizationInvite();
-      storedInvite = null;
-    }
-    const hasNotCheckedMasterPasswordYet = storedInvite == null;
-    return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
   }
 }

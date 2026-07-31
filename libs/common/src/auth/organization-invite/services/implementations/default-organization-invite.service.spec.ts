@@ -888,6 +888,42 @@ describe("DefaultOrganizationInviteService", () => {
       expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
     });
 
+    it("accepts when the org enforces an MP policy but a matching open org invite is already stashed", async () => {
+      const open = createOpenOrgInvite({ organizationId });
+      // Pre-store the invite to indicate the user has already passed the MP policy check.
+      await sut.setOrganizationInvite(open);
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+
+      expect(result).toEqual({ kind: "accepted" });
+      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalled();
+      expect(await sut.getOrganizationInvite()).toBeNull();
+    });
+
+    it("clears the stored open org invite when a master password policy check is required but the stored open invite's inviteLinkCode doesn't match the provided one", async () => {
+      const stashedOpen = createOpenOrgInvite({ inviteLinkCode: "different-link-code" });
+      const providedOpen = createOpenOrgInvite({ organizationId });
+      await sut.setOrganizationInvite(stashedOpen);
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+
+      const result = await sut.acceptOpenOrgInvite(providedOpen, activeUserId);
+
+      expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
+      expect(authService.logOut).toHaveBeenCalled();
+      expect(await sut.getOrganizationInvite()).toEqual(providedOpen);
+      expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
+    });
+
     /**
      * Classifier cases — each rejection maps to a kind on {@link AcceptOpenOrgInviteResult}.
      * The 400-branch server messages mirror the strings defined in
