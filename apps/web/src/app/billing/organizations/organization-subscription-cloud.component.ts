@@ -173,7 +173,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       // items instead of the still-active monthly ones. Classify Password Manager vs. Secrets
       // Manager against the scheduled plan's seat price so the label matches the shown items.
       const effectivePlan = this.sub?.pendingAnnualUpgrade?.plan ?? this.sub?.plan;
-      this.lineItems = this.sub?.pendingAnnualUpgrade?.lineItems ?? this.sub?.subscription?.items;
+      this.lineItems =
+        this.sub?.pendingAnnualUpgrade?.lineItems ?? this.sub?.subscription?.items ?? [];
 
       if (this.lineItems && this.lineItems.length) {
         this.lineItems = this.lineItems
