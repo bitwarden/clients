@@ -25,9 +25,19 @@ function transform(browser) {
     let manifest = JSON.parse(buffer.toString());
 
     manifest = transformPrefixes(manifest, browser);
+    manifest = transformChannel(manifest);
 
     return JSON.stringify(manifest, null, 2);
   };
+}
+
+// Beta builds route the extension name through a channel-specific i18n message
+// key so translators can localize the beta variant alongside the stable one.
+function transformChannel(manifest) {
+  if (process.env.CHANNEL === "beta") {
+    manifest.name = "__MSG_extNameBeta__";
+  }
+  return manifest;
 }
 
 const browsers = ["chrome", "edge", "firefox", "opera", "safari"];
