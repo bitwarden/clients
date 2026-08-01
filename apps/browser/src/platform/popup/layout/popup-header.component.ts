@@ -7,11 +7,14 @@ import { Component, Input, Signal, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AsyncActionsModule,
+  BadgeComponent,
   FunctionReturningAwaitable,
   IconButtonModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { flagEnabled } from "../../flags";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 import { PopupPageComponent } from "./popup-page.component";
@@ -21,7 +24,15 @@ import { PopupPageComponent } from "./popup-page.component";
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
+  imports: [
+    AsyncActionsModule,
+    BadgeComponent,
+    CommonModule,
+    I18nPipe,
+    IconButtonModule,
+    JslibModule,
+    TypographyModule,
+  ],
 })
 export class PopupHeaderComponent {
   private popupRouterCacheService = inject(PopupRouterCacheService);
@@ -64,4 +75,6 @@ export class PopupHeaderComponent {
   backAction: FunctionReturningAwaitable = async () => {
     return this.popupRouterCacheService.back();
   };
+
+  protected isBeta = flagEnabled("prereleaseBuild");
 }
