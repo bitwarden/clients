@@ -168,6 +168,43 @@ describe("OffboardingSurveyComponent", () => {
       expect(button.attributes["bitFormButton"]).toBeDefined();
     });
 
+    it("does not submit the cancellation while a redeem is in flight, even if the form re-enables submit", async () => {
+      // Regression guard for the redeem/cancel race: BitSubmitDirective re-arms on
+      // formGroupDirective.statusChanges (e.g. a keystroke in "Additional details" while the
+      // redeem POST is in flight), which can flip the disabled flag back to false independently
+      // of the in-flight redeem. Assert on the service call, not on a disabled attribute, since
+      // the attribute path is exactly what's unreliable here.
+      const offer = new AnnualUpgradeOfferResponseModel({
+        CurrentAnnualCost: 60,
+        NewAnnualCost: 48,
+        Savings: 12,
+      });
+      await build(offer);
+      selectReason("too_complex");
+
+      let resolveRedeem: () => void;
+      mockOrganizationBillingClient.redeemAnnualUpgradeOffer.mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveRedeem = resolve;
+        }),
+      );
+
+      const component = fixture.componentInstance as any;
+
+      const redeemPromise = component.switchToAnnualBilling();
+      expect(component.annualUpgradeRedeemLoading()).toBe(true);
+
+      // Simulate BitSubmitDirective re-arming the submit path mid-flight (e.g. via
+      // formGroupDirective.statusChanges) by invoking submit directly while the redeem is
+      // still pending.
+      await component.submit();
+
+      expect(mockBillingApiService.cancelOrganizationSubscription).not.toHaveBeenCalled();
+
+      resolveRedeem!();
+      await redeemPromise;
+    });
+
     it("does not render the callout for the 'needs changed' reason", async () => {
       const offer = new AnnualUpgradeOfferResponseModel({
         CurrentAnnualCost: 60,

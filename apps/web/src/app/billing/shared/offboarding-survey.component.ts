@@ -252,6 +252,14 @@ export class OffboardingSurveyComponent implements OnInit {
   };
 
   readonly submit = async () => {
+    // BitFormButtonDirective disables BitSubmitDirective while switchToAnnualBilling() runs, but
+    // BitSubmitDirective.ngOnInit also re-arms on formGroupDirective.statusChanges (e.g. typing
+    // into a textarea while the redeem call is in flight re-enables it). Guard locally so the
+    // invariant "redeem and cancel cannot both fire" doesn't depend on that library timing.
+    if (this.annualUpgradeRedeemLoading()) {
+      return;
+    }
+
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
