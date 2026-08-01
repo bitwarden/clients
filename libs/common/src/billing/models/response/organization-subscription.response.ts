@@ -9,8 +9,6 @@ import {
   BillingSubscriptionUpcomingInvoiceResponse,
 } from "./subscription.response";
 
-export { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
-
 export class OrganizationSubscriptionResponse extends OrganizationResponse {
   storageName: string;
   storageGb: number;
