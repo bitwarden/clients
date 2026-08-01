@@ -26,6 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -184,7 +185,10 @@ async function createComponent(
       { provide: ConfigService, useValue: configService },
       { provide: ValidationService, useValue: validationService },
       { provide: LogService, useValue: logService },
-      { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+      {
+        provide: Vfo1TerminologyService,
+        useValue: { enabled: () => false, iconClass: (icon: string) => icon },
+      },
     ],
   }).compileComponents();
 
@@ -419,9 +423,9 @@ describe("EditMemberDialogComponent", () => {
         expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
       });
 
-      it("patches name from params on load", async () => {
+      it("patches name from profileName param on load", async () => {
         const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details, name: "Test User" }),
+          defaultParams({ initialTab: MemberDialogTab.Details, profileName: "Test User" }),
           { detailsTabEnabled: true },
         );
 
@@ -463,6 +467,277 @@ describe("EditMemberDialogComponent", () => {
         );
         expect((component as any).tabIndex()).toBe(MemberDialogTab.Role);
       });
+    });
+  });
+
+  describe("emailEditable", () => {
+    it("is true when claimed and no master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(true);
+    });
+
+    it("is false when not claimed (regardless of master password)", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+
+    it("is false when claimed but has a master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+  });
+
+  describe("nameEditable", () => {
+    it("is true when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }), {
+        detailsTabEnabled: true,
+      });
+
+      expect((component as any).nameEditable()).toBe(true);
+    });
+
+    it("is false when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }), {
+        detailsTabEnabled: true,
+      });
+
+      expect((component as any).nameEditable()).toBe(false);
+    });
+  });
+
+  describe("name control enabled state after load", () => {
+    it("enables name control when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }), {
+        detailsTabEnabled: true,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(false);
+    });
+
+    it("keeps name control disabled when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }), {
+        detailsTabEnabled: true,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() name field", () => {
+    it("includes name in request when claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.name.setValue("New Name");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "New Name" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits name from request when not claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe("email control enabled state after load", () => {
+    it("enables email control when emailEditable is true", async () => {
+      const { component } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "user@org.com",
+        }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(false);
+    });
+
+    it("keeps email control disabled when not claimed", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+
+    it("keeps email control disabled when claimed but has master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() email field", () => {
+    it("includes email in request when editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "original@org.com",
+        }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.email.setValue("new@org.com");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: "new@org.com" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits email from request when not editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("sets inline email error and stays open on email validation error from server", async () => {
+      const emailError = new ProblemDetailsErrorResponse(
+        { errors: { email: [{ type: "new_email_domain_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(emailError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect(
+        (component as any).formGroup.controls.email.errors?.serverError?.message,
+      ).toBeDefined();
+    });
+
+    it.each([
+      ["member_has_master_password", "email"],
+      ["email_change_failed", "email"],
+    ])(
+      "sets inline error and stays open for %s server error on field %s",
+      async (errorType, field) => {
+        const error = new ProblemDetailsErrorResponse(
+          { errors: { [field]: [{ type: errorType, detail: "..." }] } },
+          400,
+        );
+        const { component, mocks } = await createComponent(
+          defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+          { detailsTabEnabled: true },
+        );
+
+        mocks.userAdminService.saveV2.mockRejectedValue(error);
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        await component.submit();
+
+        expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+        expect(
+          (component as any).formGroup.controls[field].errors?.serverError?.message,
+        ).toBeDefined();
+      },
+    );
+
+    it("sets inline name error and stays open on name validation error from server", async () => {
+      const nameError = new ProblemDetailsErrorResponse(
+        { errors: { name: [{ type: "name_member_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(nameError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect((component as any).formGroup.controls.name.errors?.serverError?.message).toBeDefined();
+    });
+
+    it("re-throws non-email errors so the generic toast path runs", async () => {
+      const genericError = new Error("Unexpected server error");
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(genericError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await expect(component.submit()).rejects.toThrow("Unexpected server error");
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
     });
   });
 });
