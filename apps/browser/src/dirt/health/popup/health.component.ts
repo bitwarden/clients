@@ -1,13 +1,6 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  DestroyRef,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { map, switchMap } from "rxjs";
+import { Component, ChangeDetectionStrategy, inject, DestroyRef, effect } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { map, of, switchMap } from "rxjs";
 
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
@@ -32,7 +25,7 @@ import { HealthAccessService } from "./services/health-access.service";
     HealthIntroComponent,
   ],
 })
-export class HealthComponent implements OnInit {
+export class HealthComponent {
   readonly destroyRef = inject(DestroyRef);
   readonly accountService = inject(AccountService);
   readonly healthAccessService = inject(HealthAccessService);
@@ -40,33 +33,33 @@ export class HealthComponent implements OnInit {
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
   );
-  readonly hasRunHealthScan = signal(false);
+  readonly hasHealthBeenOpened = toSignal(
+    toObservable(this.userId).pipe(
+      switchMap((userId) =>
+        userId ? this.healthAccessService.healthHasBeenOpened$(userId) : of(false),
+      ),
+    ),
+  );
+  readonly hasRunHealthScan = toSignal(
+    toObservable(this.userId).pipe(
+      switchMap((userId) =>
+        userId ? this.healthAccessService.hasRunHealthScan$(userId) : of(false),
+      ),
+    ),
+  );
 
-  ngOnInit(): void {
-    const userId = this.userId();
-    if (!userId) {
-      return;
-    }
+  constructor() {
+    effect(async () => {
+      const userId = this.userId();
+      if (!userId) {
+        return;
+      }
 
-    this.healthAccessService
-      .healthHasBeenOpened$(userId)
-      .pipe(
-        switchMap(async (hasBeenOpened) => {
-          if (!hasBeenOpened) {
-            await this.healthAccessService.setHealthHasBeenOpened(userId);
-          }
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
-
-    this.healthAccessService
-      .hasRunHealthScan$(userId)
-      .pipe(
-        map((hasRunScan) => this.hasRunHealthScan.set(hasRunScan)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+      // mark state indicating the User has opened the Health tab
+      if (!this.hasHealthBeenOpened()) {
+        await this.healthAccessService.setHealthHasBeenOpened(userId);
+      }
+    });
   }
 
   readonly handleHealthScan = async () => {
@@ -75,6 +68,7 @@ export class HealthComponent implements OnInit {
       return;
     }
 
+    // mark state indicating the User has run a Health scan (i.e. completed the introduction CTA)
     await this.healthAccessService.setHasRunHealthScan(userId);
   };
 }
