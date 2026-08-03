@@ -24,19 +24,23 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "no-seats" }
   | { kind: "two-factor-required" }
   /**
-   * User is subject to a single-organization policy from another org that prevents
-   * joining a second one.
+   * Target org enforces a single-organization policy — user must leave their other orgs
+   * to join this one.
    */
-  | { kind: "single-org-policy-violation" }
+  | { kind: "single-org-policy-violation-target-org" }
   /**
-   * User is subject to an auto-confirm policy from another org that prevents this
-   * membership.
+   * Another org the user belongs to enforces a single-organization policy — user cannot
+   * join this new org while remaining in the enforcing one.
    */
-  | { kind: "auto-confirm-policy-violation" }
+  | { kind: "single-org-policy-violation-other-org" }
+  /** Target org enforces auto-confirm and the user has other memberships. */
+  | { kind: "auto-confirm-policy-violation-target-org" }
+  /** Another org the user belongs to enforces auto-confirm. */
+  | { kind: "auto-confirm-policy-violation-other-org" }
   /** Provider users cannot join organizations via invite link. */
-  | { kind: "provider-user" }
+  | { kind: "provider-users-disallowed" }
   /** User can only be an admin of one free organization. */
-  | { kind: "free-admin-limit" }
+  | { kind: "free-admin-limit-reached" }
   /**
    * Org requires reset-password enrollment on accept but the client did not supply
    * the required key.

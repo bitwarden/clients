@@ -311,6 +311,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (statusCode !== 400) {
       return { kind: "unexpected", errorMessage: message };
     }
+    // TODO: hardcoded server-message matching is temporary. AC plans to expose stable
+    // error codes with a better response shape in an upcoming milestone; migrate all
+    // branches below to match on code rather than message text when that lands.
     if (message === "Your organization's plan does not support invite links.") {
       return { kind: "plan-not-supported" };
     }
@@ -328,7 +331,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
     // SeatAddFailed reads the same to the user as OrganizationHasNoAvailableSeats — both
     // mean "seat unavailable"; the distinction is billing plumbing the user can't act on.
-    if (message.startsWith("Unable to join this organization right now.")) {
+    if (
+      message ===
+      "Unable to join this organization right now. Please contact your organization administrator."
+    ) {
       return { kind: "no-seats" };
     }
     if (
@@ -337,29 +343,53 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     ) {
       return { kind: "two-factor-required" };
     }
-    // Folds UserIsAMemberOfAnotherOrganization + UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy —
-    // both single-org policy variants share the same user-facing meaning.
-    if (message.startsWith("Member cannot join the organization")) {
-      return { kind: "single-org-policy-violation" };
+    // Target org has single-org policy on + user is in other orgs.
+    if (
+      message ===
+      "Member cannot join the organization until they leave or remove all other organizations."
+    ) {
+      return { kind: "single-org-policy-violation-target-org" };
     }
-    // Folds UserCannotBelongToAnotherOrganization + OtherOrganizationDoesNotAllowOtherMembership —
-    // both auto-confirm policy variants share the same user-facing meaning.
-    if (message.startsWith("Cannot confirm this member")) {
-      return { kind: "auto-confirm-policy-violation" };
+    // Another org the user belongs to has single-org policy on.
+    if (
+      message ===
+      "Member cannot join the organization because they are in another organization which forbids it."
+    ) {
+      return { kind: "single-org-policy-violation-other-org" };
+    }
+    // Target org's auto-confirm on + user has multiple memberships.
+    if (
+      message ===
+      "Cannot confirm this member to the organization until they leave or remove all other organizations"
+    ) {
+      return { kind: "auto-confirm-policy-violation-target-org" };
+    }
+    // Another org the user belongs to has auto-confirm on.
+    if (
+      message ===
+      "Cannot confirm this member to the organization because they are in another organization which forbids it."
+    ) {
+      return { kind: "auto-confirm-policy-violation-other-org" };
     }
     if (message === "Provider users cannot join organizations via invite link.") {
-      return { kind: "provider-user" };
+      return { kind: "provider-users-disallowed" };
     }
-    // AutoConfirm's provider variant; same user-facing meaning as the direct provider block above.
+    // AutoConfirm's provider variants; same user-facing meaning as the direct provider
+    // block above. Two distinct server messages fold to the same client kind.
     if (
-      message.startsWith(
-        "An organization the user is a part of has enabled Automatic User Confirmation",
-      )
+      message ===
+      "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining."
     ) {
-      return { kind: "provider-user" };
+      return { kind: "provider-users-disallowed" };
+    }
+    if (
+      message ===
+      "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support the user joining a provider."
+    ) {
+      return { kind: "provider-users-disallowed" };
     }
     if (message === "You can only be an admin of one free organization.") {
-      return { kind: "free-admin-limit" };
+      return { kind: "free-admin-limit-reached" };
     }
     if (message === "Master Password reset is required, but not provided.") {
       return { kind: "reset-password-key-required" };

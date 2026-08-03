@@ -35,6 +35,7 @@ import { AuthService } from "../../../abstractions/auth.service";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
+import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
 import { EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL } from "./sealed-open-org-invite-secret.state";
@@ -938,136 +939,131 @@ describe("DefaultOrganizationInviteService", () => {
         return sut.acceptOpenOrgInvite(createOpenOrgInvite({ organizationId }), activeUserId);
       };
 
-      it("returns link-not-found on 404", async () => {
-        const result = await runWithRejection(makeSdkApiError(404, "Invite link not found."));
-        expect(result).toEqual({ kind: "link-not-found" });
-      });
-
-      it("returns plan-not-supported for InviteLinkNotAvailable", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "Your organization's plan does not support invite links."),
-        );
-        expect(result).toEqual({ kind: "plan-not-supported" });
-      });
-
-      it("returns email-domain-not-allowed for EmailDomainNotAllowed", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "Your email domain is not allowed to join this organization."),
-        );
-        expect(result).toEqual({ kind: "email-domain-not-allowed" });
-      });
-
-      it("returns already-member for AlreadyOrganizationMember", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "You are already a member of this organization."),
-        );
-        expect(result).toEqual({ kind: "already-member" });
-      });
-
-      it("returns org-access-revoked for OrganizationAccessRevoked", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "Your organization access has been revoked."),
-        );
-        expect(result).toEqual({ kind: "org-access-revoked" });
-      });
-
-      it("returns no-seats for OrganizationHasNoAvailableSeats", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "This organization has no available seats."),
-        );
-        expect(result).toEqual({ kind: "no-seats" });
-      });
-
-      it("returns no-seats for SeatAddFailed (folded into the same user-facing meaning)", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+      // Each row is (server error name, HTTP status, exact server message, expected client
+      // kind).
+      it.each<{
+        serverErrorName: string;
+        statusCode: number;
+        message: string;
+        expectedKind: AcceptOpenOrgInviteResult["kind"];
+      }>([
+        {
+          serverErrorName: "InviteLinkNotFound",
+          statusCode: 404,
+          message: "Invite link not found.",
+          expectedKind: "link-not-found",
+        },
+        {
+          serverErrorName: "InviteLinkNotAvailable",
+          statusCode: 400,
+          message: "Your organization's plan does not support invite links.",
+          expectedKind: "plan-not-supported",
+        },
+        {
+          serverErrorName: "EmailDomainNotAllowed",
+          statusCode: 400,
+          message: "Your email domain is not allowed to join this organization.",
+          expectedKind: "email-domain-not-allowed",
+        },
+        {
+          serverErrorName: "AlreadyOrganizationMember",
+          statusCode: 400,
+          message: "You are already a member of this organization.",
+          expectedKind: "already-member",
+        },
+        {
+          serverErrorName: "OrganizationAccessRevoked",
+          statusCode: 400,
+          message: "Your organization access has been revoked.",
+          expectedKind: "org-access-revoked",
+        },
+        {
+          serverErrorName: "OrganizationHasNoAvailableSeats",
+          statusCode: 400,
+          message: "This organization has no available seats.",
+          expectedKind: "no-seats",
+        },
+        {
+          serverErrorName: "SeatAddFailed (folded into no-seats)",
+          statusCode: 400,
+          message:
             "Unable to join this organization right now. Please contact your organization administrator.",
-          ),
-        );
-        expect(result).toEqual({ kind: "no-seats" });
-      });
-
-      it("returns two-factor-required for TwoFactorRequiredForMembership", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "no-seats",
+        },
+        {
+          serverErrorName: "TwoFactorRequiredForMembership",
+          statusCode: 400,
+          message:
             "You cannot join this organization until you enable two-step login on your user account.",
-          ),
-        );
-        expect(result).toEqual({ kind: "two-factor-required" });
-      });
-
-      it("returns single-org-policy-violation for UserIsAMemberOfAnotherOrganization", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "two-factor-required",
+        },
+        {
+          serverErrorName: "UserIsAMemberOfAnotherOrganization",
+          statusCode: 400,
+          message:
             "Member cannot join the organization until they leave or remove all other organizations.",
-          ),
-        );
-        expect(result).toEqual({ kind: "single-org-policy-violation" });
-      });
-
-      it("returns single-org-policy-violation for UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "single-org-policy-violation-target-org",
+        },
+        {
+          serverErrorName: "UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy",
+          statusCode: 400,
+          message:
             "Member cannot join the organization because they are in another organization which forbids it.",
-          ),
-        );
-        expect(result).toEqual({ kind: "single-org-policy-violation" });
-      });
-
-      it("returns auto-confirm-policy-violation for UserCannotBelongToAnotherOrganization", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "single-org-policy-violation-other-org",
+        },
+        {
+          serverErrorName: "UserCannotBelongToAnotherOrganization",
+          statusCode: 400,
+          message:
             "Cannot confirm this member to the organization until they leave or remove all other organizations",
-          ),
-        );
-        expect(result).toEqual({ kind: "auto-confirm-policy-violation" });
-      });
-
-      it("returns auto-confirm-policy-violation for OtherOrganizationDoesNotAllowOtherMembership", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "auto-confirm-policy-violation-target-org",
+        },
+        {
+          serverErrorName: "OtherOrganizationDoesNotAllowOtherMembership",
+          statusCode: 400,
+          message:
             "Cannot confirm this member to the organization because they are in another organization which forbids it.",
-          ),
-        );
-        expect(result).toEqual({ kind: "auto-confirm-policy-violation" });
-      });
-
-      it("returns provider-user for ProviderUsersCannotAcceptInviteLink", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "Provider users cannot join organizations via invite link."),
-        );
-        expect(result).toEqual({ kind: "provider-user" });
-      });
-
-      it("returns provider-user for the auto-confirm ProviderUsersCannotJoin variant", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(
-            400,
+          expectedKind: "auto-confirm-policy-violation-other-org",
+        },
+        {
+          serverErrorName: "ProviderUsersCannotAcceptInviteLink",
+          statusCode: 400,
+          message: "Provider users cannot join organizations via invite link.",
+          expectedKind: "provider-users-disallowed",
+        },
+        {
+          serverErrorName: "ProviderUsersCannotJoin (auto-confirm variant, folded)",
+          statusCode: 400,
+          message:
             "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining.",
-          ),
-        );
-        expect(result).toEqual({ kind: "provider-user" });
-      });
-
-      it("returns free-admin-limit for OnlyOneFreeOrganizationAdminAllowed", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "You can only be an admin of one free organization."),
-        );
-        expect(result).toEqual({ kind: "free-admin-limit" });
-      });
-
-      it("returns reset-password-key-required for ResetPasswordKeyRequired", async () => {
-        const result = await runWithRejection(
-          makeSdkApiError(400, "Master Password reset is required, but not provided."),
-        );
-        expect(result).toEqual({ kind: "reset-password-key-required" });
-      });
+          expectedKind: "provider-users-disallowed",
+        },
+        {
+          serverErrorName: "UserCannotJoinProvider (auto-confirm variant, folded)",
+          statusCode: 400,
+          message:
+            "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support the user joining a provider.",
+          expectedKind: "provider-users-disallowed",
+        },
+        {
+          serverErrorName: "OnlyOneFreeOrganizationAdminAllowed",
+          statusCode: 400,
+          message: "You can only be an admin of one free organization.",
+          expectedKind: "free-admin-limit-reached",
+        },
+        {
+          serverErrorName: "ResetPasswordKeyRequired",
+          statusCode: 400,
+          message: "Master Password reset is required, but not provided.",
+          expectedKind: "reset-password-key-required",
+        },
+      ])(
+        "classifies $serverErrorName as $expectedKind",
+        async ({ statusCode, message, expectedKind }) => {
+          const result = await runWithRejection(makeSdkApiError(statusCode, message));
+          expect(result).toEqual({ kind: expectedKind });
+        },
+      );
 
       it("returns recovery-key-mismatch for the SDK-native RecoveryKeyMismatch variant", async () => {
         const result = await runWithRejection(
