@@ -44,6 +44,7 @@ describe("OrganizationVaultFilterComponent", () => {
   let component: VaultFilterComponent;
   let vaultFilterService: MockProxy<VaultFilterService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
+  let vfo1Enabled: boolean;
 
   /** Helper to set the ciphers$ signal input via the fixture. */
   function setCiphers(ciphers$: Observable<CipherView[]>) {
@@ -51,6 +52,7 @@ describe("OrganizationVaultFilterComponent", () => {
   }
 
   beforeEach(async () => {
+    vfo1Enabled = false;
     vaultFilterService = mock<VaultFilterService>();
     vaultFilterService.buildTypeTree.mockImplementation((head, array) => {
       const headNode = new TreeNode<CipherTypeFilter>(head, null);
@@ -96,7 +98,10 @@ describe("OrganizationVaultFilterComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$: restrictedSubject.asObservable() },
         },
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
+        },
       ],
     }).compileComponents();
 
@@ -261,6 +266,42 @@ describe("OrganizationVaultFilterComponent", () => {
 
         expect((component as any).addTypeFilter).toHaveBeenCalledWith(["favorites"], ORG_ID);
       });
+    });
+  });
+
+  describe("searchPlaceholder", () => {
+    it("returns 'searchCollection' when a collection is selected and the VFO1 flag is off", () => {
+      (component as any).activeFilter = () => ({
+        isDeleted: false,
+        selectedCollectionNode: { node: { id: "col-1" } },
+      });
+      expect((component as any).searchPlaceholder).toBe("searchCollection");
+    });
+
+    it("returns 'searchSharedFolder' when a collection is selected and the VFO1 flag is on", () => {
+      vfo1Enabled = true;
+      (component as any).activeFilter = () => ({
+        isDeleted: false,
+        selectedCollectionNode: { node: { id: "col-1" } },
+      });
+      expect((component as any).searchPlaceholder).toBe("searchSharedFolder");
+    });
+  });
+
+  describe("addCollectionFilter", () => {
+    it("names the filter node 'collections' when the VFO1 flag is off", async () => {
+      const section = await (component as any).addCollectionFilter();
+      const tree = await firstValueFrom(section.data$);
+      expect(tree.node.name).toBe("collections");
+      expect(tree.children[0].node.name).toBe("Collections");
+    });
+
+    it("names the filter node 'sharedFolders' when the VFO1 flag is on", async () => {
+      vfo1Enabled = true;
+      const section = await (component as any).addCollectionFilter();
+      const tree = await firstValueFrom(section.data$);
+      expect(tree.node.name).toBe("sharedFolders");
+      expect(tree.children[0].node.name).toBe("Shared folders");
     });
   });
 });

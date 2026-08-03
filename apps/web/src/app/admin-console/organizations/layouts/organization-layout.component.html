@@ -13,7 +13,7 @@
 
     <bit-nav-item
       [icon]="'bwi-collection-shared' | vfo1Icon"
-      [text]="'collections' | i18n"
+      [text]="'collections' | vfo1I18n: 'sharedFolders'"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
     >

@@ -20,6 +20,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -129,6 +130,7 @@ describe("AppComponent (desktop)", () => {
           mock<SsoLoginServiceAbstraction>(),
           mock<AccountDeletionService>(),
           premiumCheckoutPendingService,
+          mock<BillingAccountProfileStateService>(),
         ),
     );
 

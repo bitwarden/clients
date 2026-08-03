@@ -116,6 +116,12 @@
   "myFolders": {
     "message": "As minhas pastas"
   },
+  "addSharedFolder": {
+    "message": "Adicionar pasta partilhada"
+  },
+  "newSharedFolder": {
+    "message": "Nova pasta partilhada"
+  },
   "share": {
     "message": "Partilhar"
   },
@@ -142,7 +148,7 @@
     "message": "Bem-vindo de volta"
   },
   "moveToOrgDesc": {
-    "message": "Escolha uma organização para a qual pretende mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Deixará de ser o proprietário direto deste item depois de este ter sido movido."
+    "message": "Escolha a organização para a qual pretende mover este item. Ao movê-lo para uma organização, a propriedade do item será transferida para essa organização. Deixará de ser o proprietário direto deste item após a transferência."
   },
   "attachments": {
     "message": "Anexos"
@@ -878,6 +884,60 @@
   "owner": {
     "message": "Proprietário"
   },
+  "sharedFolderAriaLabel": {
+    "message": "Pasta partilhada $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Coleção $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "A minha pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Proprietário: $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Cofre: $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "Adicionar campo"
   },
@@ -1010,7 +1070,7 @@
     "message": "Eliminar seleção"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "Os itens e coleções selecionados serão eliminados permanentemente."
+    "message": "Os itens e as coleções selecionados serão eliminados permanentemente."
   },
   "deleteFolder": {
     "message": "Eliminar pasta"
@@ -1447,7 +1507,7 @@
     "message": "Informações do item"
   },
   "noItemsInList": {
-    "message": "Não existem itens para listar."
+    "message": "Não existem itens para apresentar."
   },
   "noValueEntered": {
     "message": "Nenhum valor introduzido",
@@ -2122,7 +2182,7 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
-    "message": "Não existem palavras-passe para listar."
+    "message": "Não existem palavras-passe para apresentar."
   },
   "clearHistory": {
     "message": "Limpar histórico"
@@ -2149,6 +2209,92 @@
   },
   "selectAll": {
     "message": "Selecionar tudo"
+  },
+  "selectAllRows": {
+    "message": "Selecionar todas as linhas"
+  },
+  "selectRow": {
+    "message": "Selecionar linha"
+  },
+  "showingItemRange": {
+    "message": "A mostrar $START$ - $END$ de $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Linhas por página"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ linhas por página",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Tudo"
+  },
+  "clearAll": {
+    "message": "Limpar tudo"
+  },
+  "done": {
+    "message": "Concluído"
+  },
+  "filter": {
+    "message": "Filtrar"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selecionado(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Página anterior"
+  },
+  "nextPage": {
+    "message": "Página seguinte"
+  },
+  "goToPage": {
+    "message": "Ir para a página"
+  },
+  "ofPageCount": {
+    "message": "de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nenhum item correspondente"
   },
   "selected": {
     "message": "Selecionado(s)"
@@ -2391,10 +2537,7 @@
     "message": "Uma política definida por 1 ou mais organizações impede-o de importar cartões para os seus cofres."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
-  },
-  "done": {
-    "message": "Concluído"
+    "message": "A palavra-passe do ficheiro e a confirmação da palavra-passe do ficheiro não coincidem."
   },
   "warning": {
     "message": "AVISO",
@@ -2404,7 +2547,7 @@
     "message": "Confirmar a exportação do cofre"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve guardar nem enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente depois de terminar de o utilizar."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez rotacionar a sua chave de encriptação, deverá exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
@@ -2416,7 +2559,7 @@
     "message": "Não pertence a nenhuma organização. As organizações permitem-lhe partilhar itens em segurança com outros utilizadores."
   },
   "noCollectionsInList": {
-    "message": "Não existem coleções para listar."
+    "message": "Não existem coleções para apresentar."
   },
   "ownership": {
     "message": "Propriedade"
@@ -3553,7 +3696,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3616,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Adicionar prefixo do site",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Quando ativada, o domínio do site atual será utilizado como prefixo do endereço de e-mail gerado",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nome de domínio",
     "description": "Part of a URL."
@@ -3627,7 +3778,7 @@
     "message": "Chave API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "É necessária uma subscrição Premium"
   },
   "organizationIsDisabled": {
     "message": "Organização suspensa"
@@ -4019,7 +4170,7 @@
     "message": "A organização não é de confiança"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
+    "message": "Para a segurança da sua conta, confirme apenas se concedeu acesso de emergência a este utilizador e se a respetiva impressão digital corresponde à apresentada na conta dele"
   },
   "orgTrustWarning": {
     "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
@@ -4220,8 +4371,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item será ignorado",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Os seguintes itens não puderam ser lidos e não serão incluídos na sua importação:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Não foi possível importar esta chave SSH"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Tipo de item não suportado"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Não foi possível importar este item"
+  },
+  "identifier": {
+    "message": "Identificador"
   },
   "contact": {
     "message": "Contacto"
@@ -4694,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "Remover chave de acesso"
+  },
+  "deletePasskey": {
+    "message": "Eliminar chave de acesso"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Esta chave de acesso será eliminada permanentemente da sua credencial. Esta ação não pode ser anulada."
   },
   "passkeyRemoved": {
     "message": "Chave de acesso removida"

@@ -28,6 +28,7 @@ import {
   NewCipherMenuComponent,
   All,
   RoutedVaultFilterModel,
+  Vfo1I18nPipe,
   Vfo1IconPipe,
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
@@ -51,6 +52,7 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     NewCipherMenuComponent,
     IconModule,
     Vfo1IconPipe,
+    Vfo1I18nPipe,
   ],
 })
 export class VaultHeaderComponent {
@@ -103,7 +105,8 @@ export class VaultHeaderComponent {
   readonly openAddItemDialogEvent = output();
 
   protected readonly title = computed(() => {
-    const headerType = this.i18nService.t("collections").toLowerCase();
+    const collectionsKey = this.vfo1TerminologyService.enabled() ? "sharedFolders" : "collections";
+    const headerType = this.i18nService.t(collectionsKey).toLowerCase();
 
     const collection = this.collection();
     if (collection != null) {
@@ -116,7 +119,7 @@ export class VaultHeaderComponent {
 
     return this.organization().name
       ? `${this.organization().name} ${headerType}`
-      : this.i18nService.t("collections");
+      : this.i18nService.t(collectionsKey);
   });
 
   protected readonly icon = computed(() =>
@@ -154,14 +157,17 @@ export class VaultHeaderComponent {
 
   private async showFreeOrgUpgradeDialog(): Promise<void> {
     const org = this.organization();
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+    const contentKey = org.canEditSubscription
+      ? vfo1Enabled
+        ? "freeOrgMaxSharedFolderReachedManageBilling"
+        : "freeOrgMaxCollectionReachedManageBilling"
+      : vfo1Enabled
+        ? "freeOrgMaxSharedFolderReachedNoManageBilling"
+        : "freeOrgMaxCollectionReachedNoManageBilling";
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
-      content: this.i18nService.t(
-        org.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
-        org.maxCollections,
-      ),
+      content: this.i18nService.t(contentKey, org.maxCollections),
       type: "primary",
     };
 
