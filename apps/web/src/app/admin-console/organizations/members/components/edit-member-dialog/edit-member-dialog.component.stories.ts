@@ -21,6 +21,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -164,7 +165,11 @@ function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
 
-type StoryArgs = { detailsTabEnabled: boolean };
+type StoryArgs = {
+  detailsTabEnabled: boolean;
+  /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
+  vfo1FoundationEnabled: boolean;
+};
 
 const sharedDecorators = [
   moduleMetadata({
@@ -209,9 +214,15 @@ export default {
       description: "Toggle between the legacy Role tab and the new Details tab (PM-28365)",
       name: "Details tab (flag on)",
     },
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
+      name: "Shared folder terminology (flag on)",
+    },
   },
   args: {
     detailsTabEnabled: false,
+    vfo1FoundationEnabled: false,
   },
 } as Meta<StoryArgs>;
 
@@ -222,7 +233,7 @@ function makeRender(
   org: Organization,
   userDetails?: OrganizationUserAdminView,
 ): Story["render"] {
-  return ({ detailsTabEnabled }) => ({
+  return ({ detailsTabEnabled, vfo1FoundationEnabled }) => ({
     moduleMetadata: {
       providers: [
         {
@@ -240,6 +251,13 @@ function makeRender(
         },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
+        },
         ...(userDetails
           ? [
               {
@@ -318,6 +336,33 @@ export const CollectionsTab: Story = {
   render: makeRender(
     defaultParams({ initialTab: MemberDialogTab.Collections }),
     mockOrganization(),
+  ),
+};
+
+// ─── Flag ON (vfo1-foundation: "Collection" → "Shared folder" terminology) ───
+
+/**
+ * Collections tab with the vfo1-foundation flag on — renders "Shared folder" terminology,
+ * including the role hint text and the tab/column labels.
+ */
+export const CollectionsTabSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams({ initialTab: MemberDialogTab.Collections }),
+    mockOrganization(),
+  ),
+};
+
+/**
+ * Custom permissions with the vfo1-foundation flag on — the nested-checkbox labels
+ * ("Manage all shared folders", "Create new shared folders", etc.) use the new terminology
+ * while the underlying form-control names are unchanged.
+ */
+export const WithCustomPermissionsSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
   ),
 };
 
