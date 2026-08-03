@@ -59,9 +59,22 @@ export class HealthComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+
+    this.healthAccessService
+      .hasRunHealthScan$(userId)
+      .pipe(
+        map((hasRunScan) => this.hasRunHealthScan.set(hasRunScan)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   readonly handleHealthScan = async () => {
-    this.hasRunHealthScan.set(true);
+    const userId = this.userId();
+    if (!userId) {
+      return;
+    }
+
+    await this.healthAccessService.setHasRunHealthScan(userId);
   };
 }
