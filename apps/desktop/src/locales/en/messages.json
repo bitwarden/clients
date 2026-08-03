@@ -1436,6 +1436,24 @@
   "openOrgInviteEmailDomainNotAllowed": {
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "This invite link is no longer valid."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Your invitation could not be accepted because there is not an available seat."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "goToLogin": {
+    "message": "Go to login"
+  },
+  "goToVault": {
+    "message": "Go to vault"
+  },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Finish joining this organization by setting a master password."
   },
@@ -1444,30 +1462,6 @@
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
-  },
-  "openOrgInviteNotFoundTitle": {
-    "message": "Invitation link not found"
-  },
-  "openOrgInviteNotFoundMessage": {
-    "message": "This invitation link is invalid or no longer available."
-  },
-  "openOrgInvitePlanNotSupportedTitle": {
-    "message": "Invitation link not available"
-  },
-  "openOrgInvitePlanNotSupportedMessage": {
-    "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
-  },
-  "openOrgInviteNoSeatsTitle": {
-    "message": "Cannot accept invitation"
-  },
-  "openOrgInviteNoSeatsMessage": {
-    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
-  },
-  "openOrgInviteStatusUnexpectedErrorTitle": {
-    "message": "Could not retrieve invitation status"
-  },
-  "openOrgInviteStatusUnexpectedErrorMessage": {
-    "message": "We're sorry. Something went wrong, we were unable to obtain the status of the organization invite."
   },
   "settings": {
     "message": "Settings"
