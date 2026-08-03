@@ -5,6 +5,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
 
@@ -77,6 +78,7 @@ describe("VaultBatchActionComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => `translated-${key}` } },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
 

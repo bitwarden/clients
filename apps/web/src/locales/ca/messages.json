@@ -65,6 +65,9 @@
   "riskOverTime": {
     "message": "Risk over time"
   },
+  "filterRiskOverTime": {
+    "message": "Filter risk over time"
+  },
   "passwordsAtRisk": {
     "message": "Passwords at risk"
   },
@@ -646,11 +649,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Lloc web afegit"
   },
   "addWebsite": {
     "message": "Afig un lloc web"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Suprimeix el lloc web"
@@ -967,6 +989,9 @@
   "save": {
     "message": "Guarda"
   },
+  "saveAndContinue": {
+    "message": "Save and continue"
+  },
   "cancel": {
     "message": "Cancel·la"
   },
@@ -1169,6 +1194,123 @@
   "shared": {
     "message": "Compartit"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "addToMyFolder": {
+    "message": "Add to my folder"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Select shared folder item"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "This shared folder is only accessible from the admin console"
+  },
+  "editSharedFolder": {
+    "message": "Edit shared folder"
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "This shared folder will be permanently deleted."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "These shared folders will be permanently deleted."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ shared folder(s) will be permanently deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
+  "deletedSharedFolders": {
+    "message": "Deleted shared folders"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
   "attachments": {
     "message": "Adjunts"
   },
@@ -1189,6 +1331,42 @@
   },
   "viewItem": {
     "message": "Visualitza l'element"
+  },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "New Login",
@@ -1254,6 +1432,22 @@
     "message": "Edit secure note",
     "description": "Header for edit secure note item type"
   },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -1314,6 +1508,26 @@
     "message": "View passport",
     "description": "Header for view passport item type"
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
   "new": {
     "message": "Nou",
     "description": "for adding new items"
@@ -1367,6 +1581,10 @@
   },
   "passwordCopied": {
     "message": "S'ha copiat la contrasenya"
+  },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Copia el nom d'usuari",
@@ -1542,6 +1760,83 @@
   "selectAll": {
     "message": "Selecciona-ho tot"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "Deselect all"
   },
@@ -1587,6 +1882,9 @@
   },
   "file": {
     "message": "Fitxer"
+  },
+  "photo": {
+    "message": "Photo"
   },
   "selectFile": {
     "message": "Seleccioneu un fitxer."
@@ -1705,6 +2003,9 @@
   },
   "deletedItems": {
     "message": "Elements enviats a la paperera"
+  },
+  "movedItem": {
+    "message": "Item moved"
   },
   "movedItems": {
     "message": "Elements desplaçats"
@@ -1885,6 +2186,12 @@
   },
   "removePasskey": {
     "message": "Suprimeix la clau de pas"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "removePasskeyInfo": {
     "message": "Si se suprimeixen totes les contrasenyes, no podreu iniciar sessió en dispositius nous sense la vostra contrasenya mestra."
@@ -2144,6 +2451,10 @@
   "youDoNotHavePermissions": {
     "message": "You do not have permissions to this collection"
   },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
+  },
   "noCollectionsInList": {
     "message": "No hi ha cap col·lecció a llistar."
   },
@@ -2164,6 +2475,9 @@
   },
   "newOrganization": {
     "message": "Organització nova"
+  },
+  "newVault": {
+    "message": "New vault"
   },
   "noOrganizationsList": {
     "message": "No pertanyeu a cap organització. Les organitzacions permeten compartir elements amb altres usuaris de forma segura."
@@ -2385,8 +2699,8 @@
   "confirmSecretsExport": {
     "message": "Confirma l'exportació de secrets"
   },
-  "exportWarningDesc": {
-    "message": "Aquesta exportació conté les dades de la vostra caixa forta en un format no xifrat. No hauríeu d'emmagatzemar o enviar el fitxer exportat a través de canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver acabat d'usar-lo."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "Aquesta exportació conté les vostres dades secretes en un format sense xifrar. No hauríeu d'emmagatzemar ni enviar el fitxer exportat per canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver-lo acabat d'utilitzar."
@@ -2426,6 +2740,30 @@
   "confirmFilePassword": {
     "message": "Confirma la contrasenya del fitxer"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "accountRestrictedOptionDescription": {
     "message": "Utilitzeu la clau de xifratge del vostre compte, derivada del nom d'usuari i la contrasenya mestra, per xifrar l'exportació i restringir la importació només al compte de Bitwarden actual."
   },
@@ -2441,8 +2779,8 @@
   "passwordProtected": {
     "message": "Protegit amb contrasenya"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Confirma la importació de la Caixa forta"
@@ -2480,6 +2818,9 @@
   "minSpecial": {
     "message": "Mínim de caràcters especials",
     "description": "Minimum special characters"
+  },
+  "minSpecialCharacters": {
+    "message": "Minimum special characters"
   },
   "ambiguous": {
     "message": "Eviteu caràcters ambigus",
@@ -2536,8 +2877,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Neteja l'historial del generador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Si continueu, totes les entrades se suprimiran permanentment de l'historial del generador. Esteu segur que voleu continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
     "message": "No hi ha cap contrasenya a llistar."
@@ -2804,6 +3145,72 @@
   "importNothingError": {
     "message": "No s'ha importat res."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
+  "general": {
+    "message": "General"
+  },
   "importEncKeyError": {
     "message": "Error en desxifrar el fitxer exportat. La vostra clau de xifratge no coincideix amb la clau de xifratge utilitzada per exportar les dades."
   },
@@ -2903,6 +3310,9 @@
   },
   "newCustomDomain": {
     "message": "Nou domini personalitzat"
+  },
+  "addCustomDomain": {
+    "message": "Add custom domain"
   },
   "newCustomDomainDesc": {
     "message": "Introduïu una llista de dominis separats per comes. Només es permeten els dominis \"base\". No introduïu els subdominis. Per exemple, introduïu \"google.com\" en lloc de \"www.google.com\". També podeu introduir \"androidapp://package.name\" per associar una aplicació d'android amb altres dominis del lloc web."
@@ -3296,8 +3706,56 @@
   "noInactive2fa": {
     "message": "No s'han trobat llocs web a la vostra caixa forta sense configuració d'autenticació de dos factors."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Instruccions"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Contrasenyes exposades"
@@ -3691,6 +4149,15 @@
   },
   "cancelSubscription": {
     "message": "Cancel·la la subscripció"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Caducitat de la subscripció"
@@ -4307,6 +4774,9 @@
   "defaultCollection": {
     "message": "Col·lecció per defecte"
   },
+  "defaultSharedFolder": {
+    "message": "Default shared folder"
+  },
   "getHelp": {
     "message": "Obteniu ajuda"
   },
@@ -4391,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Anida col·lecció sota"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Control d'accés"
   },
@@ -4409,11 +4883,23 @@
   "viewCollection": {
     "message": "View collection"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Informació de col·lecció"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Esteu segur que voleu suprimir aquesta col·lecció?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Edita el membre"
@@ -4490,6 +4976,24 @@
   },
   "owner": {
     "message": "Propietari"
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Gestioneu tots els aspectes de la vostra organització, incloses la facturació i les subscripcions"
@@ -4633,52 +5137,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Created Text Send"
+  "createdTextSendV2": {
+    "message": "Created text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Created text Send with email verification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Created text Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Created text Send with password",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Created text Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Created file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Created file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Created file Send with email verification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Created file Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Created file Send with password",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Created file Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Edited text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Edited text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Edited file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Edited file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Deleted text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Deleted text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Deleted file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Deleted file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Accessed text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Accessed file Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "External"
+  },
+  "sendAccessExternalDomain": {
+    "message": "External ($DOMAIN$ domain)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "View Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "View member $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Desplaça l'element $ID$ a una organització.",
@@ -4929,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "S'ha editat la col·lecció $ID$.",
     "placeholders": {
@@ -4937,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Col·leccions suprimides"
@@ -4955,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Discard edits"
@@ -5033,6 +5680,15 @@
   },
   "revokedUserId": {
     "message": "S'ha revocat l'accés a l'organització per $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "stagedUserId": {
+    "message": "Staged user $ID$ added.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5259,7 +5915,7 @@
   "needsApproval": {
     "message": "Needs approval"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
@@ -5897,6 +6553,15 @@
       }
     }
   },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "reorderToggleButton": {
     "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
     "placeholders": {
@@ -6295,6 +6960,27 @@
   "masterPassPolicyDesc": {
     "message": "Estableix els requisits mínims per al nivell de seguretat de la contrasenya principal."
   },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
+  "minCharacterLength": {
+    "message": "Minimum character length"
+  },
+  "characterRequirements": {
+    "message": "Character requirements"
+  },
+  "specialCharactersPolicy": {
+    "message": "Special characters (e.g. !, @, $)"
+  },
+  "uppercasePolicy": {
+    "message": "Uppercase"
+  },
+  "lowercasePolicy": {
+    "message": "Lowercase"
+  },
+  "numbersPolicy": {
+    "message": "Numbers"
+  },
   "passwordStrengthScore": {
     "message": "Password strength score $SCORE$",
     "placeholders": {
@@ -6324,6 +7010,15 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Estableix els requisits mínims per a la configuració del generador de contrasenyes."
+  },
+  "passwordGeneratorPolicyDescV2": {
+    "message": "Select a set of minimum requirements for any member-generated passwords."
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  },
+  "generatedPassphrase": {
+    "message": "Generated passphrase"
   },
   "masterPasswordPolicyInEffect": {
     "message": "Una o més polítiques d’organització requereixen que la vostra contrasenya principal complisca els requisits següents:"
@@ -6573,6 +7268,9 @@
   "singleOrgPolicyDesc": {
     "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
   },
+  "singleOrgPolicyDescV2": {
+    "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "La vostra organització actual té una política que no us permet unir-vos a més d'una organització. Poseu-vos en contacte amb els administradors de la vostra organització o registreu-vos des d’un altre compte de Bitwarden."
   },
@@ -6638,6 +7336,10 @@
   },
   "createSend": {
     "message": "Nou Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -6733,6 +7435,12 @@
   "accepted": {
     "message": "Accepted"
   },
+  "staged": {
+    "message": "Staged"
+  },
+  "stagedMemberTooltip": {
+    "message": "Pending account invitation"
+  },
   "sendLink": {
     "message": "Enllaç Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6756,6 +7464,9 @@
   "allSends": {
     "message": "Tots els Send"
   },
+  "filterSends": {
+    "message": "Filter Sends"
+  },
   "maxAccessCountReached": {
     "message": "S'ha assolit el recompte màxim d'accesos",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
@@ -6768,6 +7479,14 @@
   },
   "expired": {
     "message": "Caducat"
+  },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
     "message": "Cerca Sends",
@@ -7008,9 +7727,6 @@
   "promptUsersToMoveItemsV2": {
     "message": "Prompt users to move their vault items to the organization"
   },
-  "enablePolicy": {
-    "message": "Enable policy"
-  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -7116,6 +7832,30 @@
   "autoConfirmDisabledByPortal": {
     "message": "Removed Automatic user confirmation policy"
   },
+  "inviteLinkEventCreated": {
+    "message": "Created invite link"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Edited allowed domains for invite link"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Deleted invite link"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Copied invite link"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Regenerated invite link"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
@@ -7166,12 +7906,20 @@
     "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -7180,12 +7928,16 @@
   "sendControls": {
     "message": "Send controls"
   },
+  "manageSend": {
+    "message": "Manage Send",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV2": {
-    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
+  "sendControlsPolicyDescV4": {
+    "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7208,6 +7960,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Default URI match detection"
@@ -7571,6 +8326,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ connectat a SSO per primera vegada",
     "placeholders": {
@@ -7612,6 +8376,18 @@
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "La política empresarial d'una organització única s'ha d'activar abans d'activar aquesta política."
+  },
+  "accountRecoveryPolicySingleOrgReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "accountRecoveryPolicyDescV3Part1": {
+    "message": "Allow admins to help members regain access to their accounts when they're enrolled in "
+  },
+  "accountRecoveryDescLinkText": {
+    "message": "account recovery"
+  },
+  "accountRecoveryPolicyDescV3Part2": {
+    "message": ". Once this policy is turned on, existing members can enroll and, if you choose, new members will be automatically enrolled."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscripció automàtica"
@@ -7972,6 +8748,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -8111,8 +8890,17 @@
   "activateAutofillPolicy": {
     "message": "Activate autofill"
   },
+  "enableAutofillOnPageLoad": {
+    "message": "Enable autofill on page load"
+  },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
+  },
+  "activateAutofillPolicyDescV2": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
+  },
+  "exploitAutofillOnPageLoad": {
+    "message": "exploit autofill on page load"
   },
   "autofillOnPageLoadExploitWarning": {
     "message": "Compromised or untrusted websites can exploit autofill on page load."
@@ -8249,7 +9037,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -8991,7 +9779,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9001,7 +9789,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9015,7 +9803,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9025,7 +9813,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9089,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nom de l'amfitrió",
     "description": "Part of a URL."
@@ -9114,8 +9910,8 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
-    "message": "Cal una subscripció premium"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "scim": {
     "message": "Aprovisionament SCIM",
@@ -9149,6 +9945,20 @@
   },
   "scimApiKeyHelperText": {
     "message": "Aquesta clau d'API té accés per gestionar els usuaris de la vostra organització. S'ha de mantenir en secret."
+  },
+  "scimInviteUsersAfterProvisioning": {
+    "message": "Automatically send email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHint": {
+    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimInviteUsersAfterProvisioningHelpTitle": {
+    "message": "About email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHelpBody": {
+    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
     "message": "Copieu la clau de l'API SCIM al porta-retalls",
@@ -9879,11 +10689,24 @@
   "removeMember": {
     "message": "Suprimeix membre"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Col·lecció"
   },
   "noCollection": {
     "message": "Cap col·lecció"
+  },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
   },
   "noCollectionsAdded": {
     "message": "No s'han afegit col·leccions"
@@ -9902,6 +10725,9 @@
   },
   "newDomain": {
     "message": "Domini nou"
+  },
+  "addDomain": {
+    "message": "Add domain"
   },
   "noDomains": {
     "message": "Sense dominis"
@@ -10047,6 +10873,42 @@
   "memberRole": {
     "message": "Rol de membre"
   },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "emailNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their email address."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "This member has a master password. Contact the member to update their email address."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "The new email must match a domain claimed by your organization."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email is already in use by a member of your organization."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email is already in use. You can invite them to your organization instead."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
+  },
+  "createdDate": {
+    "message": "Created date"
+  },
   "moreSettings": {
     "message": "More settings"
   },
@@ -10085,6 +10947,42 @@
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
     "message": "Els plans de Teams Starter poden tenir fins a $SEATCOUNT$ membres. Contacteu amb el propietari de la vostra organització per actualitzar el vostre pla i convidar més membres.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11074,11 +11972,29 @@
   "assignCollectionAccess": {
     "message": "Assigna accés a la col·lecció"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Col·leccions editades"
   },
   "editedCollection": {
     "message": "Edited collection"
+  },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL del servidor"
@@ -11247,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "No teniu accés per gestionar aquesta col·lecció."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Missing Manage Collection Permissions"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Concedeix als grups o membres l'accés a aquesta col·lecció."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Concedeix als membres l'accés a aquesta col·lecció."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Els administradors poden accedir i gestionar les col·leccions."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Accés al compte del servei actualitzat"
@@ -11363,41 +12303,53 @@
     "message": "Missing features or functionality",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Too difficult to set up or manage",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Not enough usage by our team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Our needs changed",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Gratuït durant 1 any"
@@ -11458,6 +12410,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Col·leccions assignades correctament"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -11587,6 +12551,10 @@
     "message": "Compte nou de màquina",
     "description": "Title for creating a new machine account."
   },
+  "addMachineAccount": {
+    "message": "Add machine account",
+    "description": "Title for creating a new machine account."
+  },
   "machineAccountsNoItemsMessage": {
     "message": "Crea un compte de màquina nou per començar a automatitzar l'accés secret.",
     "description": "Message to encourage the user to start creating machine accounts."
@@ -11708,6 +12676,15 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "graceMachineAccounts": {
+    "message": "You have $COUNT$ machine accounts from your previous plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
       }
     }
   },
@@ -11953,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Creeu una nova organització client per gestionar com a proveïdor. Els seients addicionals es reflectiran en el proper cicle de facturació."
   },
@@ -11976,6 +12989,9 @@
   },
   "selectAPlan": {
     "message": "Seleccioneu un pla"
+  },
+  "planBillingInterval": {
+    "message": "Plan billing interval"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% de descompte"
@@ -12082,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "You have not selected any collections."
+  },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Update name"
@@ -12467,6 +13487,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "Upgrade your plan to invite members and experience powerful security features."
   },
@@ -12615,8 +13653,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Include uppercase characters",
@@ -12890,6 +13928,23 @@
       },
       "date": {
         "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "revokeSponsorshipAcceptedWithPriceConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $PRICE$ + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "price": {
+        "content": "$2",
+        "example": "$40"
+      },
+      "date": {
+        "content": "$3",
         "example": "12/10/2024"
       }
     }
@@ -13218,6 +14273,10 @@
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
+  },
   "searchArchive": {
     "message": "Search archive"
   },
@@ -13263,8 +14322,35 @@
     "message": "Archive item",
     "description": "Verb"
   },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsSingular": {
+    "message": "Archive $NUM$ item",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Archive items",
@@ -13522,7 +14608,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
@@ -14532,6 +15618,210 @@
       }
     }
   },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Multifactor authentication cancelled"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Multifactor authentication failed"
+  },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
+  "importingYourAccount": {
+    "message": "Importing your account..."
+  },
+  "passcode": {
+    "message": "Passcode"
+  },
   "multipleInputDomainsInvalid": {
     "message": "One or more domains are invalid"
   },
@@ -14545,6 +15835,10 @@
   },
   "sendControlsEnableDescription": {
     "message": "Control whether members can use Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypes": {
+    "message": "Send types",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
@@ -14637,8 +15931,8 @@
     "message": "Send has unsaved edits. Are you sure you want to leave?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendControlsPolicySwitchLabel": {
-    "message": "Enable Send controls",
+  "sendControlsPolicySwitchLabelV2": {
+    "message": "Enable Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
@@ -14655,6 +15949,12 @@
   },
   "sendAccessOptionAnyoneWithAPassword": {
     "message": "Password set by member"
+  },
+  "enforceDeletionDate": {
+    "message": "Enforce deletion date"
+  },
+  "sendDeletionDate": {
+    "message": "Deletion date"
   },
   "hideMyEmail": {
     "message": "Hide my email address from recipients."
@@ -14712,9 +16012,6 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "emailVerification": {
-    "message": "Email verification"
   },
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
@@ -14793,5 +16090,27 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

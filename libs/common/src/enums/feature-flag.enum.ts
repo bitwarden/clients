@@ -12,16 +12,18 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   CollectionBulkDecryptWithFailures = "collection-bulk-decrypt-with-failures",
   CollectionAdminBulkDecrypt = "collection-admin-bulk-decrypt",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
   StagedStatus = "pm-34423-staged-status",
+  PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
   /* Auth */
+  // TODO: PM-40137 - Remove this flag
+  PM27060_PasswordPreloginFromSdk = "pm-27060-password-prelogin-from-sdk",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
+  PM30806_SelfServiceChangeEmailCommand = "pm-30806-self-service-change-email-command",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
@@ -30,14 +32,15 @@ export enum FeatureFlag {
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
-  MacOsNativeCredentialSync = "macos-native-credential-sync",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
 
   /* Desktop Native */
+  MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
+  WindowsNativeCredentialSync = "windows-native-credential-sync",
   SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
 
@@ -78,14 +81,16 @@ export enum FeatureFlag {
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  EventManagementForGenericHec = "event-management-for-generic-hec",
   EventManagementForHuntress = "event-management-for-huntress",
   EventManagementForSplunk = "event-management-for-splunk",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
-  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
+  PasskeyLoginReport = "inno-passkey-directory-report",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
+  BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -105,18 +110,26 @@ export enum FeatureFlag {
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
   PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
+  PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
+  ManagedDeviceFramework = "pm-27719-managed-device-framework",
 
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
+
+  /* VFO */
+  VFO1Foundation = "vfo1-foundation",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -136,23 +149,23 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.CollectionBulkDecryptWithFailures]: FALSE,
   [FeatureFlag.CollectionAdminBulkDecrypt]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PoliciesInAcceptedState]: FALSE,
+  [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
-  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
+  [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
@@ -164,14 +177,16 @@ export const DefaultFeatureFlagValue = {
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForGenericHec]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.EventManagementForSplunk]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
-  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
+  [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
+  [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -190,10 +205,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
+  [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
+  [FeatureFlag.PM30806_SelfServiceChangeEmailCommand]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
@@ -231,12 +249,19 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
+  [FeatureFlag.ManagedDeviceFramework]: FALSE,
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* PAM */
+  [FeatureFlag.Pam]: FALSE,
+
+  /* VFO */
+  [FeatureFlag.VFO1Foundation]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

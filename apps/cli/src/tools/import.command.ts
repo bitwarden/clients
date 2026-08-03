@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -10,8 +9,16 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer-core";
+import {
+  CredentialKind,
+  ImportRecordErrorReason,
+  ImportServiceAbstraction,
+  ImportType,
+  SdkImportCredentials,
+} from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -23,6 +30,8 @@ export class ImportCommand {
     private organizationService: OrganizationService,
     private syncService: SyncService,
     private accountService: AccountService,
+    private logService: LogService,
+    private i18nService: I18nService,
   ) {}
 
   async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
@@ -52,16 +61,26 @@ export class ImportCommand {
     if (options.formats || false) {
       return await this.list();
     } else {
-      return await this.import(format, filepath, organizationId);
+      return await this.import(format, filepath, organizationId, options);
     }
   }
 
-  private async import(format: ImportType, filepath: string, organizationId: string) {
+  private async import(
+    format: ImportType,
+    filepath: string,
+    organizationId: string,
+    options: OptionValues,
+  ) {
     if (format == null) {
       return Response.badRequest("`format` was not provided.");
     }
     if (filepath == null || filepath === "") {
       return Response.badRequest("`filepath` was not provided.");
+    }
+
+    // SDK-backed importers parse/encrypt/submit entirely in the SDK.
+    if (this.importService.isSdkImporter(format)) {
+      return await this.importWithSdk(format, filepath, organizationId, options);
     }
 
     // Lazy-load jsdom and polyfill DOMParser only when actually running an import.
@@ -70,9 +89,7 @@ export class ImportCommand {
     const { JSDOM } = await import("jsdom");
     global.DOMParser = new JSDOM().window.DOMParser;
 
-    const promptForPassword_callback = async () => {
-      return await this.promptPassword();
-    };
+    const promptForPassword_callback = () => this.resolveImportPassword(options);
 
     // The web UI exposes the Keeper method via a dropdown
     // The CLI infers it from the file extension when the user passes the unified `keeper` ID
@@ -116,6 +133,22 @@ export class ImportCommand {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.syncService.fullSync(true);
+
+        // Some items may have been skipped while the rest imported. Report which ones and why.
+        const skipped = response.errors ?? [];
+        if (skipped.length > 0) {
+          const details = skipped
+            .map(
+              (e) =>
+                `  - ${e.id != null && e.id.trim() !== "" ? e.id : "(unidentified item)"}: ${this.importErrorReasonText(e.reason)}`,
+            )
+            .join("\n");
+          const message = `${skipped.length} item(s) could not be imported and were skipped:\n${details}`;
+          const res = new MessageResponse("Imported " + filepath, message);
+          res.raw = message;
+          return Response.success(res);
+        }
+
         return Response.success(new MessageResponse("Imported " + filepath, null));
       }
     } catch (err) {
@@ -123,6 +156,86 @@ export class ImportCommand {
         return Response.badRequest(err.message);
       }
       return Response.badRequest(err);
+    }
+  }
+
+  private async importWithSdk(
+    format: ImportType,
+    filepath: string,
+    organizationId: string,
+    options: OptionValues,
+  ) {
+    let file: Uint8Array;
+    try {
+      file = await CliUtils.readBinaryFile(filepath);
+    } catch {
+      return Response.badRequest(`Could not read file: ${filepath}`);
+    }
+    if (file == null || file.length === 0) {
+      return Response.badRequest("Import file was empty.");
+    }
+
+    try {
+      const credentials = await this.collectSdkCredentials(
+        this.importService.credentialKindFor(format),
+        options,
+      );
+
+      const summary = await this.importService.importWithSdk(
+        format,
+        file,
+        credentials,
+        organizationId,
+        undefined,
+        // run() already rejected callers without import permission for this org
+        true,
+      );
+      const total = summary.ciphers.reduce((count, c) => count + c.count, 0);
+
+      await this.syncService.fullSync(true);
+      return Response.success(
+        new MessageResponse(`Imported ${total} item(s) from ${filepath}`, null),
+      );
+    } catch (err) {
+      const messageKey = this.importService.sdkErrorMessageKey(format, err);
+      if (messageKey != null) {
+        return Response.badRequest(this.i18nService.t(messageKey));
+      }
+      return Response.badRequest(err.message ?? err);
+    }
+  }
+
+  /** Collects the credentials an SDK importer declared, from CLI flags/prompts. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+    options: OptionValues,
+  ): Promise<SdkImportCredentials> {
+    switch (kind) {
+      case CredentialKind.password:
+        return { kind: "password", password: await this.resolveImportPassword(options) };
+      case CredentialKind.passwordWithKeyFile: {
+        const password = await this.resolveImportPassword(options);
+        // A key file may optionally protect the database in addition to the password.
+        const keyFile = options.keyfile ? await CliUtils.readBinaryFile(options.keyfile) : null;
+        return { kind: "passwordWithKeyFile", password, keyFile };
+      }
+      default:
+        return { kind: "none" };
+    }
+  }
+
+  private importErrorReasonText(reason: ImportRecordErrorReason): string {
+    switch (reason) {
+      case ImportRecordErrorReason.SshKeyParseFailed:
+        return "SSH key could not be imported";
+      case ImportRecordErrorReason.UnsupportedType:
+        return "unsupported item type";
+      case ImportRecordErrorReason.UnsupportedFeature:
+        return "unsupported feature";
+      case ImportRecordErrorReason.FolderDecryptionFailed:
+        return "folder could not be decrypted";
+      default:
+        return "could not be imported";
     }
   }
 
@@ -139,14 +252,20 @@ export class ImportCommand {
     return Response.success(res);
   }
 
-  private async promptPassword() {
-    const answer: inquirer.Answers = await inquirer.createPromptModule({
-      output: process.stderr,
-    })({
-      type: "password",
-      name: "password",
-      message: "Import file password:",
-    });
-    return answer.password;
+  private async resolveImportPassword(options: OptionValues): Promise<string> {
+    const password = await CliUtils.getPassword(
+      null,
+      { passwordFile: options.passwordfile, passwordEnv: options.passwordenv },
+      this.logService,
+      "Import file password:",
+    );
+    if (password instanceof Response) {
+      // BW_NOINTERACTION with no password source. Throwing surfaces as a badRequest via the
+      // import() catch block (and aborts the importer's credentials callback).
+      throw new Error(
+        "Import file password is required. Provide --passwordfile or --passwordenv, or run interactively.",
+      );
+    }
+    return password;
   }
 }

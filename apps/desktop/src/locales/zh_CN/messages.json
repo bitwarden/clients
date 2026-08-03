@@ -104,6 +104,24 @@
   "shared": {
     "message": "已共享"
   },
+  "sharedFolder": {
+    "message": "共享文件夹"
+  },
+  "sharedFolders": {
+    "message": "共享文件夹"
+  },
+  "myFolder": {
+    "message": "我的文件夹"
+  },
+  "myFolders": {
+    "message": "我的文件夹"
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
+  },
   "share": {
     "message": "共享"
   },
@@ -130,7 +148,7 @@
     "message": "欢迎回来"
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "attachments": {
     "message": "附件"
@@ -425,6 +443,10 @@
   "passphrase": {
     "message": "密码短语"
   },
+  "passwordAnnounceSpace": {
+    "message": "空格",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "编辑项目"
   },
@@ -458,6 +480,18 @@
   "copyValue": {
     "message": "复制值",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "复制网站"
+  },
+  "copyCustomField": {
+    "message": "复制 $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "复制到剪贴板时最小化"
@@ -705,7 +739,7 @@
     "description": "Short abbreviation for 'example'."
   },
   "title": {
-    "message": "称呼"
+    "message": "称谓"
   },
   "mr": {
     "message": "先生"
@@ -736,6 +770,9 @@
   },
   "type": {
     "message": "类型"
+  },
+  "items": {
+    "message": "项目"
   },
   "firstName": {
     "message": "名字"
@@ -807,23 +844,114 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "网址已添加"
   },
   "addWebsite": {
     "message": "添加网站"
   },
+  "addWebsiteOrApp": {
+    "message": "添加网站或 App"
+  },
+  "app": {
+    "message": "App"
+  },
   "deleteWebsite": {
     "message": "删除网站"
   },
+  "deleteCustomField": {
+    "message": "删除 $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "owner": {
     "message": "所有者"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "添加字段"
   },
   "editField": {
     "message": "编辑字段"
+  },
+  "editFieldLabel": {
+    "message": "编辑 $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "确定要永久删除此附件吗？"
@@ -849,8 +977,8 @@
   "linkedHelpText": {
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
-  "linkedLabelHelpText": {
-    "message": "输入字段的 html ID、名称、aria-label 或占位符。"
+  "linkedFieldLabelHelpText": {
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "folder": {
     "message": "文件夹"
@@ -1171,6 +1299,9 @@
   },
   "file": {
     "message": "文件"
+  },
+  "photo": {
+    "message": "照片"
   },
   "selectFile": {
     "message": "选择一个文件"
@@ -2043,7 +2174,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除生成器历史记录"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "clear": {
@@ -2078,6 +2209,92 @@
   },
   "selectAll": {
     "message": "选择所有"
+  },
+  "selectAllRows": {
+    "message": "选择所有行"
+  },
+  "selectRow": {
+    "message": "选择行"
+  },
+  "showingItemRange": {
+    "message": "显示 $START$ - $END$ / $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "每页行数"
+  },
+  "rowsPerPageOption": {
+    "message": "每页 $COUNT$ 行",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "全部"
+  },
+  "clearAll": {
+    "message": "清除全部"
+  },
+  "done": {
+    "message": "完成"
+  },
+  "filter": {
+    "message": "筛选"
+  },
+  "filtersSelected": {
+    "message": "已选择 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "上一页"
+  },
+  "nextPage": {
+    "message": "下一页"
+  },
+  "goToPage": {
+    "message": "跳转至..."
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "没有匹配的项目"
   },
   "selected": {
     "message": "已选择"
@@ -2319,11 +2536,8 @@
   "restrictCardTypeImportDesc": {
     "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「文件密码」与「确认文件密码」不一致。"
-  },
-  "done": {
-    "message": "完成"
+  "filePasswordConfirmationMismatch": {
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "warning": {
     "message": "警告",
@@ -2332,7 +2546,7 @@
   "confirmVaultExport": {
     "message": "确认密码库导出"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
@@ -2573,6 +2787,9 @@
   "collectionsDeleted": {
     "message": "集合已删除"
   },
+  "movedItem": {
+    "message": "项目已移动"
+  },
   "movedItems": {
     "message": "项目已移动"
   },
@@ -2739,29 +2956,11 @@
   "acceptPoliciesRequired": {
     "message": "尚未同意服务条款和隐私政策。"
   },
-  "enableBrowserIntegration": {
-    "message": "允许浏览器集成"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "用于在非 Safari 浏览器中允许生物识别解锁。"
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "允许 DuckDuckGo 浏览器集成"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "当使用 DuckDuckGo 浏览时，使用您的 Bitwarden 密码库。"
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "不支持浏览器集成"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "启用浏览器集成时出错"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "启用浏览器集成时发生错误。"
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
   },
   "enableHardwareAcceleration": {
     "message": "使用硬件加速"
@@ -3462,7 +3661,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3472,7 +3671,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3486,7 +3685,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3496,7 +3695,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3560,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
@@ -3570,7 +3777,7 @@
   "apiKey": {
     "message": "API 密钥"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
@@ -3580,7 +3787,7 @@
     "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
-    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
+    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您应确保您的设备已受到妥善保护。"
   },
   "vault": {
     "message": "密码库",
@@ -3617,7 +3824,7 @@
     "message": "通知已发送到您的设备"
   },
   "notificationSentDevicePart1": {
-    "message": "解锁您设备上的 Bitwarden 或通过"
+    "message": "解锁您设备上的 Bitwarden 或解锁"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
@@ -4155,6 +4362,75 @@
   "importNothingError": {
     "message": "没有导入任何内容。"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "此 SSH 密钥无法导入"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "不受支持的项目类型"
+  },
+  "importSkipReasonGeneric": {
+    "message": "此项目无法导入"
+  },
+  "identifier": {
+    "message": "标识符"
+  },
+  "contact": {
+    "message": "联系人"
+  },
+  "membership": {
+    "message": "成员资格"
+  },
+  "passport": {
+    "message": "护照"
+  },
+  "driverLicense": {
+    "message": "驾驶证"
+  },
+  "ssnCard": {
+    "message": "身份证"
+  },
+  "birthCertificate": {
+    "message": "出生证明"
+  },
+  "databaseCredentials": {
+    "message": "数据库凭据"
+  },
+  "serverCredentials": {
+    "message": "服务器凭据"
+  },
+  "softwareLicense": {
+    "message": "软件许可证"
+  },
+  "healthInsurance": {
+    "message": "健康保险"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi 凭据"
+  },
+  "general": {
+    "message": "常规"
+  },
   "importEncKeyError": {
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
   },
@@ -4219,6 +4495,30 @@
   "confirmFilePassword": {
     "message": "确认文件密码"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass 主密码"
+  },
+  "addKeyFile": {
+    "message": "添加密钥文件"
+  },
+  "keyFileUpload": {
+    "message": "密钥文件上传"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX 文件上传"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "可接受的格式：kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "数据格式不正确。请检查您的导入文件然后重试。"
+  },
+  "kdbxWrongFileType": {
+    "message": "此文件不是有效的 KeePass 数据库 (.kdbx) 文件。请选择一个 .kdbx 文件，然后重试。"
+  },
+  "kdbxFileTooLarge": {
+    "message": "此 KeePass 数据库过大，无法导入。"
+  },
   "exportSuccess": {
     "message": "密码库数据已导出"
   },
@@ -4258,8 +4558,11 @@
   "multifactorAuthenticationFailed": {
     "message": "多重身份验证失败"
   },
+  "keeperConnectionError": {
+    "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
+  },
   "includeSharedFolders": {
-    "message": "包含共享的文件夹"
+    "message": "包含共享文件夹"
   },
   "lastPassEmail": {
     "message": "LastPass Email"
@@ -4315,6 +4618,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
+  },
+  "keeperEmail": {
+    "message": "Keeper 电子邮箱"
+  },
+  "keeperEmailHint": {
+    "message": "输入您用于登录 Keeper 的电子邮箱"
+  },
+  "dataCenterLocation": {
+    "message": "数据中心位置"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper 主密码"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "请输入您的 Keeper 主密码"
+  },
+  "twoFactorCodePrompt": {
+    "message": "请输入来自您的双重身份验证方式的代码"
+  },
+  "totpCodePrompt": {
+    "message": "请输入来自您的验证器 App 的代码"
+  },
+  "smsCodePrompt": {
+    "message": "请输入通过短信发送的代码"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "请输入来自您的 Keeper DNA App 的代码"
+  },
+  "adminApproval": {
+    "message": "管理员批准"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "我们已经向您的管理员发送了管理员批准请求"
+  },
+  "method": {
+    "message": "方式"
+  },
+  "directImporter": {
+    "message": "直接导入器"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "需要 SSO 身份验证"
+  },
+  "keeperSsoDesc": {
+    "message": "您的 Keeper 账户要求 SSO 身份验证。在打开的浏览器窗口中完成登录，然后粘贴页面上显示的令牌。"
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "在打开的浏览器标签页中完成登录。令牌将被自动捕获。"
+  },
+  "ssoToken": {
+    "message": "SSO 令牌"
+  },
+  "keeperAuthRequired": {
+    "message": "需要 Keeper 身份验证"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "需要 Keeper 设备批准"
+  },
+  "selectApprovalMethod": {
+    "message": "批准方式"
+  },
+  "deviceApprovalNeeded": {
+    "message": "需要设备批准"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "通过选择下面的方式来批准此设备"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "双重身份验证方式"
+  },
+  "emailVerification": {
+    "message": "电子邮箱验证"
+  },
+  "approvalEmailDesc": {
+    "message": "请检查您的电子邮箱然后在下面输入验证码"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push 通知已发送到认可的设备"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push 已发送"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "批准请求将被取消"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "确定要离开吗？您的管理员批准请求将被取消。"
+  },
+  "cancelRequest": {
+    "message": "取消请求"
+  },
+  "keeperMFARequired": {
+    "message": "需要 Keeper 双重身份验证"
+  },
+  "mfaPushDesc": {
+    "message": "在您的身份验证 App 中批准登录请求。此对话框将自动关闭。"
+  },
+  "selectTwoFactorMethod": {
+    "message": "选择双重身份验证方式"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "选择验证您的身份的方式。"
+  },
+  "authenticatorAppTotp": {
+    "message": "验证器 App (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "短信 (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "备份代码"
+  },
+  "securityKeyU2f": {
+    "message": "安全密钥 (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "安全密钥 (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA 验证"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "批准您设备上的 Keeper DNA 通知"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "选择 Keeper DNA 方式"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "选择使用 Keeper DNA 进行验证的方式。"
+  },
+  "pushNotification": {
+    "message": "Push 通知"
+  },
+  "enterCodeManually": {
+    "message": "手动输入代码"
+  },
+  "twoFactorAuthentication": {
+    "message": "双重身份验证"
+  },
+  "unknownMethod": {
+    "message": "未知方式"
+  },
+  "selectDuoMethod": {
+    "message": "选择 Duo 方式"
+  },
+  "selectDuoMethodDesc": {
+    "message": "选择使用 Duo Security 进行验证的方式。"
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "电话"
+  },
+  "duoVerification": {
+    "message": "Duo 验证"
+  },
+  "duoPushWaiting": {
+    "message": "批准您设备上的 Duo Push 通知。"
+  },
+  "duoSmsWaiting": {
+    "message": "短信已经发送到您的手机。请在 Duo App 中输入代码以继续。"
+  },
+  "duoVoiceWaiting": {
+    "message": "接听来自 Duo 的电话然后按照说明操作。"
+  },
+  "tryAnotherMethod": {
+    "message": "尝试其他方式"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "您的 Keeper 账户需要双重身份验证方式，而直接导入器目前不支持这种方式。"
   },
   "commonImportFormats": {
     "message": "常规格式",
@@ -4374,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "移除通行密钥"
+  },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
   },
   "passkeyRemoved": {
     "message": "通行密钥已移除"
@@ -4841,6 +5339,18 @@
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
   },
+  "itemMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemMovedToCollections": {
+    "message": "项目已移动到集合"
+  },
+  "itemsMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemsMovedToCollections": {
+    "message": "项目已移动到集合"
+  },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
   },
@@ -5000,15 +5510,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "归档 $NUM$ 个项目",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "归档项目",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "归档后，这些项目将被排除在搜索结果和自动填充建议之外。"
@@ -5354,6 +5858,13 @@
   "enterYear": {
     "message": "输入年份。"
   },
+  "sendTypes": {
+    "message": "Send 类型",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "任意"
+  },
   "invalidDay": {
     "message": "请输入有效的日期。"
   },
@@ -5472,6 +5983,9 @@
   "newBankAccountNudgeBody": {
     "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
   },
+  "sendDeletionDate": {
+    "message": "删除日期"
+  },
   "discardEditsTitle": {
     "message": "放弃编辑"
   },
@@ -5529,7 +6043,15 @@
     "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "您的组织不允许文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "您的组织不允许文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "此 Send 将在设置的删除日期自动过期",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,6 +6106,15 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ 已设置此删除日期",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
     "message": "添加到文件夹"
   },
@@ -5605,8 +6136,11 @@
   "deleteCollectionsDesc": {
     "message": "这些集合将被永久删除。"
   },
+  "duplicateAttachmentNameError": {
+    "message": "项目不能有多个具有相同文件名的附件"
+  },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$：新通知",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

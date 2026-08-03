@@ -7,8 +7,10 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -124,13 +126,13 @@ describe("WebRegistrationFinishService", () => {
 
     it("returns null when the policies are undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
     });
 
     it("returns the master password policy options from the organization invite when it exists", async () => {
@@ -138,20 +140,21 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(masterPasswordPolicies);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
     });
   });
 
   describe("finishRegistration()", () => {
     let email: string;
     let emailVerificationToken: string;
+    let salesAssistedToken: string;
     let masterKey: MasterKey;
     let passwordInputResult: PasswordInputResult;
     let userKey: UserKey;
@@ -172,6 +175,7 @@ describe("WebRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
       salt = "salt" as MasterPasswordSalt;
 
@@ -357,6 +361,24 @@ describe("WebRegistrationFinishService", () => {
       expect(registerCall).toMatchSnapshot();
     });
 
+    it("forwards salesAssistedToken to the register request", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        salesAssistedToken,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.salesAssistedToken).toBe(salesAssistedToken);
+    });
+
     it("throws an error if given an email verification token and organization invite token", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
@@ -412,6 +434,26 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           providerInviteToken,
           providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
         ),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
@@ -494,6 +536,7 @@ describe("WebRegistrationFinishService", () => {
   describe("finishRegistration() - SDK flow", () => {
     let email: string;
     let emailVerificationToken: string;
+    let salesAssistedToken: string;
     let salt: MasterPasswordSalt;
     let passwordInputResult: PasswordInputResult;
 
@@ -512,6 +555,7 @@ describe("WebRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
       salt = "salt" as MasterPasswordSalt;
 
       passwordInputResult = {
@@ -660,6 +704,23 @@ describe("WebRegistrationFinishService", () => {
       expect(sdkRequest).toMatchSnapshot();
     });
 
+    it("forwards salesAssistedToken to the SDK register request", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        salesAssistedToken,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.sales_assisted_token).toBe(salesAssistedToken);
+    });
+
     it("throws if the provided organization id is not a valid UUID", async () => {
       const badOrgInvite = new OrganizationInvite({
         organizationId: "organizationId",
@@ -764,6 +825,26 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           providerInviteToken,
           providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
         ),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",

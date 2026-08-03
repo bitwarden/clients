@@ -312,6 +312,10 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  get canManageAccessRules() {
+    return this.isAdmin && this.usePam;
+  }
+
   get canManageUsers() {
     return this.isAdmin || this.permissions.manageUsers;
   }
@@ -419,6 +423,6 @@ export class Organization {
   }
 
   get canUseAccessIntelligence() {
-    return this.productTierType === ProductTierType.Enterprise;
+    return this.useAccessIntelligence;
   }
 }

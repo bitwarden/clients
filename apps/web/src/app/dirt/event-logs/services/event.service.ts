@@ -13,6 +13,9 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon } from "@bitwarden/components";
 
+export const SEND_EVENTS_HREF_PREFIX = "#send-events:";
+export const MEMBER_EVENTS_HREF_PREFIX = "#member-events:";
+
 @Injectable()
 export class EventService {
   private policies: Policy[];
@@ -514,6 +517,20 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_AdminChangedEmail:
+        msg = this.i18nService.t("eventAdminChangedUserEmail", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "eventAdminChangedUserEmail",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_InviteLinkConfirmed:
+        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventMemberConfirmed",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -647,6 +664,12 @@ export class EventService {
         break;
       case EventType.Organization_InviteLinkRefreshed:
         msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
+        break;
+      case EventType.Organization_InviteLinkConfirmEnabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmEnabled");
+        break;
+      case EventType.Organization_InviteLinkConfirmDisabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmDisabled");
         break;
 
       // Policies
@@ -873,40 +896,110 @@ export class EventService {
         break;
       // Send
       case EventType.Send_Created_Text:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSend");
+        msg = this.i18nService.t("createdTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSend");
+        msg = this.i18nService.t("createdFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_Text:
-        msg = humanReadableMsg = this.i18nService.t("editedTextSend");
+        msg = this.i18nService.t("editedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_File:
-        msg = humanReadableMsg = this.i18nService.t("editedFileSend");
+        msg = this.i18nService.t("editedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_Text:
-        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        msg = this.i18nService.t("deletedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_File:
-        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        msg = this.i18nService.t("deletedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Accessed_Text:
-        msg = humanReadableMsg = this.i18nService.t("accessedTextSend");
+        msg = this.i18nService.t(
+          "accessedTextSendV3",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedTextSendV3",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
         break;
       case EventType.Send_Accessed_File:
-        msg = humanReadableMsg = this.i18nService.t("accessedFileSend");
+        msg = this.i18nService.t(
+          "accessedFileSendV3",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedFileSendV3",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
         break;
 
       default:
@@ -985,7 +1078,7 @@ export class EventService {
   private formatCipherId(ev: EventResponse, options: EventOptions) {
     const shortId = this.getShortId(ev.cipherId);
     if (ev.organizationId == null || !options.cipherInfo) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
@@ -1136,8 +1229,40 @@ export class EventService {
   private makeAnchor(shortId: string) {
     const a = document.createElement("a");
     a.title = this.i18nService.t("view");
-    a.innerHTML = "<code>" + shortId + "</code>";
+    const code = document.createElement("code");
+    code.textContent = shortId;
+    a.appendChild(code);
     return a;
+  }
+
+  private formatSendId(ev: EventResponse, options: EventOptions): string {
+    if (options.hideSendId || ev.sendId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.sendId);
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewSendEvents", shortId);
+    a.setAttribute("href", SEND_EVENTS_HREF_PREFIX + ev.sendId);
+    return " " + a.outerHTML;
+  }
+
+  private formatSendIdText(ev: EventResponse, options: EventOptions): string {
+    return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
+  }
+
+  private formatSendCreatorId(ev: EventResponse, options: EventOptions): string {
+    if (ev.userId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.userId);
+    // Render plain text (no link) when the creator is not a member we can open events for
+    if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
+    }
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewMemberEvents", shortId);
+    a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
+    return a.outerHTML;
   }
 
   private getShortId(id: string) {
@@ -1183,4 +1308,11 @@ export class EventInfo {
 export class EventOptions {
   cipherInfo = true;
   disableLink = false;
+  // Set when rendering inside a Send-scoped dialog, where repeating the Send id on every row is redundant.
+  hideSendId = false;
+  // User ids whose member events can be opened. When provided, the Send creator id renders
+  // as a link only if its id is in this set; otherwise it renders as plain text, since clicking a
+  // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
+  // keeps all creator ids linked (for callers that don't gate on membership).
+  linkableMemberIds?: ReadonlySet<string>;
 }

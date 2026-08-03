@@ -38,7 +38,7 @@
     "message": "Ваша організація вимагає єдиний вхід (SSO)."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Увійти"
   },
   "setAStrongPassword": {
     "message": "Встановіть надійний пароль"
@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Автозаповнення",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Автозаповнення",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -290,7 +290,7 @@
     "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
   "hint": {
-    "message": "Hint"
+    "message": "Підказка"
   },
   "continue": {
     "message": "Продовжити"
@@ -394,7 +394,7 @@
     "message": "Зберегти"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Зберегти й заповнити"
   },
   "move": {
     "message": "Перемістити"
@@ -613,6 +613,23 @@
   },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
+  },
+  "archiveItemsPlural": {
+    "message": "Архівувати $NUM$ записів",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Архівований запис",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Після архівації ці записи буде виключено з результатів пошуку і пропозицій автозаповнення."
   },
   "itemRestored": {
     "message": "Запис відновлено"
@@ -979,7 +996,7 @@
     "message": "Увійти"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Увійти"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введіть код, надісланий вам електронною поштою"
@@ -1070,6 +1087,10 @@
   },
   "passwordCopied": {
     "message": "Пароль скопійовано"
+  },
+  "passwordAnnounceSpace": {
+    "message": "пробіл",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1346,17 +1367,17 @@
   "additionalOptions": {
     "message": "Додаткові налаштування"
   },
-  "enableFillAssist": {
-    "message": "Скористатись помічником із заповнення"
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+  "activateFillAssist": {
+    "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -1434,7 +1455,7 @@
   "accountRestricted": {
     "message": "Обмежено обліковим записом"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
   "warning": {
@@ -1448,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "Підтвердити експорт сховища"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Ваші експортовані дані сховища незашифровані. Не зберігайте і не надсилайте їх незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть їх."
   },
   "encExportKeyWarningDesc": {
@@ -1462,6 +1483,24 @@
   },
   "shared": {
     "message": "Спільні"
+  },
+  "sharedFolder": {
+    "message": "Спільна тека"
+  },
+  "sharedFolders": {
+    "message": "Спільні теки"
+  },
+  "myFolder": {
+    "message": "Моя тека"
+  },
+  "myFolders": {
+    "message": "Мої теки"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden для бізнесу дозволяє доступ до записів сховища спільно з іншими користувачами за допомогою організації. Дізнайтеся більше про це на вебсайті bitwarden.com."
@@ -1551,6 +1590,12 @@
   "file": {
     "message": "Файл"
   },
+  "photo": {
+    "message": "Фото"
+  },
+  "unknown": {
+    "message": "Невідомо"
+  },
   "fileToShare": {
     "message": "Файл для поширення"
   },
@@ -1587,8 +1632,8 @@
   "premiumSignUpAndGet": {
     "message": "Передплатіть Premium і отримайте:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1 ГБ зашифрованого сховища для файлів."
+  "premiumSignUpStorage": {
+    "message": "1 ГБ зашифрованого сховища для вкладених файлів."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ зашифрованого сховища для вкладених файлів.",
@@ -1614,16 +1659,16 @@
   "restartPremium": {
     "message": "Поновити Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
+  "premiumSignUpReports": {
+    "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про витоки даних, щоб зберігати ваше сховище в безпеці."
   },
-  "ppremiumSignUpTotp": {
-    "message": "Генератор коду авторизації TOTP (2FA) для входу в сховище."
+  "premiumSignUpTotp": {
+    "message": "Генератор кодів підтвердження TOTP (2FA) для записів у вашому сховищі."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Пріоритетну технічну підтримку."
+  "premiumSignUpSupport": {
+    "message": "Пріоритетна підтримка клієнтів."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Усі майбутні функції Premium. Їх буде більше!"
   },
   "premiumPurchase": {
@@ -1715,7 +1760,7 @@
     "message": "Збій автентифікації ключа доступу"
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "Використати інший спосіб входу"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Очікується взаємодія з ключем безпеки..."
@@ -1812,7 +1857,7 @@
     "message": "URL-адреса сервера піктограм"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL-адреса сервера відправлень"
   },
   "environmentSaved": {
     "message": "URL-адреси середовища збережено"
@@ -2321,6 +2366,42 @@
   "licenseClass": {
     "message": "Клас ліцензії"
   },
+  "addItemHeaderLogin": {
+    "message": "Додати запис",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Додати картку",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Додати посвідчення",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Додати нотатку",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Додати захищену нотатку",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Додати ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Додати банківський рахунок",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Додати ліцензію",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Додати паспорт",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Новий запис",
     "description": "Header for new login item type"
@@ -2338,7 +2419,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Нова захищена нотатка",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2382,8 +2463,24 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Редагувати захищену нотатку",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Редагувати запис",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Редагувати картку",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Редагувати посвідчення",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Редагувати нотатку",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Редагувати ключ SSH",
@@ -2426,7 +2523,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Перегляд захищеної нотатки",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -2434,15 +2531,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "Переглянути банківський рахунок",
+    "message": "Перегляд банківського рахунку",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "Переглянути ліцензію",
+    "message": "Перегляд ліцензії",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "Переглянути паспорт",
+    "message": "Перегляд паспорта",
     "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
@@ -2457,7 +2554,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Очистити історію генератора"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
   },
   "back": {
@@ -2503,11 +2600,97 @@
     "message": "Стерти",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "selected": {
     "message": "Вибрано"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "вибрано",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2908,7 +3091,7 @@
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Отримувати оновлення від Bitwarden електронною поштою."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -2982,11 +3165,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Програма на комп'ютері використовує інший обліковий запис. Переконайтеся, що програма й розширення використовують однаковий обліковий запис."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Невідповідність облікових записів"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Невідповідність облікового запису"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Біометричний ключ відрізняється"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Невідповідність біометричних ключів"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Збій біометричного розблокування. Біометричний секретний ключ не зміг розблокувати сховище. Спробуйте налаштувати біометрію знову."
@@ -3020,6 +3203,18 @@
   },
   "biometricsFailedDesc": {
     "message": "Неможливо виконати біометрію. Скористайтеся головним паролем або вийдіть із системи. Якщо проблема не зникне, зверніться до служби підтримки Bitwarden."
+  },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "Дозвіл не надано"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Без дозволу з'єднання з програмою Bitwarden на комп'ютері неможливо використовувати біометрію в розширенні браузера. Повторіть спробу."
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "Помилка запиту дозволу"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "Цю дію неможливо виконати в бічній панелі. Повторіть спробу в спливному чи окремому вікні."
   },
   "personalOwnershipSubmitError": {
     "message": "У зв'язку з корпоративною політикою, вам не дозволено зберігати записи до особистого сховища. Змініть налаштування власності на організацію та виберіть серед доступних збірок."
@@ -3083,6 +3278,10 @@
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
   },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ вимагає зміни один пароль, оскільки він ризикований.",
     "placeholders": {
@@ -3139,6 +3338,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Перегляньте і змініть $COUNT$ ризикованих паролів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Переглянути 1 ризикований пароль"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Переглянути $COUNT$ ризикованих паролів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3342,6 +3553,10 @@
   },
   "createSend": {
     "message": "Нове відправлення",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Створити відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3811,7 +4026,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Недійсний токен API для $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3821,7 +4036,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3835,7 +4050,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3845,7 +4060,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3909,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Ім'я вузла",
     "description": "Part of a URL."
@@ -3922,7 +4145,7 @@
   "ssoKeyConnectorError": {
     "message": "Помилка Key Connector: переконайтеся, що Key Connector доступний та працює правильно."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Необхідна передплата Premium"
   },
   "organizationIsDisabled": {
@@ -4414,7 +4637,7 @@
     "message": "1 або більше адрес е-пошти недійсні"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "Список отримувачів електронної пошти не може перевищувати 2500 символів. Щоб продовжити, вилучіть одного або декількох отримувачів."
   },
   "inputTrimValidator": {
     "message": "Введене значення не повинно містити лише пробіл.",
@@ -4671,6 +4894,72 @@
   "importNothingError": {
     "message": "Нічого не імпортовано."
   },
+  "importPartialErrorTitle": {
+    "message": "Буде пропущено $COUNT$ записів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Не вдалося прочитати зазначені записи, тому вони не будуть включені до вашого імпорту:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
+  },
+  "contact": {
+    "message": "Контакт"
+  },
+  "membership": {
+    "message": "Участь"
+  },
+  "passport": {
+    "message": "Паспорт"
+  },
+  "driverLicense": {
+    "message": "Водійське посвідчення"
+  },
+  "ssnCard": {
+    "message": "Посвідчення особи"
+  },
+  "birthCertificate": {
+    "message": "Свідоцтво про народження"
+  },
+  "databaseCredentials": {
+    "message": "Облікові дані бази даних"
+  },
+  "serverCredentials": {
+    "message": "Облікові дані сервера"
+  },
+  "softwareLicense": {
+    "message": "Ліцензія ПЗ"
+  },
+  "healthInsurance": {
+    "message": "Медичне страхування"
+  },
+  "wifiCredentials": {
+    "message": "Облікові дані Wi-Fi"
+  },
   "importEncKeyError": {
     "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
   },
@@ -4734,6 +5023,30 @@
   },
   "confirmFilePassword": {
     "message": "Підтвердьте пароль файлу"
+  },
+  "keePassMasterPassword": {
+    "message": "Головний пароль KeePass"
+  },
+  "addKeyFile": {
+    "message": "Додати ключовий файл"
+  },
+  "keyFileUpload": {
+    "message": "Вивантаження ключового файлу"
+  },
+  "kdbxFileUpload": {
+    "message": "Вивантаження файлу KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Допустимі формати: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
+  },
+  "kdbxWrongFileType": {
+    "message": "Цей файл не є правильним файлом бази даних KeePass (.kdbx). Виберіть файл .kdbx і повторіть спробу."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ця база даних KeePass завелика для імпорту."
   },
   "exportSuccess": {
     "message": "Дані сховища експортовано"
@@ -4837,6 +5150,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Збій багатофакторної автентифікації"
   },
+  "keeperConnectionError": {
+    "message": "Помилка під'єднання до Keeper. Спробуйте імпортувати знову."
+  },
   "includeSharedFolders": {
     "message": "Включити спільні теки"
   },
@@ -4888,6 +5204,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
+  },
+  "keeperEmail": {
+    "message": "Е-пошта Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Введіть адресу е-пошти, яку ви використовуєте для входу в Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Розташування центру даних"
+  },
+  "keeperMasterPassword": {
+    "message": "Головний пароль Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Введіть свій головний пароль Keeper"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Введіть код двоетапної перевірки"
+  },
+  "totpCodePrompt": {
+    "message": "Введіть код з вашої програми для автентифікації"
+  },
+  "smsCodePrompt": {
+    "message": "Введіть код, надісланий у текстовому повідомленні"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Введіть код з програми Keeper DNA"
+  },
+  "adminApproval": {
+    "message": "Схвалення адміністратора"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Ми надіслали вашому адміністратору запит на підтвердження"
+  },
+  "method": {
+    "message": "Спосіб"
+  },
+  "directImporter": {
+    "message": "Прямий імпорт"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "Необхідно пройти автентифікацію SSO"
+  },
+  "keeperSsoDesc": {
+    "message": "Ваш обліковий запис Keeper потребує автентифікації за допомогою SSO. Завершіть вхід у щойно відкритому вікні браузера, а потім вставте токен, показаний на сторінці."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Завершіть вхід у щойно відкритій вкладці браузера. Токен буде захоплено автоматично."
+  },
+  "ssoToken": {
+    "message": "Токен SSO"
+  },
+  "keeperAuthRequired": {
+    "message": "Необхідно пройти автентифікацію Keeper"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Необхідно пройти схвалення пристрою Keeper"
+  },
+  "selectApprovalMethod": {
+    "message": "Способи схвалення"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Необхідно пройти схвалення пристрою"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Схваліть цей пристрій, вибравши спосіб нижче"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Спосіб двоетапної перевірки"
+  },
+  "emailVerification": {
+    "message": "Підтвердження е-поштою"
+  },
+  "approvalEmailDesc": {
+    "message": "Перевірте свою електронну пошту та введіть код підтвердження нижче"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Push-сповіщення Keeper надіслано на схвалений пристрій"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push надіслано"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Запит на схвалення буде скасовано"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Ви дійсно хочете вийти? Ваш запит на схвалення адміністратора буде скасовано."
+  },
+  "cancelRequest": {
+    "message": "Скасувати запит"
+  },
+  "keeperMFARequired": {
+    "message": "Необхідно пройти двофакторну автентифікацію Keeper"
+  },
+  "mfaPushDesc": {
+    "message": "Схваліть запит входу в програмі автентифікації. Це діалогове вікно автоматично закриється."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Вибір способу двоетапної перевірки"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Виберіть спосіб підтвердження своєї особи."
+  },
+  "authenticatorAppTotp": {
+    "message": "Програма автентифікації (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Текстове повідомлення (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Резервні коди"
+  },
+  "securityKeyU2f": {
+    "message": "Ключ безпеки (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Ключ безпеки (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Підтвердження Keeper DNA"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Схваліть сповіщення Keeper DNA на вашому пристрої"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Виберіть спосіб Keeper DNA"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Виберіть спосіб підтвердження з Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push-сповіщення"
+  },
+  "enterCodeManually": {
+    "message": "Ввести код вручну"
+  },
+  "twoFactorAuthentication": {
+    "message": "Двофакторна автентифікація"
+  },
+  "unknownMethod": {
+    "message": "Невідомий спосіб"
+  },
+  "selectDuoMethod": {
+    "message": "Виберіть спосіб Duo"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Виберіть спосіб підтвердження з Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Телефонний виклик"
+  },
+  "duoVerification": {
+    "message": "Перевірка Duo"
+  },
+  "duoPushWaiting": {
+    "message": "Схваліть Push-сповіщення на своєму пристрої."
+  },
+  "duoSmsWaiting": {
+    "message": "Текстове повідомлення надіслано на ваш телефон. Щоб продовжити, введіть код у програмі Duo."
+  },
+  "duoVoiceWaiting": {
+    "message": "Прийміть телефонний виклик від Duo й дотримуйтесь інструкцій."
+  },
+  "tryAnotherMethod": {
+    "message": "Спробувати інший спосіб"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Ваш обліковий запис Keeper вимагає спосіб двофакторної автентифікації, який наразі не підтримується прямим імпортером."
   },
   "switchAccount": {
     "message": "Перемкнути обліковий запис"
@@ -5004,11 +5509,11 @@
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerCalloutTitle": {
-    "message": "Make your autofill experience better",
+    "message": "Зробіть процес автозаповнення кращим",
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "message": "Ви отримаєте запит надати браузеру $BROWSER$ дозвіл на встановлення Bitwarden вашим типовим менеджером паролів.",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5030,20 +5535,35 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "Зробити Bitwarden типовим менеджером паролів браузера"
+  },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Зробити Bitwarden типовим менеджером паролів",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Вимкніть налаштування автозаповнення браузера, щоб уникнути конфліктів.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Керувати налаштуваннями браузера",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+    "message": "із запиту браузера про надання дозволу Bitwarden для зміни налаштувань."
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "Ми вимкнемо вбудований менеджер паролів у браузері, щоб ви могли користуватися безпечним входом у свої облікові записи."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Зробити Bitwarden типовим менеджером паролів браузера"
   },
   "allow": {
-    "message": "Allow",
+    "message": "Дозволити",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "Пропустити"
   },
   "saveCipherAttemptSuccess": {
     "message": "Облікові дані успішно збережено!",
@@ -5070,6 +5590,12 @@
   },
   "removePasskey": {
     "message": "Вилучити ключ доступу"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "passkeyRemoved": {
     "message": "Ключ доступу вилучено"
@@ -5299,6 +5825,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Переглянути запис",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Переглянути картку",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Переглянути посвідчення",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Переглянути нотатку",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Створити",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Додати збірку"
+  },
   "new": {
     "message": "Новий"
   },
@@ -5326,6 +5875,60 @@
   },
   "owner": {
     "message": "Власник"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Ви",
@@ -5483,11 +6086,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "Програма (URI)"
+  },
+  "appUriCount": {
+    "message": "Програма (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Вебсайт додано"
   },
   "addWebsite": {
     "message": "Додати вебсайт"
+  },
+  "addWebsiteOrApp": {
+    "message": "Додати вебсайт або програму"
+  },
+  "app": {
+    "message": "Програма"
   },
   "deleteWebsite": {
     "message": "Видалити вебсайт"
@@ -5617,8 +6239,8 @@
   "linkedHelpText": {
     "message": "Використовуйте пов'язане поле у разі виникнення проблем з автозаповненням для певного вебсайту."
   },
-  "linkedLabelHelpText": {
-    "message": "Введіть html-ідентифікатор поля, назву, мітку або заповнювач."
+  "linkedFieldLabelHelpText": {
+    "message": "Введіть HTML-ідентифікатор поля, назву, мітку або заповнювач."
   },
   "editField": {
     "message": "Редагувати поле"
@@ -5719,11 +6341,23 @@
   "successfullyAssignedCollections": {
     "message": "Збірки успішно призначено"
   },
+  "itemMovedToCollection": {
+    "message": "Запис переміщено до збірки"
+  },
+  "itemMovedToCollections": {
+    "message": "Запис переміщено до збірки"
+  },
+  "itemsMovedToCollection": {
+    "message": "Записи переміщено до збірки"
+  },
+  "itemsMovedToCollections": {
+    "message": "Записи переміщено до збірок"
+  },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Запис призначено збіркам"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Записи призначено збіркам"
   },
   "nothingSelected": {
     "message": "Ви нічого не вибрали."
@@ -5894,9 +6528,6 @@
   },
   "unlockPinSet": {
     "message": "Розблокування PIN-кодом встановлено"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Біометричне розблокування налаштовано"
   },
   "authenticating": {
     "message": "Аутентифікація"
@@ -6574,16 +7205,34 @@
     "message": "Не вдалося перевірити користувача."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "Спільне розблокування"
   },
-  "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  "sharedUnlockWithDesktop": {
+    "message": "Спільне розблокування з комп'ютером"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "Якщо ввімкнено, стан розблокування буде спільним з комп'ютерною програмою Bitwarden."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  "sharedUnlockWithWeb": {
+    "message": "Спільне розблокування з вебсховищем"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "Якщо ввімкнено, стан розблокування буде спільним з вебсховищами Bitwarden."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+  },
+  "newPermissionNeeded": {
+    "message": "Потрібен новий дозвіл"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "Щоб використовувати спільне розблокування, Bitwarden потребує дозволу на обмін даними з комп'ютерною програмою. Коли ви продовжите, браузер попросить вас схвалити запит."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden заблокується і перезавантажиться. Після вашого схвалення розширення перезавантажиться і заблокує ваше сховище."
+  },
+  "biometricPermissionDesc": {
+    "message": "Щоб використовувати біометричне розблокування, Bitwarden потребує дозволу на обмін даними з комп'ютерною програмою. Коли ви продовжите, браузер попросить вас схвалити запит."
   },
   "enterMonth": {
     "message": "Введіть місяць."
@@ -6607,7 +7256,7 @@
     "message": "Назва банку"
   },
   "nameOnAccount": {
-    "message": "Ім'я рахунку"
+    "message": "Ім'я власника рахунку"
   },
   "bankAccountType": {
     "message": "Тип рахунку"
@@ -6656,7 +7305,7 @@
     "message": "Копіювати IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Копіювати ім'я рахунку"
+    "message": "Копіювати ім'я власника рахунку"
   },
   "copyBranchNumber": {
     "message": "Копіювати номер відділення"
@@ -6732,7 +7381,7 @@
     "message": "Ваша організація вимагає видимість е-пошти. Щоб зберегти, приберіть позначку з функції \"Приховати мою адресу е-пошти від отримувачів\"."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Включати лише зазначені домени: $DOMAINS$. Перегляньте і повторіть спробу",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -6740,24 +7389,47 @@
     }
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "Не відповідає політиці вашої організації для відправлень",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Щоб редагувати це відправлення, зробіть копію. Якщо термін дії цього відправлення може завершитися у встановлену дату видалення, жодних дій виконувати не потрібно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Зробити копію"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Текстові відправлення не дозволені у вашій організації",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Файлові відправлення не дозволені у вашій організації",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Термін дії цього відправлення автоматично завершиться у встановлену дату видалення",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Ви не можете імпортувати записи в \"Мої записи\", які є частиною різних збірок"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Не вдалося зберегти запис. Щоб зберігати записи, ви повинні бути підтвердженим учасником організації."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "У записах не можна зберігати декілька вкладень з однаковою назвою файлу."
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "Цю дату видалення встановлено організацією $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "Health"
   }
 }

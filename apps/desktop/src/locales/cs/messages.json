@@ -104,6 +104,24 @@
   "shared": {
     "message": "Sdílené"
   },
+  "sharedFolder": {
+    "message": "Sdílená složka"
+  },
+  "sharedFolders": {
+    "message": "Sdílené složky"
+  },
+  "myFolder": {
+    "message": "Moje složka"
+  },
+  "myFolders": {
+    "message": "Moje složky"
+  },
+  "addSharedFolder": {
+    "message": "Přidat sdílenou složku"
+  },
+  "newSharedFolder": {
+    "message": "Nová sdílená složka"
+  },
   "share": {
     "message": "Sdílet"
   },
@@ -425,6 +443,10 @@
   "passphrase": {
     "message": "Heslová fráze"
   },
+  "passwordAnnounceSpace": {
+    "message": "mezera",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Upravit položku"
   },
@@ -458,6 +480,18 @@
   "copyValue": {
     "message": "Kopírovat hodnotu",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "Kopírovat webovou stránku"
+  },
+  "copyCustomField": {
+    "message": "Kopírovat $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "Minimalizovat při kopírování do schránky"
@@ -737,6 +771,9 @@
   "type": {
     "message": "Typ"
   },
+  "items": {
+    "message": "Položky"
+  },
   "firstName": {
     "message": "Křestní jméno"
   },
@@ -786,7 +823,7 @@
     "message": "Upravit"
   },
   "authenticatorKeyTotp": {
-    "message": "Autentizační klíč (TOTP)"
+    "message": "Ověřovací klíč (TOTP)"
   },
   "authenticatorKey": {
     "message": "Ověřovací klíč"
@@ -807,23 +844,114 @@
       }
     }
   },
+  "appUri": {
+    "message": "Aplikace (URI)"
+  },
+  "appUriCount": {
+    "message": "Aplikace (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Webová stránka přidána"
   },
   "addWebsite": {
     "message": "Přidat webovou stránku"
   },
+  "addWebsiteOrApp": {
+    "message": "Přidat web nebo aplikaci"
+  },
+  "app": {
+    "message": "Aplikace"
+  },
   "deleteWebsite": {
     "message": "Smazat webovou stránku"
   },
+  "deleteCustomField": {
+    "message": "Smazat $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Sdílená složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Sbírka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Moje složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Přidat pole"
   },
   "editField": {
     "message": "Upravit pole"
+  },
+  "editFieldLabel": {
+    "message": "Upravit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Opravdu chcete tuto přílohu navždy smazat?"
@@ -849,8 +977,8 @@
   "linkedHelpText": {
     "message": "Použijte propojené pole, pokud máte problémy s automatickým vyplňováním na konkrétní webové stránce."
   },
-  "linkedLabelHelpText": {
-    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak pole."
+  "linkedFieldLabelHelpText": {
+    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak."
   },
   "folder": {
     "message": "Složka"
@@ -1171,6 +1299,9 @@
   },
   "file": {
     "message": "Soubor"
+  },
+  "photo": {
+    "message": "Fotka"
   },
   "selectFile": {
     "message": "Zvolte soubor"
@@ -1649,7 +1780,7 @@
     "message": "Účet"
   },
   "loading": {
-    "message": "Načítání..."
+    "message": "Načítání…"
   },
   "lockVault": {
     "message": "Uzamknout trezor"
@@ -1873,7 +2004,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Zkontrolovat aktualizace..."
+    "message": "Zkontrolovat aktualizace…"
   },
   "version": {
     "message": "Verze $VERSION_NUM$",
@@ -2043,7 +2174,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Vymazat historii generátoru"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Pokud budete pokračovat, všechny položky budou trvale smazány z historie generátoru. Jste si jisti, že chcete pokračovat?"
   },
   "clear": {
@@ -2078,6 +2209,92 @@
   },
   "selectAll": {
     "message": "Označit vše"
+  },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Vše"
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
   },
   "selected": {
     "message": "Vybráno"
@@ -2319,11 +2536,8 @@
   "restrictCardTypeImportDesc": {
     "message": "Zásady nastavené 1 nebo více organizací Vám brání v importu karet do Vašeho trezoru."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
-  },
-  "done": {
-    "message": "Hotovo"
   },
   "warning": {
     "message": "VAROVÁNÍ",
@@ -2332,7 +2546,7 @@
   "confirmVaultExport": {
     "message": "Potvrdit export trezoru"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Tento export obsahuje data Vašeho trezoru v nezašifrovaném formátu. Soubor s exportem byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití."
   },
   "encExportKeyWarningDesc": {
@@ -2573,6 +2787,9 @@
   "collectionsDeleted": {
     "message": "Kolekce byly smazány"
   },
+  "movedItem": {
+    "message": "Položka byla přesunuta"
+  },
   "movedItems": {
     "message": "Položky byly přesunuty"
   },
@@ -2621,7 +2838,7 @@
     "message": "Zjistěte více o autentizátorech"
   },
   "copyTOTP": {
-    "message": "Kopírovat autentizační klíč (TOTP)"
+    "message": "Kopírovat ověřovací klíč (TOTP)"
   },
   "copyNotes": {
     "message": "Kopírovat poznámky"
@@ -2739,29 +2956,11 @@
   "acceptPoliciesRequired": {
     "message": "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny."
   },
-  "enableBrowserIntegration": {
-    "message": "Povolit integraci prohlížeče"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Použito k povolení biometrického odemknutí v prohlížečích, které nejsou Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Povolit integraci prohlížeče DuckDuckGo"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Použije Váš trezor na Bitwardenu při procházení s DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Integrace prohlížeče není podporována"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Chyba při povolování integrace prohlížeče"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "Vyskytla se chyba při povolování integrace prohlížeče."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Integrace prohlížeče není ve verzi pro Windows Store podporována."
   },
   "enableHardwareAcceleration": {
     "message": "Používat hardwarovou akceleraci"
@@ -3008,7 +3207,7 @@
     "message": "Přečíst bezpečnostní klíč"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+    "message": "Čeká se na interakci s bezpečnostním klíčem…"
   },
   "hideMyEmail": {
     "message": "Skrýt moji e-mailovou adresu před příjemci"
@@ -3462,7 +3661,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Neplatný token API $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3472,7 +3671,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3486,7 +3685,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3496,7 +3695,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3560,6 +3759,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Přidat předponu webových stránek",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Pokud je povoleno, bude doména aktuální webové stránky použita jako předpona pro vygenerovanou e-mailovou adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Název hostitele",
     "description": "Part of a URL."
@@ -3570,7 +3777,7 @@
   "apiKey": {
     "message": "Klíč API"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Je vyžadováno předplatné Premium"
   },
   "organizationIsDisabled": {
@@ -4057,7 +4264,7 @@
     "message": "-- Pište pro filtrování --"
   },
   "multiSelectLoading": {
-    "message": "Načítání voleb..."
+    "message": "Načítání voleb…"
   },
   "multiSelectNotFound": {
     "message": "Nebyly nalezeny žádné položky"
@@ -4155,6 +4362,75 @@
   "importNothingError": {
     "message": "Nebylo nic importováno."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ položek bude přeskočeno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
+  },
+  "identifier": {
+    "message": "Identifikátor"
+  },
+  "contact": {
+    "message": "Kontakt"
+  },
+  "membership": {
+    "message": "Členství"
+  },
+  "passport": {
+    "message": "Pas"
+  },
+  "driverLicense": {
+    "message": "Řidičský průkaz"
+  },
+  "ssnCard": {
+    "message": "Občanský průkaz"
+  },
+  "birthCertificate": {
+    "message": "Rodný list"
+  },
+  "databaseCredentials": {
+    "message": "Přihlašovací údaje databáze"
+  },
+  "serverCredentials": {
+    "message": "Přihlašovací údaje serveru"
+  },
+  "softwareLicense": {
+    "message": "Softwarová licence"
+  },
+  "healthInsurance": {
+    "message": "Zdravotní pojištění"
+  },
+  "wifiCredentials": {
+    "message": "Přihlašovací údaje Wi-Fi"
+  },
+  "general": {
+    "message": "Obecné"
+  },
   "importEncKeyError": {
     "message": "Chyba při dešifrování exportovaného souboru. Váš šifrovací klíč se neshoduje s klíčem použitým během exportu dat."
   },
@@ -4219,6 +4495,30 @@
   "confirmFilePassword": {
     "message": "Potvrzení hesla souboru"
   },
+  "keePassMasterPassword": {
+    "message": "Hlavní heslo KeePass"
+  },
+  "addKeyFile": {
+    "message": "Přidat soubor s klíčem"
+  },
+  "keyFileUpload": {
+    "message": "Nahrát soubor s klíčem"
+  },
+  "kdbxFileUpload": {
+    "message": "Nahrát soubor KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Povolené formáty: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tento soubor není platnou databází KeePass (.kdbx). Vyberte soubor s příponou .kdbx a zkuste to znovu."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Tato databáze KeePass je pro import příliš velká."
+  },
   "exportSuccess": {
     "message": "Data trezoru byla exportována"
   },
@@ -4258,6 +4558,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Vícefaktorové ověření se nezdařilo"
   },
+  "keeperConnectionError": {
+    "message": "Při komunikaci s Keeperem se vyskytl problém. Zkuste import znovu."
+  },
   "includeSharedFolders": {
     "message": "Zahrnout sdílené složky"
   },
@@ -4265,7 +4568,7 @@
     "message": "E-mail LastPass"
   },
   "importingYourAccount": {
-    "message": "Importování Vašeho účtu..."
+    "message": "Importování Vašeho účtu…"
   },
   "lastPassMFARequired": {
     "message": "Je vyžadováno vícefaktorové ověření LastPass"
@@ -4315,6 +4618,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
+  },
+  "keeperEmail": {
+    "message": "E-mail Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Zadejte e-mail, který používáte k přihlášení do Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Umístění datového centra"
+  },
+  "keeperMasterPassword": {
+    "message": "Hlavní heslo Keeper"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Zadejte hlavní heslo Keeper"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Zadejte kód z Vaší metody dvoufaktorového ověření"
+  },
+  "totpCodePrompt": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "smsCodePrompt": {
+    "message": "Zadejte kód zaslaný v SMS zprávě"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Zadejte kód z Vaší aplikace Keeper DNA"
+  },
+  "adminApproval": {
+    "message": "Schválení správcem"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Odeslali jsme žádost o schválení Vašemu správci"
+  },
+  "method": {
+    "message": "Metoda"
+  },
+  "directImporter": {
+    "message": "Přímý import"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "Je vyžadováno ověření SSO"
+  },
+  "keeperSsoDesc": {
+    "message": "Váš účet Keeper vyžaduje ověření pomocí SSO. Dokončete přihlášení v okně prohlížeče, které se otevřelo, a poté vložte token zobrazený na stránce."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Dokončete přihlášení v otevřené záložce prohlížeče. Token bude zachycen automaticky."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Je vyžadováno ověření Keeper"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Vyžaduje se schválení zařízení Keeper"
+  },
+  "selectApprovalMethod": {
+    "message": "Metody schválení"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Vyžaduje se schválení zařízení"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Schvalte toto zařízení výběrem jedné z níže uvedených metod"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Dvoufázová metoda"
+  },
+  "emailVerification": {
+    "message": "Ověření e-mailu"
+  },
+  "approvalEmailDesc": {
+    "message": "Zkontrolujte svůj e-mail a zadejte ověřovací kód do pole níže"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Push oznámení Keeper bylo odesláno do schváleného zařízení"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push odesláno"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Žádost o schválení bude zrušena"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Jste si jisti, že chcete odejít? Vaše žádost o schválení správcem bude zrušena."
+  },
+  "cancelRequest": {
+    "message": "Zrušit žádost"
+  },
+  "keeperMFARequired": {
+    "message": "Je vyžadováno dvoufaktorové ověření Keeper"
+  },
+  "mfaPushDesc": {
+    "message": "Schvalte žádost o přihlášení ve své ověřovací aplikaci. Toto dialogové okno se automaticky zavře."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Vyberte způsob dvoufaktorového ověření"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Vyberte si, jakým způsobem chcete ověřit svou totožnost."
+  },
+  "authenticatorAppTotp": {
+    "message": "Ověřovací aplikace (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Textová zpráva (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Záložní kódy"
+  },
+  "securityKeyU2f": {
+    "message": "Bezpečnostní klíč (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Bezpečnostní klíč (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Ověření Keeper DNA"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Schvalte oznámení Keeper DNA na svém zařízení"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Vyberte metodu Keeper DNA"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Vyberte, jak se chcete ověřit pomocí Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Oznámení Push"
+  },
+  "enterCodeManually": {
+    "message": "Zadejte kód ručně"
+  },
+  "twoFactorAuthentication": {
+    "message": "Dvoufaktorové ověření"
+  },
+  "unknownMethod": {
+    "message": "Neznámá metoda"
+  },
+  "selectDuoMethod": {
+    "message": "Vybrat metodu Duo"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Vyberte, jak se chcete ověřit pomocí Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Telefonický hovor"
+  },
+  "duoVerification": {
+    "message": "Ověření Duo"
+  },
+  "duoPushWaiting": {
+    "message": "Schvalte oznámení Duo na svém zařízení."
+  },
+  "duoSmsWaiting": {
+    "message": "Na Váš telefon byla odeslána textová zpráva. Zadejte kód do aplikace Duo a pokračujte."
+  },
+  "duoVoiceWaiting": {
+    "message": "Zvedněte telefonát od společnosti Duo a postupujte podle pokynů."
+  },
+  "tryAnotherMethod": {
+    "message": "Zkuste jinou metodu"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Váš účet Keeper vyžaduje metodu dvoufaktorového ověření, kterou přímý importér aktuálně nepodporuje."
   },
   "commonImportFormats": {
     "message": "Společné formáty",
@@ -4374,6 +4866,12 @@
   },
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
+  },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
   },
   "passkeyRemoved": {
     "message": "Přístupový klíč byl odebrán"
@@ -4841,6 +5339,18 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "itemMovedToCollection": {
+    "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemMovedToCollections": {
+    "message": "Položka byla přesunuta do sbírek"
+  },
+  "itemsMovedToCollection": {
+    "message": "Položky byly přesunuty do sbírky"
+  },
+  "itemsMovedToCollections": {
+    "message": "Položky byly přesunuty do sbírek"
+  },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
   },
@@ -4931,7 +5441,7 @@
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Více...",
+    "message": "Více…",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
@@ -5000,15 +5510,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archivovat $NUM$ položku",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Archivovat položku",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "Jakmile budou tyto položky archivovány, budou vyloučeny z výsledků vyhledávání a z návrhů automatického vyplňování."
@@ -5354,6 +5858,13 @@
   "enterYear": {
     "message": "Zadejte rok."
   },
+  "sendTypes": {
+    "message": "Typy Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Jakýkoli"
+  },
   "invalidDay": {
     "message": "Zadejte platný den."
   },
@@ -5472,6 +5983,9 @@
   "newBankAccountNudgeBody": {
     "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
   },
+  "sendDeletionDate": {
+    "message": "Datum smazání"
+  },
   "discardEditsTitle": {
     "message": "Zahodit úpravy"
   },
@@ -5529,7 +6043,15 @@
     "message": "Pro úpravu tohoto Send vytvořte kopii. Pokud tento Send vyprší v nastaveném datu smazání, není potřeba žádná akce.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Sends s texty nejsou pro Vaši organizaci povoleny",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Sends se soubory nejsou pro Vaši organizaci povoleny",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "Tento Send automaticky vyprší v nastaveném datu smazání",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,6 +6106,15 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "Organizace $ORGNAME$ nastavila datum smazání",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
     "message": "Přidat do složky"
   },
@@ -5605,8 +6136,11 @@
   "deleteCollectionsDesc": {
     "message": "Tyto sbírky budou trvale smazány."
   },
+  "duplicateAttachmentNameError": {
+    "message": "Položky nemohou mít více příloh se stejným názvem souboru"
+  },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Nové oznámení",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

@@ -38,7 +38,7 @@
     "message": "귀하의 조직은 단일 로그인(SSO)이 필요합니다."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "로그인"
   },
   "setAStrongPassword": {
     "message": "비밀번호 설정"
@@ -168,16 +168,16 @@
     "message": "여권 번호 복사"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "주민등록번호 복사"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "이름 복사"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "중간 이름 복사"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "성 복사"
   },
   "copyLicenseNumber": {
     "message": "운전면허 번호 복사"
@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "자동 완성",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "자동 완성",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -290,7 +290,7 @@
     "message": "계정 이메일 주소를 입력하세요. 그 주소로 비밀번호 힌트가 전송될 것 입니다."
   },
   "hint": {
-    "message": "Hint"
+    "message": "힌트"
   },
   "continue": {
     "message": "계속"
@@ -394,7 +394,7 @@
     "message": "저장"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "자동 완성 및 저장"
   },
   "move": {
     "message": "이동"
@@ -594,10 +594,10 @@
     "message": "보관된 항목은 여기에 표시되며 일반 검색 결과 및 자동 완성 제안에서 제외됩니다."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "항목 보관됨"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "항목 보관 해제됨"
   },
   "archiveItem": {
     "message": "항목 보관"
@@ -613,6 +613,23 @@
   },
   "upgradeToUseArchive": {
     "message": "보관 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
+  },
+  "archiveItemsPlural": {
+    "message": "$NUM$개 항목 보관",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "항목 보관",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "일단 보관되면 이 항목은 검색 결과 및 자동 채우기 제안에서 제외됩니다."
   },
   "itemRestored": {
     "message": "항목이 복원되었습니다."
@@ -729,20 +746,20 @@
     "message": "확장 프로그램 평가"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "문제 해결"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "문제가 발생했나요?"
   },
   "downloadDiagnosticReportWith": {
     "message": "Download then share the diagnostic report with"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden 지원",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "다운로드"
   },
   "browserNotSupportClipboard": {
     "message": "사용하고 있는 웹 브라우저가 쉬운 클립보드 복사를 지원하지 않습니다. 직접 복사하세요."
@@ -927,7 +944,7 @@
     "message": "유효하지 않은 확인 코드"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "잘못된 이메일 또는 인증 코드"
   },
   "valueCopied": {
     "message": "$VALUE$를 클립보드에 복사함",
@@ -979,7 +996,7 @@
     "message": "로그인"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "로그인"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "이메일로 전송된 코드를 입력하세요."
@@ -1070,6 +1087,10 @@
   },
   "passwordCopied": {
     "message": "비밀번호를 클립보드에 복사함"
+  },
+  "passwordAnnounceSpace": {
+    "message": "스페이스",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1185,7 +1206,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "클립보드 설정 업데이트됨"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
@@ -1311,10 +1332,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "비밀번호를 변경한 후에는 새 비밀번호로 로그인해야 합니다. 다른 기기의 활성 세션은 1시간 내로 로그아웃됩니다."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "계정 복구를 완료하려면 마스터 비밀번호를 변경하십시오."
   },
   "enableChangedPasswordNotification": {
     "message": "기존 로그인 정보 업데이트 확인"
@@ -1346,17 +1367,17 @@
   "additionalOptions": {
     "message": "추가 옵션"
   },
-  "enableFillAssist": {
-    "message": "Use fill assist"
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+  "activateFillAssist": {
+    "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "컨텍스트 메뉴 옵션 표시"
@@ -1434,8 +1455,8 @@
   "accountRestricted": {
     "message": "계정 제한됨"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "파일 비밀번호와 파일 비밀번호 확인이 일치하지 않습니다."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "경고",
@@ -1448,8 +1469,8 @@
   "confirmVaultExport": {
     "message": "보관함 내보내기 확인"
   },
-  "exportWarningDesc": {
-    "message": "내보내기는 보관함 데이터가 암호화되지 않은 형식으로 포함됩니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 보내지 마십시오. 사용이 끝난 후에는 즉시 삭제하십시오."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "이 내보내기는 계정의 암호화 키를 사용하여 데이터를 암호화합니다. 추후 계정의 암호화 키를 교체할 경우 다시 내보내기를 진행해야 합니다. 그러지 않을 경우 이 내보내기 파일을 해독할 수 없게 됩니다."
@@ -1462,6 +1483,24 @@
   },
   "shared": {
     "message": "공유됨"
+  },
+  "sharedFolder": {
+    "message": "공유 폴더"
+  },
+  "sharedFolders": {
+    "message": "공유 폴더"
+  },
+  "myFolder": {
+    "message": "내 폴더"
+  },
+  "myFolders": {
+    "message": "내 폴더"
+  },
+  "addSharedFolder": {
+    "message": "공유 폴더 추가"
+  },
+  "newSharedFolder": {
+    "message": "새 공유 폴더"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "비지니스용 Bitwarden은 조직을 사용하여 보관함 항목들을 다른 사람과 공유할 수 있게 해줍니다. 자세한 내용은 bitwarden.com 사이트에서 확인해주세요"
@@ -1495,7 +1534,7 @@
     "message": "암호화 설정 업데이트"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "새로운 권장 암호화 설정으로 계정 보안이 향상됩니다. 지금 업데이트하려면 마스터 비밀번호를 입력하세요."
   },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
@@ -1551,6 +1590,12 @@
   "file": {
     "message": "파일"
   },
+  "photo": {
+    "message": "사진"
+  },
+  "unknown": {
+    "message": "알 수 없음"
+  },
   "fileToShare": {
     "message": "공유할 파일"
   },
@@ -1587,8 +1632,8 @@
   "premiumSignUpAndGet": {
     "message": "프리미엄 멤버십에 가입하면 얻을 수 있는 것:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "1GB의 암호화된 파일 저장소."
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ encrypted storage for file attachments.",
@@ -1614,17 +1659,17 @@
   "restartPremium": {
     "message": "프리미엄 재시작"
   },
-  "ppremiumSignUpReports": {
-    "message": "보관함을 안전하게 유지하기 위한 암호 위생, 계정 상태, 데이터 유출 보고서"
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "보관함에 등록된 로그인 항목을 위한 TOTP 인증 코드(2FA) 생성기."
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "고객 지원 우선 순위 제공."
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "앞으로 추가될 모든 프리미엄 기능을 사용할 수 있습니다. 기대하세요!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "프리미엄 멤버십 구입"
@@ -2178,28 +2223,28 @@
     "message": "Copy nationality"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "발급 국가"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "발급 국가 복사"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "여권 유형"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "여권 유형 복사"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "주민등록번호"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "발급 기관"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "발급 기관 / 사무소 복사"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "발급일"
   },
   "licenseNumber": {
     "message": "면허 번호"
@@ -2259,31 +2304,31 @@
     "message": "SSH 키"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "은행 계좌"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "은행 계좌 세부 정보"
   },
   "typeNote": {
     "message": "메모"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "은행 계좌"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "웹사이트 또는 앱"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "신용카드 또는 체크카드"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "개인 정보"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "중요 텍스트"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "서버 로그인 토큰"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -2295,31 +2340,67 @@
     "message": "Banking details"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "여권"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "여권 세부 정보"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "여권 추가됨"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "여행 서류"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "면허"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "운전면허 또는 ID"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "면허 세부 정보"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "발급 주/도"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "면허 등급"
+  },
+  "addItemHeaderLogin": {
+    "message": "로그인 추가",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "카드 추가",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "신원 추가",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "메모 추가",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH 키 추가",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "은행 계좌 추가",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "면허 추가",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "여권 추가",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "새 로그인",
@@ -2338,7 +2419,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "보안 메모 추가",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2346,23 +2427,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "새 은행 계좌",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "새 면허",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "새 여권",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "새 텍스트",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "새 파일",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2382,19 +2463,35 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "보안 메모 편집",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "로그인 편집",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "카드 편집",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "신원 편집",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "메모 편집",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "SSH 키 편집",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "은행 계좌 편집",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "면허 편집",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2457,8 +2554,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "생성기 기록 지우기"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "계속하면 모든 항목이 생성기 기록에서 영구적으로 삭제됩니다. 계속하시겠습니까?"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "뒤로"
@@ -2502,6 +2599,92 @@
   "clear": {
     "message": "삭제",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
   },
   "selected": {
     "message": "Selected"
@@ -2982,11 +3165,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "데스크톱 앱에 다른 계정으로 로그인된 상태입니다. 두 앱에 같은 계정으로 로그인되어 있는지 확인해주세요."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "계정이 일치하지 않음"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "생체인식 키 불일치"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "생체 인식 키 불일치"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "생체 인식 잠금 해제에 실패했습니다. 생체 인식 비밀 키가 보관함 잠금 해제에 실패했습니다. 생체 인식을 다시 설정해 보세요."
@@ -3020,6 +3203,18 @@
   },
   "biometricsFailedDesc": {
     "message": "생체 인식을 완료할 수 없습니다. 마스터 비밀번호를 사용하거나 로그아웃하는 것을 고려하세요. 이 문제가 계속되면 Bitwarden 지원팀에 문의해 주세요."
+  },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "권한이 부여되지 않음"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Bitwarden 데스크톱 앱과 통신할 권한이 부여되지 않은 상태에서는 브라우저 확장 프로그램에서 생체 인식을 사용할 수 없습니다. 다시 시도해 주세요."
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "권한 요청 오류"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "사이드바에서는 이 동작을 수행할 수 없습니다. 팝업 혹은 새 창으로 열고 다시 시도해 주세요."
   },
   "personalOwnershipSubmitError": {
     "message": "엔터프라이즈 정책으로 인해 개인 보관함에 항목을 저장할 수 없습니다. 조직에서 소유권 설정을 변경한 다음, 사용 가능한 컬렉션 중에서 선택해주세요."
@@ -3083,6 +3278,10 @@
   "atRiskPasswords": {
     "message": "위험한 비밀번호"
   },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
     "placeholders": {
@@ -3139,6 +3338,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "위험한 비밀번호 $COUNT$개를 검토하고 변경",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Review 1 at-risk password"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Review $COUNT$ at-risk passwords",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3342,6 +3553,10 @@
   },
   "createSend": {
     "message": "새 Send 생성",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3811,8 +4026,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "잘못된 $SERVICENAME$ API 토큰\n",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3821,8 +4036,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "잘못된 $SERVICENAME$ API 토큰: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3835,7 +4050,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3845,7 +4060,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3909,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "호스트 이름",
     "description": "Part of a URL."
@@ -3922,8 +4145,8 @@
   "ssoKeyConnectorError": {
     "message": "키 커넥터 오류: 키 커넥터가 사용 가능한지 및 정상적으로 작동하고 있는지 확인해주세요."
   },
-  "premiumSubcriptionRequired": {
-    "message": "프리미엄 구독이 필요합니다"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "조직이 중지됨"
@@ -4671,6 +4894,72 @@
   "importNothingError": {
     "message": "아무것도 가져오지 못했습니다."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
   "importEncKeyError": {
     "message": "내보내려는 파일을 복호화하던 중 오류가 발생했습니다. 암호화 키가 내보내려는 데이터를 암호화한 키와 일치하지 않습니다."
   },
@@ -4734,6 +5023,30 @@
   },
   "confirmFilePassword": {
     "message": "파일 비밀번호 확인"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "보관함 데이터 내보내짐"
@@ -4837,6 +5150,9 @@
   "multifactorAuthenticationFailed": {
     "message": "멀티팩터 인증 실패"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "공유 폴더 포함"
   },
@@ -4888,6 +5204,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 다음 버튼을 누릅니다."
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "switchAccount": {
     "message": "계정 전환"
@@ -5032,11 +5537,26 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "Make Bitwarden your browser's default password manager"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Turn off the browser autofill settings to avoid conflicts.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Manage browser settings",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "from the browser prompt to give Bitwarden permission to change your settings."
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Made Bitwarden your default browser password manager"
   },
   "allow": {
     "message": "Allow",
@@ -5070,6 +5590,12 @@
   },
   "removePasskey": {
     "message": "패스키 제거"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "passkeyRemoved": {
     "message": "패스키 제거됨"
@@ -5299,6 +5825,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
+  },
   "new": {
     "message": "새 항목"
   },
@@ -5326,6 +5875,60 @@
   },
   "owner": {
     "message": "소유자"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "당신",
@@ -5483,11 +6086,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "웹사이트 추가됨"
   },
   "addWebsite": {
     "message": "웹사이트 추가"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "웹사이트 삭제"
@@ -5617,8 +6239,8 @@
   "linkedHelpText": {
     "message": "특정 웹사이트에 대한 자동 채우기 문제가 발생할 때는, 연결 필드를 사용하세요"
   },
-  "linkedLabelHelpText": {
-    "message": "필드의 html ID, 이름, aria-label 또는 플레이스홀더를 입력하세요"
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "필드 편집"
@@ -5718,6 +6340,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "성공적으로 컬렉션을 할당했습니다"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -5894,9 +6528,6 @@
   },
   "unlockPinSet": {
     "message": "Unlock PIN set"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "인증 중"
@@ -6576,14 +7207,32 @@
   "sharedUnlock": {
     "message": "Shared unlock"
   },
-  "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  "sharedUnlockWithDesktop": {
+    "message": "Share unlock with Desktop"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  "sharedUnlockWithWeb": {
+    "message": "Share unlock with web vault"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+  },
+  "newPermissionNeeded": {
+    "message": "New permission needed"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+  },
+  "biometricPermissionDesc": {
+    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "enterMonth": {
     "message": "Enter month."
@@ -6747,17 +7396,40 @@
     "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "makeACopy": {
     "message": "Make a copy"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "Health"
   }
 }
