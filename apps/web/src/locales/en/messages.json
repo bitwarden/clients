@@ -3700,6 +3700,10 @@
     "message": "Identify and close security gaps in your organization's accounts by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Unsecure websites"
   },
@@ -7897,6 +7901,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13325,6 +13346,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(No Collection)"
