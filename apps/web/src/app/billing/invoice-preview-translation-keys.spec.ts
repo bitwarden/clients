@@ -51,8 +51,25 @@ describe("cart preview translation keys", () => {
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
 
-  it("should resolve at least the nine documented fan-out keys plus two credit keys", () => {
-    expect(resolvedKeys.length).toBeGreaterThanOrEqual(8);
+  it("should resolve exactly the documented fan-out and credit keys", () => {
+    // Source of truth: the fan-out in libs/pricing/src/components/cart-summary/translation.ts —
+    // a key added or removed there must move this list too. Note the set is deduplicated, so a
+    // dropped mapping whose key other contexts still return won't change it; the per-combination
+    // fan-out rows in translation.spec.ts catch that case.
+    expect([...resolvedKeys].sort()).toEqual(
+      [
+        "premiumMembership",
+        "familiesMembership",
+        "teamsMembership",
+        "enterpriseMembership",
+        "passwordManagerPlanPrice",
+        "additionalStorageGb",
+        "secretsManagerPlanPrice",
+        "additionalServiceAccounts",
+        "premiumSubscriptionCredit",
+        "appliedSubscriptionCredits",
+      ].sort(),
+    );
   });
 
   it.each(resolvedKeys)("should have %s present in the en locale", (key) => {

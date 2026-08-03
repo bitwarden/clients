@@ -6,6 +6,7 @@ import { InvoicePreview } from "@bitwarden/pricing";
 
 import {
   InvoicePreviewClient,
+  OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
 } from "../clients/invoice-preview.client";
 
@@ -137,11 +138,16 @@ describe("InvoicePreviewService", () => {
       });
 
       expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 12.5 });
+      expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
+      expect(mockLogService.error).not.toHaveBeenCalled();
     });
 
     it("should pass the organization id through to the client", async () => {
       mockClient.previewOrganizationPlanChange.mockResolvedValue(preview("teams") as never);
-      const request = { planTier: "teams", cadence: "annually" };
+      const request: OrganizationPlanChangePreviewRequest = {
+        planTier: "teams",
+        cadence: "annually",
+      };
 
       await sut.previewPlanChangeCart("org-id-123", request);
 

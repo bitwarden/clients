@@ -77,8 +77,12 @@ const getPasswordManagerSeatTranslationKey = (
         return membershipKeysByTier[planTier];
       }
       break;
+    // Plan-change previews always describe an existing organization moving between org tiers,
+    // so they render the same per-seat plan-price copy as the other org-scoped surfaces. A
+    // premium tier can't be plan-changed into, hence the tier guard below leaves it unmapped.
     case InvoicePreviewFlowContext.OrganizationCheckout:
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    case InvoicePreviewFlowContext.OrganizationPlanChange:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
         return "passwordManagerPlanPrice";
       }

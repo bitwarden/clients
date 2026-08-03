@@ -60,6 +60,25 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    // Plan-change follows the other org-scoped surfaces; rationale in translation.ts.
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "teams",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "passwordManagerPlanPrice",
+    ],
   ];
 
   it.each(fanOut)(
@@ -106,7 +125,7 @@ describe("getCartItemTranslationKey", () => {
       [InvoicePreviewFlowContext.PremiumSubscriptionPage, "teams"],
       [InvoicePreviewFlowContext.PersonalCheckout, "enterprise"],
       [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premium"],
-      [InvoicePreviewFlowContext.OrganizationPlanChange, "teams"],
+      [InvoicePreviewFlowContext.OrganizationPlanChange, "premium"],
     ];
 
     it.each(unmapped)(
