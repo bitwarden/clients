@@ -3,16 +3,20 @@
   [gap]="8"
   #ovf="bitOverflowList"
   [class.tw-invisible]="!ovf.ready()"
-  class="tw-flex [&>*]:tw-shrink-0"
+  class="tw-flex"
 >
   <!-- The first badge is pinned so at least one is always visible. -->
   @for (badge of badges(); track $index) {
     <span
       bitBadge
       bitOverflowItem
+      #ovfItem="bitOverflowItem"
       [pinned]="$first"
       [variant]="badge.variant ?? 'primary'"
       [startIcon]="badge.startIcon"
+      [class]="
+        ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
+      "
     >
       {{ badge.label }}
     </span>
