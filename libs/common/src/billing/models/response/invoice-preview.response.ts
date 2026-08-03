@@ -161,13 +161,31 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
       this.startingBalance = startingBalance;
     }
 
-    this.estimatedTax = this.getResponseProperty("EstimatedTax");
-    this.total = this.getResponseProperty("Total");
-    this.amountDue = this.getResponseProperty("AmountDue");
+    const estimatedTax = this.getResponseProperty("EstimatedTax");
+    if (estimatedTax == null) {
+      throw new Error("Failed to parse invoice preview: missing EstimatedTax");
+    }
+    this.estimatedTax = estimatedTax;
 
+    const total = this.getResponseProperty("Total");
+    if (total == null) {
+      throw new Error("Failed to parse invoice preview: missing Total");
+    }
+    this.total = total;
+
+    const amountDue = this.getResponseProperty("AmountDue");
+    if (amountDue == null) {
+      throw new Error("Failed to parse invoice preview: missing AmountDue");
+    }
+    this.amountDue = amountDue;
+
+    // Optional, so a malformed date degrades to absent rather than an Invalid Date object.
     const nextPaymentAttempt = this.getResponseProperty("NextPaymentAttempt");
     if (nextPaymentAttempt) {
-      this.nextPaymentAttempt = new Date(nextPaymentAttempt);
+      const date = new Date(nextPaymentAttempt);
+      if (!isNaN(date.getTime())) {
+        this.nextPaymentAttempt = date;
+      }
     }
   }
 }

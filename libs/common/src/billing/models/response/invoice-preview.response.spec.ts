@@ -136,6 +136,30 @@ describe("InvoicePreviewResponse", () => {
       );
     });
 
+    it.each(["EstimatedTax", "Total", "AmountDue"])("should throw when %s is missing", (field) => {
+      const json: Record<string, unknown> = { ...base() };
+      delete json[field];
+
+      expect(() => new InvoicePreviewResponse(json)).toThrow(
+        `Failed to parse invoice preview: missing ${field}`,
+      );
+    });
+
+    it("should preserve zeros for EstimatedTax, Total, and AmountDue rather than throwing", () => {
+      // A fully-discounted cart is a real case; the guards are `== null`, not falsy, and a
+      // tightening to `!field` would break free-cart previews at parse time.
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        EstimatedTax: 0,
+        Total: 0,
+        AmountDue: 0,
+      });
+
+      expect(response.estimatedTax).toBe(0);
+      expect(response.total).toBe(0);
+      expect(response.amountDue).toBe(0);
+    });
+
     it("should NOT throw on an unrecognized purchasable reference", () => {
       // Forward compatibility: the translation layer logs and renders an empty label instead.
       const response = new InvoicePreviewResponse({
