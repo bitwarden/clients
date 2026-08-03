@@ -97,13 +97,18 @@ export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike, E> 
   protected readonly expandedCopy = computed(() => this.copyPresentation() === "expanded");
 
   /**
-   * Reveal chrome for the quick action strip: hidden until the row is hovered or contains
-   * focus, and pinned open while one of its menus is expanded so the menu doesn't vanish
-   * from under the pointer. `group/row` is provided by `bit-row` for exactly this purpose.
+   * Reveal chrome for the quick action strip: transparent until the row is hovered or contains
+   * focus, and pinned open while one of its menus is expanded (a menu moves focus into an
+   * overlay outside the row, so `:focus-visible` no longer matches here). `group/row` is
+   * provided by `bit-row` for exactly this purpose.
    */
   protected readonly revealClasses =
-    "tw-hidden tw-flex-nowrap tw-items-center tw-gap-2 group-hover/row:tw-flex" +
-    " group-has-[:focus-visible]/row:tw-flex [&:has([aria-expanded='true'])]:tw-flex";
+    "tw-flex tw-flex-nowrap tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity" +
+    " tw-pointer-events-none group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto" +
+    " group-has-[:focus-visible]/row:tw-opacity-100" +
+    " group-has-[:focus-visible]/row:tw-pointer-events-auto" +
+    " [&:has([aria-expanded='true'])]:tw-opacity-100" +
+    " [&:has([aria-expanded='true'])]:tw-pointer-events-auto";
 
   /** The actions visible for `item`, honouring each action's optional `show` predicate. */
   protected visibleActions(item: C): VaultItemsTableRowAction<C, E>[] {
