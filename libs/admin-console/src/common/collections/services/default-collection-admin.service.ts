@@ -28,6 +28,7 @@ import { Collection } from "@bitwarden/common/admin-console/models/collections/c
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -201,6 +202,11 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
 
     return forkJoin(decryptions).pipe(
       tap((views) => {
+        // `fromCollectionAccessDetails`/`fromCollectionResponse` never reject - a collection that
+        // fails to decrypt resolves with a `DECRYPT_ERROR` placeholder name instead, so every
+        // promise here resolves and `views.length` alone can't distinguish real successes from
+        // failures.
+        const failures = views.filter((v) => v.name === DECRYPT_ERROR).length;
         this.logService.measure(
           startTime,
           "Admin Console",
@@ -208,7 +214,8 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
           "decryptMany (v1, one at a time)",
           [
             ["Items", collections.length],
-            ["Successes", views.length],
+            ["Successes", views.length - failures],
+            ["Failures", failures],
           ],
         );
       }),
@@ -240,11 +247,11 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     return this.collectionEncryptionService
       .decryptManyWithFailures(collectionsToDecrypt, userId)
       .pipe(
-        map((result) => [
-          ...this.mapDecryptedSuccesses(result.success, responseMap),
-          ...this.mapDecryptedFailures(result.failure, responseMap),
-        ]),
-        tap((views) => {
+        map((result) => ({
+          successes: this.mapDecryptedSuccesses(result.success, responseMap),
+          failures: this.mapDecryptedFailures(result.failure, responseMap),
+        })),
+        tap(({ successes, failures }) => {
           this.logService.measure(
             startTime,
             "Admin Console",
@@ -252,10 +259,12 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
             "decryptMany (v2, via CollectionEncryptionService)",
             [
               ["Items", collections.length],
-              ["Successes", views.length],
+              ["Successes", successes.length],
+              ["Failures", failures.length],
             ],
           );
         }),
+        map(({ successes, failures }) => [...successes, ...failures]),
       );
   }
 

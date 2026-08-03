@@ -1,5 +1,5 @@
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
 
@@ -122,7 +122,7 @@ export class CollectionAdminView extends CollectionView {
     try {
       view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
     } catch (e) {
-      view.name = "[error: cannot decrypt]";
+      view.name = DECRYPT_ERROR;
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console
       console.error(
@@ -195,7 +195,7 @@ export class CollectionAdminView extends CollectionView {
   static fromCollectionAccessDetailsDecryptionFailure(
     source: CollectionAccessDetailsResponse,
   ): CollectionAdminView {
-    const view = new CollectionAdminView({ ...source, name: "[error: cannot decrypt]" });
+    const view = new CollectionAdminView({ ...source, name: DECRYPT_ERROR });
 
     view.assigned = source.assigned;
     view.readOnly = source.readOnly;

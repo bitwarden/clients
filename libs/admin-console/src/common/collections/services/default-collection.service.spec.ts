@@ -101,7 +101,7 @@ describe("DefaultCollectionService", () => {
       // Arrange dependencies
       await setEncryptedState([encryptedCollection1, encryptedCollection2]);
       cryptoKeys.next({});
-      collectionEncryptionService.decryptMany.mockResolvedValue([collection1, collection2]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([collection1, collection2]));
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -182,7 +182,7 @@ describe("DefaultCollectionService", () => {
       const decryptedView2 = collectionViewDataFactory(org2);
       decryptedView2.id = collection2.id as CollectionId;
 
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView1, decryptedView2]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView1, decryptedView2]));
 
       // Emit a non-null value after the first undefined value has propagated
       // This will cause the collections to emit, calling done()
@@ -204,7 +204,7 @@ describe("DefaultCollectionService", () => {
 
     it("Decrypts one time for multiple simultaneous callers", async () => {
       const decryptedMock: CollectionView[] = [{ id: "col1" }] as CollectionView[];
-      collectionEncryptionService.decryptMany.mockResolvedValue(decryptedMock);
+      collectionEncryptionService.decryptMany.mockReturnValue(of(decryptedMock));
 
       jest
         .spyOn(collectionService as any, "encryptedCollections$")
@@ -479,7 +479,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState(null);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       await collectionService.upsert(collection1, userId);
 
