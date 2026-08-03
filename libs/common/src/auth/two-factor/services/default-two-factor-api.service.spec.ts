@@ -550,15 +550,17 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorWebAuthn", () => {
       it("registers new WebAuthn credential by serializing browser credential to JSON", async () => {
+        // Bytes chosen so standard Base64 would include `+`, `/`, or `=` (e.g. [255,254,253] -> "//79"),
+        // making the base64UrlPattern assertion below actually distinguish Base64 from Base64URL.
         const mockAttestationResponse: Partial<AuthenticatorAttestationResponse> = {
-          clientDataJSON: new Uint8Array([1, 2, 3]).buffer,
-          attestationObject: new Uint8Array([4, 5, 6]).buffer,
+          clientDataJSON: new Uint8Array([255, 254, 253]).buffer,
+          attestationObject: new Uint8Array([252, 251, 250]).buffer,
           getTransports: jest.fn().mockReturnValue(["internal"]),
         };
 
         const mockCredential: Partial<PublicKeyCredential> = {
           id: "credential-id",
-          rawId: new Uint8Array([7, 8, 9]).buffer,
+          rawId: new Uint8Array([249, 248, 247]).buffer,
           type: "public-key",
           response: mockAttestationResponse as AuthenticatorAttestationResponse,
           getClientExtensionResults: jest.fn().mockReturnValue({}),
