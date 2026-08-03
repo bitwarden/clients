@@ -1,11 +1,6 @@
 <bit-form-control>
-  <input
-    type="checkbox"
-    bitCheckbox
-    [formControl]="enabled"
-    id="fill-assist-policy_input_enabled"
-  />
-  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+  <bit-switch [formControl]="enabled" id="fill-assist-policy_input_enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
 </bit-form-control>
 
 <div [formGroup]="data">

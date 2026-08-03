@@ -16,7 +16,11 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { FillAssistPolicy, FillAssistPolicyComponent } from "./fill-assist.component";
+import {
+  FillAssistPolicy,
+  FillAssistPolicyComponent,
+  FillAssistPolicyV2Component,
+} from "./fill-assist.component";
 
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
@@ -65,9 +69,20 @@ describe("FillAssistPolicy", () => {
 
     expect(result).toBe(false);
   });
+
+  it("renders the v2 component inside the drawer", () => {
+    const policy = new FillAssistPolicy();
+
+    expect(policy.v2?.component).toBe(FillAssistPolicyV2Component);
+    expect(policy.v2?.component).not.toBe(policy.component);
+  });
 });
 
-describe("FillAssistPolicyComponent", () => {
+describe.each`
+  description                      | componentClass
+  ${"FillAssistPolicyComponent"}   | ${FillAssistPolicyComponent}
+  ${"FillAssistPolicyV2Component"} | ${FillAssistPolicyV2Component}
+`("$description", ({ componentClass }) => {
   let component: FillAssistPolicyComponent;
   let fixture: ComponentFixture<FillAssistPolicyComponent>;
   let accountService: FakeAccountService;
@@ -87,7 +102,7 @@ describe("FillAssistPolicyComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FillAssistPolicyComponent);
+    fixture = TestBed.createComponent(componentClass);
     component = fixture.componentInstance;
   });
 
