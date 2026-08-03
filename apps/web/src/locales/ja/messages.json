@@ -1005,7 +1005,7 @@
     "message": "閉じる"
   },
   "done": {
-    "message": "Done"
+    "message": "完了"
   },
   "delete": {
     "message": "削除"
@@ -1195,16 +1195,121 @@
     "message": "共有"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共有フォルダー"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共有フォルダー"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "マイフォルダー"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "マイフォルダー"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "addToMyFolder": {
+    "message": "Add to my folder"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Select shared folder item"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "This shared folder is only accessible from the admin console"
+  },
+  "editSharedFolder": {
+    "message": "Edit shared folder"
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "This shared folder will be permanently deleted."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "These shared folders will be permanently deleted."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ shared folder(s) will be permanently deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
+  "deletedSharedFolders": {
+    "message": "Deleted shared folders"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
   "attachments": {
     "message": "添付ファイル"
@@ -1228,31 +1333,31 @@
     "message": "アイテムの表示"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "ログイン情報を追加",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "カードを追加",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "ID を追加",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "メモを追加",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "セキュアメモを追加",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH 鍵を追加",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "銀行口座を追加",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
@@ -1404,19 +1509,19 @@
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "ログイン情報を表示",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "カードを表示",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "ノートを表示",
     "description": "Header for view note item type"
   },
   "create": {
@@ -1655,6 +1760,83 @@
   "selectAll": {
     "message": "すべて選択"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "deselectAll": {
     "message": "Deselect all"
   },
@@ -1702,7 +1884,7 @@
     "message": "ファイル"
   },
   "photo": {
-    "message": "Photo"
+    "message": "写真"
   },
   "selectFile": {
     "message": "ファイルを選択してください。"
@@ -1751,7 +1933,7 @@
     "message": "アイテムの削除"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "$COUNT$ 個のアイテムを削除",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1760,10 +1942,10 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "このアイテムはあなたのゴミ箱に送信されます。30日後に完全に削除されます。"
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "これらのアイテムはあなたのゴミ箱に送られます。30日後に完全に削除されます。"
   },
   "deleteItemPermanently": {
     "message": "Delete item permanently"
@@ -2004,6 +2186,12 @@
   },
   "removePasskey": {
     "message": "パスキーを削除"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "removePasskeyInfo": {
     "message": "すべてのパスキーを削除すると、マスターパスワードなしで新しいデバイスにログインすることはできません。"
@@ -2262,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "このコレクションの利用権限がありません"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "表示するコレクションがありません"
@@ -2549,19 +2741,19 @@
     "message": "ファイルパスワードの確認"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass のマスターパスワード"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "キーファイルを追加"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "キーファイルのアップロード"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX ファイルのアップロード"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "受け入れられる形式: kdbx"
   },
   "kdbxCorruptOrOutdated": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2886,7 +3078,7 @@
     "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "アカウントを削除できません"
   },
   "cannotDeleteAccountDesc": {
     "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
@@ -2962,17 +3154,35 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
   },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
   "contact": {
-    "message": "Contact"
+    "message": "お問い合わせ"
   },
   "membership": {
-    "message": "Membership"
+    "message": "メンバーシップ"
   },
   "passport": {
-    "message": "Passport"
+    "message": "パスポート"
   },
   "driverLicense": {
     "message": "Driver's license"
@@ -3940,6 +4150,15 @@
   "cancelSubscription": {
     "message": "契約のキャンセル"
   },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
+  },
   "subscriptionExpiration": {
     "message": "サブスクリプションの有効期限"
   },
@@ -4555,6 +4774,9 @@
   "defaultCollection": {
     "message": "既定のコレクション"
   },
+  "defaultSharedFolder": {
+    "message": "Default shared folder"
+  },
   "getHelp": {
     "message": "ヘルプを参照する"
   },
@@ -4639,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "コレクションを入れ子にする"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "アクセスコントロール"
   },
@@ -4657,11 +4883,23 @@
   "viewCollection": {
     "message": "View collection"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "コレクション情報"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "本当にこのコレクションを削除しますか？"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "メンバーを編集"
@@ -4738,6 +4976,24 @@
   },
   "owner": {
     "message": "オーナー"
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "組織内のすべてを管理できる最高のアクセス権を与えます"
@@ -4981,8 +5237,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5251,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5290,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "コレクション「$ID$」の編集",
     "placeholders": {
@@ -5298,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "コレクションを削除"
@@ -5316,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Discard edits"
@@ -5615,7 +5901,7 @@
     "message": "Past 14 days"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "過去30日間"
   },
   "recentlyActiveOver30Days": {
     "message": "Over 30 days ago"
@@ -6687,13 +6973,13 @@
     "message": "Special characters (e.g. !, @, $)"
   },
   "uppercasePolicy": {
-    "message": "Uppercase"
+    "message": "大文字"
   },
   "lowercasePolicy": {
-    "message": "Lowercase"
+    "message": "小文字"
   },
   "numbersPolicy": {
-    "message": "Numbers"
+    "message": "数字"
   },
   "passwordStrengthScore": {
     "message": "パスワードの強度スコア $SCORE$",
@@ -6729,10 +7015,10 @@
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "生成したパスワード"
   },
   "generatedPassphrase": {
-    "message": "Generated passphrase"
+    "message": "パスフレーズを生成"
   },
   "masterPasswordPolicyInEffect": {
     "message": "組織が求めるマスターパスワードの要件は："
@@ -6849,10 +7135,10 @@
     "message": "選択したものをリストア"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "アーカイブされたアイテムを復元しました"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "アーカイブされたアイテムを復元しました"
   },
   "restoredItem": {
     "message": "リストアされたアイテム"
@@ -7053,7 +7339,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Send を作成",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -7065,7 +7351,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send を作成しました!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
@@ -7194,6 +7480,14 @@
   "expired": {
     "message": "期限切れ"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Sendを検索",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7220,7 +7514,7 @@
     "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "ダウンロード"
   },
   "sendAccessPasswordTitle": {
     "message": "Enter the password to view this Send",
@@ -9583,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "ホスト名",
     "description": "Part of a URL."
@@ -10402,6 +10704,10 @@
   "noCollection": {
     "message": "コレクションなし"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "コレクションが追加されていません"
   },
@@ -10572,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Email will update on save"
+  },
+  "emailNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their email address."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "This member has a master password. Contact the member to update their email address."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "The new email must match a domain claimed by your organization."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email is already in use by a member of your organization."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email is already in use. You can invite them to your organization instead."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
   },
   "createdDate": {
     "message": "Created date"
@@ -11639,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "コレクションへのアクセスを割り当て"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "編集されたコレクション"
   },
@@ -11648,8 +11985,16 @@
   "collectionEdited": {
     "message": "Collection edited"
   },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Collections edited"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "サーバー URL"
@@ -11818,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "このコレクションを管理する権限がありません。"
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Missing Manage Collection Permissions"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "グループまたはメンバーにこのコレクションへのアクセスを許可します。"
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "メンバーにこのコレクションへのアクセスを許可します。"
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "管理者はコレクションにアクセスし、管理することができます。"
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "サービスアカウントへのアクセスが更新されました"
@@ -11934,41 +12303,53 @@
     "message": "Missing features or functionality",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Too difficult to set up or manage",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Not enough usage by our team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Our needs changed",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "1年間無料"
@@ -12549,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "プロバイダーとして管理するための新しいクライアント組織を作成します。次の請求サイクルに追加のシートが反映されます。"
   },
@@ -12681,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "コレクションが選択されていません。"
+  },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "名前を更新"
@@ -13851,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "無料版の組織ではコレクションは 2 つまでです。さらにコレクションを追加するには有料プランにアップグレードしてください。"
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "アーカイブを検索"

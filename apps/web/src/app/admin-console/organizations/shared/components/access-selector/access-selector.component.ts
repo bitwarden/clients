@@ -35,6 +35,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   AccessItemType,
@@ -43,6 +44,7 @@ import {
   CollectionPermission,
   getPermissionList,
   Permission,
+  permissionLabelId,
 } from "./access-selector.models";
 import { UserTypePipe } from "./user-type.pipe";
 
@@ -88,11 +90,13 @@ export enum PermissionMode {
     SelectModule,
     TableModule,
     UserTypePipe,
+    Vfo1I18nPipe,
   ],
 })
 export class AccessSelectorComponent implements ControlValueAccessor {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   private readonly notifyOnChange = signal<((v: unknown) => void) | null>(null);
   private readonly notifyOnTouch = signal<(() => void) | null>(null);
@@ -398,7 +402,7 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   protected itemIcon(item: AccessItemView) {
     switch (item.type) {
       case AccessItemType.Collection:
-        return "bwi-collection-shared";
+        return this.vfo1TerminologyService.iconClass("bwi-collection-shared");
       case AccessItemType.Group:
         return "bwi-users";
       case AccessItemType.Member:
@@ -406,8 +410,10 @@ export class AccessSelectorComponent implements ControlValueAccessor {
     }
   }
 
-  protected permissionLabelId(perm: CollectionPermission) {
-    return this.permissionList.find((p) => p.perm == perm)?.labelId;
+  protected readonlyPermissionLabel(perm: CollectionPermission): string {
+    const permission = this.permissionList.find((p) => p.perm == perm);
+    const labelId = permissionLabelId(permission, this.vfo1TerminologyService.enabled());
+    return labelId == null ? "" : this.i18nService.t(labelId);
   }
 
   protected canEditItemPermission(item: AccessItemView) {

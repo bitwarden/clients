@@ -730,7 +730,6 @@ export class ServiceContainer {
       this.encryptService,
       this.i18nService,
       this.stateProvider,
-      this.configService,
       this.collectionEncryptionService,
     );
 

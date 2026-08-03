@@ -1,7 +1,7 @@
 import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KDF_CONFIG, fromSdkKdfConfig } from "@bitwarden/key-management";
+import { fromSdkKdfConfig, KDF_CONFIG } from "@bitwarden/key-management";
 import {
   EncString,
   Kdf as SdkKdf,
@@ -11,6 +11,7 @@ import {
   V2UpgradeToken,
   WasmStateBridge,
   WrappedAccountCryptographicState,
+  Kdf,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
@@ -199,13 +200,13 @@ export class JsWasmStateBridge implements WasmStateBridge {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ENCRYPTED_PIN);
   }
 
-  async set_kdf_config(value: SdkKdf): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, KDF_CONFIG, fromSdkKdfConfig(value));
+  async set_kdf_config(kdfConfig: Kdf): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, KDF_CONFIG, fromSdkKdfConfig(kdfConfig));
   }
 
-  async get_kdf_config(): Promise<SdkKdf | null> {
-    const config = await readAtomic(this.stateProvider, this.userId, KDF_CONFIG);
-    return config == null ? null : config.toSdkConfig();
+  async get_kdf_config(): Promise<Kdf | null> {
+    const result = await readAtomic(this.stateProvider, this.userId, KDF_CONFIG);
+    return result ? result.toSdkConfig() : null;
   }
 
   async clear_kdf_config(): Promise<void> {
