@@ -327,8 +327,17 @@ export class WindowMain {
   /// Show the window with main window styles
   show() {
     if (this.win != null) {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      if (!this.win.isVisible()) {
+        applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+        this.restoreMaximizedState();
+      }
       this.win.show();
+    }
+  }
+
+  private restoreMaximizedState() {
+    if (this.win != null && this.windowStates[mainWindowSizeKey]?.isMaximized) {
+      this.win.maximize();
     }
   }
 
@@ -489,9 +498,7 @@ export class WindowMain {
       await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
-    if (this.windowStates[mainWindowSizeKey].isMaximized) {
-      this.win.maximize();
-    }
+    this.restoreMaximizedState();
 
     if (show) {
       this.win.show();
