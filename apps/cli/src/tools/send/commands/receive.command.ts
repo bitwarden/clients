@@ -341,7 +341,7 @@ export class SendReceiveCommand extends DownloadCommand {
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccessV2(accessToken, apiUrl);
+      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.keyService.makeSendKey(keyArray);
@@ -357,7 +357,7 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+          const downloadData = await this.sendApiService.getSendFileDownloadData(
             decryptedView,
             accessToken,
             apiUrl,

@@ -85,7 +85,7 @@ export class SendViewComponent implements OnInit {
         this.authRequired.emit();
         return;
       }
-      const response = await this.sendApiService.postSendAccessV2(accessToken);
+      const response = await this.sendApiService.postSendAccess(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.keyService.makeSendKey(keyArray);

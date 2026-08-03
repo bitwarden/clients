@@ -7,8 +7,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 
 import { SharedModule } from "../../../shared";
 
@@ -33,8 +31,6 @@ export class AccessComponent implements OnInit {
   key: string;
 
   sendAccessToken: SendAccessToken | null = null;
-  sendAccessResponse: SendAccessResponse | null = null;
-  sendAccessRequest: SendAccessRequest = new SendAccessRequest();
 
   constructor(
     private route: ActivatedRoute,
@@ -49,9 +45,7 @@ export class AccessComponent implements OnInit {
       // when pasting sequential Send URLs into the browser,
       // Angular reuses the SendAuthComponent instance
       // Reset state so child components are recreated with fresh data
-      this.sendAccessResponse = null;
       this.sendAccessToken = null;
-      this.sendAccessRequest = new SendAccessRequest();
 
       // Temporarily set viewState to null to destroy the current child component,
       // then set it back to Auth on the next tick to recreate it with the new id/key.
@@ -64,13 +58,7 @@ export class AccessComponent implements OnInit {
     this.viewState.set(SendViewState.Auth);
   }
 
-  onAccessGranted(event: {
-    response?: SendAccessResponse;
-    request?: SendAccessRequest;
-    accessToken?: SendAccessToken;
-  }) {
-    this.sendAccessResponse = event.response;
-    this.sendAccessRequest = event.request;
+  onAccessGranted(event: { accessToken: SendAccessToken }) {
     this.sendAccessToken = event.accessToken;
     this.viewState.set(SendViewState.View);
   }
