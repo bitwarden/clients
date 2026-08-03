@@ -6,14 +6,14 @@
       [formControlName]="parentId()"
       [indeterminate]="parentIndeterminate$ | async"
     />
-    <bit-label>{{ parentId() | i18n }}</bit-label>
+    <bit-label>{{ parentId() | vfo1I18n: vfo1LabelKey(parentId()) }}</bit-label>
   </bit-form-control>
   <div class="tw-ml-4">
     @for (c of children(); track c[0]) {
       <div>
         <bit-form-control>
           <input type="checkbox" bitCheckbox [formControl]="c[1]" (change)="onChildCheck()" />
-          <bit-label>{{ c[0] | i18n }}</bit-label>
+          <bit-label>{{ c[0] | vfo1I18n: vfo1LabelKey(c[0]) }}</bit-label>
         </bit-form-control>
       </div>
     }

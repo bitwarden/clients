@@ -12,6 +12,7 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -40,6 +41,7 @@ describe("MemberDialogManagerService", () => {
   let toastService: MockProxy<ToastService>;
   let userNamePipe: MockProxy<UserNamePipe>;
   let deleteManagedMemberWarningService: MockProxy<DeleteManagedMemberWarningService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   let mockOrganization: Organization;
   let mockUser: OrganizationUserView;
@@ -52,8 +54,10 @@ describe("MemberDialogManagerService", () => {
     toastService = mock<ToastService>();
     userNamePipe = mock<UserNamePipe>();
     deleteManagedMemberWarningService = mock<DeleteManagedMemberWarningService>();
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
 
     configService.getFeatureFlag.mockResolvedValue(false);
+    vfo1TerminologyService.enabled.mockReturnValue(false);
 
     service = new MemberDialogManagerService(
       configService,
@@ -62,6 +66,7 @@ describe("MemberDialogManagerService", () => {
       toastService,
       userNamePipe,
       deleteManagedMemberWarningService,
+      vfo1TerminologyService,
     );
 
     // Setup mock data
@@ -686,6 +691,23 @@ describe("MemberDialogManagerService", () => {
 
       expect(result).toBe(false);
       expect(deleteManagedMemberWarningService.acknowledgeWarning).not.toHaveBeenCalled();
+    });
+
+    it("should use the shared folder terminology warning when the VFO1 flag is on", async () => {
+      vfo1TerminologyService.enabled.mockReturnValue(true);
+      deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.openDeleteUserConfirmationDialog(mockUser, mockOrganization);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: {
+            key: "deleteOrganizationUserWarningDescSharedFolders",
+            placeholders: ["Test User"],
+          },
+        }),
+      );
     });
   });
 });

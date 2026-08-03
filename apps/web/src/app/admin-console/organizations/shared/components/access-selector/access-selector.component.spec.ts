@@ -20,6 +20,13 @@ import { AccessItemType, CollectionPermission } from "./access-selector.models";
  * Helper class that makes it easier to test the AccessSelectorComponent by
  * exposing some protected methods/properties
  */
+function buildVfo1TerminologyService(enabled = false) {
+  return {
+    iconClass: (icon: string) => icon,
+    enabled: () => enabled,
+  };
+}
+
 class TestableAccessSelectorComponent extends AccessSelectorComponent {
   selectItems(items: SelectItemView[]) {
     super.selectItems(items);
@@ -50,10 +57,7 @@ describe("AccessSelectorComponent", () => {
     TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
       providers: [
-        {
-          provide: Vfo1TerminologyService,
-          useValue: { enabled: () => false, iconClass: (icon: string) => icon },
-        },
+        { provide: Vfo1TerminologyService, useValue: buildVfo1TerminologyService(false) },
       ],
     }).compileComponents();
   });

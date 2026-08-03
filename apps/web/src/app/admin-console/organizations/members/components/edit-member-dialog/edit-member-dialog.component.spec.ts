@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -49,6 +50,13 @@ import { EditMemberDialogComponent } from "./edit-member-dialog.component";
 const ORG_ID = "org-id" as any;
 const USER_ID = "user-id" as any;
 const ACCOUNT_ID = "account-id" as any;
+
+function buildVfo1TerminologyService(enabled = false): Partial<Vfo1TerminologyService> {
+  return {
+    iconClass: (icon: string) => icon as any,
+    enabled: () => enabled,
+  };
+}
 
 function buildOrg(overrides: Partial<Organization> = {}): Organization {
   return {
@@ -106,6 +114,7 @@ async function createComponent(
     userDetails?: OrganizationUserAdminView;
     orgOverrides?: Partial<Organization>;
     detailsTabEnabled?: boolean;
+    vfo1FoundationEnabled?: boolean;
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -168,6 +177,7 @@ async function createComponent(
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
     providers: [
+      provideNoopAnimations(),
       { provide: DIALOG_DATA, useValue: params },
       { provide: DialogRef, useValue: dialogRef },
       { provide: AccountService, useValue: accountService },
@@ -179,7 +189,6 @@ async function createComponent(
       { provide: I18nService, useValue: i18nService },
       { provide: MemberActionsService, useValue: memberActionsService },
       { provide: DeleteManagedMemberWarningService, useValue: deleteManagedMemberWarningService },
-      { provide: DialogService, useValue: dialogService },
       { provide: BillingConstraintService, useValue: billingConstraint },
       { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
       { provide: ConfigService, useValue: configService },
@@ -187,10 +196,17 @@ async function createComponent(
       { provide: LogService, useValue: logService },
       {
         provide: Vfo1TerminologyService,
-        useValue: { enabled: () => false, iconClass: (icon: string) => icon },
+        useValue: buildVfo1TerminologyService(overrides.vfo1FoundationEnabled),
       },
     ],
   }).compileComponents();
+
+  // EditMemberDialogComponent imports DialogModule directly, which itself provides a real
+  // DialogService (see libs/components/src/dialog/dialog.module.ts). That component-level
+  // provider is "closer" in the injector hierarchy than a TestBed-level `providers` entry, so a
+  // plain provider override above would be shadowed. `overrideProvider` patches the injectable
+  // definition itself so the mock is used everywhere, including inside DialogModule's scope.
+  TestBed.overrideProvider(DialogService, { useValue: dialogService });
 
   const fixture = TestBed.createComponent(EditMemberDialogComponent);
   const component = fixture.componentInstance;
@@ -375,6 +391,48 @@ describe("EditMemberDialogComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
       expect(mocks.dialogRef.close).not.toHaveBeenCalledWith(MemberDialogResult.Restored);
+    });
+  });
+
+  describe("delete() VFO1 terminology flag", () => {
+    it("uses the legacy warning key when the flag is off", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        vfo1FoundationEnabled: false,
+      });
+      mocks.deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      mocks.dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.delete();
+
+      expect(mocks.dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({ key: "deleteOrganizationUserWarningDesc" }),
+        }),
+      );
+    });
+
+    it("uses the shared folder warning key when the flag is on", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        vfo1FoundationEnabled: true,
+      });
+      mocks.deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      mocks.dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.delete();
+
+      expect(mocks.dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            key: "deleteOrganizationUserWarningDescSharedFolders",
+          }),
+        }),
+      );
     });
   });
 

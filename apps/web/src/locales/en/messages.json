@@ -1311,6 +1311,47 @@
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
+  },
   "attachments": {
     "message": "Attachments"
   },
@@ -4928,6 +4969,10 @@
   },
   "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
