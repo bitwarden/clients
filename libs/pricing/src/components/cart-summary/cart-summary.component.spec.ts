@@ -691,6 +691,67 @@ describe("CartSummaryComponent", () => {
       expect(amount.nativeElement.textContent).toContain("-$15.00");
     });
 
+    it("should prefer a server-supplied amount over the derived value for item-level discounts", () => {
+      // Arrange — amount $30 is deliberately offset from the derived 25% of $250 = $62.50 so
+      // the assertion can only pass via the server-supplied value.
+      const cartWithAuthoritativeItemDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+                amount: 30,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithAuthoritativeItemDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const amount = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-amount"]'),
+      );
+
+      // Assert
+      expect(amount.nativeElement.textContent).toContain("-$30.00");
+    });
+
+    it("should hide the item-level row for an authoritative amount of zero rather than deriving one", () => {
+      // Zero distinguishes `??` from `||`: under `||` this would render the derived -$62.50.
+      const cartWithZeroAmountItemDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+                amount: 0,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithZeroAmountItemDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const discountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount"]'),
+      );
+
+      // Assert
+      expect(discountRow).toBeFalsy();
+    });
+
     it("should apply item-level discount to total calculation", () => {
       // Arrange
       const cartWithItemDiscount: Cart = {
@@ -782,6 +843,104 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(discountRow).toBeFalsy();
+    });
+
+    it("should prefer a server-supplied amount over the derived value for cart-level discounts", () => {
+      // Arrange — the shape the adapter ships: an authoritative applied amount on the discount
+      // AND an authoritative invoice total on the cart. Both are deliberately offset from the
+      // client-derived figures (amount $30 vs. the derived 10% of $372 = $37.20; total $351.55
+      // vs. the computed 372 - 30 + 9.60 = $351.60) so each assertion can only pass via the
+      // server-supplied value.
+      const cartWithAuthoritativeDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 30,
+          },
+        ],
+        total: 351.55,
+      };
+      fixture.componentRef.setInput("cart", cartWithAuthoritativeDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const cartDiscountAmount = fixture.debugElement.query(
+        By.css('[data-testid="discount-amount"]'),
+      );
+
+      // Assert — the server amount renders, not the derived $37.20
+      expect(cartDiscountAmount.nativeElement.textContent).toContain("-$30.00");
+
+      // The authoritative total renders, not the computed $351.60
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      expect(bottomTotal.nativeElement.textContent).toContain("$351.55");
+    });
+
+    it("should hide the row for an authoritative amount of zero rather than deriving one", () => {
+      // Zero is the only value that distinguishes `??` from `||`: under `||` this discount
+      // would fall back to the derived 10% of $372 and render -$37.20.
+      const cartWithZeroAmountDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 0,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithZeroAmountDiscount);
+      fixture.detectChanges();
+
+      const discountRow = fixture.debugElement.query(By.css('[data-testid="discount-section"]'));
+
+      expect(discountRow).toBeFalsy();
+    });
+
+    it("should render an authoritative total of zero rather than computing one", () => {
+      // A 100%-off cart: under `||` the zero total would lose to the computed 372 + 9.60.
+      const freeCart: Cart = {
+        ...mockCart,
+        total: 0,
+      };
+      fixture.componentRef.setInput("cart", freeCart);
+      fixture.detectChanges();
+
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      expect(bottomTotal.nativeElement.textContent).toContain("$0.00");
+    });
+
+    it("should cascade a derived discount against the subtotal net of a preceding authoritative amount", () => {
+      // Pins the mixed authoritative/derived case the calculateDiscountLineItems doc describes
+      // as out-of-contract but unenforced: the derived 10% is measured against 372 - 30 = 342,
+      // not the full 372 — so a contract violation degrades deterministically.
+      const mixedDiscountCart: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+            amount: 30,
+          },
+          {
+            type: DiscountTypes.PercentOff,
+            value: 10,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", mixedDiscountCart);
+      fixture.detectChanges();
+
+      const discountAmounts = fixture.debugElement.queryAll(
+        By.css('[data-testid="discount-amount"]'),
+      );
+
+      expect(discountAmounts).toHaveLength(2);
+      expect(discountAmounts[0].nativeElement.textContent).toContain("-$30.00");
+      expect(discountAmounts[1].nativeElement.textContent).toContain("-$34.20");
     });
   });
 

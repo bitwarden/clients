@@ -35,7 +35,7 @@
     ></button>
 
     @if (showDiscountBadges()) {
-      @for (discount of cart.discounts; track discount) {
+      @for (discount of cart.discounts; track $index) {
         <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
       }
     }
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Password Manager Seats Discounts -->
-        @for (discountRow of passwordManagerSeatsDiscountRows(); track discountRow.label) {
+        @for (discountRow of passwordManagerSeatsDiscountRows(); track $index) {
           @if (discountRow.amount > 0) {
             <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
               <div
@@ -136,7 +136,7 @@
           </div>
 
           <!-- Additional Storage Discounts -->
-          @for (discountRow of additionalStorageDiscountRows(); track discountRow.label) {
+          @for (discountRow of additionalStorageDiscountRows(); track $index) {
             @if (discountRow.amount > 0) {
               <div class="tw-flex tw-justify-between" data-testid="additional-storage-discount">
                 <div
@@ -198,7 +198,7 @@
           </div>
 
           <!-- Secrets Manager Seats Discounts -->
-          @for (discountRow of secretsManagerSeatsDiscountRows(); track discountRow.label) {
+          @for (discountRow of secretsManagerSeatsDiscountRows(); track $index) {
             @if (discountRow.amount > 0) {
               <div class="tw-flex tw-justify-between" data-testid="secrets-manager-seats-discount">
                 <div
@@ -250,7 +250,7 @@
             </div>
 
             <!-- Additional Service Accounts Discounts -->
-            @for (discountRow of additionalServiceAccountsDiscountRows(); track discountRow.label) {
+            @for (discountRow of additionalServiceAccountsDiscountRows(); track $index) {
               @if (discountRow.amount > 0) {
                 <div
                   class="tw-flex tw-justify-between"
@@ -278,7 +278,7 @@
       }
 
       <!-- Discounts -->
-      @for (discountItem of discountLineItems(); track discountItem.label) {
+      @for (discountItem of discountLineItems(); track $index) {
         @if (discountItem.amount > 0) {
           <div
             class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"

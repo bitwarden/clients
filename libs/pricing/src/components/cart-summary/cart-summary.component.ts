@@ -71,6 +71,9 @@ export class CartSummaryComponent {
    * cart-wide discount loop, per-line discounts deliberately do NOT cascade against a running
    * subtotal — every entry is measured from the same base. Server-supplied amounts are
    * authoritative when present; otherwise the amount is derived from the discount type and value.
+   *
+   * The template tracks these rows by `$index`, not label: labels are not unique, because two
+   * unlabeled discounts of the same type and value derive the identical display label.
    */
   private lineDiscountRows(item: CartItem | undefined): Array<{ label: string; amount: number }> {
     if (!item?.discounts?.length) {
@@ -198,7 +201,7 @@ export class CartSummaryComponent {
   ): Array<{ label: string; amount: number }> {
     let runningSubtotal = subtotal;
     return discounts.map((discount) => {
-      const amount = getAmount(discount, runningSubtotal);
+      const amount = discount.amount ?? getAmount(discount, runningSubtotal);
       runningSubtotal -= amount;
       return { label: getLabel(this.i18nService, discount), amount };
     });
