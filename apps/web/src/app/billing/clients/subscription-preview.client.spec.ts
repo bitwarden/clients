@@ -20,7 +20,7 @@ describe("SubscriptionPreviewClient", () => {
       Total: 10,
       AmountDue: 10,
     },
-    Storage: { Used: 1, Total: 5, Remaining: 4 },
+    Storage: { Available: 5, Used: 1, ReadableUsed: "1 GB" },
   };
 
   beforeEach(() => {
@@ -66,6 +66,7 @@ describe("SubscriptionPreviewClient", () => {
 
       expect(result.status).toBe("active");
       expect(result.cart.planTier).toBe("premium");
+      expect(result.storage).toMatchObject({ available: 5, used: 1, readableUsed: "1 GB" });
     });
   });
 

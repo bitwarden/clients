@@ -33,7 +33,7 @@ describe("SubscriptionPreviewResponse", () => {
   const responseJson = (overrides: Record<string, unknown> = {}) => ({
     Status: "active",
     Cart: cartJson,
-    Storage: { Used: 1, Total: 5, Remaining: 4 },
+    Storage: { Available: 5, Used: 1, ReadableUsed: "1 GB" },
     ...overrides,
   });
 
@@ -56,7 +56,19 @@ describe("SubscriptionPreviewResponse", () => {
     it("should parse storage when present", () => {
       const response = new SubscriptionPreviewResponse(responseJson());
 
-      expect(response.storage).toBeDefined();
+      expect(response.storage).toMatchObject({ available: 5, used: 1, readableUsed: "1 GB" });
+    });
+
+    it("should preserve a grace period of zero rather than dropping it", () => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({
+          Status: "past_due",
+          Suspension: "2026-03-01T00:00:00.000Z",
+          GracePeriod: 0,
+        }),
+      );
+
+      expect(response.gracePeriod).toBe(0);
     });
 
     it("should leave storage undefined when the server omits it", () => {
@@ -69,6 +81,70 @@ describe("SubscriptionPreviewResponse", () => {
       expect(() => new SubscriptionPreviewResponse(responseJson({ Status: "bogus" }))).toThrow(
         "Failed to parse invalid subscription status: bogus",
       );
+    });
+
+    it.each(["incomplete", "incomplete_expired"])(
+      "should throw when a %s response omits the suspension details the server always emits",
+      (status) => {
+        expect(() => new SubscriptionPreviewResponse(responseJson({ Status: status }))).toThrow(
+          `Failed to parse missing suspension details for subscription status: ${status}`,
+        );
+      },
+    );
+
+    it.each(["past_due", "unpaid"])(
+      "should parse a %s response without suspension details rather than throwing",
+      (status) => {
+        // The server derives suspension from open overdue invoices and legitimately returns
+        // nothing when none qualify (e.g. the invoice was paid before the status webhook landed).
+        const response = new SubscriptionPreviewResponse(responseJson({ Status: status }));
+
+        expect(response.suspension).toBeUndefined();
+        expect(response.gracePeriod).toBeUndefined();
+      },
+    );
+
+    it("should parse a past_due response with a suspension date but no grace period", () => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({ Status: "past_due", Suspension: "2026-03-01T00:00:00.000Z" }),
+      );
+
+      expect(response.suspension).toEqual(new Date("2026-03-01T00:00:00.000Z"));
+      expect(response.gracePeriod).toBeUndefined();
+    });
+
+    it("should throw when a canceled response omits the canceled date", () => {
+      expect(() => new SubscriptionPreviewResponse(responseJson({ Status: "canceled" }))).toThrow(
+        "Failed to parse missing canceled date for canceled subscription",
+      );
+    });
+
+    it("should treat a malformed suspension date as missing and throw for incomplete", () => {
+      // `new Date("not-a-date")` is Invalid Date, not null — without the parse guard it would
+      // slip past the suspension-details check and render as broken copy.
+      expect(
+        () =>
+          new SubscriptionPreviewResponse(
+            responseJson({ Status: "incomplete", Suspension: "not-a-date", GracePeriod: 1 }),
+          ),
+      ).toThrow("Failed to parse missing suspension details for subscription status: incomplete");
+    });
+
+    it("should treat a malformed suspension date as absent for past_due", () => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({ Status: "past_due", Suspension: "not-a-date", GracePeriod: 3 }),
+      );
+
+      expect(response.suspension).toBeUndefined();
+    });
+
+    it("should treat a malformed canceled date as missing and throw", () => {
+      expect(
+        () =>
+          new SubscriptionPreviewResponse(
+            responseJson({ Status: "canceled", Canceled: "not-a-date" }),
+          ),
+      ).toThrow("Failed to parse missing canceled date for canceled subscription");
     });
   });
 
@@ -96,6 +172,18 @@ describe("SubscriptionPreviewResponse", () => {
         status,
         suspension: new Date("2026-03-01T00:00:00.000Z"),
         gracePeriod: 14,
+      });
+    });
+
+    it("should build the suspension arm without details for a past_due response omitting them", () => {
+      const response = new SubscriptionPreviewResponse(responseJson({ Status: "past_due" }));
+
+      const domain = response.toDomain(adaptedCart);
+
+      expect(domain).toMatchObject({
+        status: "past_due",
+        suspension: undefined,
+        gracePeriod: undefined,
       });
     });
 

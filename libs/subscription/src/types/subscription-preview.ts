@@ -26,8 +26,15 @@ type HasStorage = {
 
 type Suspension = {
   status: "incomplete" | "incomplete_expired" | "past_due" | "unpaid";
-  suspension: Date;
-  gracePeriod: number;
+  /**
+   * Optional because `past_due`/`unpaid` responses legitimately omit suspension details: the
+   * server derives them from the subscription's open overdue invoices and returns nothing when
+   * none qualify (e.g. the invoice was paid or voided before the status webhook landed). For
+   * `incomplete`/`incomplete_expired` the server always emits them, and the response layer
+   * enforces that at parse. Consumers render without a suspension notice when absent.
+   */
+  suspension?: Date;
+  gracePeriod?: number;
 };
 
 type Billable = {
