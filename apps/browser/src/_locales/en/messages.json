@@ -712,15 +712,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsiteForName": {
     "message": "Launch website for $ITEMNAME$",
     "placeholders": {
@@ -5644,16 +5635,6 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Clear filters or try another search term"
-  },
-  "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
   },
   "copyDetailsTitle": {
     "message": "Copy details for $ITEMNAME$",

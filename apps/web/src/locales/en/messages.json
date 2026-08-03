@@ -1732,16 +1732,6 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyDetailsTitle": {
     "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
@@ -1768,15 +1758,6 @@
   },
   "noValuesToCopy": {
     "message": "No values to copy"
-  },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsiteForName": {
     "message": "Launch website for $ITEMNAME$",
