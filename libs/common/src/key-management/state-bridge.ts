@@ -4,7 +4,6 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 import { fromSdkKdfConfig, KDF_CONFIG } from "@bitwarden/key-management";
 import {
   EncString,
-  Kdf as SdkKdf,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
