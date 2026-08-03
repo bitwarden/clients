@@ -5,6 +5,7 @@ import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { openOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,7 +27,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { AnonLayoutWrapperDataService, ToastService, IconModule } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  ButtonModule,
+  ToastService,
+  IconModule,
+} from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -71,7 +77,14 @@ export type RegistrationFinishViewState =
 @Component({
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
-  imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent, IconModule],
+  imports: [
+    CommonModule,
+    JslibModule,
+    RouterModule,
+    InputPasswordComponent,
+    ButtonModule,
+    IconModule,
+  ],
 })
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -134,6 +147,14 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   // reads this — the mutual exclusion is enforced by the discriminated view state rather
   // than by parallel independent flags.
   protected readonly errorMessageI18nKey = signal<string>("");
+
+  // Narrowed to `go-to-login` — every mapper call here passes `isAuthed: false`, which
+  // pins the button. Runtime guard is at the assignment site.
+  protected readonly errorButton = signal<{
+    kind: "go-to-login";
+    labelI18nKey: "goToLogin";
+    navigateTo: `/${typeof AuthRoute.Login}`;
+  } | null>(null);
 
   masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
 
@@ -235,27 +256,30 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       linkData.organizationId,
       linkData.inviteLinkCode,
     );
-    const statusErrorUi = openOrgInviteStatusErrorUi(statusResult);
-    if (statusErrorUi != null) {
-      if (statusErrorUi.errorMessageToLog != null) {
+
+    if (statusResult.kind !== "ok") {
+      if (statusResult.kind === "unexpected") {
         this.logService.warning(
-          `RegistrationFinishComponent: open-org-invite status fetch failed: ${statusErrorUi.errorMessageToLog}`,
+          `RegistrationFinishComponent: open-org-invite status fetch failed: ${statusResult.errorMessage}`,
         );
       }
+      const statusErrorUi = openOrgInviteStatusErrorUi(statusResult.kind, false);
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(statusErrorUi.anonLayoutData);
       this.errorMessageI18nKey.set(statusErrorUi.bodyMessageI18nKey);
+      // Runtime guard on the narrowed signal: `isAuthed: false` above pins the mapper's
+      // button to `go-to-login`. Any other kind here signals a mapper contract change
+      // and gets logged + skipped rather than crashing the error render.
+      if (statusErrorUi.button.kind === "go-to-login") {
+        this.errorButton.set(statusErrorUi.button);
+      } else {
+        this.logService.warning(
+          `RegistrationFinishComponent: unexpected mapper button kind '${statusErrorUi.button.kind}' — expected 'go-to-login'.`,
+        );
+      }
       this.viewState.set(RegistrationFinishViewState.Error);
       return false;
     }
 
-    // Status was ok — hydrate + persist. `statusResult.status` is narrowed by the null
-    // check on `statusErrorUi` above (mapper returns null iff kind === 'ok').
-    if (statusResult.kind !== "ok") {
-      // Defensive branch to satisfy the narrowing — logically unreachable given the
-      // mapper contract, but the type system doesn't know that.
-      this.showSealedOpenOrgInviteDecryptionFailed();
-      return false;
-    }
     const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, statusResult.status);
     await this.organizationInviteService.setOrganizationInvite(invite);
     this.unsealedOpenOrgInvite = invite;
@@ -300,7 +324,20 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
     this.errorMessageI18nKey.set("registrationSealedOpenOrgInviteDecryptionFailedMessage");
+    this.errorButton.set({
+      kind: "go-to-login",
+      labelI18nKey: "goToLogin",
+      navigateTo: `/${AuthRoute.Login}`,
+    });
     this.viewState.set(RegistrationFinishViewState.Error);
+  }
+
+  protected async onErrorButtonClick(): Promise<void> {
+    const button = this.errorButton();
+    if (button == null) {
+      return;
+    }
+    await this.router.navigate([button.navigateTo]);
   }
 
   private handleQueryParams(qParams: Params) {

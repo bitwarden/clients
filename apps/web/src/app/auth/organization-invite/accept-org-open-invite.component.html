@@ -6,7 +6,19 @@
   }
   @case (AcceptOrgOpenInviteViewState.Error) {
     <p data-testid="accept-org-open-invite-error-message">
-      {{ errorMessageI18nKey() | i18n }}
+      {{ errorBody() }}
     </p>
+    @if (errorButton(); as button) {
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        block
+        (click)="onButtonClick()"
+        data-testid="accept-org-open-invite-error-button"
+      >
+        {{ button.labelI18nKey | i18n }}
+      </button>
+    }
   }
 }

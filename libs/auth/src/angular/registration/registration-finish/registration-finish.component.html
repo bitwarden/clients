@@ -12,6 +12,18 @@
     <p data-testid="registration-finish-error-message">
       {{ errorMessageI18nKey() | i18n }}
     </p>
+    @if (errorButton(); as button) {
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        block
+        (click)="onErrorButtonClick()"
+        data-testid="registration-finish-error-button"
+      >
+        {{ button.labelI18nKey | i18n }}
+      </button>
+    }
   }
   @case (RegistrationFinishViewState.PasswordForm) {
     <auth-input-password

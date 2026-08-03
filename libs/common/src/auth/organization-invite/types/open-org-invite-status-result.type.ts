@@ -26,3 +26,9 @@ export type OpenOrgInviteStatusResult =
   | { kind: "plan-not-supported"; organizationName: string }
   | { kind: "no-seats"; organizationName: string }
   | { kind: "unexpected"; errorMessage: string };
+
+/**
+ * Error arms of {@link OpenOrgInviteStatusResult} — derived via `Exclude` so a new
+ * failure kind added to the parent union automatically shows up here.
+ */
+export type OpenOrgInviteStatusError = Exclude<OpenOrgInviteStatusResult, { kind: "ok" }>;
