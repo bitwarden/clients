@@ -45,6 +45,7 @@
                 buttonType="primary"
                 [bitAction]="switchToAnnualBilling"
                 [loading]="annualUpgradeRedeemLoading()"
+                [disabled]="cancellationLoading()"
               >
                 {{ "switchToAnnualBilling" | i18n }}
               </button>
@@ -81,7 +82,13 @@
     </bit-form-field>
   </div>
   <ng-container bitDialogFooter>
-    <button bitButton bitFormButton buttonType="primary" type="submit" [disabled]="!reason()">
+    <button
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="!reason() || annualUpgradeRedeemLoading()"
+    >
       {{ "completeCancellation" | i18n }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">

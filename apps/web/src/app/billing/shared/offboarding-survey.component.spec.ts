@@ -99,6 +99,28 @@ describe("OffboardingSurveyComponent", () => {
       fixture.detectChanges();
     };
 
+    // Any form edit pushes formGroupDirective.statusChanges, which is what BitSubmitDirective
+    // recomputes its disabled flag from.
+    const editFeedback = (value: string) => {
+      (fixture.componentInstance as any).formGroup.controls.feedback.setValue(value);
+      fixture.detectChanges();
+    };
+
+    const redeemButton = () =>
+      fixture.debugElement.query(By.css('[data-testid="annual-upgrade-offer"] button'))
+        .nativeElement as HTMLButtonElement;
+
+    const submitButton = () =>
+      fixture.debugElement.query(By.css('button[type="submit"]'))
+        .nativeElement as HTMLButtonElement;
+
+    const offerFixture = () =>
+      new AnnualUpgradeOfferResponseModel({
+        CurrentAnnualCost: 60,
+        NewAnnualCost: 48,
+        Savings: 12,
+      });
+
     afterEach(() => {
       jest.resetAllMocks();
     });
@@ -168,18 +190,8 @@ describe("OffboardingSurveyComponent", () => {
       expect(button.attributes["bitFormButton"]).toBeDefined();
     });
 
-    it("does not submit the cancellation while a redeem is in flight, even if the form re-enables submit", async () => {
-      // Regression guard for the redeem/cancel race: BitSubmitDirective re-arms on
-      // formGroupDirective.statusChanges (e.g. a keystroke in "Additional details" while the
-      // redeem POST is in flight), which can flip the disabled flag back to false independently
-      // of the in-flight redeem. Assert on the service call, not on a disabled attribute, since
-      // the attribute path is exactly what's unreliable here.
-      const offer = new AnnualUpgradeOfferResponseModel({
-        CurrentAnnualCost: 60,
-        NewAnnualCost: 48,
-        Savings: 12,
-      });
-      await build(offer);
+    it("does not submit the cancellation while a redeem is in flight, even after the form is edited", async () => {
+      await build(offerFixture());
       selectReason("too_complex");
 
       let resolveRedeem: () => void;
@@ -189,20 +201,51 @@ describe("OffboardingSurveyComponent", () => {
         }),
       );
 
-      const component = fixture.componentInstance as any;
+      redeemButton().click();
+      fixture.detectChanges();
+      expect((fixture.componentInstance as any).annualUpgradeRedeemLoading()).toBe(true);
 
-      const redeemPromise = component.switchToAnnualBilling();
-      expect(component.annualUpgradeRedeemLoading()).toBe(true);
+      editFeedback("changed my mind");
 
-      // Simulate BitSubmitDirective re-arming the submit path mid-flight (e.g. via
-      // formGroupDirective.statusChanges) by invoking submit directly while the redeem is
-      // still pending.
-      await component.submit();
+      expect(submitButton().getAttribute("aria-disabled")).toBe("true");
+
+      submitButton().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(mockBillingApiService.cancelOrganizationSubscription).not.toHaveBeenCalled();
 
       resolveRedeem!();
-      await redeemPromise;
+      await fixture.whenStable();
+    });
+
+    it("does not redeem while a cancellation is in flight, even after the form is edited", async () => {
+      await build(offerFixture());
+      selectReason("too_complex");
+
+      let resolveCancel: () => void;
+      mockBillingApiService.cancelOrganizationSubscription.mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveCancel = resolve;
+        }),
+      );
+
+      submitButton().click();
+      fixture.detectChanges();
+      expect((fixture.componentInstance as any).cancellationLoading()).toBe(true);
+
+      editFeedback("changed my mind");
+
+      expect(redeemButton().getAttribute("aria-disabled")).toBe("true");
+
+      redeemButton().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(mockOrganizationBillingClient.redeemAnnualUpgradeOffer).not.toHaveBeenCalled();
+
+      resolveCancel!();
+      await fixture.whenStable();
     });
 
     it("does not render the callout for the 'needs changed' reason", async () => {

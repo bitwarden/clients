@@ -136,6 +136,7 @@ export class OffboardingSurveyComponent implements OnInit {
   protected readonly annualOfferReasonValue = "too_complex";
   protected readonly annualUpgradeRedeemLoading = signal(false);
   protected readonly annualUpgradeRedeemError = signal<string | null>(null);
+  protected readonly cancellationLoading = signal(false);
 
   protected readonly formGroup = this.formBuilder.group({
     reason: [null as string | null],
@@ -252,14 +253,6 @@ export class OffboardingSurveyComponent implements OnInit {
   };
 
   readonly submit = async () => {
-    // BitFormButtonDirective disables BitSubmitDirective while switchToAnnualBilling() runs, but
-    // BitSubmitDirective.ngOnInit also re-arms on formGroupDirective.statusChanges (e.g. typing
-    // into a textarea while the redeem call is in flight re-enables it). Guard locally so the
-    // invariant "redeem and cancel cannot both fire" doesn't depend on that library timing.
-    if (this.annualUpgradeRedeemLoading()) {
-      return;
-    }
-
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
@@ -275,17 +268,23 @@ export class OffboardingSurveyComponent implements OnInit {
       feedback: feedbackParts.filter(Boolean).join("\n"),
     };
 
-    this.dialogParams.type === "Organization"
-      ? await this.billingApiService.cancelOrganizationSubscription(this.dialogParams.id, request)
-      : await this.billingApiService.cancelPremiumUserSubscription(request);
+    this.cancellationLoading.set(true);
 
-    this.toastService.showToast({
-      variant: "success",
-      title: undefined,
-      message: this.i18nService.t("canceledSubscription"),
-    });
+    try {
+      this.dialogParams.type === "Organization"
+        ? await this.billingApiService.cancelOrganizationSubscription(this.dialogParams.id, request)
+        : await this.billingApiService.cancelPremiumUserSubscription(request);
 
-    await this.dialogRef.close(this.ResultType.Submitted);
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("canceledSubscription"),
+      });
+
+      await this.dialogRef.close(this.ResultType.Submitted);
+    } finally {
+      this.cancellationLoading.set(false);
+    }
   };
 
   private isBusinessPlan(): boolean {
