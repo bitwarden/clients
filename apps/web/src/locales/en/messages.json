@@ -428,7 +428,7 @@
       }
     }
   },
-  "ofCountTotal":{
+  "ofCountTotal": {
     "message": "of $TOTAL$ total",
     "placeholders": {
       "total": {
@@ -1311,6 +1311,47 @@
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "By moving an item into a shared folder, you can securely share it with other vault members."
   },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
+  },
   "attachments": {
     "message": "Attachments"
   },
@@ -1524,7 +1565,7 @@
     "message": "View note",
     "description": "Header for view note item type"
   },
-  "create":{
+  "create": {
     "message": "Create",
     "description": "for adding new items"
   },
@@ -2453,6 +2494,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "You do not have permissions to this collection"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "There are no collections to list."
@@ -3653,6 +3698,10 @@
   },
   "orgsReportsDesc": {
     "message": "Identify and close security gaps in your organization's accounts by clicking the reports below.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4869,6 +4918,10 @@
   "nestCollectionUnder": {
     "message": "Nest collection under"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Access control"
   },
@@ -4887,11 +4940,23 @@
   "viewCollection": {
     "message": "View collection"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Collection info"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Are you sure you want to delete this collection?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Edit member"
@@ -4913,6 +4978,10 @@
   },
   "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
@@ -5538,6 +5607,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Edited collection $ID$.",
     "placeholders": {
@@ -5546,6 +5625,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Deleted collections"
@@ -5564,6 +5653,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Discard edits"
@@ -7811,6 +7910,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10633,17 +10749,29 @@
   "editGroupMembersDesc": {
     "message": "Grant members access to the group's assigned collections."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "Grant access to collections by adding them to this group."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "You can only assign collections you manage."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "Select members"
   },
   "selectCollections": {
     "message": "Select collections"
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
   },
   "role": {
     "message": "Role"
@@ -10666,8 +10794,15 @@
   "noCollection": {
     "message": "No collection"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "No collections added"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "No members added"
@@ -11554,6 +11689,30 @@
     "message": "single organization",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "single organization vault",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO required",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", and",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Account recovery administration",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "policies will turn on automatically.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "policy,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11877,17 +12036,38 @@
   "collectionManagement": {
     "message": "Collection management"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folders settings"
+  },
   "collectionManagementDescription": {
     "message": "Configure the collection behavior for the organization"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Restrict collection creation to owners and admins"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Restrict collection deletion to owners and admins"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Restrict item deletion to members with the ",
@@ -11899,6 +12079,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Updated collection management setting"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -11930,6 +12113,10 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Edited collections"
   },
@@ -11939,8 +12126,16 @@
   "collectionEdited": {
     "message": "Collection edited"
   },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Collections edited"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Server URL"
@@ -12109,20 +12304,44 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Missing Manage Collection Permissions"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Grant members access to this collection."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Administrators can access and manage collections."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
@@ -13051,6 +13270,10 @@
   "noCollectionsSelected": {
     "message": "You have not selected any collections."
   },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "Update name"
   },
@@ -13162,6 +13385,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(No Collection)"
@@ -14220,6 +14446,10 @@
   },
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Search archive"
@@ -15950,7 +16180,7 @@
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
-  "clickedVaultBannerButton":{
+  "clickedVaultBannerButton": {
     "message": "Clicked vault banner button"
   },
   "progressBar": {

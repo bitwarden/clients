@@ -59,6 +59,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
@@ -158,6 +159,7 @@ import {
 import {
   LinkSsoService,
   WebChangePasswordService,
+  WebDeepLinkRedirectService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
   WebRegistrationFinishService,
@@ -195,6 +197,11 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider(RouterService),
+  safeProvider({
+    provide: DeepLinkRedirectService,
+    useClass: WebDeepLinkRedirectService,
+    deps: [RouterService],
+  }),
   safeProvider(EventService),
   safeProvider({
     provide: POLICY_EDIT_REGISTER,

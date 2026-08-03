@@ -84,7 +84,7 @@ export class AddItemGridComponent {
     if (this.canCreateCollection()) {
       items.push({
         icon: this.vfo1TerminologyService.iconClass("bwi-collection-shared"),
-        labelKey: "collection",
+        labelKey: this.vfo1TerminologyService.enabled() ? "sharedFolder" : "collection",
         subtitleKey: "collectionSubtitle",
         action: () => this.itemSelected.emit({ result: AddItemGridResult.Collection }),
       });

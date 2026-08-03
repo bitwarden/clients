@@ -35,7 +35,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   AccessItemType,
@@ -44,6 +44,7 @@ import {
   CollectionPermission,
   getPermissionList,
   Permission,
+  permissionLabelId,
 } from "./access-selector.models";
 import { UserTypePipe } from "./user-type.pipe";
 
@@ -89,6 +90,7 @@ export enum PermissionMode {
     SelectModule,
     TableModule,
     UserTypePipe,
+    Vfo1I18nPipe,
   ],
 })
 export class AccessSelectorComponent implements ControlValueAccessor {
@@ -408,8 +410,10 @@ export class AccessSelectorComponent implements ControlValueAccessor {
     }
   }
 
-  protected permissionLabelId(perm: CollectionPermission) {
-    return this.permissionList.find((p) => p.perm == perm)?.labelId;
+  protected readonlyPermissionLabel(perm: CollectionPermission): string {
+    const permission = this.permissionList.find((p) => p.perm == perm);
+    const labelId = permissionLabelId(permission, this.vfo1TerminologyService.enabled());
+    return labelId == null ? "" : this.i18nService.t(labelId);
   }
 
   protected canEditItemPermission(item: AccessItemView) {

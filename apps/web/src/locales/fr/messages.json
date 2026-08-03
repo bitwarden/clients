@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Mes dossiers"
   },
+  "addSharedFolder": {
+    "message": "Ajouter un dossier partagé"
+  },
+  "addToSharedFolder": {
+    "message": "Ajouter au dossier partagé"
+  },
+  "newSharedFolder": {
+    "message": "Nouveau dossier partagé"
+  },
+  "searchSharedFolder": {
+    "message": "Rechercher dans le dossier partagé"
+  },
+  "searchMyFolder": {
+    "message": "Rechercher dans Mes dossiers"
+  },
+  "addToMyFolder": {
+    "message": "Ajouter à mon dossier"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Sélectionner un élément du dossier partagé"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Afficher le dossier partagé - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Ce dossier partagé n'est accessible qu'à partir de la console d'administration"
+  },
+  "editSharedFolder": {
+    "message": "Modifier le dossier partagé"
+  },
+  "deleteSharedFolder": {
+    "message": "Supprimer le dossier partagé"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Supprimer $COUNT$ dossiers partagés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Ce dossier partagé sera définitivement supprimé."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "Le dossier partagé $NAME$ sera définitivement supprimé.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Ces dossiers partagés seront définitivement supprimés."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ dossier(s) partagé(s) seront supprimés définitivement.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Les éléments et les dossiers partagés sélectionnés seront définitivement supprimés."
+  },
+  "sharedFolderDeleted": {
+    "message": "Dossier partagé supprimé"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Dossiers partagés supprimés"
+  },
+  "deletedSharedFolders": {
+    "message": "Dossiers partagés supprimés"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Les organisations gratuites peuvent avoir jusqu'à $COLLECTIONCOUNT$ dossiers partagés. Mettez à niveau vers une offre payante pour ajouter plus de dossiers partagés.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Les organisations gratuites peuvent avoir jusqu'à $COLLECTIONCOUNT$ dossiers partagés. Contactez le propriétaire de votre organisation pour mettre à niveau.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "En déplaçant un élément dans un dossier partagé, vous pouvez le partager en toute sécurité avec d'autres membres du coffre."
+  },
   "attachments": {
     "message": "Pièces jointes"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Vous n'avez pas les autorisations pour cette collection"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "Vous n'avez pas les autorisations pour ce dossier partagé",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Aucune collection à afficher."
@@ -4042,13 +4151,13 @@
     "message": "Annuler l'abonnement"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Annulation complète"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "Aidez-nous à nous améliorer. Pourquoi annulez-vous ?"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "Informations Additionnelles"
   },
   "subscriptionExpiration": {
     "message": "Expiration de l'abonnement"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Collection par défaut"
   },
+  "defaultSharedFolder": {
+    "message": "Dossier partagé par défaut"
+  },
   "getHelp": {
     "message": "Obtenir de l'aide"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Collection imbriquée sous"
   },
+  "nestSharedFolderUnder": {
+    "message": "Imbriquer le dossier partagé sous",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Contrôle d’accès"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Afficher la Collection"
   },
+  "viewSharedFolder": {
+    "message": "Afficher le dossier partagé",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Informations de la collection"
   },
+  "sharedFolderInfo": {
+    "message": "Informations sur le dossier partagé",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Êtes-vous sûr de vouloir supprimer cette collection?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Êtes-vous sûr de vouloir supprimer ce dossier partagé ?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Éditer le membre"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Propriétaire"
+  },
+  "ownerAriaLabel": {
+    "message": "Propriétaire $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Coffre-fort $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Gérer tous les aspects de votre organisation, y compris la facturation et les abonnements"
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Le dossier partagé $ID$ a été créé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Collection $ID$ modifiée.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Dossier partagé $ID$ modifié.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Collections supprimées"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Dossier partagé $ID$ supprimé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Ignorer les modifications"
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Ajouter un préfixe de site web",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Lorsque cette option est activée, le domaine du site web actuel sera utilisé comme préfixe pour l'adresse courriel générée",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nom d'hôte",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Aucune collection"
   },
+  "noSharedFolder": {
+    "message": "Aucun dossier partagé",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Pas de collections ajoutées"
   },
@@ -10691,6 +10879,33 @@
   "emailUpdateOnSave": {
     "message": "Le courriel sera mis à jour lors de la sauvegarde"
   },
+  "emailNotClaimedHint": {
+    "message": "Ce membre n'a pas de compte revendiqué. Contactez le membre pour mettre à jour son adresse courriel."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Ce membre a un mot de passe principal. Contactez le membre pour mettre à jour son adresse courriel."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Le nouvel courriel doit correspondre à un domaine réclamé par votre organisation."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Le courriel est déjà utilisé par un membre de votre organisation."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "L'adresse courriel est déjà utilisée. À la place, vous pouvez l'inviter à votre organisation."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Impossible de changer le courriel d'un membre qui a un mot de passe principal."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Échec de la modification du courriel. Veuillez réessayer."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Impossible de changer le nom d'un membre qui n'est pas revendiqué par l'organisation."
+  },
+  "nameNotClaimedHint": {
+    "message": "Ce membre n'a pas de compte revendiqué. Contactez le membre pour mettre à jour son nom."
+  },
   "createdDate": {
     "message": "Date de création"
   },
@@ -10740,7 +10955,7 @@
     }
   },
   "freeOrgRestoreLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "Les organisations gratuites peuvent avoir jusqu'à $SEATCOUNT$ membres. Mettez à niveau vers une offre payante pour restaurer l'accès de ce membre.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10749,7 +10964,7 @@
     }
   },
   "freeOrgRestoreLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Les organisations gratuites peuvent avoir jusqu'à $SEATCOUNT$ membres. Contactez le propriétaire de votre organisation pour mettre à niveau.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10758,7 +10973,7 @@
     }
   },
   "teamsStarterPlanRestoreLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "message": "Les abonnements Équipes Essentiel peuvent compter jusqu'à $SEATCOUNT$ membres. Mettez à niveau vers une offre payante pour restaurer l'accès de ce membre.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10767,7 +10982,7 @@
     }
   },
   "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
+    "message": "Les abonnements Équipes Essentiel peuvent compter jusqu'à $SEATCOUNT$ membres. Contactez le propriétaire de votre organisation pour mettre à niveau votre abonnement et restaurer l'accès de ce membre.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Assigner l'accès à la collection"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assigner un accès",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Collections modifiées"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Collection modifiée"
   },
+  "sharedFolderEdited": {
+    "message": "Dossier partagé modifié",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Collections modifiées"
+  },
+  "sharedFoldersEdited": {
+    "message": "Dossiers partagés modifiés",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL du serveur"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Vous n'avez pas accès à la gestion de cette collection."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "Vous n'avez pas accès à la gestion de ce dossier partagé",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Autorisations pour Gérer la Collection manquantes"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Autorisations de Gérer Manquantes",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Accorde les autorisations pour Gérer la collection pour permettre la gestion complète de la collection incluant sa suppression."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Accorder l'autorisation de Gérer pour permettre une gestion complète du dossier partagé, y compris la suppression du dossier partagé.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Accorder l'accès à cette collection aux groupes ou aux membres."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Accorder l'accès à ce dossier partagé aux groupes ou aux membres.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Accorder l'accès à cette collection aux membres."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Accorder aux membres l'accès à ce dossier partagé.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Les administrateurs peuvent accéder et gérer les collections."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Les administrateurs peuvent accéder et gérer les dossiers partagés.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Accès au compte de service mis à jour"
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Quelque chose dont nous avions besoin n'était pas disponible.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "L'intégration, l'admininistration, ou l'utilisation quotidienne était trop complexe",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "Le coût était trop élevé",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "Le prix ne correspond pas à ce que nous en tirons.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "Nous étions incapables de faire en sorte que les personnes l'utilisent.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Reorganisation, acquisition, changement de priorités, ou nous n'avons plus besoin d'un gestionnaire de mots de passe.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "Service à la clientèle pauvre",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "Nous n'avons pas obtenu l'aide dont nous avions besoin du support ou du service à la clientèle.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "Décrivez votre raison d'annulation",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Dossier partagé $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Mon dossier $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Dossier $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Créez une nouvelle organisation de clients à gérer en tant que Fournisseur. Des sièges supplémentaires seront reflétés lors du prochain cycle de facturation."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Vous n'avez sélectionné aucune collection."
+  },
+  "noSharedFoldersSelected": {
+    "message": "Vous n'avez sélectionné aucun dossier partagé.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Mettre le nom à jour"
@@ -13197,7 +13488,7 @@
     }
   },
   "familiesPlanRestoreLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "message": "Les organisations Familles peuvent avoir jusqu'à $SEATCOUNT$ membres. Mettez à niveau vers une offre payante pour restaurer l'accès de ce membre.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13206,7 +13497,7 @@
     }
   },
   "familiesPlanRestoreLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Les organisations Familles peuvent avoir jusqu'à $SEATCOUNT$ membres. Contactez le propriétaire de votre organisation pour mettre à niveau votre abonnement.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Les organisations gratuites peuvent avoir jusqu'à 2 dossiers partagés. Passez à un abonnement payant pour ajouter plus de dossiers partagés.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Rechercher dans l'archive"
@@ -15360,7 +15655,7 @@
     "message": "Méthode"
   },
   "directImporter": {
-    "message": "Importateur directe"
+    "message": "Importation directe"
   },
   "csv": {
     "message": "CSV"
@@ -15510,7 +15805,7 @@
     "message": "Essaie une autre méthode"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Votre compte Keeper nécessite une méthode d'authentification à deux facteurs qui n'est actuellement pas prise en charge par l'importateur direct."
+    "message": "Votre compte Keeper nécessite une méthode d'authentification à deux facteurs qui n'est actuellement pas prise en charge par l'importatation directe."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
