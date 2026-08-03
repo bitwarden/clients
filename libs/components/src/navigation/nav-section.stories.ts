@@ -42,6 +42,7 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
+              close: "Close",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",
@@ -96,6 +97,26 @@ export const Default: StoryObj<NavSectionComponent> = {
           </bit-nav-item>
           <bit-nav-item text="Trash" route="trash" icon="bwi-trash"></bit-nav-item>
           <bit-nav-item text="Settings" route="settings" icon="bwi-cog"></bit-nav-item>
+        </bit-nav-section>
+      </bit-side-nav>
+    `,
+  }),
+};
+
+/**
+ * A section with no items renders a dismissible empty state via `bit-nav-section-empty`. The close
+ * button is only shown when the consumer binds `(dismiss)`.
+ */
+export const EmptyState: StoryObj<NavSectionComponent> = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, onDismiss: (): void => undefined },
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-section label="Pinned" icon="bwi-pin">
+          <bit-nav-section-empty (dismiss)="onDismiss()">
+            Find a shared folder in this vault and select <b>Pin to sidebar</b> from the Options menu.
+          </bit-nav-section-empty>
         </bit-nav-section>
       </bit-side-nav>
     `,

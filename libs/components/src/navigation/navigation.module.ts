@@ -4,6 +4,7 @@ import { NavDividerComponent } from "./nav-divider.component";
 import { NavGroupComponent } from "./nav-group.component";
 import { NavItemComponent } from "./nav-item.component";
 import { NavLogoComponent } from "./nav-logo.component";
+import { NavSectionEmptyComponent } from "./nav-section-empty.component";
 import { NavSectionComponent } from "./nav-section.component";
 import { SideNavComponent } from "./side-nav.component";
 
@@ -14,6 +15,7 @@ import { SideNavComponent } from "./side-nav.component";
     NavItemComponent,
     NavLogoComponent,
     NavSectionComponent,
+    NavSectionEmptyComponent,
     SideNavComponent,
   ],
   exports: [
@@ -22,6 +24,7 @@ import { SideNavComponent } from "./side-nav.component";
     NavItemComponent,
     NavLogoComponent,
     NavSectionComponent,
+    NavSectionEmptyComponent,
     SideNavComponent,
   ],
 })
