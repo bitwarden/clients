@@ -3,12 +3,14 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, ReplaySubject } from "rxjs";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -75,6 +77,10 @@ describe("HealthComponent", () => {
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: HealthAccessService, useValue: healthAccessService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: AbstractThemingService,
+          useValue: { theme$: new BehaviorSubject(ThemeTypes.Light) },
+        },
       ],
     })
       .overrideComponent(HealthComponent, {
