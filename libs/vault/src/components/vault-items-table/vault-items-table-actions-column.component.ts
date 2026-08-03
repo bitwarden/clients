@@ -19,6 +19,8 @@ import {
   IconModule,
   MenuModule,
   TableDef,
+  SkeletonTextComponent,
+  BitCellLoadingDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -48,6 +50,7 @@ import { VaultItemsTableRowAction, VaultItemsTableColumn } from "./vault-items-t
   imports: [
     BitCellComponent,
     BitCellDefDirective,
+    BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
     I18nPipe,
@@ -55,6 +58,7 @@ import { VaultItemsTableRowAction, VaultItemsTableColumn } from "./vault-items-t
     IconModule,
     MenuModule,
     VaultItemCopyActionsComponent,
+    SkeletonTextComponent,
   ],
 })
 export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike, E> {

@@ -3,6 +3,12 @@
     <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
   </bit-header-cell>
 
+  <bit-cell *bitCellLoading>
+    <div class="tw-flex tw-justify-end">
+      <bit-skeleton-text class="tw-w-6" />
+    </div>
+  </bit-cell>
+
   <bit-cell *bitCellDef="table().columns.actions; let row">
     <!--
       Everything sits in the `end` slot so it is pushed hard right by the cell's flex-grow
