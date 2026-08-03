@@ -12,11 +12,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
  * This directive adds invisible sentinel elements at the start and end of the host.
  * When a sentinel receives focus (via Tab / Shift+Tab), focus is redirected to the
  * opposite end of the focusable elements within the host.
- *
- * Firefox-only: every other browser cycles focus correctly, and the sentinels are
- * actively harmful elsewhere. Safari hands keyboard focus to the popover web view
- * after load, which lands on the start sentinel and redirects to the last focusable
- * element — the Settings tab button — instead of the page's autofocus target.
  */
 @Directive({
   selector: "[appPopupFocusWrap]",
@@ -34,6 +29,7 @@ export class PopupFocusWrapDirective implements AfterViewInit, OnDestroy {
   ) {}
 
   ngAfterViewInit() {
+    // Firefox-only to avoid impacting other browsers which already handle wrapping correctly
     if (!this.platformUtilsService.isFirefox()) {
       return;
     }
