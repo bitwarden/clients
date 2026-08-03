@@ -118,6 +118,7 @@ RegisterFinishRequest {
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",
@@ -153,6 +154,7 @@ RegisterFinishRequest {
   "organizationUserId": "organizationUserId",
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",
@@ -188,6 +190,7 @@ RegisterFinishRequest {
   "organizationUserId": undefined,
   "providerInviteToken": "providerInviteToken",
   "providerUserId": "providerUserId",
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",
@@ -223,6 +226,7 @@ RegisterFinishRequest {
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",
@@ -258,6 +262,7 @@ RegisterFinishRequest {
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",

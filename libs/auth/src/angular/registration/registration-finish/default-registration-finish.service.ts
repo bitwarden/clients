@@ -50,6 +50,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
+    salesAssistedToken?: string,
   ): Promise<void> {
     const ctx = "Could not finish registration.";
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
@@ -77,6 +78,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
         emergencyAccessId,
         providerInviteToken,
         providerUserId,
+        salesAssistedToken, // Option<String>,
       );
 
       // The SDK call returns the
@@ -117,6 +119,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       emergencyAccessId,
       providerInviteToken,
       providerUserId,
+      salesAssistedToken,
     );
 
     return await this.accountApiService.registerFinish(registerRequest);
@@ -133,6 +136,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
+    salesAssistedToken?: string, // web only
   ): Promise<UserMasterPasswordRegistrationRequest> {
     const registerFinishRequest: UserMasterPasswordRegistrationRequest = {
       email: email,
@@ -164,6 +168,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
+    salesAssistedToken?: string, // web only
   ): Promise<RegisterFinishRequest> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],

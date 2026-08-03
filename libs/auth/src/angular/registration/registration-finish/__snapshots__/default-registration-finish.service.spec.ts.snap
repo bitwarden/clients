@@ -28,6 +28,7 @@ RegisterFinishRequest {
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",

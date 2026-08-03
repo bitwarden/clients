@@ -24,5 +24,7 @@ export class RegisterFinishRequest {
     // Org Invite data (only applies on web)
     public organizationUserId?: string,
     public orgInviteToken?: string,
+
+    public salesAssistedToken?: string,
   ) {}
 }
