@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Moje složky"
   },
+  "addSharedFolder": {
+    "message": "Přidat sdílenou složku"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "newSharedFolder": {
+    "message": "Nová sdílená složka"
+  },
+  "searchSharedFolder": {
+    "message": "Prohledat sdílenou složku"
+  },
+  "searchMyFolder": {
+    "message": "Prohledat Moje složky"
+  },
+  "addToMyFolder": {
+    "message": "Přidat do mé složky"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Vybrat sdílenou položku složky"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Zobrazit sdílenou složku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Tato sdílená složka je přístupná pouze z konzole správce"
+  },
+  "editSharedFolder": {
+    "message": "Upravit sdílenou složku"
+  },
+  "deleteSharedFolder": {
+    "message": "Smazat sdílenou složku"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Smazat $COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Tato sdílená složka bude trvale smazána."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "Sdílená složka $NAME$ bude trvale smazána.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Tyto sdílené složky budou trvale smazány."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ sdílených složek bude trvale smazáno.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Vybrané položky a sdílené složky budou trvale smazány."
+  },
+  "sharedFolderDeleted": {
+    "message": "Sdílená složka byla smazána"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Sdílené složky byly smazány"
+  },
+  "deletedSharedFolders": {
+    "message": "Smazané sdílené složky"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sdílených složek. Chcete-li přidat více sdílených složek, přejděte na placený tarif.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sdílených složek. Pro aktualizaci kontaktujte vlastníka organizace.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Posunutím položky do sdílené složky ji můžete bezpečně sdílet s ostatními členy trezoru."
+  },
   "attachments": {
     "message": "Přílohy"
   },
@@ -1655,6 +1760,83 @@
   "selectAll": {
     "message": "Označit vše"
   },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
+  },
   "deselectAll": {
     "message": "Odznačit vše"
   },
@@ -1913,7 +2095,7 @@
     "message": "Potřebujete další volby?"
   },
   "readingPasskeyLoading": {
-    "message": "Načítání přístupového klíče..."
+    "message": "Načítání přístupového klíče…"
   },
   "readingPasskeyLoadingInfo": {
     "message": "Ponechte toto okno otevřené a postupujte podle dotazů z Vašeho prohlížeče."
@@ -1952,7 +2134,7 @@
     "message": "Další informace o přihlášení bez hesla"
   },
   "creatingPasskeyLoading": {
-    "message": "Vytváření přístupového klíče..."
+    "message": "Vytváření přístupového klíče…"
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Ponechte toto okno otevřené a postupujte podle dotazů z Vašeho prohlížeče."
@@ -2004,6 +2186,12 @@
   },
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
+  },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
   },
   "removePasskeyInfo": {
     "message": "Pokud budou odebrány všechny přístupové klíče, nebudete se moci přihlásit do nových zařízení bez hlavního hesla."
@@ -2262,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Nemáte oprávnění k této sbírce"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "Nemáte oprávnění k této sdílené složce",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Žádné sbírky k zobrazení."
@@ -2962,8 +3154,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
   },
   "contact": {
     "message": "Kontakt"
@@ -3940,6 +4150,15 @@
   "cancelSubscription": {
     "message": "Zrušit předplatné"
   },
+  "completeCancellation": {
+    "message": "Dokončit zrušení"
+  },
+  "helpUsImprove": {
+    "message": "Pomozte nám se zlepšit. Proč rušíte?"
+  },
+  "additionalDetails": {
+    "message": "Další podrobnosti"
+  },
   "subscriptionExpiration": {
     "message": "Předplatné vypršelo"
   },
@@ -4555,6 +4774,9 @@
   "defaultCollection": {
     "message": "Výchozí sbírka"
   },
+  "defaultSharedFolder": {
+    "message": "Výchozí sdílená složka"
+  },
   "getHelp": {
     "message": "Získat nápovědu"
   },
@@ -4639,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Vnořit sbírku pod"
   },
+  "nestSharedFolderUnder": {
+    "message": "Vnořit sdílenou složku do",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Správa přístupů"
   },
@@ -4657,11 +4883,23 @@
   "viewCollection": {
     "message": "Zobrazit sbírku"
   },
+  "viewSharedFolder": {
+    "message": "Zobrazit sdílenou složku",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Informace o sbírce"
   },
+  "sharedFolderInfo": {
+    "message": "Informace o sdílené složce",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Opravdu chcete smazat tuto sbírku?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Opravdu chcete tuto sdílenou složku smazat?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Upravit člena"
@@ -4738,6 +4976,24 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Spravuje všechny aspekty Vaší organizace včetně fakturace a předplatného."
@@ -4981,8 +5237,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$.",
+  "accessedTextSendV3": {
+    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4995,8 +5251,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$.",
+  "accessedFileSendV3": {
+    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5290,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Vytvořena sdílená složka $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Byla upravena sbírka $ID$.",
     "placeholders": {
@@ -5298,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Upravena sdílená složka $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Byly smazány sbírky."
@@ -5316,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Smazána sdílená složka $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Zahodit úpravy"
@@ -5805,25 +6091,25 @@
     "message": "Aktualizovat prohlížeč"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generování Vaší přístupové inteligence..."
+    "message": "Generování Vaší přístupové inteligence…"
   },
   "loadingProgress": {
     "message": "Průběh načítání"
   },
   "reviewingMemberData": {
-    "message": "Přezkoumávání dat členů..."
+    "message": "Přezkoumávání dat členů…"
   },
   "analyzingPasswords": {
-    "message": "Analyzování hesel..."
+    "message": "Analyzování hesel…"
   },
   "calculatingRisks": {
-    "message": "Výpočet rizik..."
+    "message": "Výpočet rizik…"
   },
   "generatingReports": {
-    "message": "Generování zpráv..."
+    "message": "Generování zpráv…"
   },
   "compilingInsightsProgress": {
-    "message": "Sestavování přehledů..."
+    "message": "Sestavování přehledů…"
   },
   "reportGenerationDone": {
     "message": "Hotovo!"
@@ -7194,6 +7480,14 @@
   "expired": {
     "message": "Vypršela platnost"
   },
+  "expiringSoon": {
+    "message": "Brzy vyprší",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Aktivní",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Prohledat Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7949,7 +8243,7 @@
     "message": "Přečíst bezpečnostní klíč"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+    "message": "Čeká se na interakci s bezpečnostním klíčem…"
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn není v tomto prohlížeči podporován."
@@ -8209,7 +8503,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "$COUNT$ z $TOTAL$ pozvánek odesláno...",
+    "message": "$COUNT$ z $TOTAL$ pozvánek odesláno…",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8455,7 +8749,7 @@
     "message": "Rozšiřte zabezpečení a pohodlí SSO i na nespravované aplikace. Když uživatelé spustí aplikaci od Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se vytvoří bezpečný tok od poskytovatele identit k aplikaci jedním klepnutím."
   },
   "automaticAppLoginWithSSODescV2": {
-    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+    "message": "Když uživatelé spustí aplikaci z Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se zajistí bezpečné přihlášení jedním klepnutím."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hostitel poskytovatele identity"
@@ -9583,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Přidat předponu webových stránek",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Pokud je povoleno, bude doména aktuální webové stránky použita jako předpona pro vygenerovanou e-mailovou adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Název hostitele",
     "description": "Part of a URL."
@@ -9922,7 +10224,7 @@
     "message": "-- Pište pro filtrování --"
   },
   "multiSelectLoading": {
-    "message": "Načítání voleb..."
+    "message": "Načítání voleb…"
   },
   "multiSelectNotFound": {
     "message": "Nebyly nalezeny žádné položky"
@@ -10402,6 +10704,10 @@
   "noCollection": {
     "message": "Žádná sbírka"
   },
+  "noSharedFolder": {
+    "message": "Žádná sdílená složka",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Nebyly přidány žádné sbírky"
   },
@@ -10572,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "E-mail bude aktualizován při uložení"
+  },
+  "emailNotClaimedHint": {
+    "message": "Tento člen nemá nárokovaný účet. Kontaktujte člena a aktualizujte jeho e-mailovou adresu."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Tento člen má hlavní heslo. Kontaktujte člena a aktualizujte jeho e-mailovou adresu."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Nový e-mail se musí shodovat s doménou požadovanou Vaší organizací."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "E-mail je již používán členem Vaší organizace."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "E-mail je již používán. Místo toho je můžete pozvat do Vaší organizace."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Nelze změnit e-mail člena, který má hlavní heslo."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Chyba při změně e-mailu. Zkuste to znovu."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Nelze změnit jméno člena, který není organizací nárokován."
+  },
+  "nameNotClaimedHint": {
+    "message": "Tento člen nemá nárokovaný účet. Kontaktujte člena a aktualizujte jeho jméno."
   },
   "createdDate": {
     "message": "Datum vytvoření"
@@ -11639,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Přiřadit přístup ke sbírce"
   },
+  "assignSharedFolderAccess": {
+    "message": "Přiřadit přístup",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Upravené sbírky"
   },
@@ -11648,8 +11985,16 @@
   "collectionEdited": {
     "message": "Sbírka byla upravena"
   },
+  "sharedFolderEdited": {
+    "message": "Sdílená složka byla upravena",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Sbírky byly upraveny"
+  },
+  "sharedFoldersEdited": {
+    "message": "Sdílené složky byly upraveny",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -11818,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Nemáte přístup ke správě této sbírky."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "Nemáte přístup ke správě této sdílené složky.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Chybějící oprávnění pro správu sbírky"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Chybějící oprávnění pro správu",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Udělte oprávnění \"Spravovat sbírku\" pro úplnou správu sbírky, včetně jejího smazání."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Udělte oprávnění pro správu pro úplnou správu sdílené složky, včetně jejího smazání.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Udělí skupinám nebo členům přístup k této sbírce."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Udělí skupinám nebo členům přístup k této sdílené složce.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Udělí členům přístup k této sbírce."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Udělí členům přístup k této sdílené složce.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Správci mohou přistupovat ke sbírkám a spravovat je."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Správci mohou přistupovat ke sdíleným složkám a spravovat je.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Přístup účtu služby byl aktualizován"
@@ -11934,7 +12303,7 @@
     "message": "Chybějící funkce nebo funkčnost",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
+  "cancelSurveyMissingFeaturesHintV2": {
     "message": "Něco, co jsme potřebovali, nebylo k dispozici",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11942,15 +12311,15 @@
     "message": "Příliš obtížné vytvořit nebo spravovat",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
+  "cancelSurveyTooComplexHintV2": {
     "message": "Onboarding, správa nebo každodenní používání bylo příliš složité",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "Poměr cena/výkon není dostatečný",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cena byla příliš vysoká",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
+  "cancelSurveyNotEnoughValueHintV2": {
     "message": "Cena neodpovídá tomu, co za ni dostaneme",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11958,7 +12327,7 @@
     "message": "V našem týmu nevyužijeme",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
+  "cancelSurveyNotEnoughUsageHintV2": {
     "message": "Nemohli jsme přesvědčit lidi, aby jej skutečně používali",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
@@ -11966,9 +12335,21 @@
     "message": "Naše potřeby se změnily",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
+  "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Špatný zákaznický servis",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "Od technické podpory ani od zákaznického servisu jsme nedostali potřebnou pomoc",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Popište svůj důvod pro zrušení",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
@@ -12549,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Sdílená složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Sbírka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Moje složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
   },
@@ -12681,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Nevybrali jste žádné sbírky."
+  },
+  "noSharedFoldersSelected": {
+    "message": "Nevybrali jste žádné sdílené složky.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Aktualizovat název"
@@ -13610,7 +14031,7 @@
     "message": "Otevírání rozšíření Bitwarden pro prohlížeč"
   },
   "somethingWentWrong": {
-    "message": "Něco se pokazilo..."
+    "message": "Něco se pokazilo…"
   },
   "openingExtensionError": {
     "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na tlačítko pro jeho otevření."
@@ -13851,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Bezplatné organizace mohou mít až 2 sdílené složky. Chcete-li přidat více sdílených složek, přejděte na placený tarif.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Hledat v archivu"
@@ -14231,7 +14656,7 @@
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Více...",
+    "message": "Více…",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "addTaxId": {
@@ -15392,7 +15817,7 @@
     "message": "Při komunikaci s Keeperem se vyskytl problém. Zkuste import znovu."
   },
   "importingYourAccount": {
-    "message": "Importování Vašeho účtu..."
+    "message": "Importování Vašeho účtu…"
   },
   "passcode": {
     "message": "Přístupový kód"
