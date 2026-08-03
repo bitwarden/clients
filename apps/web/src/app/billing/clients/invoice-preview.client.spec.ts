@@ -3,7 +3,12 @@ import { mock, mockReset } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
-import { InvoicePreviewClient, OrganizationPurchasePreviewRequest } from "./invoice-preview.client";
+import {
+  InvoicePreviewClient,
+  OrganizationPlanChangePreviewRequest,
+  OrganizationPurchasePreviewRequest,
+  PremiumOrgUpgradePreviewRequest,
+} from "./invoice-preview.client";
 
 describe("InvoicePreviewClient", () => {
   const mockApiService = mock<ApiService>();
@@ -52,7 +57,7 @@ describe("InvoicePreviewClient", () => {
     });
 
     it("should POST premium org upgrade previews to the premium upgrade route", async () => {
-      const request = { planTier: "teams", cadence: "annually" };
+      const request: PremiumOrgUpgradePreviewRequest = { planTier: "teams", cadence: "annually" };
 
       await sut.previewPremiumOrgUpgrade(request);
 
@@ -78,7 +83,10 @@ describe("InvoicePreviewClient", () => {
     });
 
     it("should POST plan change previews to the organization-scoped plan-change route", async () => {
-      const request = { planTier: "enterprise", cadence: "annually" };
+      const request: OrganizationPlanChangePreviewRequest = {
+        planTier: "enterprise",
+        cadence: "annually",
+      };
 
       await sut.previewOrganizationPlanChange("org-id-123", request);
 

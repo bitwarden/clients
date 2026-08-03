@@ -5,6 +5,7 @@ import { inject, Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InvoicePreviewResponse } from "@bitwarden/common/billing/models/response/invoice-preview.response";
+import type { PlanTier } from "@bitwarden/pricing";
 
 /**
  * Request shapes are owned by the per-screen tickets that consume each route. They are kept
@@ -17,13 +18,13 @@ export type PremiumPurchasePreviewRequest = {
 
 // TODO(PM-40223): finalize the premium organization upgrade request shape.
 export type PremiumOrgUpgradePreviewRequest = {
-  planTier: string;
+  planTier: PlanTier;
   cadence: string;
 };
 
 // TODO(PM-40222 / PM-40231): finalize the shared organization purchase request shape.
 export type OrganizationPurchasePreviewRequest = {
-  planTier: string;
+  planTier: PlanTier;
   cadence: string;
   passwordManager: {
     seats: number;
@@ -39,7 +40,7 @@ export type OrganizationPurchasePreviewRequest = {
 
 // TODO(PM-40224): finalize the organization plan change request shape.
 export type OrganizationPlanChangePreviewRequest = {
-  planTier: string;
+  planTier: PlanTier;
   cadence: string;
 };
 
