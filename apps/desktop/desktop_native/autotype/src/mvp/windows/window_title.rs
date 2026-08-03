@@ -178,7 +178,7 @@ mod tests {
     use windows::Win32::Foundation::WIN32_ERROR;
 
     use super::*;
-    use crate::windowing::MockErrorOperations;
+    use crate::mvp::windowing::MockErrorOperations;
 
     #[test]
     #[serial]
