@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, DestroyRef } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+  DestroyRef,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { map, switchMap } from "rxjs";
 
@@ -9,6 +16,7 @@ import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/pop
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HealthIntroComponent } from "./health-intro.component";
 import { HealthAccessService } from "./services/health-access.service";
 
 @Component({
@@ -21,6 +29,7 @@ import { HealthAccessService } from "./services/health-access.service";
     PopOutComponent,
     CurrentAccountComponent,
     I18nPipe,
+    HealthIntroComponent,
   ],
 })
 export class HealthComponent implements OnInit {
@@ -31,6 +40,7 @@ export class HealthComponent implements OnInit {
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
   );
+  readonly hasRunHealthScan = signal(false);
 
   ngOnInit(): void {
     const userId = this.userId();
@@ -50,4 +60,8 @@ export class HealthComponent implements OnInit {
       )
       .subscribe();
   }
+
+  readonly handleHealthScan = async () => {
+    this.hasRunHealthScan.set(true);
+  };
 }
