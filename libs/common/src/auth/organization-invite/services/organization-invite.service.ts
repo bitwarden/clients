@@ -30,9 +30,19 @@ export abstract class OrganizationInviteService {
    * Accepts the invite for the active user, or stashes it and logs out if the user must
    * first satisfy the org's master-password policy. The stashed invite is consumed when
    * the user returns after re-authenticating with a compliant master password.
+   *
+   * `postAuthRedirectUrl` is the URL the deep-link guard should replay after the user
+   * re-authenticates. Callers pass their current page URL (typically the accept-org
+   * route with the invite's query params) so the guard sends the user back to the same
+   * page. Ignored on clients without a deep-link redirect service.
+   *
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
-  abstract validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean>;
+  abstract validateAndAcceptInvite(
+    invite: OrganizationInvite,
+    userId: UserId,
+    postAuthRedirectUrl: string,
+  ): Promise<boolean>;
 
   /**
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token

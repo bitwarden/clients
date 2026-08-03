@@ -14,7 +14,7 @@ the user takes after clicking the email link.
 
 ### 1. Client-orchestrated acceptance
 
-The client calls `OrganizationInviteService.validateAndAcceptInvite(invite, userId)`,
+The client calls `OrganizationInviteService.validateAndAcceptInvite(invite, userId, postAuthRedirectUrl)`,
 which posts to either `postOrganizationUserAccept` or `postOrganizationUserAcceptInit`.
 Only one production caller exists:
 [`AcceptOrgDirectInviteComponent.authedHandler`](./accept-org-direct-invite.component.ts).
@@ -86,7 +86,7 @@ flow below. The SSO sections cover **new** users JIT-provisioned via SSO.
 
 ### authedHandler
 
-Calls `validateAndAcceptInvite(invite, activeUserId)`. Returns `true` → show
+Calls `validateAndAcceptInvite(invite, activeUserId, this.router.url)`. Returns `true` → show
 success toast + navigate to `/`. Returns `false` → silently exit.
 
 ---
@@ -255,28 +255,30 @@ and paste it into a tab that's already signed in. In that case:
 
 1. `AcceptFlowService.run` reads `activeAccountStatus$` as authed and
    dispatches straight to `authedHandler`.
-2. `authedHandler` calls `validateAndAcceptInvite` with **no stash present**
+2. `authedHandler` calls `validateAndAcceptInvite` with **no direct org invite stash present**
    (because `unauthedHandler` never ran).
 3. If the inviting org has the MP policy enabled,
    `masterPasswordPolicyCheckRequired` returns `true` (policy enabled +
    no stored invite = user has not been redirected through the MP check
-   yet). The service then stashes the invite and calls
-   `authService.logOut` — see
-   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts)
-   (the branch inside `validateAndAcceptInvite`).
+   yet). The service then stashes the invite, persists the caller-supplied
+   `postAuthRedirectUrl` via
+   `deepLinkRedirectService.persistPostLoginRedirectUrl` so the deep-link
+   guard can replay the accept page after re-auth, and calls
+   `logoutService.logout(userId)`.
+   `AcceptOrgDirectInviteComponent` passes `router.url` as the redirect
+   target so the web route path stays owned by the web layer.
 4. Logout returns the user to `/login`, where the existing-user flow runs
    normally: the stash drives policy fetching, the MP is evaluated against
    the org's policy, and a non-compliant password triggers the post-login
    force-set-password redirect.
-5. After login, `deepLinkGuard` replays `/accept-organization` and
-   `authedHandler` runs again — this time the stash is present, so
-   `masterPasswordPolicyCheckRequired` returns `false` and `accept()` runs.
+5. After login, `deepLinkGuard` reads the URL persisted in step 3 and
+   replays it, running `authedHandler` again — this time the stash is
+   present, so `masterPasswordPolicyCheckRequired` returns `false` and
+   `accept()` runs.
 
 The branch is unit-tested in
 [`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.spec.ts)
-("logs out the user and stores the invite when a master password policy check
-is required"), but there is no end-to-end / component-level test exercising
-the paste-into-authed-session entry. Worth covering.
+("stashes + persists + logs out on the paste-URL MP-policy detour").
 
 ---
 
