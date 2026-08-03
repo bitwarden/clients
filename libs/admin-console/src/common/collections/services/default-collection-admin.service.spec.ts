@@ -1,3 +1,4 @@
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -6,7 +7,10 @@ import {
   Collection,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections/collection";
-import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections/collection.response";
+import {
+  CollectionAccessDetailsResponse,
+  CollectionResponse,
+} from "@bitwarden/common/admin-console/models/collections/collection.response";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -74,32 +78,26 @@ function makeResult(
 describe("DefaultCollectionAdminService", () => {
   let service: DefaultCollectionAdminService;
 
-  const apiService = { getManyCollectionsWithAccessDetails: jest.fn() } as unknown as ApiService;
-  const keyService = { orgKeys$: jest.fn() } as unknown as KeyService;
-  const encryptService = { decryptString: jest.fn() } as unknown as EncryptService;
-  const collectionService = {} as unknown as CollectionService;
-  const organizationService = {} as unknown as OrganizationService;
-  const collectionEncryptionService = {
-    decryptManyWithFailures: jest.fn(),
-  } as unknown as CollectionEncryptionService;
-  const configService = {
-    getFeatureFlag: jest.fn(),
-    getFeatureFlag$: jest.fn(),
-  } as unknown as ConfigService;
-  const logService = {
-    error: jest.fn(),
-    warning: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    write: jest.fn(),
-    measure: jest.fn(),
-    mark: jest.fn(),
-  } as unknown as LogService;
+  let apiService: MockProxy<ApiService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
+  let collectionService: MockProxy<CollectionService>;
+  let organizationService: MockProxy<OrganizationService>;
+  let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
+  let configService: MockProxy<ConfigService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    apiService = mock();
+    keyService = mock();
+    encryptService = mock();
+    collectionService = mock();
+    organizationService = mock();
+    collectionEncryptionService = mock();
+    configService = mock();
+    logService = mock();
 
-    (keyService.orgKeys$ as jest.Mock).mockReturnValue(of({ [orgId]: {} as any }));
+    keyService.orgKeys$.mockReturnValue(of({ [orgId]: {} as any }));
 
     service = new DefaultCollectionAdminService(
       apiService,
@@ -114,15 +112,15 @@ describe("DefaultCollectionAdminService", () => {
   });
 
   function mockApiResponse(collections: CollectionAccessDetailsResponse[]) {
-    (apiService.getManyCollectionsWithAccessDetails as jest.Mock).mockResolvedValue(
+    apiService.getManyCollectionsWithAccessDetails.mockResolvedValue(
       new ListResponse({ data: collections }, CollectionAccessDetailsResponse),
     );
   }
 
   describe("collectionAdminViews$", () => {
     it("checks the CollectionAdminBulkDecrypt feature flag", async () => {
-      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
-      (encryptService.decryptString as jest.Mock).mockResolvedValue("Decrypted Name");
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      encryptService.decryptString.mockResolvedValue("Decrypted Name");
       mockApiResponse([makeAccessDetailsResponse()]);
 
       await service.collectionAdminViews$(orgId, userId).toPromise();
@@ -134,12 +132,12 @@ describe("DefaultCollectionAdminService", () => {
 
     describe("when CollectionAdminBulkDecrypt is enabled", () => {
       beforeEach(() => {
-        (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
+        configService.getFeatureFlag$.mockReturnValue(of(true));
       });
 
       it("decrypts collections via CollectionEncryptionService", async () => {
         mockApiResponse([makeAccessDetailsResponse()]);
-        (collectionEncryptionService.decryptManyWithFailures as jest.Mock).mockReturnValue(
+        collectionEncryptionService.decryptManyWithFailures.mockReturnValue(
           of(makeResult([makeCollectionView(collectionId1, { name: "Decrypted Name" })])),
         );
 
@@ -165,7 +163,7 @@ describe("DefaultCollectionAdminService", () => {
           name: failing.name as any,
         });
 
-        (collectionEncryptionService.decryptManyWithFailures as jest.Mock).mockReturnValue(
+        collectionEncryptionService.decryptManyWithFailures.mockReturnValue(
           of(
             makeResult(
               [makeCollectionView(collectionId2, { name: "Collection 2" })],
@@ -182,24 +180,46 @@ describe("DefaultCollectionAdminService", () => {
       });
 
       it("falls back to the original path when responses are not access-details responses", async () => {
-        (apiService.getManyCollectionsWithAccessDetails as jest.Mock).mockResolvedValue(
-          new ListResponse({ data: [] }, CollectionAccessDetailsResponse),
+        // The API method is typed to always return `CollectionAccessDetailsResponse`, but at
+        // runtime a caller without manage permissions on any collection gets back the narrower
+        // `CollectionResponse` shape (no `groups`/`users`), which is exactly what
+        // `isCollectionAccessDetailsResponse` distinguishes at runtime. The cast below simulates
+        // that real mismatch; the v1 path (via EncryptService) must be used even though the flag
+        // is enabled.
+        apiService.getManyCollectionsWithAccessDetails.mockResolvedValue(
+          new ListResponse(
+            {
+              data: [
+                {
+                  object: "collection",
+                  id: collectionId1,
+                  organizationId: orgId,
+                  name: "2.abc123|def456==|ghi789==",
+                },
+              ],
+            },
+            CollectionResponse,
+          ) as unknown as ListResponse<CollectionAccessDetailsResponse>,
         );
+        encryptService.decryptString.mockResolvedValue("Decrypted Name");
 
         const result = await service.collectionAdminViews$(orgId, userId).toPromise();
 
-        expect(result).toEqual([]);
+        expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
+        expect(encryptService.decryptString).toHaveBeenCalled();
+        expect(result).toHaveLength(1);
+        expect(result![0].name).toBe("Decrypted Name");
       });
     });
 
     describe("when CollectionAdminBulkDecrypt is disabled", () => {
       beforeEach(() => {
-        (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+        configService.getFeatureFlag$.mockReturnValue(of(false));
       });
 
       it("decrypts collections one at a time via EncryptService", async () => {
         mockApiResponse([makeAccessDetailsResponse()]);
-        (encryptService.decryptString as jest.Mock).mockResolvedValue("Decrypted Name");
+        encryptService.decryptString.mockResolvedValue("Decrypted Name");
 
         const result = await service.collectionAdminViews$(orgId, userId).toPromise();
 
