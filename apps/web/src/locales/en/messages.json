@@ -1349,15 +1349,6 @@
   "deleteAnySharedFolder": {
     "message": "Delete any shared folder"
   },
-  "restrictedSharedFolderAssignmentDesc": {
-    "message": "You can only assign shared folders you manage."
-  },
-  "selectSharedFolders": {
-    "message": "Select shared folders"
-  },
-  "noSharedFoldersAdded": {
-    "message": "No shared folders added"
-  },
   "cannotAddYourselfToSharedFolders": {
     "message": "You cannot add yourself to shared folders."
   },
@@ -4976,7 +4967,7 @@
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteUserDescSharedFolders": {
-    "message": "Invite new users to your organization vault by entering their email address below.",
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
     "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {

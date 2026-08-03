@@ -21,7 +21,9 @@
       <bit-tab-group [(selectedIndex)]="tabIndex">
         <bit-tab [label]="'role' | i18n">
           @if (!editMode) {
-            <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+            <p bitTypography="body1">
+              {{ "inviteUserDesc" | vfo1I18n: "inviteUserDescSharedFolders" }}
+            </p>
             @if (
               {
                 remainingSeats: remainingSeats$ | async,
