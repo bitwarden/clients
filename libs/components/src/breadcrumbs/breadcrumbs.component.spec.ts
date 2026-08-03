@@ -24,10 +24,14 @@ global.ResizeObserver = ResizeObserverStub;
 @Component({
   template: `
     <bit-breadcrumbs [size]="size()">
-      <bit-breadcrumb route="/vault">
-        <bit-icon-tile slot="start" icon="bwi-vault" />
-        Vault
-      </bit-breadcrumb>
+      @for (label of labels(); track label; let first = $first) {
+        <bit-breadcrumb route="/vault">
+          @if (first) {
+            <bit-icon-tile slot="start" icon="bwi-vault" />
+          }
+          {{ label }}
+        </bit-breadcrumb>
+      }
     </bit-breadcrumbs>
   `,
   imports: [BreadcrumbsComponent, BreadcrumbComponent, IconTileComponent],
@@ -35,6 +39,8 @@ global.ResizeObserver = ResizeObserverStub;
 })
 class TestHostComponent {
   readonly size = signal<"small" | "base">("base");
+  /** Breadcrumb labels to render; defaults to a single crumb. */
+  readonly labels = signal<string[]>(["Vault"]);
 }
 
 describe("BreadcrumbsComponent", () => {
@@ -80,27 +86,40 @@ describe("BreadcrumbsComponent", () => {
     expect(tileSize()).toBe("xs");
   });
 
-  /** The overflow-item wrapper span that gates the crumb's shrink/truncate behavior. */
-  function crumbWrapper(): { element: HTMLElement; item: OverflowItemDirective } {
-    const debugEl = fixture.debugElement.query(By.directive(OverflowItemDirective));
-    return {
+  /** The overflow-item wrapper spans that gate each crumb's shrink/truncate behavior. */
+  function crumbWrappers(): { element: HTMLElement; item: OverflowItemDirective }[] {
+    return fixture.debugElement.queryAll(By.directive(OverflowItemDirective)).map((debugEl) => ({
       element: debugEl.nativeElement as HTMLElement,
       item: debugEl.injector.get(OverflowItemDirective),
-    };
+    }));
   }
 
-  it("keeps the crumb from shrinking by default", () => {
+  it("lets a lone crumb shrink and truncate", () => {
+    // A single crumb is the sole displayed item, so it should truncate rather than
+    // overflow — even though nothing is packed into the overflow menu.
     fixture.detectChanges();
 
-    const { element } = crumbWrapper();
-    expect(element.classList).toContain("tw-shrink-0");
-    expect(element.classList).not.toContain("tw-flex-1");
+    const [{ element }] = crumbWrappers();
+    expect(element.classList).toContain("tw-flex-1");
+    expect(element.classList).toContain("tw-min-w-0");
+    expect(element.classList).toContain("tw-overflow-hidden");
+    expect(element.classList).not.toContain("tw-shrink-0");
   });
 
-  it("lets the crumb shrink and truncate once it is the lone displayed item", () => {
+  it("keeps crumbs from shrinking while more than one is displayed", () => {
+    fixture.componentInstance.labels.set(["Vault", "Folder"]);
     fixture.detectChanges();
 
-    const { element, item } = crumbWrapper();
+    for (const { element } of crumbWrappers()) {
+      expect(element.classList).toContain("tw-shrink-0");
+      expect(element.classList).not.toContain("tw-flex-1");
+    }
+  });
+
+  it("applies shrink/truncate classes when a crumb is marked as the lone displayed item", () => {
+    fixture.detectChanges();
+
+    const [{ element, item }] = crumbWrappers();
     item.shouldShrink.set(true);
     fixture.detectChanges();
 

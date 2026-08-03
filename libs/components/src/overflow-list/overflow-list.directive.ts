@@ -186,11 +186,10 @@ export class OverflowListDirective {
       const overflowList = this.overflow();
       const displayedList = this.displayed();
       const overflowSet = new Set(overflowList);
-      const lonelyIndex =
-        displayedList.length === 1 && overflowList.length > 0 ? displayedList[0] : -1;
+      const soleDisplayedIndex = displayedList.length === 1 ? displayedList[0] : -1;
       this.items().forEach((item, i) => {
         applyHide(item.elementRef.nativeElement, overflowSet.has(i));
-        item.shouldShrink.set(i === lonelyIndex);
+        item.shouldShrink.set(i === soleDisplayedIndex);
       });
       const trigger = this.trigger();
       if (this.ready() && trigger) {
