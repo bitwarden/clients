@@ -21,7 +21,6 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { UserId } from "../../../types/guid";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
@@ -154,13 +153,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
   // to the legacy service.
-  async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
-    return new SendAccessResponse(view);
-  }
-
-  async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
@@ -208,19 +201,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
   // to the legacy service.
   async getSendFileDownloadData(
-    send: SendAccessView,
-    request: SendAccessRequest,
-  ): Promise<SendFileDownloadDataResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await sdk
-      .sends()
-      .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
-    return new SendFileDownloadDataResponse(data);
-  }
-
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
-  async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
   ): Promise<SendFileDownloadDataResponse> {
