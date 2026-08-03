@@ -428,15 +428,21 @@ export class SshAgentService implements OnDestroy {
                       this.logService.error("Failed to push SSH keys to the agent", e);
                     }
                   }),
+                  // calls in this chain should not be re-tried as they're deterministic in their scope
+                  catchError((error: unknown) => {
+                    this.logService.error("Unexpected error while syncing SSH keys", error);
+                    return EMPTY;
+                  }),
                 );
               }),
             );
           }),
+          // calls in this chain should not be re-tried as they're deterministic in their scope
           catchError((error: unknown) => {
-            this.logService.error("Unexpected error in SSH agent replace keys", error);
-            // If unexpected errors reach here, they are not recoverable by retrying.
-            // Return EMPTY so that we don't resubscribe, which would use the same cached upstream
-            // values in a loop.
+            this.logService.error(
+              "SSH agent key pipeline stopped by an unrecoverable error",
+              error,
+            );
             return EMPTY;
           }),
           takeUntil(this.destroy$),

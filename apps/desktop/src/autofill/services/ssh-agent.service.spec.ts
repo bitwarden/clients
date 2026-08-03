@@ -452,9 +452,9 @@ describe("SshAgentService", () => {
     ]);
   });
 
-  it("when cipher data errors, the pipeline stops reacting to state changes", async () => {
-    // Resolves true on a macrotask, so a resubscribe loop — if one existed — would yield between
-    // laps rather than starving the event loop, and would reach the stop branch asserted below.
+  it("when cipher data errors, the attempt is abandoned but the agent still stops on disable", async () => {
+    // Resolves true on a macrotask so stopAgent() reaches stop(), and so a resubscribe loop — were
+    // one reintroduced — would yield between laps rather than starving the event loop.
     mockIsLoaded.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve(true))),
     );
@@ -467,20 +467,25 @@ describe("SshAgentService", () => {
     await flush();
 
     mockReplace.mockClear();
+    mockIsLoaded.mockClear();
 
     cipherViewsSubject.error(new Error("decryption failed"));
     await flush();
+    await flush();
 
+    // The failed attempt is abandoned rather than retried: no re-entry without a state change.
     expect(mockReplace).not.toHaveBeenCalled();
+    expect(mockIsLoaded).not.toHaveBeenCalled();
 
-    // The subscription is gone, so later state changes are not acted on. A pipeline that had
-    // resubscribed itself instead would see this on its next lap and stop the agent.
+    mockStop.mockClear();
+
+    // The outer subscription survives, so it still acts on state changes — without this, disabling
+    // the feature would silently leave the agent running and serving keys.
     enabledSubject.next(false);
     await flush();
     await flush();
-    await flush();
 
-    expect(mockStop).not.toHaveBeenCalled();
+    expect(mockStop).toHaveBeenCalled();
   });
 });
 
