@@ -2,17 +2,26 @@
 
 @if (firstName) {
   <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1">
-    <button bit-chip-action [startIcon]="icon()" type="button" variant="subtle" [label]="firstName">
+    <button
+      bit-chip-action
+      class="tw-min-w-0"
+      [startIcon]="icon()"
+      type="button"
+      variant="subtle"
+      [label]="firstName"
+      [title]="firstName"
+    >
       {{ firstName }}
     </button>
 
     @if (overflow() > 0) {
       <button
         bit-chip-action
+        class="tw-shrink-0"
         type="button"
         variant="subtle"
-        label="+{{ overflow() }}"
-        title="{{ overflowNames() }}"
+        [label]="'+' + overflow()"
+        [title]="overflowNames()"
       >
         +{{ overflow() }}
       </button>
