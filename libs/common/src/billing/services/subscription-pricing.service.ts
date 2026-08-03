@@ -286,22 +286,20 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private custom$: Observable<BusinessSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
-      map(
-        (): BusinessSubscriptionPricingTier => ({
-          id: BusinessSubscriptionPricingTierIds.Custom,
-          name: this.i18nService.t("planNameCustom"),
-          description: this.i18nService.t("planDescCustom"),
-          availableCadences: [],
-          passwordManager: {
-            type: "custom",
-            features: [
-              this.featureTranslations.strengthenCybersecurity(),
-              this.featureTranslations.boostProductivity(),
-              this.featureTranslations.seamlessIntegration(),
-            ],
-          },
-        }),
-      ),
+      map((): BusinessSubscriptionPricingTier => ({
+        id: BusinessSubscriptionPricingTierIds.Custom,
+        name: this.i18nService.t("planNameCustom"),
+        description: this.i18nService.t("planDescCustom"),
+        availableCadences: [],
+        passwordManager: {
+          type: "custom",
+          features: [
+            this.featureTranslations.strengthenCybersecurity(),
+            this.featureTranslations.boostProductivity(),
+            this.featureTranslations.seamlessIntegration(),
+          ],
+        },
+      })),
     );
 
   private featureTranslations = {

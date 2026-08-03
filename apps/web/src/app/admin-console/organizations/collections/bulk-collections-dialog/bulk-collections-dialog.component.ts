@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, inject, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 
@@ -30,6 +30,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { GroupApiService, GroupView } from "../../core";
@@ -60,11 +61,13 @@ export enum BulkCollectionsDialogResult {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  imports: [SharedModule, AccessSelectorModule],
+  imports: [SharedModule, AccessSelectorModule, Vfo1I18nPipe],
   selector: "app-bulk-collections-dialog",
   templateUrl: "bulk-collections-dialog.component.html",
 })
 export class BulkCollectionsDialogComponent implements OnDestroy {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   protected readonly PermissionMode = PermissionMode;
 
   protected formGroup = this.formBuilder.group({
@@ -161,11 +164,12 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     const batchBarEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM37785_VaultBatchBar,
     );
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+    const singular = vfo1Enabled ? "sharedFolderEdited" : "collectionEdited";
+    const plural = vfo1Enabled ? "sharedFoldersEdited" : "collectionsEdited";
     const editedMessage = batchBarEnabled
-      ? this.i18nService.t(
-          this.params.collections.length === 1 ? "collectionEdited" : "collectionsEdited",
-        )
-      : this.i18nService.t("collectionsEdited");
+      ? this.i18nService.t(this.params.collections.length === 1 ? singular : plural)
+      : this.i18nService.t(plural);
 
     this.toastService.showToast({
       variant: "success",
