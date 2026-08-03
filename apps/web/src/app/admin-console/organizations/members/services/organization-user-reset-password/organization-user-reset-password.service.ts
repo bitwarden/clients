@@ -256,12 +256,13 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     const kdfConfig = this.buildKdfConfig(resetPasswordDetails);
     const existingUserKey = await this.decryptUserKey(resetPasswordDetails, request.organizationId);
 
-    // In the Account Recovery flow, the target user's UserId is not available (only orgUserId),
-    // so salt is always derived from the target user's email via emailToSalt().
-    //
-    // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
-    // a server-provided salt for the target user rather than email derivation.
-    const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(request.email);
+    // Prefer server-provided salt; fallback to normalized email for legacy servers
+    // that don't yet return MasterPasswordSalt in the account-recovery details response.
+    // TODO: PM-32059 — When salt is disconnected from email (Stage 3) we will no longer fall back to email.
+    const salt: MasterPasswordSalt =
+      typeof resetPasswordDetails.masterPasswordSalt === "string"
+        ? (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt)
+        : this.masterPasswordService.emailToSalt(request.email);
 
     const authenticationData =
       await this.masterPasswordService.makeMasterPasswordAuthenticationData(
