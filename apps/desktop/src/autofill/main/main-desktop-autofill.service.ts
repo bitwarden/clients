@@ -195,14 +195,14 @@ export class DesktopAutofillMain {
    */
   private doWindowHandleQuery: Listener<void> = (error, clientId, sequenceNumber) => {
     if (error) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery", error);
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery", error);
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
       return;
     }
 
     const window = this.windowMain.win;
     if (!window) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery: No window available");
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery: No window available");
       this.ipcServer?.completeError(clientId, sequenceNumber, "No window available");
       return;
     }
@@ -240,7 +240,7 @@ export class DesktopAutofillMain {
       request,
     ) => {
       if (error) {
-        this.logService.error("[NativeAutofillMain]", `${toRendererChannel}:`, error);
+        this.logService.error("[DesktopAutofillMain]", `${toRendererChannel}:`, error);
         this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
         return;
       }
@@ -272,7 +272,7 @@ export class DesktopAutofillMain {
         // without ipcServer being set.
         if (!this.ipcServer) {
           this.logService.error(
-            "[NativeAutofillMain]",
+            "[DesktopAutofillMain]",
             `${fromRendererChannel}: Cannot find IPC server instance to return response to autofill provider.`,
           );
           throw new Error(
@@ -280,8 +280,12 @@ export class DesktopAutofillMain {
           );
         }
 
-        this.logService.debug(fromRendererChannel, data);
         const { clientId, sequenceNumber, response } = data;
+        this.logService.debug(
+          "[DesktopAutofillMain]",
+          `${fromRendererChannel}: Received response from renderer channel`,
+          { clientId, sequenceNumber },
+        );
         completeCallback.call(this.ipcServer, clientId, sequenceNumber, response);
       });
 
