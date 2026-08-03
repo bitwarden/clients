@@ -365,10 +365,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    return this.i18nService.t(
-      "upgradeFreeOrganization",
-      this.resolvePlanName(this.dialogParams.productTierType),
-    );
+    return this.i18nService.t("upgradeYourPlan");
   }
 
   async setInitialPlanSelection() {
