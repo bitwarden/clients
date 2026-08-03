@@ -4,11 +4,11 @@
     alt="Health Intro"
     class="tw-mb-4 tw-w-full"
   />
-  <h2 bitTypography="h2" class="!tw-text-fg-brand">Introducing Health</h2>
+  <h2 bitTypography="h2" class="!tw-text-fg-brand">{{ "introducingHealth" | i18n }}</h2>
   <p bitTypography="body1">
-    Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused.
+    {{ "healthIntroDescription" | i18n }}
   </p>
   <button type="button" bitButton buttonType="primary" (click)="handleScanVaultClick()">
-    Scan my vault
+    {{ "scanMyVault" | i18n }}
   </button>
 </div>
