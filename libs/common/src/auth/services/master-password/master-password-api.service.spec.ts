@@ -53,7 +53,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
 
       const request = new SetInitialPasswordRequest(
@@ -95,7 +95,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
       const request = new PasswordRequest(
         "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
@@ -134,7 +134,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
 
       const request = new UpdateTempPasswordRequest(
@@ -173,7 +173,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
 
       const request = new UpdateTdeOffboardingPasswordRequest(
