@@ -3,34 +3,42 @@ import {
   AbstractControl,
   FormBuilder,
   FormControl,
+  ReactiveFormsModule,
   ValidationErrors,
+  ValidatorFn,
   Validators,
 } from "@angular/forms";
+import { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
-// TODO(PM-41310): Extract to a shared constant in libs/common/src/autofill/ once PR 5 (enforcement)
-// also needs it for the "differs from default" comparison.
-const DEFAULT_FILL_ASSIST_RULES_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download";
-
-function urlValidator(control: AbstractControl): ValidationErrors | null {
-  if (!control.value) {
-    return null;
-  }
-  try {
-    new URL(control.value);
-    return null;
-  } catch {
-    return { url: true };
-  }
+function httpsUrlValidator(errorMessage: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+    try {
+      const parsed = new URL(control.value);
+      if (parsed.protocol !== "https:") {
+        return { url: { message: errorMessage } };
+      }
+      return null;
+    } catch {
+      return { url: { message: errorMessage } };
+    }
+  };
 }
 
 export class FillAssistPolicy extends BasePolicyEditDefinition {
@@ -42,13 +50,17 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
+
+  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
+    return configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules);
+  }
 }
 
 @Component({
   selector: "fill-assist-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "fill-assist.component.html",
-  imports: [SharedModule],
+  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
 })
 export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -59,7 +71,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
 
     this.data = this.formBuilder.group({
       rulesUrl: new FormControl<string>(DEFAULT_FILL_ASSIST_RULES_URL, {
-        validators: [Validators.required, urlValidator],
+        validators: [
+          Validators.required,
+          httpsUrlValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
+        ],
         nonNullable: true,
       }),
     });
