@@ -375,13 +375,13 @@ export const RealisticSideNavV2: Story = {
             <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
             <bit-nav-section icon="bwi-pin" label="Pinned">
               <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
-              <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
-              <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
-            </bit-nav-group>
-            <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
-              <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
-              <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
-            </bit-nav-group>
+                <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
+                <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
+              </bit-nav-group>
+              <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+                <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
+                <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
+              </bit-nav-group>
             </bit-nav-section>
             <bit-berry slot="end" variant="primary" [value]="1"></bit-berry>
           </bit-nav-group>
