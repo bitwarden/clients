@@ -141,7 +141,7 @@ describe("WebSetInitialPasswordService", () => {
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString!);
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);

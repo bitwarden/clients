@@ -45,7 +45,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
+import { MasterKey, UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import {
   DEFAULT_KDF_CONFIG,
   fromSdkKdfConfig,
@@ -140,7 +140,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
     // Mock other function data
     let newMasterKey: MasterKey;
-    let existingUserPublicKey: UserPublicKey;
+    let existingUserPublicKey: Uint8Array;
     let existingUserPrivateKey: UserPrivateKey;
     let userKeyEncryptedPrivateKey: EncString;
 
@@ -175,12 +175,12 @@ describe("DefaultSetInitialPasswordService", () => {
       newMasterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
       keyService.makeMasterKey.mockResolvedValue(newMasterKey);
 
-      existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey") as UserPublicKey;
+      existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey");
       existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
       userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey");
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString!);
 
       organizationKeys = {
         privateKey: "orgPrivateKey",
@@ -324,7 +324,7 @@ describe("DefaultSetInitialPasswordService", () => {
             credentials.orgSsoIdentifier,
             new KeysRequest(
               Utils.fromBufferToB64(existingUserPublicKey),
-              userKeyEncryptedPrivateKey.encryptedString,
+              userKeyEncryptedPrivateKey.encryptedString!,
             ),
           );
 
