@@ -1,0 +1,17 @@
+<bit-form-control>
+  <input
+    type="checkbox"
+    bitCheckbox
+    [formControl]="enabled"
+    id="fill-assist-policy_input_enabled"
+  />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <bit-form-field class="tw-flex-auto">
+    <bit-label>{{ "fillAssistRulesUrl" | i18n }}</bit-label>
+    <input bitInput type="url" formControlName="rulesUrl" id="fill-assist-policy_input_rules-url" />
+    <bit-hint>{{ "fillAssistRulesUrlHint" | i18n }}</bit-hint>
+  </bit-form-field>
+</div>
