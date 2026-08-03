@@ -10,7 +10,6 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { assertTruthy } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -240,8 +239,15 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     authenticationData: MasterPasswordAuthenticationData;
     unlockData: MasterPasswordUnlockData;
   }> {
-    assertTruthy(request.email, "email", "Could not make Auth/Unlock data");
-    assertTruthy(request.newMasterPassword, "newMasterPassword", "Could not make Auth/Unlock data");
+    const newMasterPassword = request.newMasterPassword;
+    if (Utils.isNullOrWhitespace(newMasterPassword) || newMasterPassword == undefined) {
+      throw new Error(this.i18nService.t("resetPasswordNewPasswordRequired"));
+    }
+
+    const email = request.email;
+    if (Utils.isNullOrWhitespace(email) || email == undefined) {
+      throw new Error(this.i18nService.t("emailRequired"));
+    }
 
     const resetPasswordDetails =
       await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
@@ -262,17 +268,17 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     const salt: MasterPasswordSalt =
       typeof resetPasswordDetails.masterPasswordSalt === "string"
         ? (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt)
-        : this.masterPasswordService.emailToSalt(request.email);
+        : this.masterPasswordService.emailToSalt(email);
 
     const authenticationData =
       await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-        request.newMasterPassword,
+        newMasterPassword,
         kdfConfig,
         salt,
       );
 
     const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-      request.newMasterPassword,
+      newMasterPassword,
       kdfConfig,
       salt,
       existingUserKey,

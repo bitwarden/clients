@@ -320,8 +320,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: false,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });
