@@ -30,7 +30,8 @@ export default {
       providers: [
         {
           provide: I18nService,
-          useFactory: () => new I18nMockService({ showMore: "Show more" }),
+          useFactory: () =>
+            new I18nMockService({ showMore: "Show more", showMoreCount: "Show 5 more" }),
         },
       ],
     }),

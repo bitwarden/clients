@@ -5,8 +5,15 @@
   [class.tw-invisible]="!ovf.ready()"
   class="tw-flex [&>*]:tw-shrink-0"
 >
+  <!-- The first badge is pinned so at least one is always visible. -->
   @for (badge of badges(); track $index) {
-    <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
+    <span
+      bitBadge
+      bitOverflowItem
+      [pinned]="$first"
+      [variant]="badge.variant ?? 'primary'"
+      [startIcon]="badge.startIcon"
+    >
       {{ badge.label }}
     </span>
   }
@@ -16,16 +23,12 @@
     bitOverflowTrigger
     variant="subtle"
     [label]="'+' + overflow().length"
+    [attr.aria-label]="'showMoreCount' | i18n: overflow().length"
     [bitPopoverTriggerFor]="overflowPopover"
   ></button>
 </div>
 
-<bit-popover
-  #overflowPopover
-  [accessibleName]="'showMore' | i18n"
-  [showCloseButton]="false"
-  maxHeightClass="tw-max-h-[25rem]"
->
+<bit-popover-panel #overflowPopover [accessibleName]="'showMore' | i18n">
   <div class="tw-flex tw-flex-col tw-items-start tw-gap-4">
     @for (badge of overflowBadges(); track $index) {
       <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
@@ -33,4 +36,4 @@
       </span>
     }
   </div>
-</bit-popover>
+</bit-popover-panel>

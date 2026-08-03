@@ -2,14 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   ElementRef,
   inject,
   input,
+  signal,
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
-import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { BitwardenIcon } from "../shared/icon";
 import { TooltipDirective } from "../tooltip/tooltip.directive";
 
@@ -98,21 +97,20 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
   selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
   hostDirectives: [
-    // OverflowItemDirective is applied to every badge so wrappers like
-    // `bit-badge-group` can let `bitOverflowList` measure and hide them. None
-    // of its inputs/outputs are exposed — `pinned` is internal-only, set
-    // programmatically by the wrapper.
-    OverflowItemDirective,
     {
       directive: TooltipDirective,
       // Override the default badge tooltip content by providing content to [bitTooltip] directly
-      inputs: ["tooltipPosition", "bitTooltip"],
+      inputs: ["tooltipPosition", "bitTooltip", "addTooltipToDescribedby"],
     },
   ],
 
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
+    // The badge's text is projected content, so it can change without any signal this component
+    // reads changing. Resolve it on the events that show the tooltip rather than caching it.
+    "(mouseenter)": "syncDefaultTooltipContent()",
+    "(focusin)": "syncDefaultTooltipContent()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -120,22 +118,11 @@ export class BadgeComponent {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly tooltip = inject(TooltipDirective);
 
-  constructor() {
-    /**
-     * Set the tooltip content to the badge's content, unless there is already custom tooltip
-     * content provided by the consumer
-     */
-    effect(() => {
-      const tooltipContent = this.tooltip.tooltipContent();
-      if (tooltipContent.length > 0) {
-        return;
-      }
-
-      const content = this.defaultTooltipContent();
-
-      this.tooltip.tooltipContent.set(content);
-    });
-  }
+  /**
+   * The tooltip content this badge last generated from its own text, used to tell content the
+   * badge owns apart from content the consumer supplied via `[bitTooltip]`.
+   */
+  private readonly autoTooltipContent = signal("");
 
   /**
    * Visual variant that determines the badge's color scheme.
@@ -189,10 +176,19 @@ export class BadgeComponent {
   ]);
 
   /**
-   * The badge's HTML content as a string if the badge has the potential to truncate, to display
-   * in the tooltip
+   * Point the tooltip at the badge's current text, so a truncated badge shows its full value.
+   * Content the consumer provided via `[bitTooltip]` always wins and is never overwritten.
    */
-  protected readonly defaultTooltipContent = computed(() => {
-    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : "";
-  });
+  protected syncDefaultTooltipContent() {
+    const currentContent = this.tooltip.tooltipContent();
+
+    if (currentContent.length > 0 && currentContent !== this.autoTooltipContent()) {
+      return;
+    }
+
+    const content = this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : "";
+
+    this.autoTooltipContent.set(content);
+    this.tooltip.tooltipContent.set(content);
+  }
 }

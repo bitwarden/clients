@@ -1,19 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  input,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BadgeComponent, BadgeModule } from "../badge";
 import { ChipActionComponent } from "../chips";
+import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
 import { PopoverModule } from "../popover";
+import { PopoverPanelComponent } from "../popover/popover-panel.component";
 
 /** A single badge rendered by {@link BadgeGroupComponent}. */
 export type BadgeGroupItem = {
@@ -44,6 +39,8 @@ export type BadgeGroupItem = {
     BadgeModule,
     ChipActionComponent,
     PopoverModule,
+    PopoverPanelComponent,
+    OverflowItemDirective,
     OverflowListDirective,
     OverflowTriggerDirective,
     I18nPipe,
@@ -64,11 +61,4 @@ export class BadgeGroupComponent {
       .map((i) => badges[i])
       .filter((badge) => badge != null);
   });
-
-  constructor() {
-    effect(() => {
-      const items = this.list().items();
-      items.forEach((item, i) => item.pinned.set(i === 0));
-    });
-  }
 }
