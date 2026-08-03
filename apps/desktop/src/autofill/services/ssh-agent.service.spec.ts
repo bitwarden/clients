@@ -23,6 +23,15 @@ function makeSshCipher(id: string, name: string, privateKey: string): CipherView
 /** Flush pending microtasks and one macrotask cycle to let async RxJS pipelines settle. */
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
 
+/**
+ * Rejects on a macrotask rather than a microtask. A pipeline that resubscribed itself on failure
+ * would loop purely through microtasks, starving the timer queue so neither `flush` nor Jest's own
+ * timeout could ever fire — the suite would hang instead of failing. Settling on a macrotask makes
+ * each lap yield, so a runaway retry shows up as a call count instead.
+ */
+const rejectLater = (message: string) =>
+  new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message))));
+
 describe("SshAgentService", () => {
   let service: SshAgentService;
 
@@ -407,6 +416,71 @@ describe("SshAgentService", () => {
     await flush();
 
     expect((service as any).authorizedKeys).toBe(seeded);
+  });
+
+  it("when a key push fails, it is attempted once and not retried in a loop", async () => {
+    mockReplace.mockImplementation(() => rejectLater("Failed to parse private key"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledTimes(1);
+  });
+
+  it("when key pushes keep failing, each key change is attempted exactly once", async () => {
+    mockReplace.mockImplementation(() => rejectLater("Failed to parse private key"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+
+    cipherViewsSubject.next([makeSshCipher("c1", "Renamed", "pem")]);
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledTimes(2);
+    expect(mockReplace).toHaveBeenLastCalledWith([
+      { name: "Renamed", privateKey: "pem", cipherId: "c1" },
+    ]);
+  });
+
+  it("when cipher data errors, the pipeline stops reacting to state changes", async () => {
+    // Resolves true on a macrotask, so a resubscribe loop — if one existed — would yield between
+    // laps rather than starving the event loop, and would reach the stop branch asserted below.
+    mockIsLoaded.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(true))),
+    );
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+
+    mockReplace.mockClear();
+
+    cipherViewsSubject.error(new Error("decryption failed"));
+    await flush();
+
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    // The subscription is gone, so later state changes are not acted on. A pipeline that had
+    // resubscribed itself instead would see this on its next lap and stop the agent.
+    enabledSubject.next(false);
+    await flush();
+    await flush();
+    await flush();
+
+    expect(mockStop).not.toHaveBeenCalled();
   });
 });
 
@@ -808,6 +882,16 @@ describe("SshAgentService – list keys request", () => {
     } finally {
       jest.useRealTimers();
     }
+  });
+
+  it("when pushing keys fails, refuses the request instead of leaving the client waiting", async () => {
+    mockReplace.mockRejectedValue(new Error("Failed to parse private key"));
+
+    sendListRequest();
+    await flush();
+
+    expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, false);
+    expect(mockListRequestResponse).toHaveBeenCalledTimes(1);
   });
 });
 
