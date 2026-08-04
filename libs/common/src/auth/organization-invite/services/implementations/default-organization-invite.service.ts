@@ -519,6 +519,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null> {
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause and update the abstraction JSDoc that documents it.
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return null;
     }

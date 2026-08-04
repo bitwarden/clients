@@ -219,6 +219,8 @@ const routes: Routes = [
         // Open organization invite link landing. The component handles both
         // authenticated and unauthenticated users so no unauthGuardFn here.
         // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
+        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
+        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
         path: "join/:organizationId/:inviteLinkCode",
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
         component: AcceptOrgOpenInviteComponent,
@@ -231,6 +233,8 @@ const routes: Routes = [
         // `orgName` + `returnTo` query params to configure the anon-layout title
         // and the CTA. Feature-flag guarded so a stale link cannot land here after
         // the feature is disabled.
+        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
+        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
         path: "organization-invite-link-invalid",
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
         component: OpenOrgInviteLinkInvalidComponent,

@@ -21,7 +21,9 @@ import {
   UnsealOpenOrgInviteError,
 } from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -173,6 +175,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private premiumInterestStateService: PremiumInterestStateService,
     private deepLinkRedirectService: DeepLinkRedirectService,
     private organizationInviteService: OrganizationInviteService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -234,6 +237,14 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
    */
   private async tryHydrateOpenInviteFromSealedData(): Promise<boolean> {
     if (this.sealedOpenOrgInviteData == null || !this.email) {
+      return true;
+    }
+    // Defense in depth: stale flag-on state may persist into a flag-off session
+    // (the email link is delivered before the user clicks). Skip the unseal when
+    // disabled — caller falls through to the plain registration path.
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
 

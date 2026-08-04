@@ -139,14 +139,15 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * generic "Create account" chrome. No icon override — the existing route-data icon
    * (RegistrationUserAddIcon) is reused.
    *
-   * Defense-in-depth flag check: the landing route is gated, but stale state from a
-   * prior flag-on session could persist into a flag-off session.
+   * Defense in depth: stale flag-on state may persist into a flag-off session.
    */
   private async applyOpenInviteTitleOverride(): Promise<void> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return;
     }
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause.
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return;
     }
@@ -302,10 +303,10 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     if (invite == null) {
       return true;
     }
-    // Defense in depth: even though the open-org-invite landing route is gated by
-    // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
-    // could persist into a flag-off session. Skip the domain check when the
-    // feature is disabled.
+    // Defense in depth: stale flag-on state may persist into a flag-off session.
+    // Skip the domain check when disabled.
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause.
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }

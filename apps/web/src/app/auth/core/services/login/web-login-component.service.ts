@@ -225,9 +225,11 @@ export class WebLoginComponentService
         return undefined;
       }
     } else {
-      // Defense in depth: even though the open-org-invite landing route is gated by
-      // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
-      // could persist into a flag-off session. Treat as no invite when disabled.
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // Treat as no invite when disabled.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause; the `else` branch can be removed entirely and the outer `if`
+      // collapsed since the direct-invite branch above is the only remaining case.
       if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
         return undefined;
       }
