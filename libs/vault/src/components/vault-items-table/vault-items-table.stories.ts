@@ -339,13 +339,49 @@ const chipFilterZeroCiphers = [
   cipher({ id: "1", name: "Acme", organizationId: "org-1", collectionIds: ["col-1"] }),
 ];
 
-/** Web's overflow set for this story: Edit and Event Logs, both built by the client. */
+/**
+ * Web's overflow set, in the order the cipher row menu lists it. Every entry is built by the
+ * client — labels are already translated, and each `event` factory produces the same
+ * {@link VaultItemEvent} the real row emits.
+ */
 const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[] = [
+  {
+    id: "favorite",
+    label: "Favorite",
+    icon: "bwi-star",
+    show: (item) => !item.favorite,
+    event: (item) => ({ type: "toggleFavorite", item }),
+  },
+  {
+    id: "unfavorite",
+    label: "Unfavorite",
+    icon: "bwi-star",
+    show: (item) => item.favorite,
+    event: (item) => ({ type: "toggleFavorite", item }),
+  },
   {
     id: "edit",
     label: "Edit",
     icon: "bwi-pencil-square",
     event: (item) => ({ type: "editCipher", item }),
+  },
+  {
+    id: "attachments",
+    label: "Attachments",
+    icon: "bwi-paperclip",
+    event: (item) => ({ type: "viewAttachments", item }),
+  },
+  {
+    id: "clone",
+    label: "Clone",
+    icon: "bwi-files",
+    event: (item) => ({ type: "clone", item }),
+  },
+  {
+    id: "assign-to-collections",
+    label: "Assign to collections",
+    icon: "bwi-collection-shared",
+    event: (item) => ({ type: "assignToCollections", items: [item] }),
   },
   {
     id: "events",
@@ -354,6 +390,19 @@ const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView
     // Event logs only exist for organization-owned items.
     show: (item) => item.organizationId != null,
     event: (item) => ({ type: "viewEvents", item }),
+  },
+  {
+    id: "archive",
+    label: "Archive",
+    icon: "bwi-archive",
+    event: (item) => ({ type: "archive", items: [item] }),
+  },
+  {
+    id: "delete",
+    label: "Delete",
+    icon: "bwi-trash",
+    variant: "danger",
+    event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
   },
 ];
 
