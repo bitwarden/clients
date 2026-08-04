@@ -1,12 +1,12 @@
 import { Credit } from "./credit";
-import { Discount } from "./discount";
+import { CartDiscount } from "./discount";
 
 export type CartItem = {
   translationKey: string;
   translationParams?: Array<string | number>;
   quantity: number;
   cost: number;
-  discounts?: Discount[];
+  discounts?: CartDiscount[];
   hideBreakdown?: boolean;
 };
 
@@ -20,7 +20,7 @@ export type Cart = {
     additionalServiceAccounts?: CartItem;
   };
   cadence: "annually" | "monthly";
-  discounts?: Discount[];
+  discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;
   /**

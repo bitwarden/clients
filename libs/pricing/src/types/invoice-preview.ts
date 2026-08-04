@@ -1,4 +1,4 @@
-import { Discount } from "./discount";
+import { DiscountType } from "./discount";
 
 /**
  * TypeScript mirrors of the server's invoice preview record family, which projects a Stripe
@@ -29,11 +29,32 @@ export type PlanTier = "families" | "teams" | "enterprise" | "premium";
  */
 export type PurchasableReference = "pm-seat" | "pm-storage" | "sm-seat" | "sm-service-account";
 
+/**
+ * Mirrors the server's `InvoicePreviewDiscount` record — a type deliberately separate from the
+ * legacy discount contract (the server's Core `BitwardenDiscount` is untouched by the preview
+ * work; only `BitwardenDiscountType` is shared, mirrored here as {@link DiscountType}).
+ */
+export type InvoicePreviewDiscount = {
+  type: DiscountType;
+  /**
+   * A whole-number percentage (0–100) for percent-off, or dollars off for amount-off. Never
+   * cents and never a decimal multiplier, unlike the legacy `Discount.value`.
+   */
+  value: number;
+  /**
+   * The applied amount in dollars, computed by Stripe. Authoritative: renderers use it directly
+   * instead of deriving it from `type` and `value`.
+   */
+  amount: number;
+  /** The coupon name. */
+  label?: string;
+};
+
 export type InvoicePreviewItem = {
   reference: PurchasableReference;
   quantity: number;
   cost: number;
-  discounts?: Discount[];
+  discounts?: InvoicePreviewDiscount[];
 };
 
 /**
@@ -62,7 +83,7 @@ export type InvoicePreview = {
   };
   cadence: "annually" | "monthly";
   planTier: PlanTier;
-  discounts?: Discount[];
+  discounts?: InvoicePreviewDiscount[];
   startingBalance?: number;
   estimatedTax: number;
   total: number;

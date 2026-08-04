@@ -42,6 +42,7 @@ describe("InvoicePreviewResponse", () => {
         value: 20,
         amount: 50,
       });
+      expect(response.passwordManager.seats.discounts![0].label).toBeUndefined();
       expect(response.passwordManager.additionalStorage).toMatchObject({
         reference: "pm-storage",
         quantity: 2,
@@ -158,6 +159,38 @@ describe("InvoicePreviewResponse", () => {
       expect(response.estimatedTax).toBe(0);
       expect(response.total).toBe(0);
       expect(response.amountDue).toBe(0);
+    });
+
+    it("should throw when a discount is missing Amount", () => {
+      // The preview contract's Amount is required — Stripe always computes an applied amount —
+      // so its absence is a parse failure, not a degrade-to-derivation case.
+      expect(
+        () =>
+          new InvoicePreviewResponse({
+            ...base(),
+            Discounts: [{ Type: "percent-off", Value: 20 }],
+          }),
+      ).toThrow("Failed to parse invoice preview discount: missing Amount");
+    });
+
+    it("should throw on an invalid discount type", () => {
+      expect(
+        () =>
+          new InvoicePreviewResponse({
+            ...base(),
+            Discounts: [{ Type: "buy-one-get-one", Value: 20, Amount: 10 }],
+          }),
+      ).toThrow("Failed to parse invalid discount type: buy-one-get-one");
+    });
+
+    it("should preserve a discount Amount of zero rather than throwing", () => {
+      // A fully-consumed coupon can legitimately apply $0; the guard is `== null`, not falsy.
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        Discounts: [{ Type: "amount-off", Value: 15, Amount: 0 }],
+      });
+
+      expect(response.discounts![0].amount).toBe(0);
     });
 
     it("should NOT throw on an unrecognized purchasable reference", () => {

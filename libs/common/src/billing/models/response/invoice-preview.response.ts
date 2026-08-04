@@ -1,7 +1,7 @@
 import {
   InvoicePreview,
+  InvoicePreviewDiscount,
   InvoicePreviewItem,
-  Discount,
   PlanTier,
   PurchasableProration,
   PurchasableReference,
@@ -10,7 +10,7 @@ import {
 import { BaseResponse } from "../../../models/response/base.response";
 import { SubscriptionCadence, SubscriptionCadenceIds } from "../../types/subscription-pricing-tier";
 
-import { DiscountResponse } from "./discount.response";
+import { InvoicePreviewDiscountResponse } from "./invoice-preview-discount.response";
 
 const PlanTiers: readonly PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
@@ -18,7 +18,7 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
   reference: PurchasableReference;
   quantity: number;
   cost: number;
-  discounts?: Discount[];
+  discounts?: InvoicePreviewDiscount[];
 
   constructor(response: any) {
     super(response);
@@ -31,12 +31,15 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
     this.cost = this.getResponseProperty("Cost");
 
     // Discount members are serialized PascalCase like the enclosing fields, per the
-    // PM-39925/PM-39926 preview contract. `DiscountResponse` tolerates either casing via
-    // `getResponseProperty`, so a serializer surprise degrades gracefully instead of leaving
-    // every member `undefined`. The same contract applies to `InvoicePreviewResponse.discounts`.
+    // PM-39925/PM-39926 preview contract. `InvoicePreviewDiscountResponse` tolerates either
+    // casing via `getResponseProperty`, so a serializer surprise degrades gracefully instead of
+    // leaving every member `undefined`. The same contract applies to
+    // `InvoicePreviewResponse.discounts`.
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
-      this.discounts = discounts.map((discount: any) => new DiscountResponse(discount));
+      this.discounts = discounts.map(
+        (discount: any) => new InvoicePreviewDiscountResponse(discount),
+      );
     }
   }
 }
@@ -120,7 +123,7 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
   };
   cadence: SubscriptionCadence;
   planTier: PlanTier;
-  discounts?: Discount[];
+  discounts?: InvoicePreviewDiscount[];
   startingBalance?: number;
   estimatedTax: number;
   total: number;
@@ -153,7 +156,9 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
 
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
-      this.discounts = discounts.map((discount: any) => new DiscountResponse(discount));
+      this.discounts = discounts.map(
+        (discount: any) => new InvoicePreviewDiscountResponse(discount),
+      );
     }
 
     const startingBalance = this.getResponseProperty("StartingBalance");

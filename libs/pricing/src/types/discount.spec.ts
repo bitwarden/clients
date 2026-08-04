@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { Discount, DiscountTypes, getAmount, getLabel } from "./discount";
+import { CartDiscount, Discount, DiscountTypes, getAmount, getLabel } from "./discount";
 
 describe("getAmount", () => {
   describe("PercentOff", () => {
@@ -110,7 +110,7 @@ describe("getLabel", () => {
 
   describe("with a server-supplied label", () => {
     it("should prefer the label over the derived percent-off label", () => {
-      const discount: Discount = {
+      const discount: CartDiscount = {
         type: DiscountTypes.PercentOff,
         value: 25,
         label: "Launch promotion",
@@ -119,7 +119,7 @@ describe("getLabel", () => {
     });
 
     it("should prefer the label over the derived amount-off label", () => {
-      const discount: Discount = {
+      const discount: CartDiscount = {
         type: DiscountTypes.AmountOff,
         value: 15,
         label: "Loyalty coupon",
@@ -128,7 +128,7 @@ describe("getLabel", () => {
     });
 
     it("should not consult the i18n service when a label is supplied", () => {
-      const discount: Discount = {
+      const discount: CartDiscount = {
         type: DiscountTypes.PercentOff,
         value: 25,
         label: "Launch promotion",
@@ -140,7 +140,7 @@ describe("getLabel", () => {
     });
 
     it("should fall back to the derived label when the label is an empty string", () => {
-      const discount: Discount = { type: DiscountTypes.PercentOff, value: 25, label: "" };
+      const discount: CartDiscount = { type: DiscountTypes.PercentOff, value: 25, label: "" };
       expect(getLabel(i18nService, discount)).toBe("25% discount");
     });
   });

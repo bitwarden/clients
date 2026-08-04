@@ -12,8 +12,6 @@ const PercentOff: DiscountType = "percent-off";
 export class DiscountResponse extends BaseResponse implements Discount {
   type: DiscountType;
   value: number;
-  amount?: number;
-  label?: string;
 
   constructor(response: any) {
     super(response);
@@ -24,15 +22,5 @@ export class DiscountResponse extends BaseResponse implements Discount {
     }
     this.type = type;
     this.value = this.getResponseProperty("Value");
-
-    const amount = this.getResponseProperty("Amount");
-    if (amount != null) {
-      this.amount = amount;
-    }
-
-    const label = this.getResponseProperty("Label");
-    if (label != null) {
-      this.label = label;
-    }
   }
 }

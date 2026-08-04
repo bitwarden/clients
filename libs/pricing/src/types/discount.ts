@@ -10,15 +10,22 @@ export type DiscountType = (typeof DiscountTypes)[keyof typeof DiscountTypes];
 export type Discount = {
   type: DiscountType;
   value: number;
-  /**
-   * The authoritative applied amount in dollars, supplied by the server (cents / 100).
-   * When present, renderers prefer this over deriving the amount via {@link getAmount}.
-   */
+};
+
+/**
+ * The discount shape the cart renderer consumes — the structural union of what its two
+ * producers supply.
+ *
+ * Legacy flag-OFF carts carry plain {@link Discount}s, so the renderer derives `amount` and
+ * `label` via {@link getAmount} / {@link getLabel}. Preview-driven carts carry
+ * `InvoicePreviewDiscount`s, whose required `amount` (the server's authoritative applied amount
+ * in dollars) and `label` (the coupon name) take precedence over derivation. Both types are
+ * assignable to this one.
+ */
+export type CartDiscount = {
+  type: DiscountType;
+  value: number;
   amount?: number;
-  /**
-   * The server-supplied coupon name. When present, {@link getLabel} returns it instead of
-   * deriving a label from `type` and `value`.
-   */
   label?: string;
 };
 
@@ -46,10 +53,10 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
 
 /**
  * Resolves the display label for a discount, preferring the server-supplied
- * {@link Discount.label} (the coupon name) when present and otherwise deriving
+ * {@link CartDiscount.label} (the coupon name) when present and otherwise deriving
  * one from the discount's type and value.
  */
-export const getLabel = (i18nService: I18nService, discount: Discount): string => {
+export const getLabel = (i18nService: I18nService, discount: CartDiscount): string => {
   if (discount.label) {
     return discount.label;
   }

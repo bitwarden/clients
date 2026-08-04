@@ -15,7 +15,7 @@ import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Cart, CartItem } from "../../types/cart";
-import { Discount, getAmount, getLabel } from "../../types/discount";
+import { CartDiscount, getAmount, getLabel } from "../../types/discount";
 import { DiscountBadgeComponent } from "../discount-badge/discount-badge.component";
 
 /**
@@ -196,7 +196,7 @@ export class CartSummaryComponent {
    * a $100 subtotal yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
    */
   private calculateDiscountLineItems(
-    discounts: Discount[],
+    discounts: CartDiscount[],
     subtotal: number,
   ): Array<{ label: string; amount: number }> {
     let runningSubtotal = subtotal;

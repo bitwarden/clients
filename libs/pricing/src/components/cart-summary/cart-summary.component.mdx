@@ -84,7 +84,7 @@ export type CartItem = {
   translationKey: string; // Translation key for i18n lookup
   quantity: number; // Number of items
   cost: number; // Cost per item
-  discounts?: Discount[]; // Optional item-level discounts, rendered as rows beneath the line
+  discounts?: CartDiscount[]; // Optional item-level discounts, rendered as rows beneath the line
   hideBreakdown?: boolean; // Optional: hide cost breakdown (quantity × unit price)
 };
 
@@ -99,7 +99,7 @@ export type Cart = {
     additionalServiceAccounts?: CartItem; // Optional service accounts
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
-  discounts?: Discount[]; // Optional cart-level discounts, rendered in the discount section
+  discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the discount section
   credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
   total?: number; // Optional authoritative total; when absent the component computes it
@@ -113,9 +113,16 @@ export type Credit = {
 
 import { DiscountTypes, DiscountType } from "@bitwarden/pricing";
 
-export type Discount = {
+// The renderer's discount shape. Legacy carts supply only `type` and `value`, and the component
+// derives the applied amount and display label from them. Preview-driven carts (built by the
+// invoice-preview adapter from the server's `InvoicePreviewDiscount`) also supply `amount` — the
+// authoritative applied amount computed by Stripe — and `label` (the coupon name), which the
+// component prefers over derivation.
+export type CartDiscount = {
   type: DiscountType; // DiscountTypes.AmountOff | DiscountTypes.PercentOff
   value: number; // Dollar amount or percentage (20 for 20%)
+  amount?: number; // Optional authoritative applied amount in dollars
+  label?: string; // Optional coupon name, preferred over the derived label
 };
 ```
 
