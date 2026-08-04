@@ -9,6 +9,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
+  AutomatedLoginStepReady,
+  AutomationWorkflow,
   AutofillLifecycleService,
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
@@ -37,6 +39,7 @@ describe("AutofillOrchestrator", () => {
   const logService = mock<LogService>();
 
   let pageTransitionResolved$: Subject<PageTransitionResolved>;
+  let automatedLoginStepReady$: Subject<AutomatedLoginStepReady>;
   let tabRemovedSubject$: Subject<number>;
   let autofillOnPageLoad$: BehaviorSubject<boolean>;
   let liveTabs$: BehaviorSubject<ReadonlySet<number>>;
@@ -62,6 +65,18 @@ describe("AutofillOrchestrator", () => {
 
   const removeTab = (tabId: number) => tabRemovedSubject$.next(tabId);
 
+  const emitAutomatedLoginStep = (
+    pd: PageDetail,
+    workflow: AutomationWorkflow = AutomationWorkflow.autoSubmitLogin,
+  ) =>
+    automatedLoginStepReady$.next({
+      tab: pd.tab,
+      tabId: pd.tab.id!,
+      frameId: pd.frameId,
+      frameUrl: pd.tab.url ?? DEFAULT_URL,
+      workflow,
+    });
+
   // A promise whose resolution the test controls, so it can hold a fill in flight.
   const deferred = () => {
     let resolve!: (value: string | null) => void;
@@ -81,6 +96,7 @@ describe("AutofillOrchestrator", () => {
 
   beforeEach(() => {
     pageTransitionResolved$ = new Subject<PageTransitionResolved>();
+    automatedLoginStepReady$ = new Subject<AutomatedLoginStepReady>();
     tabRemovedSubject$ = new Subject<number>();
     autofillOnPageLoad$ = new BehaviorSubject<boolean>(true);
     // The tabs used across these tests are open by default so requests pass the live-tab gate;
@@ -90,6 +106,7 @@ describe("AutofillOrchestrator", () => {
 
     lifecycleService = mock<AutofillLifecycleService>();
     (lifecycleService as any).pageTransitionResolved$ = pageTransitionResolved$;
+    (lifecycleService as any).automatedLoginStepReady$ = automatedLoginStepReady$;
     (lifecycleService as any).liveTabs$ = liveTabs$;
     lifecycleService.tabRemoved$.mockImplementation((tabId: number) =>
       tabRemovedSubject$.pipe(
@@ -383,13 +400,17 @@ describe("AutofillOrchestrator", () => {
   });
 
   describe("user-initiated fills", () => {
-    it("fills the active tab from a keyboard command with the full side effects", async () => {
+    it("collects the tab and fills from a keyboard command with the full side effects", async () => {
       const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       autofillService.doAutoFillActiveTab.mockResolvedValue("111111");
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pd);
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
 
+      // The orchestrator owns the collect: it asks for every frame (no frame id) rather than
+      // being handed a pre-collected page detail.
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledWith([pd], true);
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("111111");
@@ -400,11 +421,12 @@ describe("AutofillOrchestrator", () => {
       ["card", CipherType.Card],
       ["identity", CipherType.Identity],
     ] as const)(
-      "fills a %s with no page-load/keyboard side effects",
+      "collects the tab and fills a %s with no page-load/keyboard side effects",
       async (_label, cipherType) => {
         const pd = pageDetail(1, 0);
+        autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
 
-        autofillOrchestrator.autofillActiveTabForCipherType(pd, cipherType);
+        autofillOrchestrator.autofillActiveTabForCipherType(pd.tab, cipherType);
         await flushPromises();
 
         expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledWith([pd], true, cipherType);
@@ -414,26 +436,40 @@ describe("AutofillOrchestrator", () => {
       },
     );
 
-    it("drops a user-initiated fill that has no tab id", async () => {
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(undefined, 0));
+    it("does not fill when the collect returns no page details", async () => {
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    });
+
+    it("drops a user-initiated fill that has no tab id", async () => {
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(undefined, 0).tab);
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
     });
   });
 
   describe("serialization and tab-removal teardown", () => {
-    it("serializes fills for the same (tab, frame) and abandons a queued fill when the tab is removed", async () => {
+    it("serializes keyboard commands for the same tab and abandons a queued fill when the tab is removed", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       const inFlight = deferred();
       autofillService.doAutoFillActiveTab.mockReturnValueOnce(inFlight.promise);
 
-      // First fill starts and blocks on the in-flight promise.
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      // First command starts and blocks on the in-flight promise.
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
 
-      // Second fill for the same (tab, frame) queues behind the first.
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      // A command carries no frame id, so a second command for the same tab queues behind the
+      // first rather than racing it.
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
 
@@ -445,46 +481,26 @@ describe("AutofillOrchestrator", () => {
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
 
-    it("runs fills for different frames of the same tab concurrently", async () => {
+    it("runs page-load fills for different frames of the same tab concurrently", async () => {
+      autofillService.collectPageDetailsFromTab$.mockImplementation((tab, frameId) =>
+        of([pageDetail(1, frameId ?? 0)]),
+      );
       const first = deferred();
       const second = deferred();
-      autofillService.doAutoFillActiveTab
+      autofillService.doAutoFillOnTab
         .mockReturnValueOnce(first.promise)
         .mockReturnValueOnce(second.promise);
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 1));
+      emitPageTransition(pageDetail(1, 0));
+      emitPageTransition(pageDetail(1, 1));
       await flushPromises();
 
       // Neither has resolved, yet both are in flight — different frames do not serialize.
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(2);
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(2);
 
       first.resolve(null);
       second.resolve(null);
       await flushPromises();
-    });
-
-    it("serializes a user-initiated fill behind an in-flight page-load fill on the same frame", async () => {
-      const pd = pageDetail(1, 0);
-      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      const pageLoadFill = deferred();
-      autofillService.doAutoFillOnTab.mockReturnValueOnce(pageLoadFill.promise);
-
-      // A page-load fill (doAutoFillOnTab) starts and blocks in flight.
-      emitPageTransition(pd);
-      await flushPromises();
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(1);
-
-      // A keyboard fill (doAutoFillActiveTab) for the same (tab, frame) queues behind it rather
-      // than racing — the two flavors share one serialized entry point.
-      autofillOrchestrator.autofillActiveTabFromCommand(pd);
-      await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
-
-      // Once the page-load fill completes, the queued keyboard fill runs.
-      pageLoadFill.resolve(null);
-      await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -505,17 +521,19 @@ describe("AutofillOrchestrator", () => {
       // message) is dropped rather than keyed into a group.
       liveTabs$.next(new Set([2]));
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
     });
 
     it("dispatches a fill whose tab id is an open tab", async () => {
       // The complement of the drop cases: a request for a live tab passes the gate and fills.
       liveTabs$.next(new Set([1]));
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
@@ -558,7 +576,8 @@ describe("AutofillOrchestrator", () => {
       expect(attempt).toBe(2);
 
       // The pipe is healthy again, so a fill dispatches through the gate — never failing open.
-      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await jest.advanceTimersByTimeAsync(0);
 
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
@@ -596,7 +615,7 @@ describe("AutofillOrchestrator", () => {
       );
 
       // Fail closed: a fill after the pipe gives up is not dispatched (never gates open).
-      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await jest.advanceTimersByTimeAsync(0);
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
       jest.useRealTimers();
@@ -618,7 +637,8 @@ describe("AutofillOrchestrator", () => {
       );
       orchestrator.init();
 
-      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
       // Not dispatched yet — the live-tab set has not emitted.
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
@@ -632,12 +652,13 @@ describe("AutofillOrchestrator", () => {
       // The gate's purpose is to keep a forged id from opening a per-tab group that never retires.
       // A dropped forged request must not consume or reroute a subsequent legitimate fill.
       liveTabs$.next(new Set([1]));
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(999, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(999, 0).tab);
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
@@ -645,16 +666,124 @@ describe("AutofillOrchestrator", () => {
 
   describe("resilience", () => {
     it("logs and survives a failing fill so later fills still dispatch", async () => {
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
       autofillService.doAutoFillActiveTab.mockRejectedValueOnce(new Error("boom"));
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
       expect(logService.error).toHaveBeenCalledTimes(1);
       expect(logService.error).toHaveBeenCalledWith(expect.any(Error));
 
-      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("collection entries", () => {
+    it("collectPageDetails resolves the settled page details for every frame", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      const result = await autofillOrchestrator.collectPageDetails(pd.tab);
+
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
+      expect(result).toEqual([pd]);
+    });
+
+    it("collectPageDetails scopes to a single frame when a frame id is given", async () => {
+      const pd = pageDetail(1, 2);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      await autofillOrchestrator.collectPageDetails(pd.tab, 2);
+
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 2);
+    });
+
+    it("collectAutofillTriage resolves the tab's triage response", async () => {
+      const triage = { pageDetails: {}, targetFieldRef: undefined } as any;
+      jest
+        .spyOn(BrowserApi, "sendTabsMessage")
+        .mockImplementation(((_tabId: number, _message: any, _options: any, cb: any) =>
+          cb(triage)) as any);
+
+      const result = await autofillOrchestrator.collectAutofillTriage(1, 0);
+
+      expect(result).toBe(triage);
+    });
+
+    it("collectAutofillTriage resolves null when the tab has no receiver", async () => {
+      (chrome.runtime as any).lastError = { message: "Could not establish connection" };
+      jest
+        .spyOn(BrowserApi, "sendTabsMessage")
+        .mockImplementation(((_tabId: number, _message: any, _options: any, cb: any) =>
+          cb(undefined)) as any);
+
+      const result = await autofillOrchestrator.collectAutofillTriage(1);
+
+      expect(result).toBeNull();
+      (chrome.runtime as any).lastError = undefined;
+    });
+  });
+
+  describe("autofillTabWithCipher", () => {
+    it("collects the tab and fills the given cipher, returning the TOTP", async () => {
+      const pd = pageDetail(1, 0);
+      const cipher = { id: "c1" } as any;
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      autofillService.doAutoFill.mockResolvedValue("999999");
+
+      const result = await autofillOrchestrator.autofillTabWithCipher(pd.tab, cipher);
+
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ tab: pd.tab, cipher, pageDetails: [pd] }),
+      );
+      expect(result).toEqual({ filled: true, totp: "999999" });
+    });
+
+    it("does not fill and reports filled=false when the collect is empty", async () => {
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
+
+      const result = await autofillOrchestrator.autofillTabWithCipher(
+        createChromeTabMock({ id: 1 }),
+        { id: "c1" } as any,
+      );
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(result).toEqual({ filled: false, totp: null });
+    });
+  });
+
+  describe("autoSubmitLoginOnTab", () => {
+    it("collects the reporting frame and fills it with the auto-submit script", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      await autofillOrchestrator.autoSubmitLoginOnTab(pd.tab, 0);
+
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith([pd], pd.tab, true, true);
+    });
+
+    it("does not fill when the frame has no page details to submit", async () => {
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
+
+      await autofillOrchestrator.autoSubmitLoginOnTab(createChromeTabMock({ id: 1 }), 0);
+
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("automatedLoginStepReady$ consumer", () => {
+    it("interprets an auto-submit step-ready fact as a collect → fill → submit", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith([pd], pd.tab, true, true);
     });
   });
 });

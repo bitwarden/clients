@@ -261,6 +261,28 @@ export default tseslint.config(
     },
   },
   {
+    // Only the AutofillOrchestrator should call the AutofillService fill methods. Other background code fills via
+    // the orchestrator's fill entry points, so every page-touching fill is dispatched from one place.
+    //
+    // Scoped to `background/**`, which the `addListener` rule above ignores, so the two rules do not collide.
+    files: ["apps/browser/src/**/background/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
+      "apps/browser/src/**/*.spec.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
+          message:
+            "Route fills through AutofillOrchestrator (fillCipher / autofillTabWithCipher) rather than calling autofillService.doAutoFill* directly, so every page-touching fill is dispatched from one owner. See autofill.design.md.",
+        },
+      ],
+    },
+  },
+  {
     files: ["**/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(),

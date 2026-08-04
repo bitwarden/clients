@@ -13,7 +13,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
-import { AutofillService } from "../services/abstractions/autofill.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "../services/abstractions/autofill-lifecycle.service";
 
 import {
   AutoSubmitLoginBackground as AutoSubmitLoginBackgroundAbstraction,
@@ -28,14 +31,14 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private currentAutoSubmitHostData: { url?: string; tabId?: number } = {};
   private readonly isSafariBrowser: boolean = false;
   private readonly extensionMessageHandlers: AutoSubmitLoginBackgroundExtensionMessageHandlers = {
-    triggerAutoSubmitLogin: ({ message, sender }) => this.triggerAutoSubmitLogin(message, sender),
+    automatedLoginStepReady: ({ sender }) => this.reportAutomatedLoginStepReady(sender),
     multiStepAutoSubmitLoginComplete: ({ sender }) =>
       this.handleMultiStepAutoSubmitLoginComplete(sender),
   };
 
   constructor(
     private logService: LogService,
-    private autofillService: AutofillService,
+    private autofillLifecycleService: AutofillLifecycleService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
     private platformUtilsService: PlatformUtilsService,
@@ -496,30 +499,21 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   };
 
   /**
-   * Triggers the auto-submit login feature on the provided tab.
+   * Reports the sender frame's auto-submit-login step-ready fact to the autofill
+   * lufecycle.
    *
-   * @param message - The auto-submit login message.
-   * @param sender - The message sender.
+   * @param sender - The message sender. This should be the frame running the auto-submit workflow.
    */
-  private triggerAutoSubmitLogin = async (
-    message: AutoSubmitLoginMessage,
-    sender: chrome.runtime.MessageSender,
-  ) => {
-    if (sender.frameId == null || !sender.tab || !message.pageDetails) {
+  private reportAutomatedLoginStepReady = (sender: chrome.runtime.MessageSender) => {
+    if (sender.frameId == null || !sender.tab) {
       return;
     }
 
-    await this.autofillService.doAutoFillOnTab(
-      [
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: message.pageDetails,
-        },
-      ],
+    this.autofillLifecycleService.reportAutomatedLoginStepReady(
       sender.tab,
-      true,
-      true,
+      sender.frameId,
+      sender.url,
+      AutomationWorkflow.autoSubmitLogin,
     );
   };
 

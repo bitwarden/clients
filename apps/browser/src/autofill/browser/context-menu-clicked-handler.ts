@@ -53,6 +53,15 @@ export type AutofillAction = (tab: chrome.tabs.Tab, cipher: CipherView) => Promi
 
 export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promise<void>;
 
+/**
+ * Collects autofill-triage analysis for a tab. Wired to the orchestrator so the send is
+ * dispatched from the single collection owner rather than sent directly.
+ */
+export type CollectAutofillTriageAction = (
+  tabId: number,
+  frameId?: number,
+) => Promise<AutofillTriageResponse | null>;
+
 export class ContextMenuClickedHandler {
   private _triageResult: AutofillTriagePageResult | undefined;
 
@@ -79,6 +88,7 @@ export class ContextMenuClickedHandler {
     private copyToClipboard: CopyToClipboardAction,
     private generatePasswordToClipboard: GeneratePasswordToClipboardAction,
     private autofillAction: AutofillAction,
+    private collectAutofillTriage: CollectAutofillTriageAction,
     private authService: AuthService,
     private cipherService: CipherService,
     private totpService: TotpService,
@@ -292,7 +302,7 @@ export class ContextMenuClickedHandler {
       });
     }
 
-    const response = await this.collectPageDetailsForTriage(tab, info);
+    const response = await this.collectAutofillTriage(tab.id!, info.frameId);
     if (!response) {
       await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
       return;
@@ -320,26 +330,6 @@ export class ContextMenuClickedHandler {
     };
 
     await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });
-  }
-
-  private collectPageDetailsForTriage(
-    tab: chrome.tabs.Tab,
-    info: chrome.contextMenus.OnClickData,
-  ): Promise<AutofillTriageResponse | null> {
-    return new Promise<AutofillTriageResponse | null>((resolve) => {
-      BrowserApi.sendTabsMessage<AutofillTriageResponse>(
-        tab.id!,
-        { command: "collectAutofillTriage" },
-        { frameId: info.frameId },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            resolve(null);
-            return;
-          }
-          resolve(response ?? null);
-        },
-      );
-    });
   }
 
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {

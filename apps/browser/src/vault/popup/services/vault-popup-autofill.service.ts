@@ -7,6 +7,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   firstValueFrom,
+  from,
   map,
   Observable,
   of,
@@ -33,10 +34,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import {
-  AutofillService,
-  PageDetail,
-} from "../../../autofill/services/abstractions/autofill.service";
+import { PageDetail } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -165,13 +163,27 @@ export class VaultPopupAutofillService {
             }
           }
 
-          return this.autofillService.collectPageDetailsFromTab$(tab);
+          return from(this.collectPageDetailsFromBackground(tab));
         }),
       );
     }),
     debounceTime(50),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+
+  /**
+   * Collects the tab's page details through the background AutofillOrchestrator — the
+   * sole sender of the collect (see PREWORK). The popup runs in the foreground and cannot
+   * call the orchestrator directly, so it round-trips through the background and receives
+   * the settled page details in the response.
+   */
+  private async collectPageDetailsFromBackground(tab: chrome.tabs.Tab): Promise<PageDetail[]> {
+    const response = await BrowserApi.sendMessageWithResponse<{ result?: PageDetail[] }>(
+      "collectPageDetailsForPopup",
+      { tabId: tab.id },
+    );
+    return response?.result ?? [];
+  }
 
   /**
    * Emits `true` when Fill Assist targeting rules apply to the current tab.
@@ -258,7 +270,6 @@ export class VaultPopupAutofillService {
   );
 
   constructor(
-    private autofillService: AutofillService,
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -277,7 +288,6 @@ export class VaultPopupAutofillService {
   private async _internalDoAutofill(
     cipher: CipherView,
     tab: chrome.tabs.Tab,
-    pageDetails: PageDetail[],
     skipPasswordReprompt = false,
   ): Promise<boolean> {
     if (
@@ -288,7 +298,7 @@ export class VaultPopupAutofillService {
       return false;
     }
 
-    if (tab == null || pageDetails.length === 0) {
+    if (tab == null) {
       this.toastService.showToast({
         variant: "error",
         title: null,
@@ -298,17 +308,27 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      const totpCode = await this.autofillService.doAutoFill({
-        tab,
-        cipher,
-        pageDetails,
-        doc: window.document,
-        fillNewPassword: true,
-        allowTotpAutofill: true,
-      });
+      // Route the fill through the background AutofillOrchestrator so it runs through the single
+      // fill owner (see autofill.design.md). The cipher is sent by id so decrypted vault data stays
+      // off the message channel; the reprompt, TOTP copy, and popup close stay in the foreground
+      // here. The background collects and decides fillability, so there is no separate foreground
+      // page-details precondition to fall out of sync with the fill.
+      const response = await BrowserApi.sendMessageWithResponse<{
+        result?: { filled: boolean; totp: string | null };
+      }>("fillCipherForPopup", { tabId: tab.id, cipherId: cipher.id });
+      const outcome = response?.result;
 
-      if (totpCode != null) {
-        this.platformUtilService.copyToClipboard(totpCode, { window: window });
+      if (!outcome?.filled) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("autofillError"),
+        });
+        return false;
+      }
+
+      if (outcome.totp != null) {
+        this.platformUtilService.copyToClipboard(outcome.totp, { window: window });
       }
     } catch {
       this.toastService.showToast({
@@ -371,14 +391,8 @@ export class VaultPopupAutofillService {
     skipPasswordReprompt = false,
   ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
 
-    const didAutofill = await this._internalDoAutofill(
-      cipher,
-      tab,
-      pageDetails,
-      skipPasswordReprompt,
-    );
+    const didAutofill = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
     if (didAutofill && closePopup) {
       await this._closePopup(cipher, tab);
@@ -419,15 +433,9 @@ export class VaultPopupAutofillService {
       return false;
     }
 
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
 
-    const didAutofill = await this._internalDoAutofill(
-      cipher,
-      tab,
-      pageDetails,
-      skipPasswordReprompt,
-    );
+    const didAutofill = await this._internalDoAutofill(cipher, tab, skipPasswordReprompt);
 
     if (!didAutofill) {
       return false;

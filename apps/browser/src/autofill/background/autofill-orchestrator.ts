@@ -1,5 +1,6 @@
 import {
   concatMap,
+  debounceTime,
   filter,
   firstValueFrom,
   groupBy,
@@ -7,6 +8,7 @@ import {
   mergeMap,
   retry,
   Subject,
+  take,
   takeUntil,
   withLatestFrom,
 } from "rxjs";
@@ -17,10 +19,19 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { withLatestReady } from "@bitwarden/common/tools/rx";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { AutofillLifecycleService } from "../services/abstractions/autofill-lifecycle.service";
-import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "../services/abstractions/autofill-lifecycle.service";
+import {
+  AutofillService,
+  AutoFillOptions,
+  PageDetail,
+} from "../services/abstractions/autofill.service";
+import { AutofillTriageResponse } from "../types/autofill-triage";
 
 /**
  * A fill the background drives from a runtime message or a resolved page
@@ -41,14 +52,12 @@ type FillRequest =
       tab: chrome.tabs.Tab;
       tabId: number;
       frameId: number | undefined;
-      pageDetail: PageDetail;
     }
   | {
       kind: "cipherType";
       tab: chrome.tabs.Tab;
       tabId: number;
       frameId: number | undefined;
-      pageDetail: PageDetail;
       cipherType: CipherType;
     };
 
@@ -60,6 +69,21 @@ export const LIVE_TAB_SEED_MAX_RETRIES = 4;
 
 /** Delay between live-tab seed retries, giving a transient failure time to clear. */
 export const LIVE_TAB_SEED_RETRY_DELAY_MS = 250;
+
+/**
+ * Quiescence window a multi-frame collection waits for before it is used. A tab's
+ * frames answer a collect independently; this lets their responses accumulate into
+ * one settled result instead of dispatching a fill per frame as each replies.
+ */
+export const COLLECT_SETTLE_MS = 50;
+
+/** Outcome of a fill dispatched by {@link AutofillOrchestrator.autofillTabWithCipher}. */
+export interface TabFillResult {
+  /** Whether a fill actually ran; `false` when the tab produced no page details to fill. */
+  filled: boolean;
+  /** A TOTP for the caller to copy to the clipboard, or `null`. */
+  totp: string | null;
+}
 
 /**
  * The single owner of runtime-message-driven autofill dispatch.
@@ -128,41 +152,162 @@ export class AutofillOrchestrator {
       .subscribe(({ tab, tabId, frameId, frameUrl }) =>
         this.fillRequest$.next({ kind: "pageLoad", tab, tabId, frameId, frameUrl }),
       );
+
+    // The auto-submit-login workflow reports each step as a fact; interpret it as one
+    // collect → fill → submit.
+    this.lifecycleService.automatedLoginStepReady$
+      .pipe(filter((signal) => signal.workflow === AutomationWorkflow.autoSubmitLogin))
+      .subscribe((signal) => {
+        void this.autoSubmitLoginOnTab(signal.tab, signal.frameId).catch((error: unknown) =>
+          this.logService.error(error),
+        );
+      });
   }
 
   /**
-   * Fills the active tab from a keyboard-shortcut collection. Preserves the
-   * shared `AutofillCommand` side effects: account activity, TOTP clipboard copy,
-   * and overlay-cipher refresh.
+   * Fills the active tab from a keyboard shortcut. The orchestrator collects the
+   * tab's page details itself inside the serialized dispatch, so collection is
+   * sequenced with the fill. Preserves the shared `AutofillCommand` side effects:
+   * account activity, TOTP clipboard copy, and overlay-cipher refresh.
    */
-  autofillActiveTabFromCommand(pageDetail: PageDetail) {
-    this.enqueueUserInitiated("command", pageDetail);
+  autofillActiveTabFromCommand(tab: chrome.tabs.Tab) {
+    this.enqueueUserInitiated("command", tab);
   }
 
   /**
-   * Fills the active tab with the next card or identity cipher. Card/identity
-   * fills carry none of the page-load/keyboard side effects.
+   * Fills the active tab with the next card or identity cipher, collecting the
+   * tab's page details inside the serialized dispatch. Card/identity fills carry
+   * none of the page-load/keyboard side effects.
    */
-  autofillActiveTabForCipherType(pageDetail: PageDetail, cipherType: CipherType) {
-    this.enqueueUserInitiated("cipherType", pageDetail, cipherType);
+  autofillActiveTabForCipherType(tab: chrome.tabs.Tab, cipherType: CipherType) {
+    this.enqueueUserInitiated("cipherType", tab, cipherType);
+  }
+
+  /**
+   * Collects a tab's page details. This is a one-shot collect, not part of the
+   * serialized fill pipe.
+   *
+   * Because a tab's frames answer independently, this waits `COLLECT_SETTLE_MS` for
+   * their responses to accumulate. A frame-scoped collect needs no such settle —
+   * its first and only response is already complete.
+   *
+   * Resolves once the collection settles, or with an empty array when the tab does
+   * not respond.
+   *
+   * @param tab The tab to collect from
+   * @param frameId When set, collect only this frame; otherwise every frame
+   */
+  collectPageDetails(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
+    return firstValueFrom(
+      this.autofillService
+        .collectPageDetailsFromTab$(tab, frameId)
+        .pipe(debounceTime(COLLECT_SETTLE_MS), take(1)),
+    );
+  }
+
+  /**
+   * Collects autofill-triage analysis for a tab from the same single owner. Unlike
+   * {@link collectPageDetails} this is a direct one-shot request/response (its own
+   * message round-trip), not part of the serialized fill pipe. Resolves with `null`
+   * when the tab has no receiver or does not respond.
+   *
+   * @param tabId The tab to analyze
+   * @param frameId When set, analyze only this frame
+   */
+  collectAutofillTriage(tabId: number, frameId?: number): Promise<AutofillTriageResponse | null> {
+    return new Promise<AutofillTriageResponse | null>((resolve) => {
+      BrowserApi.sendTabsMessage<AutofillTriageResponse>(
+        tabId,
+        { command: "collectAutofillTriage" },
+        frameId !== undefined ? { frameId } : undefined,
+        (response) => {
+          // A tab with no autofill receiver rejects via lastError; treat it as "no analysis".
+          if (chrome.runtime.lastError) {
+            resolve(null);
+            return;
+          }
+          resolve(response ?? null);
+        },
+      );
+    });
+  }
+
+  /**
+   * Fills a caller-supplied cipher into a tab. This is the orchestrator's entry for
+   * externally-initiated fills (inline menu, generated password, etc) that bring
+   * their own cipher.
+   *
+   * Returns the TOTP to copy, or `null`.
+   */
+  fillCipher(options: AutoFillOptions): Promise<string | null> {
+    // FIXME (PM-39579): once the tab-lifecycle gate lands, route these through the gated dispatch (or
+    // assert the active tab) so the fill is gated on the target tab's state here.
+    return this.autofillService.doAutoFill(options);
+  }
+
+  /**
+   * Collects a tab's page details and fills the given cipher into it — the shared "fill a chosen
+   * cipher into this tab" sequence used by the context menu and the popup round-trip, so the
+   * collect→fill glue lives here rather than in each caller. Carries the same FIXME (PM-39579)
+   * gating caveat as {@link fillCipher}. Reports whether a fill ran and the TOTP to copy.
+   */
+  async autofillTabWithCipher(
+    tab: chrome.tabs.Tab,
+    cipher: CipherView,
+    options?: Partial<AutoFillOptions>,
+  ): Promise<TabFillResult> {
+    const pageDetails = await this.collectPageDetails(tab);
+    if (pageDetails.length === 0) {
+      return { filled: false, totp: null };
+    }
+    const totp = await this.fillCipher({
+      tab,
+      cipher,
+      pageDetails,
+      fillNewPassword: true,
+      allowTotpAutofill: true,
+      ...options,
+    });
+    return { filled: true, totp: totp ?? null };
+  }
+
+  /**
+   * Runs the orchestrator's *submit* phase using a `collect → fill → submit` workflow.
+   *
+   * A step is one `collect → fill → submit`. The content script drives the *cadence* across a
+   * multi-step form, re-invoking this once each step's DOM has settled.
+   *
+   * @param tab The tab whose frame is running the auto-submit workflow
+   * @param frameId The frame that reported the auto-submit opportunity
+   */
+  async autoSubmitLoginOnTab(tab: chrome.tabs.Tab, frameId?: number): Promise<void> {
+    // FIXME (PM-39579): once the tab-lifecycle gate lands, gate this collect+fill on the target
+    // tab's state (or route it through the gated dispatch) so the fill-and-submit is state-gated.
+    const pageDetails = await this.collectPageDetails(tab, frameId);
+    if (pageDetails.length === 0) {
+      return;
+    }
+    await this.autofillService.doAutoFillOnTab(pageDetails, tab, true, true);
   }
 
   private enqueueUserInitiated(
     kind: "command" | "cipherType",
-    pageDetail: PageDetail,
+    tab: chrome.tabs.Tab,
     cipherType?: CipherType,
   ) {
-    const { tab, frameId } = pageDetail;
     const tabId = tab?.id;
     if (tabId == null) {
       // A fill with no tab id cannot be targeted or keyed for serialization;
       // `doAutoFill`'s tab-match guard would drop it anyway.
       return;
     }
+    // A user-initiated fill is tab-scoped: it fills the active tab across all frames in one pass,
+    // so it carries no frame id and serializes per tab (see `autofill.design.md`). It deliberately
+    // does not share a per-frame lane with page-load fills; each path guards origin independently.
     this.fillRequest$.next(
       kind === "command"
-        ? { kind, tab, tabId, frameId, pageDetail }
-        : { kind: "cipherType", tab, tabId, frameId, pageDetail, cipherType: cipherType! },
+        ? { kind, tab, tabId, frameId: undefined }
+        : { kind: "cipherType", tab, tabId, frameId: undefined, cipherType: cipherType! },
     );
   }
 
@@ -189,6 +334,8 @@ export class AutofillOrchestrator {
           }
 
           // Collect and fill inside the serialized step so this frame's collect→fill is atomic.
+          // This collect is frame-scoped (the reporting frame), so its first emission is already
+          // complete — no settle is needed, unlike the tab-wide `collectPageDetails` below.
           const pageDetails = await firstValueFrom(
             this.autofillService.collectPageDetailsFromTab$(liveTab, request.frameId),
           );
@@ -207,18 +354,23 @@ export class AutofillOrchestrator {
           break;
         }
         case "command": {
+          // Collect inside the serialized step so this tab's collect→fill is atomic.
+          const pageDetails = await this.collectPageDetails(request.tab);
+          if (pageDetails.length === 0) {
+            return;
+          }
           await this.recordActiveAccountActivity();
-          const totp = await this.autofillService.doAutoFillActiveTab([request.pageDetail], true);
+          const totp = await this.autofillService.doAutoFillActiveTab(pageDetails, true);
           this.copyTotp(totp);
           await this.updateOverlayCiphers();
           break;
         }
         case "cipherType": {
-          await this.autofillService.doAutoFillActiveTab(
-            [request.pageDetail],
-            true,
-            request.cipherType,
-          );
+          const pageDetails = await this.collectPageDetails(request.tab);
+          if (pageDetails.length === 0) {
+            return;
+          }
+          await this.autofillService.doAutoFillActiveTab(pageDetails, true, request.cipherType);
           break;
         }
       }

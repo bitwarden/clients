@@ -26,6 +26,7 @@ export class NoopAutofillLifecycleService implements AutofillLifecycleService {
   // Inert streams, not tripwires: an unused observable is harmless, and the
   // popup never subscribes to them. Only the invoked methods below warn.
   readonly pageTransitionResolved$ = EMPTY;
+  readonly automatedLoginStepReady$ = EMPTY;
   readonly tabRemoved$ = () => EMPTY;
   // `liveTabs$` emits an (empty) set rather than `EMPTY`: a `withLatestReady`
   // consumer must receive a value or it would stall. The popup never drives fills,
@@ -38,6 +39,10 @@ export class NoopAutofillLifecycleService implements AutofillLifecycleService {
 
   reportPageTransition() {
     this.warnInvoked("reportPageTransition");
+  }
+
+  reportAutomatedLoginStepReady() {
+    this.warnInvoked("reportAutomatedLoginStepReady");
   }
 
   startMonitoringFrame(): Promise<void> {

@@ -13,8 +13,10 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
-import AutofillPageDetails from "../models/autofill-page-details";
-import { AutofillService } from "../services/abstractions/autofill.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "../services/abstractions/autofill-lifecycle.service";
 import {
   flushPromises,
   sendMockExtensionMessage,
@@ -30,7 +32,7 @@ import { AutoSubmitLoginBackground } from "./auto-submit-login.background";
 
 describe("AutoSubmitLoginBackground", () => {
   let logService: MockProxy<LogService>;
-  let autofillService: MockProxy<AutofillService>;
+  let autofillLifecycleService: MockProxy<AutofillLifecycleService>;
   let scriptInjectorService: MockProxy<ScriptInjectorService>;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
@@ -49,7 +51,7 @@ describe("AutoSubmitLoginBackground", () => {
 
   beforeEach(() => {
     logService = mock<LogService>();
-    autofillService = mock<AutofillService>();
+    autofillLifecycleService = mock<AutofillLifecycleService>();
     scriptInjectorService = mock<ScriptInjectorService>();
     authStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
@@ -70,7 +72,7 @@ describe("AutoSubmitLoginBackground", () => {
     accountService = mockAccountServiceWith(mockUserId);
     autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       logService,
-      autofillService,
+      autofillLifecycleService,
       scriptInjectorService,
       authService,
       platformUtilsService,
@@ -279,7 +281,7 @@ describe("AutoSubmitLoginBackground", () => {
         platformUtilsService.isSafari.mockReturnValue(true);
         autoSubmitLoginBackground = new AutoSubmitLoginBackground(
           logService,
-          autofillService,
+          autofillLifecycleService,
           scriptInjectorService,
           authService,
           platformUtilsService,
@@ -475,42 +477,27 @@ describe("AutoSubmitLoginBackground", () => {
       it("skips acting on messages that do not come from the current auto-fill workflow's tab", () => {
         sender.tab = mock<chrome.tabs.Tab>({ id: 2 });
 
-        sendMockExtensionMessage({ command: "triggerAutoSubmitLogin" }, sender);
+        sendMockExtensionMessage({ command: "automatedLoginStepReady" }, sender);
 
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
+        expect(autofillLifecycleService.reportAutomatedLoginStepReady).not.toHaveBeenCalled();
       });
 
       it("skips acting on messages whose command does not have a registered handler", () => {
         sendMockExtensionMessage({ command: "someInvalidCommand" }, sender);
 
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
+        expect(autofillLifecycleService.reportAutomatedLoginStepReady).not.toHaveBeenCalled();
       });
 
-      describe("triggerAutoSubmitLogin extension message", () => {
-        it("triggers an autofill action with auto-submission on the sender of the message", async () => {
-          const message = {
-            command: "triggerAutoSubmitLogin",
-            pageDetails: mock<AutofillPageDetails>(),
-          };
-
-          sendMockExtensionMessage(message, sender);
+      describe("automatedLoginStepReady extension message", () => {
+        it("reports the sender's frame to the lifecycle stamped with the auto-submit workflow", async () => {
+          sendMockExtensionMessage({ command: "automatedLoginStepReady" }, sender);
           await flushPromises();
 
-          expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(
-            [
-              {
-                frameId: sender.frameId,
-                tab: sender.tab,
-                details: message.pageDetails,
-              },
-            ],
+          expect(autofillLifecycleService.reportAutomatedLoginStepReady).toHaveBeenCalledWith(
             sender.tab,
-            true,
-            true,
+            sender.frameId,
+            sender.url,
+            AutomationWorkflow.autoSubmitLogin,
           );
         });
       });

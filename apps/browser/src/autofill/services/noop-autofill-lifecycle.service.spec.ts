@@ -4,7 +4,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { createChromeTabMock } from "../spec/autofill-mocks";
 
-import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "./abstractions/autofill-lifecycle.service";
 import { NoopAutofillLifecycleService } from "./noop-autofill-lifecycle.service";
 
 describe("NoopAutofillLifecycleService", () => {
@@ -28,6 +31,16 @@ describe("NoopAutofillLifecycleService", () => {
       "reportPageTransition",
       () => service.reportPageTransition(createChromeTabMock(), 0, "https://example.test"),
     ],
+    [
+      "reportAutomatedLoginStepReady",
+      () =>
+        service.reportAutomatedLoginStepReady(
+          createChromeTabMock(),
+          0,
+          "https://example.test",
+          AutomationWorkflow.autoSubmitLogin,
+        ),
+    ],
     ["startMonitoringFrame", () => service.startMonitoringFrame(createChromeTabMock(), 0)],
     ["retireAllFrames", () => service.retireAllFrames()],
   ])("warns when %s is invoked", async (method, invoke) => {
@@ -45,11 +58,16 @@ describe("NoopAutofillLifecycleService", () => {
   it("exposes inert streams that emit nothing and do not warn", () => {
     const emissions: unknown[] = [];
     let pageTransitionCompleted = false;
+    let stepReadyCompleted = false;
     let tabRemovedCompleted = false;
 
     service.pageTransitionResolved$.subscribe({
       next: (value) => emissions.push(value),
       complete: () => (pageTransitionCompleted = true),
+    });
+    service.automatedLoginStepReady$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (stepReadyCompleted = true),
     });
     service.tabRemoved$(1).subscribe({
       next: (value) => emissions.push(value),
@@ -58,6 +76,7 @@ describe("NoopAutofillLifecycleService", () => {
 
     expect(emissions).toEqual([]);
     expect(pageTransitionCompleted).toBe(true);
+    expect(stepReadyCompleted).toBe(true);
     expect(tabRemovedCompleted).toBe(true);
     expect(logService.warning).not.toHaveBeenCalled();
   });

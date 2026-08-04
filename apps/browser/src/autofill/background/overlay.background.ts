@@ -116,6 +116,7 @@ import {
   UpdateOverlayCiphersParams,
   PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
+import { AutofillOrchestrator } from "./autofill-orchestrator";
 
 const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
 
@@ -265,6 +266,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private autofillOrchestrator: AutofillOrchestrator,
   ) {
     this.initOverlayEventObservables();
   }
@@ -1421,11 +1423,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const tab = sender.tab;
     const tabId = tab.id;
-    await BrowserApi.tabSendMessage(
-      tab,
-      { command: "collectPageDetails" },
-      { frameId: this.focusedFieldData?.frameId },
-    );
+    // Route the collect through the orchestrator — the sole sender of the collect that
+    // precedes a fill (see PREWORK / autofill.design.md). Awaiting it lets the frames'
+    // responses settle into `pageDetailsForTab` (via `storePageDetails`) before the read.
+    await this.autofillOrchestrator.collectPageDetails(tab, this.focusedFieldData?.frameId);
 
     const pageDetailsForTab = this.pageDetailsForTab[tabId];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
@@ -1466,7 +1467,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const totpCode = await this.autofillService.doAutoFill({
+    const totpCode = await this.autofillOrchestrator.fillCipher({
       tab,
       cipher,
       pageDetails,
@@ -2269,7 +2270,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      await this.autofillService.doAutoFill({
+      await this.autofillOrchestrator.fillCipher({
         tab: senderTab,
         cipher,
         pageDetails,

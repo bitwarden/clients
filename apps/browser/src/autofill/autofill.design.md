@@ -41,12 +41,43 @@ the inline menu's cipher list so the overlay reflects what was filled.
 
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
 
-Fills are serialized per frame. A frame handles one collect-and-fill at a time: an opportunity — or a
-user-initiated fill — that arrives for a frame already filling waits its turn rather than running
-concurrently. Page-load and user-initiated fills share one dispatcher, so this ordering holds across
-both. Serializing collect→fill this way keeps two fills from racing on a single frame — a race that
-could fill twice, or, if the page navigated between collecting its details and dispatching the fill,
-place a credential chosen for the old page onto the new one.
+Every collect-and-fill runs through one dispatcher. A fill collects the page details it needs inside
+the dispatcher rather than acting on details collected elsewhere, so collection is always sequenced
+with the fill. Sequencing collect→fill this way keeps two fills of the same scope from racing each other
+to perform a fill. This protects against sequencing errors, filling non-hot tabs, and double fills.
+
+The two kinds of fill serialize at the granularity they target. A **page-load fill** is frame-scoped:
+fills are serialized per (tab, frame), so one arriving for a frame already filling waits its turn. A
+**user-initiated fill** is tab-scoped — it fills the active tab across its frames in
+one pass — so these serialize per tab among themselves. The two kinds are not co-serialized against
+each other; each holds its own ordering.
+
+Stale-origin hazards are guarded independently of this ordering: on the page-load path by the fill-time
+frame-URL re-check (see [Fill targeting](#fill-targeting)), and on the user-initiated path by collecting
+and filling the active tab atomically at the moment the user acts.
+
+## Automated login (auto-submit)
+
+Automated login extends autofill with form submission logic. On identity-provider hosts an enterprise
+administrator has approved, it carries the user through a multi-step sign-in without their intervention.
+Filling and submitting are different stakes: a fill places a credential where the user can see it and
+decide whether to send it, while a submit sends it. So the cost of acting on the wrong page rises from
+a credential _shown_ to the wrong origin to a credential _transmitted_ to it. Automated login is gated
+more tightly than any other fill to match.
+
+Two constraints carry that weight. First, automated login runs only where policy permits: the
+approved host set is administrator-configured and approval is re-checked at every
+step rather than once at the start. A redirect can carry a frame off an approved host mid-login, so
+the check that governs an action is the one taken at the moment of that action, not at injection.
+Second, a frame is never trusted to declare itself part of an automated login. The frame
+contributes only _timing_. It reports that its current step has rendered and is ready to be acted on.
+Which frames are running the workflow is decided by trusted code from policy.
+
+Automated login otherwise obeys the rules every fill obeys: it runs through the same single
+dispatcher, which collects the details it fills so collection stays sequenced with the fill. The
+wrong-page hazard is sharpest here, because a submit transmits. Automated login guards it at the
+source: per-step host approval means a credential is submitted only into a frame that still
+resolves to an approved host at the step that submits it.
 
 ## Fill targeting
 

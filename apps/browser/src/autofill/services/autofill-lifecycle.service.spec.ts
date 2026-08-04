@@ -11,7 +11,11 @@ import { AutofillPort } from "../enums/autofill-port.enum";
 import { createChromeTabMock } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
 
-import { PageTransitionResolved } from "./abstractions/autofill-lifecycle.service";
+import {
+  AutomatedLoginStepReady,
+  AutomationWorkflow,
+  PageTransitionResolved,
+} from "./abstractions/autofill-lifecycle.service";
 import { DefaultAutofillLifecycleService } from "./autofill-lifecycle.service";
 
 describe("DefaultAutofillLifecycleService", () => {
@@ -486,6 +490,52 @@ describe("DefaultAutofillLifecycleService", () => {
       service.reportPageTransition(tab, 0, url);
       await flushPromises();
       expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0, frameUrl: url }]);
+    });
+  });
+
+  describe("automated-login step-ready relay", () => {
+    const url = "https://idp.example.test/login";
+    let tab: chrome.tabs.Tab;
+    let resolved: AutomatedLoginStepReady[];
+    let subscription: Subscription;
+
+    beforeEach(() => {
+      service.init();
+      tab = createChromeTabMock({ id: 1 });
+      resolved = [];
+      subscription = service.automatedLoginStepReady$.subscribe((fact) => resolved.push(fact));
+    });
+
+    afterEach(() => subscription?.unsubscribe());
+
+    it("relays a reported step-ready fact, carrying the stamped workflow identity", async () => {
+      service.reportAutomatedLoginStepReady(tab, 0, url, AutomationWorkflow.autoSubmitLogin);
+      await flushPromises();
+
+      expect(resolved).toEqual([
+        { tab, tabId: 1, frameId: 0, frameUrl: url, workflow: AutomationWorkflow.autoSubmitLogin },
+      ]);
+    });
+
+    it("drops a report without a tab id", async () => {
+      const tabWithoutId = createChromeTabMock({ id: undefined });
+
+      service.reportAutomatedLoginStepReady(
+        tabWithoutId,
+        0,
+        url,
+        AutomationWorkflow.autoSubmitLogin,
+      );
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
+    });
+
+    it("drops a report without a url", async () => {
+      service.reportAutomatedLoginStepReady(tab, 0, undefined, AutomationWorkflow.autoSubmitLogin);
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
     });
   });
 });

@@ -84,6 +84,7 @@ import {
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
+import { AutofillOrchestrator } from "./autofill-orchestrator";
 import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
@@ -119,6 +120,7 @@ describe("OverlayBackground", () => {
   let totpService: MockProxy<TotpService>;
   let generatorService: MockProxy<CredentialGeneratorService>;
   let generatorHistoryService: MockProxy<GeneratorHistoryService>;
+  let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
@@ -231,6 +233,8 @@ describe("OverlayBackground", () => {
     );
     generatorHistoryService = mock<GeneratorHistoryService>();
     generatorHistoryService.track.mockResolvedValue(null);
+    autofillOrchestrator = mock<AutofillOrchestrator>();
+    autofillOrchestrator.collectPageDetails.mockResolvedValue([]);
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -249,6 +253,7 @@ describe("OverlayBackground", () => {
       accountService,
       generatorHistoryService,
       generatorService,
+      autofillOrchestrator,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -3620,7 +3625,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
-        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+        expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
       });
 
       it("ignores the fill request if the tab does not contain any identified page details", async () => {
@@ -3632,7 +3637,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
-        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+        expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
       });
 
       it("ignores the fill request if a master password reprompt is required", async () => {
@@ -3654,7 +3659,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalledWith(cipher, sender.tab);
-        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+        expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
       });
 
       it("autofills the selected cipher and moves it to the top of the front of the ciphers map", async () => {
@@ -3683,11 +3688,16 @@ describe("OverlayBackground", () => {
         });
         await flushPromises();
 
+        // The collect is routed through the orchestrator, not sent directly.
+        expect(autofillOrchestrator.collectPageDetails).toHaveBeenCalledWith(
+          sender.tab,
+          overlayBackground["focusedFieldData"]?.frameId,
+        );
         expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalledWith(
           cipher2,
           sender.tab,
         );
-        expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+        expect(autofillOrchestrator.fillCipher).toHaveBeenCalledWith({
           tab: sender.tab,
           cipher: cipher2,
           pageDetails: [pageDetailsForTab],
@@ -3716,7 +3726,7 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        autofillService.doAutoFill.mockResolvedValue("totp-code");
+        autofillOrchestrator.fillCipher.mockResolvedValue("totp-code");
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
@@ -3865,7 +3875,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         pageDetails.fields = [currentPasswordField];
-        expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect(autofillOrchestrator.fillCipher).toHaveBeenCalledWith(
           expect.objectContaining({
             pageDetails: [expect.objectContaining({ details: pageDetails })],
           }),
@@ -4067,7 +4077,7 @@ describe("OverlayBackground", () => {
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
-          expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+          expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
         });
 
         it("skips filling when the page details for the tab are not set", () => {
@@ -4075,7 +4085,7 @@ describe("OverlayBackground", () => {
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
-          expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+          expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
         });
 
         it("skips filling when the page details for the tab does not contain a value", () => {
@@ -4083,7 +4093,7 @@ describe("OverlayBackground", () => {
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
-          expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+          expect(autofillOrchestrator.fillCipher).not.toHaveBeenCalled();
         });
       });
 
@@ -4103,7 +4113,7 @@ describe("OverlayBackground", () => {
         sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
         await flushPromises();
 
-        expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+        expect(autofillOrchestrator.fillCipher).toHaveBeenCalledWith({
           tab: sender.tab,
           cipher: expect.any(Object),
           pageDetails: [overlayBackground["pageDetailsForTab"][sender.tab.id].get(sender.frameId)],
@@ -4142,7 +4152,7 @@ describe("OverlayBackground", () => {
         sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
         await flushPromises();
 
-        const passedPageDetails = (autofillService.doAutoFill as jest.Mock).mock.calls[0][0]
+        const passedPageDetails = (autofillOrchestrator.fillCipher as jest.Mock).mock.calls[0][0]
           .pageDetails;
         const filteredOpids = passedPageDetails[0].details.fields
           .map((f: { opid: string }) => f.opid)
