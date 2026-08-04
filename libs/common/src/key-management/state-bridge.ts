@@ -1,6 +1,6 @@
 import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
 import {
   USER_DECRYPTION_OPTIONS,
