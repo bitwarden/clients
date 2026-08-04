@@ -122,15 +122,18 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
  * The shared vault items list: a cipher-only table on `bit-table-v2` with its own search and
  * filter chips, sorting, selection, and row actions.
  *
- * Hosting it means supplying the rows ({@link ciphers}, plus the {@link folders},
- * {@link collections}, and {@link organizations} their columns and chips resolve names from), a
- * {@link rowActions} set, and an {@link action} handler. The table builds no domain events and
- * never navigates, so each client stays in control of what its actions mean.
+ * Hosting it means supplying the rows (`ciphers`, plus the `folders`, `collections`, and
+ * `organizations` their columns and chips resolve names from), a `rowActions` set, and an `action`
+ * handler. The table builds no domain events and never navigates, so each client stays in control
+ * of what its actions mean.
+ *
+ * Everything else follows from the rows: which filter chips and columns apply, which cipher types
+ * the Type chip offers, and every faceted count. A host narrows `ciphers` and the table adjusts.
  *
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
- * @typeParam E - The event type the client's actions produce. Defaults to {@link VaultItemEvent}.
+ * @typeParam E - The event type the client's actions produce. Defaults to `VaultItemEvent`.
  *
  * @example
  * ```html
@@ -215,7 +218,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
    */
   readonly itemAction = input<(item: C) => E>();
 
-  /** Emits the event built by the chosen {@link rowActions} entry, or by {@link itemAction}. */
+  /** Emits the event built by the chosen `rowActions` entry, or by `itemAction`. */
   readonly action = output<E>();
 
   /** Emits the selected rows whenever the selection changes. */

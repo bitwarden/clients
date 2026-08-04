@@ -20,18 +20,28 @@ import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/comp
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultItemEvent } from "../vault-item-event";
 
+import {
+  DEFAULT_COPY_PRESENTATION,
+  VaultItemsTableCopyPresentation,
+} from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
-import { VaultItemsTableComponent } from "./vault-items-table.component";
+import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
 const organizations = [
   { id: "org-1", name: "Acme corporation" },
   { id: "org-2", name: "Contoso" },
 ] as Organization[];
 
+/**
+ * Three collections that hold items, plus one that deliberately holds none — "Human resources"
+ * carries a faceted count of 0 wherever the Shared folders chip appears, and gives
+ * {@link FilteredToZeroByChip} a selection that excludes every row.
+ */
 const collections = [
   { id: "col-1", name: "Operations" },
   { id: "col-2", name: "Engineering" },
   { id: "col-3", name: "Finance" },
+  { id: "col-4", name: "Human resources" },
 ] as CollectionView[];
 
 const folders = [
@@ -41,7 +51,7 @@ const folders = [
 
 /**
  * 12 collections split across the two organizations above the `SEARCH_THRESHOLD`
- * `bit-filter-menu` uses to show its in-menu search (10, exclusive) — see {@link ManySharedFolders}.
+ * `bit-filter-menu` uses to show its in-menu search (10, exclusive) — see {@link ManyFilterOptions}.
  * `organizationId` is set on every entry, unlike {@link collections}, because the Shared folders
  * chip groups by it once there are enough to warrant sections.
  */
@@ -60,7 +70,7 @@ const manyCollections = [
   { id: "col-it", name: "IT", organizationId: "org-2" },
 ] as CollectionView[];
 
-/** 12 folders, above the same threshold — see {@link ManyFolders}. */
+/** 12 folders, above the same threshold — see {@link ManyFilterOptions}. */
 const manyFolders = [
   { id: "folder-a", name: "Work" },
   { id: "folder-b", name: "Personal" },
@@ -215,128 +225,85 @@ function itemsIn(
 }
 
 /**
- * A deliberately uneven spread across {@link manyCollections}
+ * A deliberately uneven spread across both {@link manyCollections} and {@link manyFolders}, so one
+ * dataset pushes the Shared folders chip *and* the My folders chip past the search threshold — see
+ * {@link ManyFilterOptions}.
+ *
+ * Collection counts run from 8 (Engineering) down to 0 (Human resources, Legal), and because
+ * several items belong to two collections they sum to more than the row count. Folder counts run
+ * from 8 (Work, Personal) down to 0 (Education, Insurance), with six rows left unfiled so the
+ * "No folder" option carries a count of its own. The trailing individual-vault items can't belong
+ * to a shared folder, so they exercise the folder chip on rows the Shared folders column leaves
+ * blank.
  */
-const manySharedFolderCiphers = [
+const manyFilterOptionCiphers = [
   ...itemsIn("Engineering service", 5, {
     organizationId: "org-1",
     collectionIds: ["col-eng"],
-    folderId: "folder-1",
+    folderId: "folder-a",
   }),
   // Also in Security — Engineering reaches 8, Security gets all 3 of its items from this overlap.
   ...itemsIn("Signing key", 3, {
     organizationId: "org-1",
     collectionIds: ["col-eng", "col-security"],
     type: CipherType.SshKey,
+    folderId: "folder-a",
   }),
   ...itemsIn("Ops runbook", 4, {
     organizationId: "org-1",
     collectionIds: ["col-ops"],
     type: CipherType.SecureNote,
     favorite: true,
+    folderId: "folder-b",
   }),
   // Also in Infrastructure — Operations reaches 6, Infrastructure 3 (with the item below).
   ...itemsIn("Cluster admin", 2, {
     organizationId: "org-1",
     collectionIds: ["col-ops", "col-infra"],
-    folderId: "folder-1",
+    folderId: "folder-i",
   }),
-  ...itemsIn("Datacenter access", 1, { organizationId: "org-1", collectionIds: ["col-infra"] }),
-  ...itemsIn("Design tool", 3, { organizationId: "org-1", collectionIds: ["col-design"] }),
+  ...itemsIn("Datacenter access", 1, {
+    organizationId: "org-1",
+    collectionIds: ["col-infra"],
+    folderId: "folder-i",
+  }),
+  ...itemsIn("Design tool", 3, {
+    organizationId: "org-1",
+    collectionIds: ["col-design"],
+    folderId: "folder-h",
+  }),
   // Human resources: deliberately empty, so its option shows a 0.
   ...itemsIn("Campaign account", 6, {
     organizationId: "org-2",
     collectionIds: ["col-marketing"],
-    folderId: "folder-2",
+    folderId: "folder-l",
   }),
-  ...itemsIn("CRM seat", 2, { organizationId: "org-2", collectionIds: ["col-sales"] }),
+  ...itemsIn("CRM seat", 2, {
+    organizationId: "org-2",
+    collectionIds: ["col-sales"],
+    folderId: "folder-c",
+  }),
   // Also in Sales — Sales reaches 4, Support gets both of its items here.
   ...itemsIn("Helpdesk login", 2, {
     organizationId: "org-2",
     collectionIds: ["col-support", "col-sales"],
     favorite: true,
+    folderId: "folder-c",
   }),
   ...itemsIn("Corporate card", 1, {
     organizationId: "org-2",
     collectionIds: ["col-finance"],
     type: CipherType.Card,
+    folderId: "folder-f",
   }),
-  // Legal: also deliberately empty.
+  // Legal: also deliberately empty. Unfiled too, so "No folder" has something to count.
   ...itemsIn("Workstation", 4, { organizationId: "org-2", collectionIds: ["col-it"] }),
-];
-
-/**
- * The same uneven treatment for {@link manyFolders}: Work holds 7, Education and Insurance hold
- * none, and four items sit in no folder at all so the "No folder" option carries a real count too.
- * A few organization-owned items land in the small {@link collections} fixture, so the Vault and
- * Shared folders chips vary alongside it — see {@link ManyFolders}.
- */
-const manyFolderCiphers = [
-  ...itemsIn("Work login", 7, { folderId: "folder-a" }),
+  // Individual-vault items from here down — Personal reaches 8 alongside the runbooks above.
   ...itemsIn("Personal login", 4, { folderId: "folder-b" }),
-  ...itemsIn("Bank card", 3, { folderId: "folder-c", type: CipherType.Card }),
   ...itemsIn("Trip booking", 2, { folderId: "folder-d", favorite: true }),
   ...itemsIn("Store account", 1, { folderId: "folder-e" }),
-  ...itemsIn("Health portal", 1, { folderId: "folder-f" }),
-  // Education and Insurance are deliberately empty, so their options show a 0.
-  ...itemsIn("Streaming service", 2, { folderId: "folder-h" }),
-  ...itemsIn("Utility account", 3, { folderId: "folder-i", type: CipherType.SecureNote }),
   ...itemsIn("Contract note", 1, { folderId: "folder-k", type: CipherType.SecureNote }),
-  ...itemsIn("Subscription", 5, { folderId: "folder-l" }),
-  // Unfiled, so the "No folder" option has something to count.
   ...itemsIn("Unfiled login", 2, {}),
-  ...itemsIn("Shared unfiled", 2, { organizationId: "org-1", collectionIds: ["col-1", "col-2"] }),
-];
-
-/**
- * A vault with real items, none favorited and no folders defined — see {@link NoFavoritesOrFolders}.
- * Distinct from {@link Empty}'s `ciphers: []`, which disables the Favorites chip only incidentally
- * because there's no data at all.
- */
-const noFavoritesOrFoldersCiphers = [
-  {
-    id: "1",
-    name: "Acme",
-    username: "d.finnegan@acme.com",
-    password: "pw",
-    uri: "https://acme.com",
-  },
-  {
-    id: "2",
-    name: "Amazon",
-    username: "d.finnegan@acme.com",
-    password: "pw",
-    uri: "https://amazon.com",
-    organizationId: "org-1",
-    collectionIds: ["col-1"],
-  },
-  { id: "3", name: "Apple ID", username: "derekfinnegan@gmail.com", password: "pw" },
-].map(cipher);
-
-/** Only Login, Card, and Secure note are present — see {@link NarrowedCipherTypes}. */
-const narrowedCipherTypesCiphers = [
-  {
-    id: "1",
-    name: "Amazon",
-    username: "derekfinnegan@gmail.com",
-    password: "pw",
-    uri: "https://amazon.com",
-  },
-  { id: "2", name: "Chase Bank", type: CipherType.Card },
-  { id: "3", name: "Personal notes", type: CipherType.SecureNote },
-].map(cipher);
-
-/**
- * Two collections in one organization, with the sole item filed under "Operations" only — so
- * "Engineering" carries a faceted count of 0. See {@link FilteredToZeroByChip}.
- */
-const chipFilterZeroCollections = [
-  { id: "col-1", name: "Operations" },
-  { id: "col-2", name: "Engineering" },
-] as CollectionView[];
-
-const chipFilterZeroCiphers = [
-  cipher({ id: "1", name: "Acme", organizationId: "org-1", collectionIds: ["col-1"] }),
 ];
 
 /**
@@ -406,17 +373,74 @@ const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView
   },
 ];
 
+/**
+ * Every prop the shared template binds. The table's own inputs, plus `heading` for the stories that
+ * title the page above it — see {@link template}.
+ */
+type StoryProps = {
+  ciphers: CipherView[];
+  loading: boolean;
+  rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[];
+  folders: FolderView[];
+  collections: CollectionView[];
+  organizations: Organization[];
+  copyPresentation: VaultItemsTableCopyPresentation;
+  initialFilterValues?: Partial<VaultItemsTableFilters>;
+  heading?: string;
+  itemAction: (item: CipherView) => VaultItemEvent<CipherView>;
+};
+
+/**
+ * One template for every story: it binds all of the table's optional inputs unconditionally and
+ * leaves the defaults to {@link baseProps}, so a story only ever overrides `args`. The heading is
+ * how a host titles the page when its side nav has scoped the vault — see {@link ScopedToMyVault}.
+ */
+const template = `
+  @if (heading) {
+    <h1 bitTypography="h1">{{ heading }}</h1>
+  }
+  <vault-items-table
+    [ciphers]="ciphers"
+    [loading]="loading"
+    [rowActions]="rowActions"
+    [folders]="folders"
+    [collections]="collections"
+    [organizations]="organizations"
+    [copyPresentation]="copyPresentation"
+    [initialFilterValues]="initialFilterValues"
+    [itemAction]="itemAction"
+    (action)="action($event)"
+  >
+    <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
+      Import
+    </button>
+    <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+      Add
+    </button>
+  </vault-items-table>
+`;
+
+const baseProps: StoryProps = {
+  ciphers,
+  loading: false,
+  rowActions,
+  folders,
+  collections,
+  organizations,
+  copyPresentation: DEFAULT_COPY_PRESENTATION,
+  itemAction: (item: CipherView) => ({ type: "editCipher", item }),
+};
+
 export default {
   title: "Vault/Vault Items Table",
   component: VaultItemsTableComponent,
+  render: (args) => ({ props: args, template }),
+  args: baseProps,
   decorators: [
     moduleMetadata({
       imports: [ButtonModule, TypographyModule],
       providers: [
         {
-          // Real English copy rather than key echoes, so design review sees what ships. Values
-          // are lifted verbatim from apps/web/src/locales/en/messages.json; `__$n__` are
-          // I18nMockService's placeholder markers for the keys that take arguments.
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
@@ -441,9 +465,6 @@ export default {
               done: "Done",
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
-              // Labels a chip's dismiss button, which only renders once the chip is active — so a
-              // missing key here throws from `I18nMockService.t` the first time a filter is
-              // selected, not on initial render.
               removeItem: (name) => `Remove ${name}`,
               // Cipher types, for the Type chip
               typeLogin: "Login",
@@ -480,6 +501,10 @@ export default {
               copyNumber: "Copy number",
               copySecurityCode: "Copy security code",
               copyNote: "Copy note",
+              copyPrivateKey: "Copy private key",
+              copyPublicKey: "Copy public key",
+              copyFingerprint: "Copy fingerprint",
+              copyNoteTitle: (name) => `Copy Note - ${name}`,
               copyEmail: "Copy email",
               copyPhone: "Copy phone",
               copyAddress: "Copy address",
@@ -508,241 +533,138 @@ export default {
       ],
     }),
   ],
-} as Meta;
+} as Meta<StoryProps>;
 
-type Story = StoryObj<VaultItemsTableComponent<CipherView>>;
-
-const template = `
-  <vault-items-table
-    [ciphers]="ciphers"
-    [loading]="loading"
-    [rowActions]="rowActions"
-    [folders]="folders"
-    [collections]="collections"
-    [organizations]="organizations"
-    [itemAction]="itemAction"
-    (action)="onAction($event)"
-  >
-    <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
-      Import
-    </button>
-    <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
-      Add
-    </button>
-  </vault-items-table>
-`;
-
-const baseProps = {
-  ciphers,
-  loading: false,
-  rowActions,
-  folders,
-  collections,
-  organizations,
-  itemAction: (item: CipherView) => ({ type: "editCipher", item }),
-  onAction: (event: VaultItemEvent<CipherView>) => {
-    // eslint-disable-next-line no-console
-    console.log("event", event);
-  },
-};
+type Story = StoryObj<StoryProps>;
 
 /**
- * The default state. Hover or keyboard-focus a row to reveal the Launch and Copy quick actions
- * beside the overflow menu. Activating a Shared folders or My folders chip narrows the matching
- * toolbar filter to that folder; the `+N` overflow chip only names what it stands for.
+ * The table as a host gets it out of the box: bind `ciphers`, `folders`, `collections`, and
+ * `organizations`, and the chips, columns, and counts follow from the rows.
+ *
+ * Hover or keyboard-focus a row to reveal the Launch and Copy quick actions beside the overflow
+ * menu. Clicking a Shared folders or My folders chip inside a row narrows the matching toolbar
+ * filter to that folder; where a row has more than one, a `+N` chip stands in for the rest and
+ * names them on hover.
  */
-export const Default: Story = {
-  render: () => ({ props: { ...baseProps }, template }),
-};
+export const Default: Story = {};
 
-/** Skeleton rows stand in for data while the vault decrypts. */
+/** Bind `loading` while the vault decrypts and skeleton rows stand in for the data. */
 export const Loading: Story = {
-  render: () => ({ props: { ...baseProps, loading: true }, template }),
-};
-
-/** No data at all — distinct from a filter that excluded everything. */
-export const Empty: Story = {
-  render: () => ({ props: { ...baseProps, ciphers: [] }, template }),
+  args: { loading: true },
 };
 
 /**
- * There is data, but nothing survives the active filter. Type in the search box to reach this
- * state; the copy differs from {@link Empty} because the fix is to clear filters, not add items.
+ * An empty `ciphers` array. The copy invites the user to add their first item, which is why this
+ * state is worth distinguishing from [Filtered To Zero](#filtered-to-zero) — there, the fix is to
+ * clear a filter rather than to add anything.
+ */
+export const Empty: Story = {
+  args: { ciphers: [] },
+};
+
+/**
+ * There are rows, but nothing survives the active search. `initialFilterValues` seeds the reserved
+ * `search` key here, the same way the story below seeds a chip — clear the search box to bring the
+ * rows back.
+ *
+ * The empty state offers no Clear all button: clearing the chips wouldn't bring the rows back while
+ * the search term still excludes them. Compare
+ * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where it does.
  */
 export const FilteredToZero: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      ciphers: [cipher({ id: "1", name: "Amazon", username: "derek@example.com" })],
-    },
-    template,
-  }),
-  play: async ({ canvasElement }) => {
-    const search = canvasElement.querySelector("input") as HTMLInputElement;
-    search.value = "no-such-item";
-    search.dispatchEvent(new Event("input", { bubbles: true }));
+  args: { initialFilterValues: { search: "no-such-item" } },
+};
+
+/**
+ * Use `initialFilterValues` to open the table with chips already applied — deep-linking into a
+ * single shared folder. It's read once per chip as that chip registers, so later changes are
+ * ignored; to drive chips reactively, reach for the underlying table's filter controls instead.
+ *
+ * Here it selects a shared folder that holds no items, so the table opens filtered to zero. Because
+ * a chip is responsible, the empty state offers Clear all — click it to bring the rows back.
+ */
+export const FilteredToZeroByChip: Story = {
+  args: { initialFilterValues: { sharedFolder: ["col-4"] } },
+};
+
+/**
+ * What the toolbar does when a filter has nothing to offer. Supply an empty `folders` array, or rows
+ * with nothing favorited, and the matching chip is disabled with a tooltip explaining how to make it
+ * useful — hover Favorites and My folders to see both.
+ *
+ * A row whose folder isn't in `folders` renders no chip rather than a nameless one, so a host can
+ * narrow `folders` without scrubbing the rows to match.
+ */
+export const NoFavoritesOrFolders: Story = {
+  args: {
+    ciphers: ciphers.filter((cipher) => !cipher.favorite),
+    folders: [],
   },
 };
 
-/** Template variant that also seeds the chips through `[initialFilterValues]`. */
-const initialFilterValuesTemplate = template.replace(
-  '[ciphers]="ciphers"',
-  '[ciphers]="ciphers" [initialFilterValues]="initialFilterValues"',
-);
-
 /**
- * Reaches the same filtered-to-zero empty state as {@link FilteredToZero}, but via a chip rather
- * than search — so, unlike that story, the empty state's Clear all button shows (it's deliberately
- * hidden when search alone is responsible for zero rows).
+ * The Type chip offers only the types present in the rows, so a host never has to prune it. Narrow
+ * the rows to logins and it comes down to a single option — the other seven are absent even though
+ * the table's default `cipherTypes` includes them all.
  *
- * The chip selection is seeded declaratively with `[initialFilterValues]` rather than by simulating
- * clicks: "Engineering" holds no items (the only one is in "Operations"), so the table opens
- * already filtered to zero. Click Clear all to bring the row back.
- */
-export const FilteredToZeroByChip: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      collections: chipFilterZeroCollections,
-      ciphers: chipFilterZeroCiphers,
-      initialFilterValues: { sharedFolder: ["col-2"] },
-    },
-    template: initialFilterValuesTemplate,
-  }),
-};
-
-/**
- * A vault that genuinely has items — none favorited, and no folders defined at all. Hover the
- * Favorites chip and the My folders chip to see each one's disabled tooltip.
- */
-export const NoFavoritesOrFolders: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      ciphers: noFavoritesOrFoldersCiphers,
-      folders: [],
-    },
-    template,
-  }),
-};
-
-/**
- * Only three cipher types are present in the data — Login, Card, and Secure note — so the Type
- * chip's menu offers exactly those three. Open it: Identity, SSH key, Bank account, Driver's
- * license, and Passport are absent, even though the default `cipherTypes` includes them all.
+ * Bind `cipherTypes` to narrow it further than the data would, which is how a client keeps a type
+ * behind a feature flag.
  */
 export const NarrowedCipherTypes: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      ciphers: narrowedCipherTypesCiphers,
-    },
-    template,
-  }),
+  args: { ciphers: ciphers.filter((cipher) => cipher.type === CipherType.Login) },
 };
 
 /**
- * 12 collections spread across the two organizations push the Shared folders chip's option count
- * past `bit-filter-menu`'s in-menu search threshold. Open the chip to see the search box, plus
- * one collapsible `bit-filter-section` per organization (Acme corporation, Contoso) rather than a
- * flat list.
+ * How the folder chips hold up at scale, with more than ten options in each.
  *
- * The counts are deliberately uneven (Engineering 8, Human resources 0) and the section berries
- * show each organization's selected total. Because several items belong to two collections, the
- * option counts sum to more than the row count. Select one option and watch the others recompute:
- * they're faceted against the *remaining* filters, not fixed totals.
+ * Open Shared folders: past that many options a chip grows an in-menu search box, and this one also
+ * groups into a collapsible section per organization, each with a berry showing how many of its
+ * options are selected. Open My folders for the contrast — folders have no owning organization, so
+ * it gains the search box but stays a flat list.
+ *
+ * Every option carries a count faceted against the *remaining* filters rather than a fixed total, so
+ * selecting one option recomputes the others. Counts can therefore sum to more than the row count,
+ * since an item may sit in two shared folders, and "No folder" counts the unfiled rows.
  */
-export const ManySharedFolders: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      collections: manyCollections,
-      ciphers: manySharedFolderCiphers,
-    },
-    template,
-  }),
+export const ManyFilterOptions: Story = {
+  args: {
+    collections: manyCollections,
+    folders: manyFolders,
+    ciphers: manyFilterOptionCiphers,
+  },
 };
 
 /**
- * 12 folders push the My folders chip's option count past the same threshold. Folders have no
- * owning organization, so — unlike {@link ManySharedFolders} — the chip stays a flat list; open it
- * to see just the search box appear, with no section headers.
+ * Scoping the table to one vault takes nothing but a narrower `ciphers` — the table works the rest
+ * out from the rows, and `organizations` can stay bound.
  *
- * Counts range from 7 (Work) down to 0 (Education, Insurance), and "No folder" carries its own
- * count from the unfiled items — the case a per-folder tally would miss.
- */
-export const ManyFolders: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      folders: manyFolders,
-      ciphers: manyFolderCiphers,
-    },
-    template,
-  }),
-};
-
-/**
- * Template variant with a page heading above the table, the way a host titles the page when its
- * side nav has scoped the vault. Once every row sits in one vault the table drops both the Vault
- * chip and the Vault column, so the heading is what tells the user where they are.
- */
-const scopedVaultTemplate = `
-  <h1 bitTypography="h1">{{ heading }}</h1>
-  ${template}
-`;
-
-/**
- * Scoped by the side nav to the individual vault. The Vault chip and column drop out — every row is
- * in the same vault — and so do the Shared folders chip and column, since an individually-owned
- * item can't belong to one.
- *
- * Organizations are still supplied — a host scoping the vault narrows `ciphers` and nothing else,
- * and the table works the rest out from the rows.
+ * With every row in the individual vault, the Vault chip and column drop out, and so do Shared
+ * folders, since an individually-owned item can't belong to one. Render the page heading yourself:
+ * once the Vault column is gone, it's what tells the user where they are.
  */
 export const ScopedToMyVault: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      heading: "My vault",
-      ciphers: ciphers.filter((cipher) => !cipher.organizationId),
-    },
-    template: scopedVaultTemplate,
-  }),
+  args: {
+    heading: "My vault",
+    ciphers: ciphers.filter((cipher) => !cipher.organizationId),
+  },
 };
 
 /**
- * The same scoping, to a single organization — see {@link ScopedToMyVault}. The Shared folders
- * column and chip stay useful, since the rows still spread across that organization's collections.
+ * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault). Shared
+ * folders stays useful here, since the rows still spread across that organization's collections.
  */
 export const ScopedToOrganizationVault: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      heading: "Acme corporation's vault",
-      ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
-    },
-    template: scopedVaultTemplate,
-  }),
+  args: {
+    heading: "Acme corporation's vault",
+    ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
+  },
 };
 
-/** Template variant that also binds the Copy presentation style. */
-const copyPresentationTemplate = template.replace(
-  '[rowActions]="rowActions"',
-  '[rowActions]="rowActions" [copyPresentation]="copyPresentation"',
-);
-
 /**
- * `copyPresentation: "expanded"` gives each copyable field its own button — for a login, username,
- * password and TOTP. Hover a row to compare against {@link Default}'s collapsed single button. The
- * actions column widens to 240px to hold them, which is why collapsed is the default.
+ * Bind `copyPresentation` as `"expanded"` to give each copyable field its own button — username,
+ * password, and TOTP for a login — rather than one Copy button that opens a menu. Hover a row to
+ * compare with [Default](#default).
  */
 export const ExpandedCopyActions: Story = {
-  render: () => ({
-    props: {
-      ...baseProps,
-      copyPresentation: "expanded",
-    },
-    template: copyPresentationTemplate,
-  }),
+  args: { copyPresentation: "expanded" },
 };
