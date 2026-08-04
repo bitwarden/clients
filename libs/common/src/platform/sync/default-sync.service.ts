@@ -7,8 +7,8 @@ import { firstValueFrom, map } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
+import { KeyService } from "@bitwarden/key-management";
+import { KeyId as SdkKeyId } from "@bitwarden/sdk-internal";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -40,12 +40,10 @@ import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-passw
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
-import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
-import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -62,6 +60,7 @@ import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -107,11 +106,8 @@ export class DefaultSyncService extends CoreSyncService {
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private securityStateService: SecurityStateService,
-    private kdfConfigService: KdfConfigService,
-    private accountCryptographicStateService: AccountCryptographicStateService,
-    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private configService: ConfigService,
+    private sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -198,6 +194,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      await this.runKmSyncHandler(response.profile.id, response.profile, response.userDecryption);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -246,27 +243,11 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // Users with no master password will not have a key.
+    // This is for key-connector users
     if (response?.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
 
-    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
-    if (response.accountKeys != null) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeys.toWrappedAccountCryptographicState(),
-        response.id,
-      );
-    } else {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        {
-          V1: {
-            private_key: response.privateKey as SdkEncString,
-          },
-        },
-        response.id,
-      );
-    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
@@ -457,21 +438,45 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.newPolicyService.replace(policies, userId);
   }
 
+  /**
+   * Runs the SDK's key management sync handler.
+   *
+   * Hands the handler the key-management parts of the sync response and lets it decide what to do
+   * with each. Failures are logged and swallowed: nothing here is required for the sync itself to
+   * have succeeded.
+   */
+  private async runKmSyncHandler(
+    userId: UserId,
+    profile: ProfileResponse,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
+    try {
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.km_sync_handler().on_sync({
+          userDecryption:
+            userDecryption == null
+              ? undefined
+              : {
+                  userKeyId: userDecryption.userKeyId as SdkKeyId | undefined,
+                  masterPasswordUnlock: userDecryption.masterPasswordUnlock
+                    ?.toMasterPasswordUnlockData()
+                    .toSdk(),
+                  v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
+                },
+          accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
+        }),
+      );
+    } catch (error) {
+      this.logService.error("[Sync] Key management sync handler failed:", error);
+    }
+  }
+
   private async syncUserDecryption(
     userId: UserId,
     userDecryption: UserDecryptionResponse | undefined,
   ) {
     if (userDecryption == null) {
       return;
-    }
-    if (userDecryption.masterPasswordUnlock != null) {
-      const masterPasswordUnlockData =
-        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
-      await this.masterPasswordService.setMasterPasswordUnlockData(
-        masterPasswordUnlockData,
-        userId,
-      );
-      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
     }
 
     // Update WebAuthn PRF options if present
@@ -510,15 +515,6 @@ export class DefaultSyncService extends CoreSyncService {
       } catch (error) {
         this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
       }
-    }
-
-    if (userDecryption.v2UpgradeToken != null) {
-      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
-        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
-        userId,
-      );
-    } else {
-      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
     }
   }
 }
