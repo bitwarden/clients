@@ -6,6 +6,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,8 +30,7 @@ const DEFAULT_URL = "https://github.com/bitwarden/map-the-web/releases/latest/do
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
     OrganizationId: ORG_ID,
-    // TODO(PM-41310): Replace with `PolicyType.FillAssist` once the SDK bump (PR 3) lands.
-    Type: 22,
+    Type: PolicyType.FillAssist,
     Enabled: enabled,
     Data: data,
   });
@@ -42,8 +42,7 @@ describe("FillAssistPolicy", () => {
 
     expect(policy.name).toBe("fillAssistPolicy");
     expect(policy.description).toBe("fillAssistPolicyDesc");
-    // TODO(PM-41310): Replace with `PolicyType.FillAssist` once the SDK bump (PR 3) lands.
-    expect(policy.type).toBe(22);
+    expect(policy.type).toBe(PolicyType.FillAssist);
     expect(policy.component).toBe(FillAssistPolicyComponent);
   });
 

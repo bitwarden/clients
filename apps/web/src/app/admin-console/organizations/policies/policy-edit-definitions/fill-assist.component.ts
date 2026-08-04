@@ -44,9 +44,7 @@ function httpsUrlValidator(errorMessage: string): ValidatorFn {
 export class FillAssistPolicy extends BasePolicyEditDefinition {
   name = "fillAssistPolicy";
   description = "fillAssistPolicyDesc";
-  // TODO(PM-41310): Replace with `PolicyType.FillAssist` once the SDK bump (PR 3) lands.
-  // Value 22 is coordinated across sdk-internal, server, and clients repos.
-  type = 22 as PolicyType;
+  type = PolicyType.FillAssist;
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
