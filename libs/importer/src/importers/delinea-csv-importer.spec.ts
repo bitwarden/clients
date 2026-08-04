@@ -4,7 +4,7 @@ import { DelineaCsvImporter } from "./delinea-csv-importer";
 import {
   DelineaCsvTestData,
   DelineaCsvTestDataEmpty,
-} from "./spec-data/delinea/deliinea-csv-importer-testdata";
+} from "./spec-data/delinea/delinea-csv-importer-testdata";
 
 describe("Delinea CSV Importer", () => {
   it("should parse CSV data", async () => {

@@ -118,7 +118,8 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
 
   // Each <Secret> tag can contain a <SecretItems> tag that contains zero or more
   // <SecretItem> tags. Each <SecretItem> tag is identified by its <Slug> tag and
-  // its value is taken from its <Value> tag, or "--" if the <Value> tag is absent
+  // its value is taken from its <Value> tag. Empty, missing, or all-whitespace
+  // Values are ignored
   private getSlugValues(secretNode: Element): { slug: string; value: string }[] {
     const slugValues: { slug: string; value: string }[] = [];
 

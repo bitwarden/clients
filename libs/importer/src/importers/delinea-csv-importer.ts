@@ -1,6 +1,5 @@
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { ImportResult } from "../models";
 
@@ -37,22 +36,11 @@ export class DelineaCsvImporter extends BaseImporter implements Importer {
           if (this.isNullOrWhitespace(value)) {
             continue;
           }
-          const cipherIdx = this.result.ciphers.length;
-          const folderName = this.convertFolderPathToName(value);
-          const existingFolderIdx = this.result.folders.findIndex((f) => f.name === folderName);
-          if (existingFolderIdx === -1) {
-            const folderIdx = this.result.folders.length;
-            const folder = new FolderView();
-            folder.name = folderName;
-            this.result.folders.push(folder);
-            this.result.folderRelationships.push([cipherIdx, folderIdx]);
-          } else {
-            this.result.folderRelationships.push([cipherIdx, existingFolderIdx]);
-          }
+          this.processFolder(this.result, value, true);
         } else if (key === "Notes") {
           cipher.notes = value;
         } else {
-          if (value !== null && value !== "") {
+          if (!this.isNullOrWhitespace(value ?? "")) {
             const field = new FieldView();
             field.name = key;
             field.value = value;
@@ -70,13 +58,5 @@ export class DelineaCsvImporter extends BaseImporter implements Importer {
     this.result.success = true;
 
     return this.result;
-  }
-
-  private convertFolderPathToName(folderPath: string) {
-    let folderName = folderPath.replace(/\\/g, "/");
-    if (folderName.startsWith("/")) {
-      folderName = folderName.slice(1);
-    }
-    return folderName;
   }
 }
