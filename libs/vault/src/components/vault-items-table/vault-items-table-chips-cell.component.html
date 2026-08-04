@@ -1,6 +1,6 @@
-@let firstName = first();
+@let firstChip = first();
 
-@if (firstName) {
+@if (firstChip) {
   <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1">
     <button
       bit-chip-action
@@ -8,11 +8,11 @@
       [startIcon]="icon()"
       type="button"
       variant="subtle"
-      [label]="firstName"
-      [title]="firstName"
-    >
-      {{ firstName }}
-    </button>
+      [label]="firstChip.name"
+      [title]="firstChip.name"
+      [attr.aria-label]="filterLabel()"
+      (click)="chipSelect.emit(firstChip.value)"
+    ></button>
 
     @if (overflow() > 0) {
       <button
@@ -22,9 +22,7 @@
         variant="subtle"
         [label]="'+' + overflow()"
         [title]="overflowNames()"
-      >
-        +{{ overflow() }}
-      </button>
+      ></button>
     }
   </span>
 } @else {

@@ -385,6 +385,7 @@ export default {
               foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
+              filterByName: (name) => `Filter by ${name}`,
               itemCount: (count) => `${count} items`,
               filter: "Filter",
               filters: "Filters",
@@ -498,7 +499,8 @@ const baseProps = {
 
 /**
  * The default state. Hover or keyboard-focus a row to reveal the Launch and Copy quick actions
- * beside the overflow menu.
+ * beside the overflow menu. Activating a Shared folders or My folders chip narrows the matching
+ * toolbar filter to that folder; the `+N` overflow chip only names what it stands for.
  */
 export const Default: Story = {
   render: () => ({ props: { ...baseProps }, template }),

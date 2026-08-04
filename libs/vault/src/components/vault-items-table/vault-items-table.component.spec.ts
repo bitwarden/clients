@@ -395,17 +395,93 @@ describe("VaultItemsTableComponent", () => {
       );
     });
 
-    it("resolves shared folder names and drops unknown ids", () => {
+    it("resolves shared folder chips and drops unknown ids", () => {
       const cipher = cipherView({ collectionIds: ["col-2", "col-unknown"] as never });
 
-      expect(component["sharedFolderNames"](cipher)).toEqual(["Engineering"]);
+      expect(component["sharedFolderChips"](cipher)).toEqual([
+        { value: "col-2", name: "Engineering" },
+      ]);
     });
 
-    it("resolves the folder name as a single-entry list", () => {
-      expect(component["folderNamesFor"](cipherView({ folderId: "folder-1" as never }))).toEqual([
-        "Work",
+    it("resolves the folder as a single-entry chip list", () => {
+      expect(component["folderChips"](cipherView({ folderId: "folder-1" as never }))).toEqual([
+        { value: "folder-1", name: "Work" },
       ]);
-      expect(component["folderNamesFor"](cipherView({ folderId: undefined }))).toEqual([]);
+      expect(component["folderChips"](cipherView({ folderId: undefined }))).toEqual([]);
+    });
+  });
+
+  describe("filtering from a membership chip", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Operations" } as CollectionView,
+        { id: "col-2", name: "Engineering" } as CollectionView,
+      ]);
+      fixture.componentRef.setInput("folders", [{ id: "folder-1", name: "Work" } as FolderView]);
+    });
+
+    /** A rendered membership chip, found by the name it displays. */
+    function chipButton(name: string) {
+      const chip = fixture.debugElement
+        .queryAll(By.css("button[bit-chip-action]"))
+        .find((candidate) => candidate.nativeElement.getAttribute("title") === name);
+      if (!chip) {
+        throw new Error(`No membership chip rendered for "${name}"`);
+      }
+      return chip.nativeElement as HTMLButtonElement;
+    }
+
+    it("narrows the Shared folders filter to the activated chip", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.detectChanges();
+
+      chipButton("Engineering").click();
+      fixture.detectChanges();
+
+      expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
+    });
+
+    it("narrows the My folders filter to the activated chip", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ folderId: "folder-1" as never })]);
+      fixture.detectChanges();
+
+      chipButton("Work").click();
+      fixture.detectChanges();
+
+      expect(filterControl("folder").value()).toEqual(["folder-1"]);
+    });
+
+    /**
+     * The chips are multi-select, so adding would also be defensible — replacing is the design
+     * decision: activating a chip means "show me this folder", not "and this one too".
+     */
+    it("replaces the chip's existing selection rather than adding to it", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.detectChanges();
+
+      filterControl("sharedFolder").setValue(["col-1"]);
+      component["filterTo"](bitTable(), "sharedFolder", "col-2");
+
+      expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
+    });
+
+    it("leaves the other filters untouched", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ folderId: "folder-1" as never })]);
+      fixture.detectChanges();
+
+      filterControl("search").setValue("amazon");
+      filterControl("type").setValue(CipherType.Login);
+      component["filterTo"](bitTable(), "folder", "folder-1");
+
+      expect(filterControl("search").value()).toBe("amazon");
+      expect(filterControl("type").value()).toBe(CipherType.Login);
+    });
+
+    it("names the chip after the action, not just the membership", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.detectChanges();
+
+      expect(chipButton("Engineering").getAttribute("aria-label")).toBe("filterByName");
     });
   });
 

@@ -184,9 +184,10 @@
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
       <vault-items-table-chips-cell
-        [names]="sharedFolderNames(row)"
+        [chips]="sharedFolderChips(row)"
         icon="bwi-shared-folder"
         [emptyLabel]="'noSharedFolder' | i18n"
+        (chipSelect)="filterTo(vaultTable, 'sharedFolder', $event)"
       />
     </bit-cell>
   </bit-column>
@@ -196,9 +197,10 @@
     <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.myFolders; let row">
       <vault-items-table-chips-cell
-        [names]="folderNamesFor(row)"
+        [chips]="folderChips(row)"
         icon="bwi-folder"
         [emptyLabel]="'noneFolder' | i18n"
+        (chipSelect)="filterTo(vaultTable, 'folder', $event)"
       />
     </bit-cell>
   </bit-column>

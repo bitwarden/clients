@@ -1,5 +1,8 @@
 export { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
-export { VaultItemsTableChipsCellComponent } from "./vault-items-table-chips-cell.component";
+export {
+  type VaultItemsTableChip,
+  VaultItemsTableChipsCellComponent,
+} from "./vault-items-table-chips-cell.component";
 export {
   DEFAULT_COPY_PRESENTATION,
   type VaultItemsTableCopyPresentation,

@@ -45,7 +45,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultItemEvent } from "../vault-item-event";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
-import { VaultItemsTableChipsCellComponent } from "./vault-items-table-chips-cell.component";
+import {
+  VaultItemsTableChip,
+  VaultItemsTableChipsCellComponent,
+} from "./vault-items-table-chips-cell.component";
 import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
@@ -388,20 +391,25 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     return this.organizationNames().get(organizationId) ?? this.i18nService.t("organization");
   }
 
-  /** Resolved names of the collections this cipher belongs to. */
-  protected sharedFolderNames(cipher: C): string[] {
+  /**
+   * The collections this cipher belongs to, as chips. Collections missing from
+   * {@link collections} are dropped, so every chip carries a value the Shared folders filter
+   * actually offers.
+   */
+  protected sharedFolderChips(cipher: C): VaultItemsTableChip[] {
     const names = this.collectionNames();
-    return (cipher.collectionIds ?? [])
-      .map((id) => idString(id))
-      .map((id) => (id ? names.get(id) : undefined))
-      .filter((name): name is string => name != null);
+    return (cipher.collectionIds ?? []).flatMap((collectionId) => {
+      const value = idString(collectionId);
+      const name = value ? names.get(value) : undefined;
+      return value && name ? [{ value, name }] : [];
+    });
   }
 
-  /** Resolved name of this cipher's folder, as a list so it shares the chips cell. */
-  protected folderNamesFor(cipher: C): string[] {
-    const folderId = idString(cipher.folderId);
-    const name = folderId ? this.folderNames().get(folderId) : undefined;
-    return name ? [name] : [];
+  /** This cipher's folder, as a chip list so it shares the chips cell — see {@link sharedFolderChips}. */
+  protected folderChips(cipher: C): VaultItemsTableChip[] {
+    const value = idString(cipher.folderId);
+    const name = value ? this.folderNames().get(value) : undefined;
+    return value && name ? [{ value, name }] : [];
   }
 
   protected subtitle(cipher: C): string | undefined {
@@ -418,15 +426,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     this.vaultName(a).localeCompare(this.vaultName(b));
 
   protected readonly sortBySharedFolders: SortFn = (a: C, b: C) =>
-    this.compareNames(this.sharedFolderNames(a), this.sharedFolderNames(b));
+    this.compareChips(this.sharedFolderChips(a), this.sharedFolderChips(b));
 
   protected readonly sortByFolders: SortFn = (a: C, b: C) =>
-    this.compareNames(this.folderNamesFor(a), this.folderNamesFor(b));
+    this.compareChips(this.folderChips(a), this.folderChips(b));
 
   /** Orders by first name; rows with no memberships sort last regardless of direction. */
-  private compareNames(a: string[], b: string[]): number {
-    const first = a.at(0);
-    const second = b.at(0);
+  private compareChips(a: VaultItemsTableChip[], b: VaultItemsTableChip[]): number {
+    const first = a.at(0)?.name;
+    const second = b.at(0)?.name;
     if (!first && !second) {
       return 0;
     }
@@ -524,6 +532,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     return table
       .filterControls()
       .some((control: FilterControl) => control.key() !== SEARCH_FILTER_KEY && control.active());
+  }
+
+  /**
+   * Narrows one multi-select chip to a single value, replacing whatever it held.
+   *
+   * Activating a membership chip in a row reads as "show me this folder", so it replaces that
+   * chip's selection rather than adding to it. Every other chip is left alone, so it composes with
+   * an active search or Type filter.
+   */
+  protected filterTo(
+    table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
+    key: "sharedFolder" | "folder",
+    value: string,
+  ): void {
+    table
+      .filterControls()
+      .find((control: FilterControl) => control.key() === key)
+      ?.setValue([value]);
   }
 
   /**

@@ -517,6 +517,15 @@
   "noSharedFolder": {
     "message": "No shared folder"
   },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "length": {
     "message": "Length"
   },

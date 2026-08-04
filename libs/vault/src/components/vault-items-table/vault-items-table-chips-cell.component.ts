@@ -1,13 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon, IconModule, ChipActionComponent } from "@bitwarden/components";
 
+/** One of a row's memberships: the name shown, and the filter value clicking it selects. */
+export type VaultItemsTableChip = {
+  /** The value the column's filter chip is set to on click — a collection or folder id. */
+  value: string;
+  /** Already-resolved display name. */
+  name: string;
+};
+
 /**
- * Renders a row's shared folder or folder memberships as chips: the first name as a labelled
- * chip, an overflow `+N` chip when more remain, and an em dash when there are none.
+ * Renders a row's shared folder or folder memberships as chips: the first as a labelled chip that
+ * filters the table down to it when activated, an overflow `+N` chip when more remain, and an em
+ * dash when there are none.
  *
- * Shared by the "Shared folders" and "My folders" columns, which differ only in their icon and
- * the names they're given.
+ * Shared by the "Shared folders" and "My folders" columns, which differ only in their icon, the
+ * memberships they're given, and which filter their {@link chipSelect} drives.
  */
 @Component({
   selector: "vault-items-table-chips-cell",
@@ -16,8 +26,10 @@ import { BitwardenIcon, IconModule, ChipActionComponent } from "@bitwarden/compo
   imports: [IconModule, ChipActionComponent],
 })
 export class VaultItemsTableChipsCellComponent {
-  /** The membership names, in display order. */
-  readonly names = input.required<string[]>();
+  private readonly i18nService = inject(I18nService);
+
+  /** The row's memberships, in display order. */
+  readonly chips = input.required<VaultItemsTableChip[]>();
 
   /** Leading icon for the first chip. */
   readonly icon = input.required<BitwardenIcon>();
@@ -28,10 +40,28 @@ export class VaultItemsTableChipsCellComponent {
    */
   readonly emptyLabel = input.required<string>();
 
-  protected readonly first = computed(() => this.names().at(0));
+  /** Emits the activated chip's {@link VaultItemsTableChip.value}. */
+  readonly chipSelect = output<string>();
 
-  protected readonly overflow = computed(() => Math.max(0, this.names().length - 1));
+  protected readonly first = computed(() => this.chips().at(0));
+
+  protected readonly overflow = computed(() => Math.max(0, this.chips().length - 1));
 
   /** The names the `+N` chip stands in for — surfaced as its tooltip and accessible name. */
-  protected readonly overflowNames = computed(() => this.names().slice(1).join(", "));
+  protected readonly overflowNames = computed(() =>
+    this.chips()
+      .slice(1)
+      .map((chip) => chip.name)
+      .join(", "),
+  );
+
+  /**
+   * Accessible name for the first chip. Its visible text is only the membership name, which
+   * doesn't convey that activating it filters. Unlike {@link emptyLabel} the wording is identical
+   * for both columns, so it's resolved here rather than passed in.
+   */
+  protected readonly filterLabel = computed(() => {
+    const first = this.first();
+    return first ? this.i18nService.t("filterByName", first.name) : "";
+  });
 }
