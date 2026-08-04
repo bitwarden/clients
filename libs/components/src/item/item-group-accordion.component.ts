@@ -17,15 +17,9 @@ import { BitwardenIcon } from "../shared/icon";
 import { ItemGroupComponent } from "./item-group.component";
 
 /**
- * Convenience wrapper that renders a joined segmented card of items inside a `bit-accordion`.
- * Purely compositional — all accordion behavior (ARIA, single-select coordination, two-way `open`)
- * comes from `bit-accordion`.
- *
- * The projected items are authored inside this component, so their element injector resolves
- * `ItemGroupComponent` here rather than at the segmented card in this component's view (Angular DI
- * follows the declaration tree, not the projection tree). We therefore alias `ItemGroupComponent`
- * to this component with `joined` fixed to `true`, so each `bit-item` drops its own border and the
- * rows read as one joined card.
+ * Renders items joined inside a `bit-accordion` — a divider row separates them so they read as one
+ * card. Aliases `ItemGroupComponent` to itself with `joined` fixed to `true` so projected
+ * `bit-item`s inject it and drop their own borders.
  */
 @Component({
   selector: "bit-item-group-accordion",
