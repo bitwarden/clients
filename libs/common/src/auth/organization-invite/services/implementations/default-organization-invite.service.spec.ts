@@ -4,6 +4,9 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutService } from "@bitwarden/auth/common";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -31,7 +34,7 @@ import { LogService } from "../../../../platform/abstractions/log.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { MockSdkService } from "../../../../platform/spec/mock-sdk.service";
 import { OrgKey } from "../../../../types/key";
-import { AuthService } from "../../../abstractions/auth.service";
+import { DeepLinkRedirectService } from "../../../deep-link-redirect";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
@@ -43,7 +46,7 @@ import { EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL } from "./sealed-
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;
   let apiService: MockProxy<ApiService>;
-  let authService: MockProxy<AuthService>;
+  let logoutService: MockProxy<LogoutService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
@@ -58,10 +61,11 @@ describe("DefaultOrganizationInviteService", () => {
   let configService: MockProxy<ConfigService>;
   // Deep-mock chain returned by sdkService.client.auth.mockDeep().registration.mockDeep().
   let registrationClient: any;
+  let deepLinkRedirectService: MockProxy<DeepLinkRedirectService>;
 
   beforeEach(() => {
     apiService = mock();
-    authService = mock();
+    logoutService = mock();
     keyService = mock();
     encryptService = mock();
     policyApiService = mock();
@@ -77,10 +81,11 @@ describe("DefaultOrganizationInviteService", () => {
     // Prime the deep-mock chain the service walks at seal/unseal time
     // (client.auth().registration()) so tests can inspect calls on the same mock instance.
     registrationClient = sdkService.client.auth.mockDeep().registration.mockDeep();
+    deepLinkRedirectService = mock();
 
     sut = new DefaultOrganizationInviteService(
       apiService,
-      authService,
+      logoutService,
       keyService,
       encryptService,
       policyApiService,
@@ -93,6 +98,7 @@ describe("DefaultOrganizationInviteService", () => {
       globalStateProvider,
       sdkService,
       configService,
+      deepLinkRedirectService,
     );
   });
 
@@ -135,6 +141,9 @@ describe("DefaultOrganizationInviteService", () => {
 
   describe("validateAndAcceptDirectOrgInvite", () => {
     const activeUserId = newGuid() as UserId;
+    // Callers pass their current page URL so the deep-link guard can replay
+    // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
+    const acceptOrgUrl = "/accept-organization?token=xyz&email=user@example.com";
 
     it("initializes an organization when given an invite where initOrganization is true", async () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
@@ -149,7 +158,7 @@ describe("DefaultOrganizationInviteService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAcceptInit).toHaveBeenCalled();
@@ -157,7 +166,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
     });
@@ -177,6 +186,7 @@ describe("DefaultOrganizationInviteService", () => {
       await sut.validateAndAcceptDirectOrgInvite(
         createOrgInvite({ initOrganization: true }),
         activeUserId,
+        acceptOrgUrl,
       );
 
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
@@ -198,13 +208,14 @@ describe("DefaultOrganizationInviteService", () => {
       await sut.validateAndAcceptDirectOrgInvite(
         createOrgInvite({ initOrganization: true }),
         activeUserId,
+        acceptOrgUrl,
       );
 
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
       expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
-    it("logs out the user and stores the invite when a master password policy check is required", async () => {
+    it("stashes + persists + logs out on the paste-URL MP-policy detour", async () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([
         {
@@ -213,10 +224,18 @@ describe("DefaultOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(false);
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
+      expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
+        acceptOrgUrl,
+      );
+      // Persist must happen before logout so any state-clearing side effects of logout
+      // cannot wipe the URL the deep-link guard will replay after re-auth.
+      expect(
+        deepLinkRedirectService.persistPostLoginRedirectUrl.mock.invocationCallOrder[0],
+      ).toBeLessThan(logoutService.logout.mock.invocationCallOrder[0]);
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
@@ -232,10 +251,14 @@ describe("DefaultOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(providedInvite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(
+        providedInvite,
+        activeUserId,
+        acceptOrgUrl,
+      );
 
       expect(result).toBe(false);
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(providedInvite);
     });
@@ -263,10 +286,10 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(false);
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
@@ -275,13 +298,13 @@ describe("DefaultOrganizationInviteService", () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
     });
@@ -300,7 +323,7 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
@@ -323,14 +346,14 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     it("accepts the invite and enrolls when autoenroll is enabled", async () => {
@@ -361,7 +384,7 @@ describe("DefaultOrganizationInviteService", () => {
         true,
       ]);
 
-      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId);
+      const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
 
       expect(result).toBe(true);
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
@@ -372,7 +395,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
 
     describe("acceptDirectOrgInviteAndInitOrganization encryption guards", () => {
@@ -398,9 +421,9 @@ describe("DefaultOrganizationInviteService", () => {
           mockOrgKey,
         ]);
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
 
@@ -410,9 +433,9 @@ describe("DefaultOrganizationInviteService", () => {
           { encryptedString: null } as unknown as EncString,
         ]);
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
 
@@ -421,9 +444,9 @@ describe("DefaultOrganizationInviteService", () => {
           encryptedString: null,
         } as unknown as EncString);
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt organization init data.",
-        );
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
         expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
       });
     });
@@ -454,7 +477,9 @@ describe("DefaultOrganizationInviteService", () => {
       it("throws when organization keys cannot be fetched", async () => {
         organizationApiService.getKeys.mockResolvedValue(null as any);
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow();
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow();
         expect(i18nService.t).toHaveBeenCalledWith("resetPasswordOrgKeysError");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
@@ -462,9 +487,9 @@ describe("DefaultOrganizationInviteService", () => {
       it("throws when the user key is null", async () => {
         keyService.userKey$.mockReturnValue(new BehaviorSubject(null as any));
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow(
-          "User key is required to enroll in password reset.",
-        );
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("User key is required to enroll in password reset.");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
 
@@ -473,9 +498,9 @@ describe("DefaultOrganizationInviteService", () => {
           encryptedString: null,
         } as unknown as EncString);
 
-        await expect(sut.validateAndAcceptDirectOrgInvite(invite, activeUserId)).rejects.toThrow(
-          "Failed to encrypt user key for password reset enrollment.",
-        );
+        await expect(
+          sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt user key for password reset enrollment.");
         expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       });
     });
@@ -734,6 +759,9 @@ describe("DefaultOrganizationInviteService", () => {
   describe("acceptOpenOrgInvite", () => {
     const activeUserId = newGuid() as UserId;
     const organizationId = newGuid();
+    // Callers pass their current page URL so the deep-link guard can replay
+    // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
+    const acceptOrgUrl = "/join/orgId/link-code?key=xyz";
     // Deep-mock chain returned by userClient.invite_link.mockDeep(); holds
     // .accept_and_optionally_confirm which our implementation calls.
     let inviteLinkClient: any;
@@ -774,7 +802,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("returns accepted, calls the SDK with the expected args, refreshes the identity token, and clears any stashed invite on success", async () => {
       const open = createOpenOrgInvite({ organizationId });
 
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "accepted" });
       expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
@@ -798,7 +826,7 @@ describe("DefaultOrganizationInviteService", () => {
         true,
       ]);
 
-      await sut.acceptOpenOrgInvite(open, activeUserId);
+      await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
         organizationId,
@@ -819,7 +847,7 @@ describe("DefaultOrganizationInviteService", () => {
         true,
       ]);
 
-      await sut.acceptOpenOrgInvite(open, activeUserId);
+      await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledWith(
         organizationId,
@@ -836,7 +864,7 @@ describe("DefaultOrganizationInviteService", () => {
       );
       const open = createOpenOrgInvite({ organizationId });
 
-      await sut.acceptOpenOrgInvite(open, activeUserId);
+      await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
       expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
@@ -855,10 +883,18 @@ describe("DefaultOrganizationInviteService", () => {
         { type: PolicyType.MasterPassword, enabled: true } as Policy,
       ]);
 
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
+      expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
+        acceptOrgUrl,
+      );
+      // Persist must happen before logout so any state-clearing side effects of logout
+      // cannot wipe the URL the deep-link guard will replay after re-auth.
+      expect(
+        deepLinkRedirectService.persistPostLoginRedirectUrl.mock.invocationCallOrder[0],
+      ).toBeLessThan(logoutService.logout.mock.invocationCallOrder[0]);
       expect(await sut.getOrganizationInvite()).toEqual(open);
       expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
     });
@@ -881,10 +917,16 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
+      expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
+        acceptOrgUrl,
+      );
+      expect(
+        deepLinkRedirectService.persistPostLoginRedirectUrl.mock.invocationCallOrder[0],
+      ).toBeLessThan(logoutService.logout.mock.invocationCallOrder[0]);
       expect(await sut.getOrganizationInvite()).toEqual(open);
       expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
     });
@@ -901,10 +943,10 @@ describe("DefaultOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
+      const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "accepted" });
-      expect(authService.logOut).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
       expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalled();
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
@@ -917,10 +959,10 @@ describe("DefaultOrganizationInviteService", () => {
         { type: PolicyType.MasterPassword, enabled: true } as Policy,
       ]);
 
-      const result = await sut.acceptOpenOrgInvite(providedOpen, activeUserId);
+      const result = await sut.acceptOpenOrgInvite(providedOpen, activeUserId, acceptOrgUrl);
 
       expect(result).toEqual({ kind: "stashed-for-mp-policy-detour" });
-      expect(authService.logOut).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalled();
       expect(await sut.getOrganizationInvite()).toEqual(providedOpen);
       expect(inviteLinkClient.accept_and_optionally_confirm).not.toHaveBeenCalled();
     });
@@ -936,7 +978,11 @@ describe("DefaultOrganizationInviteService", () => {
     describe("classifies SDK rejection variants", () => {
       const runWithRejection = async (err: unknown) => {
         inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err);
-        return sut.acceptOpenOrgInvite(createOpenOrgInvite({ organizationId }), activeUserId);
+        return sut.acceptOpenOrgInvite(
+          createOpenOrgInvite({ organizationId }),
+          activeUserId,
+          acceptOrgUrl,
+        );
       };
 
       // Each row is (server error name, HTTP status, exact server message, expected client

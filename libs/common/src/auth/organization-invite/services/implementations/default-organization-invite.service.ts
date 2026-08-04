@@ -9,6 +9,9 @@ import {
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { LogoutService } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // @bitwarden/organization-invite-link imports back from @bitwarden/common (BaseResponse,
 // ApiService, etc.), so this is a circular dependency in the static import graph. It
@@ -49,7 +52,7 @@ import { asUuid, SdkService } from "../../../../platform/abstractions/sdk/sdk.se
 import { Utils } from "../../../../platform/misc/utils";
 import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
 import { OrgKey } from "../../../../types/key";
-import { AuthService } from "../../../abstractions/auth.service";
+import { DeepLinkRedirectService } from "../../../deep-link-redirect";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import {
@@ -99,7 +102,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   constructor(
     private readonly apiService: ApiService,
-    private readonly authService: AuthService,
+    private readonly logoutService: LogoutService,
     private readonly keyService: KeyService,
     private readonly encryptService: EncryptService,
     private readonly policyApiService: PolicyApiServiceAbstraction,
@@ -112,6 +115,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly globalStateProvider: GlobalStateProvider,
     private readonly sdkService: SdkService,
     private readonly configService: ConfigService,
+    private readonly deepLinkRedirectService: DeepLinkRedirectService,
   ) {
     this.directInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
     this.openOrgInviteState = this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE);
@@ -186,11 +190,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * current master password). For open org invites, the same MP-policy-detour applies,
    * plus a ResetPassword auto-enroll path when the org's policy requires it.
    *
+   * @param postAuthRedirectUrl the URL to persist for the deep-link guard to replay after
+   *   re-auth on the MP-policy detour; ignored on clients without a deep-link redirect
+   *   service.
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
   async validateAndAcceptDirectOrgInvite(
     invite: DirectOrganizationInvite,
     userId: UserId,
+    postAuthRedirectUrl: string,
   ): Promise<boolean> {
     // Creation of a new org
     if (invite.initOrganization) {
@@ -209,9 +217,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // master password.
     if (await this.directInviteMasterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
+      // Persist so the deep-link guard replays us back into accept after the user
+      // re-authenticates with a compliant master password.
+      await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      await this.logoutService.logout(userId);
       return false;
     }
 
@@ -223,17 +232,17 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async acceptOpenOrgInvite(
     invite: OpenOrganizationInvite,
     userId: UserId,
+    postAuthRedirectUrl: string,
   ): Promise<AcceptOpenOrgInviteResult> {
     // MP-policy detour for open org invites: if the org requires a compliant MP and the
     // user hasn't been through the detour yet (no matching stash), persist + log out
     // so login can re-check the MP against their current password.
     if (await this.openOrgInviteMasterPasswordPolicyCheckRequired(invite)) {
-      // TODO: this will need to be fixed in a similar way to PM-41303 once
-      // https://github.com/bitwarden/clients/pull/22184 merges
       await this.setOrganizationInvite(invite);
-      this.authService.logOut(() => {
-        /* Do nothing */
-      });
+      // Persist so the deep-link guard replays us back into accept after the user
+      // re-authenticates with a compliant master password.
+      await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      await this.logoutService.logout(userId);
       return { kind: "stashed-for-mp-policy-detour" };
     }
 
@@ -756,6 +765,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   /**
    * Whether this invite requires the user to re-authenticate against the org's
    * master-password policy before it can be accepted.
+   *
+   * NOTE: this check uses "matching stashed invite exists" as a proxy for "user has
+   * been through the MP-policy re-auth flow." That's only correct because
+   * `PasswordLoginStrategy` independently re-checks the stashed invite's policy at
+   * login and force-routes weak-MP users to change-password — the invite service
+   * silently depends on that safety net for the joining org's MP policy to be
+   * enforced client-side.
    *
    * @param invite - The invite being validated.
    * @param readStash - Returns the invite stashed on a prior re-authentication

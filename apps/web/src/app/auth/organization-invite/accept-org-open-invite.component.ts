@@ -191,7 +191,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
 
     const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, status);
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const result = await this.organizationInviteService.acceptOpenOrgInvite(invite, activeUserId);
+    const result = await this.organizationInviteService.acceptOpenOrgInvite(
+      invite,
+      activeUserId,
+      this.router.url,
+    );
 
     switch (result.kind) {
       case "accepted":

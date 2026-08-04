@@ -63,11 +63,18 @@ export abstract class OrganizationInviteService {
    * if the user must first satisfy the org's master-password policy. The stashed invite
    * is consumed when the user returns after re-authenticating with a compliant master
    * password.
+   *
+   * `postAuthRedirectUrl` is the URL the deep-link guard should replay after the user
+   * re-authenticates. Callers pass their current page URL (typically the accept-org
+   * route with the invite's query params) so the guard sends the user back to the same
+   * page. Ignored on clients without a deep-link redirect service.
+   *
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
   abstract validateAndAcceptDirectOrgInvite(
     invite: DirectOrganizationInvite,
     userId: UserId,
+    postAuthRedirectUrl: string,
   ): Promise<boolean>;
 
   /**
@@ -76,10 +83,16 @@ export abstract class OrganizationInviteService {
    * or one of the server's known rejection modes. Unclassified failures (network, 5xx,
    * unrecognized 400 messages, non-`ErrorResponse` throws) surface as `unexpected` with
    * a best-effort message string so the caller can render something meaningful.
+   *
+   * `postAuthRedirectUrl` is the URL the deep-link guard should replay after the user
+   * re-authenticates on the MP-policy detour. Callers pass their current page URL so the
+   * guard sends the user back to the same page. Ignored on clients without a deep-link
+   * redirect service.
    */
   abstract acceptOpenOrgInvite(
     invite: OpenOrganizationInvite,
     userId: UserId,
+    postAuthRedirectUrl: string,
   ): Promise<AcceptOpenOrgInviteResult>;
 
   /**

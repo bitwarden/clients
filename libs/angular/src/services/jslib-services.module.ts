@@ -1773,7 +1773,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultOrganizationInviteService,
     deps: [
       ApiServiceAbstraction,
-      AuthServiceAbstraction,
+      LogoutService,
       KeyService,
       EncryptService,
       PolicyApiServiceAbstraction,
@@ -1786,6 +1786,7 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       SdkService,
       ConfigService,
+      DeepLinkRedirectService,
     ],
   }),
   safeProvider({
