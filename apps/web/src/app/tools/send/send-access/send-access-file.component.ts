@@ -42,7 +42,7 @@ export class SendAccessFileComponent {
       return;
     }
 
-    const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+    const downloadData = await this.sendApiService.getSendFileDownloadData(
       this.send(),
       accessToken,
     );

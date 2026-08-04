@@ -485,7 +485,7 @@ export default class RuntimeBackground {
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
-    const totpCode = await this.autofillService.doAutoFill({
+    const result = await this.autofillService.doAutoFill({
       tab: tabToAutoFill,
       cipher: this.main.loginToAutoFill,
       pageDetails: this.pageDetailsToAutoFill,
@@ -493,8 +493,8 @@ export default class RuntimeBackground {
       allowTotpAutofill: true,
     });
 
-    if (totpCode != null) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    if (result.didAutofill && result.totp != null) {
+      this.platformUtilsService.copyToClipboard(result.totp);
     }
 
     // reset
