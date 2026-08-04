@@ -5,6 +5,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
 
@@ -22,6 +23,7 @@ describe("VaultBatchActionComponent", () => {
 
   const canAddToFolder = signal(false);
   const canAssignToCollections = signal(false);
+  const canEditCollectionAccess = signal(false);
   const canArchive = signal(false);
   const canUnarchive = signal(false);
   const canRestore = signal(false);
@@ -32,6 +34,7 @@ describe("VaultBatchActionComponent", () => {
   const clearSpy = jest.fn();
   const bulkMoveToFolderSpy = jest.fn();
   const bulkAssignToCollectionsSpy = jest.fn();
+  const bulkEditCollectionAccessSpy = jest.fn();
   const bulkArchiveSpy = jest.fn();
   const bulkUnarchiveSpy = jest.fn();
   const bulkRestoreSpy = jest.fn();
@@ -40,6 +43,7 @@ describe("VaultBatchActionComponent", () => {
   beforeEach(async () => {
     canAddToFolder.set(false);
     canAssignToCollections.set(false);
+    canEditCollectionAccess.set(false);
     canArchive.set(false);
     canUnarchive.set(false);
     canRestore.set(false);
@@ -57,6 +61,7 @@ describe("VaultBatchActionComponent", () => {
             selectedCount,
             canAddToFolder,
             canAssignToCollections,
+            canEditCollectionAccess,
             canArchive,
             canUnarchive,
             canRestore,
@@ -65,6 +70,7 @@ describe("VaultBatchActionComponent", () => {
             selection: { clear: clearSpy },
             bulkMoveToFolder: bulkMoveToFolderSpy,
             bulkAssignToCollections: bulkAssignToCollectionsSpy,
+            bulkEditCollectionAccess: bulkEditCollectionAccessSpy,
             bulkArchive: bulkArchiveSpy,
             bulkUnarchive: bulkUnarchiveSpy,
             bulkRestore: bulkRestoreSpy,
@@ -72,6 +78,7 @@ describe("VaultBatchActionComponent", () => {
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => `translated-${key}` } },
+        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
       ],
     }).compileComponents();
 
@@ -166,6 +173,14 @@ describe("VaultBatchActionComponent", () => {
       expect(action.label).toBe("translated-assignToCollections");
     });
 
+    it("assigns the correct icon and translated label for edit-access", () => {
+      canEditCollectionAccess.set(true);
+
+      const [action] = component["primaryActions"]();
+      expect(action.icon).toBe("bwi-users");
+      expect(action.label).toBe("translated-editAccess");
+    });
+
     it("assigns the correct icon and translated label for archive", () => {
       canArchive.set(true);
 
@@ -214,6 +229,14 @@ describe("VaultBatchActionComponent", () => {
       component["primaryActions"]()[0].action();
 
       expect(bulkAssignToCollectionsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("calls service.bulkEditCollectionAccess when edit-access action is invoked", () => {
+      canEditCollectionAccess.set(true);
+
+      component["primaryActions"]()[0].action();
+
+      expect(bulkEditCollectionAccessSpy).toHaveBeenCalledTimes(1);
     });
 
     it("calls service.bulkArchive when archive action is invoked", () => {

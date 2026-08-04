@@ -174,7 +174,6 @@ describe("SettingsComponent", () => {
     desktopSettingsService.minimizeOnCopy$ = of(false);
     desktopSettingsService.runInBackground$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
-    desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
@@ -792,6 +791,7 @@ describe("SettingsComponent", () => {
         BiometricsStatus.DesktopDisconnected,
         BiometricsStatus.NotEnabledLocally,
         BiometricsStatus.NotEnabledInConnectedDesktopApp,
+        BiometricsStatus.NativeMessagingPermissionMissing,
       ])(
         `disables biometric when biometrics status check for the user returns %s`,
         async (status) => {

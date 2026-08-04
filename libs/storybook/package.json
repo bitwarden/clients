@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/storybook",
+  "version": "0.0.1",
+  "description": "Storybook addons and utilities for Bitwarden",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "ui-foundation"
+}

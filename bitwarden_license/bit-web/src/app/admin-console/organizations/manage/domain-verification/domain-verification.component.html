@@ -7,7 +7,7 @@
     (click)="addDomain()"
     startIcon="bwi-plus"
   >
-    {{ "newDomain" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "addDomain" : "newDomain") | i18n }}
   </button>
 </app-header>
 
@@ -121,9 +121,9 @@
           buttonType="secondary"
           bitButton
           (click)="addDomain()"
-          startIcon="bwi-plus"
+          [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
         >
-          {{ "newDomain" | i18n }}
+          {{ (btnTextAddCreateFeatureFlag() ? "addDomain" : "newDomain") | i18n }}
         </button>
       </bit-no-items>
     </div>

@@ -315,11 +315,16 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       maxAutoscaleSeats: this.sub.maxAutoscaleSmSeats,
       seatPrice: this.sub.plan.SecretsManager.seatPrice,
       maxAutoscaleServiceAccounts: this.sub.maxAutoscaleSmServiceAccounts,
-      additionalServiceAccounts:
-        this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
+      additionalServiceAccounts: Math.max(
+        0,
+        this.sub.smServiceAccounts -
+          this.sub.plan.SecretsManager.baseServiceAccount -
+          (this.sub.smServiceAccountsGrace ?? 0),
+      ),
       interval: this.sub.plan.isAnnual ? "year" : "month",
       additionalServiceAccountPrice: this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
       baseServiceAccountCount: this.sub.plan.SecretsManager.baseServiceAccount,
+      graceServiceAccounts: this.sub.smServiceAccountsGrace ?? 0,
     };
   }
 

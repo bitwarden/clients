@@ -11,8 +11,14 @@ export interface CoachmarkStep {
   /** Title displayed in the coachmark popover */
   titleKey: string;
 
+  /** Title key used when the VFO1 shared-folder terminology flag is enabled */
+  titleKeyVfo1?: string;
+
   /** Description/content displayed in the coachmark popover */
   descriptionKey: string;
+
+  /** Description key used when the VFO1 shared-folder terminology flag is enabled */
+  descriptionKeyVfo1?: string;
 
   /** Position of the popover relative to the anchor */
   position: PositionIdentifier;
@@ -49,6 +55,7 @@ export const COACHMARK_STEPS: CoachmarkStep[] = [
     id: "shareWithCollections",
     titleKey: "coachmarkShareWithCollectionsTitle",
     descriptionKey: "coachmarkShareWithCollectionsDescription",
+    descriptionKeyVfo1: "coachmarkShareWithSharedFoldersDescription",
     position: "right-center",
     learnMoreUrl: "https://bitwarden.com/help/about-collections/",
     requiresOrganization: true,

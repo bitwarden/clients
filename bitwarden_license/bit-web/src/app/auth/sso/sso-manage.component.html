@@ -83,19 +83,35 @@
             {{ "trustedDevices" | i18n }}
           </bit-label>
           <bit-hint>
-            {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            @if (vfo1Enabled()) {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link1" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part2" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link2" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part3" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link3" | i18n
+              }}</a>
+              {{ "memberDecryptionOptionTdeDescVfo1Part4" | i18n }}
+            } @else {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            }
           </bit-hint>
         </bit-radio-button>
       </bit-radio-group>
@@ -174,7 +190,7 @@
 
         <bit-form-field>
           <bit-label>{{ "callbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="callbackPath" />
+          <input bitInput readonly [value]="callbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -186,7 +202,7 @@
 
         <bit-form-field>
           <bit-label>{{ "signedOutCallbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="signedOutCallbackPath" />
+          <input bitInput readonly [value]="signedOutCallbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -328,7 +344,7 @@
 
         <bit-form-field *ngIf="ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityId" />
+          <input bitInput readonly [value]="spEntityId" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -340,7 +356,7 @@
 
         <bit-form-field *ngIf="!ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityIdStatic" />
+          <input bitInput readonly [value]="spEntityIdStatic" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -352,7 +368,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spMetadataUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spMetadataUrl" />
+          <input bitInput readonly [value]="spMetadataUrl" />
           <button
             bitIconButton="bwi-external-link"
             bitSuffix
@@ -371,7 +387,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spAcsUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spAcsUrl" />
+          <input bitInput readonly [value]="spAcsUrl" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix

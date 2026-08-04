@@ -1,0 +1,235 @@
+<ng-template #headerCells>
+  @if (selectionModel(); as sel) {
+    <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
+      <input
+        type="checkbox"
+        [attr.aria-label]="'selectAllRows' | i18n"
+        [checked]="sel.allSelected()"
+        [indeterminate]="sel.indeterminate()"
+        (change)="sel.toggleAll()"
+      />
+    </div>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.headerTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl"></ng-container>
+    }
+  }
+</ng-template>
+
+<ng-template #bodyCells let-row>
+  @if (selectionModel(); as sel) {
+    <div role="cell" class="tw-flex tw-items-center tw-px-3">
+      @if (sel.isSelectable(row)) {
+        <input
+          type="checkbox"
+          [attr.aria-label]="'selectRow' | i18n"
+          [checked]="sel.isSelected(row)"
+          (change)="sel.toggle(row)"
+        />
+      }
+    </div>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.cellTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }"></ng-container>
+    }
+  }
+</ng-template>
+
+<ng-template #loadingCells>
+  @if (selectionModel()) {
+    <div role="cell" class="tw-flex tw-items-center tw-px-3"></div>
+  }
+  @for (col of effectiveColumns(); track col.name()) {
+    @if (col.loadingTemplate(); as tpl) {
+      <ng-container *ngTemplateOutlet="tpl"></ng-container>
+    } @else {
+      <bit-cell><bit-skeleton-text class="tw-w-1/2"></bit-skeleton-text></bit-cell>
+    }
+  }
+</ng-template>
+
+<!--
+  One render item — a group header or a data row — shared by the virtualized and
+  non-virtualized bodies so grouped rendering is identical in both. `forceHeight`
+  pins headers to the fixed heights the virtual-scroll strategy assumes; the
+  non-virtualized body passes it false so headers size to content.
+-->
+<ng-template #renderItemTpl let-item="item" let-forceHeight="forceHeight">
+  @if (item.kind === "group") {
+    <!--
+      A group header is a table row whose single header cell spans every column
+      (`aria-colspan`), so it's valid structure inside `role="table"` rather than a
+      bare element. The collapse affordance carries `aria-expanded`.
+    -->
+    <div role="row">
+      @if (item.group.collapsible()) {
+        <button
+          type="button"
+          role="columnheader"
+          [attr.aria-colspan]="columnCount()"
+          [attr.aria-expanded]="!item.group.collapsed()"
+          [class]="groupHeaderButtonClass(item.level)"
+          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+          (click)="item.group.toggle()"
+        >
+          <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+          <!-- Count only on top-level group headers. -->
+          @if (item.level === 0) {
+            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+          }
+          <bit-icon
+            [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
+            [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
+            aria-hidden="true"
+          ></bit-icon>
+        </button>
+      } @else {
+        <div
+          role="columnheader"
+          [attr.aria-colspan]="columnCount()"
+          [class]="groupHeaderClass(item.level)"
+          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+        >
+          <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+          @if (item.level === 0) {
+            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <bit-row>
+      <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"></ng-container>
+    </bit-row>
+  }
+</ng-template>
+
+<ng-content select="bit-bulk-actions-bar"></ng-content>
+
+<div [ngClass]="containerClass()">
+  <!--
+    Toolbar: a `<bit-table-toolbar>` projected inside the chrome, above the
+    header row, holding search / filter / action controls and the applied-
+    filters row. Kept outside the `role="table"` element so it isn't treated as
+    a table row. Renders only when the consumer projects one.
+  -->
+  <ng-content select="bit-table-toolbar"></ng-content>
+
+  <div
+    role="table"
+    [class.tw-flex]="isFill()"
+    [class.tw-min-h-0]="isFill()"
+    [class.tw-flex-1]="isFill()"
+    [class.tw-flex-col]="isFill()"
+  >
+    @if (hasColumns()) {
+      <!--
+        The header sits above the scroll region (not inside it), so it stays
+        pinned vertically while the body scrolls. Keeping it out of the
+        virtual-scroll viewport also avoids CDK's transformed/absolutely-
+        positioned row content. It's its own horizontal scroll container, synced
+        to the body via `bitSyncScrollLeft` so columns stay aligned and scrolling
+        over the header moves the table too; its background stays put (it's the
+        scroll viewport, not the scrolled content) so it doesn't blank out past
+        the overflow. Its scrollbar is hidden — the body owns the visible one.
+      -->
+      <!--
+        In `list` presentation the header is visually hidden but kept in the
+        accessibility tree (`tw-sr-only`), so assistive tech still announces the
+        column labels for each cell even though a list shows no header row.
+      -->
+      <bit-header-row
+        data-hide-scrollbar
+        class="tw-overflow-x-auto tw-overscroll-x-none"
+        [class.tw-sr-only]="presentation() === 'list'"
+        [(bitSyncScrollLeft)]="horizontalScroll"
+      >
+        <ng-container *ngTemplateOutlet="headerCells"></ng-container>
+      </bit-header-row>
+
+      @if (loading()) {
+        @for (i of skeletonRows(); track i) {
+          <bit-row>
+            <ng-container *ngTemplateOutlet="loadingCells"></ng-container>
+          </bit-row>
+        }
+      } @else if (isEmpty()) {
+        <!--
+          Empty state: no rows render (no data, or all filtered out). Projects
+          `[slot=empty]`; falls back to a default `<bit-no-items>`.
+        -->
+        <ng-content select="[slot=empty]">
+          <bit-no-items>
+            <span slot="title">{{
+              (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
+            }}</span>
+          </bit-no-items>
+        </ng-content>
+      } @else if (isVirtualized()) {
+        <!--
+          Virtualized body: rows and group headers live in one viewport, positioned
+          by `TableVirtualScrollStrategy` from `itemHeights()` (so mixed row/header
+          heights compose). CDK positions content absolutely (no in-flow height), so
+          the viewport needs a bounded height: an explicit `viewportHeight` (capped
+          at `height` rows), or `flex-1` to fill the host in `fill` mode.
+        -->
+        <cdk-virtual-scroll-viewport
+          class="tw-overscroll-x-none"
+          [style.height]="isFill() ? null : viewportHeight()"
+          [class.tw-flex-1]="isFill()"
+          [class.tw-min-h-0]="isFill()"
+          [(bitSyncScrollLeft)]="horizontalScroll"
+        >
+          <ng-container
+            *cdkVirtualFor="
+              let item of renderItems();
+              trackBy: trackRenderItem;
+              templateCacheSize: 0
+            "
+          >
+            <ng-container
+              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: true }"
+            ></ng-container>
+          </ng-container>
+        </cdk-virtual-scroll-viewport>
+      } @else {
+        <!--
+          Non-virtualized body: fills the host in `fill` mode. A row-count cap
+          needs a known row height, so it's virtualization-only; non-virtualized
+          tables grow to content and size via a CSS class if they need a bound.
+          `renderItems()` interleaves group headers and rows (or is just the flat
+          rows when ungrouped); headers size to content here.
+        -->
+        <div
+          class="tw-overflow-auto tw-overscroll-x-none"
+          [class.tw-flex-1]="isFill()"
+          [class.tw-min-h-0]="isFill()"
+          [(bitSyncScrollLeft)]="horizontalScroll"
+        >
+          @for (item of renderItems(); track trackRenderItem($index, item)) {
+            <ng-container
+              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+            ></ng-container>
+          }
+        </div>
+      }
+    } @else {
+      <!--
+        Manual mode. The consumer projects `<bit-header-row>` and `<bit-row>`
+        directly; rows fall back to `grid-auto-columns: 1fr` because no
+        `<bit-column>` registry exists to drive `grid-template-columns`.
+      -->
+      <ng-content select="bit-header-row"></ng-content>
+      <ng-content select="bit-row"></ng-content>
+    }
+  </div>
+
+  <!--
+    Paginator: a `<bit-table-paginator>` projected by the consumer renders here,
+    below the `role="table"` element (so it isn't treated as a row). It owns the
+    page state and reads the filtered count back from the table.
+  -->
+  <ng-content select="bit-table-paginator"></ng-content>
+</div>

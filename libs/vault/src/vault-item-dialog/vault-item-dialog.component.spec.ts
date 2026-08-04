@@ -19,6 +19,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/abstractions/event-collection.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -145,6 +146,10 @@ describe("VaultItemDialogComponent", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         { provide: CipherArchiveService, useValue: mockArchiveService },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -479,26 +484,22 @@ describe("VaultItemDialogComponent", () => {
       });
 
       it("refreshes the cipher from local state and switches to view mode", async () => {
-        const latestCipher = { id: "cipher-id" } as any;
         const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
-        cipherServiceMock.get.mockResolvedValue(latestCipher);
-        cipherServiceMock.decrypt.mockResolvedValue(refreshedCipherView);
+        cipherServiceMock.cipherView$.mockReturnValue(of(refreshedCipherView));
 
         await component.cancel();
 
-        expect(cipherServiceMock.get).toHaveBeenCalledWith("cipher-id", "test-user-id");
-        expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(latestCipher, "test-user-id");
+        expect(cipherServiceMock.cipherView$).toHaveBeenCalledWith("test-user-id", "cipher-id");
         expect(component["cipher"]).toBe(refreshedCipherView);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
-        cipherServiceMock.get.mockResolvedValue(null as any);
+        cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
 
         await component.cancel();
 
-        expect(cipherServiceMock.decrypt).not.toHaveBeenCalled();
         expect(component["cipher"]).toBe(originalCipher);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });

@@ -59,12 +59,16 @@ import { AccountSecurityComponent } from "../auth/popup/settings/account-securit
 import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { AutofillTriageComponent } from "../autofill/popup/autofill-triage/autofill-triage.component";
+import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
+import { DefaultPasswordManagerPromptGuard } from "../autofill/popup/default-password-manager/default-password-manager-prompt.guard";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
+import { HealthComponent } from "../dirt/health/popup/health.component";
+import { canAccessHealth } from "../dirt/health/popup/services/health-access.service";
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -454,7 +458,11 @@ const routes: Routes = [
       },
       {
         path: AuthRoute.Login,
-        canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
+        canActivate: [
+          unauthGuardFn(unauthRouteOverrides),
+          DefaultPasswordManagerPromptGuard,
+          IntroCarouselGuard,
+        ],
         data: {
           pageTitle: {
             key: "loginPageEmailEntryScreenTitle",
@@ -687,6 +695,12 @@ const routes: Routes = [
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
+    path: "default-password-manager-prompt",
+    component: DefaultPasswordManagerPromptComponent,
+    canActivate: [],
+    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+  },
+  {
     path: "intro-carousel",
     component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [],
@@ -758,6 +772,12 @@ const routes: Routes = [
         path: "send",
         component: SendV2Component,
         canActivate: [authGuard],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "health",
+        component: HealthComponent,
+        canActivate: [authGuard, canAccessHealth],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],

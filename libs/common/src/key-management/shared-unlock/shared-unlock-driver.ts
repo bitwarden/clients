@@ -16,8 +16,6 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
-import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
-
 function fromSdkUserId(userId: UserId): TSUserId {
   return uuidAsString(userId) as TSUserId;
 }
@@ -35,11 +33,12 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
-    private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private isEnabled: (userId: TSUserId) => Promise<boolean>,
+    private onExternalUnlock?: (userId: TSUserId) => void,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
-    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
       return;
     }
 
@@ -47,7 +46,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
-    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
       return;
     }
 
@@ -55,6 +54,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );
+    this.onExternalUnlock?.(fromSdkUserId(user_id));
   }
 
   async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {

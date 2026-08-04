@@ -21,6 +21,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   // Stale entries (roots whose hosts left the DOM) are harmless — querying them
   // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
+  private isOwnedShadowHost: (host: Element) => boolean = () => false;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -62,7 +63,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   query<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
     ignoredTreeWalkerNodesOverride?: Set<string>,
@@ -115,8 +116,14 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
     return mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
-      return root instanceof ShadowRoot;
+      // Ignore our own injected shadow hosts — observing them churns on the menu's own styling.
+      return root instanceof ShadowRoot && !this.isOwnedShadowHost(root.host);
     });
+  };
+
+  /** Identity predicate for the extension's own injected shadow hosts, excluded from scanning/observation. */
+  setOwnedShadowHostPredicate = (predicate: (host: Element) => boolean): void => {
+    this.isOwnedShadowHost = predicate;
   };
 
   /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
@@ -393,7 +400,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       return false;
     }
     // Host check — `querySelectorAll("*")` excludes the scope element.
-    if (subtree instanceof Element) {
+    if (nodeIsElement(subtree)) {
       const root = this.getShadowRoot(subtree);
       if (root) {
         if (!this.knownShadowRoots.has(root)) {
@@ -486,6 +493,10 @@ export class DomQueryService implements DomQueryServiceInterface {
       return null;
     }
 
+    if (this.isOwnedShadowHost(node)) {
+      return null;
+    }
+
     // Fast path first: element.shadowRoot is cheap and works on any element with
     // an open root.
     if (node.shadowRoot) {
@@ -524,7 +535,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   private queryAllTreeWalkerNodes<T>(
     rootNode: Node,
-    filterCallback: CallableFunction,
+    filterCallback: (element: Element) => boolean,
     ignoredTreeWalkerNodes: Set<string>,
     mutationObserver?: MutationObserver,
   ): T[] {
@@ -554,7 +565,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
     treeWalkerQueryResults: T[],
-    filterCallback: CallableFunction,
+    filterCallback: (element: Element) => boolean,
     ignoredTreeWalkerNodes: Set<string>,
     mutationObserver?: MutationObserver,
   ) {
@@ -563,10 +574,22 @@ export class DomQueryService implements DomQueryServiceInterface {
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
-    let currentNode: Node | null = treeWalker?.currentNode;
 
-    while (currentNode) {
-      if (filterCallback(currentNode)) {
+    do {
+      const currentNode: Node | Element | null = treeWalker.currentNode;
+
+      // `currentNode` can be one of two things: the root node (which is a `Node`),
+      // or an `Element` (due to the `NodeFilter.SHOW_ELEMENT`). Therefore,
+      // `currentNode` is an `Element` if it is not the root node, or if it
+      // is an element.
+      let currentElement: Element;
+      if (currentNode != treeWalker.root || nodeIsElement(currentNode)) {
+        currentElement = currentNode as Element;
+      } else {
+        continue;
+      }
+
+      if (filterCallback(currentElement)) {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
@@ -574,9 +597,8 @@ export class DomQueryService implements DomQueryServiceInterface {
       // Fast path: element.shadowRoot for open roots, free on any element type.
       // Fall back to the extension API (chrome.dom.openOrClosedShadowRoot) for
       // closed roots on any host element.
-      if (this.pageContainsShadowDom && nodeIsElement(currentNode)) {
-        const el = currentNode as Element;
-        let nodeShadowRoot: ShadowRoot | null = el.shadowRoot;
+      if (this.pageContainsShadowDom) {
+        let nodeShadowRoot: ShadowRoot | null = currentElement.shadowRoot;
         if (!nodeShadowRoot) {
           nodeShadowRoot = this.getShadowRoot(currentNode);
         }
@@ -599,8 +621,6 @@ export class DomQueryService implements DomQueryServiceInterface {
           );
         }
       }
-
-      currentNode = treeWalker?.nextNode();
-    }
+    } while (treeWalker.nextNode());
   }
 }

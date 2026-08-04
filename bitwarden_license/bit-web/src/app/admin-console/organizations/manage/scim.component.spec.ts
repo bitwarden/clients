@@ -19,6 +19,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+import { ScimBannerService } from "./scim-banner.service";
 import { ScimComponent } from "./scim.component";
 
 describe("ScimComponent", () => {
@@ -33,6 +34,7 @@ describe("ScimComponent", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let scimBannerService: MockProxy<ScimBannerService>;
   let mockEnv: MockProxy<Environment>;
   let environment$: BehaviorSubject<Environment>;
 
@@ -59,6 +61,7 @@ describe("ScimComponent", () => {
     environmentService = mock<EnvironmentService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    scimBannerService = mock<ScimBannerService>();
 
     mockEnv = mock<Environment>();
     mockEnv.getScimUrl.mockReturnValue(scimUrl);
@@ -82,6 +85,7 @@ describe("ScimComponent", () => {
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ScimBannerService, useValue: scimBannerService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

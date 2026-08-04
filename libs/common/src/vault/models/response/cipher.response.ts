@@ -60,6 +60,7 @@ export class CipherResponse extends BaseResponse {
    * and cipher-open gate.
    */
   partialData: string | null = null;
+  data?: string;
 
   constructor(response: any) {
     super(response);
@@ -141,6 +142,7 @@ export class CipherResponse extends BaseResponse {
 
     this.reprompt = this.getResponseProperty("Reprompt") || CipherRepromptType.None;
     this.key = this.getResponseProperty("Key") || null;
+    this.data = this.getResponseProperty("Data");
 
     // PAM gated rows ship a `partialData` JSON blob in place of the sensitive
     // fields. Keep the raw string as the gating marker, and lift the encrypted

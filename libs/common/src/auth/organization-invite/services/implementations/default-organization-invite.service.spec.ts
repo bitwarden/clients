@@ -1,0 +1,615 @@
+import { MockProxy, mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
+
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutService } from "@bitwarden/auth/common";
+import { newGuid } from "@bitwarden/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
+
+import { FakeGlobalStateProvider } from "../../../../../spec";
+import { ApiService } from "../../../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../../../admin-console/models/domain/policy";
+import { ResetPasswordPolicyOptions } from "../../../../admin-console/models/domain/reset-password-policy-options";
+import { OrganizationKeysResponse } from "../../../../admin-console/models/response/organization-keys.response";
+import { FeatureFlag } from "../../../../enums/feature-flag.enum";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../../../platform/abstractions/config/config.service";
+import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { Utils } from "../../../../platform/misc/utils";
+import { OrgKey } from "../../../../types/key";
+import { DeepLinkRedirectService } from "../../../deep-link-redirect";
+import { OrganizationInvite } from "../../models/organization-invite";
+
+import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
+
+describe("DefaultOrganizationInviteService", () => {
+  let sut: DefaultOrganizationInviteService;
+  let apiService: MockProxy<ApiService>;
+  let logoutService: MockProxy<LogoutService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
+  let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
+  let policyService: MockProxy<PolicyService>;
+  let logService: MockProxy<LogService>;
+  let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
+  let organizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let i18nService: MockProxy<I18nService>;
+  let globalStateProvider: FakeGlobalStateProvider;
+  let configService: MockProxy<ConfigService>;
+  let deepLinkRedirectService: MockProxy<DeepLinkRedirectService>;
+
+  beforeEach(() => {
+    apiService = mock();
+    logoutService = mock();
+    keyService = mock();
+    encryptService = mock();
+    policyApiService = mock();
+    policyService = mock();
+    logService = mock();
+    organizationApiService = mock();
+    organizationUserApiService = mock();
+    i18nService = mock();
+    globalStateProvider = new FakeGlobalStateProvider();
+    configService = mock();
+    deepLinkRedirectService = mock();
+
+    sut = new DefaultOrganizationInviteService(
+      apiService,
+      logoutService,
+      keyService,
+      encryptService,
+      policyApiService,
+      policyService,
+      logService,
+      organizationApiService,
+      organizationUserApiService,
+      i18nService,
+      globalStateProvider,
+      configService,
+      deepLinkRedirectService,
+    );
+  });
+
+  describe("getOrganizationInvite", () => {
+    it("returns null when no invite is stored", async () => {
+      const result = await sut.getOrganizationInvite();
+      expect(result).toBeNull();
+    });
+
+    it("returns the stored invite", async () => {
+      const invite = createOrgInvite();
+      await sut.setOrganizationInvite(invite);
+
+      const result = await sut.getOrganizationInvite();
+      expect(result).toEqual(invite);
+    });
+  });
+
+  describe("setOrganizationInvite", () => {
+    it("stores the provided invite", async () => {
+      const invite = createOrgInvite();
+      await sut.setOrganizationInvite(invite);
+
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toEqual(invite);
+    });
+  });
+
+  describe("clearOrganizationInvite", () => {
+    it("clears any stored invite", async () => {
+      const invite = createOrgInvite();
+      await sut.setOrganizationInvite(invite);
+
+      await sut.clearOrganizationInvite();
+
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
+    });
+  });
+
+  describe("validateAndAcceptInvite", () => {
+    const activeUserId = newGuid() as UserId;
+    // Callers pass their current page URL so the deep-link guard can replay
+    // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
+    const acceptOrgUrl = "/accept-organization?token=xyz&email=user@example.com";
+
+    it("initializes an organization when given an invite where initOrganization is true", async () => {
+      const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "string" } as EncString,
+        mockOrgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        "orgPublicKey",
+        { encryptedString: "string" } as EncString,
+      ]);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      const invite = createOrgInvite({ initOrganization: true });
+
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(true);
+      expect(organizationUserApiService.postOrganizationUserAcceptInit).toHaveBeenCalled();
+      expect(keyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
+      expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
+    });
+
+    it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "string" } as EncString,
+        "orgPrivateKey" as unknown as OrgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        "orgPublicKey",
+        { encryptedString: "string" } as EncString,
+      ]);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await sut.validateAndAcceptInvite(
+        createOrgInvite({ initOrganization: true }),
+        activeUserId,
+        acceptOrgUrl,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+    });
+
+    it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+      keyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "string" } as EncString,
+        "orgPrivateKey" as unknown as OrgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        "orgPublicKey",
+        { encryptedString: "string" } as EncString,
+      ]);
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await sut.validateAndAcceptInvite(
+        createOrgInvite({ initOrganization: true }),
+        activeUserId,
+        acceptOrgUrl,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
+    });
+
+    it("stashes + persists + logs out on the paste-URL MP-policy detour", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        {
+          type: PolicyType.MasterPassword,
+          enabled: true,
+        } as Policy,
+      ]);
+
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(false);
+      expect(logoutService.logout).toHaveBeenCalled();
+      expect(deepLinkRedirectService.persistPostLoginRedirectUrl).toHaveBeenCalledWith(
+        acceptOrgUrl,
+      );
+      // Persist must happen before logout so any state-clearing side effects of logout
+      // cannot wipe the URL the deep-link guard will replay after re-auth.
+      expect(
+        deepLinkRedirectService.persistPostLoginRedirectUrl.mock.invocationCallOrder[0],
+      ).toBeLessThan(logoutService.logout.mock.invocationCallOrder[0]);
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toEqual(invite);
+    });
+
+    it("clears the stored invite when a master password policy check is required but the stored invite doesn't match the provided one", async () => {
+      const storedInvite = createOrgInvite({ email: "wrongemail@example.com" });
+      const providedInvite = createOrgInvite();
+      await sut.setOrganizationInvite(storedInvite);
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        {
+          type: PolicyType.MasterPassword,
+          enabled: true,
+        } as Policy,
+      ]);
+
+      const result = await sut.validateAndAcceptInvite(providedInvite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(false);
+      expect(logoutService.logout).toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toEqual(providedInvite);
+    });
+
+    it("accepts the invite when the organization doesn't have a master password policy", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue([]);
+
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(true);
+      expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
+      expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      expect(logoutService.logout).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
+    });
+
+    it("fetches policies once when accepting an invite with non-MP policies and no stored invite", async () => {
+      // Regression: the email-mismatch guard in masterPasswordPolicyCheckRequired
+      // ran clearOrganizationInvite when storedInvite was null, wiping the
+      // freshly-populated policyCache and forcing resetPasswordEnrollRequired to
+      // re-fetch the same policies during the same accept() call.
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        { type: PolicyType.SingleOrg, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+
+      await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("accepts the invite when the org has a master password policy, but the user has already passed it and autoenroll is not enabled", async () => {
+      const invite = createOrgInvite();
+      // Pre-store the invite to indicate the user has already passed the MP policy check.
+      await sut.setOrganizationInvite(invite);
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        {
+          type: PolicyType.MasterPassword,
+          enabled: true,
+        } as Policy,
+      ]);
+
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        {
+          autoEnrollEnabled: false,
+        } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(true);
+      expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
+      expect(logoutService.logout).not.toHaveBeenCalled();
+    });
+
+    it("accepts the invite and enrolls when autoenroll is enabled", async () => {
+      const invite = createOrgInvite();
+      // Pre-store the invite to indicate the user has already passed the MP policy check.
+      await sut.setOrganizationInvite(invite);
+      policyApiService.getPoliciesByToken.mockResolvedValue([
+        {
+          type: PolicyType.MasterPassword,
+          enabled: true,
+        } as Policy,
+      ]);
+      organizationApiService.getKeys.mockResolvedValue(
+        new OrganizationKeysResponse({
+          privateKey: "privateKey",
+          publicKey: "publicKey",
+        }),
+      );
+      keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+        encryptedString: "encryptedString",
+      } as EncString);
+
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        {
+          autoEnrollEnabled: true,
+        } as ResetPasswordPolicyOptions,
+        true,
+      ]);
+
+      const result = await sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl);
+
+      expect(result).toBe(true);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        { key: "userKey" },
+        Utils.fromB64ToArray("publicKey"),
+      );
+      expect(organizationUserApiService.postOrganizationUserAccept).toHaveBeenCalled();
+      expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      const stored = await sut.getOrganizationInvite();
+      expect(stored).toBeNull();
+      expect(logoutService.logout).not.toHaveBeenCalled();
+    });
+
+    describe("acceptAndInitOrganization encryption guards", () => {
+      const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
+      let invite: OrganizationInvite;
+
+      beforeEach(() => {
+        invite = createOrgInvite({ initOrganization: true });
+        keyService.makeOrgKey.mockResolvedValue([
+          { encryptedString: "string" } as EncString,
+          mockOrgKey,
+        ]);
+        keyService.makeKeyPair.mockResolvedValue([
+          "orgPublicKey",
+          { encryptedString: "string" } as EncString,
+        ]);
+        encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      });
+
+      it("throws when the encrypted org key has a null encryptedString", async () => {
+        keyService.makeOrgKey.mockResolvedValue([
+          { encryptedString: null } as unknown as EncString,
+          mockOrgKey,
+        ]);
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encrypted org private key has a null encryptedString", async () => {
+        keyService.makeKeyPair.mockResolvedValue([
+          "orgPublicKey",
+          { encryptedString: null } as unknown as EncString,
+        ]);
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encrypted default collection has a null encryptedString", async () => {
+        encryptService.encryptString.mockResolvedValue({
+          encryptedString: null,
+        } as unknown as EncString);
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt organization init data.");
+        expect(organizationUserApiService.postOrganizationUserAcceptInit).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("reset password enrollment errors", () => {
+      let invite: OrganizationInvite;
+
+      beforeEach(async () => {
+        invite = createOrgInvite();
+        // Pre-store the invite so the MP policy check is bypassed and we reach the accept path.
+        await sut.setOrganizationInvite(invite);
+        policyApiService.getPoliciesByToken.mockResolvedValue([
+          { type: PolicyType.MasterPassword, enabled: true } as Policy,
+        ]);
+        policyService.getResetPasswordPolicyOptions.mockReturnValue([
+          { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
+          true,
+        ]);
+        organizationApiService.getKeys.mockResolvedValue(
+          new OrganizationKeysResponse({ privateKey: "privateKey", publicKey: "publicKey" }),
+        );
+        keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+          encryptedString: "encryptedString",
+        } as EncString);
+      });
+
+      it("throws when organization keys cannot be fetched", async () => {
+        organizationApiService.getKeys.mockResolvedValue(null as any);
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow();
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordOrgKeysError");
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+
+      it("throws when the user key is null", async () => {
+        keyService.userKey$.mockReturnValue(new BehaviorSubject(null as any));
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("User key is required to enroll in password reset.");
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+
+      it("throws when the encapsulated user key has a null encryptedString", async () => {
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+          encryptedString: null,
+        } as unknown as EncString);
+
+        await expect(
+          sut.validateAndAcceptInvite(invite, activeUserId, acceptOrgUrl),
+        ).rejects.toThrow("Failed to encrypt user key for password reset enrollment.");
+        expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("getOrgPoliciesForInvite", () => {
+    it("returns policies on first fetch", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+      const result = await sut.getOrgPoliciesForInvite(invite);
+
+      expect(result).toEqual(policies);
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
+        invite.organizationId,
+        invite.token,
+        invite.email,
+        invite.organizationUserId,
+      );
+    });
+
+    it("returns undefined and logs when the policy fetch throws", async () => {
+      const invite = createOrgInvite();
+      const error = new Error("fetch failed");
+      policyApiService.getPoliciesByToken.mockRejectedValue(error);
+
+      const result = await sut.getOrgPoliciesForInvite(invite);
+
+      expect(result).toBeUndefined();
+      expect(logService.error).toHaveBeenCalledWith(error);
+    });
+
+    it("returns the cached result on the second call with the same invite token", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears the cache on setOrganizationInvite so the next fetch goes to the API", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.setOrganizationInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("clears the cache on clearOrganizationInvite so the next fetch goes to the API", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.clearOrganizationInvite();
+      await sut.getOrgPoliciesForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("scopes the cache by invite token so distinct invites each hit the API", async () => {
+      const inviteA = createOrgInvite({ token: "tokenA" });
+      const inviteB = createOrgInvite({ token: "tokenB" });
+      policyApiService.getPoliciesByToken.mockResolvedValue([]);
+
+      await sut.getOrgPoliciesForInvite(inviteA);
+      await sut.getOrgPoliciesForInvite(inviteB);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not cache when the API returns null so subsequent calls retry", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
+
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("getMasterPasswordPolicyOptionsForInvite", () => {
+    it("derives MP options from the invite's policies", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      const expectedOptions = { minLength: 12 } as MasterPasswordPolicyOptions;
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(expectedOptions);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBe(expectedOptions);
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).toHaveBeenCalledWith(
+        policies,
+      );
+    });
+
+    it("returns undefined when the underlying policy fetch throws", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockRejectedValue(new Error("fetch failed"));
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the underlying policy fetch returns null without throwing", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the org has no MP policy (combiner returns undefined)", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.SingleOrg, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(undefined);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("reuses the cached policy list across repeat calls for the same invite", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+        {} as MasterPasswordPolicyOptions,
+      );
+
+      await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+      await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+
+function createOrgInvite(custom: Partial<OrganizationInvite> = {}): OrganizationInvite {
+  return new OrganizationInvite({
+    email: "user@example.com",
+    initOrganization: false,
+    orgUserHasExistingUser: false,
+    organizationId: "organizationId",
+    organizationName: "organizationName",
+    organizationUserId: "organizationUserId",
+    token: "token",
+    ...custom,
+  });
+}

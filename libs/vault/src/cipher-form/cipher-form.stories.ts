@@ -22,7 +22,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -34,6 +35,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ItemModule, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -231,6 +233,7 @@ export default {
           provide: PlatformUtilsService,
           useValue: {
             getClientType: () => ClientType.Browser,
+            getDevice: () => DeviceType.ChromeExtension,
           },
         },
         {
@@ -295,6 +298,9 @@ export default {
     config: {
       description: "The configuration object for the form.",
     },
+  },
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
   },
 } as Meta;
 

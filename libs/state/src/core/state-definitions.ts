@@ -116,6 +116,16 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
+  web: "disk-local",
+});
 
 // Platform
 
@@ -231,20 +241,22 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_BROWSER_DEFAULT_PASSWORD_MANAGER_PROMPT = new StateDefinition(
+  "vaultBrowserDefaultPasswordManagerPrompt",
+  "disk",
+);
 export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
   "vaultAutofillSimplifiedIcon",
   "disk",
 );
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
+  "vaultOrgUserNotification",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
-export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
-  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",

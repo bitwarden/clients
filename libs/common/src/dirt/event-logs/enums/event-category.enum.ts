@@ -94,6 +94,8 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_SelfRevoked,
     EventType.OrganizationUser_Revoked_TwoFactorNonCompliance,
     EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance,
+    EventType.OrganizationUser_NotificationBannerActionClicked,
+    EventType.OrganizationUser_AdminChangedEmail,
   ],
   [EventCategory.OrganizationEvents]: [
     EventType.Organization_Updated,

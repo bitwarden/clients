@@ -1,18 +1,17 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import {
+  Invite,
+  OrganizationInviteLink as SdkOrganizationInviteLink,
+} from "@bitwarden/sdk-internal";
 import { FakeActiveUserAccessor, FakeStateProvider } from "@bitwarden/state-test-utils";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
@@ -25,13 +24,7 @@ import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-
 import { DefaultOrganizationInviteLinkService } from "./default-organization-invite-link.service";
 
 const mockUserId = "user-1" as UserId;
-const mockOrgId = "org-1" as OrganizationId;
-
-function makeKey(keyB64 = "dGVzdGtleWJ5dGVzZm9ydGVzdGluZw=="): SymmetricCryptoKey {
-  const key = mock<SymmetricCryptoKey>();
-  key.keyB64 = keyB64;
-  return key;
-}
+const mockOrgId = "12345678-1234-1234-1234-123456789012" as OrganizationId;
 
 function makeResponseModel(
   overrides: Partial<OrganizationInviteLinkResponseModel> = {},
@@ -40,8 +33,8 @@ function makeResponseModel(
   resp.id = "link-id";
   resp.code = "abc123";
   resp.allowedDomains = ["example.com"];
-  resp.encryptedInviteKey = "2.enc=|iv=|mac=";
-  resp.encryptedOrgKey = undefined;
+  resp.invite = "sealed-envelope-base64" as Invite;
+  resp.supportsConfirmation = true;
   resp.organizationId = mockOrgId;
   resp.creationDate = "2024-01-01T00:00:00Z";
   return Object.assign(resp, overrides);
@@ -52,19 +45,34 @@ function makeInviteLink(overrides: Partial<OrganizationInviteLink> = {}): Organi
   return Object.assign(link, overrides);
 }
 
+function makeSdkInviteLink(
+  overrides: Partial<SdkOrganizationInviteLink> = {},
+): SdkOrganizationInviteLink {
+  return {
+    id: "link-id",
+    code: "sdk-code",
+    organizationId: mockOrgId,
+    allowedDomains: ["example.com"],
+    invite: "sealed-envelope-base64" as Invite,
+    supportsConfirmation: true,
+    creationDate: "2024-01-01T00:00:00Z",
+    ...overrides,
+  } as SdkOrganizationInviteLink;
+}
+
 describe("DefaultOrganizationInviteLinkService", () => {
   let sut: DefaultOrganizationInviteLinkService;
-  let keyService: MockProxy<KeyService>;
-  let encryptService: MockProxy<EncryptService>;
-  let keyGenerationService: MockProxy<KeyGenerationService>;
   let apiService: MockProxy<OrganizationInviteLinkApiService>;
   let stateProvider: FakeStateProvider;
   let environmentService: MockProxy<EnvironmentService>;
+  let sdkService: MockSdkService;
+  let inviteLinkClient: {
+    create_invite_link: jest.Mock;
+    refresh_invite_link: jest.Mock;
+    get_invite_secret: jest.Mock;
+  };
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
-    encryptService = mock<EncryptService>();
-    keyGenerationService = mock<KeyGenerationService>();
     apiService = mock<OrganizationInviteLinkApiService>();
     environmentService = mock<EnvironmentService>();
     const mockEnvironment = mock<Environment>();
@@ -78,13 +86,20 @@ describe("DefaultOrganizationInviteLinkService", () => {
     const accessor = new FakeActiveUserAccessor(mockUserId);
     stateProvider = new FakeStateProvider(accessor);
 
+    sdkService = new MockSdkService();
+    const sdkClient = sdkService.simulate.userLogin(mockUserId);
+    inviteLinkClient = {
+      create_invite_link: jest.fn().mockResolvedValue(makeSdkInviteLink()),
+      refresh_invite_link: jest.fn().mockResolvedValue(makeSdkInviteLink()),
+      get_invite_secret: jest.fn().mockReturnValue("unwrapped=="),
+    };
+    (sdkClient as any).invite_link = jest.fn().mockReturnValue(inviteLinkClient);
+
     sut = new DefaultOrganizationInviteLinkService(
-      keyService,
-      encryptService,
-      keyGenerationService,
       apiService,
       stateProvider,
       environmentService,
+      sdkService,
     );
   });
 
@@ -159,58 +174,61 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("createInviteLink", () => {
-    it("generates key, wraps with orgKey, calls API, and caches result", async () => {
-      const orgKey = makeKey("orgkeyB64==");
-      const encryptedKey = mock<EncString>();
-      (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-      const response = makeResponseModel({ code: "code1", allowedDomains: ["bitwarden.com"] });
+    it("generates the invite link via SDK and caches the result", async () => {
+      const sdkInviteLink = makeSdkInviteLink({
+        code: "code1",
+        allowedDomains: ["bitwarden.com"],
+      });
+      inviteLinkClient.create_invite_link.mockResolvedValue(sdkInviteLink);
 
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-      apiService.create.mockResolvedValue(response);
+      await sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"], true);
 
-      await sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"]);
-
-      expect(apiService.create).toHaveBeenCalledWith(
+      expect(inviteLinkClient.create_invite_link).toHaveBeenCalledWith(
         mockOrgId,
-        expect.objectContaining({ allowedDomains: ["bitwarden.com"] }),
+        ["bitwarden.com"],
+        true,
       );
 
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
+      expect(stored).toEqual({
+        [mockOrgId]: expect.objectContaining({
+          id: "link-id",
+          code: "code1",
+          organizationId: mockOrgId,
+          allowedDomains: ["bitwarden.com"],
+          invite: "sealed-envelope-base64",
+          supportsConfirmation: true,
+          creationDate: "2024-01-01T00:00:00Z",
+        }),
+      });
     });
 
     it("throws when no domains are provided", async () => {
-      const orgKey = makeKey();
-      const encryptedKey = mock<EncString>();
-      (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-
-      await expect(sut.createInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow();
+      await expect(sut.createInviteLink(mockUserId, mockOrgId, [], false)).rejects.toThrow(
+        "At least one allowed domain is required.",
+      );
     });
 
-    it("throws when orgKey is missing", async () => {
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
+    it("surfaces SDK errors from invite link generation", async () => {
+      inviteLinkClient.create_invite_link.mockRejectedValue(new Error("sdk crypto failure"));
 
-      await expect(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])).rejects.toThrow();
+      await expect(
+        sut.createInviteLink(mockUserId, mockOrgId, ["example.com"], true),
+      ).rejects.toThrow("sdk crypto failure");
     });
   });
 
-  describe("updateInviteLink", () => {
-    it("calls API update with new domains and caches result", async () => {
+  describe("updateAllowedDomains", () => {
+    it("calls apiService.updateAllowedDomains with new domains and caches result", async () => {
       const response = makeResponseModel({ allowedDomains: ["updated.com"] });
-      apiService.update.mockResolvedValue(response);
+      apiService.updateAllowedDomains.mockResolvedValue(response);
 
-      await sut.updateInviteLink(mockUserId, mockOrgId, ["updated.com"]);
+      await sut.updateAllowedDomains(mockUserId, mockOrgId, ["updated.com"]);
 
-      expect(apiService.update).toHaveBeenCalledWith(
+      expect(inviteLinkClient.create_invite_link).not.toHaveBeenCalled();
+      expect(apiService.updateAllowedDomains).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({ allowedDomains: ["updated.com"] }),
       );
@@ -222,69 +240,70 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
 
     it("throws when no domains are provided", async () => {
-      // The throw happens in OrganizationInviteLinkUpdateRequest constructor before the API call
-      await expect(sut.updateInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow(
+      await expect(sut.updateAllowedDomains(mockUserId, mockOrgId, [])).rejects.toThrow(
         "At least one allowed domain is required.",
       );
     });
   });
 
   describe("refreshInviteLink", () => {
-    it("generates new key, calls apiService.refresh, and caches state", async () => {
-      const rawKey = makeKey("refreshed==");
-      const orgKey = makeKey();
-      const encryptedKey = mock<EncString>();
-      (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-      const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
+    it("generates a new invite link via SDK and caches state", async () => {
+      const sdkInviteLink = makeSdkInviteLink({ code: "refreshed", supportsConfirmation: false });
+      inviteLinkClient.refresh_invite_link.mockResolvedValue(sdkInviteLink);
 
-      keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-      apiService.refresh.mockResolvedValue(response);
+      await sut.refreshInviteLink(mockUserId, mockOrgId, false);
 
-      await sut.refreshInviteLink(mockUserId, mockOrgId);
-
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(256);
-      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(rawKey, orgKey);
-      expect(apiService.refresh).toHaveBeenCalledWith(
-        mockOrgId,
-        expect.objectContaining({ encryptedInviteKey: "2.enc=|iv=|mac=" }),
-      );
+      expect(inviteLinkClient.refresh_invite_link).toHaveBeenCalledWith(mockOrgId, false);
 
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
+      expect(stored).toEqual({
+        [mockOrgId]: expect.objectContaining({
+          id: "link-id",
+          code: "refreshed",
+          organizationId: mockOrgId,
+          allowedDomains: ["example.com"],
+          invite: "sealed-envelope-base64",
+          supportsConfirmation: false,
+          creationDate: "2024-01-01T00:00:00Z",
+        }),
+      });
     });
 
-    it("errors when orgKey is null", async () => {
-      const rawKey = makeKey();
-      keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
+    it("passes supportsConfirmation to the SDK when provided", async () => {
+      inviteLinkClient.refresh_invite_link.mockResolvedValue(makeSdkInviteLink());
 
-      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
-        `Organization key not found for org ${mockOrgId}`,
+      await sut.refreshInviteLink(mockUserId, mockOrgId, true);
+
+      expect(inviteLinkClient.refresh_invite_link).toHaveBeenCalledWith(mockOrgId, true);
+    });
+
+    it("surfaces SDK errors from invite link generation", async () => {
+      inviteLinkClient.refresh_invite_link.mockRejectedValue(new Error("sdk crypto failure"));
+
+      await expect(sut.refreshInviteLink(mockUserId, mockOrgId, false)).rejects.toThrow(
+        "sdk crypto failure",
       );
     });
   });
 
   describe("reconstructUrl", () => {
-    it("unwraps key and builds URL from the provided invite link", async () => {
+    it("unseals the invite secret and builds URL from the provided invite link", async () => {
       const inviteLink = makeInviteLink({
         code: "reconstruct",
-        encryptedInviteKey: "2.enc=|iv=|mac=",
+        invite: "sealed-envelope-base64" as Invite,
       });
-
-      const orgKey = makeKey();
-      const rawKey = makeKey("unwrapped==");
-
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
 
       const url = await firstValueFrom(sut.reconstructUrl(mockUserId, mockOrgId, inviteLink));
 
-      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(expect.any(EncString), orgKey);
-      expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
+      expect(inviteLinkClient.get_invite_secret).toHaveBeenCalledWith(
+        mockOrgId,
+        "sealed-envelope-base64",
+      );
+      expect(url).toBe(
+        `https://vault.bitwarden.com/#/join/${mockOrgId}/reconstruct?key=unwrapped==`,
+      );
     });
   });
 });

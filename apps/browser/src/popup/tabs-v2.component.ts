@@ -11,13 +11,16 @@ import {
   SendActive,
   SettingsInactive,
   SettingsActive,
+  HealthInactive,
+  HealthActive,
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 
-import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
+import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,10 +31,12 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
 })
 export class TabsV2Component {
   private sendPolicyService = inject(SendPolicyService);
+  private healthAccessService = inject(HealthAccessService);
 
-  private hasActiveBadges$ = this.accountService.activeAccount$
-    .pipe(getUserId)
-    .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private hasActiveBadges$ = this.userId$.pipe(
+    switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)),
+  );
 
   private showSettingsBerry$ = combineLatest([
     this.hasActiveBadges$,
@@ -42,12 +47,21 @@ export class TabsV2Component {
     map((disableSend) => !disableSend),
   );
 
-  protected navButtons$: Observable<NavButton[]> = combineLatest([
+  private healthEnabled$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthEnabled$(userId)),
+  );
+  private healthTabOpened$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthHasBeenOpened$(userId)),
+  );
+
+  protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
+    this.healthEnabled$.pipe(startWith(false)),
+    this.healthTabOpened$.pipe(startWith(true)),
   ]).pipe(
-    map(([showBerry, sendEnabled]) => {
-      const buttons: NavButton[] = [
+    map(([showBerry, sendEnabled, healthEnabled, healthTabOpened]) => {
+      const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
           page: "/tabs/vault",
@@ -67,7 +81,18 @@ export class TabsV2Component {
                 page: "/tabs/send",
                 icon: SendInactive,
                 iconActive: SendActive,
-              } as NavButton,
+              } as BottomNavigationButton,
+            ]
+          : []),
+        ...(healthEnabled
+          ? [
+              {
+                label: "health",
+                page: "/tabs/health",
+                icon: HealthInactive,
+                iconActive: HealthActive,
+                showBerry: !healthTabOpened,
+              } as BottomNavigationButton,
             ]
           : []),
         {

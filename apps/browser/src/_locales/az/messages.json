@@ -614,6 +614,23 @@
   "upgradeToUseArchive": {
     "message": "Arxivi istifadə etmək üçün premium üzvlük tələb olunur."
   },
+  "archiveItemsPlural": {
+    "message": "$NUM$ elementi arxivlə",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Elementi arxivlə",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Arxivləndikdən sonra, bu elementlər axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
   "itemRestored": {
     "message": "Element bərpa edildi"
   },
@@ -1071,6 +1088,10 @@
   "passwordCopied": {
     "message": "Parol kopyalandı"
   },
+  "passwordAnnounceSpace": {
+    "message": "boşluq",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1346,17 +1367,17 @@
   "additionalOptions": {
     "message": "Əlavə seçimlər"
   },
-  "enableFillAssist": {
-    "message": "Doldurma köməyini istifadə et"
+  "fillAssistActiveNotice": {
+    "message": "Bu səhifədə Avto-doldurma, \"Doldurma Köməyi\"ni istifadə edir."
   },
-  "turnOnFillAssist": {
-    "message": "Doldurma köməyini işə sal"
+  "activateFillAssist": {
+    "message": "\"Doldurma Köməyi\"ni işə sal"
   },
-  "enableFillAssistDescription": {
-    "message": "Doldurma köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır. Bu özəlliyi istifadə etdiyiniz zaman heç bir veri yığılmır və ya saxlanılmır."
+  "activateFillAssistDescription": {
+    "message": "Doldurma Köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır. Bu özəlliyi istifadə etdiyiniz zaman heç bir veri yığılmır və ya saxlanılmır."
   },
-  "aboutFillAssist": {
-    "message": "Doldurma köməyi barədə"
+  "aboutFillAssistLabel": {
+    "message": "Doldurma Köməyi barədə"
   },
   "enableContextMenuItem": {
     "message": "Konteks menyu seçimlərini göstər"
@@ -1434,7 +1455,7 @@
   "accountRestricted": {
     "message": "Hesab məhdudlaşdırıldı"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyuşmur."
   },
   "warning": {
@@ -1448,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "Seyfi xaricə köçürməyi təsdiqlə"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Bu xaricə köçürmədəki seyf veriləriniz şifrələnməmiş formatdadır. Bu xaricə köçürülmüş faylı güvənli olmayan kanallar (e-poçt kimi) üzərində saxlamamalı və ya göndərməməlisiniz. İşiniz bitdikdən sonra faylı dərhal silin."
   },
   "encExportKeyWarningDesc": {
@@ -1462,6 +1483,24 @@
   },
   "shared": {
     "message": "Paylaşılan"
+  },
+  "sharedFolder": {
+    "message": "Paylaşılan qovluq"
+  },
+  "sharedFolders": {
+    "message": "Paylaşılan qovluqlar"
+  },
+  "myFolder": {
+    "message": "Qovluğum"
+  },
+  "myFolders": {
+    "message": "Qovluqlarım"
+  },
+  "addSharedFolder": {
+    "message": "Paylaşılan qovluq əlavə et"
+  },
+  "newSharedFolder": {
+    "message": "Yeni paylaşılan qovluq"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business, bir təşkilatı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza imkan verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət edin."
@@ -1551,6 +1590,12 @@
   "file": {
     "message": "Fayl"
   },
+  "photo": {
+    "message": "Foto"
+  },
+  "unknown": {
+    "message": "Bilinməyən"
+  },
   "fileToShare": {
     "message": "Paylaşılacaq fayl"
   },
@@ -1587,8 +1632,8 @@
   "premiumSignUpAndGet": {
     "message": "Premium üzvlük üçün qeydiyyatdan keçin və bunları əldə edin:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş anbar sahəsi"
+  "premiumSignUpStorage": {
+    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
   },
   "premiumSignUpStorageV2": {
     "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
@@ -1614,17 +1659,17 @@
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Seyfinizdəki girişlər üçün TOTP doğrulama kodu (2FA) yaradıcısı."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Prioritet müştəri dəstəyi."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Bütün gələcək premium özəlliklər. Daha çoxu tezliklə!"
+  "premiumSignUpFuture": {
+    "message": "Bütün gələcək Premium özəlliklər. Daha çoxu tezliklə!"
   },
   "premiumPurchase": {
     "message": "Premium satın al"
@@ -2321,6 +2366,42 @@
   "licenseClass": {
     "message": "Sür. vəs. sinifi"
   },
+  "addItemHeaderLogin": {
+    "message": "Giriş əlavə et",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kart əlavə et",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Kimlik əlavə et",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Not əlavə et",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Güvənli not əlavə et",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH açarı əlavə et",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bank hesabı əlavə et",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Sür. vəsiqəsi əlavə et",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Pasport əlavə et",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Yeni giriş",
     "description": "Header for new login item type"
@@ -2336,6 +2417,10 @@
   "newItemHeaderNote": {
     "message": "Yeni not",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "Yeni güvənli not",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "Yeni SSH açarı",
@@ -2375,6 +2460,26 @@
   },
   "editItemHeaderNote": {
     "message": "Nota düzəliş et",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Güvənli nota düzəliş",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Girişə düzəliş",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Karta düzəliş",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Kimliyə düzəliş",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Nota düzəliş",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2417,6 +2522,10 @@
     "message": "Nota bax",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Güvənli nota bax",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "SSH açarına bax",
     "description": "Header for view SSH key item type"
@@ -2445,8 +2554,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Yaradıcı tarixçəsini təmizlə"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Davam etsəniz, bütün girişlər yaradıcı tarixçəsindən həmişəlik silinəcək. Davam etmək istəyirsiniz?"
   },
   "back": {
     "message": "Geri"
@@ -2491,8 +2600,98 @@
     "message": "Təmizlə",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Bütün sətirləri seç"
+  },
+  "selectRow": {
+    "message": "Sətri seç"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$/$TOTAL$ göstərilir",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Səhifə başına sətir"
+  },
+  "rowsPerPageOption": {
+    "message": "1 səhifədə $COUNT$ sətir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ element",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Hamısı"
+  },
+  "clearAll": {
+    "message": "Hamısını təmizlə"
+  },
+  "done": {
+    "message": "Hazırdır"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ seçildi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Əvvəlki səhifə"
+  },
+  "nextPage": {
+    "message": "Növbəti səhifə"
+  },
+  "goToPage": {
+    "message": "Səhifəyə get"
+  },
+  "ofPageCount": {
+    "message": "/$COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Uyuşan element yoxdur"
+  },
   "selected": {
     "message": "Seçildi"
+  },
+  "selectedLowercase": {
+    "message": "seçildi",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Toplu əməliyyat"
@@ -2966,11 +3165,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Masaüstü tətbiqdə fərqli bir hesaba giriş edilib. Lütfən hər iki tətbiqin eyni hesaba giriş etdiyinə əmin olun."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Hesablar uyuşmur"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Hesab uyuşmur"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometrik açarı uyuşmazlığı"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometrik açar uyuşmur"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometrik ilə kilid açma uğursuz oldu. Biometrik sirr açarı seyfin kilidini aça bilmədi. Lütfən biometriki yenidən qurmağa çalışın."
@@ -3004,6 +3203,18 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometriklər tamamlana bilmir, ana parol istifadə etməyi düşünün və ya çıxış edin. Bu problem davam edərsə, lütfən Bitwarden dəstəyi ilə əlaqə saxlayın."
+  },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "İcazə verilməyib"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Bitwarden masaüstü tətbiqi ilə əlaqə qurma icazəsi olmadan, brauzer uzantısında biometrikləri təmin edə bilmirik. Lütfən yenidən sınayın."
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "İcazə tələb xətası"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
     "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
@@ -3067,6 +3278,10 @@
   "atRiskPasswords": {
     "message": "Riskli parollar"
   },
+  "atRisk": {
+    "message": "riskli",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$, sizdən bir parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
@@ -3123,6 +3338,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Riskli $COUNT$ parolu incələ və dəyişdir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Risk altındakı 1 parolu incələ"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Risk altındakı $COUNT$ parolu incələ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3326,6 +3553,10 @@
   },
   "createSend": {
     "message": "Yeni \"Send\"",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send yarat",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3795,7 +4026,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Yararsız $SERVICENAME$ API jetonu",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3805,7 +4036,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Yararsız $SERVICENAME$ API jetonu: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3819,7 +4050,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi. Lütfən kömək üçün xidmət provayderinizlə əlaqə saxlayın.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3829,7 +4060,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3893,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Veb sayt prefiksi əlavə et",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Fəal olduğu zaman, hazırkı veb sayt domeni, yaradılmış e-poçt ünvanının əvvəlində prefiks olaraq istifadə olunacaq",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Host adı",
     "description": "Part of a URL."
@@ -3906,7 +4145,7 @@
   "ssoKeyConnectorError": {
     "message": "Key connector xətası: \"Key connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium abunəlik tələb olunur"
   },
   "organizationIsDisabled": {
@@ -4655,6 +4894,72 @@
   "importNothingError": {
     "message": "Heç nə daxilə köçürülmədi."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ element buraxıldı",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ element ötürüldü",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Aşağıdakı elementlər oxuna bilmir və daxilə köçürmə prosesinə əlavə edilməyəcək:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Bu SSH açarı daxilə köçürülə bilmədi"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Dəstəklənməyən element növü"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Bu element daxilə köçürülə bilmədi"
+  },
+  "identifier": {
+    "message": "İdentifikator"
+  },
+  "contact": {
+    "message": "Əlaqə"
+  },
+  "membership": {
+    "message": "Üzvlük"
+  },
+  "passport": {
+    "message": "Pasport"
+  },
+  "driverLicense": {
+    "message": "Sürücülük vəsiqəsi"
+  },
+  "ssnCard": {
+    "message": "Kimlik kartı"
+  },
+  "birthCertificate": {
+    "message": "Doğum şəhadətnaməsi"
+  },
+  "databaseCredentials": {
+    "message": "Veri bazası kimlik məlumatları"
+  },
+  "serverCredentials": {
+    "message": "Server kimlik məlumatları"
+  },
+  "softwareLicense": {
+    "message": "Yazılım lisenziyası"
+  },
+  "healthInsurance": {
+    "message": "Sağlamlıq sığortası"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi kimlik məlumatları"
+  },
   "importEncKeyError": {
     "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, veriləri xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
@@ -4718,6 +5023,30 @@
   },
   "confirmFilePassword": {
     "message": "Fayl parolunu təsdiqlə"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass ana parolu"
+  },
+  "addKeyFile": {
+    "message": "Açar faylı əlavə et"
+  },
+  "keyFileUpload": {
+    "message": "Açar faylını yüklə"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX faylını yüklə"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Qəbul edilən formatlar: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Verilər düzgün format olunmayıb. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
+  },
+  "kdbxWrongFileType": {
+    "message": "Bu fayl yararlı KeePass veri bazası (.kdbx) deyil. Lütfən .kdbx faylını seçib yenidən sınayın."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Bu KeePass veri bazası daxilə köçürmək üçün çox böyükdür."
   },
   "exportSuccess": {
     "message": "Seyf veriləri xaricə köçürüldü"
@@ -4821,6 +5150,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"
   },
+  "keeperConnectionError": {
+    "message": "Keeper ilə rabitə zamanı problem baş verdi. Lütfən yenidən daxilə köçürməyə çalışın."
+  },
   "includeSharedFolders": {
     "message": "Paylaşılan qovluqları daxil et"
   },
@@ -4872,6 +5204,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass hesabınızla əlaqələndirilmiş \"YubiKey\"i kompüterinizin USB yuvasına taxın, daha sonra düyməsinə basın."
+  },
+  "keeperEmail": {
+    "message": "Keeper e-poçtu"
+  },
+  "keeperEmailHint": {
+    "message": "Keeper-ə giriş etmək üçün istifadə etdiyiniz e-poçtu daxil edin"
+  },
+  "dataCenterLocation": {
+    "message": "Veri mərkəzi yerləşməsi"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper ana parolu"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Lütfən Keeper ana parolunuzu daxil edin"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Lütfən iki faktorlu üsulunuzdakı kodu daxil edin"
+  },
+  "totpCodePrompt": {
+    "message": "Lütfən kimlik doğrulama tətbiqinizdəki kodu daxil edin"
+  },
+  "smsCodePrompt": {
+    "message": "Lütfən mətn mesajı ilə göndərilən kodu daxil edin"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Lütfən Keeper DNA tətbiqinizdəki kodu daxil edin"
+  },
+  "adminApproval": {
+    "message": "Admin təsdiqi"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Admin təsdiqi sorğunuzu admininizə göndərmişik"
+  },
+  "method": {
+    "message": "Üsul"
+  },
+  "directImporter": {
+    "message": "Birbaşa idxalçı"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO kimlik doğrulama tələb olunur"
+  },
+  "keeperSsoDesc": {
+    "message": "Keeper hesabınız SSO kimlik doğrulamasını tələb edir. Açılan brauzer pəncərəsində daxil olma prosesini tamamlayın, sonra səhifədə göstərilən tokeni yapışdırın."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Açılmış brauzer vərəqində daxil olma prosesini tamamlayın. Token avtomatik olaraq yaxalanacaq."
+  },
+  "ssoToken": {
+    "message": "SSO tokeni"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper kimlik doğrulama tələb olunur"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper cihazının təsdiq olunması tələb olunur"
+  },
+  "selectApprovalMethod": {
+    "message": "Təsdiq üsulları"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Cihazın təsdiq olunması lazımdır"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Aşağıdakı üsullardan birini seçərək bu cihazı təsdiqlə"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "İki faktorlu üsul"
+  },
+  "emailVerification": {
+    "message": "E-poçt doğrulaması"
+  },
+  "approvalEmailDesc": {
+    "message": "Lütfən e-poçtunuzu yoxlayın və doğrulama kodunu aşağıda daxil edin"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push bildirişi təsdiqlənmiş cihaza göndərildi"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push göndərildi"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Təsdiq sorğusu ləğv ediləcək"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Tərk etmək istədiyinizə əminsiniz? Admin təsdiqi sorğunuz ləğv ediləcək."
+  },
+  "cancelRequest": {
+    "message": "Sorğunu ləğv et"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper iki faktorlu kimlik doğrulaması tələb olunur"
+  },
+  "mfaPushDesc": {
+    "message": "Kimlik doğrulama tətbiqinizdə giriş sorğusunu təsdiqlə. Bu pəncərə avtomatik bağlanacaq."
+  },
+  "selectTwoFactorMethod": {
+    "message": "İki faktorlu üsulu seç"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Kimliyinizi necə doğrulayacağınızı seçin."
+  },
+  "authenticatorAppTotp": {
+    "message": "Kimlik doğrulayıcı tətbiq (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Mətn mesajı (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Ehtiyat kodlar"
+  },
+  "securityKeyU2f": {
+    "message": "Təhlükəsizlik açarı (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Təhlükəsizlik açarı (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA doğrulaması"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Keeper DNA bildirişini cihazınızda təsdiqləyin"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Keeper DNA üsulunu seç"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Keeper DNA ilə necə doğrulayacağınızı seçin."
+  },
+  "pushNotification": {
+    "message": "Push bildirişi"
+  },
+  "enterCodeManually": {
+    "message": "Kodu manual daxil et"
+  },
+  "twoFactorAuthentication": {
+    "message": "İki faktorlu kimlik doğrulama"
+  },
+  "unknownMethod": {
+    "message": "Bilinməyən üsul"
+  },
+  "selectDuoMethod": {
+    "message": "Duo üsulunu seç"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Duo Security ilə necə doğrulayacağınızı seçin."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Telefon zəngi"
+  },
+  "duoVerification": {
+    "message": "Duo doğrulama"
+  },
+  "duoPushWaiting": {
+    "message": "Duo push bildirişini cihazınızda təsdiqləyin."
+  },
+  "duoSmsWaiting": {
+    "message": "Mətn mesajı telefonunuza göndərilib. Davam etmək üçün Duo tətbiqində kodu daxil edin."
+  },
+  "duoVoiceWaiting": {
+    "message": "Duo-dan gələn telefon zəngini cavablayın və təlimatları izləyin."
+  },
+  "tryAnotherMethod": {
+    "message": "Başqa bir üsulu sına"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Keeper hesabınız, hazırda birbaşa idxalçı tərəfindən dəstəklənməyən iki faktorlu kimlik doğrulama üsulu tələb edir."
   },
   "switchAccount": {
     "message": "Hesabı dəyişdir"
@@ -4987,6 +5508,20 @@
     "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edin",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Avto-doldurma təcrübənizi daha da yaxşılaşdırın",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Bitwarden-i ilkin parol meneceriniz etmək üçün $BROWSER$ brauzerinə icazə verməyiniz soruşulacaq.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Bitwarden ilkin parol meneceri olaraq ayarlana bilmir",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5002,18 +5537,33 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "\"Bitwarden\"i brauzerinizin ilkin parol meneceriniz olaraq təyin edin"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edin",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Ziddiyyətləri önləmək üçün brauzerin avto-doldurma ayarlarını söndürün.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Brauzer ayarlarını idarə et",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "brauzerinizdən Bitwarden-ə ayarlarınızı dəyişdirmə icazəsini vermək üçün sorğu gələcək."
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "Güvənli giriş təcrübəsindən zövq ala bilməyiniz üçün brauzerinizin daxili parol menecerini söndürəcəyik."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edildi"
   },
   "allow": {
-    "message": "Allow",
+    "message": "İcazə ver",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "Ötür"
   },
   "saveCipherAttemptSuccess": {
     "message": "Kimlik məlumatları uğurla saxlanıldı!",
@@ -5040,6 +5590,12 @@
   },
   "removePasskey": {
     "message": "Parolu sil"
+  },
+  "deletePasskey": {
+    "message": "Keçid açarını sil"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Bu keçid açarı giriş elementinizdən həmişəlik silinəcək. Bunun geri dönüşü yoxdur."
   },
   "passkeyRemoved": {
     "message": "Parol silindi"
@@ -5269,6 +5825,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Yarat",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Kolleksiya əlavə et"
+  },
   "new": {
     "message": "Yeni"
   },
@@ -5296,6 +5875,60 @@
   },
   "owner": {
     "message": "Sahiblik"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "$NAME$ paylaşılan qovluğu",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "$NAME$ kolleksiyası",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "$NAME$ qovluğum",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "$NAME$ qovluğu",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "$NAME$ sahibi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "$NAME$ seyfi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Siz",
@@ -5453,11 +6086,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "Tətbiq (URI)"
+  },
+  "appUriCount": {
+    "message": "Tətbiq (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Veb sayt əlavə edildi"
   },
   "addWebsite": {
     "message": "Veb sayt əlavə et"
+  },
+  "addWebsiteOrApp": {
+    "message": "Veb sayt və ya tətbiq əlavə et"
+  },
+  "app": {
+    "message": "Tətbiq"
   },
   "deleteWebsite": {
     "message": "Veb saytı sil"
@@ -5587,8 +6239,8 @@
   "linkedHelpText": {
     "message": "Müəyyən bir veb sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
   },
-  "linkedLabelHelpText": {
-    "message": "Xana üçün bunları daxil edin: kimlik, ad, aria-label və ya placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Xana üçün bunları daxil edin: HTML kimlik, ad, aria-label və ya placeholder."
   },
   "editField": {
     "message": "Xanaya düzəliş et"
@@ -5688,6 +6340,24 @@
   },
   "successfullyAssignedCollections": {
     "message": "Uğurla təyin edilən kolleksiyalar"
+  },
+  "itemMovedToCollection": {
+    "message": "Element kolleksiyaya daşındı"
+  },
+  "itemMovedToCollections": {
+    "message": "Element kolleksiyalara daşındı"
+  },
+  "itemsMovedToCollection": {
+    "message": "Elementlər kolleksiyaya daşındı"
+  },
+  "itemsMovedToCollections": {
+    "message": "Elementlər kolleksiyalara daşındı"
+  },
+  "itemAssignedToCollections": {
+    "message": "Element kolleksiyalara təyin olundu"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Elementlər kolleksiyalara təyin olundu"
   },
   "nothingSelected": {
     "message": "Heç nə seçməmisiniz."
@@ -5858,9 +6528,6 @@
   },
   "unlockPinSet": {
     "message": "PIN ilə kilid açma təyini"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Kilidi biometriklə aç ayarı"
   },
   "authenticating": {
     "message": "Kimlik doğrulama"
@@ -6538,16 +7205,34 @@
     "message": "İstifadəçi doğrulaması uğursuz oldu."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "Paylaşılan kilid açma"
   },
-  "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  "sharedUnlockWithDesktop": {
+    "message": "Kilid açmanı Masaüstü ilə paylaş"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "Fəal olduğu zaman, kilid açma statusu Bitwarden Masaüstü tətbiqi ilə paylaşılacaq."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  "sharedUnlockWithWeb": {
+    "message": "Kilid açmanı veb seyfi ilə paylaş"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "Fəal olduğu zaman, kilid açma statusu Bitwarden veb seyfləri ilə paylaşılacaq."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Paylaşılan kilid açma mövcud deyil, çünki bu cihazı xatırlamağı tərcih etməmisiniz. Bu ayarı fəallaşdırmaq üçün təkrar giriş etməyə çalışın."
+  },
+  "newPermissionNeeded": {
+    "message": "Yeni icazə lazımdır"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "Paylaşılan kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma icazəsinə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden kilidlənib yenidən yüklənəcək. Siz təsdiqlədikdən sonra uzantı yenidən yüklənir və seyfiniz kilidlənir."
+  },
+  "biometricPermissionDesc": {
+    "message": "Biometrik kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma icazəsinə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
   },
   "enterMonth": {
     "message": "Ayı daxil edin."
@@ -6696,7 +7381,7 @@
     "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Yalnız aşağıdakı domenlər daxildir: $DOMAINS$. Lütfən incələyib yenidən sınayın",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -6704,24 +7389,47 @@
     }
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "Təşkilatınızın Send siyasətinə riayət etmir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Bu \"Send\"ə düzəliş etmək üçün bir kopyasını yaradın. Əgər bu \"Send\"in müddəti, təyin olunmuş silinmə tarixində bitəcəksə, heç bir əməliyyata ehtiyac yoxdur",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Kopyasını yarat"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Təşkilatınızda mətn Send-lərinə icazə verilmir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Təşkilatınızda fayl Send-lərinə icazə verilmir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Bu \"Send\"in müddəti, təyin olunmuş silinmə vaxtında avtomatik olaraq bitəcək",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Element saxlanıla bilmir. Elementləri saxlamaq üçün təşkilat üzvü olmasınız."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Elementlərin eyni fayl adı ilə birdən çox qoşması ola bilməz"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ bu silinmə tarixi təyin etdi",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "Sağlamlıq"
   }
 }
