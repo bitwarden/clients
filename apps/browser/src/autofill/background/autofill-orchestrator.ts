@@ -197,10 +197,13 @@ export class AutofillOrchestrator {
           // The cipher is read before data collection, while the content script gates the fill on
           // the URL captured during the collect. Guard against a same-document navigation between
           // those reads from filling a cipher chosen for the old URL to the new page.
-          let totp: string | null = null;
+          let totp: string | undefined;
           const details = pageDetails[0]?.details;
           if (details?.url === request.frameUrl && details?.fields?.length) {
-            totp = await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false);
+            const result = await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false);
+            if (result.didAutofill) {
+              totp = result.totp;
+            }
           }
           this.copyTotp(totp);
           await this.updateOverlayCiphers();
@@ -208,8 +211,8 @@ export class AutofillOrchestrator {
         }
         case "command": {
           await this.recordActiveAccountActivity();
-          const totp = await this.autofillService.doAutoFillActiveTab([request.pageDetail], true);
-          this.copyTotp(totp);
+          const result = await this.autofillService.doAutoFillActiveTab([request.pageDetail], true);
+          this.copyTotp(result.didAutofill ? result.totp : undefined);
           await this.updateOverlayCiphers();
           break;
         }
@@ -263,8 +266,8 @@ export class AutofillOrchestrator {
     await this.accountService.setAccountActivity(activeUserId, new Date());
   }
 
-  private copyTotp(totp: string | null) {
-    if (totp != null) {
+  private copyTotp(totp: string | undefined) {
+    if (totp !== undefined) {
       this.platformUtilsService.copyToClipboard(totp);
     }
   }
