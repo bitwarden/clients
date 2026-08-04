@@ -89,6 +89,8 @@ export class OverflowListDirective {
   private readonly observedContainerWidth = signal(0);
   private readonly itemWidths = signal<readonly number[]>([]);
   private readonly triggerWidth = signal(0);
+  /** The item instances that produced the current `itemWidths`; drives cache invalidation. */
+  private measuredItems: readonly OverflowItemDirective[] = [];
   private readonly resolvedContainerWidth = computed(
     () => this.containerWidth() ?? this.observedContainerWidth(),
   );
@@ -109,8 +111,10 @@ export class OverflowListDirective {
     const widths = this.itemWidths();
     const containerWidth = this.resolvedContainerWidth();
 
-    // Nothing to pack, widths not cached yet, or container not measured.
-    if (count === 0 || widths.length < count || containerWidth <= 0) {
+    // Nothing to pack, container not measured, or a width-count mismatch (stale
+    // cache after items changed). Show the full set until the remeasure lands so
+    // packing never indexes past the current items.
+    if (count === 0 || widths.length !== count || containerWidth <= 0) {
       return { displayed: indices(count), overflow: [] };
     }
 
@@ -168,13 +172,11 @@ export class OverflowListDirective {
       this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
-    // Cached widths must keep pace when the item count changes (observable-
-    // driven consumers can grow or shrink the set). A new set may interleave
-    // fresh and old items, so reusing prior widths by identity isn't reliable
-    // — just remeasure from scratch.
+    // Remeasure whenever the item set changes. Compare by instance identity, not
+    // count, so a same-length swap (which keeps stale widths) is caught too.
     effect(() => {
-      const count = this.items().length;
-      if (count === 0 || count === this.itemWidths().length) {
+      const items = this.items();
+      if (items.length === 0 || sameItems(items, this.measuredItems)) {
         return;
       }
       afterNextRender(() => this.measureItems(), { injector });
@@ -215,6 +217,9 @@ export class OverflowListDirective {
         : null;
 
       this.itemWidths.set(items.map((item) => measureWidth(item.elementRef.nativeElement)));
+      // Record the set these widths belong to, so the invalidation effect
+      // compares against what was actually measured and self-corrects on races.
+      this.measuredItems = items;
       if (trigger) {
         this.triggerWidth.set(measureWidth(trigger.elementRef.nativeElement));
       }
@@ -229,6 +234,14 @@ export class OverflowListDirective {
 
 function indices(count: number): readonly number[] {
   return Array.from({ length: count }, (_, i) => i);
+}
+
+/** True when both arrays hold the same item instances in the same order. */
+function sameItems(
+  a: readonly OverflowItemDirective[],
+  b: readonly OverflowItemDirective[],
+): boolean {
+  return a.length === b.length && a.every((item, i) => item === b[i]);
 }
 
 function measureWidth(el: HTMLElement): number {
