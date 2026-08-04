@@ -6401,10 +6401,16 @@
     "message": "Item Location"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "File Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Text Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Account actions"
