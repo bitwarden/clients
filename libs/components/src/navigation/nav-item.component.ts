@@ -18,6 +18,14 @@ import { IconTileComponent } from "../icon-tile";
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
 
+/**
+ * Utility classes for the focus-visible-within ring. Exported so snapshot stories can force the
+ * focused state directly — focus-visible-within is JS-driven (see `fvwStyles`) and has no CSS
+ * variant to trigger — without duplicating (and drifting from) the class list.
+ */
+export const FVW_RING_CLASSES =
+  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover";
+
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
@@ -150,9 +158,7 @@ export class NavItemComponent extends NavBaseComponent {
    */
   protected readonly focusVisibleWithin = signal(false);
   protected readonly fvwStyles = computed(() =>
-    this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover"
-      : "",
+    this.focusVisibleWithin() ? FVW_RING_CLASSES : "",
   );
 
   protected onFocusIn(target: EventTarget) {

@@ -18,6 +18,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
+import { FVW_RING_CLASSES } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
 
 @Component({
@@ -424,16 +425,8 @@ export const InteractionStatesVfo1: StoryObj<NavGroupComponent> = {
     focusNavGroups.forEach((navGroup) => {
       const container = navGroup.querySelector('[data-testid="nav-item-container"]');
       // focus-visible-within is JS-driven (see `fvwStyles`), so there is no CSS variant to force —
-      // apply the fvw ring utilities directly to mirror the focused state.
-      container?.classList.add(
-        "tw-z-10",
-        "tw-rounded",
-        "tw-outline-none",
-        "tw-ring",
-        "tw-ring-inset",
-        "tw-ring-border-nav-focus",
-        "tw-bg-bg-nav-hover",
-      );
+      // apply the shared fvw ring utilities directly to mirror the focused state.
+      container?.classList.add(...FVW_RING_CLASSES.split(" "));
     });
   },
 };
