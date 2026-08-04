@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Qovluqlarım"
   },
+  "addSharedFolder": {
+    "message": "Paylaşılan qovluq əlavə et"
+  },
+  "addToSharedFolder": {
+    "message": "Paylaşılan qovluğa əlavə et"
+  },
+  "newSharedFolder": {
+    "message": "Yeni paylaşılan qovluq"
+  },
+  "searchSharedFolder": {
+    "message": "Paylaşılan qovluqda axtar"
+  },
+  "searchMyFolder": {
+    "message": "Qovluqlarımda axtar"
+  },
+  "addToMyFolder": {
+    "message": "Qovluğuma əlavə et"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Paylaşılan qovluq elementini seç"
+  },
+  "viewSharedFolderWithName": {
+    "message": "$NAME$ - paylaşılan qovluğa bax",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Yalnız admin konsolu bu paylaşılan qovluğa erişə bilər"
+  },
+  "editSharedFolder": {
+    "message": "Paylaşılan qovluğa düzəliş et"
+  },
+  "deleteSharedFolder": {
+    "message": "Paylaşılan qovluğu sil"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ paylaşılan qovluğu sil",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Bu paylaşılan qovluq həmişəlik silinəcək."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "$NAME$ paylaşılan qovluğu həmişəlik silinəcək.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Bu paylaşılan qovluqlar həmişəlik silinəcək."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ paylaşılan qovluq həmişəlik silinəcək.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Seçilmiş elementlər və paylaşılan qovluqlar həmişəlik silinəcək."
+  },
+  "sharedFolderDeleted": {
+    "message": "Paylaşılan qovluq silindi"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Paylaşılan qovluqlar silindi"
+  },
+  "deletedSharedFolders": {
+    "message": "Silinmiş paylaşılan qovluqlar"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Ödənişsiz təşkilatların ən çox $COLLECTIONCOUNT$ paylaşılan qovluğu ola bilər. Daha çox paylaşılan qovluq əlavə etmək üçün ödənişli bir plana yüksəldin.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Ödənişsiz təşkilatların ən çox $COLLECTIONCOUNT$ paylaşılan qovluğu ola bilər. Yüksəltmək üçün təşkilatınızın sahibi ilə əlaqə saxlayın.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Bir elementi paylaşılan qovluğa daşımaqla, həmin elementi digər seyf üzvləri ilə təhlükəsiz şəkildə paylaşa bilərsiniz."
+  },
   "attachments": {
     "message": "Qoşmalar"
   },
@@ -1656,13 +1761,13 @@
     "message": "Hamısını seç"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Bütün sətirləri seç"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Sətri seç"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "$START$ - $END$/$TOTAL$ göstərilir",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1679,10 +1784,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Səhifə başına sətir"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "1 səhifədə $COUNT$ sətir",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1691,7 +1796,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ element",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1700,10 +1805,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Hamısını təmizlə"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ seçildi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1712,16 +1817,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Əvvəlki səhifə"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Növbəti səhifə"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Səhifəyə get"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "/$COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1730,7 +1835,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Uyuşan element yoxdur"
   },
   "deselectAll": {
     "message": "Heç birini seçmə"
@@ -2083,10 +2188,10 @@
     "message": "Parolu sil"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Keçid açarını sil"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Bu keçid açarı giriş elementinizdən həmişəlik silinəcək. Bunun geri dönüşü yoxdur."
   },
   "removePasskeyInfo": {
     "message": "Bütün keçid açarları silinsə, ana parolunuz olmadan yeni cihazlarda giriş edə bilməzsiniz."
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Bu kolleksiyaya icazəniz yoxdur"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Sadalanacaq heç bir kolleksiya yoxdur."
@@ -3046,7 +3155,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ element ötürüldü",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3058,13 +3167,13 @@
     "message": "Aşağıdakı elementlər oxuna bilmir və daxilə köçürmə prosesinə əlavə edilməyəcək:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Bu SSH açarı daxilə köçürülə bilmədi"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Dəstəklənməyən element növü"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Bu element daxilə köçürülə bilmədi"
   },
   "contact": {
     "message": "Əlaqə"
@@ -4042,13 +4151,13 @@
     "message": "Abunəlikdən imtina"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Ləğv prosesini tamamla"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "Təkmilləşməyimizə kömək edin. Niyə ləğv edirsiniz?"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "Əlavə məlumat"
   },
   "subscriptionExpiration": {
     "message": "Abunəliyin bitmə tarixi"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "İlkin kolleksiya"
   },
+  "defaultSharedFolder": {
+    "message": "İlkin paylaşılan qovluq"
+  },
   "getHelp": {
     "message": "Kömək alın"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Kolleksiyanı bunun altında yerləşdir"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Erişim nəzarəti"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Kolleksiyaya bax"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Kolleksiya məlumatı"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Bu kolleksiyanı silmək istədiyinizə əminsiniz?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Üzvə düzəliş et"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Sahiblik"
+  },
+  "ownerAriaLabel": {
+    "message": "$NAME$ sahibi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "$NAME$ seyfi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Faktura və abunəliklər də daxil olmaqla təşkilatınızın bütün aspektlərini idarə edə bilər"
@@ -5092,7 +5238,7 @@
     }
   },
   "accessedTextSendV3": {
-    "message": "Accessed text Send$SENDID$ created by $ID$",
+    "message": "$ID$ yaratdığı mətn Send-inə $SENDID$ erişildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5106,7 +5252,7 @@
     }
   },
   "accessedFileSendV3": {
-    "message": "Accessed file Send$SENDID$ created by $ID$",
+    "message": "$ID$ yaratdığı fayl Send-inə $SENDID$ erişildi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "$ID$ kolleksiyasına düzəliş edildi.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Silinmiş kolleksiyalar"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Düzəlişləri sil"
@@ -5512,7 +5688,7 @@
     }
   },
   "stagedUserId": {
-    "message": "Staged user $ID$ added.",
+    "message": "Gözləmədə olan istifadəçi ($ID$) əlavə olundu.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7260,7 +7436,7 @@
     "message": "Qəbul edildi"
   },
   "staged": {
-    "message": "Staged"
+    "message": "Gözləmədə"
   },
   "stagedMemberTooltip": {
     "message": "Gözləyən hesab dəvəti"
@@ -7305,11 +7481,11 @@
     "message": "Müddəti bitib"
   },
   "expiringSoon": {
-    "message": "Expiring soon",
+    "message": "Tezliklə bitir",
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "Aktiv",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -8573,7 +8749,7 @@
     "message": "SSO təhlükəsizliyini və rahatlığını idarə edilməyən tətbiqlərə genişləndirin. İstifadəçilər bir tətbiqi kimlik provayderinizdən işə saldığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub təqdim ediləcək. Beləliklə kimlik provayderindən tətbiqə bir kliklə təhlükəsiz axın yaradılır."
   },
   "automaticAppLoginWithSSODescV2": {
-    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+    "message": "İstifadəçilər kimlik provayderinizdən bir tətbiq başlatdığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub göndəriləcək və tək bir kliklə təhlükəsiz giriş təmin ediləcək."
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Provayder host-unu müəyyənləşdir"
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Veb sayt prefiksi əlavə et",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Fəal olduğu zaman, hazırkı veb sayt domeni, yaradılmış e-poçt ünvanının əvvəlində prefiks olaraq istifadə olunacaq",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Host adı",
     "description": "Part of a URL."
@@ -9773,7 +9957,7 @@
     "message": "E-poçt dəvətləri barədə"
   },
   "scimInviteUsersAfterProvisioningHelpBody": {
-    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "message": "Bu ayar açıq olduğu zaman, SCIM vasitəsilə səlahiyyət verilən üzvlərə e-poçt dəvəti göndərilir və Üzvlər səhifəsində dəvətli olaraq görünürlər. üzvlər gözləmədə olaraq görünür və bir admin tərəfindən və ya dəvət keçidi ilə manual olaraq dəvət edilməlidirlər.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Kolleksiya yoxdur"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Heç bir kolleksiya əlavə edilmədi"
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Saxlanıldıqda e-poçt güncəllənəcək"
+  },
+  "emailNotClaimedHint": {
+    "message": "Bu üzvün götürdüyü bir hesab yoxdur. Üzvün öz e-poçt ünvanını güncəlləməsi üçün onunla əlaqə saxlayın."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Bu üzvün ana parolu yoxdur. Üzvün öz e-poçt ünvanını güncəlləməsi üçün onunla əlaqə saxlayın."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Yeni e-poçt, təşkilatınız tərəfindən götürülən domenlə uyuşmalıdır."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "E-poçt artıq təşkilatınızdakı bir üzv tərəfindən istifadə olunur."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "E-poçt artıq istifadədədir. Bunun əvəzinə onu təşkilatınıza dəvət edə bilərsiniz."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Bir üzvün ana parolu varsa, onun e-poçtunu dəyişə bilməzsiniz."
+  },
+  "emailErrorChangeFailed": {
+    "message": "E-poçt dəyişdirmə uğursuz oldu. Lütfən yenidən sınayın."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Təşkilat tərəfindən götürülməmiş üzvün adını dəyişə bilməzsiniz."
+  },
+  "nameNotClaimedHint": {
+    "message": "Bu üzvün götürdüyü bir hesab yoxdur. Üzvün öz adını güncəlləməsi üçün onunla əlaqə saxlayın."
   },
   "createdDate": {
     "message": "Yaradılma tarixi"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Kolleksiya erişimini təyin et"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Düzəliş edilən kolleksiyalar"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Kolleksiyaya düzəliş edildi"
   },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Kolleksiyalara düzəliş edildi"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Bu kolleksiyanı idarə etmək üçün erişiminiz yoxdur."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "\"Kolleksiyanı idarə etmə\" icazələri əskikdir"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Kolleksiyanın silinməsi daxil olmaqla tam kolleksiya idarəetməsinə icazə vermək üçün \"Kolleksiyanı idarə etmə\" icazələrini verin."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Qrup və ya üzvlərin bu kolleksiyaya erişməsinə icazə ver."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Üzvlərin bu kolleksiyaya erişməsinə icazə ver."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "İnzibatçılar kolleksiyalara erişə və onları idarə edə bilər."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Xidmət hesabına erişim güncəlləndi"
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Ehtiyacımız olan şey mövcud deyil.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "İdarəetmə, inzibati panellər və ya gündəlik istifadəsi çox mürəkkəbdir.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "Xərci çox yüksəkdir",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "Qiyməti, əldə etdiyimizlə üstünlüklərlə uyuşmur.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "İnsanları bunu istifadə etməyə vadar edə bilmədik.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Yenidən təşkilatlanma, əldə etmə, prioritetlərdə dəyişiklik və ya artıq parol menecerinə ehtiyacımız yoxdur.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "Müştəri xidməti zəif işləyir",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "Dəstək komandasından və ya müştəri xidmətindən ehtiyacımız olan köməyi ala bilmədik.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "Ləğv etmə səbəbini açıqlayın",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "$NAME$ paylaşılan qovluğu",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "$NAME$ kolleksiyası",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "$NAME$ qovluğum",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "$NAME$ qovluğu",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Provayder kimi idarə etmək üçün yeni bir client təşkilatı yaradın. Əlavə yerlər növbəti faktura dövründə əks olunacaq."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Heç bir kolleksiya seçməmisiniz."
+  },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Adı güncəllə"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Arxivdə axtar"
