@@ -304,14 +304,29 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // format; accepted for MVP. Planned follow-up in next milestones: refactor the SDK to expose a better typed
     // error variant. If the format drifts before then, extraction fails
     // and the caller drops to `unexpected` with the raw string.
+    //
+    // Current format: `Received error message from server: [<status> <reason>] <json-body>`
+    // where `<json-body>` is the full server error response (`{ "message": "...", ... }`).
+    // We capture the numeric status (reason phrase discarded) and JSON-parse the body to
+    // pull the bare `.message` string that `classifyAcceptOpenOrgInviteApiError` matches on.
     // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
-    const match = e.message.match(/^Received error message from server: \[(\d+)\] ([\s\S]+)$/);
+    const match = e.message.match(
+      /^Received error message from server: \[(\d+)[^\]]*\] ([\s\S]+)$/,
+    );
     if (match == null) {
       return { kind: "unexpected", errorMessage: e.message };
     }
     const statusCode = Number(match[1]);
-    const serverMessage = match[2];
-    return this.classifyAcceptOpenOrgInviteApiError(statusCode, serverMessage);
+    try {
+      const { message } = JSON.parse(match[2]) as { message?: unknown };
+      if (typeof message === "string") {
+        return this.classifyAcceptOpenOrgInviteApiError(statusCode, message);
+      }
+    } catch {
+      // JSON.parse threw, or destructure on null/undefined threw — fall through
+      // to the shared `unexpected` return below.
+    }
+    return { kind: "unexpected", errorMessage: e.message };
   }
 
   private classifyAcceptOpenOrgInviteApiError(

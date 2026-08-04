@@ -780,12 +780,36 @@ describe("DefaultOrganizationInviteService", () => {
     /**
      * Fabricates the `InviteLinkError { variant: "Api" }` shape the SDK produces when a
      * server response fails. Mirrors `bitwarden-core::ApiError::Response`'s Display
-     * output: `Received error message from server: [{status}] {message}`. The name/
-     * variant fields are what `isInviteLinkError` uses to identify the error.
+     * output: `Received error message from server: [{status} {reason}] {json-body}`,
+     * where `{json-body}` is the raw server error response envelope. The name/variant
+     * fields are what `isInviteLinkError` uses to identify the error.
      */
     const makeSdkApiError = (statusCode: number, message: string): Error => {
+      const reasonPhrase = statusCode === 400 ? "Bad Request" : "Internal Server Error";
+      const body = JSON.stringify({
+        message,
+        validationErrors: null,
+        exceptionMessage: null,
+        exceptionStackTrace: null,
+        innerExceptionMessage: null,
+        object: "error",
+      });
       const err = new Error(
-        `Received error message from server: [${statusCode}] ${message}`,
+        `Received error message from server: [${statusCode} ${reasonPhrase}] ${body}`,
+      ) as Error & { name: string; variant: string };
+      err.name = "InviteLinkError";
+      err.variant = "Api";
+      return err;
+    };
+
+    /**
+     * Variant of {@link makeSdkApiError} that lets a test supply a raw string body in
+     * place of the standard JSON envelope. Used to exercise the JSON-parse and
+     * missing-`.message` fall-through paths in the classifier.
+     */
+    const makeSdkApiErrorWithRawBody = (statusCode: number, body: string): Error => {
+      const err = new Error(
+        `Received error message from server: [${statusCode} Bad Request] ${body}`,
       ) as Error & { name: string; variant: string };
       err.name = "InviteLinkError";
       err.variant = "Api";
@@ -1162,6 +1186,21 @@ describe("DefaultOrganizationInviteService", () => {
           kind: "unexpected",
           errorMessage: "totally unrecognized wrapper",
         });
+      });
+
+      it("returns unexpected with the raw SDK message when the body isn't valid JSON", async () => {
+        const rawSdkMessage = "Received error message from server: [400 Bad Request] not-json {";
+        const err = makeSdkApiErrorWithRawBody(400, "not-json {");
+        const result = await runWithRejection(err);
+        expect(result).toEqual({ kind: "unexpected", errorMessage: rawSdkMessage });
+      });
+
+      it("returns unexpected with the raw SDK message when the JSON body has no string `message`", async () => {
+        const body = JSON.stringify({ message: null, object: "error" });
+        const rawSdkMessage = `Received error message from server: [400 Bad Request] ${body}`;
+        const err = makeSdkApiErrorWithRawBody(400, body);
+        const result = await runWithRejection(err);
+        expect(result).toEqual({ kind: "unexpected", errorMessage: rawSdkMessage });
       });
 
       it("returns unexpected for non-SDK Error throws (network layer, unrelated exception)", async () => {
