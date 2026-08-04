@@ -14,7 +14,6 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
@@ -95,15 +94,6 @@ export class DefaultSendFormService implements SendFormService {
       }
       originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
       updatedSendView = Object.assign(updatedSendView, originalSendView);
-      if (originalSendView.type === SendType.File) {
-        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
-        // there is one required field on the SDK's SendFileView, which is mapped to by the `fileName` field.
-        // The Send is encrypted and then decrypted before being sent to the SDK, so to avoid adjusting the
-        // encryption code in `send.service.ts` we need the `file` property to be set. Neither the SDK nor the
-        // legacy paths use the encrypted file contents when editing an existing Send so we create an empty,
-        // stand-in File object with the correct decrypted name.
-        this.file = new File([], originalSendView.file.fileName);
-      }
     }
     this._originalSendView.set(originalSendView);
     this._updatedSendView.set(updatedSendView);
