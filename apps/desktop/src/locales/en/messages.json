@@ -1973,8 +1973,8 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "copyNoteTitle": {
     "message": "Copy Note - $ITEMNAME$",
@@ -1986,8 +1986,8 @@
       }
     }
   },
-  "noValuesToCopy": {
-    "message": "No values to copy"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
@@ -5310,7 +5310,7 @@
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add three quick-copy action buttons next to items to specifically copy your username, password, or verification code to the clipboard."
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "assignToCollections": {
     "message": "Assign to collections"
