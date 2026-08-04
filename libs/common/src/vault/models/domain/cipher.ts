@@ -69,7 +69,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
-  data?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -97,32 +96,31 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
-    this.data = obj.data;
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = obj.login && new Login(obj.login);
+        this.login = new Login(obj.login);
         break;
       case CipherType.SecureNote:
-        this.secureNote = obj.secureNote && new SecureNote(obj.secureNote);
+        this.secureNote = new SecureNote(obj.secureNote);
         break;
       case CipherType.Card:
-        this.card = obj.card && new Card(obj.card);
+        this.card = new Card(obj.card);
         break;
       case CipherType.Identity:
-        this.identity = obj.identity && new Identity(obj.identity);
+        this.identity = new Identity(obj.identity);
         break;
       case CipherType.SshKey:
-        this.sshKey = obj.sshKey && new SshKey(obj.sshKey);
+        this.sshKey = new SshKey(obj.sshKey);
         break;
       case CipherType.BankAccount:
-        this.bankAccount = obj.bankAccount && new BankAccount(obj.bankAccount);
+        this.bankAccount = new BankAccount(obj.bankAccount);
         break;
       case CipherType.DriversLicense:
-        this.driversLicense = obj.driversLicense && new DriversLicense(obj.driversLicense);
+        this.driversLicense = new DriversLicense(obj.driversLicense);
         break;
       case CipherType.Passport:
-        this.passport = obj.passport && new Passport(obj.passport);
+        this.passport = new Passport(obj.passport);
         break;
       default:
         break;
@@ -291,10 +289,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       c.key = this.key.encryptedString;
     }
 
-    if (this.data != null) {
-      c.data = this.data;
-    }
-
     if (this.permissions != null) {
       c.permissions = this.permissions;
     }
@@ -393,7 +387,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     domain.name = encStringFrom(obj.name);
     domain.notes = encStringFrom(obj.notes);
     domain.key = encStringFrom(obj.key);
-    domain.data = obj.data;
     domain.attachments = obj.attachments
       ?.map((a: any) => Attachment.fromJSON(a))
       .filter((a): a is Attachment => a != null);
@@ -495,7 +488,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       bankAccount: undefined,
       driversLicense: undefined,
       passport: undefined,
-      data: this.data,
+      data: undefined,
     };
 
     switch (this.type) {
@@ -587,7 +580,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : undefined;
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
-    cipher.data = sdkCipher.data;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);
