@@ -169,15 +169,21 @@ export class SendAddEditDialogComponent {
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
   ) {
+    // We only want to load from the input params the first time the component initializes,
+    // since the makeCopy function works by replacing the config object and re-initializing
+    this.config = this.params.formConfig;
     void this.init();
   }
 
   async init() {
-    this.config = this.params.formConfig;
     if (this.config.originalSend) {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,
       );
+      // We can make a copy of a disabled Send only if two conditions are met
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
+      // 2. The Send is a Text Send (we can't attach existing files to new Sends)
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
           title:
@@ -185,17 +191,24 @@ export class SendAddEditDialogComponent {
               ? "orgDoesNotAllowTextSends"
               : "orgDoesNotAllowFileSends",
           message: "sendWillAutomaticallyExpire",
+          // This branch violates condition 1 so we never allow copying
           showMakeCopyButton: false,
         });
       } else if (sendDisabledReason === SendDisabledReason.Other) {
+        // This branch meets condition 1, so all we need to check is condition 2
+        const showMakeCopyButton = this.config.originalSend?.type === SendType.Text;
         this.disabledSendConfig.set({
           title: "sendNotCompliantWithYourOrgsPolicy",
-          message: "sendDisabledNonCompliantBannerMessage",
-          showMakeCopyButton: true,
+          message: showMakeCopyButton
+            ? "sendDisabledNonCompliantBannerMessage"
+            : "sendWillAutomaticallyExpire",
+          showMakeCopyButton,
         });
       } else {
         this.disabledSendConfig.set(null);
       }
+    } else {
+      this.disabledSendConfig.set(null);
     }
     this.editing.set(this.config.mode === "add");
     this.showCopyButton.set(
