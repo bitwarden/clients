@@ -179,6 +179,8 @@ export class OverflowListDirective {
       if (items.length === 0 || sameItems(items, this.measuredItems)) {
         return;
       }
+      // Force the all-displayed fallback so consumers stamp full content before we measure.
+      this.itemWidths.set([]);
       afterNextRender(() => this.measureItems(), { injector });
     });
 
