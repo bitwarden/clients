@@ -8,8 +8,11 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
-import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
-import { syncLegacyMasterKeyState, withPasswordManagerSdk } from "../../utils";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  syncLegacyMasterKeyState,
+} from "../../master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "../../utils";
 
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
 
