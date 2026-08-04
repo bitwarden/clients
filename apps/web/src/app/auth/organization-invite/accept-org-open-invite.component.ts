@@ -157,10 +157,16 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, status);
     await this.organizationInviteService.setOrganizationInvite(invite);
 
-    // SSO-required orgs route straight to /sso. The deepLinkGuard() on this route
-    // persisted the inbound URL on the initial unauth visit; once the user reaches
-    // Unlocked post-SSO + JIT account setup, the guard replays
-    // /#/join/{code}?key={key} and authedHandler fires accept.
+    // SSO-required orgs route straight to /sso regardless of whether the user has an
+    // existing account (unlike direct invites, the /join URL doesn't carry that hint).
+    // The two downstream outcomes:
+    //  - New user: server JIT-provisions and accepts into the org as a side effect of
+    //    account setup (per-decryption-option: MP set-initial-password, TDE admin-recovery
+    //    enrollment, or Key Connector provisioning). The cleanup step of each path drops
+    //    both the persisted /join URL and the stashed invite, so the guard does not
+    //    replay and authedHandler does not re-fire accept.
+    //  - Existing user: server rejects SSO login and redirects to /login for MP auth.
+    //    After login, the guard replays /join and authedHandler fires acceptOpenOrgInvite.
     if (invite.sso?.required) {
       await this.router.navigate(["/sso"], {
         queryParams: { identifier: invite.sso.orgSsoId },
