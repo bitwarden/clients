@@ -19,6 +19,7 @@ import { CollectionExport } from "@bitwarden/common/models/export/collection.exp
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -219,15 +220,28 @@ export class CreateCommand {
   }
 
   private async createOrganizationCollection(req: OrganizationCollectionRequest, options: Options) {
-    if (options.organizationId == null || options.organizationId === "") {
-      return Response.badRequest("`organizationid` option is required.");
+    // The organization id can come from either the `organizationid` option (e.g. a CLI flag, or a
+    // query string parameter when using `bw serve`) or the request body's `organizationId` property.
+    // If both are provided, they must agree; otherwise whichever one was provided is used.
+    const organizationId = Utils.isNullOrWhitespace(options.organizationId)
+      ? req?.organizationId
+      : options.organizationId;
+    if (Utils.isNullOrWhitespace(organizationId)) {
+      return Response.badRequest(
+        "An organization id is required, either via the `organizationid` option or the request's `organizationId` property.",
+      );
     }
-    if (!Utils.isGuid(options.organizationId)) {
-      return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
+    if (!Utils.isGuid(organizationId)) {
+      return Response.badRequest("`" + organizationId + "` is not a GUID.");
     }
-    if (options.organizationId !== req.organizationId) {
+    if (
+      !Utils.isNullOrWhitespace(options.organizationId) &&
+      !Utils.isNullOrWhitespace(req.organizationId) &&
+      options.organizationId !== req.organizationId
+    ) {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
+    req.organizationId = organizationId as OrganizationId;
     if (req.name == null || req.name.trim() === "") {
       return Response.badRequest("Collection name is required.");
     }
