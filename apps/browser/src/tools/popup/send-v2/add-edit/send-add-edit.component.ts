@@ -236,8 +236,8 @@ export class SendAddEditComponent {
         this.config.originalSend,
       );
       // We can make a copy of a disabled Send only if two conditions are met
-      // 1. The Send doesn't violate the SendType restriction of the policy (if Text
-      // Sends aren't allowed we'd have to turn the copy into a File Send)
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
       // 2. The Send is a Text Send (we can't attach existing files to new Sends)
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
