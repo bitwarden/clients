@@ -5745,8 +5745,8 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "No values to copy"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "Assign to collections"
@@ -6487,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "System default"
@@ -6994,7 +6994,7 @@
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add three quick-copy action buttons next to items to specifically copy your username, password, or verification code to the clipboard."
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
