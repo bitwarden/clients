@@ -451,13 +451,20 @@ force-set-password redirect on the open-invite path.
      identity) and fetches policies via
      `getOrgPoliciesForInvite(openInvite)` using the invite-link code.
    - Policies flow into `PasswordLoginCredentials` as
-     `masterPasswordPoliciesFromOrgInvite`; `PasswordLoginStrategy`
-     evaluates MP compliance and sets `WeakMasterPassword` if
-     non-compliant — same behavior as direct invites.
-4. `deepLinkGuard` replays `/join/...` once auth status is `Unlocked`.
-5. `authedHandler` → `acceptOpenOrgInvite` → SDK accept → `accepted`.
-6. Success toast; navigate to `/`. If `WeakMasterPassword` was set,
-   `authGuard` redirects to `/change-password` instead.
+     `masterPasswordPoliciesFromOrgInvite`.
+4. Login proceeds normally. `PasswordLoginStrategy` authenticates
+   successfully regardless of policy compliance.
+5. Post-auth, `PasswordLoginStrategy` evaluates the supplied master
+   password against the combined policy options:
+   - Compliant → no further action; flow continues at step 6.
+   - Non-compliant → `masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.WeakMasterPassword, userId)`;
+     `LoginComponent` then redirects to `/change-password` (bypassing
+     deep-link replay). Updating the password logs the user out; on
+     re-login with a compliant password, they land back at step 6 and
+     the accept finally fires.
+6. `deepLinkGuard` replays `/join/...` once auth status is `Unlocked`.
+7. `authedHandler` → `acceptOpenOrgInvite` → SDK accept → `accepted`.
+8. `clearOrganizationInvite` wipes the stash; success toast; navigate to `/`.
 
 ### SSO flows
 
