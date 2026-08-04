@@ -148,6 +148,8 @@ export class SendCreateCommand {
         req.text.text = text;
         req.text.hidden = hidden;
         break;
+      case SendType.Item:
+        return Response.badRequest("Item type Send functionality not yet available");
       default:
         return Response.badRequest(
           "Unknown Send type " + SendType[req.type] + ". Valid types are: file, text",

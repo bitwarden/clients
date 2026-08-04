@@ -104,6 +104,7 @@ export class SendV2Component implements OnDestroy {
   private readonly sendTypeTitles: Record<SendType, string> = {
     [SendType.File]: "fileSends",
     [SendType.Text]: "textSends",
+    [SendType.Item]: "itemSends",
   };
 
   constructor(
