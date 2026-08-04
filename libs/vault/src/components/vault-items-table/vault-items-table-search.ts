@@ -1,9 +1,19 @@
 import { inject, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, debounceTime, distinctUntilChanged, filter, switchMap } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  from,
+  of,
+  switchMap,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
@@ -48,10 +58,8 @@ export function cipherSearchMatches<C extends CipherViewLike>(
 ): Signal<CipherSearchMatches> {
   const searchService = inject(SearchService);
   const accountService = inject(AccountService);
+  const logService = inject(LogService, { optional: true });
 
-  // A transient null account (an account switch) is dropped rather than mapped, so the last
-  // resolved matches stand — `getUserId` would instead throw and leave the pipeline dead for the
-  // rest of the table's lifetime.
   const userId$ = accountService.activeAccount$.pipe(
     getOptionalUserId,
     filter((userId): userId is UserId => userId != null),
@@ -65,21 +73,30 @@ export function cipherSearchMatches<C extends CipherViewLike>(
     userId$,
   ]).pipe(
     // `switchMap` so a newer keystroke abandons the search already in flight for the previous one.
-    switchMap(async ([rows, searchTerm, organization, userId]) => {
-      // Below the searchable minimum length (locale-dependent) there is no active search, matching
-      // how every client gates its own search today.
-      if (!(await searchService.isSearchable(searchTerm))) {
-        return undefined;
-      }
-      const results = await searchService.searchCiphers(
-        userId,
-        organization ?? null,
-        searchTerm,
-        rows,
-      );
-      return new Set(results.map((cipher) => String(cipher.id)));
-    }),
+    switchMap(([rows, searchTerm, organization, userId]) =>
+      from(runSearch(searchService, userId, organization ?? null, searchTerm, rows)).pipe(
+        // Catch any errors so we don't break the toSignal below
+        catchError((error: unknown) => {
+          logService?.error(error);
+          return of<CipherSearchMatches>(undefined);
+        }),
+      ),
+    ),
   );
 
   return toSignal(matches$, { initialValue: undefined });
+}
+
+async function runSearch<C extends CipherViewLike>(
+  searchService: SearchService,
+  userId: UserId,
+  organizationId: OrganizationId | null,
+  term: string,
+  ciphers: C[],
+): Promise<CipherSearchMatches> {
+  if (!(await searchService.isSearchable(term))) {
+    return undefined;
+  }
+  const results = await searchService.searchCiphers(userId, organizationId, term, ciphers);
+  return new Set(results.map((cipher) => String(cipher.id)));
 }

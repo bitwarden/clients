@@ -20,6 +20,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/services/search.service";
 import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
+import { ConsoleLogService } from "@bitwarden/logging";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultItemEvent } from "../vault-item-event";
@@ -531,14 +532,10 @@ export default {
           provide: SearchService,
           useFactory: () =>
             new DefaultSearchService(
+              new ConsoleLogService(true) as unknown as LogService,
               {
-                measure: (): void => undefined,
-                info: (): void => undefined,
-                warning: (): void => undefined,
-                debug: (): void => undefined,
-                error: (): void => undefined,
-              } as unknown as LogService,
-              { locale$: of("en") } as I18nService,
+                locale$: of("en"),
+              } as I18nService,
             ),
         },
         {

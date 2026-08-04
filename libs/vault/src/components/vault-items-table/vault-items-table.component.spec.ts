@@ -76,6 +76,7 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
+  let searchService: DefaultSearchService;
 
   beforeEach(async () => {
     const accountService = mock<AccountService>();
@@ -92,6 +93,10 @@ describe("VaultItemsTableComponent", () => {
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(false));
 
+    searchService = new DefaultSearchService(mock<LogService>(), {
+      locale$: of("en"),
+    } as I18nService);
+
     await TestBed.configureTestingModule({
       imports: [VaultItemsTableComponent],
       providers: [
@@ -99,12 +104,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: AccountService, useValue: accountService },
         // The real search service, not a double — the table's contract is that its search matches
         // what a client's own vault search matches, and a double could only assert fiction.
-        {
-          provide: SearchService,
-          useValue: new DefaultSearchService(mock<LogService>(), {
-            locale$: of("en"),
-          } as I18nService),
-        },
+        { provide: SearchService, useValue: searchService },
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: ConfigService, useValue: configService },
@@ -440,6 +440,25 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       expect(filteredNames()).toEqual(["Amazon card"]);
+    }));
+
+    it("survives a failed search and keeps searching afterwards", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+      jest.spyOn(searchService, "searchCiphers").mockRejectedValueOnce(new Error("search failed"));
+
+      search("amazon");
+
+      // A failed search filters nothing out rather than emptying the table.
+      expect(filteredNames()).toEqual(["Amazon", "Netflix"]);
+
+      // And the next one still works: `toSignal` latches an error permanently and drops its
+      // subscription, so without a scoped `catchError` this read would throw instead.
+      search("netflix");
+
+      expect(filteredNames()).toEqual(["Netflix"]);
     }));
 
     it("keeps rows matched when a re-decryption replaces every cipher object", fakeAsync(() => {
