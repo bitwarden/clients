@@ -120,9 +120,9 @@ export abstract class OrganizationInviteService {
    * Fetches the public status of an open org invite link (anonymous endpoint), scoped to
    * `(organizationId, code)`. Returns a discriminated {@link OpenOrgInviteStatusResult} —
    * `ok` with the status payload on success, or one of the classified failure kinds
-   * (`not-found`, `plan-not-supported`) matching the server's known error surfaces.
-   * Unclassified failures (network / 5xx / non-`ErrorResponse` throws) return `unexpected`
-   * with a best-effort message.
+   * (`not-found`, `plan-not-supported`, `no-seats`) matching the server's known error
+   * surfaces. Unclassified failures (network / 5xx / non-`ErrorResponse` throws) return
+   * `unexpected` with a best-effort message.
    */
   abstract getOpenOrgInviteStatus(
     organizationId: string,
@@ -163,9 +163,9 @@ export abstract class OrganizationInviteService {
   ): Promise<UnsealOpenOrgInviteResult>;
 
   /**
-   * Removes the sealed-open-org-invite secret entry for the given email. Called on
-   * accept-success, on any accept-failure branch that has a stored secret to invalidate, and
-   * on unseal-failure (tampered blob / wrong secret). Safe to call when no entry exists.
+   * Removes the sealed-open-org-invite secret entry for the given email. Called once per
+   * crossing by `RegistrationFinishComponent` immediately after `unsealOpenOrgInvite`,
+   * regardless of outcome — the secret is single-use. Safe to call when no entry exists.
    */
   abstract clearSealedOpenOrgInviteSecret(email: string): Promise<void>;
 

@@ -604,9 +604,9 @@ Two open-invite-specific pieces of state, both persisted via
    swept on app boot by
    `DefaultOrganizationInviteService.clearExpiredSealedOpenOrgInviteSecrets`
    (called from web's `APP_INITIALIZER`). Individual entries are cleared
-   by `clearSealedOpenOrgInviteSecret(email)` on unseal success, on
-   accept-failure paths that had a stored secret, and on unseal-failure
-   (tampered blob / wrong secret).
+   by `clearSealedOpenOrgInviteSecret(email)` once per crossing, immediately
+   after `unsealOpenOrgInvite` — the secret is single-use and dies at
+   unseal regardless of outcome.
 
 The sealed-secret record only holds transient crossing state — it's never
 consulted outside `RegistrationFinishComponent`'s unseal path.
