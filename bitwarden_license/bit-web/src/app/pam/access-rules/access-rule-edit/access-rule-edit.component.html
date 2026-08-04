@@ -1,0 +1,201 @@
+<bit-header [title]="titleText()" icon="bwi-clock">
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+</bit-header>
+
+<bit-container>
+  @if (loading()) {
+    <bit-spinner />
+  } @else {
+    <form [formGroup]="formGroup" [bitSubmit]="submit">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamAccessRuleGeneralInfoHeading" | i18n }}</h2>
+        </bit-section-header>
+
+        <bit-card>
+          <bit-form-field>
+            <bit-label>{{ "pamAccessRuleName" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
+              id="access-rule-edit_input_name"
+              formControlName="name"
+              [placeholder]="'pamAccessRuleNamePlaceholder' | i18n"
+            />
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "pamAccessRuleDescription" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              id="access-rule-edit_textarea_description"
+              formControlName="description"
+              rows="2"
+            ></textarea>
+          </bit-form-field>
+
+          <bit-form-field disableMargin>
+            <bit-label>{{ "pamAccessRuleCollectionsSelect" | i18n }}</bit-label>
+            <bit-multi-select
+              class="tw-w-full"
+              formControlName="collections"
+              [baseItems]="collectionOptions()"
+              [removeSelectedItems]="false"
+              [loading]="collectionsLoading()"
+            />
+            <bit-hint>{{ "pamAccessRuleCollectionsHint" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-control class="tw-mt-4">
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rule-edit_checkbox_enabled"
+              formControlName="enabled"
+            />
+            <bit-label>{{ "pamAccessRuleEnabled" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleEnabledHint" | i18n }}</bit-hint>
+          </bit-form-control>
+        </bit-card>
+      </bit-section>
+
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamAccessRuleAccessDurationHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-form-field>
+            <bit-label>{{ "pamAccessRuleDefaultDuration" | i18n }}</bit-label>
+            <bit-select
+              id="access-rule-edit_select_default-duration"
+              formControlName="defaultLeaseDurationSeconds"
+            >
+              @for (opt of durationOptions; track opt.seconds) {
+                <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+              }
+            </bit-select>
+            <bit-hint>{{ "pamAccessRuleDefaultDurationHint" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "pamAccessRuleMaxDuration" | i18n }}</bit-label>
+            <bit-select
+              id="access-rule-edit_select_max-duration"
+              formControlName="maxLeaseDurationSeconds"
+            >
+              <bit-option
+                [value]="noDurationCap"
+                [label]="'pamAccessRuleMaxDurationNoCap' | i18n"
+              />
+              @for (opt of durationOptions; track opt.seconds) {
+                <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+              }
+            </bit-select>
+            <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rule-edit_checkbox_allow-extensions"
+              formControlName="allowsExtensions"
+            />
+            <bit-label>{{ "pamAccessRuleAllowExtensions" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleAllowExtensionsHint" | i18n }}</bit-hint>
+          </bit-form-control>
+
+          @if (formGroup.controls.allowsExtensions.value) {
+            <bit-form-field class="tw-ml-7" disableMargin>
+              <bit-label>{{ "pamAccessRuleMaxExtensionLength" | i18n }}</bit-label>
+              <bit-select
+                id="access-rule-edit_select_max-extension"
+                formControlName="maxExtensionDurationSeconds"
+              >
+                @for (opt of extensionDurationOptions; track opt.seconds) {
+                  <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+                }
+              </bit-select>
+              <bit-hint>{{ "pamAccessRuleMaxExtensionLengthHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          }
+        </bit-card>
+      </bit-section>
+
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamAccessRuleOptionalConditionsHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rule-edit_checkbox_human-approval"
+              formControlName="humanApprovalEnabled"
+            />
+            <bit-label>{{ "pamAccessRuleConditionHumanApproval" | i18n }}</bit-label>
+          </bit-form-control>
+
+          @if (formGroup.controls.humanApprovalEnabled.value) {
+            <p bitTypography="body2" class="tw-ml-7 tw-mb-4 tw--mt-3 tw-text-muted">
+              {{ "pamAccessRuleApprovers" | i18n }}:
+              {{ "pamAccessRuleApproversCollectionManagers" | i18n }}
+            </p>
+          }
+
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rule-edit_checkbox_ip-allowlist"
+              formControlName="ipAllowlistEnabled"
+            />
+            <bit-label>{{ "pamAccessRuleConditionIpAllowlist" | i18n }}</bit-label>
+          </bit-form-control>
+
+          @if (formGroup.controls.ipAllowlistEnabled.value) {
+            <div class="tw-ml-7 tw-mb-4">
+              <app-pam-ip-allowlist-editor [cidrArray]="formGroup.controls.ipAllowlistCidrs" />
+            </div>
+          }
+
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="access-rule-edit_checkbox_single-active-lease"
+              formControlName="singleActiveLease"
+            />
+            <bit-label>{{ "pamAccessRuleSingleActiveLease" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
+          </bit-form-control>
+        </bit-card>
+      </bit-section>
+
+      <div class="tw-flex tw-gap-2">
+        <button
+          type="submit"
+          bitButton
+          buttonType="primary"
+          bitFormButton
+          id="access-rule-edit_button_save"
+        >
+          {{ "save" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          bitFormButton
+          (click)="cancel()"
+          id="access-rule-edit_button_cancel"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </form>
+  }
+</bit-container>

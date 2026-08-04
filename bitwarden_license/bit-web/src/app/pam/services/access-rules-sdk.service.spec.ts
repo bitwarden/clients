@@ -12,7 +12,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import type { AccessRuleAddEditRequest, AccessRuleView } from "@bitwarden/sdk-internal";
+import type {
+  AccessRuleAddEditRequest,
+  AccessRuleId,
+  AccessRuleView,
+} from "@bitwarden/sdk-internal";
 
 import { AccessRulesSdkService } from "./access-rules-sdk.service";
 
@@ -24,7 +28,7 @@ describe("AccessRulesSdkService", () => {
 
   const userId = "3f5a3c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as UserId;
   const organizationId = "6c1e4c8a-9b1e-4c8a-9b1e-3b1e4c8a9b1e" as OrganizationId;
-  const ruleId = "9b1e4c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e";
+  const ruleId = "9b1e4c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as unknown as AccessRuleId;
 
   const ruleView = { id: ruleId, organizationId, name: "VPN access" } as unknown as AccessRuleView;
 

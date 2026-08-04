@@ -52,18 +52,14 @@ export class AccessRulesSdkService extends AccessRuleSdkService {
     );
   }
 
-  async getAccessRule(organizationId: OrganizationId, id: string): Promise<AccessRuleView> {
+  async getAccessRule(organizationId: OrganizationId, id: AccessRuleId): Promise<AccessRuleView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value
-            .commercial()
-            .pam()
-            .access_rules()
-            .get(orgId, asUuid<AccessRuleId>(id));
+          return await ref.value.commercial().pam().access_rules().get(orgId, id);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to get access rule: ${error}`);
@@ -95,7 +91,7 @@ export class AccessRulesSdkService extends AccessRuleSdkService {
 
   async updateAccessRule(
     organizationId: OrganizationId,
-    id: string,
+    id: AccessRuleId,
     request: AccessRuleAddEditRequest,
   ): Promise<AccessRuleView> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
@@ -104,11 +100,7 @@ export class AccessRulesSdkService extends AccessRuleSdkService {
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value
-            .commercial()
-            .pam()
-            .access_rules()
-            .update(orgId, asUuid<AccessRuleId>(id), request);
+          return await ref.value.commercial().pam().access_rules().update(orgId, id, request);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update access rule: ${error}`);
@@ -118,18 +110,14 @@ export class AccessRulesSdkService extends AccessRuleSdkService {
     );
   }
 
-  async deleteAccessRule(organizationId: OrganizationId, id: string): Promise<void> {
+  async deleteAccessRule(organizationId: OrganizationId, id: AccessRuleId): Promise<void> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value
-            .commercial()
-            .pam()
-            .access_rules()
-            .delete(orgId, asUuid<AccessRuleId>(id));
+          return await ref.value.commercial().pam().access_rules().delete(orgId, id);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to delete access rule: ${error}`);

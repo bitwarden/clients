@@ -1,0 +1,50 @@
+<div class="tw-flex tw-flex-col tw-gap-6">
+  <bit-card>
+    <bit-no-items [icon]="noItemsIcon">
+      <span slot="title">{{ "pamNoAccessRulesYetTitle" | i18n }}</span>
+      <span slot="description">{{ "pamNoAccessRulesYetDescription" | i18n }}</span>
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="create.emit()"
+        id="access-rules-empty-state_button_create"
+      >
+        {{ "pamAccessRuleCreateCustom" | i18n }}
+      </button>
+    </bit-no-items>
+  </bit-card>
+
+  <div class="tw-flex tw-flex-col">
+    <h2 bitTypography="h6">
+      {{ "pamAccessRulesStartFromTemplate" | i18n }}
+    </h2>
+
+    <bit-item-group>
+      @for (template of templates; track template.key) {
+        <bit-item>
+          <bit-item-content>
+            <bit-icon-tile slot="start" [icon]="template.icon" variant="primary" size="base" />
+            {{ template.titleKey | i18n }}
+            <span slot="secondary">{{ template.summaryKey | i18n }}</span>
+          </bit-item-content>
+
+          <button
+            slot="end"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            endIcon="bwi-arrow-right"
+            (click)="useTemplate.emit(template.key)"
+            [id]="'access-rules-empty-state_button_template-' + template.key"
+          >
+            {{ "pamAccessRuleUseTemplate" | i18n }}
+          </button>
+        </bit-item>
+      }
+    </bit-item-group>
+  </div>
+</div>
