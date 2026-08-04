@@ -255,6 +255,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "org-access-revoked":
       case "no-seats":
       case "two-factor-required":
+      case "email-not-verified":
       case "single-org-policy-violation-target-org":
       case "single-org-policy-violation-other-org":
       case "auto-confirm-policy-violation-target-org":

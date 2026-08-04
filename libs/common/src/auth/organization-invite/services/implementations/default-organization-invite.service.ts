@@ -379,6 +379,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     ) {
       return { kind: "two-factor-required" };
     }
+    if (message === "You must verify your email address before joining an organization.") {
+      return { kind: "email-not-verified" };
+    }
     // Target org has single-org policy on + user is in other orgs.
     if (
       message ===

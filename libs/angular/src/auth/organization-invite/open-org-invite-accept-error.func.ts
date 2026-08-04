@@ -63,6 +63,12 @@ export function openOrgInviteAcceptErrorUi(
         bodyMessageI18nKey: "openOrgInviteAcceptTwoFactorRequired",
         button,
       };
+    case "email-not-verified":
+      return {
+        anonLayoutData: { pageTitle, pageIcon: AccountWarning },
+        bodyMessageI18nKey: "openOrgInviteAcceptEmailNotVerified",
+        button,
+      };
     // Single-org and auto-confirm target-org variants share body copy: both are the same
     // "the org you are trying to join enforces single-org membership" outcome from the
     // user's perspective, differing only in which server-side policy family produced it.

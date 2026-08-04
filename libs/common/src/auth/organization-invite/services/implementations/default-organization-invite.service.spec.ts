@@ -1071,6 +1071,12 @@ describe("DefaultOrganizationInviteService", () => {
           expectedKind: "two-factor-required",
         },
         {
+          serverErrorName: "UserEmailNotVerified",
+          statusCode: 400,
+          message: "You must verify your email address before joining an organization.",
+          expectedKind: "email-not-verified",
+        },
+        {
           serverErrorName: "UserIsAMemberOfAnotherOrganization",
           statusCode: 400,
           message:

@@ -6335,6 +6335,9 @@
   "openOrgInviteAcceptTwoFactorRequired": {
     "message": "You must set up two-step login in order to join this organization."
   },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "You must verify your email address before joining an organization."
+  },
   "openOrgInviteAcceptUnexpected": {
     "message": "Something went wrong, please reload the page to try again."
   },

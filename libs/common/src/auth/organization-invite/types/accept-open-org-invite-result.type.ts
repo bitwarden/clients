@@ -16,6 +16,7 @@
  *  - `org-access-revoked` — org has revoked the user's access.
  *  - `no-seats` — org is at its seat cap.
  *  - `two-factor-required` — user must enable 2FA before joining.
+ *  - `email-not-verified` — user must verify their email address before joining.
  *  - `single-org-policy-violation-target-org` — target org enforces single-organization;
  *    user must leave their other orgs.
  *  - `single-org-policy-violation-other-org` — another org the user belongs to enforces
@@ -42,6 +43,7 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "org-access-revoked" }
   | { kind: "no-seats" }
   | { kind: "two-factor-required" }
+  | { kind: "email-not-verified" }
   | { kind: "single-org-policy-violation-target-org" }
   | { kind: "single-org-policy-violation-other-org" }
   | { kind: "auto-confirm-policy-violation-target-org" }
