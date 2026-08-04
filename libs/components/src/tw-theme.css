@@ -641,7 +641,7 @@
   /* Global — shared by both variants */
   --color-nav-border: rgba(var(--color-white-rgb), 0.25);
   --color-nav-fg-body: var(--color-white);
-  --color-nav-fg-heading: var(--color-gray-600);
+  /* --color-nav-fg-heading: var(--color-gray-600); */
   --color-nav-border-focus: var(--color-white);
 
   /* Brand family — Password Manager, Secrets Manager */
