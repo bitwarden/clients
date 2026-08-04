@@ -361,7 +361,7 @@ const buildProviders = (args: StoryArgs) => {
           archiveVerb: "Archive",
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
-          launchWebsiteName: "Launch website",
+          launchWebsiteName: "Launch __$1__",
           itemCount: "__$1__ items",
         }),
     },
