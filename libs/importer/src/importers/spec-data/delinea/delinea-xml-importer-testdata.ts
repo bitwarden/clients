@@ -1,18 +1,10 @@
 export const DelineaXmlTestDataNote = `<?xml version="1.0" encoding="utf-8"?>
 <ImportFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Folders>
-    <Folder>
-      <FolderName>Finance</FolderName>
-      <FolderPath>\\Finance</FolderPath>
-      <Permissions />
-      <MappedSecretTypes />
-    </Folder>
-  </Folders>
+  <Folders />
   <Secrets>
     <Secret>
       <SecretName>AC units at Operations</SecretName>
-      <SecretTemplateName>Kee Pass</SecretTemplateName>
-      <FolderPath>\\Finance</FolderPath>
+      <FolderPath />
       <SiteId>-1</SiteId>
       <TotpKey />
       <TotpBackupCodes />
@@ -63,7 +55,6 @@ export const DelineaXmlTestDataLogin = `<?xml version="1.0" encoding="utf-8"?>
   <Secrets>
     <Secret>
       <SecretName>AC units at Operations</SecretName>
-      <SecretTemplateName>Kee Pass</SecretTemplateName>
       <FolderPath>\\Finance</FolderPath>
       <SiteId>-1</SiteId>
       <TotpKey />
@@ -98,6 +89,43 @@ export const DelineaXmlTestDataLogin = `<?xml version="1.0" encoding="utf-8"?>
           <FieldName>Expires</FieldName>
           <Slug>expires</Slug>
           <Value>2020-03-09 08:52:49 AM</Value>
+        </SecretItem>
+      </SecretItems>
+      <SecretDependencies />
+      <SecretDependencyGroups />
+      <Permissions />
+    </Secret>
+  </Secrets>
+  <Groups />
+  <Sites />
+  <SiteConnectors />
+</ImportFile>`;
+
+export const DelineaXmlTestDataEmptySlugValue = `<?xml version="1.0" encoding="utf-8"?>
+<ImportFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Folders />
+  <Secrets>
+    <Secret>
+      <SecretName>AC units at Operations</SecretName>
+      <FolderPath>\\Finance</FolderPath>
+      <SiteId>-1</SiteId>
+      <TotpKey />
+      <TotpBackupCodes />
+      <SecretItems>
+        <SecretItem>
+          <FieldName>Username</FieldName>
+          <Slug>username</Slug>
+          <Value>myUser</Value>
+        </SecretItem>
+        <SecretItem>
+          <FieldName>Password</FieldName>
+          <Slug>password</Slug>
+          <Value>SoftBatchCookies123!</Value>
+        </SecretItem>
+        <SecretItem>
+          <FieldName>EmptyField</FieldName>
+          <Slug>emptyfield</Slug>
+          <Value />
         </SecretItem>
       </SecretItems>
       <SecretDependencies />

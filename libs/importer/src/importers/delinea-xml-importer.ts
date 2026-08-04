@@ -71,7 +71,9 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
         }
       }
 
-      const folderPath = this.querySelectorDirectChild(secretNode, "FolderPath")?.textContent;
+      const folderPath = this.getValueOrDefault(
+        this.querySelectorDirectChild(secretNode, "FolderPath")?.textContent ?? "",
+      );
       if (folderPath) {
         const folderIdx = this.result.folders.findIndex(
           (f) => f.name === this.convertFolderPathToName(folderPath),
@@ -126,8 +128,12 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
     }
     const items = this.querySelectorAllDirectChild(secretItemsNode, "SecretItem");
     for (const item of items) {
-      const slug = this.querySelectorDirectChild(item, "Slug")?.textContent;
-      const value = this.querySelectorDirectChild(item, "Value")?.textContent || "--";
+      const slug = this.getValueOrDefault(
+        this.querySelectorDirectChild(item, "Slug")?.textContent ?? "",
+      );
+      const value = this.getValueOrDefault(
+        this.querySelectorDirectChild(item, "Value")?.textContent ?? "",
+      );
       if (slug && value) {
         slugValues.push({ slug, value });
       }

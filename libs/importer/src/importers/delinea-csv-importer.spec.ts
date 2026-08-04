@@ -32,9 +32,8 @@ describe("Delinea CSV Importer", () => {
 
     expect(result.folders.length).toEqual(1);
     expect(result.folders[0].name).toEqual("Finance");
-    expect(result.folderRelationships.length).toEqual(2);
+    expect(result.folderRelationships.length).toEqual(1);
     expect(result.folderRelationships[0]).toEqual([0, 0]);
-    expect(result.folderRelationships[1]).toEqual([1, 0]);
   });
 
   it("should import Secrets without a url field as Secure Notes with custom fields for all Secret info except notes", async () => {
@@ -44,12 +43,12 @@ describe("Delinea CSV Importer", () => {
     expect(result).not.toBeNull();
 
     expect(result.ciphers.length).toEqual(2);
-    expect(result.ciphers[1].type).toEqual(CipherType.SecureNote);
-    const cipherFields = result.ciphers[1].fields;
+    const noteCipher = result.ciphers[1];
+    expect(noteCipher.type).toEqual(CipherType.SecureNote);
+    expect(noteCipher.notes).toEqual("Level 1 = 1024");
+
+    const cipherFields = noteCipher.fields;
     expect(cipherFields.length).toEqual(4);
-
-    expect(result.ciphers[1].notes).toEqual("Level 1 = 1024");
-
     expect(cipherFields[0].name).toEqual("Username");
     expect(cipherFields[0].value).toEqual("myUser");
     expect(cipherFields[1].name).toEqual("Password");
@@ -74,12 +73,10 @@ describe("Delinea CSV Importer", () => {
     expect(loginCipher.login.uris.length).toEqual(1);
     expect(loginCipher.login.uris[0].uri).toEqual("https://bitwarden.com");
     expect(loginCipher.login.password).toEqual("SoftBatchCookies123!");
-
     expect(loginCipher.notes).toEqual("Level 1 = 1024");
 
     const cipherFields = loginCipher.fields;
     expect(cipherFields.length).toEqual(2);
-
     expect(cipherFields[0].name).toEqual("Date Created");
     expect(cipherFields[0].value).toEqual("3/9/2020 9:29");
     expect(cipherFields[1].name).toEqual("Expires");

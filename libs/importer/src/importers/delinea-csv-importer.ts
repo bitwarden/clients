@@ -33,6 +33,10 @@ export class DelineaCsvImporter extends BaseImporter implements Importer {
         } else if (key === "Username" && cipher.type === CipherType.Login) {
           cipher.login.username = value;
         } else if (key === "Folder") {
+          // Skip if no folder
+          if (this.isNullOrWhitespace(value)) {
+            continue;
+          }
           const cipherIdx = this.result.ciphers.length;
           const folderName = this.convertFolderPathToName(value);
           const existingFolderIdx = this.result.folders.findIndex((f) => f.name === folderName);
