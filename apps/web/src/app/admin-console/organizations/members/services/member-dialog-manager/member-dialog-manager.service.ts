@@ -12,6 +12,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -46,6 +48,7 @@ export class MemberDialogManagerService {
     private toastService: ToastService,
     private userNamePipe: UserNamePipe,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async openInviteDialog(
@@ -102,6 +105,7 @@ export class MemberDialogManagerService {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
+        profileName: user.name,
         email: user.email,
         organizationId: organization.id,
         organizationUserId: user.id,
@@ -109,6 +113,7 @@ export class MemberDialogManagerService {
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
         initialTab: resolvedTab,
         claimedByOrganization: user.claimedByOrganization,
+        hasMasterPassword: user.hasMasterPassword,
       },
     });
 
@@ -277,7 +282,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 
@@ -296,7 +306,12 @@ export class MemberDialogManagerService {
       return false;
     }
 
-    if (user.status > 0 && user.hasMasterPassword === false) {
+    if (
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        user.status,
+      ) &&
+      user.hasMasterPassword === false
+    ) {
       return await this.openNoMasterPasswordConfirmationDialog(user);
     }
 
@@ -328,7 +343,9 @@ export class MemberDialogManagerService {
         placeholders: [this.userNamePipe.transform(user)],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.userNamePipe.transform(user)],
       },
       type: "warning",

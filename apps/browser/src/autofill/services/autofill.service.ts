@@ -61,6 +61,7 @@ import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualific
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
+  AutoFillResult,
   AutofillService as AutofillServiceInterface,
   COLLECT_PAGE_DETAILS_RESPONSE_COMMAND,
   FormData,
@@ -118,13 +119,15 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Collects page details from the specific tab. This method returns an observable that can
-   * be subscribed to in order to build the results from all collectPageDetailsResponse
-   * messages from the given tab.
+   * Collects page details from a tab. Returns an observable that builds the results from the
+   * collectPageDetailsResponse messages the tab's frames send back. When `frameId` is given, the
+   * collection is scoped to that one frame — only it is asked, and only its response is admitted, so
+   * a concurrent collection on another frame of the same tab cannot bleed in.
    *
    * @param tab The tab to collect page details from
+   * @param frameId When set, collect only this frame; otherwise collect every frame
    */
-  collectPageDetailsFromTab$(tab: chrome.tabs.Tab): Observable<PageDetail[]> {
+  collectPageDetailsFromTab$(tab: chrome.tabs.Tab, frameId?: number): Observable<PageDetail[]> {
     /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
     const pageDetailsFallback$ = new ReplaySubject<PageDetail[]>(1);
 
@@ -134,7 +137,8 @@ export default class AutofillService implements AutofillServiceInterface {
         filter(
           (message) =>
             message.sender === AutofillMessageSender.collectPageDetailsFromTabObservable &&
-            message.tab?.id === tab.id,
+            message.tab?.id === tab.id &&
+            (frameId === undefined || getWebExtSender(message)?.frameId === frameId),
         ),
         scan((acc: PageDetail[], message): PageDetail[] => {
           const frameId = getWebExtSender(message)?.frameId;
@@ -158,7 +162,7 @@ export default class AutofillService implements AutofillServiceInterface {
         command: AutofillMessageCommand.collectPageDetails,
         sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
       },
-      undefined,
+      frameId !== undefined ? { frameId } : undefined,
       true,
     ).catch(() => {
       // When `tabSendMessage` throws an error the `pageDetailsFromTab$` will not emit,
@@ -439,13 +443,17 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Autofill a given tab with a given login item
    * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
-   * @returns {Promise<string | null>} The TOTP code of the successfully autofilled login, if any
+   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
+   * of the successfully autofilled login, if any. A no-fill is reported as `{ didAutofill: false }`
+   * rather than a thrown exception.
+   * @throws Rejects when an unexpected error occurs during the fill; a no-fill is not an error and
+   * resolves to `{ didAutofill: false }`.
    */
-  async doAutoFill(options: AutoFillOptions): Promise<string | null> {
+  async doAutoFill(options: AutoFillOptions): Promise<AutoFillResult> {
     const tab = options.tab;
     const tabUrl = tab?.url;
     if (!tabUrl || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
-      throw new Error("Nothing to autofill.");
+      return { didAutofill: false };
     }
 
     let totp: string | null = null;
@@ -551,13 +559,10 @@ export default class AutofillService implements AutofillServiceInterface {
         EventType.Cipher_ClientAutofilled,
         options.cipher.id,
       );
-      if (totp !== null) {
-        return totp;
-      } else {
-        return null;
-      }
+      // Map the internal `null` (no TOTP) to the outcome's optional `totp`.
+      return { didAutofill: true, totp: totp ?? undefined };
     } else {
-      throw new Error("Did not autofill.");
+      return { didAutofill: false };
     }
   }
 
@@ -567,25 +572,26 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param {chrome.tabs.Tab} tab The tab to be autofilled
    * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
    * @param {boolean} autoSubmitLogin Whether the autofill is for an auto-submit login
-   * @returns {Promise<string | null>} The TOTP code of the successfully autofilled login, if any
+   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
+   * of the successfully autofilled login, if any
    */
   async doAutoFillOnTab(
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
     autoSubmitLogin = false,
-  ): Promise<string | null> {
+  ): Promise<AutoFillResult> {
     let cipher: CipherView;
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
-      return null;
+      return { didAutofill: false };
     }
 
     if (!tab.url) {
-      return null;
+      return { didAutofill: false };
     }
     const tabUrl = tab.url;
     if (fromCommand) {
@@ -609,7 +615,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (cipher == null || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return null;
+      return { didAutofill: false };
     }
 
     if (await this.isPasswordRepromptRequired(cipher, tab)) {
@@ -617,10 +623,10 @@ export default class AutofillService implements AutofillServiceInterface {
         this.cipherService.updateLastUsedIndexForUrl(tabUrl);
       }
 
-      return null;
+      return { didAutofill: false };
     }
 
-    const totpCode = await this.doAutoFill({
+    const result = await this.doAutoFill({
       tab: tab,
       cipher: cipher,
       pageDetails: pageDetails,
@@ -634,11 +640,11 @@ export default class AutofillService implements AutofillServiceInterface {
     });
 
     // Update last used index as autofill has succeeded
-    if (fromCommand) {
+    if (fromCommand && result.didAutofill) {
       this.cipherService.updateLastUsedIndexForUrl(tabUrl);
     }
 
-    return totpCode;
+    return result;
   }
 
   /**
@@ -672,21 +678,22 @@ export default class AutofillService implements AutofillServiceInterface {
    * Autofill the active tab with the next cipher from the cache
    * @param {PageDetail[]} pageDetails The data scraped from the page
    * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
-   * @returns {Promise<string | null>} The TOTP code of the successfully autofilled login, if any
+   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
+   * of the successfully autofilled login, if any
    */
   async doAutoFillActiveTab(
     pageDetails: PageDetail[],
     fromCommand: boolean,
     cipherType?: CipherType,
-  ): Promise<string | null> {
+  ): Promise<AutoFillResult> {
     if (!pageDetails[0]?.details?.fields?.length) {
-      return null;
+      return { didAutofill: false };
     }
 
     const tab = await this.getActiveTab();
 
     if (!tab || !tab.url) {
-      return null;
+      return { didAutofill: false };
     }
 
     if (!cipherType || cipherType === CipherType.Login) {
@@ -700,7 +707,7 @@ export default class AutofillService implements AutofillServiceInterface {
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
-      return null;
+      return { didAutofill: false };
     }
 
     if (cipherType === CipherType.Card) {
@@ -712,7 +719,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return null;
+      return { didAutofill: false };
     }
 
     if (await this.isPasswordRepromptRequired(cipher, tab)) {
@@ -720,10 +727,10 @@ export default class AutofillService implements AutofillServiceInterface {
         this.cipherService.updateLastUsedIndexForUrl(cacheKey);
       }
 
-      return null;
+      return { didAutofill: false };
     }
 
-    const totpCode = await this.doAutoFill({
+    const result = await this.doAutoFill({
       tab: tab,
       cipher: cipher,
       pageDetails: pageDetails,
@@ -735,11 +742,11 @@ export default class AutofillService implements AutofillServiceInterface {
       allowTotpAutofill: false,
     });
 
-    if (fromCommand) {
+    if (fromCommand && result.didAutofill) {
       this.cipherService.updateLastUsedIndexForUrl(cacheKey);
     }
 
-    return totpCode;
+    return result;
   }
 
   /**
