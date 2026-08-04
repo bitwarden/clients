@@ -30,7 +30,7 @@ pub trait QueryableKeyData: Send + Sync {
 
 /// An intermediary struct representing an SSH key from the vault,
 /// before its private key has been parsed.
-pub struct EncodedSSHKeyData {
+pub struct UnparsedSSHKeyData {
     /// OpenSSH-format private key PEM
     pub private_key_pem: String,
     /// Human-readable name
@@ -104,7 +104,7 @@ impl SSHKeyData {
 
     /// Parses a batch of vault SSH keys, dropping the ones that can't be parsed..
     #[must_use]
-    pub fn from_private_key_pems(keys: Vec<EncodedSSHKeyData>) -> Vec<Self> {
+    pub fn from_private_key_pems(keys: Vec<UnparsedSSHKeyData>) -> Vec<Self> {
         let total = keys.len();
         let parsed: Vec<Self> = keys
             .into_iter()
@@ -277,8 +277,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         assert_eq!(data.public_key().alg(), "ssh-rsa");
     }
 
-    fn encoded(pem: &str, name: &str) -> EncodedSSHKeyData {
-        EncodedSSHKeyData {
+    fn unparsed(pem: &str, name: &str) -> UnparsedSSHKeyData {
+        UnparsedSSHKeyData {
             private_key_pem: pem.to_string(),
             name: name.to_string(),
             cipher_id: format!("cipher-{name}"),
@@ -288,10 +288,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
     #[test]
     fn from_private_key_pems_skips_unloadable_keys_and_keeps_the_rest() {
         let parsed = SSHKeyData::from_private_key_pems(vec![
-            encoded(TEST_SK_ED25519_PEM, "sk"),
-            encoded(TEST_ED25519_PEM, "ed25519"),
-            encoded("not a key", "garbage"),
-            encoded(TEST_RSA_PEM, "rsa"),
+            unparsed(TEST_SK_ED25519_PEM, "sk"),
+            unparsed(TEST_ED25519_PEM, "ed25519"),
+            unparsed("not a key", "garbage"),
+            unparsed(TEST_RSA_PEM, "rsa"),
         ]);
 
         assert_eq!(parsed.len(), 2);
@@ -301,7 +301,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
 
     #[test]
     fn from_private_key_pems_returns_empty_when_no_key_is_loadable() {
-        let parsed = SSHKeyData::from_private_key_pems(vec![encoded(TEST_SK_ED25519_PEM, "sk")]);
+        let parsed = SSHKeyData::from_private_key_pems(vec![unparsed(TEST_SK_ED25519_PEM, "sk")]);
 
         assert!(parsed.is_empty());
     }

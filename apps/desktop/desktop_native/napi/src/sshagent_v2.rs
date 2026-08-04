@@ -13,9 +13,9 @@ pub mod sshagent_v2 {
         threadsafe_function::ThreadsafeFunction,
     };
     use ssh_agent::{
-        ApprovalError, ApprovalRequester, BitwardenSSHAgent, EncodedSSHKeyData,
-        InMemoryEncryptedKeyStore, SIGNamespace as SSHSIGNamespace,
-        SignApprovalRequest as SSHSignApprovalRequest,
+        ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
+        UnparsedSSHKeyData,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -213,7 +213,7 @@ pub mod sshagent_v2 {
         pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
             let keys = new_keys
                 .into_iter()
-                .map(|k| EncodedSSHKeyData {
+                .map(|k| UnparsedSSHKeyData {
                     private_key_pem: k.private_key,
                     name: k.name,
                     cipher_id: k.cipher_id,
