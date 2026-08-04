@@ -53,8 +53,8 @@ import {
 import { VaultItemsTableColumn, VaultItemsTableRowAction } from "./vault-items-table-row-action";
 
 /**
- * Sentinel for the Vault chip's "my vault" option. Organizations are identified by id, and the
- * individual vault has none, so it needs a value of its own that can't collide with one.
+ * Sentinel for the Vault chip's "my vault" option — organizations are identified by id, and the
+ * individual vault has none.
  */
 export const MY_VAULT = "myVault";
 
@@ -62,10 +62,9 @@ export const MY_VAULT = "myVault";
 export const NO_FOLDER = "noFolder";
 
 /**
- * The `filterValues`/`FilterControl` key `bit-table-v2` reserves for a projected `bit-search`
- * (see `SEARCH_FILTER_KEY` in `table-v2.component.ts`, which the library keeps module-private).
- * Mirrored here so the empty state's Clear all can skip it — it clears chip filters only, same
- * as the toolbar's own `clearAll()`.
+ * The `filterValues` key `bit-table-v2` reserves for a projected `bit-search` (its module-private
+ * `SEARCH_FILTER_KEY`). Mirrored here so the empty state's Clear all can skip it and clear chip
+ * filters only, matching the toolbar's own `clearAll()`.
  */
 const SEARCH_FILTER_KEY = "search";
 
@@ -75,11 +74,11 @@ export type VaultItemsTableFilters = {
   search?: string;
   type?: CipherType;
   favorites?: boolean;
-  /** Organization ids, or {@link MY_VAULT}. Multi-select — see {@link matchesVault}. */
+  /** Organization ids, or {@link MY_VAULT}. Multi-select: a cipher matches any selected value. */
   vault?: string[];
-  /** Collection ids. Multi-select — see {@link matchesSharedFolder}. */
+  /** Collection ids. Multi-select: a cipher matches any selected collection. */
   sharedFolder?: string[];
-  /** Folder ids, or {@link NO_FOLDER}. Multi-select — see {@link matchesFolder}. */
+  /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
   folder?: string[];
 };
 
@@ -118,14 +117,32 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
 
 /**
  * The shared vault items list: a cipher-only table on `bit-table-v2` with its own search and
- * filter chips, sorting, selection, and the two-tier row actions column.
+ * filter chips, sorting, selection, and row actions.
  *
- * The component is deliberately client-agnostic. It never builds a domain event — each row action
- * carries an event factory the client supplies ({@link VaultItemsTableRowAction}) — and it never
- * navigates, so hosting it means supplying data, an action set, and an event handler.
+ * Hosting it means supplying the rows ({@link ciphers}, plus the {@link folders},
+ * {@link collections}, and {@link organizations} their columns and chips resolve names from), a
+ * {@link rowActions} set, and an {@link action} handler. The table builds no domain events and
+ * never navigates, so each client stays in control of what its actions mean.
+ *
+ * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
  * @typeParam E - The event type the client's actions produce. Defaults to {@link VaultItemEvent}.
+ *
+ * @example
+ * ```html
+ * <vault-items-table
+ *   [ciphers]="ciphers()"
+ *   [rowActions]="rowActions()"
+ *   [folders]="folders()"
+ *   [collections]="collections()"
+ *   [organizations]="organizations()"
+ *   [itemAction]="editCipher"
+ *   (action)="onAction($event)"
+ * >
+ *   <button slot="toolbar" bitButton buttonType="primary" type="button">Add</button>
+ * </vault-items-table>
+ * ```
  */
 @Component({
   selector: "vault-items-table",
@@ -156,7 +173,7 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
 export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEvent<C>> {
   private readonly i18nService = inject(I18nService);
 
-  /** The rows to display. Declared before {@link table}, which reads it as its data signal. */
+  /** The rows to display. */
   readonly ciphers = input.required<C[]>();
 
   /** Shows skeleton rows in place of data. */
@@ -165,7 +182,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   /** The client's overflow menu actions. */
   readonly rowActions = input<VaultItemsTableRowAction<C, E>[]>([]);
 
-  /** How the built-in Copy quick action presents itself; forwarded to the actions column. */
+  /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
 
   /** Folders used to resolve the My folders column and chip. */
@@ -175,9 +192,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   readonly collections = input<CollectionView[]>([]);
 
   /**
-   * Organizations used to resolve the Vault column and chip. Pass an empty array to hide the
-   * Vault chip — policy decisions (organization data ownership, single organization) belong to
-   * the hosting page, not here.
+   * Organizations used to resolve the Vault column and chip. Pass an empty array to hide the Vault
+   * chip — policy decisions (organization data ownership, single organization) belong to the
+   * hosting page.
    */
   readonly organizations = input<Organization[]>([]);
 
@@ -186,7 +203,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
 
   /**
    * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
-   * one shared folder. Each chip is seeded once as it registers, so later changes are ignored; to
+   * one shared folder. Applied once per chip as it registers, so later changes are ignored; to
    * drive chips reactively, use `bit-table-v2`'s `filterControls()` and their `setValue()`.
    */
   readonly initialFilterValues = input<Partial<VaultItemsTableFilters>>();
@@ -197,12 +214,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
    */
   readonly itemAction = input<(item: C) => E>();
 
-  /** Emits the event a chosen row action or item activation built. */
+  /** Emits the event built by the chosen {@link rowActions} entry, or by {@link itemAction}. */
   readonly action = output<E>();
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
+  /** Reads {@link ciphers} as its data signal, so that input has to be declared before this. */
   protected readonly table = defineTable<C, VaultItemsTableColumn>(this.ciphers);
 
   /**
