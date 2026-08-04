@@ -8,7 +8,13 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import {
+  FakeStateProvider,
+  mockAccountServiceWith,
+  ObservableTracker,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { StateProvider } from "@bitwarden/state";
 
 import { HealthAccessService } from "./health-access.service";
 
@@ -25,6 +31,7 @@ describe("HealthAccessService", () => {
 
   let configService: MockProxy<ConfigService>;
   let organizationService: MockProxy<OrganizationService>;
+  let stateProvider: FakeStateProvider;
   let service: HealthAccessService;
 
   function setFeatureFlag(enabled: boolean) {
@@ -40,114 +47,163 @@ describe("HealthAccessService", () => {
   beforeEach(() => {
     configService = mock<ConfigService>();
     organizationService = mock<OrganizationService>();
+    stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
 
     TestBed.configureTestingModule({
       providers: [
         HealthAccessService,
         { provide: ConfigService, useValue: configService },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: StateProvider, useValue: stateProvider },
       ],
     });
 
     service = TestBed.inject(HealthAccessService);
   });
 
-  describe("when the feature flag is off", () => {
-    it("is disabled for a personal account", async () => {
-      setFeatureFlag(false);
-      setOrganizations([]);
+  describe("healthEnabled$", () => {
+    describe("when the feature flag is off", () => {
+      it("is disabled for a personal account", async () => {
+        setFeatureFlag(false);
+        setOrganizations([]);
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
 
-      expect(healthEnabled).toBe(false);
+        expect(healthEnabled).toBe(false);
+      });
+
+      it("is disabled for a free organization member", async () => {
+        setFeatureFlag(false);
+        setOrganizations([freeOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
+
+      it("is disabled for a families organization member", async () => {
+        setFeatureFlag(false);
+        setOrganizations([familiesOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
     });
 
-    it("is disabled for a free organization member", async () => {
-      setFeatureFlag(false);
-      setOrganizations([freeOrganization]);
+    describe("when the feature flag is on", () => {
+      beforeEach(() => {
+        setFeatureFlag(true);
+      });
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+      it("is enabled for a personal account", async () => {
+        setOrganizations([]);
 
-      expect(healthEnabled).toBe(false);
-    });
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
 
-    it("is disabled for a families organization member", async () => {
-      setFeatureFlag(false);
-      setOrganizations([familiesOrganization]);
+        expect(healthEnabled).toBe(true);
+      });
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+      it("is enabled for a free organization member", async () => {
+        setOrganizations([freeOrganization]);
 
-      expect(healthEnabled).toBe(false);
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(true);
+      });
+
+      it("is enabled for a families organization member", async () => {
+        setOrganizations([familiesOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(true);
+      });
+
+      it("is enabled for a member of both a free and a families organization", async () => {
+        setOrganizations([freeOrganization, familiesOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(true);
+      });
+
+      it("is disabled for a teams organization member", async () => {
+        setOrganizations([teamsOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
+
+      it("is disabled for a teams starter organization member", async () => {
+        setOrganizations([teamsStarterOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
+
+      it("is disabled for an enterprise organization member", async () => {
+        setOrganizations([enterpriseOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
+
+      it("is disabled for a member of both a free and an enterprise organization", async () => {
+        setOrganizations([freeOrganization, enterpriseOrganization]);
+
+        const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+
+        expect(healthEnabled).toBe(false);
+      });
     });
   });
 
-  describe("when the feature flag is on", () => {
-    beforeEach(() => {
-      setFeatureFlag(true);
+  describe("healthHasBeenOpened$", () => {
+    it("emits false when the User has never opened the Health report", async () => {
+      const hasBeenOpened = await firstValueFrom(service.healthHasBeenOpened$(userId));
+
+      expect(hasBeenOpened).toBe(false);
     });
 
-    it("is enabled for a personal account", async () => {
-      setOrganizations([]);
+    it("emits true once the User has opened the Health report", async () => {
+      await service.setHealthHasBeenOpened(userId);
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+      const hasBeenOpened = await firstValueFrom(service.healthHasBeenOpened$(userId));
 
-      expect(healthEnabled).toBe(true);
+      expect(hasBeenOpened).toBe(true);
     });
 
-    it("is enabled for a free organization member", async () => {
-      setOrganizations([freeOrganization]);
+    it("emits when the User opens the Health report", async () => {
+      const tracker = new ObservableTracker(service.healthHasBeenOpened$(userId));
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
+      await service.setHealthHasBeenOpened(userId);
 
-      expect(healthEnabled).toBe(true);
+      expect(tracker.emissions).toEqual([false, true]);
     });
 
-    it("is enabled for a families organization member", async () => {
-      setOrganizations([familiesOrganization]);
+    it("reads the state scoped to the provided User", async () => {
+      await firstValueFrom(service.healthHasBeenOpened$(userId));
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(true);
+      expect(stateProvider.mock.getUserState$).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "healthTabOpened" }),
+        userId,
+      );
     });
+  });
 
-    it("is enabled for a member of both a free and a families organization", async () => {
-      setOrganizations([freeOrganization, familiesOrganization]);
+  describe("setHealthHasBeenOpened", () => {
+    it("persists the flag for the provided User", async () => {
+      await service.setHealthHasBeenOpened(userId);
 
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(true);
-    });
-
-    it("is disabled for a teams organization member", async () => {
-      setOrganizations([teamsOrganization]);
-
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(false);
-    });
-
-    it("is disabled for a teams starter organization member", async () => {
-      setOrganizations([teamsStarterOrganization]);
-
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(false);
-    });
-
-    it("is disabled for an enterprise organization member", async () => {
-      setOrganizations([enterpriseOrganization]);
-
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(false);
-    });
-
-    it("is disabled for a member of both a free and an enterprise organization", async () => {
-      setOrganizations([freeOrganization, enterpriseOrganization]);
-
-      const healthEnabled = await firstValueFrom(service.healthEnabled$(userId));
-
-      expect(healthEnabled).toBe(false);
+      expect(stateProvider.mock.setUserState).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "healthTabOpened" }),
+        true,
+        userId,
+      );
     });
   });
 });
