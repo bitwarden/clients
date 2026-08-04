@@ -167,10 +167,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     // Push the open-org-invite title last so it wins over any chrome the steps above
-    // (route data, defaultOnInit's auto-submit override) may have set. For the
-    // auto-submit path, defaultOnInit has already transitioned to MP entry by now
-    // and we still want the "Join <org>" title to take effect — but auto-submit
-    // only fires for direct invites today, so this is a no-op in that case.
+    // (route data, defaultOnInit's auto-submit override) may have set. Harmless on
+    // the auto-submit path — autoProgressToMpEntry already writes the same
+    // "Join <org>" title for the same org, and setAnonLayoutWrapperData merges only
+    // defined fields so the subtitle/icon set by the SSO override are preserved.
     // TODO: consider replacing with a `pageTitle` route resolver so the correct title
     // renders on first paint instead of flashing the default first.
     await this.applyOpenOrgInviteTitleOverride();
