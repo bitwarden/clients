@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { html, nothing } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 import { EventSecurity } from "../../../utils/event-security";
@@ -38,7 +38,7 @@ export type InlineMenuCipherItemProps = {
 
 export function InlineMenuCipherItem({
   cipher,
-  theme = ThemeTypes.Light,
+  theme,
   viewButtonText,
   opensInANewWindowText,
   fillCredentialsForText,

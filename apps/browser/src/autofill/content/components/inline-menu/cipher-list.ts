@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { html, TemplateResult } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
@@ -23,7 +23,7 @@ export type InlineMenuCipherListProps = Omit<
 
 export function InlineMenuCipherList({
   ciphers,
-  theme = ThemeTypes.Light,
+  theme,
   passkeysText = "",
   passwordsText = "",
   showPasskeysLabels,
