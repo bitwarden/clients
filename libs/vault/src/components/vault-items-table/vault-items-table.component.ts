@@ -27,7 +27,9 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  ButtonModule,
   defineTable,
+  FilterControl,
   FilterMenuModule,
   IconModule,
   LinkModule,
@@ -36,6 +38,7 @@ import {
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -57,6 +60,14 @@ export const MY_VAULT = "myVault";
 
 /** Sentinel for the My folders chip's "no folder" option. */
 export const NO_FOLDER = "noFolder";
+
+/**
+ * The `filterValues`/`FilterControl` key `bit-table-v2` reserves for a projected `bit-search`
+ * (see `SEARCH_FILTER_KEY` in `table-v2.component.ts`, which the library keeps module-private).
+ * Mirrored here so the empty state's Clear all can skip it — it clears chip filters only, same
+ * as the toolbar's own `clearAll()`.
+ */
+const SEARCH_FILTER_KEY = "search";
 
 /** The shape of {@link BitTableV2Component.filterValues} for this table. */
 export type VaultItemsTableFilters = {
@@ -128,6 +139,7 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
+    ButtonModule,
     FilterMenuModule,
     I18nPipe,
     IconModule,
@@ -135,6 +147,7 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
     NoItemsModule,
     SearchModule,
     SkeletonTextComponent,
+    TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
     VaultItemsTableChipsCellComponent,
@@ -170,6 +183,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
 
   /** Cipher types the Type chip offers. Narrow it to respect a client's feature flags. */
   readonly cipherTypes = input<CipherType[]>(ALL_CIPHER_TYPES);
+
+  /**
+   * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
+   * one shared folder. Each chip is seeded once as it registers, so later changes are ignored; to
+   * drive chips reactively, use `bit-table-v2`'s `filterControls()` and their `setValue()`.
+   */
+  readonly initialFilterValues = input<Partial<VaultItemsTableFilters>>();
 
   /**
    * Builds the event emitted when a row's name is activated. Omit to render the name as plain
@@ -222,6 +242,46 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   );
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS[type];
+
+  /**
+   * The Type chip's options: {@link cipherTypes} narrowed to the types actually present among
+   * {@link ciphers}, preserving `cipherTypes()`'s ordering.
+   *
+   * Deliberately derived from the unfiltered `ciphers()` input, NOT from the table's filtered
+   * rows. Deriving it from the filtered rows would look like a reasonable optimization — narrow
+   * the menu to what's actually visible — but it isn't: once the user selects "Card", the
+   * filtered rows become card-only, so every *other* type would vanish from the menu and the
+   * user could never switch away from "Card" again. The unfiltered cipher list is what the menu
+   * must reflect for it to stay usable while a filter is active.
+   */
+  protected readonly availableCipherTypes = computed(() => {
+    const present = new Set(this.ciphers().map((cipher) => CipherViewLikeUtils.getType(cipher)));
+    return this.cipherTypes().filter((type) => present.has(type));
+  });
+
+  /**
+   * Whether the Favorites chip has nothing to offer. Derived from the unfiltered `ciphers()`
+   * input for the same reason as {@link availableCipherTypes} — see that comment.
+   */
+  protected readonly noFavorites = computed(
+    () => !this.ciphers().some((cipher) => cipher.favorite),
+  );
+
+  /**
+   * Tooltip for the disabled Favorites chip; empty while the chip is enabled, since `bitTooltip`
+   * renders nothing for an empty string.
+   */
+  protected readonly favoritesDisabledTooltip = computed(() =>
+    this.noFavorites() ? this.i18nService.t("favoritesFilterTooltip") : "",
+  );
+
+  /** Whether the My folders chip has nothing to offer — see {@link noFavorites}. */
+  protected readonly noFolders = computed(() => this.folders().length === 0);
+
+  /** Tooltip for the disabled My folders chip — see {@link favoritesDisabledTooltip}. */
+  protected readonly foldersDisabledTooltip = computed(() =>
+    this.noFolders() ? this.i18nService.t("foldersFilterTooltip") : "",
+  );
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
@@ -435,5 +495,29 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     return folder.some((value) =>
       value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
     );
+  }
+
+  /**
+   * Whether at least one chip filter is active, excluding the reserved {@link SEARCH_FILTER_KEY}.
+   */
+  protected hasActiveChipFilters(
+    table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
+  ): boolean {
+    return table
+      .filterControls()
+      .some((control: FilterControl) => control.key() !== SEARCH_FILTER_KEY && control.active());
+  }
+
+  /**
+   * Clears every chip filter, leaving the search term untouched.
+   */
+  protected clearChipFilters(
+    table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
+  ): void {
+    for (const control of table.filterControls()) {
+      if (control.key() !== SEARCH_FILTER_KEY) {
+        control.setValue(undefined);
+      }
+    }
   }
 }

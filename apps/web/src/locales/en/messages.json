@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Favorites"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Task summary"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "My folders"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Add shared folder"

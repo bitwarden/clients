@@ -17,12 +17,18 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogService } from "@bitwarden/components";
+import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
-import { MY_VAULT, NO_FOLDER, VaultItemsTableComponent } from "./vault-items-table.component";
+import { VaultItemsTableColumn } from "./vault-items-table-row-action";
+import {
+  MY_VAULT,
+  NO_FOLDER,
+  VaultItemsTableComponent,
+  VaultItemsTableFilters,
+} from "./vault-items-table.component";
 
 /** Builds a `CipherView` — the fully decrypted shape. */
 function cipherView(overrides: Partial<CipherView> = {}): CipherView {
@@ -97,6 +103,26 @@ describe("VaultItemsTableComponent", () => {
   /** The component's single filter predicate, which the table derives every other state from. */
   function applyFilter(cipher: CipherViewLike, values: Record<string, unknown>): boolean {
     return component["filter"](cipher, values as never);
+  }
+
+  /** The projected `bit-table-v2` instance, for driving its registered `FilterControl`s directly. */
+  function bitTable(): BitTableV2Component<
+    CipherViewLike,
+    VaultItemsTableColumn,
+    VaultItemsTableFilters
+  > {
+    return fixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
+  }
+
+  /** The registered `FilterControl` for a chip's `key` (or the adopted `bit-search`, under `"search"`). */
+  function filterControl(key: string): FilterControl {
+    const control = bitTable()
+      .filterControls()
+      .find((c) => c.key() === key);
+    if (!control) {
+      throw new Error(`No FilterControl registered under key "${key}"`);
+    }
+    return control;
   }
 
   it("renders a row per cipher", () => {
@@ -257,6 +283,87 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipher, { vault: ["org-1"] })).toBe(true);
       expect(applyFilter(cipher, { folder: ["folder-1"] })).toBe(true);
       expect(applyFilter(cipher, { sharedFolder: ["col-1"] })).toBe(true);
+    });
+  });
+
+  describe("availableCipherTypes", () => {
+    it("offers only the types actually present among the ciphers", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ type: CipherType.SecureNote }),
+        cipherView({ type: CipherType.Login }),
+      ]);
+
+      // Preserves cipherTypes()'s (i.e. ALL_CIPHER_TYPES's) ordering — Login before
+      // SecureNote — rather than the order the ciphers happen to appear in.
+      expect(component["availableCipherTypes"]()).toEqual([
+        CipherType.Login,
+        CipherType.SecureNote,
+      ]);
+    });
+
+    it("narrows within a client-narrowed cipherTypes input", () => {
+      fixture.componentRef.setInput("cipherTypes", [CipherType.Login, CipherType.Card]);
+      fixture.componentRef.setInput("ciphers", [
+        // Present but excluded from cipherTypes — must not show up in the menu.
+        cipherView({ type: CipherType.SecureNote }),
+        cipherView({ type: CipherType.Login }),
+      ]);
+
+      // Card is in cipherTypes but no cipher has it, so it's excluded too.
+      expect(component["availableCipherTypes"]()).toEqual([CipherType.Login]);
+    });
+
+    it("does not narrow further once a type filter is active — the trapped-menu regression guard", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ type: CipherType.Login }),
+        cipherView({ type: CipherType.Card }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component["availableCipherTypes"]()).toEqual([CipherType.Login, CipherType.Card]);
+
+      // Selecting "Login" must not strip "Card" out of the menu — that would trap the
+      // user on "Login" with no way back. availableCipherTypes is derived from the
+      // unfiltered `ciphers()` input, not from the table's filtered rows.
+      filterControl("type").setValue(CipherType.Login);
+      fixture.detectChanges();
+
+      expect(component["availableCipherTypes"]()).toEqual([CipherType.Login, CipherType.Card]);
+    });
+  });
+
+  describe("disabled filter chips", () => {
+    describe("Favorites", () => {
+      it("is disabled with a tooltip when no cipher is a favorite", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ favorite: false })]);
+
+        expect(component["noFavorites"]()).toBe(true);
+        expect(component["favoritesDisabledTooltip"]()).toBe("favoritesFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when at least one cipher is a favorite", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ favorite: true })]);
+
+        expect(component["noFavorites"]()).toBe(false);
+        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        expect(component["favoritesDisabledTooltip"]()).toBe("");
+      });
+    });
+
+    describe("My folders", () => {
+      it("is disabled with a tooltip when there are no folders", () => {
+        fixture.componentRef.setInput("folders", []);
+
+        expect(component["noFolders"]()).toBe(true);
+        expect(component["foldersDisabledTooltip"]()).toBe("foldersFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when there is at least one folder", () => {
+        fixture.componentRef.setInput("folders", [{ id: "folder-1", name: "Work" } as FolderView]);
+
+        expect(component["noFolders"]()).toBe(false);
+        expect(component["foldersDisabledTooltip"]()).toBe("");
+      });
     });
   });
 
@@ -457,6 +564,88 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("noItemsInVault");
+    });
+  });
+
+  describe("empty state Clear all", () => {
+    /** The empty state's "Clear all" button, present in the DOM only while `bit-table-v2` is empty. */
+    function clearAllButton() {
+      return fixture.debugElement.query(By.css('button[slot="button"]'));
+    }
+
+    describe("hasActiveChipFilters", () => {
+      it("is false when no filter is active", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
+        fixture.detectChanges();
+
+        expect(component["hasActiveChipFilters"](bitTable())).toBe(false);
+      });
+
+      it("is true when a chip filter is active", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
+        fixture.detectChanges();
+
+        filterControl("type").setValue(CipherType.Login);
+        fixture.detectChanges();
+
+        expect(component["hasActiveChipFilters"](bitTable())).toBe(true);
+      });
+
+      it("is false when only the search term is active — the search-only empty state guard", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
+        fixture.detectChanges();
+
+        filterControl("search").setValue("no-such-item");
+        fixture.detectChanges();
+
+        expect(component["hasActiveChipFilters"](bitTable())).toBe(false);
+      });
+    });
+
+    describe("clearChipFilters", () => {
+      it("resets chip controls but leaves the search control's value untouched", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
+        fixture.detectChanges();
+
+        filterControl("type").setValue(CipherType.Login);
+        filterControl("search").setValue("amazon");
+        fixture.detectChanges();
+
+        component["clearChipFilters"](bitTable());
+        fixture.detectChanges();
+
+        expect(filterControl("type").value()).toBeUndefined();
+        expect(filterControl("search").value()).toBe("amazon");
+      });
+    });
+
+    describe("rendered button visibility", () => {
+      it("stays hidden when there is no data and no filter is active", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.detectChanges();
+
+        expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
+      });
+
+      it("shows once a chip filter empties the rows", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
+        fixture.detectChanges();
+
+        filterControl("type").setValue(CipherType.Card);
+        fixture.detectChanges();
+
+        expect(clearAllButton().nativeElement.classList).not.toContain("tw-hidden");
+      });
+
+      it("stays hidden when only a search term empties the rows", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
+        fixture.detectChanges();
+
+        filterControl("search").setValue("no-such-item");
+        fixture.detectChanges();
+
+        expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
+      });
     });
   });
 

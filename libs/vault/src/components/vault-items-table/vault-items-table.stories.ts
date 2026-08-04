@@ -288,6 +288,57 @@ const manyFolderCiphers = [
   ...itemsIn("Shared unfiled", 2, { organizationId: "org-1", collectionIds: ["col-1", "col-2"] }),
 ];
 
+/**
+ * A vault with real items, none favorited and no folders defined — see {@link NoFavoritesOrFolders}.
+ * Distinct from {@link Empty}'s `ciphers: []`, which disables the Favorites chip only incidentally
+ * because there's no data at all.
+ */
+const noFavoritesOrFoldersCiphers = [
+  {
+    id: "1",
+    name: "Acme",
+    username: "d.finnegan@acme.com",
+    password: "pw",
+    uri: "https://acme.com",
+  },
+  {
+    id: "2",
+    name: "Amazon",
+    username: "d.finnegan@acme.com",
+    password: "pw",
+    uri: "https://amazon.com",
+    organizationId: "org-1",
+    collectionIds: ["col-1"],
+  },
+  { id: "3", name: "Apple ID", username: "derekfinnegan@gmail.com", password: "pw" },
+].map(cipher);
+
+/** Only Login, Card, and Secure note are present — see {@link NarrowedCipherTypes}. */
+const narrowedCipherTypesCiphers = [
+  {
+    id: "1",
+    name: "Amazon",
+    username: "derekfinnegan@gmail.com",
+    password: "pw",
+    uri: "https://amazon.com",
+  },
+  { id: "2", name: "Chase Bank", type: CipherType.Card },
+  { id: "3", name: "Personal notes", type: CipherType.SecureNote },
+].map(cipher);
+
+/**
+ * Two collections in one organization, with the sole item filed under "Operations" only — so
+ * "Engineering" carries a faceted count of 0. See {@link FilteredToZeroByChip}.
+ */
+const chipFilterZeroCollections = [
+  { id: "col-1", name: "Operations" },
+  { id: "col-2", name: "Engineering" },
+] as CollectionView[];
+
+const chipFilterZeroCiphers = [
+  cipher({ id: "1", name: "Acme", organizationId: "org-1", collectionIds: ["col-1"] }),
+];
+
 /** Web's overflow set for this story: Edit and Event Logs, both built by the client. */
 const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[] = [
   {
@@ -326,10 +377,12 @@ export default {
               type: "Type",
               all: "All",
               favorites: "Favorites",
+              favoritesFilterTooltip: "Mark items as favorites to filter them here.",
               vault: "Vault",
               myVault: "My vault",
               sharedFolders: "Shared folders",
               myFolders: "My folders",
+              foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
               itemCount: (count) => `${count} items`,
@@ -338,6 +391,10 @@ export default {
               done: "Done",
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
+              // Labels a chip's dismiss button, which only renders once the chip is active — so a
+              // missing key here throws from `I18nMockService.t` the first time a filter is
+              // selected, not on initial render.
+              removeItem: (name) => `Remove ${name}`,
               // Cipher types, for the Type chip
               typeLogin: "Login",
               typeCard: "Card",
@@ -474,6 +531,63 @@ export const FilteredToZero: Story = {
     search.value = "no-such-item";
     search.dispatchEvent(new Event("input", { bubbles: true }));
   },
+};
+
+/** Template variant that also seeds the chips through `[initialFilterValues]`. */
+const initialFilterValuesTemplate = template.replace(
+  '[ciphers]="ciphers"',
+  '[ciphers]="ciphers" [initialFilterValues]="initialFilterValues"',
+);
+
+/**
+ * Reaches the same filtered-to-zero empty state as {@link FilteredToZero}, but via a chip rather
+ * than search — so, unlike that story, the empty state's Clear all button shows (it's deliberately
+ * hidden when search alone is responsible for zero rows).
+ *
+ * The chip selection is seeded declaratively with `[initialFilterValues]` rather than by simulating
+ * clicks: "Engineering" holds no items (the only one is in "Operations"), so the table opens
+ * already filtered to zero. Click Clear all to bring the row back.
+ */
+export const FilteredToZeroByChip: Story = {
+  render: () => ({
+    props: {
+      ...baseProps,
+      collections: chipFilterZeroCollections,
+      ciphers: chipFilterZeroCiphers,
+      initialFilterValues: { sharedFolder: ["col-2"] },
+    },
+    template: initialFilterValuesTemplate,
+  }),
+};
+
+/**
+ * A vault that genuinely has items — none favorited, and no folders defined at all. Hover the
+ * Favorites chip and the My folders chip to see each one's disabled tooltip.
+ */
+export const NoFavoritesOrFolders: Story = {
+  render: () => ({
+    props: {
+      ...baseProps,
+      ciphers: noFavoritesOrFoldersCiphers,
+      folders: [],
+    },
+    template,
+  }),
+};
+
+/**
+ * Only three cipher types are present in the data — Login, Card, and Secure note — so the Type
+ * chip's menu offers exactly those three. Open it: Identity, SSH key, Bank account, Driver's
+ * license, and Passport are absent, even though the default `cipherTypes` includes them all.
+ */
+export const NarrowedCipherTypes: Story = {
+  render: () => ({
+    props: {
+      ...baseProps,
+      ciphers: narrowedCipherTypesCiphers,
+    },
+    template,
+  }),
 };
 
 /**

@@ -1,7 +1,9 @@
 <bit-table-v2
+  #vaultTable="bitTableV2"
   [tableDef]="table"
   [displayedColumns]="displayedColumns()"
   [filter]="filter"
+  [filters]="initialFilterValues()"
   [loading]="loading()"
   [selection]="selection"
   (selectedChange)="selectedChange.emit($event)"
@@ -30,7 +32,7 @@
     <ng-content select="[slot=toolbar]" slot="end"></ng-content>
 
     <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
-      @for (cipherType of cipherTypes(); track cipherType) {
+      @for (cipherType of availableCipherTypes(); track cipherType) {
         <bit-filter-option [value]="cipherType">
           {{ cipherTypeLabel(cipherType) | i18n }}
         </bit-filter-option>
@@ -39,11 +41,18 @@
 
     <bit-filter-divider></bit-filter-divider>
 
+    <!--
+      The pointer-events override below overrides `BaseChipDirective`'s own
+      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
+    -->
     <bit-filter-toggle
       key="favorites"
       [label]="'favorites' | i18n"
       icon="bwi-star"
       iconActive="bwi-star-f"
+      [disabled]="noFavorites()"
+      [bitTooltip]="favoritesDisabledTooltip()"
+      [style.pointer-events]="'auto'"
     ></bit-filter-toggle>
 
     @if (showVaultFilter()) {
@@ -71,7 +80,14 @@
       }
     </bit-filter-menu>
 
-    <bit-filter-menu key="folder" [placeholderText]="'myFolders' | i18n" multiple>
+    <bit-filter-menu
+      key="folder"
+      [placeholderText]="'myFolders' | i18n"
+      multiple
+      [disabled]="noFolders()"
+      [bitTooltip]="foldersDisabledTooltip()"
+      [style.pointer-events]="'auto'"
+    >
       <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
       @for (folder of sortedFolders(); track folder.id) {
         <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
@@ -82,6 +98,18 @@
   <bit-no-items slot="empty">
     <span slot="title">{{ emptyTitleKey() | i18n }}</span>
     <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <button
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-clear"
+      [class.tw-hidden]="!hasActiveChipFilters(vaultTable)"
+      class="tw-mb-6"
+      (click)="clearChipFilters(vaultTable)"
+    >
+      {{ "clearAll" | i18n }}
+    </button>
   </bit-no-items>
 
   <!-- Name -->
