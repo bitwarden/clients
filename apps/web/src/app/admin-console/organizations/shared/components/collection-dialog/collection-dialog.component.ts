@@ -55,7 +55,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { Vfo1IconPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
@@ -90,7 +90,7 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionDialogComponent implements OnInit {
@@ -108,6 +108,7 @@ export class CollectionDialogComponent implements OnInit {
   private readonly collectionService = inject(CollectionService);
   private readonly configService = inject(ConfigService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
@@ -333,6 +334,7 @@ export class CollectionDialogComponent implements OnInit {
           .encryptedCollections$(userId)
           .pipe(map((collections) => collections ?? [])),
         this.i18nService,
+        this.vfo1TerminologyService.enabled(),
       ),
     );
 
@@ -455,11 +457,14 @@ export class CollectionDialogComponent implements OnInit {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
       if (this.tabIndex() === CollectionDialogTabType.Access && !accessTabError) {
+        const collectionInfoKey = this.vfo1TerminologyService.enabled()
+          ? "sharedFolderInfo"
+          : "collectionInfo";
         this.toastService.showToast({
           variant: "error",
           message: this.i18nService.t(
             "fieldOnTabRequiresAttention",
-            this.i18nService.t("collectionInfo"),
+            this.i18nService.t(collectionInfoKey),
           ),
         });
       } else if (this.tabIndex() === CollectionDialogTabType.Info && accessTabError) {
@@ -513,12 +518,17 @@ export class CollectionDialogComponent implements OnInit {
       ? await this.collectionAdminService.update(collectionView, userId)
       : await this.collectionAdminService.create(collectionView, userId);
 
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+    const savedMessageKey = this.editMode
+      ? vfo1Enabled
+        ? "editedSharedFolderId"
+        : "editedCollectionId"
+      : vfo1Enabled
+        ? "createdSharedFolderId"
+        : "createdCollectionId";
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(
-        this.editMode ? "editedCollectionId" : "createdCollectionId",
-        collectionView.name,
-      ),
+      message: this.i18nService.t(savedMessageKey, collectionView.name),
     });
 
     this.close(CollectionDialogAction.Saved, collectionResponse);
@@ -531,9 +541,12 @@ export class CollectionDialogComponent implements OnInit {
     }
 
     const collection = this.collection();
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const confirmed = await this.dialogService.openSimpleDialog({
       title: collection?.name ?? "",
-      content: { key: "deleteCollectionConfirmation" },
+      content: {
+        key: vfo1Enabled ? "deleteSharedFolderConfirmation" : "deleteCollectionConfirmation",
+      },
       type: "warning",
     });
 
@@ -550,7 +563,10 @@ export class CollectionDialogComponent implements OnInit {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("deletedCollectionId", collection?.name),
+      message: this.i18nService.t(
+        vfo1Enabled ? "deletedSharedFolderId" : "deletedCollectionId",
+        collection?.name,
+      ),
     });
 
     this.close(CollectionDialogAction.Deleted, collection);

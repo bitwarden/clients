@@ -61,7 +61,7 @@
   </ng-container>
 
   <ng-template #byEmailForm let-organization="organization">
-    <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+    <p bitTypography="body1">{{ "inviteUserDesc" | vfo1I18n: "inviteUserDescSharedFolders" }}</p>
     @if (
       {
         remainingSeats: remainingSeats$ | async,
@@ -106,12 +106,12 @@
       <bit-select formControlName="type" data-testid="role">
         <bit-option
           [value]="organizationUserType.User"
-          [description]="'userDesc' | i18n"
+          [description]="'userDesc' | vfo1I18n: 'userDescSharedFolders'"
           [label]="'user' | i18n"
         ></bit-option>
         <bit-option
           [value]="organizationUserType.Admin"
-          [description]="'adminRoleDesc' | i18n"
+          [description]="'adminRoleDesc' | vfo1I18n: 'adminRoleDescSharedFolders'"
           [label]="'admin' | i18n"
         ></bit-option>
         <bit-option
@@ -226,9 +226,9 @@
         formControlName="access"
         [showGroupColumn]="organization.useGroups"
         [items]="(collectionAccessItems$ | async) ?? []"
-        [columnHeader]="'collection' | i18n"
-        [selectorLabelText]="'collections' | i18n"
-        [emptySelectionText]="'noCollectionsAdded' | i18n"
+        [columnHeader]="'collection' | vfo1I18n: 'sharedFolder'"
+        [selectorLabelText]="'collections' | vfo1I18n: 'sharedFolders'"
+        [emptySelectionText]="'noCollectionsAdded' | vfo1I18n: 'noSharedFoldersAdded'"
         multiSelectTestId="collections"
       ></bit-access-selector>
     </bit-disclosure>
