@@ -221,6 +221,42 @@ describe("Utils Service", () => {
       expect(Utils.getHostname("https://subdomain.bütwarden.com")).toBe("subdomain.bütwarden.com");
     });
 
+    // Test examples here gathered from https://www.iana.org/domains/reserved
+    it("should support urls containing unicode characters", () => {
+      // Arabic Arabic
+      expect(Utils.getHostname("https://www.إختبار.com")).toBe("www.إختبار.com");
+
+      // Persian Arabic
+      expect(Utils.getHostname("https://www.آزمایشی.com")).toBe("www.آزمایشی.com");
+
+      // Chinese Han (Simplified variant)
+      expect(Utils.getHostname("https://www.测试.com")).toBe("www.测试.com");
+
+      // Chinese Han (Traditional variant)
+      expect(Utils.getHostname("https://www.測試.com")).toBe("www.測試.com");
+
+      // Russian Cyrillic
+      expect(Utils.getHostname("https://www.испытание.com")).toBe("www.испытание.com");
+
+      // Hindi Devanagari (Nagari)
+      expect(Utils.getHostname("https://www.परीक्षा.com")).toBe("www.परीक्षा.com");
+
+      // Greek, Modern (1453-) Greek
+      expect(Utils.getHostname("https://www.δοκιμή.com")).toBe("www.δοκιμή.com");
+
+      // Korean Hangul (Hangŭl, Hangeul)
+      expect(Utils.getHostname("https://www.테스트.com")).toBe("www.테스트.com");
+
+      // Yiddish Hebrew
+      expect(Utils.getHostname("https://www.טעסט.com")).toBe("www.טעסט.com");
+
+      // Japanese Katakana
+      expect(Utils.getHostname("https://www.テスト.com")).toBe("www.テスト.com");
+
+      // Tamil Tamil
+      expect(Utils.getHostname("https://www.பரிட்சை.com")).toBe("www.பரிட்சை.com");
+    });
+
     it("should support punycode urls", () => {
       expect(Utils.getHostname("xn--btwarden-65a.com")).toBe("xn--btwarden-65a.com");
       expect(Utils.getHostname("xn--btwarden-65a.com")).toBe("xn--btwarden-65a.com");

@@ -29,6 +29,7 @@ import {
 import {
   AutofillService,
   AutoFillOptions,
+  AutoFillResult,
   PageDetail,
 } from "../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
@@ -237,9 +238,9 @@ export class AutofillOrchestrator {
    * externally-initiated fills (inline menu, generated password, etc) that bring
    * their own cipher.
    *
-   * Returns the TOTP to copy, or `null`.
+   * Reports whether a fill ran and the TOTP to copy.
    */
-  fillCipher(options: AutoFillOptions): Promise<string | null> {
+  fillCipher(options: AutoFillOptions): Promise<AutoFillResult> {
     // FIXME (PM-39579): once the tab-lifecycle gate lands, route these through the gated dispatch (or
     // assert the active tab) so the fill is gated on the target tab's state here.
     return this.autofillService.doAutoFill(options);
@@ -260,7 +261,7 @@ export class AutofillOrchestrator {
     if (pageDetails.length === 0) {
       return { filled: false, totp: null };
     }
-    const totp = await this.fillCipher({
+    const result = await this.fillCipher({
       tab,
       cipher,
       pageDetails,
@@ -268,7 +269,7 @@ export class AutofillOrchestrator {
       allowTotpAutofill: true,
       ...options,
     });
-    return { filled: true, totp: totp ?? null };
+    return { filled: true, totp: result.didAutofill ? (result.totp ?? null) : null };
   }
 
   /**
@@ -344,10 +345,13 @@ export class AutofillOrchestrator {
           // The cipher is read before data collection, while the content script gates the fill on
           // the URL captured during the collect. Guard against a same-document navigation between
           // those reads from filling a cipher chosen for the old URL to the new page.
-          let totp: string | null = null;
+          let totp: string | undefined;
           const details = pageDetails[0]?.details;
           if (details?.url === request.frameUrl && details?.fields?.length) {
-            totp = await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false);
+            const result = await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false);
+            if (result.didAutofill) {
+              totp = result.totp;
+            }
           }
           this.copyTotp(totp);
           await this.updateOverlayCiphers();
@@ -360,8 +364,8 @@ export class AutofillOrchestrator {
             return;
           }
           await this.recordActiveAccountActivity();
-          const totp = await this.autofillService.doAutoFillActiveTab(pageDetails, true);
-          this.copyTotp(totp);
+          const result = await this.autofillService.doAutoFillActiveTab(pageDetails, true);
+          this.copyTotp(result.didAutofill ? result.totp : undefined);
           await this.updateOverlayCiphers();
           break;
         }
@@ -415,8 +419,8 @@ export class AutofillOrchestrator {
     await this.accountService.setAccountActivity(activeUserId, new Date());
   }
 
-  private copyTotp(totp: string | null) {
-    if (totp != null) {
+  private copyTotp(totp: string | undefined) {
+    if (totp !== undefined) {
       this.platformUtilsService.copyToClipboard(totp);
     }
   }

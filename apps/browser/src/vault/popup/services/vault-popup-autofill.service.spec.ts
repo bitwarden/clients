@@ -61,6 +61,9 @@ describe("VaultPopupAutofillService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  // A test overwrites `activeAccount$` to exercise the no-active-user path; capture the original
+  // stream so `beforeEach` can restore it and that overwrite cannot leak into later tests.
+  const activeAccountWithUser$ = accountService.activeAccount$;
 
   // Controllable upstream subjects. `showFillAssistActiveBanner$` (and the other banner streams)
   // capture these references at construction via shareReplay({ refCount: false }), so they must be
@@ -79,6 +82,11 @@ describe("VaultPopupAutofillService", () => {
     // The popup collects page details by round-tripping through the background orchestrator;
     // default the response so the constructor's eager subscription resolves deterministically.
     jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue({ result: [] } as any);
+
+    // `clearAllMocks` clears call records but not implementations, and `accountService` is a shared
+    // instance, so re-establish both each test to keep cases order-independent.
+    mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+    accountService.activeAccount$ = activeAccountWithUser$;
     jest
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForCreditCardForm")
       .mockReturnValue(true);
@@ -342,12 +350,45 @@ describe("VaultPopupAutofillService", () => {
           title: null,
           message: mockI18nService.t("autofillError"),
         });
+        // A no-fill is a normal outcome, not an error to log.
+        expect(mockLogService.error).not.toHaveBeenCalled();
+      });
+
+      it("should return false and surface an error toast if the background fill dispatch rejects unexpectedly", async () => {
+        // The background reports a no-fill as a value ({ filled: false }), but a genuine failure
+        // mid-dispatch still rejects; the retained catch keeps that from becoming an unhandled rejection.
+        const error = new Error("boom");
+        jest
+          .spyOn(BrowserApi, "sendMessageWithResponse")
+          .mockImplementation(async (command: string) => {
+            if (command === "fillCipherForPopup") {
+              throw error;
+            }
+            return { result: [] } as any;
+          });
+        const result = await service.doAutofill(mockCipher);
+        expect(result).toBe(false);
+        // Pin the failure to the catch path specifically: a guard firing before the dispatch would
+        // produce the same result + toast, so assert the dispatch was actually reached and logged.
+        expect(BrowserApi.sendMessageWithResponse).toHaveBeenCalledWith(
+          "fillCipherForPopup",
+          expect.anything(),
+        );
+        expect(mockLogService.error).toHaveBeenCalledWith(error);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: null,
+          message: mockI18nService.t("autofillError"),
+        });
       });
 
       it("should return false if tab is null", async () => {
+        // `currentAutofillTab$` caches its construction-time value, so overriding it is the reliable
+        // way to drive a null tab into the guard.
         (service as any).currentAutofillTab$ = of(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -359,6 +400,7 @@ describe("VaultPopupAutofillService", () => {
         fillOutcome = { filled: false, totp: null };
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
