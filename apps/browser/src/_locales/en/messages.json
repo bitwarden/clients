@@ -119,6 +119,9 @@
   "vault": {
     "message": "Vault"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "My vault"
   },
