@@ -110,35 +110,8 @@
       }
     }
   },
-  "openOrgInviteEmailDomainNotAllowed": {
-    "message": "This domain isn't accepted by this organization. Try a different email address."
-  },
-  "openOrgInviteAcceptFailedTitle": {
-    "message": "Cannot accept invitation"
-  },
-  "openOrgInviteLinkNoLongerValid": {
-    "message": "This invite link is no longer valid."
-  },
-  "openOrgInviteNoSeatsMessage": {
-    "message": "Your invitation could not be accepted because there is not an available seat."
-  },
-  "openOrgInviteStatusUnexpectedErrorMessage": {
-    "message": "Something went wrong, please reload the page to try again."
-  },
-  "goToLogin": {
-    "message": "Go to login"
-  },
-  "goToVault": {
-    "message": "Go to vault"
-  },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Finish joining this organization by setting a master password."
-  },
-  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
-    "message": "Could not accept invitation"
-  },
-  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
-    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
   },
   "tab": {
     "message": "Tab"
