@@ -8,8 +8,12 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
 import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -71,6 +75,9 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   protected entityId: string;
   protected name: string;
   private providerId?: string;
+  // Resolved once for the lifetime of the dialog (params.organizationId doesn't change across
+  // switchEntity calls).
+  private organizationName?: string;
 
   get showUser() {
     return this.params.showUser ?? false;
@@ -99,6 +106,16 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     this.entityId = this.params.entityId;
     this.name = this.params.name;
     this.providerId = this.params.providerId;
+
+    if (this.params.organizationId != null) {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.params.organizationId)),
+      );
+      this.organizationName = organization?.name;
+    }
 
     const defaultDates = this.eventService.getDefaultDateFilters();
     this.filterFormGroup.setValue({
@@ -291,6 +308,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     // load member data (showUser=false) get an empty set, so creator ids render as plain text rather
     // than links that would resolve to nothing on click.
     options.linkableMemberIds = collectLinkableMemberIds(this.orgUsersUserIdMap);
+    options.getOrganizationName = () => this.organizationName;
 
     this.continuationToken = response.continuationToken;
     const events: EventView[] = await Promise.all(
