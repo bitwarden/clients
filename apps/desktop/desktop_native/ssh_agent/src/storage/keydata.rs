@@ -109,8 +109,9 @@ impl SSHKeyData {
         let parsed: Vec<Self> = keys
             .into_iter()
             .filter_map(|k| {
+                let cipher_id = k.cipher_id.clone();
                 Self::from_private_key_pem(&k.private_key_pem, k.name, k.cipher_id)
-                    .inspect_err(|error| warn!(%error, "Skipping un-parseable key"))
+                    .inspect_err(|error| warn!(%error, %cipher_id, "Skipping un-parseable key"))
                     .ok()
             })
             .collect();
