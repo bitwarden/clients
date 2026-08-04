@@ -64,12 +64,12 @@ export type VaultItemsTableFilters = {
   search?: string;
   type?: CipherType;
   favorites?: boolean;
-  /** An organization id, or {@link MY_VAULT}. */
-  vault?: string;
-  /** A collection id. */
-  sharedFolder?: string;
-  /** A folder id, or {@link NO_FOLDER}. */
-  folder?: string;
+  /** Organization ids, or {@link MY_VAULT}. Multi-select — see {@link matchesVault}. */
+  vault?: string[];
+  /** Collection ids. Multi-select — see {@link matchesSharedFolder}. */
+  sharedFolder?: string[];
+  /** Folder ids, or {@link NO_FOLDER}. Multi-select — see {@link matchesFolder}. */
+  folder?: string[];
 };
 
 /** Every cipher type the Type chip offers when a client doesn't narrow the list. */
@@ -249,6 +249,58 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   /** Whether the Vault chip has anything to offer beyond the individual vault. */
   protected readonly showVaultFilter = computed(() => this.organizations().length > 0);
 
+  /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
+  protected readonly sortedCollections = computed(() =>
+    [...this.collections()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
+  /**
+   * Whether the Shared folders chip has enough collections to group by organization instead of
+   * listing them flat. Matches `bit-filter-menu`'s own `SEARCH_THRESHOLD` (also 10, exclusive) so
+   * the in-menu search and the grouping kick in at the same point.
+   */
+  protected readonly groupSharedFolders = computed(() => this.collections().length > 10);
+
+  /**
+   * The Shared folders chip's options grouped by owning organization, for when there are enough
+   * collections to warrant it (see {@link groupSharedFolders}). Groups are sorted by organization
+   * name, and each group's collections are sorted by name — both for the same menu stability
+   * {@link sortedOrganizations} exists for. A collection whose organization isn't in
+   * {@link organizations} falls back to the localized "organization" label, matching
+   * {@link vaultName}.
+   */
+  protected readonly groupedSharedFolders = computed(() => {
+    const names = this.organizationNames();
+    const groups = new Map<
+      string,
+      { organizationId: string; name: string; collections: CollectionView[] }
+    >();
+    for (const collection of this.collections()) {
+      const organizationId = idString(collection.organizationId) ?? "";
+      let group = groups.get(organizationId);
+      if (!group) {
+        group = {
+          organizationId,
+          name: names.get(organizationId) ?? this.i18nService.t("organization"),
+          collections: [],
+        };
+        groups.set(organizationId, group);
+      }
+      group.collections.push(collection);
+    }
+    return [...groups.values()]
+      .map((group) => ({
+        ...group,
+        collections: [...group.collections].sort((a, b) => a.name.localeCompare(b.name)),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  /** The My folders chip's options, sorted for a stable menu; {@link NO_FOLDER} stays pinned first. */
+  protected readonly sortedFolders = computed(() =>
+    [...this.folders()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
   /** The owning vault's display name: the organization's name, or "My vault". */
   protected vaultName(cipher: C): string {
     const organizationId = idString(cipher.organizationId);
@@ -344,30 +396,44 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     return !favorites || cipher.favorite;
   }
 
-  private matchesVault(cipher: C, vault: string | undefined): boolean {
-    if (vault == null) {
+  /**
+   * The Vault chip is multi-select: `vault` is an array of organization ids and/or
+   * {@link MY_VAULT}. A cipher matches if it satisfies *any* selected value (OR).
+   * `undefined` and `[]` both mean "no filter, match everything".
+   */
+  private matchesVault(cipher: C, vault: string[] | undefined): boolean {
+    if (!vault || vault.length === 0) {
       return true;
     }
-    if (vault === MY_VAULT) {
-      return !cipher.organizationId;
-    }
-    return idString(cipher.organizationId) === vault;
-  }
-
-  private matchesSharedFolder(cipher: C, sharedFolder: string | undefined): boolean {
-    return (
-      sharedFolder == null ||
-      (cipher.collectionIds ?? []).some((id) => idString(id) === sharedFolder)
+    return vault.some((value) =>
+      value === MY_VAULT ? !cipher.organizationId : idString(cipher.organizationId) === value,
     );
   }
 
-  private matchesFolder(cipher: C, folder: string | undefined): boolean {
-    if (folder == null) {
+  /**
+   * The Shared folders chip is multi-select: `sharedFolder` is an array of collection ids. As
+   * with {@link matchesVault}, `undefined` and `[]` both mean unfiltered, and a cipher matches if
+   * it belongs to *any* selected collection.
+   */
+  private matchesSharedFolder(cipher: C, sharedFolder: string[] | undefined): boolean {
+    if (!sharedFolder || sharedFolder.length === 0) {
       return true;
     }
-    if (folder === NO_FOLDER) {
-      return !cipher.folderId;
+    const collectionIds = (cipher.collectionIds ?? []).map((id) => idString(id));
+    return sharedFolder.some((value) => collectionIds.includes(value));
+  }
+
+  /**
+   * The My folders chip is multi-select: `folder` is an array of folder ids and/or
+   * {@link NO_FOLDER}. As with {@link matchesVault}, `undefined` and `[]` both mean unfiltered,
+   * and a cipher matches if it satisfies *any* selected value.
+   */
+  private matchesFolder(cipher: C, folder: string[] | undefined): boolean {
+    if (!folder || folder.length === 0) {
+      return true;
     }
-    return idString(cipher.folderId) === folder;
+    return folder.some((value) =>
+      value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
+    );
   }
 }

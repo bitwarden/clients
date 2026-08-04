@@ -64,7 +64,7 @@ describe("VaultItemsTableComponent", () => {
     const environmentService = mock<EnvironmentService>();
     environmentService.environment$ = of({
       getIconsUrl: () => "https://icons.example.com",
-    } as never);
+    } as any);
 
     const domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.showFavicons$ = of(false);
@@ -148,30 +148,96 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipherView({ favorite: false }), { favorites: false })).toBe(true);
     });
 
-    it("separates the individual vault from an organization vault", () => {
+    describe("vault (multi-select)", () => {
       const personal = cipherView({ organizationId: undefined });
-      const organization = cipherView({ organizationId: "org-1" as never });
+      const orgOne = cipherView({ organizationId: "org-1" as never });
+      const orgTwo = cipherView({ organizationId: "org-2" as never });
 
-      expect(applyFilter(personal, { vault: MY_VAULT })).toBe(true);
-      expect(applyFilter(organization, { vault: MY_VAULT })).toBe(false);
-      expect(applyFilter(organization, { vault: "org-1" })).toBe(true);
-      expect(applyFilter(organization, { vault: "org-2" })).toBe(false);
+      it("matches everything when unset", () => {
+        expect(applyFilter(personal, { vault: undefined })).toBe(true);
+        expect(applyFilter(orgOne, { vault: undefined })).toBe(true);
+      });
+
+      it("matches everything when cleared to an empty array — the multi-select regression guard", () => {
+        expect(applyFilter(personal, { vault: [] })).toBe(true);
+        expect(applyFilter(orgOne, { vault: [] })).toBe(true);
+      });
+
+      it("matches a single selected value", () => {
+        expect(applyFilter(orgOne, { vault: ["org-1"] })).toBe(true);
+        expect(applyFilter(orgTwo, { vault: ["org-1"] })).toBe(false);
+      });
+
+      it("ORs across multiple selected values", () => {
+        expect(applyFilter(orgOne, { vault: ["org-1", "org-2"] })).toBe(true);
+        expect(applyFilter(orgTwo, { vault: ["org-1", "org-2"] })).toBe(true);
+        expect(applyFilter(personal, { vault: ["org-1", "org-2"] })).toBe(false);
+      });
+
+      it("matches the individual vault via the MY_VAULT sentinel, alone or combined", () => {
+        expect(applyFilter(personal, { vault: [MY_VAULT] })).toBe(true);
+        expect(applyFilter(orgOne, { vault: [MY_VAULT] })).toBe(false);
+        expect(applyFilter(personal, { vault: [MY_VAULT, "org-1"] })).toBe(true);
+        expect(applyFilter(orgOne, { vault: [MY_VAULT, "org-1"] })).toBe(true);
+        expect(applyFilter(orgTwo, { vault: [MY_VAULT, "org-1"] })).toBe(false);
+      });
     });
 
-    it("filters by shared folder membership", () => {
+    describe("sharedFolder (multi-select)", () => {
       const cipher = cipherView({ collectionIds: ["col-1", "col-2"] as never });
+      const other = cipherView({ collectionIds: ["col-3"] as never });
 
-      expect(applyFilter(cipher, { sharedFolder: "col-2" })).toBe(true);
-      expect(applyFilter(cipher, { sharedFolder: "col-3" })).toBe(false);
+      it("matches everything when unset", () => {
+        expect(applyFilter(cipher, { sharedFolder: undefined })).toBe(true);
+      });
+
+      it("matches everything when cleared to an empty array — the multi-select regression guard", () => {
+        expect(applyFilter(cipher, { sharedFolder: [] })).toBe(true);
+        expect(applyFilter(other, { sharedFolder: [] })).toBe(true);
+      });
+
+      it("matches a single selected value", () => {
+        expect(applyFilter(cipher, { sharedFolder: ["col-2"] })).toBe(true);
+        expect(applyFilter(cipher, { sharedFolder: ["col-3"] })).toBe(false);
+      });
+
+      it("ORs across multiple selected values", () => {
+        expect(applyFilter(cipher, { sharedFolder: ["col-3", "col-1"] })).toBe(true);
+        expect(applyFilter(other, { sharedFolder: ["col-3", "col-1"] })).toBe(true);
+      });
     });
 
-    it("filters by folder, including items with no folder", () => {
+    describe("folder (multi-select)", () => {
       const filed = cipherView({ folderId: "folder-1" as never });
+      const filedOther = cipherView({ folderId: "folder-2" as never });
       const unfiled = cipherView({ folderId: undefined });
 
-      expect(applyFilter(filed, { folder: "folder-1" })).toBe(true);
-      expect(applyFilter(filed, { folder: NO_FOLDER })).toBe(false);
-      expect(applyFilter(unfiled, { folder: NO_FOLDER })).toBe(true);
+      it("matches everything when unset", () => {
+        expect(applyFilter(filed, { folder: undefined })).toBe(true);
+      });
+
+      it("matches everything when cleared to an empty array — the multi-select regression guard", () => {
+        expect(applyFilter(filed, { folder: [] })).toBe(true);
+        expect(applyFilter(unfiled, { folder: [] })).toBe(true);
+      });
+
+      it("matches a single selected value", () => {
+        expect(applyFilter(filed, { folder: ["folder-1"] })).toBe(true);
+        expect(applyFilter(filed, { folder: ["folder-2"] })).toBe(false);
+      });
+
+      it("ORs across multiple selected values", () => {
+        expect(applyFilter(filed, { folder: ["folder-1", "folder-2"] })).toBe(true);
+        expect(applyFilter(filedOther, { folder: ["folder-1", "folder-2"] })).toBe(true);
+      });
+
+      it("matches unfiled items via the NO_FOLDER sentinel, alone or combined", () => {
+        expect(applyFilter(unfiled, { folder: [NO_FOLDER] })).toBe(true);
+        expect(applyFilter(filed, { folder: [NO_FOLDER] })).toBe(false);
+        expect(applyFilter(unfiled, { folder: [NO_FOLDER, "folder-1"] })).toBe(true);
+        expect(applyFilter(filed, { folder: [NO_FOLDER, "folder-1"] })).toBe(true);
+        expect(applyFilter(filedOther, { folder: [NO_FOLDER, "folder-1"] })).toBe(false);
+      });
     });
 
     it("requires every active filter to match", () => {
@@ -188,9 +254,9 @@ describe("VaultItemsTableComponent", () => {
         collectionIds: ["col-1"] as never,
       });
 
-      expect(applyFilter(cipher, { vault: "org-1" })).toBe(true);
-      expect(applyFilter(cipher, { folder: "folder-1" })).toBe(true);
-      expect(applyFilter(cipher, { sharedFolder: "col-1" })).toBe(true);
+      expect(applyFilter(cipher, { vault: ["org-1"] })).toBe(true);
+      expect(applyFilter(cipher, { folder: ["folder-1"] })).toBe(true);
+      expect(applyFilter(cipher, { sharedFolder: ["col-1"] })).toBe(true);
     });
   });
 
@@ -233,6 +299,99 @@ describe("VaultItemsTableComponent", () => {
         "Work",
       ]);
       expect(component["folderNamesFor"](cipherView({ folderId: undefined }))).toEqual([]);
+    });
+  });
+
+  describe("grouping shared folders", () => {
+    /** Builds `count` collections, split across "org-1" and "org-2", each with a distinct name. */
+    function manyCollections(count: number): CollectionView[] {
+      return Array.from(
+        { length: count },
+        (_, i) =>
+          ({
+            id: `col-${i}`,
+            name: `Collection ${String(i).padStart(2, "0")}`,
+            organizationId: i % 2 === 0 ? "org-1" : "org-2",
+          }) as CollectionView,
+      );
+    }
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-2", name: "Contoso" } as Organization,
+      ]);
+    });
+
+    it("does not group at the threshold (10 collections)", () => {
+      fixture.componentRef.setInput("collections", manyCollections(10));
+
+      expect(component["groupSharedFolders"]()).toBe(false);
+    });
+
+    it("groups once past the threshold (11 collections)", () => {
+      fixture.componentRef.setInput("collections", manyCollections(11));
+
+      expect(component["groupSharedFolders"]()).toBe(true);
+    });
+
+    it("assigns each collection to its owning organization's group", () => {
+      fixture.componentRef.setInput("collections", manyCollections(11));
+
+      const groups = component["groupedSharedFolders"]();
+      const acme = groups.find((g: { organizationId: string }) => g.organizationId === "org-1");
+      const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
+
+      expect(acme?.collections.map((c: CollectionView) => c.id)).toEqual([
+        "col-0",
+        "col-2",
+        "col-4",
+        "col-6",
+        "col-8",
+        "col-10",
+      ]);
+      expect(contoso?.collections.map((c: CollectionView) => c.id)).toEqual([
+        "col-1",
+        "col-3",
+        "col-5",
+        "col-7",
+        "col-9",
+      ]);
+    });
+
+    it("sorts groups by organization name and collections by name within each group", () => {
+      fixture.componentRef.setInput("collections", [
+        { id: "col-b", name: "B collection", organizationId: "org-2" } as CollectionView,
+        { id: "col-a", name: "A collection", organizationId: "org-2" } as CollectionView,
+        ...manyCollections(9),
+      ]);
+
+      const groups = component["groupedSharedFolders"]();
+
+      expect(groups.map((g: { name: string }) => g.name)).toEqual(["Acme corporation", "Contoso"]);
+      const contoso = groups.find((g: { organizationId: string }) => g.organizationId === "org-2");
+      expect(contoso?.collections.map((c: CollectionView) => c.name)).toEqual([
+        "A collection",
+        "B collection",
+        "Collection 01",
+        "Collection 03",
+        "Collection 05",
+        "Collection 07",
+      ]);
+    });
+
+    it("falls back to the localized 'organization' label when a collection's org is unknown", () => {
+      fixture.componentRef.setInput("collections", [
+        ...manyCollections(10),
+        { id: "col-orphan", name: "Orphan", organizationId: "org-unknown" } as CollectionView,
+      ]);
+
+      const groups = component["groupedSharedFolders"]();
+      const orphanGroup = groups.find(
+        (g: { organizationId: string }) => g.organizationId === "org-unknown",
+      );
+
+      expect(orphanGroup?.name).toBe("organization");
     });
   });
 

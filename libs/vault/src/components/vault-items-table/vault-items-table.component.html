@@ -47,7 +47,7 @@
     ></bit-filter-toggle>
 
     @if (showVaultFilter()) {
-      <bit-filter-menu key="vault" [placeholderText]="'vault' | i18n">
+      <bit-filter-menu key="vault" [placeholderText]="'vault' | i18n" multiple>
         <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
         @for (organization of sortedOrganizations(); track organization.id) {
           <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
@@ -55,15 +55,25 @@
       </bit-filter-menu>
     }
 
-    <bit-filter-menu key="sharedFolder" [placeholderText]="'sharedFolders' | i18n">
-      @for (collection of collections(); track collection.id) {
-        <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+    <bit-filter-menu key="sharedFolder" [placeholderText]="'sharedFolders' | i18n" multiple>
+      @if (groupSharedFolders()) {
+        @for (group of groupedSharedFolders(); track group.organizationId) {
+          <bit-filter-section [label]="group.name" collapsible>
+            @for (collection of group.collections; track collection.id) {
+              <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+            }
+          </bit-filter-section>
+        }
+      } @else {
+        @for (collection of sortedCollections(); track collection.id) {
+          <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+        }
       }
     </bit-filter-menu>
 
-    <bit-filter-menu key="folder" [placeholderText]="'myFolders' | i18n">
+    <bit-filter-menu key="folder" [placeholderText]="'myFolders' | i18n" multiple>
       <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
-      @for (folder of folders(); track folder.id) {
+      @for (folder of sortedFolders(); track folder.id) {
         <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
       }
     </bit-filter-menu>
