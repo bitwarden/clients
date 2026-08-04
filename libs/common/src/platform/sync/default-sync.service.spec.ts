@@ -14,7 +14,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { KmSyncData } from "@bitwarden/sdk-internal";
+import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
@@ -77,7 +77,7 @@ describe("DefaultSyncService", () => {
   let stateProvider: MockProxy<StateProvider>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
-  let kmSyncHandler: { on_sync: jest.Mock<Promise<void>, [KmSyncData]> };
+  let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
 
   let sut: DefaultSyncService;
 
@@ -110,11 +110,11 @@ describe("DefaultSyncService", () => {
     stateProvider = mock();
     configService = mock();
     sdkService = mock();
-    kmSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
+    cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
     sdkService.userClient$.mockReturnValue(
       of({
         take: () => ({
-          value: { km_sync_handler: () => kmSyncHandler },
+          value: { crypto_sync_handler: () => cryptoSyncHandler },
           [Symbol.dispose]: jest.fn(),
         }),
       }) as unknown as ReturnType<typeof sdkService.userClient$>,
@@ -203,23 +203,63 @@ describe("DefaultSyncService", () => {
           userDecryption,
         });
 
-      it("passes an undefined key id through when the server did not report one", async () => {
+      it("leaves the WebAuthn PRF options undefined when the server reported none", async () => {
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
 
         await sut.fullSync(true);
 
-        const data = kmSyncHandler.on_sync.mock.calls[0][0];
-        expect(data.userDecryption?.userKeyId).toBeUndefined();
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toBeUndefined();
       });
 
-      it("passes the server's key id through when it reported one", async () => {
-        const userKeyId = "0123456789abcdef0123456789abcdef";
-        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({ userKeyId }));
+      it("passes the WebAuthn PRF options through", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: ["internal", "hybrid"],
+              },
+            ],
+          }),
+        );
 
         await sut.fullSync(true);
 
-        const data = kmSyncHandler.on_sync.mock.calls[0][0];
-        expect(data.userDecryption?.userKeyId).toEqual(userKeyId);
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          {
+            encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+            encryptedUserKey: "4.dXNlcktleQ==",
+            credentialId: "credential-id",
+            transports: ["internal", "hybrid"],
+          },
+        ]);
+      });
+
+      it("drops WebAuthn PRF options that are missing a wrapped key", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              { credentialId: "no-keys", transports: [] },
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: [],
+              },
+            ],
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          expect.objectContaining({ credentialId: "credential-id" }),
+        ]);
       });
 
       it("passes the master password unlock data and upgrade token through", async () => {
@@ -239,7 +279,7 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        const data = kmSyncHandler.on_sync.mock.calls[0][0];
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
         expect(data.userDecryption?.masterPasswordUnlock).toEqual(
           expect.objectContaining({ salt: "test@example.com" }),
         );
@@ -255,7 +295,7 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        const data = kmSyncHandler.on_sync.mock.calls[0][0];
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
         expect(data.userDecryption).toBeUndefined();
         // Current servers always return account keys.
         expect(data.accountCryptographicState).toBeDefined();
@@ -263,7 +303,7 @@ describe("DefaultSyncService", () => {
 
       it("does not fail the sync when the handler throws", async () => {
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
-        kmSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
 
         await expect(sut.fullSync(true)).resolves.toBe(true);
 

@@ -8,15 +8,10 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { KeyId as SdkKeyId } from "@bitwarden/sdk-internal";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  UserDecryptionOptions,
-  WebAuthnPrfUserDecryptionOption,
-} from "../../../../auth/src/common";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
@@ -185,7 +180,9 @@ export class DefaultSyncService extends CoreSyncService {
 
       await this.cipherService.clear(response.profile.id);
 
-      await this.syncUserDecryption(response.profile.id, response.userDecryption);
+      // The crypto sync handler *MUST* be the first sync handler to run. It reserves
+      // the option to reject a sync, should the data be inconsitent. In this case ,it will throw.
+      await this.runCryptoSyncHandler(response.profile.id, response.profile, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -194,7 +191,6 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
-      await this.runKmSyncHandler(response.profile.id, response.profile, response.userDecryption);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -439,82 +435,37 @@ export class DefaultSyncService extends CoreSyncService {
   }
 
   /**
-   * Runs the SDK's key management sync handler.
+   * Runs the SDK's crypto sync handler.
    *
-   * Hands the handler the key-management parts of the sync response and lets it decide what to do
+   * Hands the handler the crypto parts of the sync response and lets it decide what to do
    * with each. Failures are logged and swallowed: nothing here is required for the sync itself to
    * have succeeded.
    */
-  private async runKmSyncHandler(
+  private async runCryptoSyncHandler(
     userId: UserId,
     profile: ProfileResponse,
     userDecryption: UserDecryptionResponse | undefined,
   ) {
     try {
       await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
-        sdk.km_sync_handler().on_sync({
+        sdk.crypto_sync_handler().on_sync({
           userDecryption:
             userDecryption == null
               ? undefined
               : {
-                  userKeyId: userDecryption.userKeyId as SdkKeyId | undefined,
                   masterPasswordUnlock: userDecryption.masterPasswordUnlock
                     ?.toMasterPasswordUnlockData()
                     .toSdk(),
                   v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
+                  webAuthnPrfOptions: userDecryption.webAuthnPrfOptions
+                    ?.map((option) => option.toWebAuthnPrfUnlockOption())
+                    .filter((option) => option != null),
                 },
           accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
         }),
       );
     } catch (error) {
       this.logService.error("[Sync] Key management sync handler failed:", error);
-    }
-  }
-
-  private async syncUserDecryption(
-    userId: UserId,
-    userDecryption: UserDecryptionResponse | undefined,
-  ) {
-    if (userDecryption == null) {
-      return;
-    }
-
-    // Update WebAuthn PRF options if present
-    if (userDecryption.webAuthnPrfOptions != null && userDecryption.webAuthnPrfOptions.length > 0) {
-      try {
-        // Only update if this is the active user, since setUserDecryptionOptions()
-        // operates on the active user's state
-        const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-        if (activeAccount?.id !== userId) {
-          return;
-        }
-
-        // Get current options without blocking if they don't exist yet
-        const currentUserDecryptionOptions = await firstValueFrom(
-          this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-        ).catch((): UserDecryptionOptions | null => {
-          return null;
-        });
-
-        if (currentUserDecryptionOptions != null) {
-          // Update the PRF options while preserving other decryption options
-          const updatedOptions = Object.assign(
-            new UserDecryptionOptions(),
-            currentUserDecryptionOptions,
-          );
-          updatedOptions.webAuthnPrfOptions = userDecryption.webAuthnPrfOptions
-            .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
-            .filter((option) => option !== undefined);
-
-          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
-            activeAccount.id,
-            updatedOptions,
-          );
-        }
-      } catch (error) {
-        this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
-      }
     }
   }
 }
