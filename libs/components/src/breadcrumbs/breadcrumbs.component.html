@@ -62,7 +62,7 @@
       bitOverflowItem
       #item="bitOverflowItem"
       class="tw-flex tw-items-center"
-      [class]="item.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
+      [class]="item.shouldShrink() ? 'tw-shrink tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
     >
       @if (!first) {
         <ng-container [ngTemplateOutlet]="arrow" />

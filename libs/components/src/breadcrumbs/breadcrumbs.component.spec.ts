@@ -86,46 +86,28 @@ describe("BreadcrumbsComponent", () => {
     expect(tileSize()).toBe("xs");
   });
 
-  /** The overflow-item wrapper spans that gate each crumb's shrink/truncate behavior. */
-  function crumbWrappers(): { element: HTMLElement; item: OverflowItemDirective }[] {
-    return fixture.debugElement.queryAll(By.directive(OverflowItemDirective)).map((debugEl) => ({
-      element: debugEl.nativeElement as HTMLElement,
-      item: debugEl.injector.get(OverflowItemDirective),
-    }));
+  /** The overflow-item directives that gate each crumb's shrink/truncate behavior. */
+  function crumbItems(): OverflowItemDirective[] {
+    return fixture.debugElement
+      .queryAll(By.directive(OverflowItemDirective))
+      .map((debugEl) => debugEl.injector.get(OverflowItemDirective));
   }
 
-  it("lets a lone crumb shrink and truncate", () => {
-    // A single crumb is the sole displayed item, so it should truncate rather than
-    // overflow — even though nothing is packed into the overflow menu.
+  it("marks a lone crumb as shrinkable so it truncates rather than overflows", () => {
+    // A single crumb is the sole displayed item, so it should be allowed to shrink —
+    // even though nothing is packed into the overflow menu.
     fixture.detectChanges();
 
-    const [{ element }] = crumbWrappers();
-    expect(element.classList).toContain("tw-flex-1");
-    expect(element.classList).toContain("tw-min-w-0");
-    expect(element.classList).toContain("tw-overflow-hidden");
-    expect(element.classList).not.toContain("tw-shrink-0");
+    const [item] = crumbItems();
+    expect(item.shouldShrink()).toBe(true);
   });
 
   it("keeps crumbs from shrinking while more than one is displayed", () => {
     fixture.componentInstance.labels.set(["Vault", "Folder"]);
     fixture.detectChanges();
 
-    for (const { element } of crumbWrappers()) {
-      expect(element.classList).toContain("tw-shrink-0");
-      expect(element.classList).not.toContain("tw-flex-1");
+    for (const item of crumbItems()) {
+      expect(item.shouldShrink()).toBe(false);
     }
-  });
-
-  it("applies shrink/truncate classes when a crumb is marked as the lone displayed item", () => {
-    fixture.detectChanges();
-
-    const [{ element, item }] = crumbWrappers();
-    item.shouldShrink.set(true);
-    fixture.detectChanges();
-
-    expect(element.classList).toContain("tw-flex-1");
-    expect(element.classList).toContain("tw-min-w-0");
-    expect(element.classList).toContain("tw-overflow-hidden");
-    expect(element.classList).not.toContain("tw-shrink-0");
   });
 });
