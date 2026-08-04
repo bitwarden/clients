@@ -1,3 +1,5 @@
+// MVP, delete with PM-41067
+
 import { ipcMain, globalShortcut } from "electron";
 
 import { autotype_mvp } from "@bitwarden/desktop-napi";

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
+// MVP, delete with PM-41067
+
 import { TestBed } from "@angular/core/testing";
 import { ipcMain, globalShortcut } from "electron";
 
