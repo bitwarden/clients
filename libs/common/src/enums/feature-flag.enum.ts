@@ -191,7 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
-  [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: true,
+  [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
   [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
   [FeatureFlag.PM29968_FillAfterSave]: FALSE,
