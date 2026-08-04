@@ -1,20 +1,39 @@
 /**
- * Result returned by `OrganizationInviteService.acceptOpenOrgInvite`. Consumers should
- * `switch` on `kind` exhaustively; `unexpected` catches unclassified failures so
- * consumers always have a case to render.
+ * Result contract for `OrganizationInviteService.acceptOpenOrgInvite`. The service
+ * classifies outcomes into typed kinds so consumers can `switch` exhaustively instead
+ * of catching thrown errors and inspecting them.
+ *
+ * Kinds:
+ *  - `accepted` — invite consumed; stash cleared.
+ *  - `stashed-for-mp-policy-detour` — org has an MP policy the user hasn't satisfied;
+ *    the invite is stashed and the user has been logged out.
+ *  - `recovery-key-mismatch` — account-recovery public key didn't match the org key
+ *    thumbprint bound into the invite; indicates key substitution.
+ *  - `link-not-found` — invite link no longer exists (server 404).
+ *  - `plan-not-supported` — org plan doesn't allow invite links.
+ *  - `email-domain-not-allowed` — user's email is outside the org's `AllowedDomains`.
+ *  - `already-member` — user is already in the org (success-adjacent).
+ *  - `org-access-revoked` — org has revoked the user's access.
+ *  - `no-seats` — org is at its seat cap.
+ *  - `two-factor-required` — user must enable 2FA before joining.
+ *  - `single-org-policy-violation-target-org` — target org enforces single-organization;
+ *    user must leave their other orgs.
+ *  - `single-org-policy-violation-other-org` — another org the user belongs to enforces
+ *    single-organization; user cannot join this one.
+ *  - `auto-confirm-policy-violation-target-org` — target org enforces auto-confirm and
+ *    the user has other memberships.
+ *  - `auto-confirm-policy-violation-other-org` — another org the user belongs to enforces
+ *    auto-confirm.
+ *  - `provider-users-disallowed` — provider users cannot join via invite link.
+ *  - `free-admin-limit-reached` — user can only be admin of one free org.
+ *  - `reset-password-key-required` — org requires reset-password enrollment on accept
+ *    but the client didn't supply the key.
+ *  - `unexpected` — fallback for unclassified throws; `errorMessage` carries a
+ *    best-effort string.
  */
 export type AcceptOpenOrgInviteResult =
-  /** Accept call succeeded and the stashed invite has been cleared. */
   | { kind: "accepted" }
-  /**
-   * Org has a master-password policy the user hasn't yet satisfied. The invite is
-   * stashed and the user has been logged out; the caller need not take further action.
-   */
   | { kind: "stashed-for-mp-policy-detour" }
-  /**
-   * Account-recovery public key returned by the server did not match the org public
-   * key thumbprint bound into the invite; indicates key substitution.
-   */
   | { kind: "recovery-key-mismatch" }
   | { kind: "link-not-found" }
   | { kind: "plan-not-supported" }
@@ -23,38 +42,18 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "org-access-revoked" }
   | { kind: "no-seats" }
   | { kind: "two-factor-required" }
-  /**
-   * Target org enforces a single-organization policy — user must leave their other orgs
-   * to join this one.
-   */
   | { kind: "single-org-policy-violation-target-org" }
-  /**
-   * Another org the user belongs to enforces a single-organization policy — user cannot
-   * join this new org while remaining in the enforcing one.
-   */
   | { kind: "single-org-policy-violation-other-org" }
-  /** Target org enforces auto-confirm and the user has other memberships. */
   | { kind: "auto-confirm-policy-violation-target-org" }
-  /** Another org the user belongs to enforces auto-confirm. */
   | { kind: "auto-confirm-policy-violation-other-org" }
-  /** Provider users cannot join organizations via invite link. */
   | { kind: "provider-users-disallowed" }
-  /** User can only be an admin of one free organization. */
   | { kind: "free-admin-limit-reached" }
-  /**
-   * Org requires reset-password enrollment on accept but the client did not supply
-   * the required key.
-   */
   | { kind: "reset-password-key-required" }
-  /**
-   * Fallback for unclassified failures (unknown status, unrecognized message, non-error
-   * throws). `errorMessage` carries a best-effort user-facing string.
-   */
   | { kind: "unexpected"; errorMessage: string };
 
 /**
- * Error arms of {@link AcceptOpenOrgInviteResult} — Derived via
- * `Exclude` so a new failure kind added to the parent union automatically shows up here.
+ * Error arms of {@link AcceptOpenOrgInviteResult} — derived via `Exclude` so a new
+ * failure kind added to the parent union automatically shows up here.
  */
 export type AcceptOpenOrgInviteError = Exclude<
   AcceptOpenOrgInviteResult,
