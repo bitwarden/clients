@@ -182,7 +182,11 @@ export class DefaultSyncService extends CoreSyncService {
 
       // The crypto sync handler *MUST* be the first sync handler to run. It reserves
       // the option to reject a sync, should the data be inconsitent. In this case ,it will throw.
-      await this.runCryptoSyncHandler(response.profile.id, response.profile, response.userDecryption);
+      await this.runCryptoSyncHandler(
+        response.profile.id,
+        response.profile,
+        response.userDecryption,
+      );
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
