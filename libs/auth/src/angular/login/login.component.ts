@@ -171,6 +171,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     // auto-submit path, defaultOnInit has already transitioned to MP entry by now
     // and we still want the "Join <org>" title to take effect — but auto-submit
     // only fires for direct invites today, so this is a no-op in that case.
+    // TODO: consider replacing with a `pageTitle` route resolver so the correct title
+    // renders on first paint instead of flashing the default first.
     await this.applyOpenOrgInviteTitleOverride();
   }
 
