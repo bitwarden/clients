@@ -238,13 +238,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // user hasn't been through the detour yet (no matching stash), persist + log out
     // so login can re-check the MP against their current password.
     //
-    // Reached when an already-authenticated user lands on /join/:orgId/:code
-    // without first passing through the unauthed flow that would have stashed
-    // the invite — e.g., pasting the invite link into a session that's already
-    // signed in. Every other entry (unauthed click → login → deep-link replay,
-    // registration crossing, post-detour re-login) stashes the invite before
-    // authedHandler runs, so `openOrgInviteMasterPasswordPolicyCheckRequired`
-    // returns false and this branch is skipped.
+    // Reached when an already-authenticated user hits /join/:orgId/:code with no
+    // stashed open invite — either a paste-into-authed-session (unauthedHandler
+    // never ran) or a retry after a failed accept (the catch block below cleared
+    // the stash). Every other entry (unauthed click → login → deep-link replay,
+    // registration crossing, post-detour re-login) has a matching stash present,
+    // so `openOrgInviteMasterPasswordPolicyCheckRequired` returns false and this
+    // branch is skipped.
     if (await this.openOrgInviteMasterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
       // Persist so the deep-link guard replays us back into accept after the user
