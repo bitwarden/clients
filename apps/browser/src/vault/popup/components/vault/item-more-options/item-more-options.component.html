@@ -37,6 +37,11 @@
             {{ "assignToCollections" | i18n }}
           </a>
         }
+        @if (showShareViaLink$ | async) {
+          <button type="button" bitMenuItem (click)="shareViaLink()">
+            {{ "shareViaLink" | i18n }}
+          </button>
+        }
       }
       @if (canArchive$ | async) {
         <button type="button" bitMenuItem (click)="archive()">

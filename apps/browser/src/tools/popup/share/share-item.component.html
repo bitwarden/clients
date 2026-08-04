@@ -1,0 +1,161 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'share' | i18n" showBackButton></popup-header>
+
+  @if (cipher(); as cipher) {
+    <div class="tw-p-4">
+      <bit-section>
+        <bit-accordion
+          [title]="cipher.name"
+          [subtitle]="cipherSubtitle()"
+          [startIcon]="cipherTypeIcon()"
+          [(open)]="accordionExpanded"
+          variant="subtle"
+        >
+          <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
+            "itemDetails" | i18n
+          }}</span>
+          <div class="tw-flex tw-flex-col tw-gap-2">
+            @for (collection of collections(); track collection.id) {
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
+                <span bitTypography="body2" class="tw-text-muted">{{ collection.name }}</span>
+              </div>
+            }
+            @if (folder(); as currentFolder) {
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <i class="bwi bwi-folder tw-text-muted" aria-hidden="true"></i>
+                <span bitTypography="body2" class="tw-text-muted">{{ currentFolder.name }}</span>
+              </div>
+            }
+            @if (!collections().length && !folder()) {
+              <span bitTypography="body2" class="tw-text-muted">—</span>
+            }
+          </div>
+        </bit-accordion>
+      </bit-section>
+
+      <form [formGroup]="form">
+        <bit-section disableMargin>
+          <bit-card>
+            <p bitTypography="h6" class="tw-mb-1 !tw-font-normal">
+              {{ "peopleWhoCanView" | i18n }}
+            </p>
+            <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-3">
+              {{ "shareEmailVerificationDescription" | i18n }}
+            </p>
+            <bit-form-field>
+              <bit-label class="tw-font-normal">{{ "emails" | i18n }}</bit-label>
+              <textarea
+                bitInput
+                id="share-item_textarea_emails"
+                formControlName="emails"
+                rows="3"
+              ></textarea>
+            </bit-form-field>
+            <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+              {{ "enterMultipleEmailsSeparatedByComma" | i18n }}
+            </p>
+            <bit-form-field>
+              <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
+              <select bitInput id="share-item_select_expiry" formControlName="expiryHours">
+                @for (option of expiryOptions; track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </bit-form-field>
+            <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+              {{ "shareLinkExpiryHint" | i18n }}
+            </p>
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="share-item_checkbox_one-time"
+                formControlName="oneTimeShare"
+              />
+              <bit-label bitTypography="body1" class="tw-font-normal">{{
+                "oneTimeShare" | i18n
+              }}</bit-label>
+            </bit-form-control>
+          </bit-card>
+        </bit-section>
+      </form>
+
+      @if (activeLinks().length > 0) {
+        <bit-section disableMargin class="tw-mt-4 tw-block">
+          <span bitTypography="h6" class="tw-mb-2 tw-block">{{ "activeLinks" | i18n }}</span>
+          <div
+            class="tw-rounded-xl tw-border tw-border-solid tw-border-secondary-100 tw-shadow tw-bg-background tw-px-4"
+          >
+            @for (link of activeLinks(); track link.id; let last = $last) {
+              <div
+                class="tw-flex tw-items-center tw-gap-3 tw-py-2"
+                [class.tw-border-b]="!last"
+                [class.tw-border-secondary-100]="!last"
+                [class.tw-border-solid]="!last"
+              >
+                <i
+                  class="bwi bwi-share-link tw-text-primary-600 tw-shrink-0"
+                  aria-hidden="true"
+                ></i>
+                <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-1">
+                  <span bitTypography="body2" class="tw-truncate">{{
+                    linkEmailDisplay(link.emails)
+                  }}</span>
+                  <span bitTypography="helper" class="tw-text-muted">
+                    {{ "expires" | i18n }} {{ link.expiresAt | date: "mediumDate" }}
+                  </span>
+                </div>
+                <div class="tw-flex tw-items-center tw-shrink-0">
+                  <button
+                    type="button"
+                    bitIconButton="bwi-clone"
+                    buttonType="subtleGhost"
+                    size="small"
+                    id="share-item_button_copy-link-{{ link.id }}"
+                    label="{{ 'copyLink' | i18n }}"
+                    (click)="copyLink(link)"
+                  ></button>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-trash"
+                    buttonType="subtleGhost"
+                    size="small"
+                    id="share-item_button_delete-link-{{ link.id }}"
+                    label="{{ 'delete' | i18n }}"
+                    (click)="deleteLink(link)"
+                  ></button>
+                </div>
+              </div>
+            }
+          </div>
+        </bit-section>
+      }
+    </div>
+  }
+
+  <popup-footer slot="footer">
+    <button
+      bitButton
+      type="button"
+      slot="end"
+      id="share-item_button_cancel"
+      buttonType="secondary"
+      (click)="onBackClick()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      slot="end"
+      id="share-item_button_copy-link"
+      buttonType="primary"
+      (click)="createAndCopyLink()"
+      [disabled]="form.invalid"
+    >
+      <i class="bwi bwi-share-link tw-mr-1" aria-hidden="true"></i>
+      {{ "copyLink" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>
