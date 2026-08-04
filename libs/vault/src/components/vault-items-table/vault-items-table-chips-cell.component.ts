@@ -12,6 +12,10 @@ export type VaultItemsTableChip = {
 };
 
 /**
+ *
+ * NOTE: This will be re-worked after CL-1175. Likely, only the mapping logic from
+ * VaultItemsTableChip to label and value (for chip select events) will remain.
+ *
  * Renders a row's shared folder or folder memberships as chips: the first as a labelled chip that
  * filters the table down to it when activated, an overflow `+N` chip when more remain, and an em
  * dash when there are none.
