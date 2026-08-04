@@ -8,13 +8,17 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/services/search.service";
 import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -379,6 +383,7 @@ const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView
  */
 type StoryProps = {
   ciphers: CipherView[];
+  organizationId?: OrganizationId;
   loading: boolean;
   rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[];
   folders: FolderView[];
@@ -401,6 +406,7 @@ const template = `
   }
   <vault-items-table
     [ciphers]="ciphers"
+    [organizationId]="organizationId"
     [loading]="loading"
     [rowActions]="rowActions"
     [folders]="folders"
@@ -517,6 +523,23 @@ export default {
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
+        },
+        // The real search service, so the search box behaves here exactly as it does in a client —
+        // including `>`-prefixed lunr queries. It's built directly rather than injected so it can
+        // be handed a `locale$`, which `I18nMockService` doesn't implement.
+        {
+          provide: SearchService,
+          useFactory: () =>
+            new DefaultSearchService(
+              {
+                measure: (): void => undefined,
+                info: (): void => undefined,
+                warning: (): void => undefined,
+                debug: (): void => undefined,
+                error: (): void => undefined,
+              } as unknown as LogService,
+              { locale$: of("en") } as I18nService,
+            ),
         },
         {
           provide: EnvironmentService,
@@ -652,11 +675,17 @@ export const ScopedToMyVault: Story = {
 /**
  * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault). Shared
  * folders stays useful here, since the rows still spread across that organization's collections.
+ *
+ * This story also binds `organizationId`, which is what an admin-console caller adds so the search
+ * service scopes its lunr index to that organization. Note that it changes nothing you can see:
+ * narrowing `ciphers` is what dropped the Vault chip and column, and it would have dropped them
+ * just the same with `organizationId` left unset.
  */
 export const ScopedToOrganizationVault: Story = {
   args: {
     heading: "Acme corporation's vault",
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
+    organizationId: "org-1" as OrganizationId,
   },
 };
 

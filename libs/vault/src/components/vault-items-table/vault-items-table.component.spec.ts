@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -13,9 +13,16 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import {
+  SearchService as DefaultSearchService,
+  SearchTextDebounceInterval,
+} from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
@@ -90,6 +97,14 @@ describe("VaultItemsTableComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: accountService },
+        // The real search service, not a double — the table's contract is that its search matches
+        // what a client's own vault search matches, and a double could only assert fiction.
+        {
+          provide: SearchService,
+          useValue: new DefaultSearchService(mock<LogService>(), {
+            locale$: of("en"),
+          } as I18nService),
+        },
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: ConfigService, useValue: configService },
@@ -132,6 +147,25 @@ describe("VaultItemsTableComponent", () => {
     return control;
   }
 
+  /**
+   * Types into the search box and settles the async search: the pipeline's `toObservable` sources
+   * flush on change detection, its debounce on `tick`, and the resolved matches on the pass after.
+   * Only callable from `fakeAsync`.
+   */
+  function search(term: string): void {
+    filterControl("search").setValue(term);
+    fixture.detectChanges();
+    tick(SearchTextDebounceInterval);
+    fixture.detectChanges();
+  }
+
+  /** The names of the rows surviving the table's filters — what it renders, pre-sort. */
+  function filteredNames(): string[] {
+    return bitTable()
+      .filtered()
+      .map((cipher) => cipher.name);
+  }
+
   it("renders a row per cipher", () => {
     fixture.componentRef.setInput("ciphers", [
       cipherView({ id: "a", name: "Amazon" }),
@@ -147,17 +181,6 @@ describe("VaultItemsTableComponent", () => {
   describe("filtering", () => {
     it("matches everything when no filter is active", () => {
       expect(applyFilter(cipherView(), {})).toBe(true);
-    });
-
-    it("matches on name, case-insensitively", () => {
-      const cipher = cipherView({ name: "Amazon" });
-
-      expect(applyFilter(cipher, { search: "amaz" })).toBe(true);
-      expect(applyFilter(cipher, { search: "netflix" })).toBe(false);
-    });
-
-    it("ignores a whitespace-only search term", () => {
-      expect(applyFilter(cipherView({ name: "Amazon" }), { search: "   " })).toBe(true);
     });
 
     it("filters by cipher type for a CipherView", () => {
@@ -282,8 +305,8 @@ describe("VaultItemsTableComponent", () => {
     it("requires every active filter to match", () => {
       const cipher = cipherView({ name: "Amazon", type: CipherType.Login, favorite: false });
 
-      expect(applyFilter(cipher, { search: "amazon", type: CipherType.Login })).toBe(true);
-      expect(applyFilter(cipher, { search: "amazon", favorites: true })).toBe(false);
+      expect(applyFilter(cipher, { type: CipherType.Login, favorites: false })).toBe(true);
+      expect(applyFilter(cipher, { type: CipherType.Login, favorites: true })).toBe(false);
     });
 
     it("normalizes branded CipherListView ids before comparing", () => {
@@ -297,6 +320,143 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipher, { folder: ["folder-1"] })).toBe(true);
       expect(applyFilter(cipher, { sharedFolder: ["col-1"] })).toBe(true);
     });
+  });
+
+  /**
+   * Search is the one filter the predicate doesn't answer itself — it defers to `SearchService`,
+   * asynchronously. These drive the real service through the search box rather than the predicate,
+   * so what they assert is the behavior a client's own vault search has.
+   */
+  describe("search", () => {
+    /** A login carrying a URI and a username, the fields only `SearchService` reaches. */
+    function loginCipher(overrides: Partial<CipherView> = {}): CipherView {
+      const login = new LoginView();
+      login.username = "derek@example.com";
+      login.uris = [Object.assign(new LoginUriView(), { uri: "https://shop.example.com" })];
+      return cipherView({ login, ...overrides });
+    }
+
+    function withCiphers(ciphers: CipherViewLike[]): void {
+      fixture.componentRef.setInput("ciphers", ciphers);
+      fixture.detectChanges();
+    }
+
+    it("matches on name, case-insensitively", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("amaz");
+
+      expect(filteredNames()).toEqual(["Amazon"]);
+    }));
+
+    it("matches on a login URI hostname", fakeAsync(() => {
+      withCiphers([
+        loginCipher({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("shop.example");
+
+      expect(filteredNames()).toEqual(["Amazon"]);
+    }));
+
+    it("matches on notes", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon", notes: "Shared with the ops team" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("ops team");
+
+      expect(filteredNames()).toEqual(["Amazon"]);
+    }));
+
+    it("matches diacritic-insensitively", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Résumé" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("resume");
+
+      expect(filteredNames()).toEqual(["Résumé"]);
+    }));
+
+    it("requires every term to match, in any order", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Email Work MyCompany" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("mycomp mail");
+
+      expect(filteredNames()).toEqual(["Email Work MyCompany"]);
+    }));
+
+    it("honors a `>`-prefixed lunr query", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "cipher-aa", name: "Amazon" }),
+        cipherView({ id: "cipher-bb", name: "Netflix" }),
+      ]);
+
+      search(">amazon");
+
+      expect(filteredNames()).toEqual(["Amazon"]);
+    }));
+
+    it("leaves every row visible below the searchable minimum length", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("a");
+
+      expect(filteredNames()).toEqual(["Amazon", "Netflix"]);
+    }));
+
+    it("leaves every row visible for a whitespace-only term", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+
+      search("   ");
+
+      expect(filteredNames()).toEqual(["Amazon", "Netflix"]);
+    }));
+
+    it("composes with a chip filter", fakeAsync(() => {
+      withCiphers([
+        cipherView({ id: "a", name: "Amazon", type: CipherType.Login }),
+        cipherView({ id: "b", name: "Amazon card", type: CipherType.Card }),
+      ]);
+
+      search("amazon");
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
+
+      expect(filteredNames()).toEqual(["Amazon card"]);
+    }));
+
+    it("keeps rows matched when a re-decryption replaces every cipher object", fakeAsync(() => {
+      withCiphers([cipherView({ id: "a", name: "Amazon" })]);
+      search("amazon");
+      expect(filteredNames()).toEqual(["Amazon"]);
+
+      // What `cipherListViews$` hands back after any vault change: the same ciphers as all-new
+      // objects. Matches are keyed by id, so the row survives the swap instead of blanking out
+      // until the search re-resolves — hence no `tick` before asserting.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      expect(filteredNames()).toEqual(["Amazon"]);
+
+      tick(SearchTextDebounceInterval);
+    }));
   });
 
   describe("availableCipherTypes", () => {
@@ -824,20 +984,15 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("empty states", () => {
-    it("explains that filters excluded everything when there is data", () => {
+    it("explains that filters excluded everything when there is data", fakeAsync(() => {
       fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
       fixture.detectChanges();
 
-      // Drive the search box the table adopts automatically under the reserved `search` key.
-      // Queried by selector because `@bitwarden/components` exports only `SearchModule`.
-      const search = fixture.debugElement.query(By.css("bit-search")).componentInstance as {
-        writeValue(term: string): void;
-      };
-      search.writeValue("no-such-item");
-      fixture.detectChanges();
+      // Drives the search box the table adopts automatically under the reserved `search` key.
+      search("no-such-item");
 
       expect(fixture.nativeElement.textContent).toContain("noMatchingItems");
-    });
+    }));
 
     it("explains that the vault is empty when there is no data at all", () => {
       fixture.componentRef.setInput("ciphers", []);
@@ -917,15 +1072,14 @@ describe("VaultItemsTableComponent", () => {
         expect(clearAllButton().nativeElement.classList).not.toContain("tw-hidden");
       });
 
-      it("stays hidden when only a search term empties the rows", () => {
+      it("stays hidden when only a search term empties the rows", fakeAsync(() => {
         fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
         fixture.detectChanges();
 
-        filterControl("search").setValue("no-such-item");
-        fixture.detectChanges();
+        search("no-such-item");
 
         expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
-      });
+      }));
     });
   });
 

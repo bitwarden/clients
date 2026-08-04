@@ -7,12 +7,14 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -54,6 +56,7 @@ import {
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableColumn, VaultItemsTableRowAction } from "./vault-items-table-row-action";
+import { cipherSearchMatches } from "./vault-items-table-search";
 
 /**
  * Sentinel for the Vault chip's "my vault" option — organizations are identified by id, and the
@@ -73,7 +76,11 @@ const SEARCH_FILTER_KEY = "search";
 
 /** The shape of {@link BitTableV2Component.filterValues} for this table. */
 export type VaultItemsTableFilters = {
-  /** Reserved key — the table adopts a projected `bit-search` under it automatically. */
+  /**
+   * Reserved key — the table adopts a projected `bit-search` under it automatically. It carries the
+   * term for seeding, URL sync, and Clear all, but matching runs through `SearchService` rather
+   * than off this value — see {@link VaultItemsTableComponent.filter}.
+   */
   search?: string;
   type?: CipherType;
   favorites?: boolean;
@@ -129,6 +136,10 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
  *
  * Everything else follows from the rows: which filter chips and columns apply, which cipher types
  * the Type chip offers, and every faceted count. A host narrows `ciphers` and the table adjusts.
+ *
+ * The toolbar's search goes through `SearchService`, so it matches on everything a client's own
+ * vault search does — name, subtitle, login URIs, notes, and item id, diacritic-insensitively —
+ * and honors `>`-prefixed lunr queries. See {@link cipherSearchMatches}.
  *
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
@@ -204,6 +215,16 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
 
   /** Cipher types the Type chip offers. Narrow it to respect a client's feature flags. */
   readonly cipherTypes = input<CipherType[]>(ALL_CIPHER_TYPES);
+
+  /**
+   * The organization these rows belong to, for a vault the admin console has scoped to one.
+   *
+   * It scopes `SearchService`'s lunr index (see {@link cipherSearchMatches}) and nothing else.
+   * Which columns and filter chips apply is derived from `ciphers` alone, so setting this neither
+   * hides nor reveals any of them — scoping the table stays a matter of narrowing `ciphers`. Leave
+   * it unset for an individual vault.
+   */
+  readonly organizationId = input<OrganizationId>();
 
   /**
    * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
@@ -490,29 +511,55 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   }
 
   /**
+   * The projected `bit-table-v2`, read for the search term it adopts from `bit-search` under
+   * {@link SEARCH_FILTER_KEY}. A view query rather than the predicate's `values`, because a
+   * memoized search result has to be computed outside the per-row call.
+   */
+  private readonly tableComponent = viewChild(BitTableV2Component);
+
+  /**
+   * The live search term. Cast because a view query erases the table's generics, so its
+   * `filterValues()` comes back as an untyped record.
+   */
+  private readonly searchTerm = computed(
+    () =>
+      (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)?.search ?? "",
+  );
+
+  /** Reads the signals above, so all of them have to be declared before this. */
+  private readonly searchMatches = cipherSearchMatches(
+    this.ciphers,
+    this.searchTerm,
+    this.organizationId,
+  );
+
+  /**
    * The single client-side predicate `bit-table-v2` derives everything from: the visible rows,
    * the toolbar's item count, the select-all scope, each chip option's faceted count, and the
    * empty-versus-no-matches branch.
    *
+   * The search term is the one filter it doesn't read off `values`: `SearchService` is
+   * asynchronous and set-based, so the term is resolved to a set of matching ids out of band by
+   * {@link cipherSearchMatches} and consulted here. Reading that signal is what makes the table
+   * re-filter when a search resolves.
+   *
    * Declared as a field arrow function so its reference stays stable across change detection.
    */
   protected readonly filter = (cipher: C, values: VaultItemsTableFilters): boolean =>
-    this.matchesSearch(cipher, values.search) &&
+    this.matchesSearch(cipher) &&
     this.matchesType(cipher, values.type) &&
     this.matchesFavorite(cipher, values.favorites) &&
     this.matchesVault(cipher, values.vault) &&
     this.matchesSharedFolder(cipher, values.sharedFolder) &&
     this.matchesFolder(cipher, values.folder);
 
-  private matchesSearch(cipher: C, search: string | undefined): boolean {
-    const term = search?.trim().toLowerCase();
-    if (!term) {
-      return true;
-    }
-    const subtitle = this.subtitle(cipher);
-    return (
-      cipher.name.toLowerCase().includes(term) || (subtitle?.toLowerCase().includes(term) ?? false)
-    );
+  /**
+   * Whether the cipher is among the active search's matches. `undefined` matches means no
+   * searchable term is active, so every row passes — see {@link cipherSearchMatches}.
+   */
+  private matchesSearch(cipher: C): boolean {
+    const matches = this.searchMatches();
+    return matches === undefined || matches.has(String(cipher.id));
   }
 
   private matchesType(cipher: C, type: CipherType | undefined): boolean {
