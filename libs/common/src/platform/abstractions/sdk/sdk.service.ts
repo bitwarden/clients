@@ -94,6 +94,18 @@ export function uuidAsString<T extends Uuid>(uuid: T): string {
   return uuid as unknown as string;
 }
 
+/**
+ * Per-call endpoint overrides for {@link SdkService.createEphemeralClient}.
+ *
+ * Each omitted field falls back to the app's active environment. Use this to target a server the
+ * app is not signed in to — for example the CLI opening a Send link hosted on a different
+ * Bitwarden instance than the one it is configured against.
+ */
+export type SdkEndpointOverrides = {
+  apiUrl?: string;
+  identityUrl?: string;
+};
+
 export abstract class SdkService {
   /**
    * Retrieve the version of the SDK.
@@ -124,6 +136,21 @@ export abstract class SdkService {
    * @param userId The user id for which to retrieve the client
    */
   abstract userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>>;
+
+  /**
+   * Create a one-off client, without a user, pointed at the supplied endpoints.
+   *
+   * {@link client$} is built from the app's single active environment and is shared and cached;
+   * this is the escape hatch for the rare operation that must target a different server — today
+   * only the CLI's `bw receive` against a Send hosted on another Bitwarden instance. Anything
+   * running against the app's own environment should use {@link client$} instead.
+   *
+   * The returned client is not cached and not reference-counted. **The caller owns it and must
+   * dispose of it** (`using client = await createEphemeralClient(...)`, or `client.free()`).
+   *
+   * @param endpoints Endpoints to override; anything omitted comes from the active environment.
+   */
+  abstract createEphemeralClient(endpoints: SdkEndpointOverrides): Promise<PasswordManagerClient>;
 
   /**
    * This method is used during/after an authentication procedure to set a new client for a specific user.

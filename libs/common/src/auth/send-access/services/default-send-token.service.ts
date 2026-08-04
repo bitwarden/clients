@@ -14,7 +14,7 @@ import {
   SendHashedPassword,
   SendPasswordKeyMaterial,
 } from "../../../key-management/sends/types/send-hashed-password.type";
-import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
+import { SdkEndpointOverrides, SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SendTokenService as SendTokenServiceAbstraction } from "../abstractions/send-token.service";
 import { SendAccessToken } from "../models/send-access-token";
@@ -40,13 +40,17 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     this.sendAccessTokenDictGlobalState = this.globalStateProvider.get(SEND_ACCESS_TOKEN_DICT);
   }
 
-  tryGetSendAccessToken$(sendId: string): Observable<SendAccessToken | TryGetSendAccessTokenError> {
+  tryGetSendAccessToken$(
+    sendId: string,
+    endpoints?: SdkEndpointOverrides,
+  ): Observable<SendAccessToken | TryGetSendAccessTokenError> {
     // Defer the execution to ensure that a cold observable is returned.
-    return defer(() => from(this._tryGetSendAccessToken(sendId)));
+    return defer(() => from(this._tryGetSendAccessToken(sendId, endpoints)));
   }
 
   private async _tryGetSendAccessToken(
     sendId: string,
+    endpoints?: SdkEndpointOverrides,
   ): Promise<SendAccessToken | TryGetSendAccessTokenError> {
     // Validate the sendId is a non-empty string.
     this.validateSendId(sendId);
@@ -70,13 +74,8 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       sendId: sendId,
     };
 
-    const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
-
     try {
-      const result: SendAccessTokenResponse = await anonSdkClient
-        .auth()
-        .send_access()
-        .request_send_access_token(request);
+      const result = await this.requestSendAccessToken(request, endpoints);
 
       // Convert from SDK shape to SendAccessToken so it can be serialized into & out of state provider
       const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
@@ -93,14 +92,16 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   getSendAccessToken$(
     sendId: string,
     sendCredentials: SendAccessDomainCredentials,
+    endpoints?: SdkEndpointOverrides,
   ): Observable<SendAccessToken | GetSendAccessTokenError> {
     // Defer the execution to ensure that a cold observable is returned.
-    return defer(() => from(this._getSendAccessToken(sendId, sendCredentials)));
+    return defer(() => from(this._getSendAccessToken(sendId, sendCredentials, endpoints)));
   }
 
   private async _getSendAccessToken(
     sendId: string,
     sendAccessCredentials: SendAccessDomainCredentials,
+    endpoints?: SdkEndpointOverrides,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     // Validate inputs to account for non-strict TS call sites.
     this.validateCredentialsRequest(sendId, sendAccessCredentials);
@@ -111,13 +112,8 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       sendAccessCredentials: this.convertDomainCredentialsToSdkCredentials(sendAccessCredentials),
     };
 
-    const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
-
     try {
-      const result: SendAccessTokenResponse = await anonSdkClient
-        .auth()
-        .send_access()
-        .request_send_access_token(request);
+      const result = await this.requestSendAccessToken(request, endpoints);
 
       // Convert from SDK interface to SendAccessToken class so it can be serialized into & out of state provider
       const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
@@ -129,6 +125,27 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     } catch (error: unknown) {
       return this.normalizeSendAccessTokenError(error);
     }
+  }
+
+  /**
+   * Requests a send access token from the identity server that hosts the send.
+   *
+   * Without endpoint overrides this uses the shared anonymous client for the active environment.
+   * With overrides it builds a one-off client against them and disposes of it afterwards: a send
+   * on another Bitwarden instance can only be granted a token by *that* instance's identity
+   * server, so the shared client would otherwise ask the wrong one.
+   */
+  private async requestSendAccessToken(
+    request: SendAccessTokenRequest,
+    endpoints?: SdkEndpointOverrides,
+  ): Promise<SendAccessTokenResponse> {
+    if (endpoints == null) {
+      const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
+      return await anonSdkClient.auth().send_access().request_send_access_token(request);
+    }
+
+    using crossInstanceClient = await this.sdkService.createEphemeralClient(endpoints);
+    return await crossInstanceClient.auth().send_access().request_send_access_token(request);
   }
 
   async invalidateSendAccessToken(sendId: string): Promise<void> {

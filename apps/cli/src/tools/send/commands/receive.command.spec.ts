@@ -96,7 +96,10 @@ describe("SendReceiveCommand", () => {
         const response = await command.run(testUrl, {});
 
         expect(response.success).toBe(true);
-        expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId);
+        expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId, {
+          apiUrl: "https://api.bitwarden.com",
+          identityUrl: "https://identity.bitwarden.com",
+        });
       });
 
       it("should handle expired token and determine auth type", async () => {
@@ -147,6 +150,8 @@ describe("SendReceiveCommand", () => {
             kind: "password",
             passwordHashB64: expect.any(String),
           }),
+          // The token is requested from the identity server of the instance hosting the Send.
+          { apiUrl: "https://api.bitwarden.com", identityUrl: "https://identity.bitwarden.com" },
         );
       });
 
@@ -447,8 +452,8 @@ describe("SendReceiveCommand", () => {
     });
   });
 
-  describe("API URL Resolution", () => {
-    it("should resolve send.bitwarden.com to api.bitwarden.com", async () => {
+  describe("endpoint resolution", () => {
+    it("resolves send.bitwarden.com to the US region api and identity urls", async () => {
       const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
       sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
       jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
@@ -456,11 +461,14 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
-      expect(apiUrl).toBe("https://api.bitwarden.com");
+      const endpoints = await (command as any).getEndpoints(new URL(sendUrl));
+      expect(endpoints).toEqual({
+        apiUrl: "https://api.bitwarden.com",
+        identityUrl: "https://identity.bitwarden.com",
+      });
     });
 
-    it("should resolve send.bitwarden.eu to api.bitwarden.eu", async () => {
+    it("resolves vault.bitwarden.eu to the EU region api and identity urls", async () => {
       const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
       sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
       jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
@@ -468,11 +476,14 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
-      expect(apiUrl).toBe("https://api.bitwarden.eu");
+      const endpoints = await (command as any).getEndpoints(new URL(sendUrl));
+      expect(endpoints).toEqual({
+        apiUrl: "https://api.bitwarden.eu",
+        identityUrl: "https://identity.bitwarden.eu",
+      });
     });
 
-    it("should handle custom domain URLs", async () => {
+    it("derives both endpoints from a custom domain", async () => {
       const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
       sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
       jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
@@ -480,8 +491,12 @@ describe("SendReceiveCommand", () => {
       const customUrl = "https://custom.example.com/#/send/abc123/key456";
       await command.run(customUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
-      expect(apiUrl).toBe("https://custom.example.com/api");
+      // A self-hosted deployment serves both services under its own origin.
+      const endpoints = await (command as any).getEndpoints(new URL(customUrl));
+      expect(endpoints).toEqual({
+        apiUrl: "https://custom.example.com/api",
+        identityUrl: "https://custom.example.com/identity",
+      });
     });
   });
 });

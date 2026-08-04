@@ -46,6 +46,7 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import {
   asUuid,
+  SdkEndpointOverrides,
   SdkService,
   toSdkDevice,
   UserNotLoggedInError,
@@ -145,6 +146,25 @@ export class DefaultSdkService implements SdkService {
       filter((client) => !client.isMarkedForDisposal),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
+  }
+
+  async createEphemeralClient(endpoints: SdkEndpointOverrides): Promise<PasswordManagerClient> {
+    await SdkLoadService.Ready;
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const settings = await this.toSettings(env);
+    const client = await this.sdkClientFactory.createSdkClient(
+      new JsTokenProvider(this.apiService),
+      {
+        ...settings,
+        apiUrl: endpoints.apiUrl ?? settings.apiUrl,
+        identityUrl: endpoints.identityUrl ?? settings.identityUrl,
+      },
+    );
+    // Flags come from the environment the app is signed in to, matching `client$`. The remote
+    // instance's own flags are not reachable without a config call against it, and the operations
+    // this client serves (anonymous send access) do not branch on them.
+    await this.loadFeatureFlags(client);
+    return client;
   }
 
   setClient(userId: UserId, client: PasswordManagerClient | undefined) {

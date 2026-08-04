@@ -666,6 +666,48 @@ describe("SendTokenService", () => {
     });
   });
 
+  describe("cross-instance token requests", () => {
+    const sendId = "send-id";
+    const endpoints = {
+      apiUrl: "https://api.other.example",
+      identityUrl: "https://identity.other.example",
+    };
+
+    beforeEach(() => {
+      sdkService.client.auth
+        .mockDeep()
+        .send_access.mockDeep()
+        .request_send_access_token.mockResolvedValue({
+          token: "token",
+          expiresAt: BigInt(Date.now() + 3600000),
+        } as unknown as SendAccessTokenResponse);
+    });
+
+    it("uses the shared client when no endpoints are supplied", async () => {
+      await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+
+      expect(sdkService.ephemeralClientEndpoints).toEqual([]);
+    });
+
+    it("builds a client against the hosting instance for a credential-less request", async () => {
+      await firstValueFrom(service.tryGetSendAccessToken$(sendId, endpoints));
+
+      expect(sdkService.ephemeralClientEndpoints).toEqual([endpoints]);
+    });
+
+    it("builds a client against the hosting instance for a credentialed request", async () => {
+      await firstValueFrom(
+        service.getSendAccessToken$(
+          sendId,
+          { kind: "password", passwordHashB64: "h4sh" as SendHashedPasswordB64 },
+          endpoints,
+        ),
+      );
+
+      expect(sdkService.ephemeralClientEndpoints).toEqual([endpoints]);
+    });
+  });
+
   function mockSdkRejectWith(sendAccessTokenError: SendAccessTokenError) {
     sdkService.client.auth
       .mockDeep()

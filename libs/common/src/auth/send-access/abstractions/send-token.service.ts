@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 
+import { SdkEndpointOverrides } from "../../../platform/abstractions/sdk/sdk.service";
 import { SendAccessToken } from "../models/send-access-token";
 import { GetSendAccessTokenError } from "../types/get-send-access-token-error.type";
 import { SendAccessDomainCredentials } from "../types/send-access-domain-credentials.type";
@@ -19,10 +20,14 @@ export abstract class SendTokenService {
    * If an access token cannot be granted b/c the send requires credentials, then it returns a {@link TryGetSendAccessTokenError} indicating which credentials are required.
    * Any submissions of credentials will be handled by the getSendAccessToken$ method.
    * @param sendId The ID of the send to retrieve the access token for.
+   * @param endpoints Optional endpoint overrides identifying the Bitwarden instance hosting the
+   * send. Supply these when the send lives on a different server than the client is configured
+   * against (cross-instance receive); omit them to use the active environment.
    * @returns An observable that emits a SendAccessToken if successful, or a TryGetSendAccessTokenError if not.
    */
   abstract tryGetSendAccessToken$: (
     sendId: string,
+    endpoints?: SdkEndpointOverrides,
   ) => Observable<SendAccessToken | TryGetSendAccessTokenError>;
 
   /**
@@ -31,11 +36,14 @@ export abstract class SendTokenService {
    * If the access token cannot be granted due to invalid credentials, it returns a {@link GetSendAccessTokenError}.
    * @param sendId The ID of the send to retrieve the access token for.
    * @param sendAccessCredentials The credentials to use for accessing the send.
+   * @param endpoints Optional endpoint overrides identifying the Bitwarden instance hosting the
+   * send. See {@link tryGetSendAccessToken$}.
    * @returns An observable that emits a SendAccessToken if successful, or a GetSendAccessTokenError if not.
    */
   abstract getSendAccessToken$: (
     sendId: string,
     sendAccessCredentials: SendAccessDomainCredentials,
+    endpoints?: SdkEndpointOverrides,
   ) => Observable<SendAccessToken | GetSendAccessTokenError>;
 
   /**

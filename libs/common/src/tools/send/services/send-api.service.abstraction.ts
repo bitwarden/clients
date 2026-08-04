@@ -7,6 +7,7 @@ import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendView } from "../models/view/send.view";
 
 export abstract class SendApiService {
   abstract getSend(id: string): Promise<SendResponse>;
@@ -47,4 +48,28 @@ export abstract class SendApiService {
    *   The legacy implementation ignores it (its behavior is unchanged).
    */
   abstract save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send>;
+  /**
+   * Persists a send from its plaintext view, letting the implementation own encryption.
+   *
+   * Prefer this over {@link save} for new code. `save` requires the caller to encrypt first,
+   * which the SDK path cannot use: the SDK generates the send key itself, so a client-encrypted
+   * payload has to be decrypted straight back to plaintext (and a pre-encrypted file buffer is
+   * unusable outright, since its key would never match the one the SDK generates). Handing over
+   * the plaintext view lets each implementation encrypt exactly once, where it can:
+   * - legacy encrypts client-side via `SendService.encrypt`, then posts the wire form.
+   * - the SDK path forwards the view to the SDK, which encrypts under its own generated key.
+   *
+   * @param view The plaintext send to persist. A `null` `id` creates; otherwise edits.
+   * @param file The plaintext file bytes for a file send create, or `null`. Ignored on edit —
+   *   file contents are immutable after create.
+   * @param plaintextPassword The plaintext password the caller collected for this save, when the
+   *   user set or changed the password. `undefined`/`null` means "no password change".
+   *   Protected Data: implementations must never log it or place it in error messages.
+   * @returns The persisted send in its wire-encrypted form, as stored in local state.
+   */
+  abstract saveView(
+    view: SendView,
+    file: File | ArrayBuffer | null,
+    plaintextPassword?: string,
+  ): Promise<Send>;
 }

@@ -55,10 +55,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * New file sends cannot be handled by the SDK and are routed to legacy by
-   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers:
+   * New file sends cannot be handled through this method and are routed to legacy by
+   * `SendApiServiceSelector`; it rejects them as a guard for direct callers:
    * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
-   * while the SDK's `create_file_send` generates its own key.
+   * while the SDK's `create_file_send` generates its own key. {@link saveView} carries the
+   * plaintext instead, but it cannot create file sends through the SDK either — see its doc
+   * comment for the separate reason why.
    *
    * Password-protected sends route through the SDK. On create or password-change the caller
    * forwards the plaintext `password`, which `buildSendAuth` hands to the SDK's high-level
@@ -99,6 +101,46 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       this.logService.error(`Send refresh failed after successful mutation: ${error}`);
       return send;
     }
+  }
+
+  /**
+   * Saves a send from its plaintext view — the preferred entry point for this service.
+   *
+   * Nothing is encrypted client-side: the view goes straight to the SDK, which generates the
+   * send key and encrypts under it. This is what {@link save} cannot do, since it receives a
+   * payload already encrypted under a key the SDK will never use.
+   *
+   * New file sends are the exception, and are still routed to legacy by
+   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers. The SDK's
+   * `create_file_send`/`upload_send_file` pair is the right sequencing for them, but the
+   * `@bitwarden/sdk-internal` version this repo pins does not report the encrypted file length
+   * to the server on create, so the upload cannot be sized correctly. The upstream fix
+   * (PM-39238) is merged, but the release carrying it also extends the SDK's `WasmStateBridge`
+   * with key-management methods that `JsWasmStateBridge`
+   * (`libs/common/src/key-management/state-bridge.ts`) does not implement, so the version bump
+   * is blocked on that separate work. Revisit this once the bump lands: the file path is a
+   * create → upload sequence off `SendClient`, with a delete on the created send if the upload
+   * fails (mirroring `SendApiService.generateRollbackCallback`).
+   *
+   * The plaintext password is Protected Data and is never logged. See {@link buildSendAuth} and
+   * {@link buildSendAuthEdit} for how it reaches the SDK.
+   *
+   * @param _file Unused: file creates never reach the SDK path (above), and file contents are
+   *   immutable after create. Present to satisfy the `SendApiService` contract.
+   */
+  async saveView(
+    view: SendView,
+    _file: File | ArrayBuffer | null,
+    plaintextPassword?: string,
+  ): Promise<Send> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (view.id == null && view.type === SendType.File) {
+      throw new Error("SendSdkApiService.saveView: file send creation requires SendApiService.");
+    }
+
+    const sdkView = await this.mutateSend(view, userId, plaintextPassword);
+
+    return await this.refreshAfterMutation(sdkView.id as unknown as string);
   }
 
   async delete(id: string): Promise<any> {
@@ -152,18 +194,25 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
-  async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
-    return new SendAccessResponse(view);
+  async postSendAccess(
+    id: string,
+    request: SendAccessRequest,
+    apiUrl?: string,
+  ): Promise<SendAccessResponse> {
+    return await this.withAccessClient(apiUrl, async (sdk) => {
+      const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
+      return new SendAccessResponse(view);
+    });
   }
 
-  async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk.sends().access_send(accessToken.token);
-    return new SendAccessResponse(view);
+  async postSendAccessV2(
+    accessToken: SendAccessToken,
+    apiUrl?: string,
+  ): Promise<SendAccessResponse> {
+    return await this.withAccessClient(apiUrl, async (sdk) => {
+      const view = await sdk.sends().access_send(accessToken.token);
+      return new SendAccessResponse(view);
+    });
   }
 
   /**
@@ -205,28 +254,50 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
   async getSendFileDownloadData(
     send: SendAccessView,
     request: SendAccessRequest,
+    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await sdk
-      .sends()
-      .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
-    return new SendFileDownloadDataResponse(data);
+    return await this.withAccessClient(apiUrl, async (sdk) => {
+      const data = await sdk
+        .sends()
+        .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
+      return new SendFileDownloadDataResponse(data);
+    });
   }
 
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
   async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
+    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
-    return new SendFileDownloadDataResponse(data);
+    return await this.withAccessClient(apiUrl, async (sdk) => {
+      const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
+      return new SendFileDownloadDataResponse(data);
+    });
+  }
+
+  /**
+   * Runs an anonymous send-access operation against the server hosting the send.
+   *
+   * With no `apiUrl` this uses the shared client for the app's own environment. With one — the
+   * CLI receiving a send hosted on another Bitwarden instance — it builds a one-off client
+   * targeting that instance and disposes of it afterwards, since the shared client is pinned to
+   * the app's single configured environment. Only the API endpoint is overridden: these calls are
+   * already authenticated by a send access token, so no identity endpoint is involved.
+   */
+  private async withAccessClient<T>(
+    apiUrl: string | undefined,
+    operation: (sdk: PasswordManagerClient) => Promise<T>,
+  ): Promise<T> {
+    if (apiUrl == null) {
+      const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+      return await operation(sdk);
+    }
+
+    using crossInstanceClient = await this.sdkService.createEphemeralClient({ apiUrl });
+    return await operation(crossInstanceClient);
   }
 
   private async mutateSend(
@@ -256,6 +327,27 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
         }),
       ),
     );
+  }
+
+  /**
+   * Resolves the wire-encrypted form of a send the SDK just mutated.
+   *
+   * Prefers a refetch from the server. If that fails the mutation has still landed, so surfacing
+   * an error would invite a retry that duplicates the send; fall back to the copy the SDK wrote
+   * to local state (the send repository registered in `initializeClientManagedState`), and only
+   * rethrow if neither source can produce it.
+   */
+  private async refreshAfterMutation(sendId: string): Promise<Send> {
+    try {
+      return await this.refreshSendFromServer(sendId);
+    } catch (error) {
+      this.logService.error(`Send refresh failed after successful mutation: ${error}`);
+      const local = await this.sendService.getFromState(sendId);
+      if (local == null) {
+        throw error;
+      }
+      return local;
+    }
   }
 
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via

@@ -304,6 +304,81 @@ describe("DefaultSdkService", () => {
       });
     });
   });
+
+  describe("createEphemeralClient", () => {
+    let sdkClientFactory!: MockProxy<SdkClientFactory>;
+    let environmentService!: MockProxy<EnvironmentService>;
+    let configService!: MockProxy<ConfigService>;
+    let service!: DefaultSdkService;
+    let client!: MockProxy<PasswordManagerClient>;
+
+    beforeEach(async () => {
+      await new TestSdkLoadService().loadAndInit();
+
+      sdkClientFactory = mock<SdkClientFactory>();
+      environmentService = mock<EnvironmentService>();
+      configService = mock<ConfigService>();
+      configService.serverConfig$ = new BehaviorSubject(null);
+
+      const environment = mock<Environment>();
+      environment.getApiUrl.mockReturnValue("https://api.local.example");
+      environment.getIdentityUrl.mockReturnValue("https://identity.local.example");
+      environmentService.environment$ = new BehaviorSubject(environment);
+
+      client = createMockClient();
+      sdkClientFactory.createSdkClient.mockResolvedValue(client);
+
+      const accountService = mockAccountServiceWith(Utils.newGuid() as UserId);
+      service = new DefaultSdkService(
+        sdkClientFactory,
+        environmentService,
+        mock<PlatformUtilsService>(),
+        accountService,
+        mock<KdfConfigService>(),
+        mock<KeyService>(),
+        mock<AccountCryptographicStateService>(),
+        mock<ApiService>(),
+        new FakeStateProvider(accountService),
+        configService,
+        mock<V2UpgradeTokenStateService>(),
+        "test-user-agent",
+      );
+    });
+
+    it("targets the supplied endpoints", async () => {
+      await service.createEphemeralClient({
+        apiUrl: "https://api.other.example",
+        identityUrl: "https://identity.other.example",
+      });
+
+      expect(sdkClientFactory.createSdkClient).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          apiUrl: "https://api.other.example",
+          identityUrl: "https://identity.other.example",
+        }),
+      );
+    });
+
+    it("falls back to the active environment for endpoints that are not overridden", async () => {
+      await service.createEphemeralClient({ apiUrl: "https://api.other.example" });
+
+      expect(sdkClientFactory.createSdkClient).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          apiUrl: "https://api.other.example",
+          identityUrl: "https://identity.local.example",
+        }),
+      );
+    });
+
+    it("returns an undisposed client for the caller to own", async () => {
+      const result = await service.createEphemeralClient({ apiUrl: "https://api.other.example" });
+
+      expect(result).toBe(client);
+      expect(client.free).not.toHaveBeenCalled();
+    });
+  });
 });
 
 function createMockClient(): MockProxy<PasswordManagerClient> {
