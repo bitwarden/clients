@@ -15,6 +15,8 @@ const badges: BadgeGroupItem[] = [
   { label: "Favorite", variant: "primary" },
 ];
 
+const singleBadge: BadgeGroupItem[] = [{ label: "Personal", variant: "subtle" }];
+
 const variants = ["subtle", "success", "warning", "primary", "danger"] as const;
 const manyBadges: BadgeGroupItem[] = Array.from({ length: 30 }, (_, i) => ({
   label: `Label ${i + 1}`,
@@ -123,6 +125,26 @@ export const ScrollingOverflow: Story = {
     const chip = await findByRole(canvasEl, "button");
     await userEvent.click(chip);
   },
+};
+
+export const Truncation: Story = {
+  render: (args) => ({
+    props: {
+      singleBadge,
+      ...args,
+    },
+    template: /*html*/ `
+      <div>The visible pinned badge should truncate at very small container sizes</div>
+      <div class="tw-w-28 tw-border tw-border-solid tw-border-secondary-300">
+        <bit-badge-group [badges]="badges"></bit-badge-group>
+      </div>
+
+      <div class="tw-mt-4 tw-w-20 tw-border tw-border-solid tw-border-secondary-300">
+        <bit-badge-group [badges]="singleBadge"></bit-badge-group>
+      </div>
+    `,
+  }),
+  args: { badges },
 };
 
 /**
