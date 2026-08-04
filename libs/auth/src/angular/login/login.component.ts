@@ -628,21 +628,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Pre-auth UX check for open-org-invite domain restrictions. When an `OpenOrganizationInvite`
-   * is in state, validates the entered email's domain against the link's `AllowedDomains`
-   * via the server. Handles four classified outcomes:
-   *   - `allowed` / no open org invite stashed / feature off → returns true.
-   *   - `not-allowed` → sets a form-control error on the email field and returns false.
-   *   - `link-invalid` (server 404) → clears open-org-invite state and navigates to
-   *     `/organization-invite-link-invalid` (with the org name + `returnTo=login`) so the
-   *     shared error component renders. Returns false.
-   *   - `unexpected` (non-404 throw / transport failure) → surfaces the error via
-   *     `ValidationService` and fails open (returns true). The accept endpoint enforces
-   *     the invite validity server-side; a transient error here shouldn't block login.
-   *
-   * Server-side enforcement of the allowed-domains policy also runs at accept time — this
-   * pre-check is layered UX, not a security boundary. The submit button stays enabled so
-   * the user can correct and retry.
+   * Pre-auth UX check for open-org-invite domain restrictions. Layered UX only — the
+   * accept endpoint enforces the policy server-side, so this fails open on transient
+   * errors (returns true) rather than blocking login. Also returns true when no
+   * open-org invite is stashed or the feature is off.
    */
   private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
