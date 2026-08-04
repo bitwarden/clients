@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, Signal } from "@angular/core";
 
 import { SegmentedCardComponent } from "../card";
 
@@ -26,6 +26,9 @@ export class ItemGroupComponent {
    * When `true`, the group renders its items inside a single segmented card — one outer
    * border with a divider between each item — and `bit-item` drops its own border, radius,
    * and margin so the items read as one joined card.
+   *
+   * Exposed as a read-only `Signal` (not `InputSignal`) so other group-like components — e.g.
+   * `bit-item-group-accordion` — can satisfy the same contract that `bit-item` injects.
    */
-  readonly joined = input(false);
+  readonly joined: Signal<boolean> = input(false);
 }
