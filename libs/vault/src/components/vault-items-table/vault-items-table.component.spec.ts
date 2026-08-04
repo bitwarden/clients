@@ -32,6 +32,13 @@ import {
 
 /** Builds a `CipherView` — the fully decrypted shape. */
 function cipherView(overrides: Partial<CipherView> = {}): CipherView {
+  if (!overrides.organizationId && overrides.collectionIds?.length) {
+    throw new Error(
+      "Fixture is in the individual vault but has shared folders; only organization-owned items " +
+        "can belong to a shared folder.",
+    );
+  }
+
   const cipher = new CipherView();
   cipher.id = "cipher-1";
   cipher.name = "Amazon";
@@ -210,8 +217,14 @@ describe("VaultItemsTableComponent", () => {
     });
 
     describe("sharedFolder (multi-select)", () => {
-      const cipher = cipherView({ collectionIds: ["col-1", "col-2"] as never });
-      const other = cipherView({ collectionIds: ["col-3"] as never });
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1", "col-2"] as never,
+      });
+      const other = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-3"] as never,
+      });
 
       it("matches everything when unset", () => {
         expect(applyFilter(cipher, { sharedFolder: undefined })).toBe(true);
@@ -367,6 +380,173 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  describe("vaults present in the rows", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-2", name: "Contoso" } as Organization,
+      ]);
+    });
+
+    describe("multipleVaults", () => {
+      it("is false when every cipher is in the individual vault", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
+
+        expect(component["multipleVaults"]()).toBe(false);
+      });
+
+      /** The side-nav pre-filter case: one vault on screen, so the chip can't narrow anything. */
+      it("is false when every cipher is in the same organization", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["multipleVaults"]()).toBe(false);
+      });
+
+      it("is true when ciphers span the individual vault and an organization", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["multipleVaults"]()).toBe(true);
+      });
+
+      it("is true when ciphers span two organizations", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+          cipherView({ id: "b", organizationId: "org-2" as never }),
+        ]);
+
+        expect(component["multipleVaults"]()).toBe(true);
+      });
+
+      /** Nothing to name the organizations with, so the chip would have no options to offer. */
+      it("stays false when the caller supplies no organizations", () => {
+        fixture.componentRef.setInput("organizations", []);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["multipleVaults"]()).toBe(false);
+      });
+
+      it("ignores an organization the caller didn't supply, since the chip can't offer it", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-unknown" as never }),
+        ]);
+
+        expect(component["multipleVaults"]()).toBe(false);
+      });
+
+      it("is false when there are no ciphers", () => {
+        fixture.componentRef.setInput("ciphers", []);
+
+        expect(component["multipleVaults"]()).toBe(false);
+      });
+    });
+
+    describe("chip options", () => {
+      it("omits an organization that holds no ciphers", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-2" as never }),
+        ]);
+
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-2"]);
+      });
+
+      it("omits My vault when every cipher is organization-owned", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+          cipherView({ id: "b", organizationId: "org-2" as never }),
+        ]);
+
+        expect(component["showMyVaultOption"]()).toBe(false);
+      });
+
+      it("offers My vault when some cipher is individually owned", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+      });
+    });
+
+    describe("visibleColumns", () => {
+      it("drops the Vault column when every row is in the same vault", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["visibleColumns"]()).not.toContain("vault");
+      });
+
+      it("keeps every configured column when the rows span vaults", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+
+        expect(component["visibleColumns"]()).toEqual(component["displayedColumns"]());
+      });
+
+      it("leaves the configured column set untouched", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
+
+        expect(component["displayedColumns"]()).toContain("vault");
+      });
+    });
+  });
+
+  describe("showSharedFolders", () => {
+    it("is false when every row is individually owned, which can't be in a collection", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", organizationId: undefined }),
+        cipherView({ id: "b", organizationId: undefined }),
+      ]);
+
+      expect(component["showSharedFolders"]()).toBe(false);
+      expect(component["visibleColumns"]()).not.toContain("sharedFolders");
+    });
+
+    it("is true when any row is organization-owned", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", organizationId: undefined }),
+        cipherView({ id: "b", organizationId: "org-1" as never }),
+      ]);
+
+      expect(component["showSharedFolders"]()).toBe(true);
+      expect(component["visibleColumns"]()).toContain("sharedFolders");
+    });
+
+    /**
+     * Collection membership doesn't depend on the caller naming the organization, so this differs
+     * from `multipleVaults` — which ignores organizations it can't name.
+     */
+    it("is true for an organization the caller didn't supply", () => {
+      fixture.componentRef.setInput("organizations", []);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ organizationId: "org-unknown" as never }),
+      ]);
+
+      expect(component["showSharedFolders"]()).toBe(true);
+    });
+
+    it("is false when there are no ciphers", () => {
+      fixture.componentRef.setInput("ciphers", []);
+
+      expect(component["showSharedFolders"]()).toBe(false);
+    });
+  });
+
   describe("resolving display names", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
@@ -396,7 +576,10 @@ describe("VaultItemsTableComponent", () => {
     });
 
     it("resolves shared folder chips and drops unknown ids", () => {
-      const cipher = cipherView({ collectionIds: ["col-2", "col-unknown"] as never });
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-2", "col-unknown"] as never,
+      });
 
       expect(component["sharedFolderChips"](cipher)).toEqual([
         { value: "col-2", name: "Engineering" },
@@ -432,7 +615,12 @@ describe("VaultItemsTableComponent", () => {
     }
 
     it("narrows the Shared folders filter to the activated chip", () => {
-      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({
+          organizationId: "org-1" as never,
+          collectionIds: ["col-2"] as never,
+        }),
+      ]);
       fixture.detectChanges();
 
       chipButton("Engineering").click();
@@ -456,7 +644,12 @@ describe("VaultItemsTableComponent", () => {
      * decision: activating a chip means "show me this folder", not "and this one too".
      */
     it("replaces the chip's existing selection rather than adding to it", () => {
-      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({
+          organizationId: "org-1" as never,
+          collectionIds: ["col-2"] as never,
+        }),
+      ]);
       fixture.detectChanges();
 
       filterControl("sharedFolder").setValue(["col-1"]);
@@ -478,7 +671,12 @@ describe("VaultItemsTableComponent", () => {
     });
 
     it("names the chip after the action, not just the membership", () => {
-      fixture.componentRef.setInput("ciphers", [cipherView({ collectionIds: ["col-2"] as never })]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({
+          organizationId: "org-1" as never,
+          collectionIds: ["col-2"] as never,
+        }),
+      ]);
       fixture.detectChanges();
 
       expect(chipButton("Engineering").getAttribute("aria-label")).toBe("filterByName");
@@ -603,8 +801,14 @@ describe("VaultItemsTableComponent", () => {
     });
 
     it("orders shared folders by their first resolved name", () => {
-      const engineering = cipherView({ collectionIds: ["col-2"] as never });
-      const operations = cipherView({ collectionIds: ["col-1"] as never });
+      const engineering = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-2"] as never,
+      });
+      const operations = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1"] as never,
+      });
 
       expect(component["sortBySharedFolders"](engineering, operations)).toBeLessThan(0);
     });

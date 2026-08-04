@@ -15,7 +15,7 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { ButtonModule, I18nMockService } from "@bitwarden/components";
+import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultItemEvent } from "../vault-item-event";
@@ -362,7 +362,7 @@ export default {
   component: VaultItemsTableComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule],
+      imports: [ButtonModule, TypographyModule],
       providers: [
         {
           // Real English copy rather than key echoes, so design review sees what ships. Values
@@ -633,15 +633,47 @@ export const ManyFolders: Story = {
   }),
 };
 
-/** Without organizations the Vault chip has nothing to offer, so it doesn't render. */
-export const IndividualVaultOnly: Story = {
+/**
+ * Template variant with a page heading above the table, the way a host titles the page when its
+ * side nav has scoped the vault. Once every row sits in one vault the table drops both the Vault
+ * chip and the Vault column, so the heading is what tells the user where they are.
+ */
+const scopedVaultTemplate = `
+  <h1 bitTypography="h1">{{ heading }}</h1>
+  ${template}
+`;
+
+/**
+ * Scoped by the side nav to the individual vault. The Vault chip and column drop out — every row is
+ * in the same vault — and so do the Shared folders chip and column, since an individually-owned
+ * item can't belong to one.
+ *
+ * Organizations are still supplied — a host scoping the vault narrows `ciphers` and nothing else,
+ * and the table works the rest out from the rows.
+ */
+export const ScopedToMyVault: Story = {
   render: () => ({
     props: {
       ...baseProps,
-      organizations: [],
-      ciphers: ciphers.filter((c) => !c.organizationId),
+      heading: "My vault",
+      ciphers: ciphers.filter((cipher) => !cipher.organizationId),
     },
-    template,
+    template: scopedVaultTemplate,
+  }),
+};
+
+/**
+ * The same scoping, to a single organization — see {@link ScopedToMyVault}. The Shared folders
+ * column and chip stay useful, since the rows still spread across that organization's collections.
+ */
+export const ScopedToOrganizationVault: Story = {
+  render: () => ({
+    props: {
+      ...baseProps,
+      heading: "Acme corporation's vault",
+      ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
+    },
+    template: scopedVaultTemplate,
   }),
 };
 

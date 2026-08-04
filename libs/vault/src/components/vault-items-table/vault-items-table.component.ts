@@ -195,9 +195,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   readonly collections = input<CollectionView[]>([]);
 
   /**
-   * Organizations used to resolve the Vault column and chip. Pass an empty array to hide the Vault
-   * chip — policy decisions (organization data ownership, single organization) belong to the
-   * hosting page.
+   * Organizations used to resolve the Vault column and chip.
    */
   readonly organizations = input<Organization[]>([]);
 
@@ -232,7 +230,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
    */
   protected readonly selection: SelectionConfig<C> = { multiple: true };
 
-  /** Bound to `[displayedColumns]`; the hook a future column-customize story writes to. */
+  /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([
     "name",
     "vault",
@@ -240,6 +238,22 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     "myFolders",
     "actions",
   ]);
+
+  /**
+   * The relevant columns to be displayed based on the current ciphers provided.
+   *  - Vault is omitted if all ciphers belong to the same Vault
+   *  - Shared Folders is omitted if all ciphers are individually owned
+   */
+  protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
+    const hidden = new Set<VaultItemsTableColumn>();
+    if (!this.multipleVaults()) {
+      hidden.add("vault");
+    }
+    if (!this.showSharedFolders()) {
+      hidden.add("sharedFolders");
+    }
+    return this.displayedColumns().filter((column) => !hidden.has(column));
+  });
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
@@ -250,9 +264,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
    * none, and a genuinely empty vault — so the branch resolves to an i18n key rather than
    * wrapping the slots in an `@if`: content projection only matches the static top-level nodes
    * of projected content, so anything inside a conditional block never reaches its slot.
-   *
-   * `bit-table-v2` draws the same distinction internally, but keeps it `protected`; the row
-   * input tells us the same thing.
    */
   protected readonly emptyTitleKey = computed(() =>
     this.ciphers().length > 0 ? "noMatchingItems" : "noItemsInVault",
@@ -267,13 +278,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   /**
    * The Type chip's options: {@link cipherTypes} narrowed to the types actually present among
    * {@link ciphers}, preserving `cipherTypes()`'s ordering.
-   *
-   * Deliberately derived from the unfiltered `ciphers()` input, NOT from the table's filtered
-   * rows. Deriving it from the filtered rows would look like a reasonable optimization — narrow
-   * the menu to what's actually visible — but it isn't: once the user selects "Card", the
-   * filtered rows become card-only, so every *other* type would vanish from the menu and the
-   * user could never switch away from "Card" again. The unfiltered cipher list is what the menu
-   * must reflect for it to stay usable while a filter is active.
    */
   protected readonly availableCipherTypes = computed(() => {
     const present = new Set(this.ciphers().map((cipher) => CipherViewLikeUtils.getType(cipher)));
@@ -322,13 +326,49 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     return map;
   }
 
-  /** The organizations offered by the Vault chip, sorted for a stable menu. */
-  protected readonly sortedOrganizations = computed(() =>
-    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
-  );
+  /**
+   * The distinct vaults {@link ciphers} span, as the values the Vault chip offers: an organization
+   * id per organization {@link organizations} can name, plus {@link MY_VAULT} when any cipher is
+   * individually owned.
+   */
+  private readonly presentVaults = computed(() => {
+    const names = this.organizationNames();
+    const vaults = new Set<string>();
+    for (const cipher of this.ciphers()) {
+      const organizationId = idString(cipher.organizationId);
+      if (!organizationId) {
+        vaults.add(MY_VAULT);
+      } else if (names.has(organizationId)) {
+        vaults.add(organizationId);
+      }
+    }
+    return vaults;
+  });
 
-  /** Whether the Vault chip has anything to offer beyond the individual vault. */
-  protected readonly showVaultFilter = computed(() => this.organizations().length > 0);
+  /**
+   * Whether the rows span more than one vault. Used to determine Vault column/filter visbility.
+   */
+  protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
+
+  /** Whether the Vault chip offers "My vault" — only when some cipher is individually owned. */
+  protected readonly showMyVaultOption = computed(() => this.presentVaults().has(MY_VAULT));
+
+  /**
+   * The organizations the Vault chip offers, sorted for a stable menu.
+   */
+  protected readonly sortedOrganizations = computed(() => {
+    const present = this.presentVaults();
+    return this.organizations()
+      .filter((organization) => present.has(idString(organization.id) ?? ""))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  /**
+   * Whether the Shared folders chip has anything to offer — only when some cipher belongs to an organization
+   */
+  protected readonly showSharedFolders = computed(() =>
+    this.ciphers().some((cipher) => cipher.organizationId != null),
+  );
 
   /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
   protected readonly sortedCollections = computed(() =>
@@ -419,8 +459,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   /**
    * Sort comparators for the synthetic columns. The table's default comparator reads
    * `row[columnName]`, which is undefined for a column with no matching field — so without
-   * these, sorting those headers would silently do nothing. Each sorts by resolved display
-   * name, which is what the user sees, not by the underlying id.
+   * these, sorting those headers would silently do nothing.
    */
   protected readonly sortByVault: SortFn = (a: C, b: C) =>
     this.vaultName(a).localeCompare(this.vaultName(b));
