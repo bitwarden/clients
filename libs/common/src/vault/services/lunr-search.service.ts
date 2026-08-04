@@ -78,23 +78,28 @@ export class LunrSearchService {
   }
 
   private async getOrCreateIndex(indexId: IndexId, ciphers: CipherViewLike[]): Promise<lunr.Index> {
-    if (!this.isIndexUpToDate(indexId, ciphers)) {
+    if (this.isIndexUpToDate(indexId, ciphers)) {
+      return this.lunrIndices.get(indexId)!.lunrIndex;
+    }
+
+    // Only build one index concurrently
+    await this.acquireIndexLock();
+    try {
+      // Waiting for the lock can take as long as the build it was waiting on, so re-check before
+      // spending another.
+      if (this.isIndexUpToDate(indexId, ciphers)) {
+        return this.lunrIndices.get(indexId)!.lunrIndex;
+      }
+
       const start = performance.now();
       this.logService.info("Starting Lunr index build");
 
-      // Only build one index concurrently
-      await this.acquireIndexLock();
-      let index: lunr.Index;
-      try {
-        index = await buildCipherIndex(ciphers);
-        this.lunrIndices.set(indexId, {
-          lunrIndex: index,
-          numberOfCiphers: ciphers.length,
-          revisionDate: new Date(),
-        });
-      } finally {
-        await this.releaseIndexLock();
-      }
+      const index = await buildCipherIndex(ciphers);
+      this.lunrIndices.set(indexId, {
+        lunrIndex: index,
+        numberOfCiphers: ciphers.length,
+        revisionDate: new Date(),
+      });
 
       this.logService.info("Lunr index build complete");
       this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
@@ -102,8 +107,8 @@ export class LunrSearchService {
       ]);
 
       return index;
-    } else {
-      return this.lunrIndices.get(indexId)!.lunrIndex;
+    } finally {
+      await this.releaseIndexLock();
     }
   }
 

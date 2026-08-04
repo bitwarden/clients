@@ -59,6 +59,28 @@ describe("LunrSearchService", () => {
     ).toHaveLength(1);
   });
 
+  it("builds a single index for concurrent searches over the same ciphers", async () => {
+    const ciphers = [
+      createCipherView("11111111-1111-1111-1111-111111111111", "Personal Login"),
+      createCipherView("22222222-2222-2222-2222-222222222222", "Work Card"),
+    ];
+
+    // Both searches are started before either can finish, so the second one waits on the index
+    // lock held by the first and must reuse the index that build produced.
+    const [first, second] = await Promise.all([
+      service.searchCiphers(userId, null, ">personal", ciphers),
+      service.searchCiphers(userId, null, ">work", ciphers),
+    ]);
+
+    expect(
+      mockLogService.info.mock.calls.filter((call) => call[0] === "Starting Lunr index build"),
+    ).toHaveLength(1);
+    expect(first).toHaveLength(1);
+    expect(first[0].name).toBe("Personal Login");
+    expect(second).toHaveLength(1);
+    expect(second[0].name).toBe("Work Card");
+  });
+
   it("maintains separate indices for different organization ids", async () => {
     const ciphers = [createCipherView("11111111-1111-1111-1111-111111111111", "Personal Login")];
 
