@@ -38,6 +38,17 @@
   -->
   <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" [class.tw-hidden]="!isLargeScreen()">
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+    @if (appliedCount()) {
+      <button
+        id="bit-table-toolbar_button_clear-all"
+        type="button"
+        class="tw-inline-flex tw-cursor-pointer tw-items-center tw-gap-1.5 tw-rounded-lg tw-border-none tw-bg-transparent tw-px-2 tw-py-1 tw-text-sm tw-text-muted hover:tw-bg-hover-default hover:tw-text-main focus-visible:tw-bg-hover-default focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+        (click)="clearAll()"
+      >
+        <bit-icon name="bwi-clear" class="tw-leading-none"></bit-icon>
+        {{ "clearAll" | i18n }}
+      </button>
+    }
     @if (table) {
       <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-muted">
         {{ "itemCount" | i18n: itemCount() }}
