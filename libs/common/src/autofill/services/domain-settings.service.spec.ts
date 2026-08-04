@@ -3,6 +3,8 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums";
+import { Policy } from "../../admin-console/models/domain/policy";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
@@ -23,10 +25,20 @@ describe("DefaultDomainSettingsService", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const policyService = mock<PolicyService>();
   const configService = mock<ConfigService>();
-  const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
+  let fakeStateProvider: FakeStateProvider;
   let environmentService: MockProxy<EnvironmentService>;
   let authService: MockProxy<AuthService>;
   let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
+  let fillAssistPolicyMock$: BehaviorSubject<Policy[]>;
+
+  const makeFillAssistPolicy = (data: unknown, enabled: boolean = true): Policy =>
+    ({
+      id: "policy-id",
+      organizationId: "org-id",
+      type: PolicyType.FillAssist,
+      data,
+      enabled,
+    }) as unknown as Policy;
 
   const mockEquivalentDomains = [
     ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
@@ -35,6 +47,8 @@ describe("DefaultDomainSettingsService", () => {
   ];
 
   beforeEach(() => {
+    fakeStateProvider = new FakeStateProvider(accountService);
+
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue(MOCK_API_URL);
     environmentService = mock<EnvironmentService>();
@@ -47,6 +61,12 @@ describe("DefaultDomainSettingsService", () => {
     configService.getFeatureFlag$
       .calledWith(FeatureFlag.FillAssistTargetingRules)
       .mockReturnValue(fillAssistFeatureFlagMock$);
+
+    fillAssistPolicyMock$ = new BehaviorSubject<Policy[]>([]);
+    // Broadly mock so any call returns the fill assist mock; other policy-type
+    // consumers (e.g. defaultUriMatchStrategyPolicy$) stay cold unless a test
+    // subscribes to them.
+    policyService.policiesByType$.mockReturnValue(fillAssistPolicyMock$);
 
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -683,6 +703,161 @@ describe("DefaultDomainSettingsService", () => {
 
         expect(result).toBeNull();
       });
+    });
+  });
+
+  describe("fillAssistPolicy$", () => {
+    beforeEach(() => {
+      accountService.activeAccountSubject.next({ id: mockUserId } as any);
+    });
+
+    it("emits null when no policies match", async () => {
+      fillAssistPolicyMock$.next([]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits null when the policy is present but disabled", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" }, false),
+      ]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits null when policy data is null", async () => {
+      fillAssistPolicyMock$.next([makeFillAssistPolicy(null)]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits null when rulesUrl is missing from policy data", async () => {
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({})]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits null when rulesUrl is an empty string", async () => {
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "" })]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits null when rulesUrl is not a string (defensive)", async () => {
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: 123 })]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+
+    it("emits { rulesUrl } when the policy is enabled with valid data", async () => {
+      const rulesUrl = "https://acme-org.example.com/rules";
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl })]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toEqual({ rulesUrl });
+    });
+
+    it("returns the first policy when multiple orgs have Fill Assist policies (any-org-applies)", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://first-org.example.com/rules" }),
+        makeFillAssistPolicy({ rulesUrl: "https://second-org.example.com/rules" }),
+      ]);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toEqual({ rulesUrl: "https://first-org.example.com/rules" });
+    });
+
+    it("emits null when no active account", async () => {
+      accountService.activeAccountSubject.next(null);
+
+      const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("resolvedEnableFillAssist$ (user-explicit-wins semantics)", () => {
+    beforeEach(() => {
+      accountService.activeAccountSubject.next({ id: mockUserId } as any);
+      fillAssistFeatureFlagMock$.next(true);
+    });
+
+    it("returns false when feature flag is off, regardless of user setting or policy", async () => {
+      fillAssistFeatureFlagMock$.next(false);
+      await domainSettingsService.setEnableFillAssist(true);
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" })]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when user is pristine (untouched) and no policy applies", async () => {
+      // Don't call setEnableFillAssist — user setting is pristine (null).
+      fillAssistPolicyMock$.next([]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when user is pristine and policy applies (policy defaults ON)", async () => {
+      // Don't call setEnableFillAssist — user setting is pristine.
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" })]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when user has explicitly set true and no policy applies", async () => {
+      await domainSettingsService.setEnableFillAssist(true);
+      fillAssistPolicyMock$.next([]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when user has explicitly set false and no policy applies", async () => {
+      await domainSettingsService.setEnableFillAssist(false);
+      fillAssistPolicyMock$.next([]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when user has explicitly set true and policy applies", async () => {
+      await domainSettingsService.setEnableFillAssist(true);
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" })]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false when user has explicitly set false even if policy applies (user-explicit-wins)", async () => {
+      await domainSettingsService.setEnableFillAssist(false);
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" })]);
+
+      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
+
+      expect(result).toBe(false);
     });
   });
 });

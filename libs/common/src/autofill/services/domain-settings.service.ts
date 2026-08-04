@@ -6,12 +6,14 @@ import {
   firstValueFrom,
   map,
   Observable,
+  of,
   switchMap,
   shareReplay,
 } from "rxjs";
 
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums/policy-type.enum";
+import { Policy } from "../../admin-console/models/domain/policy";
 import { getFirstPolicy } from "../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
@@ -145,7 +147,21 @@ export abstract class DomainSettingsService {
   setEnableFillAssist: (newValue: boolean) => Promise<void>;
 
   /**
-   * Resolved (concerning user setting and feature-flag) state for enabling fill assist
+   * Org policy state for Fill Assist. Emits `null` when no policy applies to
+   * the active account, or `{ rulesUrl }` when one does. Any-org-applies-globally:
+   * if any of the user's orgs has the policy enabled, it applies to the whole
+   * account. See {@link resolvedEnableFillAssist$} for how this combines with
+   * the user setting and feature flag.
+   */
+  fillAssistPolicy$: Observable<{ rulesUrl: string } | null>;
+
+  /**
+   * Resolved state for enabling Fill Assist, combining the feature flag, the
+   * user setting, and the org policy with user-explicit-wins semantics: if the
+   * user has explicitly set the toggle (true or false), their choice wins. If
+   * the user has never touched the toggle ("pristine"), the org policy default
+   * applies when active. Gated on the {@link FeatureFlag.FillAssistTargetingRules}
+   * flag.
    */
   resolvedEnableFillAssist$: Observable<boolean>;
 
@@ -192,6 +208,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   private enableFillAssistState: GlobalState<boolean>;
   readonly enableFillAssist$: Observable<boolean>;
+  readonly fillAssistPolicy$: Observable<{ rulesUrl: string } | null>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
@@ -227,11 +244,48 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
     this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
 
+    this.fillAssistPolicy$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (account == null) {
+          // Logged-out or transient no-account state: no policy applies.
+          return of<Policy[]>([]);
+        }
+        return this.policyService.policiesByType$(PolicyType.FillAssist, account.id);
+      }),
+      getFirstPolicy,
+      map((policy) => {
+        if (!policy?.enabled || policy?.data == null) {
+          return null;
+        }
+        const rulesUrl = policy.data?.rulesUrl;
+        if (typeof rulesUrl !== "string" || !rulesUrl) {
+          return null;
+        }
+        return { rulesUrl };
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    // Reads the raw underlying state (naturally `boolean | null`) so the resolver
+    // can distinguish pristine (never touched) from explicit-false. User-explicit-wins:
+    // if the user has explicitly set the toggle, their choice wins; if they've never
+    // touched it, the org policy default applies when active.
     this.resolvedEnableFillAssist$ = combineLatest([
-      this.enableFillAssist$,
+      this.enableFillAssistState.state$,
+      this.fillAssistPolicy$,
       this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
     ]).pipe(
-      map(([userSetting, featureFlag]) => userSetting && featureFlag),
+      map(([rawUserSetting, policy, featureFlag]) => {
+        if (!featureFlag) {
+          return false;
+        }
+        if (rawUserSetting == null) {
+          // Pristine — policy default applies
+          return policy != null;
+        }
+        // User has explicitly set — respect their choice
+        return rawUserSetting;
+      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
     );

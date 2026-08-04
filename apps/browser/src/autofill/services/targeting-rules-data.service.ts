@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -26,10 +27,6 @@ import {
   GlobalStateProvider,
   KeyDefinition,
 } from "@bitwarden/state";
-
-/** Fallback resource location when the server does not provide one */
-const DEFAULT_RESOURCE_BASE_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download";
 
 /** Client-owned manifest filename, resolved against the resource base URL */
 const MANIFEST_FILENAME = "manifest.json";
@@ -45,6 +42,12 @@ type TargetingRulesDataMeta = {
   timestamp: number;
   /** Content hash (cid) of the forms map file last stored to state */
   cid?: string;
+  /**
+   * The effective resource base URL that the cached rules were fetched from.
+   * Used to invalidate the cache when the effective URL changes (e.g. an org
+   * admin toggling the Fill Assist policy on/off, or changing its rules URL).
+   */
+  url?: string;
 };
 
 const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta, string>(
@@ -54,6 +57,7 @@ const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta,
     deserializer: (value: TargetingRulesDataMeta) => ({
       timestamp: value?.timestamp ?? 0,
       cid: value?.cid,
+      url: value?.url,
     }),
   },
 );
@@ -114,6 +118,14 @@ export class TargetingRulesDataService {
     // behind environment$, so reacting here ensures _resolveManifestUrl
     // reads the correct config for the active environment.
     this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this._triggerUpdate$.next(false);
+    });
+
+    // Trigger a fetch whenever the Fill Assist policy changes (admin toggles
+    // the policy, changes its rules URL, or the user's org membership changes).
+    // The URL-changed detection in _fetchAndStoreRules relies on this to
+    // invalidate cached rules from a stale effective URL.
+    this.domainSettingsService.fillAssistPolicy$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);
     });
   }
@@ -201,12 +213,21 @@ export class TargetingRulesDataService {
     const meta = allMeta?.[apiUrl];
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
-    if (!skipCacheAgeCheck && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
+    // Resolve the effective URL before the cache-age check so we can detect
+    // policy-driven URL changes and force a fresh fetch when they happen.
+    const resourceBaseUrl = await this._resolveResourceBaseUrl();
+    const urlChanged = meta?.url != null && meta.url !== resourceBaseUrl;
+    if (urlChanged) {
+      this.logService.info(
+        `[TargetingRulesDataService] Effective URL changed (${meta?.url} → ${resourceBaseUrl}), forcing fetch.`,
+      );
+    }
+
+    if (!skipCacheAgeCheck && !urlChanged && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
       this.logService.debug("[TargetingRulesDataService] Cache is still fresh, skipping fetch.");
       return;
     }
 
-    const resourceBaseUrl = await this._resolveResourceBaseUrl();
     const manifestUrl = new URL(MANIFEST_FILENAME, resourceBaseUrl);
 
     // Step 1: Fetch the lightweight manifest to check if the data has changed
@@ -238,14 +259,16 @@ export class TargetingRulesDataService {
 
     const remoteCid = formsEntry.cid;
 
-    // If the content hash matches, the data hasn't changed; skip download
-    if (remoteCid && meta?.cid && meta.cid === remoteCid) {
+    // If the content hash matches, the data hasn't changed; skip download.
+    // Skip this optimization when the URL just changed — cids from different
+    // sources aren't comparable and the cached rules are from the old URL.
+    if (!urlChanged && remoteCid && meta?.cid && meta.cid === remoteCid) {
       this.logService.debug(
         `[TargetingRulesDataService] Data unchanged (cid match), skipping download.`,
       );
       await this._metaState.update((existing) => ({
         ...existing,
-        [apiUrl]: { ...meta, timestamp: Date.now() },
+        [apiUrl]: { ...meta, timestamp: Date.now(), url: resourceBaseUrl },
       }));
       return;
     }
@@ -278,7 +301,7 @@ export class TargetingRulesDataService {
     await this.domainSettingsService.setTargetingRules(rules);
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { timestamp: Date.now(), cid: remoteCid },
+      [apiUrl]: { timestamp: Date.now(), cid: remoteCid, url: resourceBaseUrl },
     }));
 
     this.logService.info(
@@ -287,14 +310,29 @@ export class TargetingRulesDataService {
   }
 
   /**
-   * Resolves the resource base URL from the server config, falling back to
-   * the hardcoded default. The trailing slash is enforced so that relative
-   * resolution (`new URL(filename, baseUrl)`) treats the value as a directory
-   * rather than dropping its final path segment.
+   * Resolves the effective resource base URL, in priority order:
+   *   1. Org policy `rulesUrl` if the Fill Assist policy applies AND its URL
+   *      differs from the Bitwarden default (`DEFAULT_FILL_ASSIST_RULES_URL`).
+   *      Admins who don't customize the policy leave the pre-fill in place, so
+   *      "differs from default" is how we detect a real customization.
+   *   2. Server config `fillAssistRules` — the environment's configured feed
+   *      (e.g. a self-hosted deployment pointing at its own rules).
+   *   3. `DEFAULT_FILL_ASSIST_RULES_URL` — hardcoded fallback for clients
+   *      that received no server config feed URL.
+   *
+   * The trailing slash is enforced so that relative resolution
+   * (`new URL(filename, baseUrl)`) treats the value as a directory rather than
+   * dropping its final path segment.
    */
   private async _resolveResourceBaseUrl(): Promise<string> {
+    const policy = await firstValueFrom(this.domainSettingsService.fillAssistPolicy$);
+    if (policy?.rulesUrl && policy.rulesUrl !== DEFAULT_FILL_ASSIST_RULES_URL) {
+      const policyUrl = policy.rulesUrl;
+      return policyUrl.endsWith("/") ? policyUrl : `${policyUrl}/`;
+    }
+
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_RESOURCE_BASE_URL;
+    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_FILL_ASSIST_RULES_URL;
     return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   }
 }
