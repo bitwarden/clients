@@ -1,15 +1,23 @@
-import { Cart, InvoicePreview } from "@bitwarden/pricing";
-import {
-  Storage,
-  SubscriptionPreview,
-  SubscriptionStatus,
-  SubscriptionStatuses,
-} from "@bitwarden/subscription";
+import type { Cart, InvoicePreview } from "@bitwarden/pricing";
+import type { Storage, SubscriptionPreview, SubscriptionStatus } from "@bitwarden/subscription";
 
 import { BaseResponse } from "../../../models/response/base.response";
 
 import { InvoicePreviewResponse } from "./invoice-preview.response";
 import { StorageResponse } from "./storage.response";
+
+// Compared as literals rather than via the `SubscriptionStatuses` const object: a value import
+// would load the `@bitwarden/subscription` barrel — and its Angular components — at runtime,
+// which libs/common (consumed by the non-Angular CLI) must not do. `satisfies` checks each
+// literal against `SubscriptionStatus` (so drift from the union is still a compile error) while
+// keeping the literal type, which the `toDomain` switch needs to narrow the status union.
+const Incomplete = "incomplete" satisfies SubscriptionStatus;
+const IncompleteExpired = "incomplete_expired" satisfies SubscriptionStatus;
+const Trialing = "trialing" satisfies SubscriptionStatus;
+const Active = "active" satisfies SubscriptionStatus;
+const PastDue = "past_due" satisfies SubscriptionStatus;
+const Canceled = "canceled" satisfies SubscriptionStatus;
+const Unpaid = "unpaid" satisfies SubscriptionStatus;
 
 const parseDate = (value: unknown): Date | undefined => {
   if (!value) {
@@ -33,13 +41,13 @@ export class SubscriptionPreviewResponse extends BaseResponse {
 
     const status = this.getResponseProperty("Status");
     if (
-      status !== SubscriptionStatuses.Incomplete &&
-      status !== SubscriptionStatuses.IncompleteExpired &&
-      status !== SubscriptionStatuses.Trialing &&
-      status !== SubscriptionStatuses.Active &&
-      status !== SubscriptionStatuses.PastDue &&
-      status !== SubscriptionStatuses.Canceled &&
-      status !== SubscriptionStatuses.Unpaid
+      status !== Incomplete &&
+      status !== IncompleteExpired &&
+      status !== Trialing &&
+      status !== Active &&
+      status !== PastDue &&
+      status !== Canceled &&
+      status !== Unpaid
     ) {
       throw new Error(`Failed to parse invalid subscription status: ${status}`);
     }
@@ -66,15 +74,14 @@ export class SubscriptionPreviewResponse extends BaseResponse {
     this.canceled = parseDate(this.getResponseProperty("Canceled"));
 
     if (
-      (this.status === SubscriptionStatuses.Incomplete ||
-        this.status === SubscriptionStatuses.IncompleteExpired) &&
+      (this.status === Incomplete || this.status === IncompleteExpired) &&
       (this.suspension == null || this.gracePeriod == null)
     ) {
       throw new Error(
         `Failed to parse missing suspension details for subscription status: ${this.status}`,
       );
     }
-    if (this.status === SubscriptionStatuses.Canceled && this.canceled == null) {
+    if (this.status === Canceled && this.canceled == null) {
       throw new Error("Failed to parse missing canceled date for canceled subscription");
     }
   }
@@ -92,10 +99,10 @@ export class SubscriptionPreviewResponse extends BaseResponse {
    */
   toDomain = (cart: Cart): SubscriptionPreview => {
     switch (this.status) {
-      case SubscriptionStatuses.Incomplete:
-      case SubscriptionStatuses.IncompleteExpired:
-      case SubscriptionStatuses.PastDue:
-      case SubscriptionStatuses.Unpaid: {
+      case Incomplete:
+      case IncompleteExpired:
+      case PastDue:
+      case Unpaid: {
         return {
           cart,
           storage: this.storage,
@@ -104,8 +111,8 @@ export class SubscriptionPreviewResponse extends BaseResponse {
           gracePeriod: this.gracePeriod,
         };
       }
-      case SubscriptionStatuses.Trialing:
-      case SubscriptionStatuses.Active: {
+      case Trialing:
+      case Active: {
         return {
           cart,
           storage: this.storage,
@@ -113,7 +120,7 @@ export class SubscriptionPreviewResponse extends BaseResponse {
           cancelAt: this.cancelAt,
         };
       }
-      case SubscriptionStatuses.Canceled: {
+      case Canceled: {
         return {
           cart,
           storage: this.storage,

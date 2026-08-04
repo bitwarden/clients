@@ -1,24 +1,6 @@
-import { Cart } from "@bitwarden/pricing";
+import type { Cart } from "@bitwarden/pricing";
 
 import { SubscriptionPreviewResponse } from "./subscription-preview.response";
-
-// The `@bitwarden/subscription` barrel re-exports Angular components, which this package's
-// non-Angular Jest environment cannot parse. The file under test needs only the status constants,
-// so stub the barrel down to those. Keep in sync with `types/bitwarden-subscription.ts`.
-jest.mock("@bitwarden/subscription", () => ({
-  SubscriptionStatuses: {
-    Incomplete: "incomplete",
-    IncompleteExpired: "incomplete_expired",
-    Trialing: "trialing",
-    Active: "active",
-    PastDue: "past_due",
-    Canceled: "canceled",
-    Unpaid: "unpaid",
-  },
-}));
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { SubscriptionStatuses } = require("@bitwarden/subscription");
 
 describe("SubscriptionPreviewResponse", () => {
   const cartJson = {
@@ -154,26 +136,24 @@ describe("SubscriptionPreviewResponse", () => {
       GracePeriod: 14,
     };
 
-    it.each([
-      SubscriptionStatuses.Incomplete,
-      SubscriptionStatuses.IncompleteExpired,
-      SubscriptionStatuses.PastDue,
-      SubscriptionStatuses.Unpaid,
-    ])("should build the suspension arm for %s", (status) => {
-      const response = new SubscriptionPreviewResponse(
-        responseJson({ Status: status, ...suspensionJson }),
-      );
+    it.each(["incomplete", "incomplete_expired", "past_due", "unpaid"])(
+      "should build the suspension arm for %s",
+      (status) => {
+        const response = new SubscriptionPreviewResponse(
+          responseJson({ Status: status, ...suspensionJson }),
+        );
 
-      const domain = response.toDomain(adaptedCart);
+        const domain = response.toDomain(adaptedCart);
 
-      expect(domain).toEqual({
-        cart: adaptedCart,
-        storage: response.storage,
-        status,
-        suspension: new Date("2026-03-01T00:00:00.000Z"),
-        gracePeriod: 14,
-      });
-    });
+        expect(domain).toEqual({
+          cart: adaptedCart,
+          storage: response.storage,
+          status,
+          suspension: new Date("2026-03-01T00:00:00.000Z"),
+          gracePeriod: 14,
+        });
+      },
+    );
 
     it("should build the suspension arm without details for a past_due response omitting them", () => {
       const response = new SubscriptionPreviewResponse(responseJson({ Status: "past_due" }));
@@ -187,23 +167,20 @@ describe("SubscriptionPreviewResponse", () => {
       });
     });
 
-    it.each([SubscriptionStatuses.Trialing, SubscriptionStatuses.Active])(
-      "should build the billable arm for %s",
-      (status) => {
-        const response = new SubscriptionPreviewResponse(
-          responseJson({ Status: status, CancelAt: "2026-12-01T00:00:00.000Z" }),
-        );
+    it.each(["trialing", "active"])("should build the billable arm for %s", (status) => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({ Status: status, CancelAt: "2026-12-01T00:00:00.000Z" }),
+      );
 
-        const domain = response.toDomain(adaptedCart);
+      const domain = response.toDomain(adaptedCart);
 
-        expect(domain).toEqual({
-          cart: adaptedCart,
-          storage: response.storage,
-          status,
-          cancelAt: new Date("2026-12-01T00:00:00.000Z"),
-        });
-      },
-    );
+      expect(domain).toEqual({
+        cart: adaptedCart,
+        storage: response.storage,
+        status,
+        cancelAt: new Date("2026-12-01T00:00:00.000Z"),
+      });
+    });
 
     it("should build the billable arm without cancelAt when absent", () => {
       const response = new SubscriptionPreviewResponse(responseJson({ Status: "active" }));
