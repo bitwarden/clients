@@ -16281,6 +16281,9 @@
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
   },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Couldn't load collections. Refresh the page to try again."
+  },
   "pamAccessRuleDefaultDurationHint": {
     "message": "This duration will be pre-filled in access requests."
   },

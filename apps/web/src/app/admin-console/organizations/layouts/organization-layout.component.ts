@@ -55,6 +55,7 @@ import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-sl
     PamOrgNavSlotComponent,
     Vfo1IconPipe,
     Vfo1I18nPipe,
+    PamOrgNavSlotComponent,
   ],
 })
 export class OrganizationLayoutComponent {

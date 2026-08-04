@@ -1,21 +1,27 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SelectItemView, ToastService } from "@bitwarden/components";
 
+import { AccessRuleSdkService, AccessRuleView } from "../..";
+
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
+import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
 
 /** Echoes the key as its translation so the form-field components don't crash on missing keys. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
+
+// Stand-in for the SDK-backed CIDR check; these specs don't assert CIDR-format validity, so
+// treating every non-empty row as valid keeps seeded IP-allowlist forms submittable.
+const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
 // Preset durations offered by the pickers, in seconds.
 const THIRTY_MIN = 30 * 60;
@@ -46,11 +52,12 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
       providers: [
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub({}) },
-        { provide: PamApiService, useValue: {} },
+        { provide: AccessRuleSdkService, useValue: {} },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
       ],
     });
 
@@ -115,7 +122,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     { id: "col-3", name: "Finance" },
   ];
 
-  const setup = async (state: RouteState, existing?: AccessRuleResponse) => {
+  const setup = async (state: RouteState, existing?: AccessRuleView) => {
     pamApi = {
       getAccessRule: jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
@@ -128,7 +135,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       providers: [
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub(state) },
-        { provide: PamApiService, useValue: pamApi },
+        { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
@@ -136,6 +143,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
       ],
     });
 
@@ -153,7 +161,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       id: "rule-1",
       collections: ["col-1", "col-3"],
       conditions: [],
-    } as unknown as AccessRuleResponse);
+    } as unknown as AccessRuleView);
 
     expect(controls().collections.value.map((i) => i.id)).toEqual(["col-1", "col-3"]);
     // Chips show real names, not raw UUIDs.
@@ -188,7 +196,9 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
     ] satisfies SelectItemView[]);
     controls().ipAllowlistEnabled.setValue(true);
-    controls().ipAllowlistCidrs.setValue(["10.0.0.0/8", "", "192.168.0.0/16"]);
+    // The FormArray is seeded via the component helper (a FormArray can't be resized with
+    // setValue), mirroring how the editor and load path populate rows.
+    component["setIpAllowlistCidrs"](["10.0.0.0/8", "", "192.168.0.0/16"]);
 
     await component["submit"]();
 
@@ -197,6 +207,51 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(request.conditions).toEqual([
       { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
     ]);
+  });
+
+  it("carries forward condition kinds this client doesn't model when editing a rule", async () => {
+    // `time_of_day` isn't a kind this client's checkboxes model (only
+    // human_approval/ip_allowlist are); it stands in for any future server-side
+    // condition kind the SDK passes through unrecognised.
+    const existingRule = {
+      id: "rule-1",
+      name: "Existing rule",
+      collections: ["col-2"],
+      conditions: [
+        { kind: "human_approval" },
+        { kind: "time_of_day", tz: "UTC", windows: [] } as any,
+      ],
+    } as unknown as AccessRuleView;
+
+    await setup({ params: { accessRuleId: "rule-1" } }, existingRule);
+
+    // Edit an unrelated field to exercise the round-trip.
+    controls().description.setValue("updated description");
+
+    await component["submit"]();
+
+    expect(pamApi.updateAccessRule).toHaveBeenCalledTimes(1);
+    const [, , request] = pamApi.updateAccessRule.mock.calls[0];
+    expect(request.conditions).toEqual(
+      expect.arrayContaining([{ kind: "time_of_day", tz: "UTC", windows: [] }]),
+    );
+    // The known condition is still rebuilt from its checkbox as normal.
+    expect(request.conditions).toEqual(expect.arrayContaining([{ kind: "human_approval" }]));
+  });
+
+  it("does not carry a condition stash when creating a new rule (no applyRule)", async () => {
+    await setup({});
+
+    controls().name.setValue("New rule");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+
+    await component["submit"]();
+
+    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
+    const [, request] = pamApi.createAccessRule.mock.calls[0];
+    expect(request.conditions).toEqual([]);
   });
 
   it("does not submit when required fields are missing", async () => {
@@ -215,6 +270,63 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(controls().humanApprovalEnabled.value).toBe(true);
   });
 
+  it("snaps off-preset stored max/extension durations onto their picker options", async () => {
+    await setup({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Off-preset durations",
+      collections: [],
+      conditions: [],
+      defaultLeaseDurationSeconds: ONE_HOUR,
+      maxLeaseDurationSeconds: 50 * 60, // 50m — not a picker option; nearest is 1h
+      allowsExtensions: true,
+      maxExtensionDurationSeconds: 50 * 60, // 50m — nearest extension option is 1h
+    } as unknown as AccessRuleView);
+
+    expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
+    expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
+  });
+
+  it("toasts when the org collections fail to load", async () => {
+    const showToast = jest.fn();
+    pamApi = {
+      getAccessRule: jest.fn(),
+      createAccessRule: jest.fn(),
+      updateAccessRule: jest.fn(),
+    };
+
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub({}) },
+        { provide: AccessRuleSdkService, useValue: pamApi },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => throwError(() => new Error("boom")) },
+        },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
+      ],
+    });
+
+    jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: "error",
+        message: "pamAccessRuleCollectionsLoadError",
+      }),
+    );
+    // The load settled (spinner cleared) even though it failed.
+    expect(component["collectionsLoading"]()).toBe(false);
+  });
+
   it("toasts and navigates back when the edited rule can't be fetched", async () => {
     pamApi = {
       getAccessRule: jest.fn().mockRejectedValue(new Error("404")),
@@ -229,11 +341,12 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       providers: [
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub({ params: { accessRuleId: "missing" } }) },
-        { provide: PamApiService, useValue: pamApi },
+        { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
         { provide: I18nService, useValue: i18nFake },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
       ],
     });
 

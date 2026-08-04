@@ -3,10 +3,11 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+
+import { AccessRuleSdkService, AccessRuleView } from "..";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -15,18 +16,23 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function rule(id: string, name = "Rule"): AccessRuleResponse {
-  return new AccessRuleResponse({
-    Id: id,
-    OrganizationId: "org-1",
-    Name: name,
-    Enabled: true,
-    Collections: [],
-    Conditions: [],
-    SingleActiveLease: false,
-    CreationDate: "2024-01-01T00:00:00.000Z",
-    RevisionDate: "2024-01-01T00:00:00.000Z",
-  });
+function rule(id: string, name = "Rule"): AccessRuleView {
+  return {
+    id,
+    organizationId: "org-1",
+    name,
+    description: undefined,
+    enabled: true,
+    conditions: [],
+    singleActiveLease: false,
+    defaultLeaseDurationSeconds: undefined,
+    maxLeaseDurationSeconds: undefined,
+    allowsExtensions: false,
+    maxExtensionDurationSeconds: undefined,
+    collections: [],
+    creationDate: "2024-01-01T00:00:00.000Z",
+    revisionDate: "2024-01-01T00:00:00.000Z",
+  } as unknown as AccessRuleView;
 }
 
 describe("AccessRulesComponent — create/edit navigation", () => {
@@ -39,9 +45,9 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 
   const setup = async (
-    rules: AccessRuleResponse[],
+    rules: AccessRuleView[],
   ): Promise<ComponentFixture<AccessRulesComponent>> => {
-    listAccessRules = jest.fn().mockResolvedValue({ data: rules });
+    listAccessRules = jest.fn().mockResolvedValue(rules);
 
     // The component's own template pulls in the full table/toolbar stack; replace it
     // so these tests exercise the navigation logic, not the rendering of child widgets.
@@ -55,7 +61,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: "org-1" }) },
         },
-        { provide: PamApiService, useValue: { listAccessRules } },
+        { provide: AccessRuleSdkService, useValue: { listAccessRules } },
         { provide: DialogService, useValue: {} },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },

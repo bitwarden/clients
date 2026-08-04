@@ -3,61 +3,20 @@ import { FormArray, FormControl } from "@angular/forms";
 import {
   atLeastOneNonEmptyCidrValidator,
   cidrValidator,
-  isValidCidr,
   noDuplicateCidrsValidator,
 } from "./cidr.validator";
 
-describe("isValidCidr", () => {
-  describe("valid IPv4 CIDRs", () => {
-    it.each([
-      "0.0.0.0/0",
-      "10.0.0.0/8",
-      "192.168.1.0/24",
-      "172.16.0.0/12",
-      "255.255.255.255/32",
-      "1.2.3.4/0",
-    ])("accepts %s", (cidr) => {
-      expect(isValidCidr(cidr)).toBe(true);
-    });
-  });
-
-  describe("invalid IPv4 CIDRs", () => {
-    it.each([
-      "256.0.0.0/24",
-      "192.168.1.0/33",
-      "10.0.0/24",
-      "10.0.0.0",
-      "10.0.0.0/",
-      "not-an-ip/24",
-      "",
-      "192.168.1.0/24/extra",
-    ])("rejects %s", (cidr) => {
-      expect(isValidCidr(cidr)).toBe(false);
-    });
-  });
-
-  describe("valid IPv6 CIDRs", () => {
-    it.each([
-      "2001:db8::/32",
-      "::/0",
-      "::1/128",
-      "fe80::/10",
-      "2001:0db8:0000:0000:0000:0000:0000:0000/32",
-    ])("accepts %s", (cidr) => {
-      expect(isValidCidr(cidr)).toBe(true);
-    });
-  });
-
-  describe("invalid IPv6 CIDRs", () => {
-    it.each(["2001:db8::/129", "not-ipv6/64"])("rejects %s", (cidr) => {
-      expect(isValidCidr(cidr)).toBe(false);
-    });
-  });
-});
+// The real CIDR check delegates to the Rust SDK's `is_valid_cidr` (backed by the `ipnet` crate),
+// which the app injects via `CidrValidationService`. The SDK owns CIDR parsing and is covered by
+// the crate's own Rust tests; re-implementing `ipnet` here would only test the stub against
+// itself. These specs cover the repo's validator logic — trimming, empty-row handling, duplicate
+// detection, and the at-least-one rule — so they pass a stand-in predicate that reports
+// valid/invalid for a fixed set of inputs.
+const isValidCidr = (value: string): boolean => value === "10.0.0.0/8" || value === "2001:db8::/32";
 
 describe("cidrValidator", () => {
   const validate = (value: string) =>
-    cidrValidator("Enter a valid CIDR range.")(new FormControl(value));
+    cidrValidator("Enter a valid CIDR range.", isValidCidr)(new FormControl(value));
 
   it("returns null for a valid IPv4 CIDR", () => {
     expect(validate("10.0.0.0/8")).toBeNull();
@@ -67,7 +26,7 @@ describe("cidrValidator", () => {
     expect(validate("2001:db8::/32")).toBeNull();
   });
 
-  it("returns invalidCidr error with message for a malformed value", () => {
+  it("returns invalidCidr error with message when the SDK rejects the value", () => {
     expect(validate("not-a-cidr")).toEqual({
       invalidCidr: { message: "Enter a valid CIDR range." },
     });

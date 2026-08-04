@@ -6,31 +6,29 @@ import {
   ValidatorFn,
 } from "@angular/forms";
 
-const IPV4_OCTET = "(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]\\d|\\d)";
-const IPV4_CIDR_RE = new RegExp(
-  `^${IPV4_OCTET}\\.${IPV4_OCTET}\\.${IPV4_OCTET}\\.${IPV4_OCTET}\\/(3[0-2]|[1-2]\\d|\\d)$`,
-);
-
-// Permissive IPv6 CIDR regex — accepts any sequence of hex groups / colons followed by a
-// prefix length of 0–128.  Thoroughness is flagged as a TBD in PM-37273.
-const IPV6_CIDR_RE = /^[0-9a-fA-F:]+(?::[0-9a-fA-F]*)?\/(12[0-8]|1[01]\d|[1-9]\d|\d)$/;
-
-/** Returns `true` when `value` is a syntactically valid IPv4 or IPv6 CIDR range. */
-export function isValidCidr(value: string): boolean {
-  return IPV4_CIDR_RE.test(value) || IPV6_CIDR_RE.test(value);
-}
+/**
+ * Predicate that reports whether a string is a valid IPv4 or IPv6 CIDR range.
+ *
+ * CIDR parsing lives in the Rust SDK (`is_valid_cidr`, backed by the `ipnet` crate), which is
+ * only available once the WASM module is loaded at app startup. Rather than importing that free
+ * function here — which would pull the WASM-backed SDK into every consumer's module graph and
+ * make this file impossible to exercise outside a booted app (Storybook, isolated unit tests) —
+ * the check is supplied by the caller. The app wires the real implementation via
+ * {@link CidrValidationService}; tests and stories pass a lightweight stand-in.
+ */
+export type CidrPredicate = (value: string) => boolean;
 
 /**
- * Angular validator that rejects a control whose value is not a valid CIDR.
- * Attach to individual row controls.
+ * Angular validator that rejects a control whose value is not a valid CIDR. Attach to individual
+ * row controls. `isValid` supplies the CIDR check (see {@link CidrPredicate}).
  */
-export function cidrValidator(invalidMessage: string): ValidatorFn {
+export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value: string = (control.value ?? "").trim();
     if (value === "") {
       return null;
     }
-    return isValidCidr(value) ? null : { invalidCidr: { message: invalidMessage } };
+    return isValid(value) ? null : { invalidCidr: { message: invalidMessage } };
   };
 }
 

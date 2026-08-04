@@ -6,7 +6,7 @@ import { canAccessOrgAdmin } from "@bitwarden/common/admin-console/abstractions/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
-import { AccessRuleEditComponent } from "./access-rules/access-rule-edit.component";
+import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { GovernanceDashboardComponent } from "./governance-dashboard/governance-dashboard.component";
 

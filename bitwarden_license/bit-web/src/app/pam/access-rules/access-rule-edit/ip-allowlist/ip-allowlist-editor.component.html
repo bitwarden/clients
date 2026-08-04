@@ -1,10 +1,8 @@
-<p class="tw-mb-3 tw-text-muted">
-  {{ "accessRuleIpAllowlistHelpText" | i18n }}
-</p>
+<p bitTypography="body2">{{ "accessRuleIpAllowlistHelpText" | i18n }}</p>
 
 <div class="tw-flex tw-flex-col tw-gap-2">
-  @for (control of cidrArray.controls; track $index) {
-    <bit-form-field class="tw-mb-0">
+  @for (control of cidrArray().controls; track $index) {
+    <bit-form-field>
       <bit-label>{{ "accessRuleIpAllowlistCidrLabel" | i18n }}</bit-label>
       <input
         bitInput
@@ -30,12 +28,16 @@
   }
 </div>
 
-@if (cidrArray.touched && cidrArray.hasError("duplicateCidrs")) {
-  <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}</p>
+@if (cidrArray().touched && cidrArray().hasError("duplicateCidrs")) {
+  <p class="tw-text-danger" bitTypography="helper">
+    {{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}
+  </p>
 }
 
-@if (cidrArray.touched && cidrArray.hasError("atLeastOneCidr")) {
-  <p class="tw-mt-1 tw-text-danger">{{ "accessRuleIpAllowlistAtLeastOne" | i18n }}</p>
+@if (cidrArray().touched && cidrArray().hasError("atLeastOneCidr")) {
+  <p class="tw-text-danger" bitTypography="helper">
+    {{ "accessRuleIpAllowlistAtLeastOne" | i18n }}
+  </p>
 }
 
 @if (!readonly()) {

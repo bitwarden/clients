@@ -17,7 +17,7 @@
     </bit-no-items>
   </bit-card>
 
-  <div class="tw-flex tw-flex-col tw-gap-4">
+  <div class="tw-flex tw-flex-col">
     <h2 bitTypography="h6">
       {{ "pamAccessRulesStartFromTemplate" | i18n }}
     </h2>
@@ -26,12 +26,7 @@
       @for (template of templates; track template.key) {
         <bit-item>
           <bit-item-content>
-            <bit-icon-tile
-              slot="start"
-              [icon]="template.icon"
-              variant="primary"
-              size="base"
-            ></bit-icon-tile>
+            <bit-icon-tile slot="start" [icon]="template.icon" variant="primary" size="base" />
             {{ template.titleKey | i18n }}
             <span slot="secondary">{{ template.summaryKey | i18n }}</span>
           </bit-item-content>
@@ -52,10 +47,4 @@
       }
     </bit-item-group>
   </div>
-
-  <p class="tw-m-0 tw-text-muted" bitTypography="helper">
-    {{ "pamAccessRulesAuditFootnoteStart" | i18n }}
-    <a bitLink linkType="primary" routerLink="../governance">{{ "pamEventLogs" | i18n }}</a>
-    {{ "pamAccessRulesAuditFootnoteEnd" | i18n }}
-  </p>
 </div>
