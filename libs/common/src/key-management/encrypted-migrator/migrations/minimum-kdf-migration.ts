@@ -5,10 +5,14 @@ import { LogService } from "@bitwarden/logging";
 import { assertNonNullish } from "../../../auth/utils";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
-import { ChangeKdfService } from "../../kdf/change-kdf.service.abstraction";
-import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  syncLegacyMasterKeyState,
+} from "../../master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "../../utils";
 
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
 
@@ -20,10 +24,10 @@ import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration"
 export class MinimumKdfMigration implements EncryptedMigration {
   constructor(
     private readonly kdfConfigService: KdfConfigService,
-    private readonly changeKdfService: ChangeKdfService,
+    private readonly sdkService: SdkService,
     private readonly logService: LogService,
     private readonly configService: ConfigService,
-    private readonly masterPasswordService: MasterPasswordServiceAbstraction,
+    private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly syncService: SyncService,
   ) {}
 
@@ -31,18 +35,16 @@ export class MinimumKdfMigration implements EncryptedMigration {
     assertNonNullish(userId, "userId");
     assertNonNullish(masterPassword, "masterPassword");
 
+    const kdf = new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min);
+
     this.logService.info(
       `[MinimumKdfMigration] Updating user ${userId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.defaultValue}`,
     );
-    await this.changeKdfService.updateUserKdfParams(
-      masterPassword!,
-      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min),
-      userId,
-    );
-    await this.kdfConfigService.setKdfConfig(
-      userId,
-      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min),
-    );
+
+    await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+      await sdk.user_crypto_management().change_kdf(masterPassword!, kdf.toSdkConfig());
+    });
+    await syncLegacyMasterKeyState(userId, masterPassword!, this.masterPasswordService);
   }
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {

@@ -4,11 +4,18 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KdfType, PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
@@ -28,13 +35,33 @@ describe("ChangeKdfConfirmationComponent", () => {
   let mockDialogRef: MockProxy<DialogRef<ChangeKdfConfirmationComponent>>;
   let mockConfigService: MockProxy<ConfigService>;
   let accountService: FakeAccountService;
-  let mockChangeKdfService: MockProxy<ChangeKdfService>;
+  let mockSdkService: MockProxy<SdkService>;
+  let mockMasterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
 
   const mockUserId = "user-id" as UserId;
   const mockEmail = "email";
   const mockMasterPassword = "master-password";
   const mockDialogData = jest.fn();
   const kdfConfig = new PBKDF2KdfConfig(600_001);
+
+  const mockWrappedUserKey = makeEncString("wrappedUserKey");
+  const mockUnlockData = new MasterPasswordUnlockData(
+    mockEmail as MasterPasswordSalt,
+    kdfConfig,
+    mockWrappedUserKey.encryptedString as unknown as MasterKeyWrappedUserKey,
+  );
+
+  // SDK reference chain: sdk.take() -> ref.value.user_crypto_management().change_kdf(...)
+  const changeKdf = jest.fn();
+  const mockRef = {
+    value: {
+      user_crypto_management: jest.fn().mockReturnValue({ change_kdf: changeKdf }),
+    },
+    [Symbol.dispose]: jest.fn(),
+  };
+  const mockSdk = {
+    take: jest.fn().mockReturnValue(mockRef),
+  };
 
   beforeEach(() => {
     mockI18nService = mock<I18nService>();
@@ -43,9 +70,13 @@ describe("ChangeKdfConfirmationComponent", () => {
     mockDialogRef = mock<DialogRef<ChangeKdfConfirmationComponent>>();
     mockConfigService = mock<ConfigService>();
     accountService = mockAccountServiceWith(mockUserId, { email: mockEmail });
-    mockChangeKdfService = mock<ChangeKdfService>();
+    mockSdkService = mock<SdkService>();
+    mockMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
 
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
+
+    mockSdkService.userClient$ = jest.fn(() => of(mockSdk)) as any;
+    mockMasterPasswordService.masterPasswordUnlockData$ = jest.fn(() => of(mockUnlockData)) as any;
 
     // Mock config service feature flag
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
@@ -65,13 +96,21 @@ describe("ChangeKdfConfirmationComponent", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: ChangeKdfService, useValue: mockChangeKdfService },
+        { provide: SdkService, useValue: mockSdkService },
+        {
+          provide: InternalMasterPasswordServiceAbstraction,
+          useValue: mockMasterPasswordService,
+        },
         {
           provide: DIALOG_DATA,
           useFactory: mockDialogData,
         },
       ],
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("Component Initialization", () => {
@@ -146,7 +185,7 @@ describe("ChangeKdfConfirmationComponent", () => {
         await component.submit();
 
         // Assert
-        expect(mockChangeKdfService.updateUserKdfParams).not.toHaveBeenCalled();
+        expect(changeKdf).not.toHaveBeenCalled();
       });
 
       it("when no active account", async () => {
@@ -154,7 +193,7 @@ describe("ChangeKdfConfirmationComponent", () => {
 
         await expect(component.submit()).rejects.toThrow("Null or undefined account");
 
-        expect(mockChangeKdfService.updateUserKdfParams).not.toHaveBeenCalled();
+        expect(changeKdf).not.toHaveBeenCalled();
       });
 
       it("when kdf is invalid", async () => {
@@ -164,7 +203,7 @@ describe("ChangeKdfConfirmationComponent", () => {
         // Act
         await expect(component.submit()).rejects.toThrow();
 
-        expect(mockChangeKdfService.updateUserKdfParams).not.toHaveBeenCalled();
+        expect(changeKdf).not.toHaveBeenCalled();
       });
     });
 
@@ -172,7 +211,7 @@ describe("ChangeKdfConfirmationComponent", () => {
       it("should set loading to true during submission", async () => {
         // Arrange
         let loadingDuringExecution = false;
-        mockChangeKdfService.updateUserKdfParams.mockImplementation(async () => {
+        changeKdf.mockImplementation(async () => {
           loadingDuringExecution = component.loading;
         });
 
@@ -201,9 +240,14 @@ describe("ChangeKdfConfirmationComponent", () => {
         await component.submit();
 
         // Assert
-        expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
+        expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, kdfConfig.toSdkConfig());
+        expect(mockMasterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
           mockMasterPassword,
-          kdfConfig,
+          mockUnlockData,
+          mockUserId,
+        );
+        expect(mockMasterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+          new EncString(mockWrappedUserKey.encryptedString),
           mockUserId,
         );
         expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -225,9 +269,14 @@ describe("ChangeKdfConfirmationComponent", () => {
         await component.submit();
 
         // Assert
-        expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
+        expect(changeKdf).toHaveBeenCalledWith(mockMasterPassword, kdfConfig.toSdkConfig());
+        expect(mockMasterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
           mockMasterPassword,
-          kdfConfig,
+          mockUnlockData,
+          mockUserId,
+        );
+        expect(mockMasterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+          new EncString(mockWrappedUserKey.encryptedString),
           mockUserId,
         );
         expect(mockToastService.showToast).toHaveBeenCalledWith({

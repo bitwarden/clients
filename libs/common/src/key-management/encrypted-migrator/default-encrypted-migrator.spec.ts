@@ -17,8 +17,7 @@ import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
-import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
-import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
@@ -32,10 +31,9 @@ jest.mock("./migrations/v2-key-rotation-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
-  const mockChangeKdfService = mock<ChangeKdfService>();
   const mockLogService = mock<LogService>();
   const configService = mock<ConfigService>();
-  const masterPasswordService = mock<MasterPasswordServiceAbstraction>();
+  const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const syncService = mock<SyncService>();
   const mockKeyService = mock<KeyService>();
   const mockBiometricsService = mock<BiometricsService>();
@@ -77,7 +75,6 @@ describe("EncryptedMigrator", () => {
 
     sut = new DefaultEncryptedMigrator(
       mockKdfConfigService,
-      mockChangeKdfService,
       mockLogService,
       configService,
       masterPasswordService,
