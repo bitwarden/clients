@@ -10,7 +10,7 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
 mockall = { workspace = true }
-rkyv = "=0.8.16"
+rkyv = "=0.8.17"
 rsa = "0.9"
 secure_memory = { path = "../secure_memory" }
 sha2 = "=0.10.9"
