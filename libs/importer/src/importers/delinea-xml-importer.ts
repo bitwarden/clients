@@ -1,6 +1,5 @@
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { ImportResult } from "../models";
 
@@ -29,9 +28,7 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
     for (const folderNode of folderNodes) {
       const folderPath = this.querySelectorDirectChild(folderNode, "FolderPath")?.textContent;
       if (folderPath) {
-        const folder = new FolderView();
-        folder.name = this.convertFolderPathToName(folderPath);
-        this.result.folders.push(folder);
+        this.processFolder(this.result, folderPath, false);
       }
     }
 
@@ -75,37 +72,27 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
         this.querySelectorDirectChild(secretNode, "FolderPath")?.textContent ?? "",
       );
       if (folderPath) {
-        const folderIdx = this.result.folders.findIndex(
-          (f) => f.name === this.convertFolderPathToName(folderPath),
-        );
-        if (folderIdx !== -1) {
-          const cipherIdx = this.result.ciphers.length;
-          this.result.folderRelationships.push([cipherIdx, folderIdx]);
-        }
+        this.processFolder(this.result, folderPath, true);
       }
 
       this.cleanupCipher(cipher);
       this.result.ciphers.push(cipher);
     }
 
+    if (this.organization) {
+      this.moveFoldersToCollections(this.result);
+    }
+
     this.result.success = true;
     return Promise.resolve(this.result);
   }
 
-  private convertFolderPathToName(folderPath: string) {
-    let folderName = folderPath.replace(/\\/g, "/");
-    if (folderName.startsWith("/")) {
-      folderName = folderName.slice(1);
-    }
-    return folderName;
-  }
-
   private getFolderNodes(importFileNode: Element): Element[] {
-    const secretsNode = this.querySelectorDirectChild(importFileNode, "Folders");
-    if (!secretsNode) {
+    const foldersNode = this.querySelectorDirectChild(importFileNode, "Folders");
+    if (!foldersNode) {
       return [];
     }
-    return this.querySelectorAllDirectChild(secretsNode, "Folder");
+    return this.querySelectorAllDirectChild(foldersNode, "Folder");
   }
 
   private getSecretNodes(importFileNode: Element): Element[] {

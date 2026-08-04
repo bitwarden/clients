@@ -107,7 +107,7 @@ export const DelineaXmlTestDataEmptySlugValue = `<?xml version="1.0" encoding="u
   <Secrets>
     <Secret>
       <SecretName>AC units at Operations</SecretName>
-      <FolderPath>\\Finance</FolderPath>
+      <FolderPath />
       <SiteId>-1</SiteId>
       <TotpKey />
       <TotpBackupCodes />

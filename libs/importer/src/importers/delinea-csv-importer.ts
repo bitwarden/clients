@@ -55,8 +55,12 @@ export class DelineaCsvImporter extends BaseImporter implements Importer {
       this.cleanupCipher(cipher);
       this.result.ciphers.push(cipher);
     }
-    this.result.success = true;
 
+    if (this.organization) {
+      this.moveFoldersToCollections(this.result);
+    }
+
+    this.result.success = true;
     return this.result;
   }
 }
