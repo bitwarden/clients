@@ -975,14 +975,17 @@ describe("DefaultOrganizationInviteService", () => {
      * copy change on the server fails the corresponding test here alongside the
      * classifier, so drift is caught early.
      */
-    describe("classifies SDK rejection variants", () => {
+    describe("classifies accept-endpoint rejections", () => {
       const runWithRejection = async (err: unknown) => {
+        const open = createOpenOrgInvite({ organizationId });
+        // Pre-stash so every rejection case proves the catch-block clear happened
+        // (asserted below) alongside its classifier result — a per-branch refactor
+        // that drops the clear on any variant then fails its row.
+        await sut.setOrganizationInvite(open);
         inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err);
-        return sut.acceptOpenOrgInvite(
-          createOpenOrgInvite({ organizationId }),
-          activeUserId,
-          acceptOrgUrl,
-        );
+        const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+        expect(await sut.getOrganizationInvite()).toBeNull();
+        return result;
       };
 
       // Each row is (server error name, HTTP status, exact server message, expected client

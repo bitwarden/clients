@@ -274,6 +274,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       await this.clearOrganizationInvite();
       return { kind: "accepted" };
     } catch (e) {
+      // Any classified accept failure leaves the invite consumed from the caller's
+      // POV — drop the stash so downstream MP-policy consumers on the same tab
+      // don't apply the failed org's policy.
+      await this.clearOpenOrgInvite();
       return this.classifyAcceptOpenOrgInviteError(e);
     }
   }
