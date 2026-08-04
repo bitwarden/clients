@@ -68,7 +68,18 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.badRequest("Failed to parse the provided Send url");
     }
 
-    const apiUrl = await this.getApiUrl(urlObject);
+    const [apiUrl, originMatchesConfigDomain] = await this.getApiUrl(urlObject);
+    if (!originMatchesConfigDomain) {
+      if (!this.canInteract) {
+        return Response.badRequest(
+          "Send access will not be attempted: the domain in the Send URL does not match the configured domain. Run interactively in order to override.",
+        );
+      }
+
+      if (!(await this.promptForDomainOverride(urlObject.origin))) {
+        return Response.badRequest("Send access cancelled.");
+      }
+    }
     const [id, key] = this.getIdAndKey(urlObject);
 
     if (Utils.isNullOrWhitespace(id) || Utils.isNullOrWhitespace(key)) {
@@ -85,7 +96,7 @@ export class SendReceiveCommand extends DownloadCommand {
     return [result[0], result[1]];
   }
 
-  private async getApiUrl(url: URL) {
+  private async getApiUrl(url: URL): Promise<[string, boolean]> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
 
@@ -94,16 +105,34 @@ export class SendReceiveCommand extends DownloadCommand {
       .availableRegions()
       .find((r) => r.urls.send != null && r.urls.send === url.origin);
     if (matchingRegion != null) {
-      return matchingRegion.urls.api;
+      return [matchingRegion.urls.api, true];
     }
 
     if (url.origin === urls.api) {
-      return url.origin;
+      return [url.origin, true];
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
-      return urls.api;
+      return [urls.api, true];
+    } else if (url.origin === env.getWebVaultUrl()) {
+      // Self-hosted servers without a dedicated Send domain link Sends from the web vault itself.
+      return [env.getApiUrl(), true];
     } else {
-      return url.origin + "/api";
+      return [url.origin + "/api", false];
     }
+  }
+
+  private async promptForDomainOverride(sendOrigin: string): Promise<boolean> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+
+    const answer = await inquirer.createPromptModule({ output: process.stderr })({
+      type: "confirm",
+      name: "proceed",
+      message:
+        `You are attempting to access a Send hosted on ${sendOrigin} but your CLI is configured for ` +
+        `${env.getWebVaultUrl()}. Do not proceed if you do not trust ${sendOrigin}. Do you want to proceed?`,
+      default: false,
+    });
+
+    return answer.proceed;
   }
 
   private async getUnlockedPassword(password: string, keyArray: Uint8Array) {
