@@ -84,6 +84,7 @@ export class WebRegistrationFinishService
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
+    salesAssistedToken?: string,
   ): Promise<UserMasterPasswordRegistrationRequest> {
     const registerRequest = await super.buildSdkRegisterRequest(
       email,
@@ -94,6 +95,15 @@ export class WebRegistrationFinishService
     );
 
     // web specific logic
+
+    // Sales-assisted invites are deep-linked to trial initiation.
+    // It does not grant an org, family, emergency-access, or provider relationship; it
+    // authorizes registration on instances where open self-registration is disabled.
+    // No linking/validation needed here, only forward the token.
+    if (salesAssistedToken) {
+      registerRequest.sales_assisted_token = salesAssistedToken;
+    }
+
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
@@ -120,7 +130,7 @@ export class WebRegistrationFinishService
     }
 
     // Alternative invite/acceptance tokens (org invite, org-sponsored
-    // family plan, emergency access, provider) are mutually exclusive with
+    // family plan, emergency access, provider, sales-assisted) are mutually exclusive with
     // emailVerificationToken — presence of any one of them proves email ownership
     // via the server-issued invite link, so the standalone email verification
     // token is not required and would not be present.
@@ -129,7 +139,8 @@ export class WebRegistrationFinishService
       (registerRequest.org_invite_token ||
         registerRequest.org_sponsored_free_family_plan_token ||
         registerRequest.accept_emergency_access_invite_token ||
-        registerRequest.provider_invite_token)
+        registerRequest.provider_invite_token ||
+        registerRequest.sales_assisted_token)
     ) {
       throw new Error(
         `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
@@ -150,6 +161,7 @@ export class WebRegistrationFinishService
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
+    salesAssistedToken?: string,
   ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
       newUserKey,
@@ -160,6 +172,15 @@ export class WebRegistrationFinishService
     );
 
     // web specific logic
+
+    // Sales-assisted invites are deep-linked to trial initiation.
+    // It does not grant an org, family, emergency-access, or provider relationship; it
+    // authorizes registration on instances where open self-registration is disabled.
+    // No linking/validation needed here, only forward the token.
+    if (salesAssistedToken) {
+      registerRequest.salesAssistedToken = salesAssistedToken;
+    }
+
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
@@ -184,7 +205,7 @@ export class WebRegistrationFinishService
     }
 
     // Alternative invite/acceptance tokens (org invite, org-sponsored
-    // family plan, emergency access, provider) are mutually exclusive with
+    // family plan, emergency access, provider, sales-assisted) are mutually exclusive with
     // emailVerificationToken — presence of any one of them proves email ownership
     // via the server-issued invite link, so the standalone email verification
     // token is not required and would not be present.
@@ -193,7 +214,8 @@ export class WebRegistrationFinishService
       (registerRequest.orgInviteToken ||
         registerRequest.orgSponsoredFreeFamilyPlanToken ||
         registerRequest.acceptEmergencyAccessInviteToken ||
-        registerRequest.providerInviteToken)
+        registerRequest.providerInviteToken ||
+        registerRequest.salesAssistedToken)
     ) {
       throw new Error(
         `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,

@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Моите папки"
   },
+  "addSharedFolder": {
+    "message": "Добавяне на споделена папка"
+  },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
+  "newSharedFolder": {
+    "message": "Нова споделена папка"
+  },
+  "searchSharedFolder": {
+    "message": "Търсене в споделената папка"
+  },
+  "searchMyFolder": {
+    "message": "Търсене в моите папки"
+  },
+  "addToMyFolder": {
+    "message": "Добавяне в моя папка"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Изберете елемент от споделена папка"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Преглед на споделена папка — $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Тази споделена папка е достъпна само през административната конзола"
+  },
+  "editSharedFolder": {
+    "message": "Редактиране на споделената папка"
+  },
+  "deleteSharedFolder": {
+    "message": "Изтриване на споделената папка"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Изтриване на $COUNT$ споделени папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Тази споделена папка ще бъде изтрита завинаги."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "Споделената папка $NAME$ ще бъде изтрита завинаги.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Тези споделени папки ще бъдат изтрити завинаги."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "Брой споделени папки, които ще бъдат изтрити завинги: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Избраните елементи и споделени папки ще бъдат изтрити завинаги."
+  },
+  "sharedFolderDeleted": {
+    "message": "Споделената папка е изтрита"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Споделените папки са изтрити"
+  },
+  "deletedSharedFolders": {
+    "message": "Изтрити споделени папки"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Безплатните организации могат да имат не повече от $COLLECTIONCOUNT$ споделени папки. Надградете до платен план, ако искате да имате повече споделени папки.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Безплатните организации могат да имат не повече от $COLLECTIONCOUNT$ споделени папки. Свържете се със собственика на организацията си, ако смятате, че планът трябва да бъде надграден.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Премествайки елемент в споделена папка, ще можете да го споделите сигурно с други членове свързани с този трезор."
+  },
   "attachments": {
     "message": "Прикачени файлове"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "Нямате права за тази колекция"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "Нямате права за тази споделена папка",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Няма колекции за показване."
@@ -4042,13 +4151,13 @@
     "message": "Прекратяване на абонамента"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Завършване на анулирането"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "Помогнете ни да се подобрим. Защо анулирате?"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "Допълнителни подробности"
   },
   "subscriptionExpiration": {
     "message": "Изтичане на абонамента"
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Стандартна колекция"
   },
+  "defaultSharedFolder": {
+    "message": "Споделена папка по подразбиране"
+  },
   "getHelp": {
     "message": "Помощ"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Влагане на колекцията под"
   },
+  "nestSharedFolderUnder": {
+    "message": "Нова споделена папка под",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Управление на достъпа"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Преглед на колекцията"
   },
+  "viewSharedFolder": {
+    "message": "Преглед на споделената папка",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Информация за колекцията"
   },
+  "sharedFolderInfo": {
+    "message": "Информация за споделената папка",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете тази колекция?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Наистина ли искате да изтриете тази споделена папка?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Редактиране на члена"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Собственик"
+  },
+  "ownerAriaLabel": {
+    "message": "Собственик $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Трезор $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Потребителят с най-големи права, който може да управлява всички настройки на организацията ви."
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Създадена е споделена папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Колекция № $ID$ е редактирана.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Редактирана е споделена папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Изтрити колекции"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Изтрита е споделена папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Отхвърляне на промените"
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавяне на преставка на уеб сайт",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Когато това е включено, домейнът на текущия уеб сайт ще се използва като представка за създадения адрес на е-поща",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Име на сървъра",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Няма колекция"
   },
+  "noSharedFolder": {
+    "message": "Няма споделена папка",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Няма добавени колекции"
   },
@@ -10668,7 +10856,7 @@
     "message": "Изтрито"
   },
   "memberStatusFilter": {
-    "message": "Member status filter"
+    "message": "Филтриране по състоянието на членовете"
   },
   "inviteMember": {
     "message": "Покана на член"
@@ -10677,7 +10865,7 @@
     "message": "Канене на членове"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Добавяне на спонсориране"
   },
   "needsConfirmation": {
     "message": "Изисква потвърждение"
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Е-пощата ще се обнови при запазване"
+  },
+  "emailNotClaimedHint": {
+    "message": "Този член няма присвоен акаунт. Свържете се с него, за да актуализира адреса на е-пощата си."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "Този член има главна парола. Свържете се с него, за да актуализира адреса на е-пощата си."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Новата е-поща трябва да съвпада с домейн заявен от организацията Ви."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Тази е-поща вече се ползва от член на Вашата организация."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Е-пощата е заета. Може вместо това да изпратите покана за Вашата организация."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Е-пощата на член, който има главна парола, не може да бъде променена."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Неуспешна промяна на е-пощата. Моля, опитайте отново."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Името на член, който не е заявен от организацията, не може да бъде променено."
+  },
+  "nameNotClaimedHint": {
+    "message": "Този член няма присвоен акаунт. Свържете се с него, за да актуализира името си."
   },
   "createdDate": {
     "message": "Дата на създаване"
@@ -10722,7 +10937,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "message": "Началните екипни планове могат да имат не повече от $SEATCOUNT$ членове. Надградете плана си, за да можете да поканите още хора.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Задаване на достъп за колекциите"
   },
+  "assignSharedFolderAccess": {
+    "message": "Даване на достъп",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Редактирани колекции"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Колекцията е редактирана"
   },
+  "sharedFolderEdited": {
+    "message": "Споделената папка е редактирана",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Колекциите са редактирани"
+  },
+  "sharedFoldersEdited": {
+    "message": "Споделените папки са редактирани",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "Нямате достъп за управление на тази колекция."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "Нямате достъп за управление на тази споделена папка.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Липсват правомощия за управление на колекции"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Липсват правомощия за управление",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Дайте правомощия за управление на колекциите, за да позволите пълното управление на колекции, включително изтриването им."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Дайте правомощия за управление, за да позволите пълното управление на споделени папки, включително изтриването им.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Дайте права на групи и членове до тази колекция."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Дайте достъп на групи и членове до тази споделена папка.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Дайте права на членовете до тази колекция."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Дайте достъп на членовете до тази споделена папка.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Администраторите имат достъп до и могат да управляват колекциите."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Администраторите имат достъп до и могат да управляват споделените папки.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Достъпът на сервизния акаунт е променен"
@@ -12053,7 +12304,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Нещо, което ни е необходимо, не беше налично.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12312,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "Обучението, администрирането или начина на ползване беше твърде сложен.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "Цената беше твърде висока",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "Цената не отговаря на това, което получаваме.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12328,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "Не успяхме да накараме хората наистина да го ползват.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12336,19 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Реорганизация, сливане, промяна в приоритетите или просто вече не ни трябва управител на пароли.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "Лоша грижа за клиентите",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "Не получихме необходимата ни помощ от отдела за поддръжката.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "Опишете причината си за анулирането",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Споделена папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Колекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моята папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Създайте нова организация, която да управлявате като доставчик. Допълнителните места ще бъдат отразени в следващия платежен период."
   },
@@ -12812,6 +13099,10 @@
   "noCollectionsSelected": {
     "message": "Не сте избрали нито една колекция."
   },
+  "noSharedFoldersSelected": {
+    "message": "Не сте избрали нито една споделена папка.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "Промяна на името"
   },
@@ -12819,7 +13110,7 @@
     "message": "Името на организацията е променено"
   },
   "providerPlan": {
-    "message": "Managed Service Provider"
+    "message": "Управляван доставчик на услуга"
   },
   "managedServiceProvider": {
     "message": "Управляван доставчик на услуга"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "Безплатните организации могат да имат не повече от 2споделени папки. Надградете до платен план, ако искате да имате повече споделени папки.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Търсене в архива"

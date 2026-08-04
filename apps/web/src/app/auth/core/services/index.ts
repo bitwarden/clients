@@ -1,4 +1,5 @@
 export * from "./change-password";
+export * from "./deep-link-redirect";
 export * from "./login";
 export * from "./login-decryption-options";
 export * from "./webauthn-login";
