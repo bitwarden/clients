@@ -61,7 +61,7 @@ export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
 @Injectable({
   providedIn: "root",
 })
-export class DesktopAutotypeService implements OnDestroy {
+export class DesktopAutotypeMvpService implements OnDestroy {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
   private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
     AUTOTYPE_KEYBOARD_SHORTCUT,
@@ -115,7 +115,7 @@ export class DesktopAutotypeService implements OnDestroy {
       return;
     }
 
-    ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
+    ipc.autofill.autotypeMvp.listenRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
       const firstCipher = possibleCiphers?.at(0);
       const [error, vaultData] = getAutotypeVaultData(firstCipher);
@@ -152,7 +152,7 @@ export class DesktopAutotypeService implements OnDestroy {
           const config: AutotypeConfig = {
             keyboardShortcut,
           };
-          ipc.autofill.configureAutotype(config);
+          ipc.autofill.autotypeMvp.configure(config);
         }),
         takeUntil(this.destroy$),
       )
@@ -161,7 +161,7 @@ export class DesktopAutotypeService implements OnDestroy {
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
-          ipc.autofill.toggleAutotype(enabled);
+          ipc.autofill.autotypeMvp.toggle(enabled);
         }),
         takeUntil(this.destroy$),
       )

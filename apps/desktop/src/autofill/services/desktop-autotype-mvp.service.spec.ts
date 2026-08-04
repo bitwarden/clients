@@ -13,11 +13,11 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
 
+import { DesktopAutotypeMvpService, getAutotypeVaultData } from "./desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
-import { DesktopAutotypeService, getAutotypeVaultData } from "./desktop-autotype.service";
 
-describe("DesktopAutotypeService", () => {
-  let service: DesktopAutotypeService;
+describe("DesktopAutotypeMvpService", () => {
+  let service: DesktopAutotypeMvpService;
 
   // Mock dependencies
   let mockAccountService: jest.Mocked<AccountService>;
@@ -139,15 +139,17 @@ describe("DesktopAutotypeService", () => {
     // Mock ipc (global)
     global.ipc = {
       autofill: {
-        listenAutotypeRequest: jest.fn(),
-        configureAutotype: jest.fn(),
-        toggleAutotype: jest.fn(),
+        autotypeMvp: {
+          listenRequest: jest.fn(),
+          configure: jest.fn(),
+          toggle: jest.fn(),
+        },
       },
     } as any;
 
     TestBed.configureTestingModule({
       providers: [
-        DesktopAutotypeService,
+        DesktopAutotypeMvpService,
         { provide: AccountService, useValue: mockAccountService },
         { provide: AuthService, useValue: mockAuthService },
         { provide: CipherService, useValue: mockCipherService },
@@ -163,7 +165,7 @@ describe("DesktopAutotypeService", () => {
       ],
     });
 
-    service = TestBed.inject(DesktopAutotypeService);
+    service = TestBed.inject(DesktopAutotypeMvpService);
   });
 
   afterEach(() => {
@@ -186,7 +188,7 @@ describe("DesktopAutotypeService", () => {
     it("should register autotype request listener on Windows", async () => {
       await service.init();
 
-      expect(global.ipc.autofill.listenAutotypeRequest).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalled();
     });
 
     it("should not initialize on non-Windows platforms", async () => {
@@ -194,7 +196,7 @@ describe("DesktopAutotypeService", () => {
 
       await service.init();
 
-      expect(global.ipc.autofill.listenAutotypeRequest).not.toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).not.toHaveBeenCalled();
     });
 
     it("should configure autotype when keyboard shortcut changes", async () => {
@@ -203,7 +205,7 @@ describe("DesktopAutotypeService", () => {
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.configureAutotype).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.configure).toHaveBeenCalled();
     });
 
     it("should toggle autotype when feature enabled state changes", async () => {
@@ -214,7 +216,7 @@ describe("DesktopAutotypeService", () => {
       // Allow observables to emit
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.ipc.autofill.toggleAutotype).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalled();
     });
 
     it("should enable autotype when policy is true and user setting is null", async () => {
