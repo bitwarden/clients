@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, DestroyRef, effect } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, effect } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
 
@@ -26,7 +26,6 @@ import { HealthAccessService } from "./services/health-access.service";
   ],
 })
 export class HealthComponent {
-  readonly destroyRef = inject(DestroyRef);
   readonly accountService = inject(AccountService);
   readonly healthAccessService = inject(HealthAccessService);
 
@@ -39,6 +38,7 @@ export class HealthComponent {
         userId ? this.healthAccessService.healthHasBeenOpened$(userId) : of(false),
       ),
     ),
+    { initialValue: false },
   );
   readonly hasRunHealthScan = toSignal(
     toObservable(this.userId).pipe(
@@ -46,6 +46,7 @@ export class HealthComponent {
         userId ? this.healthAccessService.hasRunHealthScan$(userId) : of(false),
       ),
     ),
+    { initialValue: false },
   );
 
   constructor() {
