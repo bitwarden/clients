@@ -467,9 +467,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
-    if (!canAccessPremium) {
-      options.cipher.login.totp = undefined;
-    }
+    const canUseTotp = canAccessPremium || options.cipher.organizationUseTotp;
 
     let didAutofill = false;
     await Promise.all(
@@ -494,6 +492,7 @@ export default class AutofillService implements AutofillServiceInterface {
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
           cipher: options.cipher,
+          canAccessTotp: canUseTotp,
           tabUrl,
           defaultUriMatch: defaultUriMatch,
           focusedFieldOpid: options.focusedFieldOpid,
@@ -540,8 +539,8 @@ export default class AutofillService implements AutofillServiceInterface {
         if (
           options.cipher.type !== CipherType.Login ||
           totp !== null ||
-          !options.cipher.login.totp ||
-          (!canAccessPremium && !options.cipher.organizationUseTotp)
+          !canUseTotp ||
+          !options.cipher.login?.totp
         ) {
           return;
         }
@@ -1112,6 +1111,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let username: AutofillField | null = null;
     let totp: AutofillField | null = null;
     const login = options.cipher.login;
+    const totpToFill = options.allowTotpAutofill && options.canAccessTotp ? login?.totp : undefined;
     const loginURIs = login?.uris ?? [];
     fillScript.savedUrls = loginURIs.reduce<string[]>((acc, savedURI) => {
       if (savedURI.match != UriMatchStrategy.Never && savedURI.uri != null) {
@@ -1235,7 +1235,7 @@ export default class AutofillService implements AutofillServiceInterface {
         }
       }
 
-      if (options.allowTotpAutofill && login.totp) {
+      if (totpToFill) {
         totp =
           isFocusedTotpField && passwordMatchesFocused(passField)
             ? focusedField
@@ -1290,7 +1290,7 @@ export default class AutofillService implements AutofillServiceInterface {
           }
         }
 
-        if (options.allowTotpAutofill && login.totp && firstPasswordField.elementNumber > 0) {
+        if (totpToFill && firstPasswordField.elementNumber > 0) {
           totp =
             isFocusedTotpField && passwordMatchesFocused(firstPasswordField)
               ? focusedField
@@ -1391,8 +1391,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillScript.autosubmit = Array.from(formElementsSet);
     }
 
-    const loginTotp = login?.totp;
-    if (options.allowTotpAutofill && typeof loginTotp === "string") {
+    if (typeof totpToFill === "string") {
       await Promise.all(
         totps.map(async (t, i) => {
           if (t.opid == null) {
@@ -1405,7 +1404,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
           filledFields[t.opid] = t;
 
-          const totpResponse = await firstValueFrom(this.totpService.getCode$(loginTotp));
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(totpToFill));
           const totpValue = totpResponse.code;
           if (totpValue == null) {
             return;
