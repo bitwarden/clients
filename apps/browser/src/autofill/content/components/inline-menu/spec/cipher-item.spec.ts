@@ -17,18 +17,7 @@ import { TotpCipherInfo } from "../totp-cipher-info";
 import { TotpCountdown } from "../totp-countdown";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
 jest.mock("../../cipher/cipher-icon", () => ({ CipherIcon: jest.fn(() => "cipher-icon") }));
-jest.mock("../../icons", () => ({ ExternalLink: jest.fn() }));
-jest.mock("../../constants/styles", () => ({
-  themes: {
-    light: { primary: { "600": "" }, secondary: { "300": "" }, background: { alt: "" } },
-  },
-  spacing: { "1": "", "2": "", "4": "" },
-}));
 jest.mock("../cipher-details", () => ({ CipherDetails: jest.fn(() => "cipher-details") }));
 jest.mock("../totp-cipher-info", () => ({ TotpCipherInfo: jest.fn(() => "totp-cipher-info") }));
 jest.mock("../totp-countdown", () => ({ TotpCountdown: jest.fn(() => "totp-countdown") }));

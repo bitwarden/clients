@@ -12,16 +12,6 @@ import { InlineMenuCipherItem } from "../cipher-item";
 import { InlineMenuCipherList } from "../cipher-list";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
-jest.mock("../../constants/styles", () => ({
-  themes: { light: { background: { DEFAULT: "" }, text: { main: "" } } },
-  typography: { body2: "" },
-  spacing: { "1": "", "2": "", "3": "", "4": "" },
-  scrollbarStyles: () => ({ default: "", safari: "" }),
-}));
 jest.mock("../container", () => ({ InlineMenuContainer: jest.fn(({ children }) => children) }));
 jest.mock("../cipher-item", () => ({ InlineMenuCipherItem: jest.fn(() => "cipher-item") }));
 

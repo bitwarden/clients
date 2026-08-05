@@ -13,16 +13,6 @@ import {
 import { CipherDetails } from "../cipher-details";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
-jest.mock("../../icons", () => ({ Passkey: jest.fn(() => "passkey-icon") }));
-jest.mock("../../constants/styles", () => ({
-  themes: { light: { text: { main: "", muted: "" } } },
-  typography: { body2: "", helperMedium: "" },
-  spacing: { "1": "", "3": "" },
-}));
 
 describe("CipherDetails", () => {
   const SUBTITLE_SLOT = 1;

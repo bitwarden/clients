@@ -6,18 +6,7 @@ import { mockI18n, mockPasswordGeneratorI18n } from "../../lit-stories/mock-data
 import { InlineMenuPasswordGenerator } from "../password-generator";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
-jest.mock("../../icons", () => ({ Key: jest.fn(), Refresh: jest.fn() }));
-jest.mock("../../constants/styles", () => ({
-  themes: { light: { primary: { "600": "" }, background: { alt: "" }, text: { main: "" } } },
-  typography: { body2: "" },
-  spacing: { "1": "", "2": "", "3": "", "4": "" },
-}));
 jest.mock("../container", () => ({ InlineMenuContainer: jest.fn(({ children }) => children) }));
-jest.mock("../colorized-password", () => ({ ColorizedPassword: jest.fn() }));
 
 describe("InlineMenuPasswordGenerator", () => {
   const baseProps = {
@@ -29,7 +18,6 @@ describe("InlineMenuPasswordGenerator", () => {
     handleRefreshPassword: jest.fn(),
   };
 
-  // Template slot layout: [4] onFill click, [5] fill keyup, [14] onRefresh click, [15] refresh keyup
   const FILL_CLICK_SLOT = 4;
   const FILL_KEYUP_SLOT = 5;
   const REFRESH_CLICK_SLOT = 14;

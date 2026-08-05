@@ -8,22 +8,6 @@ import { mockI18n } from "../../lit-stories/mock-data";
 import { InlineMenuPrompt } from "../prompt";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
-jest.mock("../../constants/styles", () => ({
-  themes: {
-    light: {
-      primary: { "600": "" },
-      secondary: { "300": "" },
-      background: { DEFAULT: "", alt: "" },
-      text: { main: "" },
-    },
-  },
-  typography: { body1: "" },
-  spacing: { "1": "", "2": "", "4": "" },
-}));
 jest.mock("../container", () => ({ InlineMenuContainer: jest.fn(({ children }) => children) }));
 
 describe("InlineMenuPrompt", () => {

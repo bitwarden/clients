@@ -5,16 +5,8 @@ import { mockI18n, mockPasswordGeneratorI18n } from "../../lit-stories/mock-data
 import { ColorizedPassword } from "../colorized-password";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
-jest.mock(
-  "@emotion/css",
-  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
-);
-jest.mock("../../constants/styles", () => ({
-  themes: { light: { text: { main: "" }, passwordSpecial: "", passwordNumber: "" } },
-}));
 
 describe("ColorizedPassword", () => {
-  // Template slot layout: [1] aria-label
   const ARIA_LABEL_SLOT = 1;
 
   it("builds an aria-label describing letters, numbers, and special characters", () => {
