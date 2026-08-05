@@ -16,7 +16,6 @@ import { UserKey } from "../../../types/key";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { AttachmentView } from "../../../vault/models/view/attachment.view";
 import { CipherView } from "../../../vault/models/view/cipher.view";
-import { EncString } from "../../crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 
 import { V2KeyRotationMigration } from "./v2-key-rotation-migration";
@@ -44,11 +43,9 @@ describe("V2KeyRotationMigration", () => {
     return cipher;
   };
 
-  const makeAttachment = (hasEncryptedKey: boolean): AttachmentView => {
+  const makeAttachment = (hasKey: boolean): AttachmentView => {
     const a = new AttachmentView();
-    a.encryptedKey = hasEncryptedKey
-      ? new EncString("2.abc|def|ghi")
-      : (undefined as unknown as EncString);
+    a.key = hasKey ? mock<SymmetricCryptoKey>() : undefined;
     return a;
   };
 
