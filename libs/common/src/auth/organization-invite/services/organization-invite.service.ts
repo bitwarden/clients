@@ -19,8 +19,8 @@ import { OrganizationInvite } from "../types/organization-invite.type";
  */
 export abstract class OrganizationInviteService {
   /**
-   * Merged stream of the variant-specific state keys, prefering direct over open.
-   * At most one is non-null at a time per the mutual-exclusion invariant enforced by
+   * Emits the currently stored organization invite, preferring direct over open. At most
+   * one variant is non-null at a time per the mutual-exclusion invariant enforced by
    * {@link setOrganizationInvite}.
    */
   abstract activeInvite$: Observable<OrganizationInvite | null>;
@@ -39,16 +39,16 @@ export abstract class OrganizationInviteService {
   abstract getOpenOrgInvite(): Promise<OpenOrganizationInvite | null>;
 
   /**
-   * Stores a new organization invite. Writes to the state key matching `invite.kind`
-   * and clears the opposite key (mutual exclusion). Callers that want to remove the
-   * stored invite should use {@link clearOrganizationInvite} or {@link clearOpenOrgInvite}.
+   * Stores a new organization invite. The opposite variant, if any, is cleared (mutual
+   * exclusion). Callers that want to remove the stored invite should use
+   * {@link clearOrganizationInvite} or {@link clearOpenOrgInvite}.
    */
   abstract setOrganizationInvite(invite: OrganizationInvite): Promise<void>;
 
   /**
-   * Clears both variant-specific state keys defensively. Use this for general "I'm done
-   * with any pending invite" cleanup. For open-only cleanup that must not affect a
-   * concurrent direct invite, use {@link clearOpenOrgInvite}.
+   * Clears any stored invite (direct or open). Use this for general "I'm done with any
+   * pending invite" cleanup. For open-only cleanup that must not affect a
+   * direct invite, use {@link clearOpenOrgInvite}.
    */
   abstract clearOrganizationInvite(): Promise<void>;
 
@@ -98,17 +98,14 @@ export abstract class OrganizationInviteService {
   /**
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token
    * (no user session required). Callers filter by `PolicyType` for their needs (e.g. `MasterPassword`,
-   * `ResetPassword`). Results are cached on the service instance keyed by invite token; the cache
-   * is cleared on `setOrganizationInvite` and `clearOrganizationInvite` so state transitions
-   * never leave stale entries behind.
+   * `ResetPassword`). Repeat calls for the same invite are memoized.
    * @returns all enabled policies for the org, or undefined on fetch error.
    */
   abstract getOrgPoliciesForInvite(invite: OrganizationInvite): Promise<Policy[] | undefined>;
 
   /**
-   * Derives the master-password policy options enforced by an invite's organization. Uses
-   * {@link getOrgPoliciesForInvite} internally, so repeat calls for the same invite honor the
-   * per-token cache and do not re-fetch.
+   * Derives the master-password policy options enforced by an invite's organization.
+   * Repeat calls for the same invite are memoized.
    * @returns the org's combined MP requirements, or undefined if the policy fetch failed or
    *   the org has no MP policy enabled.
    */
@@ -132,9 +129,9 @@ export abstract class OrganizationInviteService {
   /**
    * Validates whether an email's domain is permitted by an open org invite link's
    * `AllowedDomains` configuration, scoped to `(organizationId, code)` for parity with the
-   * status / accept endpoints. Pre-auth UX check consumed by `LoginComponent` and
-   * `RegistrationStartComponent`; server-side enforcement runs at accept time regardless.
-   * See {@link OpenOrgInviteValidateEmailDomainResult} for the discriminated outcome kinds.
+   * status / accept endpoints. Pre-auth UX check; server-side enforcement runs at accept
+   * time regardless. See {@link OpenOrgInviteValidateEmailDomainResult} for the
+   * discriminated outcome kinds.
    */
   abstract validateOpenOrgInviteEmailDomain(
     organizationId: string,
@@ -143,13 +140,11 @@ export abstract class OrganizationInviteService {
   ): Promise<OpenOrgInviteValidateEmailDomainResult>;
 
   /**
-   * Seals an open-org-invite context for the registration-crossing flow: hands the
-   * `organizationId`, `inviteLinkCode`, and `inviteKey` to the SDK's
-   * `seal_open_org_invite_data`, stores the returned `HighEntropySecret`
-   * paired with `email` (so a later `unsealOpenOrgInvite` can recover it), and returns the
-   * sealed blob for the caller to attach to the verification-email request. Returns `null`
-   * when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op without a flag
-   * check of their own.
+   * Seals the open-org-invite context (`organizationId`, `inviteLinkCode`, `inviteKey`)
+   * against a per-email secret so a later {@link unsealOpenOrgInvite} can recover it, and
+   * returns the sealed blob for the caller to attach to the verification-email request.
+   * Returns `null` when {@link FeatureFlag.GenerateInviteLink} is off so callers can no-op
+   * without a flag check of their own.
    */
   abstract sealOpenOrgInvite(email: string, invite: OpenOrgInviteLinkData): Promise<string | null>;
 
@@ -163,17 +158,15 @@ export abstract class OrganizationInviteService {
   ): Promise<OpenOrgInviteUnsealResult>;
 
   /**
-   * Removes the sealed-open-org-invite secret entry for the given email. Called once per
-   * crossing by `RegistrationFinishComponent` immediately after `unsealOpenOrgInvite`,
-   * regardless of outcome — the secret is single-use. Safe to call when no entry exists.
+   * Removes the sealed-open-org-invite secret entry for the given email. Call once after
+   * {@link unsealOpenOrgInvite} regardless of outcome — the secret is single-use. Safe to
+   * call when no entry exists.
    */
   abstract clearSealedOpenOrgInviteSecret(email: string): Promise<void>;
 
   /**
-   * Sweeps the entire sealed-open-org-invite secret record, removing entries whose
-   * `createdAtMs` is older than the TTL. Web-only in practice — the underlying state is
-   * `disk-local` on web and unused elsewhere. Called from the web app's `APP_INITIALIZER`
-   * chain on every boot; a strict `>` boundary comparison prevents jitter-induced churn.
+   * Removes sealed-open-org-invite secret entries whose TTL has elapsed.
+   * Safe to call when no entries exist.
    */
   abstract clearExpiredSealedOpenOrgInviteSecrets(): Promise<void>;
 }
