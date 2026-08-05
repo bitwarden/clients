@@ -11,7 +11,7 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginView } from "../models/view/login.view";
 
-import { DefaultCipherRiskService } from "./default-cipher-risk.service";
+import { DefaultCipherRiskService, isRiskableLoginCipher } from "./default-cipher-risk.service";
 
 describe("DefaultCipherRiskService", () => {
   let cipherRiskService: DefaultCipherRiskService;
@@ -31,6 +31,40 @@ describe("DefaultCipherRiskService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("isRiskableLoginCipher", () => {
+    const buildLogin = (password: string | undefined): CipherView => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = password;
+      return cipher;
+    };
+
+    it("returns true for a non-deleted Login with a non-empty password", () => {
+      expect(isRiskableLoginCipher(buildLogin("password1"))).toBe(true);
+    });
+
+    it("returns false for non-Login ciphers", () => {
+      const card = new CipherView();
+      card.type = CipherType.Card;
+      expect(isRiskableLoginCipher(card)).toBe(false);
+    });
+
+    it("returns false for a Login with no password", () => {
+      expect(isRiskableLoginCipher(buildLogin(undefined))).toBe(false);
+    });
+
+    it("returns false for a Login with an empty password", () => {
+      expect(isRiskableLoginCipher(buildLogin(""))).toBe(false);
+    });
+
+    it("returns false for a deleted Login", () => {
+      const deleted = buildLogin("password1");
+      deleted.deletedDate = new Date();
+      expect(isRiskableLoginCipher(deleted)).toBe(false);
+    });
   });
 
   describe("computeRiskForCiphers", () => {

@@ -28,6 +28,7 @@ import {
   CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
+  Vfo1I18nPipe,
   Vfo1IconPipe,
 } from "@bitwarden/vault";
 
@@ -58,6 +59,7 @@ interface CopyFieldConfig {
     LinkModule,
     IconModule,
     CheckboxModule,
+    Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
 })
