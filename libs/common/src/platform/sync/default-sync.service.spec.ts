@@ -301,16 +301,21 @@ describe("DefaultSyncService", () => {
         expect(data.accountCryptographicState).toBeDefined();
       });
 
-      it("does not fail the sync when the handler throws", async () => {
+      it("fails the sync and skips the remaining sync handlers when the handler rejects the sync", async () => {
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
         cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
 
-        await expect(sut.fullSync(true)).resolves.toBe(true);
+        await expect(sut.fullSync(true)).resolves.toBe(false);
 
-        expect(logService.error).toHaveBeenCalledWith(
-          "[Sync] Key management sync handler failed:",
-          expect.any(Error),
-        );
+        expect(folderService.replace).not.toHaveBeenCalled();
+        expect(policyService.replace).not.toHaveBeenCalled();
+      });
+
+      it("throws when the handler rejects the sync and allowThrowOnError is set", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+
+        await expect(sut.fullSync(true, { allowThrowOnError: true })).rejects.toThrow("boom");
       });
     });
 

@@ -442,8 +442,8 @@ export class DefaultSyncService extends CoreSyncService {
    * Runs the SDK's crypto sync handler.
    *
    * Hands the handler the crypto parts of the sync response and lets it decide what to do
-   * with each. Failures are logged and swallowed: nothing here is required for the sync itself to
-   * have succeeded.
+   * with each. Failures propagate: the handler reserves the option to reject a sync when the data
+   * is inconsistent, in which case no further sync handlers run.
    */
   private async runCryptoSyncHandler(
     userId: UserId,
