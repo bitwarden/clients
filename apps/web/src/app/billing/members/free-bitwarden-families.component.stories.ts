@@ -108,8 +108,10 @@ type Story = StoryObj<FreeBitwardenFamiliesComponent>;
 export const Default: Story = {};
 
 /**
- * With the VFO1 terminology flag on — the info bullet renders "Shared folders for family
- * members" instead of "Shared collections for family members".
+ * With the VFO1 terminology flag on — renders the updated "Sponsored Families Plan" copy
+ * (intro paragraph and "The Bitwarden Families plan includes" heading) and the info bullet
+ * renders "Shared folders for family members" instead of "Shared collections for family
+ * members".
  */
 export const Vfo1Enabled: Story = {
   decorators: [

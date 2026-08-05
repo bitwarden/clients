@@ -9079,17 +9079,26 @@
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
   },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
+  },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
   },
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "The Bitwarden for Families plan includes"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "The Bitwarden Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
