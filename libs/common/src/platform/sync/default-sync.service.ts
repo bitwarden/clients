@@ -450,26 +450,22 @@ export class DefaultSyncService extends CoreSyncService {
     profile: ProfileResponse,
     userDecryption: UserDecryptionResponse | undefined,
   ) {
-    try {
-      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
-        sdk.crypto_sync_handler().on_sync({
-          userDecryption:
-            userDecryption == null
-              ? undefined
-              : {
-                  masterPasswordUnlock: userDecryption.masterPasswordUnlock
-                    ?.toMasterPasswordUnlockData()
-                    .toSdk(),
-                  v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
-                  webAuthnPrfOptions: userDecryption.webAuthnPrfOptions
-                    ?.map((option) => option.toWebAuthnPrfUnlockOption())
-                    .filter((option) => option != null),
-                },
-          accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
-        }),
-      );
-    } catch (error) {
-      this.logService.error("[Sync] Key management sync handler failed:", error);
-    }
+    await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+      sdk.crypto_sync_handler().on_sync({
+        userDecryption:
+          userDecryption == null
+            ? undefined
+            : {
+                masterPasswordUnlock: userDecryption.masterPasswordUnlock
+                  ?.toMasterPasswordUnlockData()
+                  .toSdk(),
+                v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
+                webAuthnPrfOptions: userDecryption.webAuthnPrfOptions
+                  ?.map((option) => option.toWebAuthnPrfUnlockOption())
+                  .filter((option) => option != null),
+              },
+        accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
+      }),
+    );
   }
 }
