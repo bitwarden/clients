@@ -105,22 +105,20 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isConfirmed = await this.validateCipherAccess(cipher);
-    this.session.confirmChosenCipher(cipher.id, isConfirmed);
+    this.session.confirmChosenCipher(cipher);
 
     await this.closeModal();
   }
 
   async closeModal(): Promise<void> {
-    await this.desktopSettingsService.setModalMode(false);
-    await this.accountService.setShowHeader(true);
-
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
+    } else {
+      await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
     }
-
-    await this.router.navigate(["/"]);
   }
 
   private async loadCiphers(): Promise<void> {
@@ -152,12 +150,5 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
         next: (ciphers) => this.ciphersSubject.next(ciphers as CipherView[]),
         error: (error: unknown) => this.logService.error("Failed to load ciphers", error),
       });
-  }
-  private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
-    if (cipher.reprompt !== CipherRepromptType.None) {
-      return this.passwordRepromptService.showPasswordPrompt();
-    }
-
-    return true;
   }
 }

@@ -149,15 +149,15 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
-    await this.desktopSettingsService.setModalMode(false);
-    await this.accountService.setShowHeader(true);
-
+    // Let the session clean up the modal, if present.
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
+    } else {
+      await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
     }
-
-    await this.router.navigate(["/"]);
   }
 
   private initializeCiphersObservable(rpid: string): void {

@@ -221,9 +221,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
       return { cipherId: chosenCipher.id, userVerified };
     } finally {
-      // Make sure to clean up so the app is never stuck in modal mode?
-      await this.desktopSettingsService.setModalMode(false);
-      await this.accountService.setShowHeader(true);
+      // Make sure to clean up so the app is never stuck in modal mode
+      await this.hideUi();
     }
   }
 
@@ -346,14 +345,14 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         return { cipherId: createdCipher.id, userVerified: userVerification };
       }
     } finally {
-      // Make sure to clean up so the app is never stuck in modal mode?
-      await this.desktopSettingsService.setModalMode(false);
-      await this.accountService.setShowHeader(true);
+      // Make sure to clean up so the app is never stuck in modal mode
+      await this.hideUi();
     }
   }
 
   private async hideUi(): Promise<void> {
     await this.desktopSettingsService.setModalMode(false);
+    await this.accountService.setShowHeader(true);
     await this.router.navigate(["/"]);
   }
 

@@ -116,11 +116,11 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("should handle when no active session found", async () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(null);
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
 
       await component.ngOnInit();
 
-      expect(component.session).toBeNull();
+      expect(component.session).toBeUndefined();
     });
 
     it("should filter out deleted ciphers", async () => {
@@ -151,12 +151,19 @@ describe("Fido2VaultComponent", () => {
       component.session = mockSession;
     });
 
-    it("should choose cipher when access is validated", async () => {
-      cipher.reprompt = CipherRepromptType.None;
-
+    it("hands the chosen cipher to the session", async () => {
       await component.chooseCipher(cipher);
 
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher.id, true);
+      // Verification (master-password reprompt or OS) is handled by the session.
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher);
+    });
+
+    it("closes the modal if the session is not found when cipher is chosen ", async () => {
+      component.session = undefined;
+      await component.chooseCipher(cipher);
+
+      // Verification (master-password reprompt or OS) is handled by the session.
+      expect(mockSession.confirmChosenCipher).not.toHaveBeenCalled();
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
   });
@@ -167,7 +174,7 @@ describe("Fido2VaultComponent", () => {
 
       await component.closeModal();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });
