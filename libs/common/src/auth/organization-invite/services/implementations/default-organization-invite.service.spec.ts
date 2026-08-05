@@ -125,6 +125,28 @@ describe("DefaultOrganizationInviteService", () => {
       const stored = await sut.getOrganizationInvite();
       expect(stored).toEqual(invite);
     });
+
+    describe("mutual exclusion across kinds", () => {
+      it("clears any stashed open org invite when a direct invite is set", async () => {
+        const open = createOpenOrgInvite();
+        await sut.setOrganizationInvite(open);
+
+        const direct = createOrgInvite();
+        await sut.setOrganizationInvite(direct);
+
+        expect(await sut.getOrganizationInvite()).toEqual(direct);
+      });
+
+      it("clears any stashed direct invite when an open org invite is set", async () => {
+        const direct = createOrgInvite();
+        await sut.setOrganizationInvite(direct);
+
+        const open = createOpenOrgInvite();
+        await sut.setOrganizationInvite(open);
+
+        expect(await sut.getOrganizationInvite()).toEqual(open);
+      });
+    });
   });
 
   describe("clearOrganizationInvite", () => {
@@ -136,6 +158,49 @@ describe("DefaultOrganizationInviteService", () => {
 
       const stored = await sut.getOrganizationInvite();
       expect(stored).toBeNull();
+    });
+  });
+
+  describe("clearOpenOrgInvite", () => {
+    it("clears the open org invite", async () => {
+      const open = createOpenOrgInvite();
+      await sut.setOrganizationInvite(open);
+
+      await sut.clearOpenOrgInvite();
+
+      expect(await sut.getOrganizationInvite()).toBeNull();
+    });
+
+    it("leaves a stashed direct invite intact (clears only the open key)", async () => {
+      await sut.setOrganizationInvite(createOrgInvite());
+
+      await sut.clearOpenOrgInvite();
+
+      const stored = await sut.getOrganizationInvite();
+      expect(stored?.kind).toBe(OrgInviteKind.Direct);
+    });
+  });
+
+  describe("activeInvite$", () => {
+    it("emits null when neither invite is stashed", async () => {
+      const result = await firstValueFrom(sut.activeInvite$);
+      expect(result).toBeNull();
+    });
+
+    it("emits the direct invite when one is stashed", async () => {
+      const direct = createOrgInvite();
+      await sut.setOrganizationInvite(direct);
+
+      const result = await firstValueFrom(sut.activeInvite$);
+      expect(result).toEqual(direct);
+    });
+
+    it("emits the open org invite when one is stashed", async () => {
+      const open = createOpenOrgInvite();
+      await sut.setOrganizationInvite(open);
+
+      const result = await firstValueFrom(sut.activeInvite$);
+      expect(result).toEqual(open);
     });
   });
 
@@ -507,87 +572,127 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("getOrgPoliciesForInvite", () => {
-    it("returns policies on first fetch", async () => {
-      const invite = createOrgInvite();
-      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
-      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+    describe("direct branch", () => {
+      it("returns policies on first fetch", async () => {
+        const invite = createOrgInvite();
+        const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      const result = await sut.getOrgPoliciesForInvite(invite);
+        const result = await sut.getOrgPoliciesForInvite(invite);
 
-      expect(result).toEqual(policies);
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
-        invite.organizationId,
-        invite.token,
-        invite.email,
-        invite.organizationUserId,
-      );
+        expect(result).toEqual(policies);
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
+          invite.organizationId,
+          invite.token,
+          invite.email,
+          invite.organizationUserId,
+        );
+      });
+
+      it("returns undefined and logs when the policy fetch throws", async () => {
+        const invite = createOrgInvite();
+        const error = new Error("fetch failed");
+        policyApiService.getPoliciesByToken.mockRejectedValue(error);
+
+        const result = await sut.getOrgPoliciesForInvite(invite);
+
+        expect(result).toBeUndefined();
+        expect(logService.error).toHaveBeenCalledWith(error);
+      });
+
+      it("returns the cached result on the second call with the same invite token", async () => {
+        const invite = createOrgInvite();
+        const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+        await sut.getOrgPoliciesForInvite(invite);
+        await sut.getOrgPoliciesForInvite(invite);
+
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
+      });
+
+      it("clears the cache on setOrganizationInvite so the next fetch goes to the API", async () => {
+        const invite = createOrgInvite();
+        const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+        await sut.getOrgPoliciesForInvite(invite);
+        await sut.setOrganizationInvite(invite);
+        await sut.getOrgPoliciesForInvite(invite);
+
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+      });
+
+      it("clears the cache on clearOrganizationInvite so the next fetch goes to the API", async () => {
+        const invite = createOrgInvite();
+        const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+
+        await sut.getOrgPoliciesForInvite(invite);
+        await sut.clearOrganizationInvite();
+        await sut.getOrgPoliciesForInvite(invite);
+
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+      });
+
+      it("scopes the cache by invite token so distinct invites each hit the API", async () => {
+        const inviteA = createOrgInvite({ token: "tokenA" });
+        const inviteB = createOrgInvite({ token: "tokenB" });
+        policyApiService.getPoliciesByToken.mockResolvedValue([]);
+
+        await sut.getOrgPoliciesForInvite(inviteA);
+        await sut.getOrgPoliciesForInvite(inviteB);
+
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+      });
+
+      it("does not cache when the API returns null so subsequent calls retry", async () => {
+        const invite = createOrgInvite();
+        policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
+
+        await sut.getOrgPoliciesForInvite(invite);
+        await sut.getOrgPoliciesForInvite(invite);
+
+        expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+      });
     });
 
-    it("returns undefined and logs when the policy fetch throws", async () => {
-      const invite = createOrgInvite();
-      const error = new Error("fetch failed");
-      policyApiService.getPoliciesByToken.mockRejectedValue(error);
+    describe("open branch", () => {
+      it("routes open org invites to getPoliciesByInviteLinkCode keyed by (organizationId, inviteLinkCode)", async () => {
+        const open = createOpenOrgInvite();
+        const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+        policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
 
-      const result = await sut.getOrgPoliciesForInvite(invite);
+        const result = await sut.getOrgPoliciesForInvite(open);
 
-      expect(result).toBeUndefined();
-      expect(logService.error).toHaveBeenCalledWith(error);
-    });
+        expect(result).toEqual(policies);
+        expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledWith(
+          open.organizationId,
+          open.inviteLinkCode,
+        );
+        expect(policyApiService.getPoliciesByToken).not.toHaveBeenCalled();
+      });
 
-    it("returns the cached result on the second call with the same invite token", async () => {
-      const invite = createOrgInvite();
-      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
-      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      it("caches the open-org-invite policy list by inviteLinkCode", async () => {
+        const open = createOpenOrgInvite();
+        policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
 
-      await sut.getOrgPoliciesForInvite(invite);
-      await sut.getOrgPoliciesForInvite(invite);
+        await sut.getOrgPoliciesForInvite(open);
+        await sut.getOrgPoliciesForInvite(open);
 
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
-    });
+        expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledTimes(1);
+      });
 
-    it("clears the cache on setOrganizationInvite so the next fetch goes to the API", async () => {
-      const invite = createOrgInvite();
-      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
-      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      it("returns undefined and logs when the open-branch fetch throws", async () => {
+        const open = createOpenOrgInvite();
+        const error = new Error("link fetch failed");
+        policyApiService.getPoliciesByInviteLinkCode.mockRejectedValue(error);
 
-      await sut.getOrgPoliciesForInvite(invite);
-      await sut.setOrganizationInvite(invite);
-      await sut.getOrgPoliciesForInvite(invite);
+        const result = await sut.getOrgPoliciesForInvite(open);
 
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
-    });
-
-    it("clears the cache on clearOrganizationInvite so the next fetch goes to the API", async () => {
-      const invite = createOrgInvite();
-      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
-      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
-
-      await sut.getOrgPoliciesForInvite(invite);
-      await sut.clearOrganizationInvite();
-      await sut.getOrgPoliciesForInvite(invite);
-
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
-    });
-
-    it("scopes the cache by invite token so distinct invites each hit the API", async () => {
-      const inviteA = createOrgInvite({ token: "tokenA" });
-      const inviteB = createOrgInvite({ token: "tokenB" });
-      policyApiService.getPoliciesByToken.mockResolvedValue([]);
-
-      await sut.getOrgPoliciesForInvite(inviteA);
-      await sut.getOrgPoliciesForInvite(inviteB);
-
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
-    });
-
-    it("does not cache when the API returns null so subsequent calls retry", async () => {
-      const invite = createOrgInvite();
-      policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
-
-      await sut.getOrgPoliciesForInvite(invite);
-      await sut.getOrgPoliciesForInvite(invite);
-
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+        expect(result).toBeUndefined();
+        expect(logService.error).toHaveBeenCalledWith(error);
+      });
     });
   });
 
@@ -650,109 +755,6 @@ describe("DefaultOrganizationInviteService", () => {
       await sut.getMasterPasswordPolicyOptionsForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("setOrganizationInvite (mutual exclusion across kinds)", () => {
-    it("clears any stashed open org invite when a direct invite is set", async () => {
-      const open = createOpenOrgInvite();
-      await sut.setOrganizationInvite(open);
-
-      const direct = createOrgInvite();
-      await sut.setOrganizationInvite(direct);
-
-      expect(await sut.getOrganizationInvite()).toEqual(direct);
-    });
-
-    it("clears any stashed direct invite when an open org invite is set", async () => {
-      const direct = createOrgInvite();
-      await sut.setOrganizationInvite(direct);
-
-      const open = createOpenOrgInvite();
-      await sut.setOrganizationInvite(open);
-
-      expect(await sut.getOrganizationInvite()).toEqual(open);
-    });
-  });
-
-  describe("clearOpenOrgInvite", () => {
-    it("clears the open org invite", async () => {
-      const open = createOpenOrgInvite();
-      await sut.setOrganizationInvite(open);
-
-      await sut.clearOpenOrgInvite();
-
-      expect(await sut.getOrganizationInvite()).toBeNull();
-    });
-
-    it("leaves a stashed direct invite intact (clears only the open key)", async () => {
-      await sut.setOrganizationInvite(createOrgInvite());
-
-      await sut.clearOpenOrgInvite();
-
-      const stored = await sut.getOrganizationInvite();
-      expect(stored?.kind).toBe(OrgInviteKind.Direct);
-    });
-  });
-
-  describe("activeInvite$", () => {
-    it("emits null when neither invite is stashed", async () => {
-      const result = await firstValueFrom(sut.activeInvite$);
-      expect(result).toBeNull();
-    });
-
-    it("emits the direct invite when one is stashed", async () => {
-      const direct = createOrgInvite();
-      await sut.setOrganizationInvite(direct);
-
-      const result = await firstValueFrom(sut.activeInvite$);
-      expect(result).toEqual(direct);
-    });
-
-    it("emits the open org invite when one is stashed", async () => {
-      const open = createOpenOrgInvite();
-      await sut.setOrganizationInvite(open);
-
-      const result = await firstValueFrom(sut.activeInvite$);
-      expect(result).toEqual(open);
-    });
-  });
-
-  describe("getOrgPoliciesForInvite (open branch)", () => {
-    it("routes open org invites to getPoliciesByInviteLinkCode keyed by (organizationId, inviteLinkCode)", async () => {
-      const open = createOpenOrgInvite();
-      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
-      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
-
-      const result = await sut.getOrgPoliciesForInvite(open);
-
-      expect(result).toEqual(policies);
-      expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledWith(
-        open.organizationId,
-        open.inviteLinkCode,
-      );
-      expect(policyApiService.getPoliciesByToken).not.toHaveBeenCalled();
-    });
-
-    it("caches the open-org-invite policy list by inviteLinkCode", async () => {
-      const open = createOpenOrgInvite();
-      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
-
-      await sut.getOrgPoliciesForInvite(open);
-      await sut.getOrgPoliciesForInvite(open);
-
-      expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledTimes(1);
-    });
-
-    it("returns undefined and logs when the open-branch fetch throws", async () => {
-      const open = createOpenOrgInvite();
-      const error = new Error("link fetch failed");
-      policyApiService.getPoliciesByInviteLinkCode.mockRejectedValue(error);
-
-      const result = await sut.getOrgPoliciesForInvite(open);
-
-      expect(result).toBeUndefined();
-      expect(logService.error).toHaveBeenCalledWith(error);
     });
   });
 
@@ -1719,7 +1721,24 @@ describe("DefaultOrganizationInviteService", () => {
         };
         await writeRecord(before);
         await sut.clearExpiredSealedOpenOrgInviteSecrets();
-        expect(await readRecord()).toEqual(before);
+        // Identity check — the impl returns the same ref when nothing expired so
+        // the state provider can skip the disk-local write. Content equality alone
+        // would silently regress the optimization.
+        expect(await readRecord()).toBe(before);
+      });
+
+      it("returns a new record reference when at least one entry was expired", async () => {
+        const before = {
+          fresh: { highEntropySecret: "s-fresh", createdAtMs: NOW - 5 * 60 * 1000 },
+          expired: { highEntropySecret: "s-expired", createdAtMs: NOW - (TTL_MS + 1) },
+        };
+        await writeRecord(before);
+        await sut.clearExpiredSealedOpenOrgInviteSecrets();
+        // Companion to the "no expiry → same ref" case above: locks in that the
+        // impl builds a fresh `next` map when anything expired so the state
+        // provider commits a new reference. Content assertions are covered by
+        // the "removes entries…" test.
+        expect(await readRecord()).not.toBe(before);
       });
 
       it("is a no-op when the record has never been written", async () => {
