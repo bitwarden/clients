@@ -5,4 +5,9 @@
       <app-current-account />
     </ng-container>
   </popup-header>
+  @if (!hasRunHealthScan()) {
+    <health-intro (onTriggerHealthScan)="handleHealthScan()" />
+  } @else {
+    <div>RESULTS PLACEHOLDER</div>
+  }
 </popup-page>

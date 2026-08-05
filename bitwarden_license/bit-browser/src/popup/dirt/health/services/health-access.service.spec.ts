@@ -206,4 +206,41 @@ describe("HealthAccessService", () => {
       );
     });
   });
+
+  describe("hasRunHealthScan$", () => {
+    it("emits false when the User has never run a Health scan", async () => {
+      const hasRunScan = await firstValueFrom(service.hasRunHealthScan$(userId));
+
+      expect(hasRunScan).toBe(false);
+    });
+
+    it("emits true once the User has run a Health scan", async () => {
+      await service.setHasRunHealthScan(userId);
+
+      const hasRunScan = await firstValueFrom(service.hasRunHealthScan$(userId));
+
+      expect(hasRunScan).toBe(true);
+    });
+
+    it("reads the state scoped to the provided User", async () => {
+      await firstValueFrom(service.hasRunHealthScan$(userId));
+
+      expect(stateProvider.mock.getUserState$).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "runHealthScan" }),
+        userId,
+      );
+    });
+  });
+
+  describe("setHasRunHealthScan", () => {
+    it("persists the flag for the provided User", async () => {
+      await service.setHasRunHealthScan(userId);
+
+      expect(stateProvider.mock.setUserState).toHaveBeenCalledWith(
+        expect.objectContaining({ key: "runHealthScan" }),
+        true,
+        userId,
+      );
+    });
+  });
 });
