@@ -6,7 +6,7 @@ import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
-import { openOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
+import { getOpenOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
@@ -274,7 +274,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
           `RegistrationFinishComponent: open-org-invite status fetch failed: ${statusResult.errorMessage}`,
         );
       }
-      const statusErrorUi = openOrgInviteStatusErrorUi(statusResult.kind, false);
+      const statusErrorUi = getOpenOrgInviteStatusErrorUi(statusResult.kind, false);
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(statusErrorUi.anonLayoutData);
       this.errorMessageI18nKey.set(statusErrorUi.bodyMessageI18nKey);
       // Runtime guard on the narrowed signal: `isAuthed: false` above pins the mapper's

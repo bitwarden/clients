@@ -18,7 +18,7 @@ import { OpenOrgInviteErrorUi } from "./open-org-invite-error-ui.type";
  * @param isAuthed Current authentication context; drives the button target
  *   (`go-to-login` when unauthed, `go-to-vault` when authed).
  */
-export function openOrgInviteStatusErrorUi(
+export function getOpenOrgInviteStatusErrorUi(
   kind: OpenOrgInviteStatusError["kind"],
   isAuthed: boolean,
 ): OpenOrgInviteErrorUi {

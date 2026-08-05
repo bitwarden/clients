@@ -14,7 +14,7 @@ import { OpenOrgInviteErrorUi } from "./open-org-invite-error-ui.type";
  *
  * @param kind The accept-endpoint error kind to render.
  */
-export function openOrgInviteAcceptErrorUi(
+export function getOpenOrgInviteAcceptErrorUi(
   kind: OpenOrgInviteAcceptRenderableErrorKind,
 ): OpenOrgInviteErrorUi {
   const button: OpenOrgInviteErrorButton = {

@@ -4,7 +4,7 @@ import { OpenOrgInviteErrorButton } from "./open-org-invite-error-button.type";
 
 /**
  * Shared UI descriptor produced by both open-org-invite error mappers
- * (`openOrgInviteStatusErrorUi` and `openOrgInviteAcceptErrorUi`). Drives the anon-layout
+ * (`getOpenOrgInviteStatusErrorUi` and `getOpenOrgInviteAcceptErrorUi`). Drives the anon-layout
  * chrome (page title + icon), the body-message copy, and the primary button rendered
  * below the body without consumers switching on the raw error kind themselves.
  */

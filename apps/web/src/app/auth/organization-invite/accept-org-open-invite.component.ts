@@ -8,8 +8,8 @@ import {
   OpenOrgInviteAcceptRenderableErrorKind,
   OpenOrgInviteErrorButton,
   OpenOrgInviteErrorUi,
-  openOrgInviteAcceptErrorUi,
-  openOrgInviteStatusErrorUi,
+  getOpenOrgInviteAcceptErrorUi,
+  getOpenOrgInviteStatusErrorUi,
 } from "@bitwarden/angular/auth/organization-invite";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -116,7 +116,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
 
   /**
    * Fetches the open-org-invite status and delegates non-`ok` UI to the shared
-   * {@link openOrgInviteStatusErrorUi} mapper so this component and the registration-crossing
+   * {@link getOpenOrgInviteStatusErrorUi} mapper so this component and the registration-crossing
    * flow render identical UI for the same status kinds. Sets anon-layout chrome + the
    * body signal + the CTA and returns null so callers short-circuit. `unexpected` maps to a
    * generic-copy descriptor; the raw server detail on the descriptor is logged, not shown.
@@ -139,7 +139,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         `AcceptOrgOpenInviteComponent: open-org-invite status fetch failed: ${result.errorMessage}`,
       );
     }
-    const errorUi = openOrgInviteStatusErrorUi(result.kind, isAuthed);
+    const errorUi = getOpenOrgInviteStatusErrorUi(result.kind, isAuthed);
     this.renderErrorSurface(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
     return null;
   }
@@ -270,10 +270,10 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
 
   /**
    * Renders the shared error surface for an accept-endpoint kind via the
-   * {@link openOrgInviteAcceptErrorUi} mapper.
+   * {@link getOpenOrgInviteAcceptErrorUi} mapper.
    */
   private renderMappedError(kind: OpenOrgInviteAcceptRenderableErrorKind): void {
-    const errorUi = openOrgInviteAcceptErrorUi(kind);
+    const errorUi = getOpenOrgInviteAcceptErrorUi(kind);
     this.renderErrorSurface(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
   }
 
@@ -284,7 +284,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * so the active account is populated).
    */
   private async renderEmailDomainNotAllowed(): Promise<void> {
-    const errorUi = openOrgInviteAcceptErrorUi("email-domain-not-allowed");
+    const errorUi = getOpenOrgInviteAcceptErrorUi("email-domain-not-allowed");
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const email = activeAccount?.email ?? "";
     // Fallback to the full email if it lacks an `@` — server-side accept would not have
