@@ -14,9 +14,10 @@ import { CollectionAdminView } from "@bitwarden/common/admin-console/models/coll
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, GroupView } from "../../../core";
@@ -108,10 +109,6 @@ const mockAccountService = {
   activeAccount$: new BehaviorSubject({ id: USER_ID, email: "alice@example.com" }),
 };
 
-const mockConfigService = {
-  getFeatureFlag$: () => of(false),
-};
-
 const mockGroupApiService = {
   getAll: () => of(mockGroups),
 };
@@ -146,7 +143,6 @@ export default {
         { provide: DialogService, useValue: mockDialogService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ToastService, useValue: mockToastService },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: GroupApiService, useValue: mockGroupApiService },
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: CollectionService, useValue: mockCollectionService },
@@ -227,5 +223,32 @@ export const EditCollectionDeletedParent: Story = {
     { organizationId: ORG_ID, collectionId: COLLECTION_ID },
     mockOrganization(),
     mockNestedCollection,
+  ),
+};
+
+/**
+ * New collection with the VFO1 terminology flag on — labels, info text, and access
+ * copy render "shared folder" terminology instead of "collection".
+ */
+export const CreateCollectionVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: makeRender({ organizationId: ORG_ID }, mockOrganization()),
+};
+
+/**
+ * Existing collection open for editing with the VFO1 terminology flag on — the Access
+ * tab's Manage permission label renders "Manage" (not "Manage shared folder").
+ */
+export const EditCollectionVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: makeRender(
+    {
+      organizationId: ORG_ID,
+      collectionId: COLLECTION_ID,
+      isAdminConsoleActive: true,
+      initialTab: CollectionDialogTabType.Access,
+    },
+    mockOrganization(),
+    mockCollection,
   ),
 };
