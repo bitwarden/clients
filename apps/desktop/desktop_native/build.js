@@ -18,6 +18,21 @@ const rustTargetsMap = {
 // Ensure the dist directory exists
 fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 
+/**
+ * Read a tool version pinned in [workspace.metadata.bin] so nothing here carries a
+ * second copy of it. Kept as a local regex rather than importing scripts/*.mjs
+ * because this file is CommonJS.
+ * @param {string} tool Name of the tool as it appears in [workspace.metadata.bin].
+ */
+function pinnedBinVersion(tool) {
+    const cargoToml = fs.readFileSync(path.join(__dirname, "Cargo.toml"), "utf8");
+    const match = new RegExp(`^${tool}\\s*=\\s*\\{\\s*version\\s*=\\s*"=?([^"]+)"`, "m").exec(cargoToml);
+    if (!match) {
+        throw new Error(`Could not find '${tool}' in [workspace.metadata.bin] of desktop_native/Cargo.toml`);
+    }
+    return match[1];
+}
+
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
 const isRelease = mode === "release";
@@ -121,11 +136,17 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
-    // Bootstrap cargo-run-bin for cross-platform builds targeting Windows; it
-    // lazily builds the pinned cargo-xwin (see [workspace.metadata.bin]) on the
-    // first `cargo bin cargo-xwin` invocation in cargoBuild().
+    // Cross-building for Windows needs cargo-xwin, reached two different ways
+    // (see the comments on each install below). Both use the single version
+    // pinned in Cargo.toml under [workspace.metadata.bin].
     if (target.includes('windows') && process.platform !== 'win32') {
         runCommand("cargo", ["install", "cargo-run-bin", "--locked", "--version", "1.7.4"]);
+        // cargoBuild() reaches cargo-xwin through `cargo bin`, but buildNapiModule()
+        // hands off to the napi CLI, which spawns `cargo xwin` as a PATH
+        // cargo-subcommand we can't redirect. So cargo-xwin also has to be installed
+        // globally -- at the same pinned version, read from [workspace.metadata.bin],
+        // so the two call sites can't drift apart.
+        runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
