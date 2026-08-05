@@ -41,11 +41,13 @@
     @if (appliedCount()) {
       <button
         id="bit-table-toolbar_button_clear-all"
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
         type="button"
-        class="tw-inline-flex tw-cursor-pointer tw-items-center tw-gap-1.5 tw-rounded-lg tw-border-none tw-bg-transparent tw-px-2 tw-py-1 tw-text-sm tw-text-muted hover:tw-bg-hover-default hover:tw-text-main focus-visible:tw-bg-hover-default focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+        startIcon="bwi-clear"
         (click)="clearAll()"
       >
-        <bit-icon name="bwi-clear" class="tw-leading-none"></bit-icon>
         {{ "clearAll" | i18n }}
       </button>
     }

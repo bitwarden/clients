@@ -9,6 +9,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
+import { ButtonModule } from "../../button";
 import { ChipComponent } from "../../chips";
 import { DialogService } from "../../dialog";
 import {
@@ -16,7 +17,6 @@ import {
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
 import { FILTER_PRESENTER, FilterPresenter } from "../../filter-menu/filter-tokens";
-import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
@@ -39,7 +39,7 @@ import { BitTableV2Component } from "./table-v2.component";
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
-  imports: [I18nPipe, IconButtonModule, BerryComponent, ChipComponent, IconComponent],
+  imports: [I18nPipe, IconButtonModule, BerryComponent, ChipComponent, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
