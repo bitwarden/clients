@@ -107,7 +107,7 @@ export const AllVariants: Story = {
         </div>
 
         <div>
-          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Decorative — Muted</h3>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Decorative — Subtle</h3>
           <div class="tw-flex tw-gap-4 tw-items-center tw-flex-wrap">
             <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
               <bit-icon-tile icon="bwi-clock" variant="brand"></bit-icon-tile>
