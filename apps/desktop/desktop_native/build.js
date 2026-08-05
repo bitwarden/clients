@@ -75,10 +75,11 @@ function cargoBuild(bin, target, release) {
     const releaseArg = release ? "--release" : "";
     const args = ["build", "--bin", bin, releaseArg, targetArg]
     // Use cross-compilation helper if necessary. cargo-xwin is pinned in
-    // Cargo.toml under [workspace.metadata.bin] and run via cargo-run-bin. When
-    // run-bin invokes the binary directly (rather than via cargo's subcommand
-    // dispatch), the `xwin` cargo-subcommand token must be omitted, so
-    // `cargo xwin build ...` becomes `cargo bin cargo-xwin build ...`.
+    // Cargo.toml under [workspace.metadata.bin] and run via cargo-run-bin, so
+    // `cargo xwin build ...` becomes `cargo bin cargo-xwin build ...`: the `xwin`
+    // cargo-subcommand token is omitted because cargo-run-bin supplies it itself.
+    // Passing it explicitly yields `xwin xwin` and fails with
+    // "error: unrecognized subcommand 'xwin'".
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("bin", "cargo-xwin")
     }
