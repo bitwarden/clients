@@ -1,0 +1,45 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="Details" showBackButton="true">
+    <ng-container slot="end">
+      <app-pop-out />
+      <app-current-account />
+    </ng-container>
+  </popup-header>
+  @if (items().length > 0) {
+    <p>
+      Passwords for these logins were exposed in data breaches. Change them immediately to protect
+      your accounts.
+    </p>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">Items</h2>
+        <span slot="end">{{ items().length }}</span>
+      </bit-section-header>
+      @for (item of items(); track item.id) {
+        <bit-item class="tw-p-2 tw-flex tw-gap-2 tw-items-center">
+          <div slot="start">TODO: icon</div>
+          <div slot="secondary" class="tw-flex tw-flex-col">
+            <span bitTypography="body1">
+              {{ item.name }}
+            </span>
+            <span bitTypography="body2" class="tw-text-muted">
+              {{ item.username }}
+            </span>
+          </div>
+          <div slot="end">
+            <bit-item-action>
+              <button type="button" bitButton buttonType="secondary" endIcon="bwi-external-link">
+                Change password
+              </button>
+            </bit-item-action>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-more-horizontal" label="Options"></button>
+            </bit-item-action>
+          </div>
+        </bit-item>
+      }
+    </bit-section>
+  } @else {
+    <p>TODO: empty state</p>
+  }
+</popup-page>
