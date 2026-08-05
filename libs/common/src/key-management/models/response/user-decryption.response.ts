@@ -13,6 +13,12 @@ export class UserDecryptionResponse extends BaseResponse {
 
   v2UpgradeToken?: V2UpgradeTokenResponse;
 
+  /**
+   * Hex-encoded key id of the user's current user key, when the server knows it. Absent for
+   * accounts that have not reported their key id yet.
+   */
+  userKeyId?: string;
+
   constructor(response: unknown) {
     super(response);
 
@@ -31,6 +37,11 @@ export class UserDecryptionResponse extends BaseResponse {
     const v2UpgradeToken = this.getResponseProperty("V2UpgradeToken");
     if (v2UpgradeToken != null && typeof v2UpgradeToken === "object") {
       this.v2UpgradeToken = new V2UpgradeTokenResponse(v2UpgradeToken);
+    }
+
+    const userKeyId = this.getResponseProperty("UserKeyId");
+    if (typeof userKeyId === "string") {
+      this.userKeyId = userKeyId;
     }
   }
 }

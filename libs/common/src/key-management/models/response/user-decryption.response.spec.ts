@@ -72,4 +72,21 @@ describe("UserDecryptionResponse", () => {
       expect(userDecryptionResponse.v2UpgradeToken).toBeUndefined();
     },
   );
+
+  it("should parse userKeyId when UserKeyId is provided", () => {
+    const userKeyId = "0123456789abcdef0123456789abcdef";
+
+    const userDecryptionResponse = new UserDecryptionResponse({ UserKeyId: userKeyId });
+
+    expect(userDecryptionResponse.userKeyId).toEqual(userKeyId);
+  });
+
+  it.each([null, undefined, 1234, {}])(
+    "should leave userKeyId undefined when UserKeyId is %s",
+    (userKeyId) => {
+      const userDecryptionResponse = new UserDecryptionResponse({ UserKeyId: userKeyId });
+
+      expect(userDecryptionResponse.userKeyId).toBeUndefined();
+    },
+  );
 });
