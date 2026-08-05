@@ -146,7 +146,7 @@ describe("CreateCommand", () => {
         makeOptions(),
       );
       expect(result.success).toBe(false);
-      expect(result.message).toContain("`organizationid` option does not match request object");
+      expect(result.message).toContain("does not match");
     });
 
     it("returns bad request when collection name is empty string", async () => {

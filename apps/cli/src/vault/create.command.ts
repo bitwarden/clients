@@ -228,7 +228,9 @@ export class CreateCommand {
       : options.organizationId;
     if (Utils.isNullOrWhitespace(organizationId)) {
       return Response.badRequest(
-        "An organization id is required, either via the `organizationid` option or the request's `organizationId` property.",
+        "An organization id is required, either via the `--organizationid` option " +
+          "(or `organizationId` query parameter when using `bw serve`), " +
+          "or the request's `organizationId` property.",
       );
     }
     if (!Utils.isGuid(organizationId)) {
@@ -239,7 +241,10 @@ export class CreateCommand {
       !Utils.isNullOrWhitespace(req.organizationId) &&
       options.organizationId !== req.organizationId
     ) {
-      return Response.badRequest("`organizationid` option does not match request object.");
+      return Response.badRequest(
+        "The `--organizationid` option (or `organizationId` query parameter) does not match " +
+          "the request's `organizationId` property.",
+      );
     }
     req.organizationId = organizationId as OrganizationId;
     if (req.name == null || req.name.trim() === "") {
