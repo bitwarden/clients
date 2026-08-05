@@ -63,6 +63,8 @@
     "dist:bit:safari:mv3": "cross-env MANIFEST_VERSION=3 npm run dist:bit:safari",
     "package:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome.zip",
     "package:bit:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome.zip",
+    "package:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome-beta.zip",
+    "package:bit:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-beta.zip",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
