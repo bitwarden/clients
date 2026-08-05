@@ -24,6 +24,14 @@ type CipherItem = {
   templateUrl: "./item-copy-actions.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ItemModule, IconButtonModule, JslibModule, MenuModule, CopyCipherFieldDirective],
+  host: {
+    /**
+     * Space the copy actions consistently regardless of the consumer. Matches the spacing
+     * `bit-item` applies to its end slot, so the actions look the same in list contexts
+     * (browser popup) and outside of them (web vault table rows).
+     */
+    class: "tw-flex tw-items-center tw-gap-2 [&_button[biticonbutton]]:-tw-mx-1",
+  },
 })
 export class VaultItemCopyActionsComponent {
   readonly cipher = input.required<CipherViewLike>();
