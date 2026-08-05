@@ -119,6 +119,9 @@
   "vault": {
     "message": "Vault"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "My vault"
   },
@@ -6401,10 +6404,16 @@
     "message": "Item Location"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "File Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Text Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Account actions"
@@ -7431,5 +7440,14 @@
   },
   "health": {
     "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }
