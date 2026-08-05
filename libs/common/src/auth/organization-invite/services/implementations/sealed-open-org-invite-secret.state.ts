@@ -28,8 +28,7 @@ export const SEALED_OPEN_ORG_INVITE_SECRET_TTL_MS = 20 * 60 * 1000;
 /**
  * Email-keyed record of sealed-open-org-invite secrets. Lives in `disk-local` scope on web so
  * the entries are anchored to the browser origin (survive tab close / reload, isolated
- * cross-origin) but never sync to the account, mobile devices, or backup exports — matching
- * the "secret half stays client-side" invariant of the registration-crossing design.
+ * cross-origin).
  */
 export const EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL = KeyDefinition.record<
   SealedOpenOrgInviteSecretState,
