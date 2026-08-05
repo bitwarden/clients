@@ -255,6 +255,10 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     return collectLinkableMemberIds(this.orgUsersUserIdMap);
   }
 
+  protected override getOrganizationName(): string | undefined {
+    return this.organization?.name;
+  }
+
   /** True when the Member-column name on a Send access row resolves to a member we can link to. */
   protected isSendAccessMemberLink(e: EventView): boolean {
     // Link only when the ACCESSOR is a confirmed member. Use actingUserId, not e.userId: the latter

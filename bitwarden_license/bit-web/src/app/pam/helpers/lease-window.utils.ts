@@ -17,6 +17,18 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
 /** Default lease duration (1h) for a new access rule with no stored value. */
 export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
+/** Admin-selectable maximum extension lengths, in seconds (30m–8h). */
+export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
+  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
+  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
+  { seconds: 2 * 60 * 60, labelKey: "pamAccessRuleDuration2h" },
+  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
+  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+];
+
+/** Default maximum extension length offered when a rule first enables extensions (1h). */
+export const DEFAULT_MAX_EXTENSION_DURATION_SECONDS = 60 * 60;
+
 /**
  * Snap a duration to the nearest `seconds` entry in `options`, so a value
  * persisted outside a picker's option set still renders against an option.

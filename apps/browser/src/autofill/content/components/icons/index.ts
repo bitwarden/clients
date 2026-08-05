@@ -13,6 +13,8 @@ export { Lock } from "./lock";
 export { Passkey } from "./passkey";
 export { PencilSquare } from "./pencil-square";
 export { Plus } from "./plus";
+export { Key } from "./key";
+export { Refresh } from "./refresh";
 export { Shield } from "./shield";
 export { Spinner } from "./spinner";
 export { User } from "./user";
