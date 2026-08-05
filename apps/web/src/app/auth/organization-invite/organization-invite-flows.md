@@ -379,7 +379,7 @@ whoever authenticates against the link at accept time.
    - `email-domain-not-allowed` → shared error surface with the user's
      domain interpolated
    - Other classified error kinds → shared error surface via
-     `openOrgInviteAcceptErrorUi`
+     `getOpenOrgInviteAcceptErrorUi`
    - See [Accept-time rejections](#accept-time-rejections) for the category
      map.
 
@@ -567,7 +567,7 @@ the active account's email domain into the body copy.
 `unauthedHandler` and `authedHandler` and returns
 [`OpenOrgInviteStatusResult`](../../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-status-result.type.ts).
 Each non-`ok` kind maps to a shared error surface via
-`openOrgInviteStatusErrorUi`. The pre-auth unauthed variant lands on
+`getOpenOrgInviteStatusErrorUi`. The pre-auth unauthed variant lands on
 [`OpenOrgInviteLinkInvalidComponent`](./open-org-invite-link-invalid.component.ts)
 for `not-found`; the other kinds render inline on the accept component.
 
@@ -578,7 +578,7 @@ for `not-found`; the other kinds render inline on the accept component.
 categorizing SDK / server rejections into client-consumable kinds across
 status/membership, seat/plan, policy violations, provider constraints,
 domain/crypto, and an `unexpected` fallback carrying a best-effort
-message. Kind-to-UI mapping lives in `openOrgInviteAcceptErrorUi`.
+message. Kind-to-UI mapping lives in `getOpenOrgInviteAcceptErrorUi`.
 
 ### Open-invite state and sealed-secret record
 
