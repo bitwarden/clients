@@ -55,7 +55,7 @@ jobs:
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -94,7 +94,7 @@ jobs:
         working-directory: apps/browser
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -146,13 +146,13 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -260,13 +260,13 @@ jobs:
             artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -410,13 +410,13 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -572,7 +572,7 @@ jobs:
       - build-safari
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -595,7 +595,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@8868a33591d21088edfc398968173a3b98d51706 # v2.16.2
+        uses: crowdin/github-action@c7af9bc98b01694653031fef2a0dc6c7888ce9bc # v2.17.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.CROWDIN-API-TOKEN }}
