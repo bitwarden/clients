@@ -19,6 +19,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
+  Fido2AuthenticatorError,
+  Fido2AuthenticatorErrorCode,
+} from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
+import {
   Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction,
   Fido2UserInterfaceSession,
   NewCredentialParams,
@@ -35,6 +39,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
@@ -103,6 +108,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private messagingService: MessagingService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
+    private passwordRepromptService: PasswordRepromptService,
   ) {}
   private currentSession: any;
 
@@ -132,6 +138,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.desktopSettingsService,
       abortController,
       nativeWindowObject,
+      this.passwordRepromptService,
     );
 
     this.currentSession = session;
@@ -149,6 +156,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private desktopSettingsService: DesktopSettingsService,
     private abortController: AbortController,
     private windowObject: NativeWindowObject,
+    private passwordRepromptService: PasswordRepromptService,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -165,7 +173,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     take(1),
   );
 
-  private chosenCipherSubject = new Subject<{ cipherId: string; userVerified: boolean }>();
+  private chosenCipherSubject = new Subject<CipherView | undefined>();
 
   // Method implementation
   async pickCredential({
@@ -173,7 +181,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userVerification,
     assumeUserPresence,
     masterPasswordRepromptRequired,
-  }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
+  }: PickCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
     this.logService.debug("pickCredential desktop function", {
       cipherIds,
       userVerification,
@@ -201,16 +209,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
       // TODO: Extend this to the deadline indicated by the timeout on the WebAuthn request.
       const chosenCipherTimeout = AbortSignal.timeout(60 * 1000);
-      const chosenCipherResponse = await this.waitForUiChosenCipher({
+      const chosenCipher = await this.waitForUiChosenCipher({
         signal: AbortSignal.any([this.abortController.signal, chosenCipherTimeout]),
       });
 
-      this.logService.debug("Received chosen cipher", chosenCipherResponse);
+      this.logService.debug("Received chosen cipher", chosenCipher?.id);
 
-      return {
-        cipherId: chosenCipherResponse?.cipherId,
-        userVerified: chosenCipherResponse?.userVerified,
-      };
+      if (!chosenCipher) {
+        return { cipherId: undefined, userVerified: false };
+      }
+
+      const userVerified = await this.verifyWithReprompt(chosenCipher);
+
+      return { cipherId: chosenCipher.id, userVerified };
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setModalMode(false);
@@ -222,8 +233,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
   }
 
-  confirmChosenCipher(cipherId: string, userVerified: boolean = false): void {
-    this.chosenCipherSubject.next({ cipherId, userVerified });
+  confirmChosenCipher(cipher?: CipherView): void {
+    this.chosenCipherSubject.next(cipher);
     this.chosenCipherSubject.complete();
   }
 
@@ -231,7 +242,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     signal,
   }: {
     signal: AbortSignal;
-  }): Promise<{ cipherId?: string; userVerified: boolean }> {
+  }): Promise<CipherView | undefined> {
     try {
       signal.throwIfAborted();
       return await firstValueFrom(this.chosenCipherSubject.pipe(throwOnAbort(signal)));
@@ -244,7 +255,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       } else if (signal.aborted) {
         this.logService.warning("Request was cancelled before the user selected a cipher", error);
       }
-      return { cipherId: undefined, userVerified: false };
+      return undefined;
     }
   }
 
@@ -313,6 +324,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         signal: this.abortController.signal,
       });
       if (!confirmation) {
+        return { cipherId: undefined, userVerified: false };
+      }
+
+      // Abort before persisting anything so a dismissed reprompt never leaves a
+      // dangling cipher or an unwanted overwrite.
+      if (this.updatedCipher && !(await this.verifyWithReprompt(this.updatedCipher))) {
         return { cipherId: undefined, userVerified: false };
       }
 
@@ -478,5 +495,48 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async close() {
     this.logService.debug("close");
+  }
+
+  /**
+   * Reprompts for the master password when the chosen cipher requires it.
+   *
+   * @returns whether the user may proceed with the cipher.
+   */
+  private async verifyWithReprompt(cipher: CipherView): Promise<boolean> {
+    switch (cipher.reprompt) {
+      case CipherRepromptType.None:
+        return true;
+      case CipherRepromptType.Password:
+        return await this.repromptMasterPassword();
+      default:
+        // The user deliberately protected this cipher with a method this build
+        // doesn't recognize. Refuse the ceremony rather than substituting a
+        // different check or letting it through unverified.
+        this.logService.error(
+          "[DesktopFido2UserInterfaceSession]",
+          `Refusing to use a cipher protected by unrecognized reprompt type ${cipher.reprompt}`,
+        );
+        throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
+    }
+  }
+
+  /**
+   * Prompts the user for their master password.
+   *
+   * @returns whether the user entered it. Accounts without a master password
+   * report unverified: `showPasswordPrompt` reports success without prompting
+   * when there is no master password to ask for, and no user verification
+   * actually took place.
+   */
+  private async repromptMasterPassword(): Promise<boolean> {
+    if (!(await this.passwordRepromptService.enabled())) {
+      this.logService.info(
+        "[DesktopFido2UserInterfaceSession]",
+        "Cannot reprompt for the master password because the account does not have one",
+      );
+      return false;
+    }
+
+    return await this.passwordRepromptService.showPasswordPrompt();
   }
 }
