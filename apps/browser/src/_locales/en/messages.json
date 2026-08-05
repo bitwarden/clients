@@ -7449,5 +7449,69 @@
   },
   "healthIntroDescription": {
     "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultIsAtRisk": {
+    "message": "Your vault is at risk",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "passwordsAreSecure": {
+    "message": "$TOTAL_SECURE$ of $TOTAL$ passwords are secure",
+    "description": "Shown when none of the user's scanned passwords are at risk.",
+    "placeholders": {
+      "total_secure": {
+        "content": "$1",
+        "example": "47"
+      },
+      "total": {
+        "content": "$2",
+        "example": "47"
+      }
+    }
+  },
+  "exposedPasswords": {
+    "message": "Exposed passwords",
+    "description": "Name of the risk category for passwords found in a known data breach."
+  },
+  "exposedPasswordsDesc": {
+    "message": "Found in known data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "weakPasswords": {
+    "message": "Weak passwords",
+    "description": "Name of the risk category for passwords that are easy to guess."
+  },
+  "weakPasswordsDesc": {
+    "message": "Easy to guess or brute-force",
+    "description": "Explains what makes a password count as weak."
+  },
+  "reusedPasswords": {
+    "message": "Reused passwords",
+    "description": "Name of the risk category for passwords used on more than one login."
+  },
+  "reusedPasswordsDesc": {
+    "message": "Used across multiple logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }
