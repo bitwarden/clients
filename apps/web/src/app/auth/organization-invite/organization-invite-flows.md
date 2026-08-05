@@ -21,7 +21,7 @@ Traditional per-user invites. An admin invites a specific email; the server
 sends an emailed link to `/accept-organization` carrying an
 invite-token+`organizationUserId` pair. The link identifies both the target
 org and the invitee. Model:
-[`DirectOrganizationInvite`](../../../../../../../libs/common/src/auth/organization-invite/models/direct-organization-invite.ts).
+[`DirectOrganizationInvite`](../../../../../../libs/common/src/auth/organization-invite/models/direct-organization-invite.ts).
 Handled by
 [`AcceptOrgDirectInviteComponent`](./accept-org-direct-invite.component.ts).
 
@@ -32,7 +32,7 @@ subject to org policies and the link's `AllowedDomains` config. The link
 carries no user identity — the org is bound by `organizationId +
 inviteLinkCode`, the invitee is bound at accept time by whoever authenticates
 against the `/join` URL. Model:
-[`OpenOrganizationInvite`](../../../../../../../libs/common/src/auth/organization-invite/models/open-organization-invite.ts).
+[`OpenOrganizationInvite`](../../../../../../libs/common/src/auth/organization-invite/models/open-organization-invite.ts).
 Handled by
 [`AcceptOrgOpenInviteComponent`](./accept-org-open-invite.component.ts).
 
@@ -47,7 +47,7 @@ for details.
 ### 1. Client-orchestrated acceptance
 
 The client explicitly calls into
-[`OrganizationInviteService`](../../../../../../../libs/common/src/auth/organization-invite/services/organization-invite.service.ts):
+[`OrganizationInviteService`](../../../../../../libs/common/src/auth/organization-invite/services/organization-invite.service.ts):
 
 - Direct invites → `validateAndAcceptDirectOrgInvite(invite, userId, postAuthRedirectUrl)`
   posts to either `postOrganizationUserAccept` or
@@ -92,14 +92,14 @@ after SSO authentication (configured under the org's SSO settings):
 ### Entry point: `/accept-organization`
 
 The email link points at `/accept-organization` with query params parsed by
-[`DirectOrganizationInvite.fromUrlParams`](../../../../../../../libs/common/src/auth/organization-invite/models/direct-organization-invite.ts).
+[`DirectOrganizationInvite.fromUrlParams`](../../../../../../libs/common/src/auth/organization-invite/models/direct-organization-invite.ts).
 Required params: `organizationId`, `organizationUserId`, `email`,
 `organizationName`, `token`, `initOrganization`, `orgUserHasExistingUser`.
 Optional: `orgSsoIdentifier` (only when the inviting org has SSO + the
 SSO-login policy enabled).
 
 `AcceptOrgDirectInviteComponent.ngOnInit` hands off to
-[`AcceptFlowService.run`](../../../../../../../libs/angular/src/auth/accept-flow/accept-flow.service.ts),
+[`AcceptFlowService.run`](../../../../../../libs/angular/src/auth/accept-flow/accept-flow.service.ts),
 which:
 
 1. Parses the URL via `DirectOrganizationInvite.fromUrlParams`. Returns
@@ -174,7 +174,7 @@ the post-login force-set-password redirect.
 **Key invariant**: existing users authenticate with their _current_ master
 password, then are required to update it _after_ login if it doesn't meet
 the org's MP policy. This is intentional — see the comment in
-[`password-login.strategy.ts`](../../../../../../../libs/auth/src/common/login-strategies/password-login.strategy.ts)
+[`password-login.strategy.ts`](../../../../../../libs/auth/src/common/login-strategies/password-login.strategy.ts)
 above the `evaluateMasterPassword` call.
 
 ### SSO flows
@@ -226,7 +226,7 @@ The flow below covers the net-new TDE case:
 1. Email link → `/accept-organization` → `unauthedHandler` stashes → `/sso`
 2. IdP auth + callback
 3. Server JIT-provisions the user
-4. Client routes through [`LoginDecryptionOptionsComponent`](../../../../../../../libs/auth/src/angular/login-decryption-options/login-decryption-options.component.ts) for TDE setup
+4. Client routes through [`LoginDecryptionOptionsComponent`](../../../../../../libs/auth/src/angular/login-decryption-options/login-decryption-options.component.ts) for TDE setup
 5. Server accepts the user into the org during admin-recovery enrollment (see the admin-recovery gloss under "The two acceptance mechanisms")
 6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`:
    - `routerService.getAndClearLoginRedirectUrl()`
@@ -242,7 +242,7 @@ the org's self-hosted Key Connector service; the client never derives an MP.
 1. Email link → `/accept-organization` → `unauthedHandler` stashes → `/sso`
 2. IdP auth + callback
 3. Server JIT-provisions the user
-4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
+4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
 5. User confirms hostname → `keyConnectorService.convertNewSsoUserToKeyConnector(userId)` POSTs the master-key encryption key to Key Connector, then POSTs the wrapped user key + account keys to Bitwarden via `POST /accounts/set-key-connector-key`.
 6. Server's `SetKeyConnectorKeyCommand` writes the crypto and accepts the user into the org as a side effect (via `AcceptOrgUserByOrgSsoIdAsync`).
 7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override:
@@ -565,7 +565,7 @@ the active account's email domain into the body copy.
 
 `getOpenOrgInviteStatus(organizationId, code)` is called both from
 `unauthedHandler` and `authedHandler` and returns
-[`OpenOrgInviteStatusResult`](../../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-status-result.type.ts).
+[`OpenOrgInviteStatusResult`](../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-status-result.type.ts).
 Each non-`ok` kind maps to a shared error UI via
 `getOpenOrgInviteStatusErrorUi`. The pre-auth unauthed variant lands on
 [`OpenOrgInviteLinkInvalidComponent`](./open-org-invite-link-invalid.component.ts)
@@ -574,7 +574,7 @@ for `not-found`; the other kinds render inline on the accept component.
 #### Accept-time rejections
 
 `acceptOpenOrgInvite` returns a discriminated
-[`OpenOrgInviteAcceptResult`](../../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-accept-result.type.ts)
+[`OpenOrgInviteAcceptResult`](../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-accept-result.type.ts)
 categorizing SDK / server rejections into client-consumable kinds across
 status/membership, seat/plan, policy violations, provider constraints,
 domain/crypto, and an `unexpected` fallback carrying a best-effort
@@ -597,7 +597,7 @@ Two open-invite-specific pieces of state, both persisted via
 
 2. **The sealed-secret record** —
    `EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL`, defined in
-   [`sealed-open-org-invite-secret.state.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/sealed-open-org-invite-secret.state.ts).
+   [`sealed-open-org-invite-secret.state.ts`](../../../../../../libs/common/src/auth/organization-invite/services/implementations/sealed-open-org-invite-secret.state.ts).
    Holds `Record<emailKey, { highEntropySecret, createdAtMs }>` — one entry
    per in-flight sealed-invite crossing, keyed by normalized email.
    Web-only (`disk-local`); ignored on non-web clients. Entries are TTL-
@@ -624,7 +624,7 @@ The invite state is split into two `GlobalState` slots on the shared
 - `OPEN_ORGANIZATION_INVITE` — `OpenOrganizationInvite | null`
 
 Definitions:
-[`organization-invite.state.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/organization-invite.state.ts).
+[`organization-invite.state.ts`](../../../../../../libs/common/src/auth/organization-invite/services/implementations/organization-invite.state.ts).
 
 `OrganizationInviteService.setOrganizationInvite` writes to the slot
 matching `invite.kind` and clears the opposite slot, enforcing an "at most
@@ -665,7 +665,7 @@ the policy list per invite (keyed by `token` for direct, `inviteLinkCode`
 for open) on the service instance. The cache is cleared on
 `setOrganizationInvite` and `clearOrganizationInvite` so a state
 transition never leaks stale entries. See the field comment in
-[`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts).
+[`default-organization-invite.service.ts`](../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts).
 
 ### Deep-link replay mechanism
 
