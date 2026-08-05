@@ -16,19 +16,26 @@
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
       @for (item of items(); track item.id) {
-        <bit-item class="tw-p-2 tw-flex tw-gap-2 tw-items-center">
-          <div slot="start">TODO: icon</div>
+        <bit-item class="tw-py-2 tw-flex tw-gap-2 tw-items-center">
+          <div slot="start" class="tw-px-3 tw-flex tw-items-center">
+            <app-vault-icon [cipher]="item"></app-vault-icon>
+          </div>
           <div slot="secondary" class="tw-flex tw-flex-col">
             <span bitTypography="body1">
               {{ item.name }}
             </span>
             <span bitTypography="body2" class="tw-text-muted">
-              {{ item.username }}
+              {{ item.login.username }}
             </span>
           </div>
-          <div slot="end">
+          <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
             <bit-item-action>
-              <button type="button" bitButton buttonType="secondary" endIcon="bwi-external-link">
+              <button
+                type="button"
+                bitButton
+                buttonType="primaryOutline"
+                endIcon="bwi-external-link"
+              >
                 Change password
               </button>
             </bit-item-action>
