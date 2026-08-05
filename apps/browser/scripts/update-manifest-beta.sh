@@ -4,8 +4,8 @@
 # Update the version in the build directory for the beta channel.
 #
 # Chrome requires a numeric version, so the beta ordinal becomes a fourth
-# component. version_name is Chrome-only and display-only, and mirrors the
-# desktop client's format.
+# component. version_name is Chrome-only and display-only, so it carries the
+# standard semver prerelease form (-beta.N) instead.
 ####
 
 set -e
