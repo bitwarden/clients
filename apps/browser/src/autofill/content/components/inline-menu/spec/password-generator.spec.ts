@@ -5,10 +5,11 @@ import { keyupEvent, litHandler, litValues } from "../../lit-stories/lit-values"
 import { mockI18n, mockPasswordGeneratorI18n } from "../../lit-stories/mock-data";
 import { InlineMenuPasswordGenerator } from "../password-generator";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../icons", () => ({ Key: jest.fn(), Refresh: jest.fn() }));
 jest.mock("../../constants/styles", () => ({
   themes: { light: { primary: { "600": "" }, background: { alt: "" }, text: { main: "" } } },

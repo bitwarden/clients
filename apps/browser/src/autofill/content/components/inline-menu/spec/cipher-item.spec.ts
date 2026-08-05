@@ -16,11 +16,11 @@ import { InlineMenuCipherItem } from "../cipher-item";
 import { TotpCipherInfo } from "../totp-cipher-info";
 import { TotpCountdown } from "../totp-countdown";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-  nothing: Symbol("nothing"),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../cipher/cipher-icon", () => ({ CipherIcon: jest.fn(() => "cipher-icon") }));
 jest.mock("../../icons", () => ({ ExternalLink: jest.fn() }));
 jest.mock("../../constants/styles", () => ({

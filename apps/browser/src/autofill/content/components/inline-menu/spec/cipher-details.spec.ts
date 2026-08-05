@@ -12,11 +12,11 @@ import {
 } from "../../lit-stories/mock-data";
 import { CipherDetails } from "../cipher-details";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-  nothing: Symbol("nothing"),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../icons", () => ({ Passkey: jest.fn(() => "passkey-icon") }));
 jest.mock("../../constants/styles", () => ({
   themes: { light: { text: { main: "", muted: "" } } },

@@ -6,11 +6,11 @@ import { litValues } from "../../lit-stories/lit-values";
 import { mockI18n, mockTotpCiphers } from "../../lit-stories/mock-data";
 import { TotpCipherInfo } from "../totp-cipher-info";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-  nothing: Symbol("nothing"),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../constants/styles", () => ({
   themes: { light: { text: { main: "", muted: "" } } },
   typography: { body2: "", helperMedium: "" },

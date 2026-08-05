@@ -7,11 +7,11 @@ import { litHandler, litValues } from "../../lit-stories/lit-values";
 import { mockI18n } from "../../lit-stories/mock-data";
 import { InlineMenuPrompt } from "../prompt";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-  nothing: Symbol("nothing"),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../constants/styles", () => ({
   themes: {
     light: {
@@ -35,7 +35,6 @@ describe("InlineMenuPrompt", () => {
     handleAction: jest.fn(),
   };
 
-  // Template slot layout: [0] message conditional, [5] click handler
   const MESSAGE_SLOT = 0;
   const CLICK_HANDLER_SLOT = 5;
 

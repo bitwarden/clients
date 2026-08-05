@@ -4,10 +4,11 @@ import { litValues } from "../../lit-stories/lit-values";
 import { mockI18n, mockPasswordGeneratorI18n } from "../../lit-stories/mock-data";
 import { ColorizedPassword } from "../colorized-password";
 
-jest.mock("lit", () => ({
-  html: jest.fn((_strings: TemplateStringsArray, ...values: unknown[]) => values),
-}));
-jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
+jest.mock(
+  "@emotion/css",
+  () => jest.requireActual("../../lit-stories/lit-jest-mocks").emotionCssMock,
+);
 jest.mock("../../constants/styles", () => ({
   themes: { light: { text: { main: "" }, passwordSpecial: "", passwordNumber: "" } },
 }));
