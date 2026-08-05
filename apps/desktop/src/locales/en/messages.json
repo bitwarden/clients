@@ -149,11 +149,11 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "This shared folder will be permanently deleted."
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
   },
-  "deleteSharedFoldersDesc": {
-    "message": "These shared folders will be permanently deleted."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteItemsAndSharedFoldersDesc": {
     "message": "The selected items and shared folders will be permanently deleted."

@@ -66,8 +66,8 @@ describe("BulkDeleteDialogDesktopAdapter", () => {
     );
 
     it.each([
-      [1, "deleteSharedFolder", "deleteSharedFolderDesc", "sharedFolderDeleted"],
-      [2, "deleteSharedFoldersCount", "deleteSharedFoldersDesc", "sharedFoldersDeleted"],
+      [1, "deleteSharedFolder", "deleteSharedFolderKeepItemsDesc", "sharedFolderDeleted"],
+      [2, "deleteSharedFoldersCount", "deleteSharedFoldersKeepItemsDesc", "sharedFoldersDeleted"],
     ])(
       "uses shared folder terminology for %i when the vfo1 flag is on",
       async (count, title, content, toast) => {

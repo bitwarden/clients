@@ -188,9 +188,9 @@ export class BulkDeleteDialogDesktopAdapter implements BulkDeleteDialogRef {
   private collectionDeleteContent(count: number): Translation {
     const sharedFolder = this.vfo1TerminologyService.enabled();
     if (count === 1) {
-      return { key: sharedFolder ? "deleteSharedFolderDesc" : "deleteCollectionDesc" };
+      return { key: sharedFolder ? "deleteSharedFolderKeepItemsDesc" : "deleteCollectionDesc" };
     }
-    return { key: sharedFolder ? "deleteSharedFoldersDesc" : "deleteCollectionsDesc" };
+    return { key: sharedFolder ? "deleteSharedFoldersKeepItemsDesc" : "deleteCollectionsDesc" };
   }
 
   private collectionDeletedMessage(count: number): string {
