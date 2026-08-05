@@ -371,7 +371,7 @@ whoever authenticates against the link at accept time.
    fetch on that path.
 2. Constructs the invite and calls
    `acceptOpenOrgInvite(invite, activeUserId, this.router.url)`.
-3. Handles the discriminated `AcceptOpenOrgInviteResult`:
+3. Handles the discriminated `OpenOrgInviteAcceptResult`:
    - `accepted` → success toast + navigate to `/`
    - `already-member` → info toast + navigate to `/` (success-adjacent)
    - `stashed-for-mp-policy-detour` → silently exit (detour has already
@@ -574,7 +574,7 @@ for `not-found`; the other kinds render inline on the accept component.
 #### Accept-time rejections
 
 `acceptOpenOrgInvite` returns a discriminated
-[`AcceptOpenOrgInviteResult`](../../../../../../../libs/common/src/auth/organization-invite/types/accept-open-org-invite-result.type.ts)
+[`OpenOrgInviteAcceptResult`](../../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-accept-result.type.ts)
 categorizing SDK / server rejections into client-consumable kinds across
 status/membership, seat/plan, policy violations, provider constraints,
 domain/crypto, and an `unexpected` fallback carrying a best-effort

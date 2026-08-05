@@ -14,7 +14,7 @@
  *  - `unexpected` — fallback for unclassified throws; `errorMessage` carries a
  *    best-effort string.
  */
-export type ValidateOpenOrgInviteEmailDomainResult =
+export type OpenOrgInviteValidateEmailDomainResult =
   | { kind: "allowed" }
   | { kind: "not-allowed" }
   | { kind: "link-invalid" }

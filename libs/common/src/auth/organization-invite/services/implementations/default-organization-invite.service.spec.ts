@@ -38,7 +38,7 @@ import { DeepLinkRedirectService } from "../../../deep-link-redirect";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
-import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
+import { OpenOrgInviteAcceptResult } from "../../types/open-org-invite-accept-result.type";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
 import { EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL } from "./sealed-open-org-invite-secret.state";
@@ -992,7 +992,7 @@ describe("DefaultOrganizationInviteService", () => {
     });
 
     /**
-     * Classifier cases — each rejection maps to a kind on {@link AcceptOpenOrgInviteResult}.
+     * Classifier cases — each rejection maps to a kind on {@link OpenOrgInviteAcceptResult}.
      * The 400-branch server messages mirror the strings defined in
      * `server/src/Core/AdminConsole/OrganizationFeatures/InviteLinks/Errors.cs` (and the
      * sibling AcceptMembership/AutoConfirmUser/SingleOrganizationPolicy error files); a
@@ -1018,7 +1018,7 @@ describe("DefaultOrganizationInviteService", () => {
         serverErrorName: string;
         statusCode: number;
         message: string;
-        expectedKind: AcceptOpenOrgInviteResult["kind"];
+        expectedKind: OpenOrgInviteAcceptResult["kind"];
       }>([
         {
           serverErrorName: "InviteLinkNotFound",

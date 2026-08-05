@@ -18,7 +18,7 @@ import {
   OpenOrganizationInvite,
   OpenOrgInviteLinkData,
   OrganizationInviteService,
-  UnsealOpenOrgInviteError,
+  OpenOrgInviteUnsealError,
 } from "@bitwarden/common/auth/organization-invite";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -257,7 +257,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     await this.stripSealedOpenOrgInviteDataFromUrl();
 
     if (unsealResult.kind !== "ok") {
-      this.logUnsealOpenOrgInviteError(unsealResult);
+      this.logOpenOrgInviteUnsealError(unsealResult);
       this.showSealedOpenOrgInviteDecryptionFailed();
       return false;
     }
@@ -297,7 +297,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private logUnsealOpenOrgInviteError(result: UnsealOpenOrgInviteError): void {
+  private logOpenOrgInviteUnsealError(result: OpenOrgInviteUnsealError): void {
     switch (result.kind) {
       case "secret-miss":
         this.logService.warning(

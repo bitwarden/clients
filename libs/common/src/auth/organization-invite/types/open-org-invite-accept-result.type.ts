@@ -32,7 +32,7 @@
  *  - `unexpected` — fallback for unclassified throws; `errorMessage` carries a
  *    best-effort string.
  */
-export type AcceptOpenOrgInviteResult =
+export type OpenOrgInviteAcceptResult =
   | { kind: "accepted" }
   | { kind: "stashed-for-mp-policy-detour" }
   | { kind: "recovery-key-mismatch" }
@@ -54,10 +54,10 @@ export type AcceptOpenOrgInviteResult =
   | { kind: "unexpected"; errorMessage: string };
 
 /**
- * Error arms of {@link AcceptOpenOrgInviteResult} — derived via `Exclude` so a new
+ * Error arms of {@link OpenOrgInviteAcceptResult} — derived via `Exclude` so a new
  * failure kind added to the parent union automatically shows up here.
  */
-export type AcceptOpenOrgInviteError = Exclude<
-  AcceptOpenOrgInviteResult,
+export type OpenOrgInviteAcceptError = Exclude<
+  OpenOrgInviteAcceptResult,
   { kind: "accepted" } | { kind: "stashed-for-mp-policy-detour" }
 >;

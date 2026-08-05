@@ -60,14 +60,14 @@ import {
   OpenOrgInviteLinkData,
 } from "../../models/open-organization-invite";
 import {
-  AcceptOpenOrgInviteError,
-  AcceptOpenOrgInviteResult,
-} from "../../types/accept-open-org-invite-result.type";
+  OpenOrgInviteAcceptError,
+  OpenOrgInviteAcceptResult,
+} from "../../types/open-org-invite-accept-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
 import { OpenOrgInviteSsoConfig } from "../../types/open-org-invite-status.type";
+import { OpenOrgInviteUnsealResult } from "../../types/open-org-invite-unseal-result.type";
+import { OpenOrgInviteValidateEmailDomainResult } from "../../types/open-org-invite-validate-email-domain-result.type";
 import { OrganizationInvite } from "../../types/organization-invite.type";
-import { UnsealOpenOrgInviteResult } from "../../types/unseal-open-org-invite-result.type";
-import { ValidateOpenOrgInviteEmailDomainResult } from "../../types/validate-open-org-invite-email-domain-result.type";
 import { OrganizationInviteService } from "../organization-invite.service";
 
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite.state";
@@ -233,7 +233,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     invite: OpenOrganizationInvite,
     userId: UserId,
     postAuthRedirectUrl: string,
-  ): Promise<AcceptOpenOrgInviteResult> {
+  ): Promise<OpenOrgInviteAcceptResult> {
     // MP-policy detour for open org invites: if the org requires a compliant MP and the
     // user hasn't been through the detour yet (no matching stash), persist + log out
     // so login can re-check the MP against their current password.
@@ -286,7 +286,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // POV — drop the stash so downstream MP-policy consumers on the same tab
       // don't apply the failed org's policy.
       await this.clearOpenOrgInvite();
-      return this.classifyAcceptOpenOrgInviteError(e);
+      return this.classifyOpenOrgInviteAcceptError(e);
     }
   }
 
@@ -296,9 +296,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    *   2. `RecoveryKeyMismatch` → `recovery-key-mismatch`; signals org-key substitution.
    *   3. Any other non-`Api` variant → `unexpected` with the SDK message.
    *   4. `Api` variant → unwrap the `ApiError::Response` display string and delegate to
-   *      {@link classifyAcceptOpenOrgInviteApiError}, or `unexpected` if the format has drifted.
+   *      {@link classifyOpenOrgInviteAcceptApiError}, or `unexpected` if the format has drifted.
    */
-  private classifyAcceptOpenOrgInviteError(e: unknown): AcceptOpenOrgInviteError {
+  private classifyOpenOrgInviteAcceptError(e: unknown): OpenOrgInviteAcceptError {
     if (!isInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
@@ -316,7 +316,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // Current format: `Received error message from server: [<status> <reason>] <json-body>`
     // where `<json-body>` is the full server error response (`{ "message": "...", ... }`).
     // We capture the numeric status (reason phrase discarded) and JSON-parse the body to
-    // pull the bare `.message` string that `classifyAcceptOpenOrgInviteApiError` matches on.
+    // pull the bare `.message` string that `classifyOpenOrgInviteAcceptApiError` matches on.
     // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
     const match = e.message.match(
       /^Received error message from server: \[(\d+)[^\]]*\] ([\s\S]+)$/,
@@ -328,7 +328,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     try {
       const { message } = JSON.parse(match[2]) as { message?: unknown };
       if (typeof message === "string") {
-        return this.classifyAcceptOpenOrgInviteApiError(statusCode, message);
+        return this.classifyOpenOrgInviteAcceptApiError(statusCode, message);
       }
     } catch {
       // JSON.parse threw, or destructure on null/undefined threw — fall through
@@ -337,10 +337,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return { kind: "unexpected", errorMessage: e.message };
   }
 
-  private classifyAcceptOpenOrgInviteApiError(
+  private classifyOpenOrgInviteAcceptApiError(
     statusCode: number,
     message: string,
-  ): AcceptOpenOrgInviteError {
+  ): OpenOrgInviteAcceptError {
     if (statusCode === 404) {
       return { kind: "link-not-found" };
     }
@@ -518,7 +518,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     organizationId: string,
     code: string,
     email: string,
-  ): Promise<ValidateOpenOrgInviteEmailDomainResult> {
+  ): Promise<OpenOrgInviteValidateEmailDomainResult> {
     try {
       const response = await this.organizationInviteLinkApiService.validateEmailDomain(
         new OrganizationInviteLinkValidateEmailDomainRequest({ organizationId, code, email }),
@@ -565,7 +565,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return sealed.sealedData;
   }
 
-  async unsealOpenOrgInvite(email: string, sealedData: string): Promise<UnsealOpenOrgInviteResult> {
+  async unsealOpenOrgInvite(email: string, sealedData: string): Promise<OpenOrgInviteUnsealResult> {
     const highEntropySecret = await this.getSealedOpenOrgInviteSecret(email);
     if (highEntropySecret == null) {
       return { kind: "secret-miss" };
@@ -588,7 +588,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         },
       };
     } catch (e) {
-      return this.classifyUnsealOpenOrgInviteError(e);
+      return this.classifyOpenOrgInviteUnsealError(e);
     }
   }
 
@@ -599,7 +599,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * boundary error, unrelated runtime exception) falls through to `unexpected` with a
    * best-effort message.
    */
-  private classifyUnsealOpenOrgInviteError(e: unknown): UnsealOpenOrgInviteResult {
+  private classifyOpenOrgInviteUnsealError(e: unknown): OpenOrgInviteUnsealResult {
     if (isRegistrationError(e) && e.variant === "Crypto") {
       return { kind: "crypto-failure" };
     }

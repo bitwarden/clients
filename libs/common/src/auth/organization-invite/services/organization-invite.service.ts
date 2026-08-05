@@ -6,11 +6,11 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { DirectOrganizationInvite } from "../models/direct-organization-invite";
 import { OpenOrganizationInvite, OpenOrgInviteLinkData } from "../models/open-organization-invite";
-import { AcceptOpenOrgInviteResult } from "../types/accept-open-org-invite-result.type";
+import { OpenOrgInviteAcceptResult } from "../types/open-org-invite-accept-result.type";
 import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
+import { OpenOrgInviteUnsealResult } from "../types/open-org-invite-unseal-result.type";
+import { OpenOrgInviteValidateEmailDomainResult } from "../types/open-org-invite-validate-email-domain-result.type";
 import { OrganizationInvite } from "../types/organization-invite.type";
-import { UnsealOpenOrgInviteResult } from "../types/unseal-open-org-invite-result.type";
-import { ValidateOpenOrgInviteEmailDomainResult } from "../types/validate-open-org-invite-email-domain-result.type";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy
@@ -79,7 +79,7 @@ export abstract class OrganizationInviteService {
 
   /**
    * Accepts an open organization invite for the active user. Returns a discriminated
-   * {@link AcceptOpenOrgInviteResult} classifying the outcome — success, MP-policy detour,
+   * {@link OpenOrgInviteAcceptResult} classifying the outcome — success, MP-policy detour,
    * or one of the server's known rejection modes. Unclassified failures (network, 5xx,
    * unrecognized 400 messages, non-`ErrorResponse` throws) surface as `unexpected` with
    * a best-effort message string so the caller can render something meaningful.
@@ -93,7 +93,7 @@ export abstract class OrganizationInviteService {
     invite: OpenOrganizationInvite,
     userId: UserId,
     postAuthRedirectUrl: string,
-  ): Promise<AcceptOpenOrgInviteResult>;
+  ): Promise<OpenOrgInviteAcceptResult>;
 
   /**
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token
@@ -134,13 +134,13 @@ export abstract class OrganizationInviteService {
    * `AllowedDomains` configuration, scoped to `(organizationId, code)` for parity with the
    * status / accept endpoints. Pre-auth UX check consumed by `LoginComponent` and
    * `RegistrationStartComponent`; server-side enforcement runs at accept time regardless.
-   * See {@link ValidateOpenOrgInviteEmailDomainResult} for the discriminated outcome kinds.
+   * See {@link OpenOrgInviteValidateEmailDomainResult} for the discriminated outcome kinds.
    */
   abstract validateOpenOrgInviteEmailDomain(
     organizationId: string,
     code: string,
     email: string,
-  ): Promise<ValidateOpenOrgInviteEmailDomainResult>;
+  ): Promise<OpenOrgInviteValidateEmailDomainResult>;
 
   /**
    * Seals an open-org-invite context for the registration-crossing flow: hands the
@@ -155,12 +155,12 @@ export abstract class OrganizationInviteService {
 
   /**
    * Unseals a previously-sealed open-org-invite blob using the `HighEntropySecret` stored
-   * for `email`. See {@link UnsealOpenOrgInviteResult} for the discriminated outcome kinds.
+   * for `email`. See {@link OpenOrgInviteUnsealResult} for the discriminated outcome kinds.
    */
   abstract unsealOpenOrgInvite(
     email: string,
     sealedData: string,
-  ): Promise<UnsealOpenOrgInviteResult>;
+  ): Promise<OpenOrgInviteUnsealResult>;
 
   /**
    * Removes the sealed-open-org-invite secret entry for the given email. Called once per

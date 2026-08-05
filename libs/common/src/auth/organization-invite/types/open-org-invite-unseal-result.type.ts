@@ -15,14 +15,14 @@ import { OpenOrgInviteLinkData } from "../models/open-organization-invite";
  *  - `unexpected` — fallback for unclassified throws; `errorMessage` carries a
  *    best-effort string.
  */
-export type UnsealOpenOrgInviteResult =
+export type OpenOrgInviteUnsealResult =
   | { kind: "ok"; invite: OpenOrgInviteLinkData }
   | { kind: "secret-miss" }
   | { kind: "crypto-failure" }
   | { kind: "unexpected"; errorMessage: string };
 
 /**
- * Error arms of {@link UnsealOpenOrgInviteResult} — derived via `Exclude` so a new
+ * Error arms of {@link OpenOrgInviteUnsealResult} — derived via `Exclude` so a new
  * failure kind added to the parent union automatically shows up here.
  */
-export type UnsealOpenOrgInviteError = Exclude<UnsealOpenOrgInviteResult, { kind: "ok" }>;
+export type OpenOrgInviteUnsealError = Exclude<OpenOrgInviteUnsealResult, { kind: "ok" }>;
