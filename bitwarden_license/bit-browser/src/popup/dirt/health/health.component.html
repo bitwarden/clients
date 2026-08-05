@@ -8,6 +8,8 @@
   @if (!hasRunHealthScan()) {
     <health-intro (onTriggerHealthScan)="handleHealthScan()" />
   } @else {
-    <div>RESULTS PLACEHOLDER</div>
+    <div>
+      <button type="button" (click)="routeToDetails()">Go to details</button>
+    </div>
   }
 </popup-page>
