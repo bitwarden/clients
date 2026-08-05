@@ -1179,10 +1179,4 @@ describe("VaultItemsTableComponent", () => {
       }));
     });
   });
-
-  describe("selection", () => {
-    it("keeps a stable config reference so the selection model is not rebuilt", () => {
-      expect(component["selection"]).toBe(component["selection"]);
-    });
-  });
 });
