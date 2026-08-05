@@ -9,6 +9,7 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -98,6 +99,21 @@ describe("WebRegistrationFinishService", () => {
       expect(result).toEqual(orgInvite!.organizationName);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
+
+    it("returns the organization name when a stashed open org invite is active", async () => {
+      const openInvite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+
+      const result = await service.getOrgNameFromOrgInvite();
+
+      expect(result).toEqual("openOrgName");
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
+    });
   });
 
   describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
@@ -148,6 +164,26 @@ describe("WebRegistrationFinishService", () => {
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
+    });
+
+    it("returns policy options when a stashed open org invite is active", async () => {
+      const openInvite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      const masterPasswordPolicies = [new Policy()];
+      const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
+
+      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
+
+      expect(result).toEqual(masterPasswordPolicyOptions);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(openInvite);
     });
   });
 
@@ -280,6 +316,47 @@ describe("WebRegistrationFinishService", () => {
       expect(registerCall.organizationUserId).toEqual(orgInvite.organizationUserId);
 
       expect(registerCall).toMatchSnapshot();
+    });
+
+    it("does not populate direct-invite fields when a stashed open org invite is active", async () => {
+      // Open invites don't carry direct-invite fields. Kind-guarded write path
+      // must skip the direct-invite branch and leave the register request clean.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.orgInviteToken).toBeUndefined();
+      expect(registerCall.organizationUserId).toBeUndefined();
+    });
+
+    it("does not throw the mutual-exclusion error when emailVerificationToken is present alongside a stashed open org invite", async () => {
+      // Sealed-open-org-invite crossing invariant: registration-finish arrives with
+      // BOTH the verification token (from the email link) AND an open invite in
+      // state (unsealed from the blob). Open invites don't set any direct-invite /
+      // family / emergency / provider / sales-assisted token, so the guard must
+      // let this through.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).resolves.not.toThrow();
+      expect(accountApiService.registerFinish).toHaveBeenCalled();
     });
 
     it("registers the user when given an org sponsored free family plan token", async () => {
@@ -642,6 +719,46 @@ describe("WebRegistrationFinishService", () => {
       expect(sdkRequest.organization_user_id).toEqual(orgInvite.organizationUserId);
 
       expect(sdkRequest).toMatchSnapshot();
+    });
+
+    it("does not populate direct-invite fields when a stashed open org invite is active", async () => {
+      // Open invites don't carry direct-invite fields. Kind-guarded write path
+      // must skip the direct-invite branch and leave the SDK request clean.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.org_invite_token).toBeUndefined();
+      expect(sdkRequest.organization_user_id).toBeUndefined();
+    });
+
+    it("does not throw the mutual-exclusion error when emailVerificationToken is present alongside a stashed open org invite", async () => {
+      // Sealed-open-org-invite crossing invariant: registration-finish arrives with
+      // BOTH the verification token (from the email link) AND an open invite in
+      // state (unsealed from the blob). Open invites don't set any direct-invite /
+      // family / emergency / provider / sales-assisted token, so the guard must
+      // let this through.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).resolves.not.toThrow();
+      expect(postKeysForUserPasswordRegistration).toHaveBeenCalled();
     });
 
     it("registers the user when given an org sponsored free family plan token", async () => {
