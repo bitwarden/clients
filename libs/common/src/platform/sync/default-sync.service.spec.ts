@@ -203,13 +203,13 @@ describe("DefaultSyncService", () => {
           userDecryption,
         });
 
-      it("leaves the WebAuthn PRF options undefined when the server reported none", async () => {
+      it("passes an empty list of WebAuthn PRF options when the server reported none", async () => {
         apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
 
         await sut.fullSync(true);
 
         const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
-        expect(data.userDecryption?.webAuthnPrfOptions).toBeUndefined();
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([]);
       });
 
       it("passes the WebAuthn PRF options through", async () => {

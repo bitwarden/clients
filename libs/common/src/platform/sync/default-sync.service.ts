@@ -460,9 +460,12 @@ export class DefaultSyncService extends CoreSyncService {
                   ?.toMasterPasswordUnlockData()
                   .toSdk(),
                 v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
-                webAuthnPrfOptions: userDecryption.webAuthnPrfOptions
-                  ?.map((option) => option.toWebAuthnPrfUnlockOption())
-                  .filter((option) => option != null),
+                webAuthnPrfOptions:
+                  userDecryption.webAuthnPrfOptions == null
+                    ? []
+                    : userDecryption.webAuthnPrfOptions
+                        ?.map((option) => option.toWebAuthnPrfUnlockOption())
+                        .filter((option) => option != null),
               },
         accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
       }),
