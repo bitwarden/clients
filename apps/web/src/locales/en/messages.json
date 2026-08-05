@@ -1254,9 +1254,6 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "This shared folder will be permanently deleted."
-  },
   "deleteSharedFolderNameKeepItemsDesc": {
     "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
