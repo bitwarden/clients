@@ -1,0 +1,39 @@
+@if (hasReport()) {
+  <div
+    class="tw-mx-4 tw-my-3 tw-flex tw-flex-col tw-items-center tw-rounded-xl tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-px-4 tw-pb-4 tw-pt-3"
+  >
+    <dirt-at-risk-gauge [value]="atRiskCount()" [total]="totalCount()" />
+
+    <h2
+      bitTypography="body1"
+      class="tw-mb-0 tw-mt-2 tw-text-center tw-font-semibold tw-text-fg-heading"
+    >
+      {{ (isAtRisk() ? "yourVaultIsAtRisk" : "yourVaultIsHealthy") | i18n }}
+    </h2>
+
+    <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
+      @if (isAtRisk()) {
+        {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
+      } @else {
+        <!-- Two placeholders, per the prototype copy: the healthy branch only
+             renders when at-risk is 0, so the secure count equals the total. -->
+        {{ "passwordsAreSecure" | i18n: totalCount() : totalCount() }}
+      }
+    </span>
+  </div>
+
+  <bit-item-group>
+    @for (row of categoryRows(); track row.category) {
+      <bit-item>
+        <dirt-risk-category-item
+          [labelKey]="row.labelKey"
+          [descriptionKey]="row.descriptionKey"
+          [count]="row.count"
+          [icon]="row.icon"
+          [variant]="row.variant"
+          [route]="row.route"
+        />
+      </bit-item>
+    }
+  </bit-item-group>
+}
