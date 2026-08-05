@@ -340,7 +340,15 @@ export class SshAgentService implements OnDestroy {
           ),
           concatMap(async ([message, ciphers]) => {
             const requestId = message.requestId as number;
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            try {
+              await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            } catch (e) {
+              // Refuse the request rather than leaving the agent's list callback unresolved, which
+              // would hang the SSH client that is waiting on it.
+              this.logService.error("Failed to push SSH keys to the agent", e);
+              await ipc.autofill.sshAgent.listRequestResponse(requestId, false);
+              return;
+            }
             await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
           }),
           catchError((error: unknown, source) => {
@@ -412,15 +420,30 @@ export class SshAgentService implements OnDestroy {
                     });
                   }),
                   concatMap(async (keys) => {
-                    await ipc.autofill.sshAgent.replace(keys);
+                    try {
+                      await ipc.autofill.sshAgent.replace(keys);
+                    } catch (e) {
+                      // if the agent fails to parse the keys and errors out, it's a deterministic
+                      // error state, we don't want to retry without the input keys changing
+                      this.logService.error("Failed to push SSH keys to the agent", e);
+                    }
+                  }),
+                  // calls in this chain should not be re-tried as they're deterministic in their scope
+                  catchError((error: unknown) => {
+                    this.logService.error("Unexpected error while syncing SSH keys", error);
+                    return EMPTY;
                   }),
                 );
               }),
             );
           }),
-          catchError((error: unknown, source) => {
-            this.logService.error("Unexpected error in SSH agent replace keys", error);
-            return source;
+          // calls in this chain should not be re-tried as they're deterministic in their scope
+          catchError((error: unknown) => {
+            this.logService.error(
+              "SSH agent key pipeline stopped by an unrecoverable error",
+              error,
+            );
+            return EMPTY;
           }),
           takeUntil(this.destroy$),
         )
