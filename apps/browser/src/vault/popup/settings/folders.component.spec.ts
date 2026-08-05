@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -62,7 +62,7 @@ describe("FoldersComponent", () => {
       imports: [FoldersComponent],
       providers: [
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: FolderService, useValue: { folderViews$: () => folderViews$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },

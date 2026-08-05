@@ -9,7 +9,7 @@ import {
   ScrollLayoutDirective,
   TooltipDirective,
 } from "@bitwarden/components";
-import { Vfo1IconPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
@@ -59,6 +59,7 @@ import {
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     Vfo1IconPipe,
+    Vfo1I18nPipe,
   ],
   declarations: [
     BulkProgressDialogComponent,

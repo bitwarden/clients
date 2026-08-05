@@ -1,6 +1,6 @@
 import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
-import { Utils } from "../../../platform/misc/utils";
+import { Fido2Utils } from "../../../platform/services/fido2/fido2-utils";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
 import { TwoFactorApiService } from "../abstractions/two-factor-api.service";
 import { TwoFactorAuthenticatorDeleteRequest } from "../request/two-factor-authenticator-delete.request";
@@ -239,12 +239,19 @@ export class DefaultTwoFactorApiService implements TwoFactorApiService {
 
     body.deviceResponse = {
       id: request.deviceResponse.id,
-      rawId: btoa(request.deviceResponse.id),
+      rawId: Fido2Utils.arrayToString(
+        Fido2Utils.bufferSourceToUint8Array(request.deviceResponse.rawId),
+      ),
       type: request.deviceResponse.type,
       extensions: request.deviceResponse.getClientExtensionResults(),
       response: {
-        AttestationObject: Utils.fromBufferToB64(deviceResponse.attestationObject),
-        clientDataJson: Utils.fromBufferToB64(deviceResponse.clientDataJSON),
+        AttestationObject: Fido2Utils.arrayToString(
+          Fido2Utils.bufferSourceToUint8Array(deviceResponse.attestationObject),
+        ),
+        clientDataJson: Fido2Utils.arrayToString(
+          Fido2Utils.bufferSourceToUint8Array(deviceResponse.clientDataJSON),
+        ),
+        transports: deviceResponse.getTransports(),
       },
     };
 

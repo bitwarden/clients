@@ -111,6 +111,10 @@ const routes: Routes = [
             (m) => m.OrganizationIntegrationsModule,
           ),
       },
+      {
+        path: "pam",
+        loadChildren: () => import("../../pam/pam-routing.module").then((m) => m.PamRoutingModule),
+      },
     ],
   },
 ];

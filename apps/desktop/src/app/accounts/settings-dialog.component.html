@@ -147,7 +147,7 @@
                   class="tw-cursor-pointer"
                   bitLink
                   tabindex="0"
-                  (click)="saveAutotypeShortcut()"
+                  (click)="saveAutotypeShortcut(); $event.preventDefault()"
                   (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
                 >
                   {{ "editShortcut" | i18n }}

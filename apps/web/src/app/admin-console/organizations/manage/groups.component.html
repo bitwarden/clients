@@ -34,7 +34,7 @@
             />
           </th>
           <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
-          <th bitCell>{{ "collections" | i18n }}</th>
+          <th bitCell>{{ "collections" | vfo1I18n: "sharedFolders" }}</th>
           <th bitCell class="tw-w-10">
             <button
               [bitMenuTriggerFor]="headerMenu"
@@ -88,7 +88,7 @@
               </button>
               <button type="button" bitMenuItem (click)="edit(g, ModalTabType.Collections)">
                 <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-                {{ "collections" | i18n }}
+                {{ "collections" | vfo1I18n: "sharedFolders" }}
               </button>
               <button type="button" bitMenuItem variant="danger" (click)="delete(g)">
                 <bit-icon name="bwi-trash" slot="start" />

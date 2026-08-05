@@ -1089,7 +1089,7 @@
     "message": "Hasło zostało skopiowane"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "spacja",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1367,17 +1367,17 @@
   "additionalOptions": {
     "message": "Dodatkowe opcje"
   },
-  "enableFillAssist": {
-    "message": "Użyj asystenta autouzupełniania"
+  "fillAssistActiveNotice": {
+    "message": "Na tej stronie działa asystent autouzupełniania"
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Włącz asystenta autouzupełniania"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Asystent autouzupełniania zwiększa precyzję wprowadzania danych na obsługiwanych stronach, wykorzystując dedykowane reguły. Podczas korzystania z tej funkcji żadne dane nie są zbierane ani zapisywane."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "O asystencie autouzupełniania"
   },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
@@ -1456,7 +1456,7 @@
     "message": "Konto zostało ograniczone"
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "Hasła pliku nie pasują do siebie."
   },
   "warning": {
     "message": "OSTRZEŻENIE",
@@ -1485,16 +1485,22 @@
     "message": "Udostępnione"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Udostępniony folder"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Udostępnione foldery"
   },
   "myFolder": {
     "message": "Mój folder"
   },
   "myFolders": {
     "message": "Moje foldery"
+  },
+  "addSharedFolder": {
+    "message": "Dodaj udostępniony folder"
+  },
+  "newSharedFolder": {
+    "message": "Nowy udostępniony folder"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden dla firm pozwala na udostępnianie zawartości sejfu innym użytkownikom za pośrednictwem organizacji. Dowiedz się więcej na stronie bitwarden.com."
@@ -1585,10 +1591,10 @@
     "message": "Plik"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Zdjęcie"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Nieznany"
   },
   "fileToShare": {
     "message": "Plik wysyłki"
@@ -1627,7 +1633,7 @@
     "message": "Kup konto Premium, aby otrzymać:"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
   "premiumSignUpStorageV2": {
     "message": "$SIZE$ miejsca na zaszyfrowane załączniki.",
@@ -1654,16 +1660,16 @@
     "message": "Odnów subskrypcję Premium"
   },
   "premiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
+    "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
   },
   "premiumSignUpTotp": {
     "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
   "premiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "Priorytetowe wsparcie klienta."
   },
   "premiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
+    "message": "Wszystkie przyszłe funkcje Premium. Więcej już wkrótce!"
   },
   "premiumPurchase": {
     "message": "Kup konto Premium"
@@ -2594,6 +2600,92 @@
     "message": "Wyczyść",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Zaznacz wszystkie wiersze"
+  },
+  "selectRow": {
+    "message": "Zaznacz wiersz"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Liczba wierszy na stronę"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ wierszy na stronę",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Wszystko"
+  },
+  "clearAll": {
+    "message": "Wyczyść wszystko"
+  },
+  "done": {
+    "message": "Gotowe"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Poprzednia strona"
+  },
+  "nextPage": {
+    "message": "Następna strona"
+  },
+  "goToPage": {
+    "message": "Przejdź do strony"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Brak pasujących elementów"
+  },
   "selected": {
     "message": "Zaznaczono"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "Zagrożone hasła"
+  },
+  "atRisk": {
+    "message": "zagrożone",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "Organizacja $ORGANIZATION$ prosi o zmianę 1 hasła, ponieważ jest ono zagrożone.",
@@ -3931,7 +4027,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Token API $SERVICENAME$ jest nieprawidłowy",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3941,7 +4037,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Token API $SERVICENAME$ jest nieprawidłowy: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Dodaj przedrostek strony",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Domena będzie prefiksem dla generowanego adresu e-mail",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nazwa hosta",
     "description": "Part of a URL."
@@ -4042,7 +4146,7 @@
     "message": "Wystąpił błąd serwera Key Connector. Upewnij się, że serwer jest dostępny i działa poprawnie."
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Wymagana jest subskrypcja Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona."
@@ -4799,14 +4903,35 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Następujące elementy nie mogą zostać odczytane i nie zostaną uwzględnione w imporcie:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Klucz SSH nie może zostać zaimportowany"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Rodzaj certyfikatu jest nieobsługiwany"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Element nie może zostać zaimportowany"
+  },
+  "identifier": {
+    "message": "Identyfikator"
   },
   "contact": {
     "message": "Kontakt"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Członkostwo"
   },
   "passport": {
     "message": "Paszport"
@@ -4821,19 +4946,19 @@
     "message": "Akt urodzenia"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Dane logowania do bazy danych"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Dane logowania do serwera"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Licencja oprogramowania"
   },
   "healthInsurance": {
     "message": "Ubezpieczenie zdrowotne"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Dane logowania do Wi-Fi"
   },
   "importEncKeyError": {
     "message": "Wystąpił błąd podczas odszyfrowywania pliku. Klucz szyfrowania nie pasuje do klucza użytego podczas eksportowania danych."
@@ -4900,16 +5025,16 @@
     "message": "Potwierdź hasło pliku"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "Hasło główne KeePass"
   },
   "addKeyFile": {
     "message": "Dodaj plik klucza"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Plik klucza"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "Plik KDBX"
   },
   "acceptedFormatsKdbx": {
     "message": "Accepted formats: kdbx"
@@ -4921,7 +5046,7 @@
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "Baza danych KeePass jest zbyt duża."
   },
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
@@ -5084,7 +5209,7 @@
     "message": "Adres e-mail Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Wpisz adres e-mail, którego używasz do logowania się do Keeper"
   },
   "dataCenterLocation": {
     "message": "Lokalizacja centrum danych"
@@ -5096,16 +5221,16 @@
     "message": "Wpisz hasło główne Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Wpisz kod z aplikacji uwierzytelniającej"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Wpisz kod z aplikacji uwierzytelniającej"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Wpisz kod z wiadomości tekstowej"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Wpisz kod z aplikacji Keeper DNA"
   },
   "adminApproval": {
     "message": "Admin approval"
@@ -5114,10 +5239,10 @@
     "message": "We've sent an admin approval request to your admin"
   },
   "method": {
-    "message": "Method"
+    "message": "Metoda"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Bezpośredni import"
   },
   "csv": {
     "message": "CSV"
@@ -5135,7 +5260,7 @@
     "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Token SSO"
   },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
@@ -5153,10 +5278,10 @@
     "message": "Approve this device by selecting a method below"
   },
   "keeperPush": {
-    "message": "Keeper Push"
+    "message": "Powiadomienie Keeper"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Metoda logowania dwustopniowego"
   },
   "emailVerification": {
     "message": "Email verification"
@@ -5168,7 +5293,7 @@
     "message": "Keeper Push notification sent to approved device"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Powiadomienie Keeper zostało wysłane"
   },
   "approvalRequestWillBeCanceled": {
     "message": "Approval request will be canceled"
@@ -5180,22 +5305,22 @@
     "message": "Cancel request"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Logowanie dwustopniowe Keeper jest wymagane"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Potwierdź logowanie w aplikacji uwierzytelniającej. Okno zamknie się automatycznie."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Wybierz metodę logowania dwustopniowego"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Wybierz sposób weryfikacji tożsamości."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Aplikacja uwierzytelniająca (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Wiadomość tekstowa (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5216,55 +5341,55 @@
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Weryfikacja Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Zatwierdź powiadomienie DNA na urządzeniu"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Wybierz metodę Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Wybierz sposób weryfikacji za pomocą Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Powiadomienie"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Wpisz kod ręcznie"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Logowanie dwustopniowe"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Nieznana metoda"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Wybierz metodę Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Wybierz sposób weryfikacji za pomocą Duo Security."
   },
   "duoPush": {
-    "message": "Duo Push"
+    "message": "Powiadomienie Duo"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Połączenie"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Weryfikacja Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Zatwierdź powiadomienie Duo na urządzeniu."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Wiadomość tekstowa została wysłana. Wpisz kod w aplikacji Duo."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Odbierz połączenie z Duo i postępuj zgodnie z instrukcjami."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Użyj innej metody"
   },
   "keeperUnsupported2faMethod": {
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
@@ -5465,6 +5590,12 @@
   },
   "removePasskey": {
     "message": "Usuń klucz dostępu"
+  },
+  "deletePasskey": {
+    "message": "Usuń klucz dostępu"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Klucz dostępu zostanie trwale usunięty. Tej operacji nie można cofnąć."
   },
   "passkeyRemoved": {
     "message": "Klucz dostępu został usunięty"
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "Właściciel"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Udostępniony folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Kolekcja $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Mój folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Właściciel $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Sejf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Ty",
@@ -6055,7 +6240,7 @@
     "message": "Użyj powiązanego pola, gdy masz problemy z autouzupełnianiem na konkretnej stronie internetowej."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "Wpisz identyfikator, nazwę, etykietę lub tekst zastępczy pola HTML."
   },
   "editField": {
     "message": "Edytuj pole"
@@ -6753,7 +6938,7 @@
     "message": "Dalej"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ścieżka nawigacyjna",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -7026,22 +7211,25 @@
     "message": "Share unlock with Desktop"
   },
   "sharedUnlockWithDesktopDescription": {
-    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
+    "message": "Stan odblokowania będzie współdzielony z aplikacją desktopową Bitwarden."
   },
   "sharedUnlockWithWeb": {
     "message": "Share unlock with web vault"
   },
   "sharedUnlockWithWebDescription": {
-    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+    "message": "Stan odblokowania będzie współdzielony z sejfem internetowym Bitwarden."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
   },
   "newPermissionNeeded": {
-    "message": "New permission needed"
+    "message": "Wymagane jest nowe uprawnienie"
   },
   "sharedUnlockDesktopPermissionDesc": {
     "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "sharedUnlockDesktopPermissionWarning": {
-    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+    "message": "Po potwierdzeniu Bitwarden zostanie odświeżony i zablokuje sejf."
   },
   "biometricPermissionDesc": {
     "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
@@ -7193,7 +7381,7 @@
     "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Dozwolone domeny: $DOMAINS$. Sprawdź i spróbuj ponownie",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -7201,44 +7389,47 @@
     }
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "Zasada organizacji zablokowała korzystanie z wysyłek",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "message": "Aby edytować wysyłkę, utwórz jej kopię. Jeśli wysyłka może wygasnąć w dacie usunięcia, nie musisz nic robić.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
     "message": "Utwórz kopię"
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "Wysyłki tekstów są niedozwolone w organizacji",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "Wysyłki plików są niedozwolone w organizacji",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Wysyłka wygaśnie automatycznie w dacie usunięcia",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Jeśli elementy są częścią wielu kolekcji, nie możesz ich importować do swoich elementów"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Nie można zapisać elementu. Musisz być zarejestrowany w organizacji."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "Elementy nie mogą mieć wielu załączników o tej samej nazwie pliku"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "Organizacja $ORGNAME$ ustawiła datę usunięcia",
     "placeholders": {
       "orgname": {
         "content": "$1",
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Kondycja"
   }
 }

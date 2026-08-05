@@ -154,6 +154,7 @@ describe("WebRegistrationFinishService", () => {
   describe("finishRegistration()", () => {
     let email: string;
     let emailVerificationToken: string;
+    let salesAssistedToken: string;
     let masterKey: MasterKey;
     let passwordInputResult: PasswordInputResult;
     let userKey: UserKey;
@@ -174,6 +175,7 @@ describe("WebRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
       salt = "salt" as MasterPasswordSalt;
 
@@ -359,6 +361,24 @@ describe("WebRegistrationFinishService", () => {
       expect(registerCall).toMatchSnapshot();
     });
 
+    it("forwards salesAssistedToken to the register request", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        salesAssistedToken,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.salesAssistedToken).toBe(salesAssistedToken);
+    });
+
     it("throws an error if given an email verification token and organization invite token", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
@@ -414,6 +434,26 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           providerInviteToken,
           providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
         ),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
@@ -496,6 +536,7 @@ describe("WebRegistrationFinishService", () => {
   describe("finishRegistration() - SDK flow", () => {
     let email: string;
     let emailVerificationToken: string;
+    let salesAssistedToken: string;
     let salt: MasterPasswordSalt;
     let passwordInputResult: PasswordInputResult;
 
@@ -514,6 +555,7 @@ describe("WebRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
       salt = "salt" as MasterPasswordSalt;
 
       passwordInputResult = {
@@ -662,6 +704,23 @@ describe("WebRegistrationFinishService", () => {
       expect(sdkRequest).toMatchSnapshot();
     });
 
+    it("forwards salesAssistedToken to the SDK register request", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        salesAssistedToken,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.sales_assisted_token).toBe(salesAssistedToken);
+    });
+
     it("throws if the provided organization id is not a valid UUID", async () => {
       const badOrgInvite = new OrganizationInvite({
         organizationId: "organizationId",
@@ -766,6 +825,26 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           providerInviteToken,
           providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and a sales assisted token", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          salesAssistedToken,
         ),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",

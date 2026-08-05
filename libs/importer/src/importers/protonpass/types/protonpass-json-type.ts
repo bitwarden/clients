@@ -45,11 +45,13 @@ export type ProtonPassItemData = {
   metadata: ProtonPassItemMetadata;
   extraFields: ProtonPassItemExtraField[];
   platformSpecific?: any;
-  type: "login" | "alias" | "creditCard" | "note" | "identity";
+  type: "login" | "alias" | "creditCard" | "note" | "identity" | "custom" | "sshKey";
   content:
     | ProtonPassLoginItemContent
     | ProtonPassCreditCardItemContent
-    | ProtonPassIdentityItemContent;
+    | ProtonPassIdentityItemContent
+    | ProtonPassCustomItemContent
+    | ProtonPassSshKeyItemContent;
 };
 
 export type ProtonPassItemMetadata = {
@@ -90,6 +92,17 @@ export type ProtonPassCreditCardItemContent = {
 export type ProtonPassIdentityItemExtraSection = {
   sectionName?: string;
   sectionFields?: ProtonPassItemExtraField[];
+};
+
+export type ProtonPassCustomItemContent = {
+  sections?: ProtonPassIdentityItemExtraSection[];
+};
+
+export type ProtonPassSshKeyItemContent = {
+  privateKey?: string;
+  publicKey?: string;
+  fingerprint?: string;
+  sections?: ProtonPassIdentityItemExtraSection[];
 };
 
 export type ProtonPassIdentityItemContent = {

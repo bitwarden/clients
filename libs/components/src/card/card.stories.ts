@@ -8,6 +8,8 @@ import { SectionComponent } from "../section";
 import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { CardContentComponent } from "./card-content.component";
+import { SegmentedCardComponent } from "./card-segmented.component";
 import { CardComponent } from "./card.component";
 
 export default {
@@ -15,7 +17,14 @@ export default {
   component: CardComponent,
   decorators: [
     moduleMetadata({
-      imports: [TypographyModule, SectionComponent, LayoutComponent, RouterTestingModule],
+      imports: [
+        TypographyModule,
+        SectionComponent,
+        LayoutComponent,
+        RouterTestingModule,
+        CardContentComponent,
+        SegmentedCardComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -82,5 +91,38 @@ export const WithinSections: Story = {
             </bit-card>
           </bit-section>
       `,
+  }),
+};
+
+/**
+ * A segmented card draws a full-width divider between each direct child. It makes no
+ * assumptions about segment content — each segment owns its own padding and layout.
+ * `<bit-card-content>` is used here as a convenient way to supply the standard card padding.
+ */
+export const Segmented: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+        <bit-card-segmented class="tw-max-w-2xl">
+          <bit-card-content>
+            <h3 bitTypography="h4" class="!tw-mb-1">Section one</h3>
+            <p bitTypography="body1" class="!tw-mb-0">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </p>
+          </bit-card-content>
+
+          <bit-card-content>
+            <h3 bitTypography="h4" class="!tw-mb-1">Section two</h3>
+            <p bitTypography="body1" class="!tw-mb-0">
+              Interdum et malesuada fames ac ante ipsum primis in faucibus.
+            </p>
+          </bit-card-content>
+
+          <bit-card-content>
+            <h3 bitTypography="h4" class="!tw-mb-1">Section three</h3>
+            <p bitTypography="body1" class="!tw-mb-0">Nunc elementum odio nibh.</p>
+          </bit-card-content>
+        </bit-card-segmented>
+    `,
   }),
 };

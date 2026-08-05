@@ -3,13 +3,29 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
 import { NestedCheckboxComponent } from "./nested-checkbox.component";
 
+type StoryArgs = {
+  /** Toggles the vfo1-foundation flag - "Collection" labels become "Shared folder" labels. */
+  vfo1FoundationEnabled: boolean;
+};
+
 export default {
   title: "Admin Console/Organizations/Members/Nested Checkbox",
+  argTypes: {
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" labels).',
+      name: "Shared folder terminology (flag on)",
+    },
+  },
+  args: {
+    vfo1FoundationEnabled: false,
+  },
   decorators: [
     moduleMetadata({
       imports: [NestedCheckboxComponent, ReactiveFormsModule, CheckboxModule, FormFieldModule],
@@ -18,9 +34,9 @@ export default {
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
-} as Meta;
+} as Meta<StoryArgs>;
 
-type Story = StoryObj<NestedCheckboxComponent>;
+type Story = StoryObj<StoryArgs>;
 
 const makeGroup = (parentChecked: boolean, childValues: boolean[]) =>
   new FormGroup({
@@ -30,11 +46,19 @@ const makeGroup = (parentChecked: boolean, childValues: boolean[]) =>
     deleteAnyCollection: new FormControl<boolean>(childValues[2], { nonNullable: true }),
   } as Record<string, FormControl<boolean>>);
 
-export const AllUnchecked: Story = {
-  render: () => ({
+function makeRender(parentChecked: boolean, childValues: boolean[]): Story["render"] {
+  return ({ vfo1FoundationEnabled }) => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => vfo1FoundationEnabled },
+        },
+      ],
+    },
     props: {
       parentId: "manageAllCollections",
-      checkboxes: makeGroup(false, [false, false, false]),
+      checkboxes: makeGroup(parentChecked, childValues),
     },
     template: `
       <app-nested-checkbox
@@ -42,35 +66,17 @@ export const AllUnchecked: Story = {
         [checkboxes]="checkboxes"
       ></app-nested-checkbox>
     `,
-  }),
+  });
+}
+
+export const AllUnchecked: Story = {
+  render: makeRender(false, [false, false, false]),
 };
 
 export const AllChecked: Story = {
-  render: () => ({
-    props: {
-      parentId: "manageAllCollections",
-      checkboxes: makeGroup(true, [true, true, true]),
-    },
-    template: `
-      <app-nested-checkbox
-        parentId="manageAllCollections"
-        [checkboxes]="checkboxes"
-      ></app-nested-checkbox>
-    `,
-  }),
+  render: makeRender(true, [true, true, true]),
 };
 
 export const Indeterminate: Story = {
-  render: () => ({
-    props: {
-      parentId: "manageAllCollections",
-      checkboxes: makeGroup(false, [true, false, false]),
-    },
-    template: `
-      <app-nested-checkbox
-        parentId="manageAllCollections"
-        [checkboxes]="checkboxes"
-      ></app-nested-checkbox>
-    `,
-  }),
+  render: makeRender(false, [true, false, false]),
 };

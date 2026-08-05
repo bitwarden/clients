@@ -83,3 +83,4 @@ jobs:
           create_pull_request: true
           pull_request_title: "Autosync Crowdin Translations for ${{ matrix.app_name }}"
           pull_request_body: "Autosync the updated translations"
+          pull_request_labels: "automated pr, t:misc"

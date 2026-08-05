@@ -79,6 +79,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
   /** Token from the backend associated with the email verification */
   emailVerificationToken?: string;
+  /** Present when the trial was set up by sales rather than self-serve email verification */
+  salesAssistedToken?: string;
   loading = false;
   productTierValue?: ProductTierType;
 
@@ -127,6 +129,10 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
       if (qParams.token != null) {
         this.emailVerificationToken = qParams.token;
+      }
+
+      if (qParams.salesAssistedToken != null) {
+        this.salesAssistedToken = qParams.salesAssistedToken;
       }
 
       const product = parseInt(qParams.product);
@@ -374,7 +380,17 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   async finishRegistration(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
     return this.registrationFinishService
-      .finishRegistration(this.email, passwordInputResult, this.emailVerificationToken)
+      .finishRegistration(
+        this.email,
+        passwordInputResult,
+        this.emailVerificationToken,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        this.salesAssistedToken,
+      )
       .catch((e: unknown): null => {
         this.validationService.showError(e);
         this.submitting = false;

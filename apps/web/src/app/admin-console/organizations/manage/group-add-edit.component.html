@@ -29,7 +29,7 @@
 
       <bit-tab label="{{ 'members' | i18n }}">
         <p>
-          {{ "editGroupMembersDesc" | i18n }}
+          {{ "editGroupMembersDesc" | vfo1I18n: "editGroupMembersDescSharedFolders" }}
           <span *ngIf="cannotAddSelfToGroup$ | async">
             {{ "restrictedGroupAccessDesc" | i18n }}
           </span>
@@ -45,20 +45,23 @@
         ></bit-access-selector>
       </bit-tab>
 
-      <bit-tab label="{{ 'collections' | i18n }}">
+      <bit-tab label="{{ 'collections' | vfo1I18n: 'sharedFolders' }}">
         <p>
-          {{ "editGroupCollectionsDesc" | i18n }}
+          {{ "editGroupCollectionsDesc" | vfo1I18n: "editGroupSharedFoldersDesc" }}
           <span *ngIf="!(canAssignAccessToAnyCollection$ | async)">
-            {{ "restrictedCollectionAssignmentDesc" | i18n }}
+            {{
+              "restrictedCollectionAssignmentDesc"
+                | vfo1I18n: "restrictedSharedFolderAssignmentDesc"
+            }}
           </span>
         </p>
         <bit-access-selector
           formControlName="collections"
           [items]="collections"
           [permissionMode]="PermissionMode.Edit"
-          [columnHeader]="'collection' | i18n"
-          [selectorLabelText]="'selectCollections' | i18n"
-          [emptySelectionText]="'noCollectionsAdded' | i18n"
+          [columnHeader]="'collection' | vfo1I18n: 'sharedFolder'"
+          [selectorLabelText]="'selectCollections' | vfo1I18n: 'selectSharedFolders'"
+          [emptySelectionText]="'noCollectionsAdded' | vfo1I18n: 'noSharedFoldersAdded'"
         ></bit-access-selector>
       </bit-tab>
     </bit-tab-group>

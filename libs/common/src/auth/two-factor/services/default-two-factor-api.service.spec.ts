@@ -550,13 +550,17 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorWebAuthn", () => {
       it("registers new WebAuthn credential by serializing browser credential to JSON", async () => {
+        // Bytes chosen so standard Base64 would include `+`, `/`, or `=` (e.g. [255,254,253] -> "//79"),
+        // making the base64UrlPattern assertion below actually distinguish Base64 from Base64URL.
         const mockAttestationResponse: Partial<AuthenticatorAttestationResponse> = {
-          clientDataJSON: new Uint8Array([1, 2, 3]).buffer,
-          attestationObject: new Uint8Array([4, 5, 6]).buffer,
+          clientDataJSON: new Uint8Array([255, 254, 253]).buffer,
+          attestationObject: new Uint8Array([252, 251, 250]).buffer,
+          getTransports: jest.fn().mockReturnValue(["internal"]),
         };
 
         const mockCredential: Partial<PublicKeyCredential> = {
           id: "credential-id",
+          rawId: new Uint8Array([249, 248, 247]).buffer,
           type: "public-key",
           response: mockAttestationResponse as AuthenticatorAttestationResponse,
           getClientExtensionResults: jest.fn().mockReturnValue({}),
@@ -579,6 +583,7 @@ describe("TwoFactorApiService", () => {
 
         const result = await twoFactorApiService.putTwoFactorWebAuthn(request);
 
+        const base64UrlPattern = expect.not.stringMatching(/[+/=]/); // no standard base64 chars/padding
         expect(apiService.send).toHaveBeenCalledWith(
           "PUT",
           "/two-factor/webauthn",
@@ -586,12 +591,13 @@ describe("TwoFactorApiService", () => {
             name: "My Security Key",
             deviceResponse: expect.objectContaining({
               id: "credential-id",
-              rawId: expect.any(String), // base64 encoded
+              rawId: base64UrlPattern,
               type: "public-key",
               extensions: {},
               response: expect.objectContaining({
-                AttestationObject: expect.any(String), // base64 encoded
-                clientDataJson: expect.any(String), // base64 encoded
+                AttestationObject: base64UrlPattern,
+                clientDataJson: base64UrlPattern,
+                transports: ["internal"],
               }),
             }),
           }),
@@ -610,10 +616,12 @@ describe("TwoFactorApiService", () => {
         const mockAttestationResponse: Partial<AuthenticatorAttestationResponse> = {
           clientDataJSON: new Uint8Array([1, 2, 3]).buffer,
           attestationObject: new Uint8Array([4, 5, 6]).buffer,
+          getTransports: jest.fn().mockReturnValue(["internal"]),
         };
 
         const mockCredential: Partial<PublicKeyCredential> = {
           id: "credential-id",
+          rawId: new Uint8Array([7, 8, 9]).buffer,
           type: "public-key",
           response: mockAttestationResponse as AuthenticatorAttestationResponse,
           getClientExtensionResults: jest.fn().mockReturnValue({}),

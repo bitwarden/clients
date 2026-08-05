@@ -28,7 +28,7 @@ pub use api::{
 pub struct WinWebAuthnError {
     kind: ErrorKind,
     description: Option<String>,
-    cause: Option<Box<dyn std::error::Error>>,
+    cause: Option<Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl WinWebAuthnError {
@@ -40,12 +40,12 @@ impl WinWebAuthnError {
         }
     }
 
-    pub(crate) fn with_cause<E: std::error::Error + 'static>(
+    pub(crate) fn with_cause<E: std::error::Error + Send + Sync + 'static>(
         kind: ErrorKind,
         description: &str,
         cause: E,
     ) -> Self {
-        let cause: Box<dyn std::error::Error> = Box::new(cause);
+        let cause: Box<dyn std::error::Error + Send + Sync> = Box::new(cause);
         Self {
             kind,
             description: Some(description.to_string()),

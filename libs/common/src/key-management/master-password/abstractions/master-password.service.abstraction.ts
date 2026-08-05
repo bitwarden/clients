@@ -1,9 +1,10 @@
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { assertNonNullish } from "../../../auth/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";
@@ -195,4 +196,27 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * @returns An observable that emits the master password unlock data or null if not found.
    */
   abstract masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null>;
+}
+
+/**
+ * Keeps the legacy locally-cached master key and master-key-wrapped user key in sync with the
+ * persisted master-password unlock data, so that master-key based unlock verification etc. keeps
+ * working after the SDK re-derives them (e.g. on a KDF change). The SDK has already written the new
+ * unlock data to state, so we read it back to derive the master key.
+ *
+ * TODO: Drop this helper and all of its callers once key connector runs via the SDK, at which point
+ * ownership of this state moves into the SDK and it no longer needs to be mirrored client-side.
+ */
+export async function syncLegacyMasterKeyState(
+  userId: UserId,
+  masterPassword: string,
+  masterPasswordService: InternalMasterPasswordServiceAbstraction,
+): Promise<void> {
+  const unlockData = await firstValueFrom(masterPasswordService.masterPasswordUnlockData$(userId));
+  assertNonNullish(unlockData, "unlockData");
+  await masterPasswordService.setLegacyMasterKeyFromUnlockData(masterPassword, unlockData, userId);
+  await masterPasswordService.setMasterKeyEncryptedUserKey(
+    new EncString(unlockData.masterKeyWrappedUserKey),
+    userId,
+  );
 }

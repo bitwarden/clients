@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -92,7 +92,7 @@ describe("VaultSettingsComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },

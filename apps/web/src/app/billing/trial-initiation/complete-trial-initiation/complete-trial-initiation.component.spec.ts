@@ -139,6 +139,47 @@ describe("CompleteTrialInitiationComponent", () => {
 
       expect(component.trialLength).toBe(7);
     });
+
+    it("should read salesAssistedToken from query params", async () => {
+      mockActivatedRoute.queryParams.next({
+        salesAssistedToken: "sales-assisted-token-123",
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+
+      await component.ngOnInit();
+      await fixture.whenStable();
+
+      expect(component.salesAssistedToken).toBe("sales-assisted-token-123");
+    });
+  });
+
+  describe("finishRegistration()", () => {
+    it("should forward salesAssistedToken to finishRegistration", async () => {
+      const registrationFinishService = TestBed.inject(
+        RegistrationFinishService,
+      ) as MockProxy<RegistrationFinishService>;
+      registrationFinishService.finishRegistration.mockResolvedValue(undefined);
+
+      component.email = "test@example.com";
+      component.emailVerificationToken = "email-verification-token";
+      component.salesAssistedToken = "sales-assisted-token-123";
+
+      const passwordInputResult = {} as any;
+      await component.finishRegistration(passwordInputResult);
+
+      expect(registrationFinishService.finishRegistration).toHaveBeenCalledWith(
+        "test@example.com",
+        passwordInputResult,
+        "email-verification-token",
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        "sales-assisted-token-123",
+      );
+    });
   });
 
   describe("showBillingStep getter", () => {

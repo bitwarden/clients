@@ -1,7 +1,7 @@
 <ng-container *ngIf="homepage$ | async">
   <app-header></app-header>
 
-  <p bitTypography="body1">{{ "orgsReportsDesc" | i18n }}</p>
+  <p bitTypography="body1">{{ "orgsReportsDesc" | vfo1I18n: "orgsReportsDescV2" }}</p>
 
   <app-report-list [reports]="reports$ | async"></app-report-list>
 </ng-container>

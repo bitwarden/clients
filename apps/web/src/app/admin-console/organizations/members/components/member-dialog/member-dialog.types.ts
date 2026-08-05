@@ -33,11 +33,13 @@ export interface AddMemberDialogParams extends CommonMemberDialogParams {
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
   kind: "Edit";
   name: string;
+  profileName?: string;
   email?: string;
   createdDate?: Date;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
   claimedByOrganization?: boolean;
+  hasMasterPassword?: boolean;
   initialTab: MemberDialogTab;
 }
 

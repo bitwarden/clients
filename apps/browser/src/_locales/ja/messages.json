@@ -1367,16 +1367,16 @@
   "additionalOptions": {
     "message": "追加オプション"
   },
-  "enableFillAssist": {
-    "message": "入力補助を使用する"
+  "fillAssistActiveNotice": {
+    "message": "自動入力はこのページで入力アシストを使用しています。"
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "入力アシストをオンにする"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。この機能を使用してもデータが収集されたり保存されることはありません。"
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "入力アシストについて"
   },
   "enableContextMenuItem": {
@@ -1495,6 +1495,12 @@
   },
   "myFolders": {
     "message": "マイフォルダー"
+  },
+  "addSharedFolder": {
+    "message": "共有フォルダーを追加"
+  },
+  "newSharedFolder": {
+    "message": "新しい共有フォルダー"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business は組織を使って保管庫アイテムを他の人と共有することができます。詳細は bitwarden.com ウェブサイトをご覧ください。"
@@ -2594,6 +2600,92 @@
     "message": "消去する",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "すべての行を選択"
+  },
+  "selectRow": {
+    "message": "行を選択"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$ / $TOTAL$ を表示中",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "ページあたりの行数"
+  },
+  "rowsPerPageOption": {
+    "message": "ページあたり $COUNT$ 行",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ 個のアイテム",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "すべて"
+  },
+  "clearAll": {
+    "message": "すべてクリア"
+  },
+  "done": {
+    "message": "完了"
+  },
+  "filter": {
+    "message": "フィルター"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ 個を選択中",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "前のページ"
+  },
+  "nextPage": {
+    "message": "次のページ"
+  },
+  "goToPage": {
+    "message": "ページへ移動"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "一致するアイテムがありません"
+  },
   "selected": {
     "message": "選択中"
   },
@@ -3185,6 +3277,10 @@
   },
   "atRiskPasswords": {
     "message": "リスクがあるパスワード"
+  },
+  "atRisk": {
+    "message": "リスクあり",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ から、 1 件の危険なパスワードを変更するよう求められています。",
@@ -4028,6 +4124,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "ウェブサイトのプレフィックスを追加",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "有効にすると、生成したメールアドレスのプレフィックスに現在のウェブサイトのドメインが使用されます",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "ホスト名",
     "description": "Part of a URL."
@@ -4799,8 +4903,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ 個のアイテムはスキップされます",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "以下のアイテムは読み込めないためインポートに含まれません："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "この SSH キーはインポートできませんでした"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "非対応のアイテムタイプ"
+  },
+  "importSkipReasonGeneric": {
+    "message": "このアイテムはインポートできませんでした"
+  },
+  "identifier": {
+    "message": "識別子"
   },
   "contact": {
     "message": "お問い合わせ"
@@ -5183,19 +5308,19 @@
     "message": "Keeper 2段階認証が必要です"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "認証アプリでログイン要求を承認します。このダイアログは自動的に閉じます。"
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "2 段階認証の方法を選択"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "本人確認方法を選択してください。"
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "認証アプリ (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "テキストメッセージ（SMS）"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5204,55 +5329,55 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "バックアップコード"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "セキュリティキー (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "セキュリティキー (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA 認証"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "デバイスで Keeper DNA 通知を承認する"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Keeper DNA メソッドを選択"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Keeper DNA で認証する方法を選択してください。"
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "プッシュ通知"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "コードを手動で入力"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "2 段階認証"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "不明な方法"
   },
   "selectDuoMethod": {
     "message": "Select Duo method"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Duo Security で認証する方法を選択してください。"
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "電話をかける"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo 認証"
   },
   "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
@@ -5264,7 +5389,7 @@
     "message": "Answer the phone call from Duo and follow the instructions."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "別の方法を試す"
   },
   "keeperUnsupported2faMethod": {
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
@@ -5465,6 +5590,12 @@
   },
   "removePasskey": {
     "message": "パスキーを削除"
+  },
+  "deletePasskey": {
+    "message": "パスキーを削除"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "このパスキーはログインアイテムから完全に削除されます。元に戻すことはできません。"
   },
   "passkeyRemoved": {
     "message": "パスキーを削除しました"
@@ -5744,6 +5875,60 @@
   },
   "owner": {
     "message": "所有者"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "共有フォルダー $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "コレクション $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "マイフォルダー $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "フォルダー $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "保管庫 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "あなた",
@@ -7034,6 +7219,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "有効にすると、ロック解除状態は Bitwarden ウェブ保管庫で共有されます。"
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "このデバイスを記憶しないことを選択したため、共有ロック解除は利用できません。この設定を有効にするには、再度ログインしてください。"
+  },
   "newPermissionNeeded": {
     "message": "新しい権限が必要です"
   },
@@ -7240,5 +7428,8 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "健康度"
   }
 }

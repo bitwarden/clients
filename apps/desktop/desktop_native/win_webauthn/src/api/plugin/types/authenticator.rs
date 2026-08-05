@@ -13,7 +13,8 @@ use crate::{
             webauthn_plugin_add_authenticator, webauthn_plugin_authenticator_add_credentials,
             webauthn_plugin_authenticator_remove_all_credentials,
             webauthn_plugin_free_add_authenticator_response,
-            webauthn_plugin_update_authenticator_details, WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
+            webauthn_plugin_get_authenticator_state, webauthn_plugin_update_authenticator_details,
+            AUTHENTICATOR_STATE, WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
             WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS, WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
             WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS, WEBAUTHN_PLUGIN_UPDATE_AUTHENTICATOR_DETAILS,
         },
@@ -21,8 +22,80 @@ use crate::{
         WindowsString,
     },
     plugin::Clsid,
-    CredentialId, ErrorKind, WinWebAuthnError,
+    CredentialId,
+    ErrorKind::{self, WindowsInternal},
+    WinWebAuthnError,
 };
+
+/// Specifies whether a plugin authenticator is enabled.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum AuthenticatorState {
+    Disabled,
+    Enabled,
+}
+
+impl TryFrom<AUTHENTICATOR_STATE> for AuthenticatorState {
+    type Error = WinWebAuthnError;
+
+    fn try_from(value: AUTHENTICATOR_STATE) -> Result<Self, Self::Error> {
+        match value.0 {
+            0 => Ok(AuthenticatorState::Disabled),
+            1 => Ok(AuthenticatorState::Enabled),
+            other => Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                &format!("Invalid authenticator state value passed: {other}"),
+            )),
+        }
+    }
+}
+
+pub fn get_authenticator_state(clsid: &Clsid) -> Result<AuthenticatorState, WinWebAuthnError> {
+    // SAFETY: We check the return type before reading the memory that Windows
+    // initializes.
+    let state = unsafe {
+        let mut state_ptr = MaybeUninit::uninit();
+        webauthn_plugin_get_authenticator_state(&clsid.as_guid(), state_ptr.as_mut_ptr())?
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    WindowsInternal,
+                    "Failed to lookup plugin authenticator state",
+                    err,
+                )
+            })?;
+        state_ptr.assume_init()
+    };
+    state.try_into()
+}
+
+#[cfg(test)]
+mod authenticator_state_tests {
+    use super::{AuthenticatorState, AUTHENTICATOR_STATE};
+
+    #[test]
+    fn maps_documented_state_values() {
+        assert_eq!(
+            AuthenticatorState::Disabled,
+            AUTHENTICATOR_STATE(0).try_into().unwrap()
+        );
+        assert_eq!(
+            AuthenticatorState::Enabled,
+            AUTHENTICATOR_STATE(1).try_into().unwrap()
+        );
+    }
+
+    /// A future Windows release could report a state this build does not know about.
+    /// It must fail closed rather than being silently treated as enabled.
+    #[test]
+    fn rejects_undocumented_state_values() {
+        for value in [2, 3, -1, i32::MAX, i32::MIN] {
+            assert!(
+                AuthenticatorState::try_from(AUTHENTICATOR_STATE(value)).is_err(),
+                "state {value} should be rejected"
+            );
+        }
+    }
+}
 
 // Plugin Registration types
 pub type WebAuthnCtapCborAuthenticatorOptions = WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS;

@@ -64,7 +64,7 @@ export class AccessRulesService {
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
     const updated = await this.pamApi.updateAccessRule(
       this.requireOrganizationId(),
-      uuidAsString(rule.id),
+      rule.id,
       accessRuleToRequest(rule, enabled),
     );
     this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
@@ -83,7 +83,7 @@ export class AccessRulesService {
       targets.map((rule) =>
         this.pamApi.updateAccessRule(
           this.requireOrganizationId(),
-          uuidAsString(rule.id),
+          rule.id,
           accessRuleToRequest(rule, enabled),
         ),
       ),
@@ -97,16 +97,14 @@ export class AccessRulesService {
 
   /** Delete a single rule, dropping it from local state. */
   async delete(rule: AccessRuleView): Promise<void> {
-    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), uuidAsString(rule.id));
+    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
   /** Delete many rules at once, dropping them all from local state. */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
     await Promise.all(
-      rules.map((rule) =>
-        this.pamApi.deleteAccessRule(this.requireOrganizationId(), uuidAsString(rule.id)),
-      ),
+      rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
     );
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));

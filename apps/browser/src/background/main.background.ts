@@ -969,7 +969,6 @@ export default class MainBackground {
       this.encryptService,
       this.i18nService,
       this.stateProvider,
-      this.configService,
       this.collectionEncryptionService,
     );
 
@@ -2235,9 +2234,8 @@ export default class MainBackground {
     const streams: Observable<void>[] = handlers.map(({ startsWith, handler }) =>
       this.systemNotificationService.notificationClicked$.pipe(
         filter((event: SystemNotificationEvent): boolean => event.id.startsWith(startsWith + "_")),
-        switchMap(
-          (event: SystemNotificationEvent): Observable<void> =>
-            from(Promise.resolve(handler(event))),
+        switchMap((event: SystemNotificationEvent): Observable<void> =>
+          from(Promise.resolve(handler(event))),
         ),
       ),
     );

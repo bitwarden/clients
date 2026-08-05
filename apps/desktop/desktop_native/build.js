@@ -119,7 +119,7 @@ function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
     // Install cargo-xwin for cross-platform builds targeting Windows
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
+        runCommand("cargo", ["install", "--version", "0.23.0", "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
@@ -132,6 +132,14 @@ function effectivePlatform(target) {
         return rustTargetsMap[target].platform
     }
     return process.platform
+}
+
+// Commands spawned by `runCommand` inherit `process.env`, so variables set here are picked up by
+// every build tool we invoke, as well as the tools those spawn in turn (`napi` -> `cargo-xwin` -> `cargo`).
+if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+    // In order to compile the ring crate, we need to force cargo-xwin to use the clang
+    // compiler rather than clang-cl.
+    process.env["XWIN_CROSS_COMPILER"] = "clang";
 }
 
 if (!crossPlatform && !target) {

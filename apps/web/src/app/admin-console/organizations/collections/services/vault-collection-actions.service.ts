@@ -21,7 +21,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CollectionPermission } from "../../shared/components/access-selector";
 import {
@@ -51,6 +51,7 @@ export class VaultCollectionActionsService {
   private readonly organizationService = inject(OrganizationService);
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly vaultCollectionService = inject(VaultCollectionService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -164,9 +165,12 @@ export class VaultCollectionActionsService {
       this.showMissingPermissionsError();
       return;
     }
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const confirmed = await this.dialogService.openSimpleDialog({
       title: collection.name,
-      content: { key: "deleteCollectionConfirmation" },
+      content: {
+        key: vfo1Enabled ? "deleteSharedFolderConfirmation" : "deleteCollectionConfirmation",
+      },
       type: "warning",
     });
 
@@ -178,7 +182,10 @@ export class VaultCollectionActionsService {
       await this.collectionService.delete([collection.id] as CollectionId[], userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("deletedCollectionId", collection.name),
+        message: this.i18nService.t(
+          vfo1Enabled ? "deletedSharedFolderId" : "deletedCollectionId",
+          collection.name,
+        ),
       });
 
       // Clear the cipher cache to clear the deleted collection from the cipher state
@@ -207,7 +214,11 @@ export class VaultCollectionActionsService {
     if (collections.length === 0) {
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("noCollectionsSelected"),
+        message: this.i18nService.t(
+          this.vfo1TerminologyService.enabled()
+            ? "noSharedFoldersSelected"
+            : "noCollectionsSelected",
+        ),
       });
       return;
     }

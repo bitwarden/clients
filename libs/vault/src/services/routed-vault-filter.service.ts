@@ -43,7 +43,10 @@ export class RoutedVaultFilterService implements OnDestroy {
         const type = isRoutedVaultFilterItemType(unsafeType) ? unsafeType : undefined;
 
         return {
-          collectionId: (queryParams.get("collectionId") as CollectionId) ?? undefined,
+          // Accept both param names during the shared-folder terminology transition.
+          collectionId:
+            ((queryParams.get("sharedFolderId") ??
+              queryParams.get("collectionId")) as CollectionId | null) ?? undefined,
           folderId: queryParams.get("folderId") ?? undefined,
           organizationId:
             (params.get("organizationId") as OrganizationId) ??
@@ -76,13 +79,17 @@ export class RoutedVaultFilterService implements OnDestroy {
    */
   createRoute(filter: RoutedVaultFilterModel): [commands: any[], extras?: NavigationExtras] {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
+    // When the flag is on, write the new `sharedFolderId` param and clear the legacy
+    // `collectionId` (queryParamsHandling: "merge" removes any param set to null).
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const organizationId =
       filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null);
     const extras: NavigationExtras = {
       queryParams: {
-        collectionId: filter.collectionId ?? null,
+        collectionId: vfo1Enabled ? null : (filter.collectionId ?? null),
+        sharedFolderId: vfo1Enabled ? (filter.collectionId ?? null) : null,
         folderId: filter.folderId ?? null,
-        ...(this.vfo1TerminologyService.enabled()
+        ...(vfo1Enabled
           ? { vaultId: organizationId, organizationId: null }
           : { organizationId, vaultId: null }),
         type: filter.type ?? null,

@@ -55,6 +55,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
     const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,
       activeUserId,
+      this.router.url,
     );
 
     if (!success) {

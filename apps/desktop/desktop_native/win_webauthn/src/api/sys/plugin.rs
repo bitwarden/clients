@@ -12,6 +12,14 @@ use super::{
     WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_RP_ENTITY_INFORMATION, WEBAUTHN_USER_ENTITY_INFORMATION,
 };
 
+/// Specifies whether a plugin authenticator is enabled.
+///
+/// Valid values:
+/// AuthenticatorState_Disabled = 0,
+/// AuthenticatorState_Enabled = 1
+#[repr(transparent)]
+pub(in crate::api) struct AUTHENTICATOR_STATE(pub(in crate::api) i32);
+
 /// Plugin lock status enum as defined in the IDL
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]
@@ -546,6 +554,27 @@ webauthn_call!("WebAuthNPluginFreeUserVerificationResponse" as
 fn webauthn_plugin_free_user_verification_response(
     pbResponse: *mut u8
 ) -> ());
+
+webauthn_call!("WebAuthNPluginGetAuthenticatorState" as
+/// Gets the current enabled or disabled state of a plugin authenticator.
+///
+/// # Arguments
+///
+/// - `rclsid`: The class identifier of the registered plugin authenticator.
+/// - `pluginAuthenticatorState`: Receives an AUTHENTICATOR_STATE value that indicates whether the
+///   plugin authenticator is enabled or disabled.
+///
+/// # Returns
+///
+/// If the function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.
+///
+/// # Remarks
+/// Use this function to determine whether Windows currently considers the specified plugin
+/// authenticator available for WebAuthn operations.
+fn webauthn_plugin_get_authenticator_state(
+  rclsid: *const GUID,
+  pluginAuthenticatorState: *mut AUTHENTICATOR_STATE,
+) -> HRESULT);
 
 webauthn_call!("WebAuthNPluginPerformUserVerification" as
 /// Request user verification for a WebAuthn operation.

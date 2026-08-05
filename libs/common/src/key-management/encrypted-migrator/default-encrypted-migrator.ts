@@ -16,8 +16,7 @@ import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
-import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
-import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
@@ -31,10 +30,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
 
   constructor(
     kdfConfigService: KdfConfigService,
-    changeKdfService: ChangeKdfService,
     private readonly logService: LogService,
     configService: ConfigService,
-    masterPasswordService: MasterPasswordServiceAbstraction,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly syncService: SyncService,
     keyService: KeyService,
     biometricsService: BiometricsService,
@@ -49,7 +47,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
       name: "Minimum PBKDF2 Iteration Count Migration",
       migration: new MinimumKdfMigration(
         kdfConfigService,
-        changeKdfService,
+        sdkService,
         logService,
         configService,
         masterPasswordService,

@@ -46,6 +46,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { GroupApiService, GroupDetailsView } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -103,6 +104,7 @@ export interface InviteMembersDialogParams {
     SelectModule,
     TabsModule,
     IconModule,
+    Vfo1I18nPipe,
   ],
 })
 export class InviteMembersDialogComponent {

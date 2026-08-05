@@ -59,7 +59,8 @@ const lightTheme = {
     alt4: `rgba(2, 15, 102)`,
   },
   brandLogo: `rgba(23, 93, 220)`,
-  passwordSpecial: `#b80017`,
+  passwordSpecial: `rgba(184, 0, 23)`,
+  passwordNumber: `rgba(20, 82, 193)`,
 };
 
 const darkTheme = {
@@ -119,7 +120,8 @@ const darkTheme = {
     alt4: `rgba(18, 26, 39)`,
   },
   brandLogo: `rgba(255, 255, 255)`,
-  passwordSpecial: `#ff8d85`,
+  passwordSpecial: `rgba(255, 141, 133)`,
+  passwordNumber: `rgba(111, 157, 241)`,
 };
 
 export const themes = {

@@ -1,6 +1,6 @@
 use std::ptr::NonNull;
 
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit, Nonce};
 use rand::{rng, Rng};
 
 pub(super) const KEY_SIZE: usize = 32;
@@ -27,11 +27,11 @@ impl MemoryEncryptionKey {
     /// Encrypts the given plaintext using the key.
     #[allow(unused)]
     pub(super) fn encrypt(&self, plaintext: &[u8]) -> EncryptedMemory {
-        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
         let mut nonce = [0u8; NONCE_SIZE];
         rng().fill(&mut nonce);
         let ciphertext = cipher
-            .encrypt(Nonce::from_slice(&nonce), plaintext)
+            .encrypt(&Nonce::from(nonce), plaintext)
             .expect("encryption should not fail");
         EncryptedMemory { nonce, ciphertext }
     }
@@ -41,12 +41,9 @@ impl MemoryEncryptionKey {
     /// indicates that the process memory was tampered with.
     #[allow(unused)]
     pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Result<Vec<u8>, DecryptionError> {
-        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
         cipher
-            .decrypt(
-                Nonce::from_slice(&encrypted.nonce),
-                encrypted.ciphertext.as_ref(),
-            )
+            .decrypt(&Nonce::from(encrypted.nonce), encrypted.ciphertext.as_ref())
             .map_err(|_| DecryptionError::CouldNotDecrypt)
     }
 }
