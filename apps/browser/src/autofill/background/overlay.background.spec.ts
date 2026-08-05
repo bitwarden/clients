@@ -190,6 +190,9 @@ describe("OverlayBackground", () => {
     enableNotificationAnimationMock$ = new BehaviorSubject(true);
     enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
     autofillService = mock<AutofillService>();
+    // `doAutoFill` now resolves an outcome object; default to a filled-without-TOTP result so callers
+    // that destructure the outcome do not choke on the mock's undefined default.
+    autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
     autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
     autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
@@ -2349,6 +2352,54 @@ describe("OverlayBackground", () => {
             command: "showSaveLoginInlineMenuList",
           });
         });
+
+        it("does not show the save login menu on a password-generation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on a password-generation field once the new-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "";
+          formData.newPassword = "generated";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on an account-creation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
       });
     });
 
@@ -3292,15 +3343,15 @@ describe("OverlayBackground", () => {
           },
         });
 
-        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
-        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
+        const buttonPosition = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
 
-        expect(menuPostion).toEqual({
+        expect(menuPosition).toEqual({
           width: "49px",
           top: "366px",
           left: "1271px",
         });
-        expect(buttonPostion).toEqual({
+        expect(buttonPosition).toEqual({
           width: "34px",
           height: "34px",
           top: "317px",
@@ -3377,14 +3428,14 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "isTotpFieldForCurrentField").mockReturnValue(true);
         jest.spyOn(overlayBackground as any, "getTotpFields").mockReturnValue(totpFields);
 
-        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
-        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
-        expect(menuPostion).toEqual({
+        const buttonPosition = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
+        expect(menuPosition).toEqual({
           width: "1164px",
           top: "366px",
           left: "1042px",
         });
-        expect(buttonPostion).toEqual({
+        expect(buttonPosition).toEqual({
           width: "34px",
           height: "34px",
           top: "292px",
@@ -3658,6 +3709,39 @@ describe("OverlayBackground", () => {
         );
       });
 
+      it("does not record last-used (reorder the ciphers map) when no fill occurs", async () => {
+        const cipher1 = mock<CipherView>({ id: "inline-menu-cipher-1" });
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        const cipher3 = mock<CipherView>({ id: "inline-menu-cipher-3" });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["inline-menu-cipher-1", cipher1],
+          ["inline-menu-cipher-2", cipher2],
+          ["inline-menu-cipher-3", cipher3],
+        ]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        // The fill was attempted, but a no-fill must not mark the cipher last-used, so order is kept.
+        expect(autofillService.doAutoFill).toHaveBeenCalled();
+        expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
+          new Map([
+            ["inline-menu-cipher-1", cipher1],
+            ["inline-menu-cipher-2", cipher2],
+            ["inline-menu-cipher-3", cipher3],
+          ]).entries(),
+        );
+      });
+
       it("copies the cipher's totp code to the clipboard after filling", async () => {
         const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
         overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
@@ -3668,7 +3752,7 @@ describe("OverlayBackground", () => {
         const copyToClipboardSpy = jest
           .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
           .mockImplementation();
-        autofillService.doAutoFill.mockResolvedValue("totp-code");
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "totp-code" });
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",

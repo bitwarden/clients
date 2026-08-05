@@ -124,17 +124,6 @@
           </bit-form-control>
         }
 
-        <bit-form-control>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="enableBrowserIntegration"
-            (change)="saveBrowserIntegration()"
-          />
-          <bit-label>{{ "enableBrowserIntegration" | i18n }}</bit-label>
-          <bit-hint>{{ "enableBrowserIntegrationDesc1" | i18n }}</bit-hint>
-        </bit-form-control>
-
         @if (showEnableAutotype()) {
           <bit-form-control>
             <input
@@ -158,7 +147,7 @@
                   class="tw-cursor-pointer"
                   bitLink
                   tabindex="0"
-                  (click)="saveAutotypeShortcut()"
+                  (click)="saveAutotypeShortcut(); $event.preventDefault()"
                   (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
                 >
                   {{ "editShortcut" | i18n }}

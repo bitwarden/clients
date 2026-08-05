@@ -5,6 +5,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   afterNextRender,
   computed,
   contentChildren,
@@ -25,6 +26,7 @@ import { IconComponent } from "../icon/icon.component";
 import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
+import { BitTableV2Component } from "../table/v2/table-v2.component";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
@@ -57,7 +59,25 @@ export class BulkActionsBarComponent {
   private readonly document = inject(DOCUMENT);
   private readonly i18nService = inject(I18nService);
 
-  readonly selectedCount = input.required<number>();
+  /**
+   * Optional ancestor table. When present, the bar reads selection state from
+   * `table.selectionModel()` and clears it on dismiss, so consumers don't need to
+   * wire `[selectedCount]` or `(clear)` explicitly. Used standalone or as a
+   * sibling, the bar falls back to the consumer-provided input.
+   */
+  private readonly table = inject(BitTableV2Component, { optional: true });
+
+  /**
+   * Number of currently-selected items. Optional: when projected into a
+   * `<bit-table-v2>` with a `[selection]` model, the bar derives this from
+   * the table automatically (see {@link effectiveCount}).
+   */
+  readonly selectedCount = input<number | undefined>(undefined);
+
+  /** Explicit input wins; otherwise infer from ancestor table; otherwise 0. */
+  protected readonly effectiveCount = computed(
+    () => this.selectedCount() ?? this.table?.selectionModel()?.count() ?? 0,
+  );
 
   private readonly clear$ = new Subject<void>();
   readonly clear = outputFromObservable(this.clear$);
@@ -80,12 +100,12 @@ export class BulkActionsBarComponent {
   // (not contentChildren) because the bar renders them itself via @for.
   private readonly primaryButtons = viewChildren(BulkActionButtonComponent);
 
-  protected readonly visible = computed(() => this.selectedCount() > 0);
+  protected readonly visible = computed(() => this.effectiveCount() > 0);
 
   /**
-   * The bar's intrinsic width (in px) measured once after first render, when all
-   * action labels are visible. Used both as the cap (`max-width`) and as the
-   * threshold for entering compact mode.
+   * The bar's intrinsic width (in px), remeasured whenever the rendered toolbar
+   * buttons change. Used both as the cap (`max-width`) and as the threshold for
+   * entering compact mode.
    */
   protected readonly initialBarWidth = signal(0);
 
@@ -98,12 +118,12 @@ export class BulkActionsBarComponent {
   private readonly modifierKey = signal<"Command" | "Ctrl">(this.detectInitialModifier());
 
   protected readonly announcement = computed(() => {
-    if (this.selectedCount() === 0) {
+    if (this.effectiveCount() === 0) {
       return this.i18nService.t("selectionCleared");
     }
     return this.i18nService.t(
       "bulkActionsBarAnnouncement",
-      this.selectedCount(),
+      this.effectiveCount(),
       `${this.modifierKey()}+B`,
     );
   });
@@ -123,7 +143,21 @@ export class BulkActionsBarComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    const injector = inject(Injector);
     this.initResizeObserver();
+
+    // Projected action data-holders may resolve async (e.g. when consumers
+    // compute them from observable signals), so the bar can mount with fewer
+    // buttons than its eventual steady state. Each emission of `primaryButtons`
+    // reflects the currently rendered button set; remeasure on every change so
+    // `initialBarWidth` tracks reality.
+    effect(() => {
+      const buttons = this.primaryButtons();
+      if (buttons.length === 0) {
+        return;
+      }
+      afterNextRender(() => this.measureIntrinsicWidth(), { injector });
+    });
 
     // FocusKeyManager captures button references at construction. Rebuild it
     // whenever the projected action set changes so it tracks the current
@@ -155,6 +189,7 @@ export class BulkActionsBarComponent {
   }
 
   protected onClear(): void {
+    this.table?.selectionModel()?.clear();
     this.clear$.next();
     this.restorePreviousFocus();
   }
@@ -165,19 +200,7 @@ export class BulkActionsBarComponent {
 
   private initResizeObserver(): void {
     afterNextRender(() => {
-      const barEl = this.bar()?.nativeElement;
       const wrapperEl = this.wrapper().nativeElement;
-      if (!barEl) {
-        return;
-      }
-
-      // Pin `min-width: max-content` for the read so the flex parent can't
-      // shrink the bar below content size when mounted in a constrained
-      // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
-      const previousMinWidth = barEl.style.minWidth;
-      barEl.style.minWidth = "max-content";
-      this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
-      barEl.style.minWidth = previousMinWidth;
 
       const observer = new ResizeObserver(() => {
         const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
@@ -186,6 +209,46 @@ export class BulkActionsBarComponent {
       observer.observe(wrapperEl);
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
+  }
+
+  private measureIntrinsicWidth(): void {
+    const barEl = this.bar()?.nativeElement;
+    const wrapperEl = this.wrapper().nativeElement;
+    if (!barEl) {
+      return;
+    }
+
+    // Pin `min-width: max-content` for the read so the flex parent can't
+    // shrink the bar below content size when mounted in a constrained
+    // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
+    const previousMinWidth = barEl.style.minWidth;
+    barEl.style.minWidth = "max-content";
+
+    // While `compact` is true, the close + primary button labels are
+    // `display: none` via `tw-hidden`. Reading the width with those applied
+    // would capture the compact width and trap the bar in compact mode
+    // forever (the threshold would never be exceeded by a widening
+    // wrapper). Force them visible for the read; the additional-actions
+    // trigger is intentionally always icon-only, so we exclude it. Mutate
+    // → measure → restore happens synchronously, so the browser never
+    // paints with labels visible.
+    const trigger = this.additionalActionsTrigger();
+    const labeledButtons = this.primaryButtons().filter((btn) => btn !== trigger);
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
+
+    const barWidth = Math.ceil(barEl.getBoundingClientRect().width);
+
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(false));
+    barEl.style.minWidth = previousMinWidth;
+
+    // Guard against unmeasurable layouts (detached element, jsdom) so we
+    // don't flip `compact` based on a zero-width read.
+    if (barWidth === 0) {
+      return;
+    }
+    this.initialBarWidth.set(barWidth);
+    const threshold = barWidth + COMPACT_THRESHOLD_BUFFER_PX;
+    this.compact.set(wrapperEl.clientWidth < threshold);
   }
 
   protected handleShortcut(event: KeyboardEvent): void {

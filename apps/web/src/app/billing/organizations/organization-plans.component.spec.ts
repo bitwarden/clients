@@ -15,7 +15,7 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
@@ -204,6 +204,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager?: boolean;
     smSeats?: number;
     smServiceAccounts?: number;
+    smServiceAccountsGrace?: number;
   } = {},
 ) => {
   const {
@@ -217,6 +218,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager = false,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } = orgConfig;
 
   const mockOrganization = {
@@ -239,6 +241,7 @@ const setupMockUpgradeOrganization = (
     planType,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } as any);
 
   return mockOrganization;
@@ -981,6 +984,49 @@ describe("OrganizationPlansComponent", () => {
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
 
+    it("defaults the create request to the in-product initiation path", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.NewOrganizationCreationInProduct,
+        }),
+      );
+    });
+
+    it("sends the provided initiation path on the create request", async () => {
+      fixture.componentRef.setInput(
+        "initiationPath",
+        InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+      );
+
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+        }),
+      );
+    });
+
     it("should emit onSuccess after successful creation", async () => {
       const onSuccessSpy = jest.spyOn(component.onSuccess, "emit");
 
@@ -1256,6 +1302,29 @@ describe("OrganizationPlansComponent", () => {
 
       expect(component["familiesSponsorshipDiscount"]).toBe(products[0].PasswordManager.basePrice);
     });
+
+    it("should use createCloudHosted and not upgradeFromPremium when accepting sponsorship with a premium subscription", async () => {
+      hasPremiumPersonallySubject.next(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      patchOrganizationForm(component, {
+        name: "My Family Org",
+        billingEmail: "test@example.com",
+        productTier: ProductTierType.Families,
+        plan: PlanType.FamiliesAnnually,
+      });
+      patchBillingAddress(component);
+      setupMockPaymentMethodComponent(component, "mock_token", "card");
+
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-family-org-id" } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
   });
 
   describe("upgrade flow", () => {
@@ -1364,6 +1433,62 @@ describe("OrganizationPlansComponent", () => {
 
       expect(upgradeComponent.secretsManagerForm.controls.userSeats.value).toBe(5);
       expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(25);
+    });
+
+    it("should subtract permanent migration-grace accounts when prefilling additional service accounts", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 10,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 10 grace = 15 billable
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(15);
+    });
+
+    it("should clamp prefilled additional service accounts to zero when grace exceeds the billable count", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 30,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 30 grace = -5 -> clamped to 0
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(0);
     });
 
     it("should enable SM by default when enableSecretsManagerByDefault is true", async () => {
@@ -2390,6 +2515,16 @@ describe("OrganizationPlansComponent", () => {
         await newFixture.whenStable();
 
         expect(newComponent.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when accepting a sponsorship even with premium personally", async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
       });
     });
 

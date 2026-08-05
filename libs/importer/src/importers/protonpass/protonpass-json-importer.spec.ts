@@ -6,7 +6,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 
-import { assertCustomFieldExists } from "../spec-data/importer-test-utils";
+import { assertCustomFieldExists, assertFieldsStructure } from "../spec-data/importer-test-utils";
 import { testData } from "../spec-data/protonpass-json/protonpass.json";
 
 import { ProtonPassJsonImporter } from "./protonpass-json-importer";
@@ -36,7 +36,7 @@ describe("Protonpass Json Importer", () => {
   });
 
   it("should parse login data", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     // The first item in the results is a login
     const cipher = result.ciphers[0];
@@ -60,17 +60,22 @@ describe("Protonpass Json Importer", () => {
   });
 
   it("should parse note data", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     // The second item in the results is a note
     const noteCipher = result.ciphers[1];
     expect(noteCipher.type).toEqual(CipherType.SecureNote);
     expect(noteCipher.name).toEqual("My Secure Note");
     expect(noteCipher.notes).toEqual("Secure note contents.");
+
+    assertFieldsStructure(noteCipher.fields, [
+      ["note text field", "note text value", FieldType.Text],
+      ["note hidden field", "note hidden value", FieldType.Hidden],
+    ]);
   });
 
   it("should parse credit card data", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     // The third item in the results is a credit card
     const creditCardCipher = result.ciphers[2];
@@ -80,11 +85,15 @@ describe("Protonpass Json Importer", () => {
     expect(creditCardCipher.card.expMonth).toBe("1");
     expect(creditCardCipher.card.expYear).toBe("2025");
     expect(creditCardCipher.card.code).toBe("333");
-    assertCustomFieldExists(creditCardCipher.fields, "PIN", "1234", FieldType.Hidden);
+    assertFieldsStructure(creditCardCipher.fields, [
+      ["PIN", "1234", FieldType.Hidden],
+      ["card text field", "card text value", FieldType.Text],
+      ["card hidden field", "card hidden value", FieldType.Hidden],
+    ]);
   });
 
   it("should create folders if not part of an organization", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     const folders = result.folders;
     expect(folders.length).toBe(2);
@@ -94,12 +103,12 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.folderRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.folderRelationships[4]).toEqual([4, 1]);
+    expect(result.folderRelationships[7]).toEqual([7, 1]);
   });
 
   it("should create collections if part of an organization", async () => {
     importer.organizationId = Utils.newGuid() as OrganizationId;
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     const collections = result.collections;
     expect(collections.length).toBe(2);
@@ -109,20 +118,22 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.collectionRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.collectionRelationships[4]).toEqual([4, 1]);
+    expect(result.collectionRelationships[7]).toEqual([7, 1]);
   });
 
   it("should not add deleted items", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     const ciphers = result.ciphers;
     for (const cipher of ciphers) {
       expect(cipher.name).not.toBe("My Deleted Note");
     }
+
+    expect(ciphers.length).toBe(8);
   });
 
   it("should set favorites", async () => {
-    const result = await expectParse(importer, testData, 5);
+    const result = await expectParse(importer, testData, 8);
 
     const ciphers = result.ciphers;
     expect(ciphers[0].favorite).toBe(true);
@@ -130,17 +141,54 @@ describe("Protonpass Json Importer", () => {
     expect(ciphers[2].favorite).toBe(true);
   });
 
-  it("should skip unsupported items", async () => {
-    const result = await expectParse(importer, testData, 5);
+  it("should parse alias data as a login", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
 
-    const ciphers = result.ciphers;
-    expect(ciphers.length).toBe(5);
-    expect(ciphers[4].type).toEqual(CipherType.Login);
+    const cipher = result.ciphers[4];
+    expect(cipher.name).toEqual("Alias");
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.login.username).toEqual("alias.removing005@passinbox.com");
+  });
+
+  it("should parse custom item data as a secure note", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers[5];
+    expect(cipher.name).toEqual("Custom Item");
+    expect(cipher.type).toEqual(CipherType.SecureNote);
+    expect(cipher.notes).toEqual("custom item note");
+
+    assertFieldsStructure(cipher.fields, [
+      ["Account number", "123456789", FieldType.Text],
+      ["PIN", "0000", FieldType.Hidden],
+      // Fields nested in content sections are preserved as custom fields
+      ["SectionField", "section value", FieldType.Text],
+    ]);
+  });
+
+  it("should parse ssh key data", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers[6];
+    expect(cipher.name).toEqual("SSH Key Item");
+    expect(cipher.type).toEqual(CipherType.SshKey);
+    expect(cipher.sshKey.privateKey).toEqual(
+      "-----BEGIN PRIVATE KEY-----\nPRIVATEKEYCONTENT\n-----END PRIVATE KEY-----\n",
+    );
+    expect(cipher.sshKey.publicKey).toEqual("ssh-ed25519 AAAAPUBLICKEY");
+
+    assertFieldsStructure(cipher.fields, [["Host", "example.com"]]);
   });
 
   describe("should parse identity data", () => {
     it("with new item types feature flag OFF", async () => {
-      const result = await expectParse(importer, testData, 5);
+      const result = await expectParse(importer, testData, 8);
 
       // The fourth item in the results (when the feature flag is off) is an identity
       const cipher = result.ciphers[3];
@@ -156,7 +204,7 @@ describe("Protonpass Json Importer", () => {
       expect(cipher.identity.licenseNumber).toBe("21234");
       expect(cipher.identity.address1).toBe("Bitwarden");
       expect(cipher.identity.address2).toBe("23 Street");
-      expect(cipher.identity.address3).toBe("12th Foor Test County");
+      expect(cipher.identity.address3).toBe("12th Floor Test County");
       expect(cipher.identity.city).toBe("New York");
       expect(cipher.identity.state).toBe("Test");
       expect(cipher.identity.postalCode).toBe("4038456");
@@ -168,7 +216,7 @@ describe("Protonpass Json Importer", () => {
         ["gender", "Male", FieldType.Text],
         ["TestPersonal", "Personal", FieldType.Text],
         ["TestAddress", "Address", FieldType.Text],
-        ["xHandle", "@twiter", FieldType.Text],
+        ["xHandle", "@twitter", FieldType.Text],
         ["secondPhoneNumber", "243538978", FieldType.Text],
         ["instagram", "@insta", FieldType.Text],
         ["TestContact", "Contact", FieldType.Hidden],
@@ -186,11 +234,10 @@ describe("Protonpass Json Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const result = await expectParse(importer, testData, 7);
-
       // Since the test data has an identity that includes both a driver's
       // license number and a passport number there are two extra ciphers
-      expect(result.ciphers.length).toEqual(7);
+      const result = await expectParse(importer, testData, 10);
+
       const identityCipherFolderRels = result.folderRelationships.filter((rel) => rel[0] === 5);
       expect(identityCipherFolderRels.length).toEqual(1);
 
@@ -228,7 +275,7 @@ describe("Protonpass Json Importer", () => {
       expect(identityCipher.identity.licenseNumber).toBeUndefined();
       expect(identityCipher.identity.address1).toBe("Bitwarden");
       expect(identityCipher.identity.address2).toBe("23 Street");
-      expect(identityCipher.identity.address3).toBe("12th Foor Test County");
+      expect(identityCipher.identity.address3).toBe("12th Floor Test County");
       expect(identityCipher.identity.city).toBe("New York");
       expect(identityCipher.identity.state).toBe("Test");
       expect(identityCipher.identity.postalCode).toBe("4038456");
@@ -240,7 +287,7 @@ describe("Protonpass Json Importer", () => {
         ["gender", "Male", FieldType.Text],
         ["TestPersonal", "Personal", FieldType.Text],
         ["TestAddress", "Address", FieldType.Text],
-        ["xHandle", "@twiter", FieldType.Text],
+        ["xHandle", "@twitter", FieldType.Text],
         ["secondPhoneNumber", "243538978", FieldType.Text],
         ["instagram", "@insta", FieldType.Text],
         ["TestContact", "Contact", FieldType.Hidden],

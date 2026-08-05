@@ -5,13 +5,13 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
+import { Observable, combineLatest, filter, first, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -21,7 +21,11 @@ import {
   FormFieldModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
-import { AssignCollectionsComponent, CollectionAssignmentParams } from "@bitwarden/vault";
+import {
+  AssignCollectionsComponent,
+  CollectionAssignmentParams,
+  Vfo1I18nPipe,
+} from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
@@ -47,6 +51,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
     PopupHeaderComponent,
     PopupFooterComponent,
     PopOutComponent,
+    Vfo1I18nPipe,
   ],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
@@ -55,6 +60,8 @@ export class AssignCollections {
   /** Params needed to populate the assign collections component */
   params: CollectionAssignmentParams;
 
+  protected submitButtonText: string;
+
   constructor(
     private location: Location,
     private collectionService: CollectionService,
@@ -62,21 +69,18 @@ export class AssignCollections {
     private accountService: AccountService,
     route: ActivatedRoute,
   ) {
-    const cipher$: Observable<CipherView> = this.accountService.activeAccount$.pipe(
-      map((account) => account?.id),
-      filter((userId) => userId != null),
+    const userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+    const cipher$: Observable<CipherView> = userId$.pipe(
       switchMap((userId) =>
         route.queryParams.pipe(
-          switchMap(async ({ cipherId }) => {
-            const cipherDomain = await this.cipherService.get(cipherId, userId);
-            return await this.cipherService.decrypt(cipherDomain, userId);
-          }),
+          switchMap(({ cipherId }) => this.cipherService.cipherView$(userId, cipherId as CipherId)),
         ),
       ),
+      filter((cipher): cipher is CipherView => cipher != null),
     );
 
-    const decryptedCollection$ = this.accountService.activeAccount$.pipe(
-      getUserId,
+    const decryptedCollection$ = userId$.pipe(
       switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
     );
 

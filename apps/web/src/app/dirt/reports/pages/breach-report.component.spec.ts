@@ -11,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BreachReportComponent } from "./breach-report.component";
@@ -80,6 +81,10 @@ describe("BreachReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
         },
       ],
       schemas: [],

@@ -1466,7 +1466,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const totpCode = await this.autofillService.doAutoFill({
+    const result = await this.autofillService.doAutoFill({
       tab,
       cipher,
       pageDetails,
@@ -1477,8 +1477,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
+    if (!result.didAutofill) {
+      return;
+    }
+
+    if (result.totp) {
+      this.platformUtilsService.copyToClipboard(result.totp);
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -2269,7 +2274,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      await this.autofillService.doAutoFill({
+      const { didAutofill } = await this.autofillService.doAutoFill({
         tab: senderTab,
         cipher,
         pageDetails,
@@ -2280,8 +2285,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
       });
 
+      // The follow-on modify-login message only makes sense when a password was actually filled;
+      // gate on the outcome so a no-fill does not arm it (a no-fill previously aborted here by throw).
       const frameId = this.focusedFieldData?.frameId;
-      if (frameId !== null && frameId !== undefined) {
+      if (didAutofill && frameId !== null && frameId !== undefined) {
         globalThis.setTimeout(() => {
           BrowserApi.tabSendMessage(
             senderTab,
@@ -2313,10 +2320,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
+    // On password-generation fields the save prompt should only fire once a
+    // new password has actually been entered. Gating on `loginData.password`
+    // here would surface the prompt as soon as the *current* password field
+    // on an update form is filled, which isn't a "save new login" signal.
+    const hasAnyPassword = !!(loginData.password || loginData.newPassword);
+    const hasNewPassword = !!loginData.newPassword;
+
     return (
-      (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
-      !!(loginData.password || loginData.newPassword)
+      (hasAnyPassword && this.shouldShowInlineMenuAccountCreation()) ||
+      (hasNewPassword && this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration))
     );
   }
 

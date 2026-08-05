@@ -17,14 +17,18 @@ export function assertCustomFieldExists(
   }
 }
 
-/** Assert that a cipher's custom fields exactly match the passed-in structure (expressed as an array of name-value tuples) */
+/** Assert that a cipher's custom fields exactly match the passed-in structure (expressed as an array of
+ * either name-value or name-value-type tuples)*/
 export function assertFieldsStructure(
   actualFields: FieldView[],
-  expectedFields: [string, string][],
+  expectedFields: ([string, string] | [string, string, FieldType])[],
 ) {
   expect(actualFields.length).toEqual(expectedFields.length);
   for (let i = 0; i < expectedFields.length; i++) {
     expect(actualFields[i].name).toEqual(expectedFields[i][0]);
     expect(actualFields[i].value).toEqual(expectedFields[i][1]);
+    if (expectedFields[i].length === 3) {
+      expect(actualFields[i].type).toEqual(expectedFields[i][2]);
+    }
   }
 }

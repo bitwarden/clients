@@ -1,13 +1,13 @@
-import { EMPTY, catchError, concatMap, firstValueFrom, map } from "rxjs";
+import { EMPTY, catchError, concatMap, firstValueFrom, map, throwError } from "rxjs";
 
-import { UserKey } from "@bitwarden/common/types/key";
-import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
@@ -65,7 +65,9 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
-          return EMPTY;
+          // Propagate the underlying failure. Returning EMPTY here would make firstValueFrom
+          // reject with an opaque "no elements in sequence" EmptyError.
+          return throwError(() => (error instanceof Error ? error : new Error(String(error))));
         }),
       ),
     );

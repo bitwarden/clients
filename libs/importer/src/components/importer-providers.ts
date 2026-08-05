@@ -89,6 +89,7 @@ export const ImporterProviders: SafeProvider[] = [
       AccountService,
       RestrictedItemTypesService,
       ConfigService,
+      SdkService,
     ],
   }),
 ];

@@ -9,6 +9,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -16,6 +17,7 @@ import {
   OrganizationInviteLink,
   OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, UserAdminService } from "../../../core";
@@ -55,6 +57,11 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+};
+
+const mockEventCollectionService = {
+  collect: () => Promise.resolve(),
+  collectMany: () => Promise.resolve(),
 };
 
 const mockDialogRef = {
@@ -106,8 +113,8 @@ const mockInviteLink: OrganizationInviteLink = Object.assign(
     code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    encryptedInviteKey: "enc-key",
-    encryptedOrgKey: undefined,
+    invite: "enc-key",
+    supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
   },
 );
@@ -153,10 +160,12 @@ type StoryArgs = {
   seats: number;
   /** Number of seats already occupied. */
   occupiedSeatCount: number;
+  /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
+  vfo1FoundationEnabled: boolean;
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Invite Members Dialog",
+  title: "Admin Console/Organizations/Members/Invite Members Dialog/Invite Members Dialog",
   component: InviteMembersDialogComponent,
   args: {
     useInviteLinks: true,
@@ -165,6 +174,7 @@ export default {
     useCustomPermissions: false,
     seats: 10,
     occupiedSeatCount: 3,
+    vfo1FoundationEnabled: false,
   },
   argTypes: {
     useInviteLinks: {
@@ -191,6 +201,11 @@ export default {
       control: { type: "number", min: 0, step: 1 },
       description: "Seats already occupied; affects the remaining-seat hint.",
     },
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
+      name: "Shared folder terminology (flag on)",
+    },
   },
   decorators: [
     moduleMetadata({
@@ -205,6 +220,7 @@ export default {
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
+        { provide: EventCollectionService, useValue: mockEventCollectionService },
         {
           provide: OrgDomainApiServiceAbstraction,
           useValue: { getAllByOrgId: () => Promise.resolve([]) },
@@ -252,6 +268,13 @@ const makeRender =
           provide: OrganizationInviteLinkService,
           useValue: makeMockInviteLinkService(initialLink),
         },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => args.vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
+        },
       ],
     },
     template: `<app-invite-members-dialog></app-invite-members-dialog>`,
@@ -287,6 +310,18 @@ export const EmailOnlyNoTabs: Story = {
 export const WithSecretsManager: Story = {
   args: {
     useSecretsManager: true,
+  },
+  render: makeRender(),
+};
+
+/**
+ * The vfo1-foundation flag is on — role hints, the collections access selector, and (with a
+ * custom role selected) the nested-checkbox permission labels render "Shared folder" terminology.
+ */
+export const SharedFolderTerminology: Story = {
+  args: {
+    vfo1FoundationEnabled: true,
+    useCustomPermissions: true,
   },
   render: makeRender(),
 };

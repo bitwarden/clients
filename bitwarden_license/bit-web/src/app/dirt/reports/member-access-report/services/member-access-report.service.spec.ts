@@ -18,6 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   GroupApiService,
   GroupView,
@@ -42,6 +43,7 @@ describe("MemberAccessReportService", () => {
   const mockCipherService = mock<CipherService>();
   const mockLogService = mock<LogService>();
   const mockGroupApiService = mock<GroupApiService>();
+  const mockVfo1TerminologyService = mock<Vfo1TerminologyService>();
   let memberAccessReportService: MemberAccessReportService;
   const i18nMock = mock<I18nService>({
     t(key) {
@@ -58,6 +60,7 @@ describe("MemberAccessReportService", () => {
     );
     // Default: mock groups as empty array (tests can override)
     mockGroupApiService.getAll.mockResolvedValue([]);
+    mockVfo1TerminologyService.enabled.mockReturnValue(false);
     memberAccessReportService = new MemberAccessReportService(
       reportApiService,
       i18nMock,
@@ -69,6 +72,7 @@ describe("MemberAccessReportService", () => {
       mockCipherService,
       mockLogService,
       mockGroupApiService,
+      mockVfo1TerminologyService,
     );
   });
 
@@ -114,14 +118,13 @@ describe("MemberAccessReportService", () => {
     collectionIds,
   });
 
-  const createMockGroup = (id: string, name: string): GroupView => {
-    const group = new GroupView();
-    group.id = id;
-    group.organizationId = mockOrganizationId;
-    group.name = name;
-    group.externalId = "";
-    return group;
-  };
+  const createMockGroup = (id: string, name: string): GroupView =>
+    new GroupView({
+      id,
+      organizationId: mockOrganizationId,
+      name,
+      externalId: "",
+    });
 
   // Scenario helpers to reduce test duplication
   const setupSingleUserWithDirectAccess = (

@@ -71,9 +71,13 @@ describe("CreateCommand", () => {
     organizationService.organizations$.mockReturnValue(
       of([{ id: validOrgId, organizationUserId: orgUserId }] as any),
     );
-    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
+    keyService.orgKeys$.mockReturnValue(of({ [validOrgId]: mockOrgKey } as any));
     encryptService.encryptString.mockResolvedValue(mockEncString);
-    apiService.postCollection.mockResolvedValue({ id: "new-collection-id" } as any);
+    apiService.postCollection.mockResolvedValue({
+      id: "new-collection-id",
+      groups: [],
+      users: [],
+    } as any);
 
     command = new CreateCommand(
       cipherService,
@@ -156,7 +160,7 @@ describe("CreateCommand", () => {
     });
 
     it("returns error when no org encryption key is found", async () => {
-      keyService.getOrgKey.mockResolvedValue(null);
+      keyService.orgKeys$.mockReturnValue(of(null));
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("No encryption key for this organization");
@@ -166,7 +170,7 @@ describe("CreateCommand", () => {
       accountService.activeAccount$ = of(null);
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
-      expect(result.message).toContain("No user found");
+      expect(result.message).toContain("Null or undefined account");
     });
 
     it("creates collection successfully with groups and users provided", async () => {
@@ -212,6 +216,25 @@ describe("CreateCommand", () => {
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.postCollection.mockResolvedValue({
+        id: "new-collection-id",
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ groups: requestGroups }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
     });
   });
 });

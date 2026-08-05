@@ -12,8 +12,8 @@
     }
 
     <bit-nav-item
-      icon="bwi-collection-shared"
-      [text]="'collections' | i18n"
+      [icon]="'bwi-collection-shared' | vfo1Icon"
+      [text]="'collections' | vfo1I18n: 'sharedFolders'"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
     >
@@ -82,6 +82,7 @@
       route="integrations"
       *ngIf="integrationPageEnabled$ | async"
     ></bit-nav-item>
+    <app-pam-org-nav-slot [organization]="organization" />
     <bit-nav-group
       icon="bwi-cog"
       [text]="'settings' | i18n"
