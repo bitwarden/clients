@@ -456,6 +456,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       DesktopSettingsService,
+      DesktopFido2UserVerificationService,
       PasswordRepromptService,
     ],
   }),
