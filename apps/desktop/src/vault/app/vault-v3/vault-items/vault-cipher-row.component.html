@@ -85,6 +85,7 @@
     }
     @if (showCopyActions()) {
       <vault-item-copy-actions
+        class="tw-inline-flex tw-align-middle"
         [cipher]="cipher()"
         [showQuickCopyActions]="showQuickCopyActions()"
         [disabled]="disabled()"
