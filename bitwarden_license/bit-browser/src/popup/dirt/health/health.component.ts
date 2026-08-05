@@ -76,7 +76,7 @@ export class HealthComponent {
   };
 
   // TODO: REMOVE. FOR TESTING PURPOSES ONLY.
-  readonly routeToCategory = async (titleKey: string, descriptionKey: string) => {
-    await this.router.navigate(["health-risk-category-details", { titleKey, descriptionKey }]);
+  readonly routeToCategory = async (category: string) => {
+    await this.router.navigate(["health-risk-category-details", { category }]);
   };
 }

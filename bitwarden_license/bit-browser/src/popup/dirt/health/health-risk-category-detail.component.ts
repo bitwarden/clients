@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from "@angular/core";
+import { Component, ChangeDetectionStrategy, signal, inject, computed } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
@@ -16,6 +17,7 @@ import {
   TypographyModule,
   ButtonModule,
   IconButtonModule,
+  SvgModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -36,289 +38,48 @@ import { I18nPipe } from "@bitwarden/ui-common";
     IconButtonModule,
     AppVaultIconComponent,
     I18nPipe,
+    SvgModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
   readonly route = inject(ActivatedRoute);
 
-  readonly titleKey = toSignal(this.route.params.pipe(map((params) => params["titleKey"])));
-  readonly descriptionKey = toSignal(
-    this.route.params.pipe(map((params) => params["descriptionKey"])),
-  );
+  readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
+  readonly contentKeys = computed<{
+    titleKey?: string;
+    descriptionKey?: string;
+    emptyKey?: string;
+  }>(() => {
+    const keys: { titleKey?: string; descriptionKey?: string; emptyKey?: string } = {};
+    switch (this.category()) {
+      case "exposed-passwords":
+        keys.titleKey = "exposedPasswordsTitle";
+        keys.descriptionKey = "exposedPasswordsDescription";
+        keys.emptyKey = "exposedPasswordsEmpty";
+        break;
+      case "weak-passwords":
+        keys.titleKey = "weakPasswordsTitle";
+        keys.descriptionKey = "weakPasswordsDescription";
+        keys.emptyKey = "weakPasswordsEmpty";
+        break;
+      case "reused-passwords":
+        keys.titleKey = "reusedPasswordsTitle";
+        keys.descriptionKey = "reusedPasswordsDescription";
+        keys.emptyKey = "reusedPasswordsEmpty";
+        break;
+    }
+    return keys;
+  });
+  readonly emptyIcon = computed(() => {
+    switch (this.category()) {
+      case "exposed-passwords":
+        return ReportExposedPasswords;
+      case "weak-passwords":
+        return UnlockedIcon;
+      case "reused-passwords":
+        return NoCredentialsIcon;
+    }
+  });
 
-  readonly items = signal<Partial<CipherView>[]>([
-    {
-      initializerKey: 1,
-      id: "d12f5850-f507-4bfa-855d-b491015d6833",
-      name: "family org item test",
-      type: 1,
-      favorite: false,
-      organizationUseTotp: true,
-      permissions: {
-        response: null,
-        delete: true,
-        restore: true,
-      },
-      edit: true,
-      viewPassword: true,
-      login: {
-        uris: [],
-        fido2Credentials: [],
-        username: "asdfasdf",
-        password: "asdfasdfasdf",
-      },
-      attachments: [],
-      fields: [],
-      passwordHistory: [],
-      collectionIds: ["d34aba5c-63b9-4038-9cdc-b491015d5623"],
-      reprompt: 0,
-      decryptionFailure: false,
-      organizationId: "9d971351-1d78-4cf2-96eb-b491015d527d",
-      collections: [
-        {
-          readOnly: false,
-          hidePasswords: false,
-          manage: true,
-          assigned: true,
-          type: 0,
-          id: "d34aba5c-63b9-4038-9cdc-b491015d5623",
-          organizationId: "9d971351-1d78-4cf2-96eb-b491015d527d",
-          _name: "Default collection",
-          defaultUserCollectionEmail: null,
-        },
-      ],
-      organization: {
-        id: "9d971351-1d78-4cf2-96eb-b491015d527d",
-        name: "family Org test",
-        status: 2,
-        type: 0,
-        enabled: true,
-        usePolicies: false,
-        useGroups: false,
-        useDirectory: false,
-        useEvents: false,
-        useTotp: true,
-        use2fa: false,
-        useApi: false,
-        useSso: false,
-        useOrganizationDomains: false,
-        useKeyConnector: false,
-        useScim: false,
-        useCustomPermissions: false,
-        useResetPassword: false,
-        useSecretsManager: false,
-        usePasswordManager: true,
-        usePam: false,
-        useActivateAutofillPolicy: false,
-        useAutomaticUserConfirmation: false,
-        selfHost: true,
-        usersGetPremium: true,
-        seats: 6,
-        maxCollections: null,
-        maxStorageGb: 5,
-        ssoBound: false,
-        identifier: null,
-        permissions: {
-          response: {
-            accessEventLogs: false,
-            accessImportExport: false,
-            accessReports: false,
-            createNewCollections: false,
-            editAnyCollection: false,
-            deleteAnyCollection: false,
-            manageGroups: false,
-            managePolicies: false,
-            manageSso: false,
-            manageUsers: false,
-            manageResetPassword: false,
-            manageScim: false,
-          },
-          accessEventLogs: false,
-          accessImportExport: false,
-          accessReports: false,
-          createNewCollections: false,
-          editAnyCollection: false,
-          deleteAnyCollection: false,
-          manageGroups: false,
-          manageSso: false,
-          managePolicies: false,
-          manageUsers: false,
-          manageResetPassword: false,
-          manageScim: false,
-        },
-        resetPasswordEnrolled: false,
-        userId: "510f181b-d94e-4144-ac6d-b44900018369",
-        organizationUserId: "898353f3-46ac-4db3-9dc5-b491015d561e",
-        hasPublicAndPrivateKeys: true,
-        providerId: null,
-        providerName: null,
-        providerType: null,
-        isProviderUser: false,
-        isMember: true,
-        familySponsorshipFriendlyName: null,
-        familySponsorshipAvailable: false,
-        productTierType: 1,
-        keyConnectorEnabled: false,
-        keyConnectorUrl: null,
-        familySponsorshipToDelete: null,
-        accessSecretsManager: false,
-        limitCollectionCreation: false,
-        limitCollectionDeletion: false,
-        limitItemDeletion: false,
-        allowAdminAccessToAllCollectionItems: false,
-        userIsClaimedByOrganization: false,
-        useAccessIntelligence: false,
-        useAdminSponsoredFamilies: false,
-        useDisableSMAdsForUsers: false,
-        isAdminInitiated: false,
-        ssoEnabled: false,
-        ssoMemberDecryptionType: null,
-        usePhishingBlocker: false,
-        useMyItems: false,
-        useInviteLinks: false,
-      },
-    },
-    {
-      initializerKey: 1,
-      id: "20199951-d0a1-4e45-ad4a-b491015ce0d2",
-      name: "free org login",
-      type: 1,
-      favorite: false,
-      organizationUseTotp: false,
-      permissions: {
-        response: null,
-        delete: true,
-        restore: true,
-      },
-      edit: true,
-      viewPassword: true,
-      login: {
-        uris: [],
-        fido2Credentials: [],
-        username: "asdfasdf",
-        password: "asdfasdf",
-      },
-      identity: {},
-      card: {},
-      secureNote: {
-        type: 0,
-      },
-      sshKey: {},
-      bankAccount: {},
-      driversLicense: {},
-      passport: {},
-      attachments: [],
-      fields: [],
-      passwordHistory: [],
-      collectionIds: ["0e79a20d-dd3a-4522-a3fb-b491015ccebd"],
-      reprompt: 0,
-      decryptionFailure: false,
-      revisionDate: "2026-07-24T21:10:13.580Z",
-      creationDate: "2026-07-24T21:10:13.580Z",
-      organizationId: "ed69acab-7d7e-4102-b369-b491015cce97",
-      collections: [
-        {
-          readOnly: false,
-          hidePasswords: false,
-          manage: true,
-          assigned: true,
-          type: 0,
-          id: "0e79a20d-dd3a-4522-a3fb-b491015ccebd",
-          organizationId: "ed69acab-7d7e-4102-b369-b491015cce97",
-          _name: "Default collection",
-          defaultUserCollectionEmail: null,
-        },
-      ],
-      organization: {
-        id: "ed69acab-7d7e-4102-b369-b491015cce97",
-        name: "free Org test",
-        status: 2,
-        type: 0,
-        enabled: true,
-        usePolicies: false,
-        useGroups: false,
-        useDirectory: false,
-        useEvents: false,
-        useTotp: false,
-        use2fa: false,
-        useApi: false,
-        useSso: false,
-        useOrganizationDomains: false,
-        useKeyConnector: false,
-        useScim: false,
-        useCustomPermissions: false,
-        useResetPassword: false,
-        useSecretsManager: false,
-        usePasswordManager: true,
-        usePam: false,
-        useActivateAutofillPolicy: false,
-        useAutomaticUserConfirmation: false,
-        selfHost: false,
-        usersGetPremium: false,
-        seats: 2,
-        maxCollections: 2,
-        maxStorageGb: 0,
-        ssoBound: false,
-        identifier: null,
-        permissions: {
-          response: {
-            accessEventLogs: false,
-            accessImportExport: false,
-            accessReports: false,
-            createNewCollections: false,
-            editAnyCollection: false,
-            deleteAnyCollection: false,
-            manageGroups: false,
-            managePolicies: false,
-            manageSso: false,
-            manageUsers: false,
-            manageResetPassword: false,
-            manageScim: false,
-          },
-          accessEventLogs: false,
-          accessImportExport: false,
-          accessReports: false,
-          createNewCollections: false,
-          editAnyCollection: false,
-          deleteAnyCollection: false,
-          manageGroups: false,
-          manageSso: false,
-          managePolicies: false,
-          manageUsers: false,
-          manageResetPassword: false,
-          manageScim: false,
-        },
-        resetPasswordEnrolled: false,
-        userId: "510f181b-d94e-4144-ac6d-b44900018369",
-        organizationUserId: "74866f5d-25cb-4d5b-ba38-b491015cceaf",
-        hasPublicAndPrivateKeys: true,
-        providerId: null,
-        providerName: null,
-        providerType: null,
-        isProviderUser: false,
-        isMember: true,
-        familySponsorshipFriendlyName: null,
-        familySponsorshipAvailable: false,
-        productTierType: 0,
-        keyConnectorEnabled: false,
-        keyConnectorUrl: null,
-        familySponsorshipToDelete: null,
-        accessSecretsManager: false,
-        limitCollectionCreation: false,
-        limitCollectionDeletion: false,
-        limitItemDeletion: false,
-        allowAdminAccessToAllCollectionItems: false,
-        userIsClaimedByOrganization: false,
-        useAccessIntelligence: false,
-        useAdminSponsoredFamilies: false,
-        useDisableSMAdsForUsers: false,
-        isAdminInitiated: false,
-        ssoEnabled: false,
-        ssoMemberDecryptionType: null,
-        usePhishingBlocker: false,
-        useMyItems: false,
-        useInviteLinks: false,
-      },
-    },
-  ]);
+  readonly items = signal<CipherView[]>([]);
 }
