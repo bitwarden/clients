@@ -33,6 +33,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopSetInitialPasswordService } from "./desktop-set-initial-password.service";
 
@@ -52,6 +53,7 @@ describe("DesktopSetInitialPasswordService", () => {
   let messagingService: MockProxy<MessagingService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
+  let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -67,6 +69,7 @@ describe("DesktopSetInitialPasswordService", () => {
     messagingService = mock<MessagingService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     registerSdkService = mock<RegisterSdkService>();
+    unlockService = mock<UnlockService>();
 
     sut = new DesktopSetInitialPasswordService(
       apiService,
@@ -82,6 +85,7 @@ describe("DesktopSetInitialPasswordService", () => {
       messagingService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 

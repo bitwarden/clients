@@ -57,6 +57,7 @@ import {
   BitwardenClient,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
@@ -82,6 +83,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let unlockService: MockProxy<UnlockService>;
   const registerSdkService = mock<RegisterSdkService>();
 
   let userId: UserId;
@@ -101,6 +103,7 @@ describe("DefaultSetInitialPasswordService", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    unlockService = mock<UnlockService>();
 
     userId = "userId" as UserId;
     userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -120,6 +123,7 @@ describe("DefaultSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 
@@ -415,7 +419,10 @@ describe("DefaultSetInitialPasswordService", () => {
             credentials.newMasterKey,
             userId,
           );
-          expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+            userId,
+            masterKeyEncryptedUserKey[0],
+          );
         });
 
         it("should set the private key to state", async () => {
@@ -653,7 +660,10 @@ describe("DefaultSetInitialPasswordService", () => {
             masterKeyEncryptedUserKey[1],
             userId,
           );
-          expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+            userId,
+            masterKeyEncryptedUserKey[0],
+          );
         });
 
         it("should NOT set the private key to state", async () => {
@@ -1010,9 +1020,9 @@ describe("DefaultSetInitialPasswordService", () => {
         userId,
       );
 
-      expect(keyService.setUserKey).toHaveBeenCalledWith(
-        SymmetricCryptoKey.fromString(sdkRegistrationResult.user_key) as UserKey,
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
         userId,
+        SymmetricCryptoKey.fromString(sdkRegistrationResult.user_key) as UserKey,
       );
 
       // Verify legacy state updates below

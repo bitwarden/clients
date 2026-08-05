@@ -149,7 +149,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -227,7 +226,12 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
+  DefaultUnlockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -355,7 +359,6 @@ export class ServiceContainer {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
@@ -374,6 +377,7 @@ export class ServiceContainer {
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
   unlockService: UnlockService;
+  autoUnlockService: AutoUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -526,6 +530,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const cliBiometricsService = new CliBiometricsService();
+
     this.keyService = new KeyService(
       this.masterPasswordService,
       this.keyGenerationService,
@@ -538,6 +544,15 @@ export class ServiceContainer {
       this.stateProvider,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      cliBiometricsService,
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
@@ -577,7 +592,7 @@ export class ServiceContainer {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -745,10 +760,10 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
-      this.platformUtilsService,
-      this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.autoUnlockService,
+      this.keyService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -772,6 +787,7 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
@@ -801,6 +817,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.authRequestApiService,
       this.accountService,
+      this.unlockService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
@@ -1099,8 +1116,6 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
-
     this.hibpApiService = new HibpApiService(this.apiService);
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1198,7 +1213,7 @@ export class ServiceContainer {
     // as this runs on every command and could be a performance hit
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (activeAccount?.id) {
-      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+      await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
     }
 
     this.inited = true;
