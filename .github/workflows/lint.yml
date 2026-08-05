@@ -111,18 +111,25 @@ jobs:
 
       # Both toolchains come from desktop_native/rust-toolchain.toml so a Renovate
       # bump can't leave a stale literal in this workflow. Read via Node rather
-      # than `grep -oP` (as bitwarden/sdk-internal does) because this job also
-      # runs on macos-14, whose BSD grep has no -P.
+      # than the `grep -oP` bitwarden/sdk-internal uses, because this job also runs
+      # on macos-14, whose BSD grep has no -P.
+      #
+      # Assign to variables before echoing: with `bash -e`, an assignment adopts the
+      # command substitution's exit status, so a failing reader fails the step.
+      # Inlining `$(...)` into `echo` would make the status `tee`'s instead, quietly
+      # emitting an empty toolchain.
       - name: Resolve Rust toolchains
         id: toolchain
         run: |
-          echo "stable=$(node scripts/rust-toolchain.mjs)" | tee -a "$GITHUB_OUTPUT"
-          echo "nightly=$(node scripts/rust-toolchain.mjs --nightly)" | tee -a "$GITHUB_OUTPUT"
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          RUST_NIGHTLY_TOOLCHAIN="$(node scripts/rust-toolchain.mjs --nightly)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+          echo "RUST_NIGHTLY_TOOLCHAIN=${RUST_NIGHTLY_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: ${{ steps.toolchain.outputs.stable }}
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
           components: rustfmt, clippy
 
       - name: Install Rust nightly
@@ -130,7 +137,7 @@ jobs:
         if: matrix.check.nightly
         uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: ${{ steps.toolchain.outputs.nightly }}
+          toolchain: ${{ steps.toolchain.outputs.RUST_NIGHTLY_TOOLCHAIN }}
           components: rustfmt
 
       - name: Check Rust version
