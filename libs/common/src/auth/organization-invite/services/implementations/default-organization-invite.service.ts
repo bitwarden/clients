@@ -78,7 +78,7 @@ import {
 } from "./sealed-open-org-invite-secret.state";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
-  private directInviteState: GlobalState<DirectOrganizationInvite | null>;
+  private directOrgInviteState: GlobalState<DirectOrganizationInvite | null>;
   private openOrgInviteState: GlobalState<OpenOrganizationInvite | null>;
   /**
    * Record of `{ email → { highEntropySecret, createdAtMs } }` for in-flight
@@ -117,13 +117,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly configService: ConfigService,
     private readonly deepLinkRedirectService: DeepLinkRedirectService,
   ) {
-    this.directInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
+    this.directOrgInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
     this.openOrgInviteState = this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE);
     this.sealedOpenOrgInviteSecretState = this.globalStateProvider.get(
       EMAIL_SEALED_OPEN_ORG_INVITE_SECRET_RECORD_DISK_LOCAL,
     );
     this.activeInvite$ = combineLatest([
-      this.directInviteState.state$,
+      this.directOrgInviteState.state$,
       this.openOrgInviteState.state$,
     ]).pipe(map(([direct, open]) => direct ?? open));
   }
@@ -140,7 +140,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * that needs the direct variant in isolation today.
    */
   private async getDirectOrgInvite(): Promise<DirectOrganizationInvite | null> {
-    return await firstValueFrom(this.directInviteState.state$);
+    return await firstValueFrom(this.directOrgInviteState.state$);
   }
 
   async getOpenOrgInvite(): Promise<OpenOrganizationInvite | null> {
@@ -154,12 +154,12 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async setOrganizationInvite(invite: OrganizationInvite): Promise<void> {
     switch (invite.kind) {
       case OrgInviteKind.Direct:
-        await this.directInviteState.update(() => invite);
+        await this.directOrgInviteState.update(() => invite);
         await this.openOrgInviteState.update(() => null);
         break;
       case OrgInviteKind.Open:
         await this.openOrgInviteState.update(() => invite);
-        await this.directInviteState.update(() => null);
+        await this.directOrgInviteState.update(() => null);
         break;
     }
     this.policyCache.clear();
@@ -167,7 +167,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   /** Clears both invite keys defensively. Open-only callers should use {@link clearOpenOrgInvite}. */
   async clearOrganizationInvite(): Promise<void> {
-    await this.directInviteState.update(() => null);
+    await this.directOrgInviteState.update(() => null);
     await this.openOrgInviteState.update(() => null);
     this.policyCache.clear();
   }
