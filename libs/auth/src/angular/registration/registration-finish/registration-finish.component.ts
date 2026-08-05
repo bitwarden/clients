@@ -270,7 +270,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     if (statusResult.kind !== "ok") {
       if (statusResult.kind === "unexpected") {
-        this.logService.warning(
+        this.logService.error(
           `RegistrationFinishComponent: open-org-invite status fetch failed: ${statusResult.errorMessage}`,
         );
       }
@@ -283,7 +283,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
       if (statusErrorUi.button.kind === "go-to-login") {
         this.errorButton.set(statusErrorUi.button);
       } else {
-        this.logService.warning(
+        this.logService.error(
           `RegistrationFinishComponent: unexpected mapper button kind '${statusErrorUi.button.kind}' — expected 'go-to-login'.`,
         );
       }
@@ -305,12 +305,12 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         );
         return;
       case "crypto-failure":
-        this.logService.warning(
+        this.logService.error(
           "RegistrationFinishComponent: SDK crypto failure unsealing open-org-invite.",
         );
         return;
       case "unexpected":
-        this.logService.warning(
+        this.logService.error(
           `RegistrationFinishComponent: unexpected open-org-invite unseal failure: ${result.errorMessage}`,
         );
         return;

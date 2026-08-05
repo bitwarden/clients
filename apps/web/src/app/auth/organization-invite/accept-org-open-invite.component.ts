@@ -135,7 +135,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     }
 
     if (result.kind === "unexpected") {
-      this.logService.warning(
+      this.logService.error(
         `AcceptOrgOpenInviteComponent: open-org-invite status fetch failed: ${result.errorMessage}`,
       );
     }
@@ -235,7 +235,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         // public key returned by the server. User has no direct remediation path, so we
         // fall through to the generic `unexpected` render while emitting a distinct log
         // line.
-        this.logService.warning(
+        this.logService.error(
           "AcceptOrgOpenInviteComponent: recovery-key-mismatch — invite-bound org key differs from account-recovery public key.",
         );
         this.renderMappedError("unexpected");
@@ -244,7 +244,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         // Non-classified SDK / server / boundary failure. The SDK error text is
         // dev-oriented and unsafe to surface directly; route to the shared state and
         // log the raw message for support.
-        this.logService.warning(
+        this.logService.error(
           "AcceptOrgOpenInviteComponent: unexpected accept-endpoint failure.",
           result.errorMessage,
         );
