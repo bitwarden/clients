@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ titleKey() | i18n }}" showBackButton="true">
+  <popup-header slot="header" pageTitle="{{ contentKeys().titleKey | i18n }}" showBackButton="true">
     <ng-container slot="end">
       <app-pop-out />
       <app-current-account />
@@ -7,7 +7,7 @@
   </popup-header>
   @if (items().length > 0) {
     <p>
-      {{ descriptionKey() | i18n }}
+      {{ contentKeys().descriptionKey | i18n }}
     </p>
     <bit-section>
       <bit-section-header>
@@ -46,6 +46,12 @@
       }
     </bit-section>
   } @else {
-    <p>TODO: empty state</p>
+    <div class="tw-flex tw-flex-col tw-gap-2 tw-h-full tw-justify-center tw-items-center">
+      <div class="tw-size-[100px] tw-content-center">
+        <bit-svg [content]="emptyIcon()" aria-hidden="true" class="tw-h-full"></bit-svg>
+      </div>
+      <h5 bitTypography="h5">{{ "youreAllSet" | i18n }}</h5>
+      <p bitTypography="body2">{{ contentKeys().emptyKey | i18n }}</p>
+    </div>
   }
 </popup-page>
