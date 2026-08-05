@@ -259,6 +259,14 @@ describe("UserLayoutComponent", () => {
       expect(children[children.length - 1]).toBe("exportNoun");
     });
 
+    it("renders Add plan after Emergency access and before Export", () => {
+      const children = childText(expandGroup("settings"));
+
+      expect(children).toContain("addPlan");
+      expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
+      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
+    });
+
     describe("Archive upgrade path", () => {
       const clickArchive = () => {
         const archive = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
