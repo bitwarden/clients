@@ -153,8 +153,6 @@ export class VaultPopupListTableComponent {
   protected readonly isFavorites = (row: VaultTableRow) => row._section === "favorites";
   protected readonly isAllItems = (row: VaultTableRow) => row._section === "allItems";
 
-  protected readonly isLogin = (row: VaultTableRow) =>
-    CipherViewLikeUtils.getType(row.cipher) === CipherType.Login;
   protected readonly isCard = (row: VaultTableRow) =>
     CipherViewLikeUtils.getType(row.cipher) === CipherType.Card;
   protected readonly isIdentity = (row: VaultTableRow) =>
