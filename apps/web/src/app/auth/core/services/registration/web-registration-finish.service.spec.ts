@@ -77,10 +77,10 @@ describe("WebRegistrationFinishService", () => {
   });
 
   describe("getOrgNameFromOrgInvite()", () => {
-    let orgInvite: DirectOrganizationInvite | null;
+    let directOrgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new DirectOrganizationInvite({
+      directOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -101,22 +101,22 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns the organization name from the organization invite when it exists", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
 
       const result = await service.getOrgNameFromOrgInvite();
 
-      expect(result).toEqual(orgInvite!.organizationName);
+      expect(result).toEqual(directOrgInvite!.organizationName);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
     it("returns the organization name when a stashed open org invite is active", async () => {
-      const openInvite = new OpenOrganizationInvite({
+      const openOrgInvite = new OpenOrganizationInvite({
         organizationId: "organizationId",
         inviteLinkCode: "link-code",
         inviteKey: "link-key",
         organizationName: "openOrgName",
       });
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
 
       const result = await service.getOrgNameFromOrgInvite();
 
@@ -126,10 +126,10 @@ describe("WebRegistrationFinishService", () => {
   });
 
   describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
-    let orgInvite: DirectOrganizationInvite | null;
+    let directOrgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new DirectOrganizationInvite({
+      directOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -150,21 +150,23 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the policies are undefined", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
       organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
+        directOrgInvite,
+      );
     });
 
     it("returns the master password policy options from the organization invite when it exists", async () => {
       const masterPasswordPolicies = [new Policy()];
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
       organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
@@ -172,11 +174,13 @@ describe("WebRegistrationFinishService", () => {
 
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
+        directOrgInvite,
+      );
     });
 
     it("returns policy options when a stashed open org invite is active", async () => {
-      const openInvite = new OpenOrganizationInvite({
+      const openOrgInvite = new OpenOrganizationInvite({
         organizationId: "organizationId",
         inviteLinkCode: "link-code",
         inviteKey: "link-key",
@@ -185,14 +189,14 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicies = [new Policy()];
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
       organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(openInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(openOrgInvite);
     });
   });
 
@@ -220,7 +224,7 @@ describe("WebRegistrationFinishService", () => {
     // via the `fields` map, so an untyped index accessor is intentional here.
     getRequest: () => any;
     expectTransportNotCalled: () => void;
-    orgInvite: DirectOrganizationInvite;
+    directOrgInvite: DirectOrganizationInvite;
     emergencyAccessId: string;
     providerUserId: string;
     // Field names on the outbound request (camelCase on legacy, snake_case on SDK).
@@ -269,7 +273,7 @@ describe("WebRegistrationFinishService", () => {
     expectTransportNotCalled: () => {
       expect(accountApiService.registerFinish).not.toHaveBeenCalled();
     },
-    orgInvite: new DirectOrganizationInvite({
+    directOrgInvite: new DirectOrganizationInvite({
       organizationId: "organizationId",
       organizationUserId: "organizationUserId",
       token: "orgInviteToken",
@@ -313,7 +317,7 @@ describe("WebRegistrationFinishService", () => {
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     },
     // The SDK request converts ids via asUuid, so fixtures must be valid UUIDs here.
-    orgInvite: new DirectOrganizationInvite({
+    directOrgInvite: new DirectOrganizationInvite({
       organizationId: "organizationId",
       organizationUserId: "00000000-0000-0000-0000-000000000003",
       token: "orgInviteToken",
@@ -364,13 +368,13 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("populates direct-invite fields on the request when a direct org invite is stashed", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(variant.orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(variant.directOrgInvite);
 
       await service.finishRegistration(email, passwordInputResult);
 
       const request = variant.getRequest();
-      expect(request[variant.fields.orgInviteToken]).toEqual(variant.orgInvite.token);
-      expect(request[variant.fields.orgUserId]).toEqual(variant.orgInvite.organizationUserId);
+      expect(request[variant.fields.orgInviteToken]).toEqual(variant.directOrgInvite.token);
+      expect(request[variant.fields.orgUserId]).toEqual(variant.directOrgInvite.organizationUserId);
       expect(request).toMatchSnapshot();
     });
 
@@ -487,7 +491,7 @@ describe("WebRegistrationFinishService", () => {
         {
           alternative: "direct org invite token",
           setup: (v: FlowVariant) =>
-            organizationInviteService.getOrganizationInvite.mockResolvedValue(v.orgInvite),
+            organizationInviteService.getOrganizationInvite.mockResolvedValue(v.directOrgInvite),
           extraArgs: () => [] as unknown[],
         },
         {
