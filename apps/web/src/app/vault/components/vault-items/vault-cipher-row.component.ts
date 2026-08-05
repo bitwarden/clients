@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  computed,
   EventEmitter,
   HostListener,
   inject,
@@ -50,10 +51,20 @@ import { RowHeightClass } from "./vault-items.component";
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
-  protected readonly quickCopyIconFeatureFlag = toSignal(
+  private readonly quickCopyIconFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
     { initialValue: false },
+  );
+
+  private readonly quickCopyActionsSetting = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
   );
 
   protected RowHeightClass = RowHeightClass;
@@ -154,7 +165,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   protected organization?: Organization;
 
   protected showCopyAndLaunchActions$: Observable<boolean>;
-  protected showQuickCopyActions$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -162,12 +172,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
-    private vaultCopyButtonsService: VaultCopyButtonsService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
-    this.showQuickCopyActions$ = this.vaultCopyButtonsService.showQuickCopyActions$;
   }
 
   /**
