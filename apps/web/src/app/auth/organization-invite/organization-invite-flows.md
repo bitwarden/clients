@@ -561,15 +561,31 @@ If the accept-time server check rejects, the client surfaces
 `email-domain-not-allowed` on the shared accept-error UI, interpolating
 the active account's email domain into the body copy.
 
+The pre-auth `validateOpenOrgInviteEmailDomain` endpoint has three
+outcomes:
+
+1. `allowed` — proceed with the flow
+2. `not-allowed` — surface inline on the entry form
+3. `link-invalid` — the endpoint returned 404 (the invite link doesn't
+   exist server-side); `LoginComponent` / `RegistrationStartComponent`
+   navigate to
+   [`OpenOrgInviteLinkInvalidComponent`](./open-org-invite-link-invalid.component.ts)
+   at `/organization-invite-link-invalid`. This is the sole path to that
+   standalone surface — the status endpoint's `not-found` renders
+   inline, not here.
+
 #### Status errors before accept
 
 `getOpenOrgInviteStatus(organizationId, code)` is called both from
 `unauthedHandler` and `authedHandler` and returns
 [`OpenOrgInviteStatusResult`](../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-status-result.type.ts).
-Each non-`ok` kind maps to a shared error UI via
-`getOpenOrgInviteStatusErrorUi`. The pre-auth unauthed variant lands on
+Each non-`ok` kind — including `not-found` — maps to a shared error UI
+via `getOpenOrgInviteStatusErrorUi` and renders inline on the accept
+component.
 [`OpenOrgInviteLinkInvalidComponent`](./open-org-invite-link-invalid.component.ts)
-for `not-found`; the other kinds render inline on the accept component.
+is a separate surface reached only from the pre-auth domain check
+(`validateOpenOrgInviteEmailDomain` → `link-invalid`) — see
+[Email domain not allowed](#email-domain-not-allowed).
 
 #### Accept-time rejections
 
