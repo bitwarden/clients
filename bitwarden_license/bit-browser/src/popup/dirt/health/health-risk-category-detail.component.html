@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="Details" showBackButton="true">
+  <popup-header slot="header" pageTitle="{{ titleKey() | i18n }}" showBackButton="true">
     <ng-container slot="end">
       <app-pop-out />
       <app-current-account />
@@ -7,8 +7,7 @@
   </popup-header>
   @if (items().length > 0) {
     <p>
-      Passwords for these logins were exposed in data breaches. Change them immediately to protect
-      your accounts.
+      {{ descriptionKey() | i18n }}
     </p>
     <bit-section>
       <bit-section-header>
@@ -36,7 +35,7 @@
                 buttonType="primaryOutline"
                 endIcon="bwi-external-link"
               >
-                Change password
+                {{ "changePassword" | i18n }}
               </button>
             </bit-item-action>
             <bit-item-action>

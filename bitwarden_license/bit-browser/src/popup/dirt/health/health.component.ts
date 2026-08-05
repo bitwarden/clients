@@ -77,7 +77,8 @@ export class HealthComponent {
     await this.healthAccessService.setHasRunHealthScan(userId);
   };
 
-  readonly routeToDetails = async () => {
-    await this.router.navigate(["exposed-passwords"]);
+  // TODO: REMOVE. FOR TESTING PURPOSES ONLY.
+  readonly routeToCategory = async (titleKey: string, descriptionKey: string) => {
+    await this.router.navigate(["health-risk-category-details", { titleKey, descriptionKey }]);
   };
 }
