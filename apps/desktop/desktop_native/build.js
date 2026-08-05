@@ -140,15 +140,14 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
-    // Cross-building for Windows needs cargo-xwin, reached two different ways
-    // (see the comments on each install below). Both use the single version
-    // pinned in Cargo.toml under [workspace.metadata.bin].
+    // Cross-building for Windows needs cargo-xwin on PATH: buildNapiModule() hands
+    // off to the napi CLI, which spawns `cargo xwin` itself, and cargoBuild()
+    // dispatches the same way. Install the version pinned in Cargo.toml under
+    // [workspace.metadata.bin] so that stays the single source of truth for it.
+    //
+    // Nothing here goes through cargo-run-bin, so this deliberately does not
+    // bootstrap it; `cargo bin` is only used by the lint runner and CI.
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "cargo-run-bin", "--locked", "--version", "1.7.4"]);
-        // cargo-xwin has to be on PATH: buildNapiModule() hands off to the napi CLI,
-        // which spawns `cargo xwin` itself, and cargoBuild() dispatches the same way.
-        // Install the version pinned in [workspace.metadata.bin] so this stays the
-        // single source of truth for it.
         runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {

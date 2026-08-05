@@ -17,18 +17,18 @@
       versioningTemplate: "cargo",
     },
     {
-      // Bootstrap pin for cargo-run-bin across CI workflows, build.js, and
-      // scripts/prepare-env-rust.mjs. Keep these in sync.
+      // Bootstrap pin for cargo-run-bin across the CI workflows,
+      // scripts/prepare-env-rust.mjs, and the devcontainer. Keep these in sync.
+      // build.js is deliberately absent: it invokes cargo-xwin directly rather than
+      // through `cargo bin`, so it pins no cargo-run-bin version.
       customType: "regex",
       fileMatch: [
         "^\\.github/workflows/.*\\.ya?ml$",
-        "apps/desktop/desktop_native/build\\.js$",
         "scripts/prepare-env-rust\\.mjs$",
         "\\.devcontainer/common/post-create-command\\.sh$",
       ],
       matchStrings: [
         "cargo install (?<depName>cargo-run-bin) --locked --version (?<currentValue>\\d+\\.\\d+\\.\\d+)",
-        '"(?<depName>cargo-run-bin)", "--locked", "--version", "(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
         // JS const form: const CARGO_RUN_BIN_VERSION = "x" (in scripts/prepare-env-rust.mjs).
         'CARGO_RUN_BIN_VERSION\\s*=\\s*"(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
       ],
