@@ -39,7 +39,7 @@ export class WebRegistrationFinishService
     super(keyService, accountApiService, masterPasswordService, configService, sdkService);
   }
 
-  // TODO: delete this method + inline `OrganizationInviteService` usage in
+  // TODO PM-41523: delete this method + inline `OrganizationInviteService` usage in
   // `RegistrationFinishComponent`. Required DI landscape change:
   // (1) create a no-op `OrganizationInviteService` implementation in libs/angular and
   //     register it in `jslib-services.module.ts`, replacing the current global binding
@@ -55,7 +55,7 @@ export class WebRegistrationFinishService
     return orgInvite.organizationName;
   }
 
-  // TODO: delete this method too — see the plan on `getOrgNameFromOrgInvite` above.
+  // TODO PM-41523: delete this method too — see the plan on `getOrgNameFromOrgInvite` above.
   // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` is
   // already cross-platform, so the component can do this read inline.
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
