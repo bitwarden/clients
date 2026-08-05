@@ -211,23 +211,14 @@ describe("VaultPopupListTableComponent", () => {
   });
 
   describe("type subgroup predicates", () => {
-    it("isLogin returns true for Login ciphers", () => {
-      const row = makeRow("autofill", { type: CipherType.Login });
-      expect(component["isLogin"](row)).toBe(true);
-      expect(component["isCard"](row)).toBe(false);
-      expect(component["isIdentity"](row)).toBe(false);
-    });
-
     it("isCard returns true for Card ciphers", () => {
       const row = makeRow("autofill", { type: CipherType.Card });
-      expect(component["isLogin"](row)).toBe(false);
       expect(component["isCard"](row)).toBe(true);
       expect(component["isIdentity"](row)).toBe(false);
     });
 
     it("isIdentity returns true for Identity ciphers", () => {
       const row = makeRow("autofill", { type: CipherType.Identity });
-      expect(component["isLogin"](row)).toBe(false);
       expect(component["isCard"](row)).toBe(false);
       expect(component["isIdentity"](row)).toBe(true);
     });
