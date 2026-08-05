@@ -86,7 +86,7 @@
     @if (showCopyActions()) {
       <vault-item-copy-actions
         [cipher]="cipher()"
-        [showQuickCopyActions]="showQuickCopyActions() && quickCopyIconFeatureFlag()"
+        [showQuickCopyActions]="showQuickCopyActions()"
         [disabled]="disabled()"
       ></vault-item-copy-actions>
     }

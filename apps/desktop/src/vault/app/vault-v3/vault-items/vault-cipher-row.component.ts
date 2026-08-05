@@ -99,15 +99,19 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
   private configService = inject(ConfigService);
 
-  /** Whether copy actions render as individual quick-copy icons rather than a single menu. */
-  protected readonly showQuickCopyActions = toSignal(
+  private readonly quickCopyActionsSetting = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
   );
 
-  protected readonly quickCopyIconFeatureFlag = toSignal(
+  private readonly quickCopyIconFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
     { initialValue: false },
+  );
+
+  /** Whether copy actions render as individual quick-copy icons rather than a single menu. */
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
   );
 
   protected readonly showArchiveButton = computed(() => {
