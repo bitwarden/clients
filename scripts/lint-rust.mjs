@@ -38,9 +38,21 @@ for (let i = 0; i < argv.length; i++) {
   if (arg === "--fix") {
     fix = true;
   } else if (arg === "--only") {
+    // Reject a missing value rather than falling back to "" (which would silently
+    // run every check when the caller asked for one).
     only = argv[++i] ?? "";
+    if (!only) {
+      console.error("--only requires a check name");
+      console.error(`Available: ${CHECKS.join(" ")}`);
+      process.exit(2);
+    }
   } else if (arg.startsWith("--only=")) {
     only = arg.slice("--only=".length);
+    if (!only) {
+      console.error("--only requires a check name");
+      console.error(`Available: ${CHECKS.join(" ")}`);
+      process.exit(2);
+    }
   } else if (arg === "-h" || arg === "--help") {
     printHelp();
     process.exit(0);

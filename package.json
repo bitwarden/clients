@@ -17,6 +17,8 @@
     "lint": "eslint . --cache --cache-strategy content && prettier --check .",
     "lint:fix": "eslint . --cache --cache-strategy content --fix",
     "lint:clear": "rimraf .eslintcache",
+    "lint:rust": "node scripts/lint-rust.mjs",
+    "lint:rust:fix": "node scripts/lint-rust.mjs --fix",
     "prettier": "prettier --cache --write .",
     "test": "jest",
     "test:watch": "jest --clearCache && jest --watch",

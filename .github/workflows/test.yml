@@ -229,10 +229,19 @@ jobs:
         with:
           persist-credentials: false
 
+      # Resolved from desktop_native/rust-toolchain.toml, the single source of
+      # truth, so a Renovate bump can't leave a stale literal here. Assigned before
+      # echoing so a failure in the reader fails the step; see lint.yml.
+      - name: Resolve Rust toolchain
+        id: toolchain
+        run: |
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+
       - name: Install rust
         uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: 1.96.0
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
           components: llvm-tools
 
       - name: Cache cargo registry

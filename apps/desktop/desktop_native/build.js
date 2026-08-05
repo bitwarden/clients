@@ -74,14 +74,17 @@ function cargoBuild(bin, target, release) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const args = ["build", "--bin", bin, releaseArg, targetArg]
-    // Use cross-compilation helper if necessary. cargo-xwin is pinned in
-    // Cargo.toml under [workspace.metadata.bin] and run via cargo-run-bin, so
-    // `cargo xwin build ...` becomes `cargo bin cargo-xwin build ...`: the `xwin`
-    // cargo-subcommand token is omitted because cargo-run-bin supplies it itself.
-    // Passing it explicitly yields `xwin xwin` and fails with
-    // "error: unrecognized subcommand 'xwin'".
+    // Use cross-compilation helper if necessary. Dispatch through cargo rather than
+    // `cargo bin cargo-xwin`: installTarget() has already installed the version
+    // pinned in [workspace.metadata.bin] globally, because buildNapiModule() needs
+    // cargo-xwin on PATH anyway (see the comment there). Reusing it avoids a second
+    // build of the same pinned version, and `cargo install --version --locked` is
+    // source-only, which `cargo bin` is not when cargo-binstall is on PATH.
+    //
+    // NOTE: this relies on installTarget() running first, which every path that can
+    // reach a Windows target does (both the `--target=` and `cross-platform` flows).
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
-        args.unshift("bin", "cargo-xwin")
+        args.unshift("xwin")
     }
     runCommand("cargo", args.filter(s => s != ''))
 
@@ -142,11 +145,10 @@ function installTarget(target) {
     // pinned in Cargo.toml under [workspace.metadata.bin].
     if (target.includes('windows') && process.platform !== 'win32') {
         runCommand("cargo", ["install", "cargo-run-bin", "--locked", "--version", "1.7.4"]);
-        // cargoBuild() reaches cargo-xwin through `cargo bin`, but buildNapiModule()
-        // hands off to the napi CLI, which spawns `cargo xwin` as a PATH
-        // cargo-subcommand we can't redirect. So cargo-xwin also has to be installed
-        // globally -- at the same pinned version, read from [workspace.metadata.bin],
-        // so the two call sites can't drift apart.
+        // cargo-xwin has to be on PATH: buildNapiModule() hands off to the napi CLI,
+        // which spawns `cargo xwin` itself, and cargoBuild() dispatches the same way.
+        // Install the version pinned in [workspace.metadata.bin] so this stays the
+        // single source of truth for it.
         runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
