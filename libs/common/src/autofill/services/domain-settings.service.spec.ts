@@ -729,39 +729,56 @@ describe("DefaultDomainSettingsService", () => {
       expect(result).toBeNull();
     });
 
-    it("emits null when policy data is null", async () => {
+    it("emits {} (applies without URL) when policy data is null", async () => {
       fillAssistPolicyMock$.next([makeFillAssistPolicy(null)]);
 
       const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
 
-      expect(result).toBeNull();
+      expect(result).toEqual({});
     });
 
-    it("emits null when rulesUrl is missing from policy data", async () => {
+    it("emits {} (applies without URL) when rulesUrl is missing from policy data", async () => {
       fillAssistPolicyMock$.next([makeFillAssistPolicy({})]);
 
       const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
 
-      expect(result).toBeNull();
+      expect(result).toEqual({});
     });
 
-    it("emits null when rulesUrl is an empty string", async () => {
+    it("emits {} (applies without URL) when rulesUrl is an empty string", async () => {
       fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "" })]);
 
       const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
 
-      expect(result).toBeNull();
+      expect(result).toEqual({});
     });
 
-    it("emits null when rulesUrl is not a string (defensive)", async () => {
+    it("emits {} (applies without URL) when rulesUrl is not a string (defensive)", async () => {
       fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: 123 })]);
 
       const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
 
-      expect(result).toBeNull();
+      expect(result).toEqual({});
     });
 
-    it("emits { rulesUrl } when the policy is enabled with valid data", async () => {
+    it.each([
+      ["http://example.com/rules"],
+      ["javascript:alert(1)"],
+      ["file:///etc/passwd"],
+      ["ftp://example.com/rules"],
+      ["not a url"],
+    ])(
+      "emits {} (applies without URL) when rulesUrl is a non-https or malformed URL: %s",
+      async (rulesUrl) => {
+        fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl })]);
+
+        const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
+
+        expect(result).toEqual({});
+      },
+    );
+
+    it("emits { rulesUrl } when the policy is enabled with a valid https URL", async () => {
       const rulesUrl = "https://acme-org.example.com/rules";
       fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl })]);
 

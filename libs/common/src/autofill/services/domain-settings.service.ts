@@ -148,12 +148,13 @@ export abstract class DomainSettingsService {
 
   /**
    * Org policy state for Fill Assist. Emits `null` when no policy applies to
-   * the active account, or `{ rulesUrl }` when one does. Any-org-applies-globally:
-   * if any of the user's orgs has the policy enabled, it applies to the whole
+   * the active account, or `{ rulesUrl?: string }` when one does — `rulesUrl`
+   * is present only for a well-formed https URL. Any-org-applies-globally: if
+   * any of the user's orgs has the policy enabled, it applies to the whole
    * account. See {@link resolvedEnableFillAssist$} for how this combines with
    * the user setting and feature flag.
    */
-  fillAssistPolicy$: Observable<{ rulesUrl: string } | null>;
+  fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
 
   /**
    * Resolved state for enabling Fill Assist, combining the feature flag, the
@@ -208,7 +209,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   private enableFillAssistState: GlobalState<boolean>;
   readonly enableFillAssist$: Observable<boolean>;
-  readonly fillAssistPolicy$: Observable<{ rulesUrl: string } | null>;
+  readonly fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
@@ -254,14 +255,23 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       }),
       getFirstPolicy,
       map((policy) => {
-        if (!policy?.enabled || policy?.data == null) {
+        if (!policy?.enabled) {
           return null;
         }
+        // URL is optional (enabled policy still applies without it). Validate
+        // https here as defense-in-depth against API-bypass paths.
         const rulesUrl = policy.data?.rulesUrl;
-        if (typeof rulesUrl !== "string" || !rulesUrl) {
-          return null;
+        if (typeof rulesUrl === "string" && rulesUrl) {
+          try {
+            const parsed = new URL(rulesUrl);
+            if (parsed.protocol === "https:") {
+              return { rulesUrl };
+            }
+          } catch {
+            // Malformed URL — fall through to "policy applies, no URL".
+          }
         }
-        return { rulesUrl };
+        return {};
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
