@@ -765,6 +765,19 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
+    it("orders shared folder chips by name rather than by collectionIds order", () => {
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        // Ids whose names are reverse-alphabetical, so traversing them as given would fail this.
+        collectionIds: ["col-1", "col-2"] as never,
+      });
+
+      expect(component["sharedFolderChips"](cipher)).toEqual([
+        { value: "col-2", name: "Engineering" },
+        { value: "col-1", name: "Operations" },
+      ]);
+    });
+
     it("resolves the folder as a single-entry chip list", () => {
       expect(component["folderChips"](cipherView({ folderId: "folder-1" as never }))).toEqual([
         { value: "folder-1", name: "Work" },
@@ -992,13 +1005,78 @@ describe("VaultItemsTableComponent", () => {
       expect(component["sortBySharedFolders"](engineering, operations)).toBeLessThan(0);
     });
 
-    it("sorts rows with no membership last in either direction", () => {
+    it("orders shared folders by the alphabetically first collection, not the first id", () => {
+      // Both are in Operations; only the second is also in Engineering, which should decide it.
+      const operationsOnly = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1"] as never,
+      });
+      const alsoEngineering = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1", "col-2"] as never,
+      });
+
+      expect(component["sortBySharedFolders"](alsoEngineering, operationsOnly)).toBeLessThan(0);
+    });
+
+    it("sorts rows with no membership after named ones", () => {
       const withFolder = cipherView({ folderId: "folder-1" as never });
       const without = cipherView({ folderId: undefined });
 
       expect(component["sortByFolders"](without, withFolder)).toBeGreaterThan(0);
       expect(component["sortByFolders"](withFolder, without)).toBeLessThan(0);
       expect(component["sortByFolders"](without, without)).toBe(0);
+    });
+  });
+
+  describe("row order", () => {
+    /** The names of the rows the table renders, post-sort. */
+    function sortedNames(): string[] {
+      return bitTable()
+        ["rows"]()
+        .map((cipher) => cipher.name);
+    }
+
+    it("orders rows by name whatever order the host passes them in", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "c", name: "Zoom" }),
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Netflix" }),
+      ]);
+      fixture.detectChanges();
+
+      expect(filteredNames()).toEqual(["Amazon", "Netflix", "Zoom"]);
+    });
+
+    /** Two rows in the same folder plus one unfiled — enough to see both the tie and the sentinel. */
+    function setUpFolderSort(): void {
+      fixture.componentRef.setInput("folders", [{ id: "folder-1", name: "Work" } as FolderView]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "c", name: "Zoom", folderId: "folder-1" as never }),
+        cipherView({ id: "b", name: "Netflix", folderId: undefined }),
+        cipherView({ id: "a", name: "Amazon", folderId: "folder-1" as never }),
+      ]);
+      fixture.detectChanges();
+    }
+
+    it("leaves ties on a synthetic column in name order", () => {
+      setUpFolderSort();
+
+      bitTable().sort.set({ column: "myFolders", direction: "asc" });
+      fixture.detectChanges();
+
+      // The two Work rows tie, so `sortByFolders` returns 0 and the stable sort keeps them in
+      // name order; the unfiled row sorts last.
+      expect(sortedNames()).toEqual(["Amazon", "Zoom", "Netflix"]);
+    });
+
+    it("moves rows with no membership to the top when the column sorts descending", () => {
+      setUpFolderSort();
+
+      bitTable().sort.set({ column: "myFolders", direction: "desc" });
+      fixture.detectChanges();
+
+      expect(sortedNames()).toEqual(["Netflix", "Amazon", "Zoom"]);
     });
   });
 

@@ -137,6 +137,9 @@ const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
  * Everything else follows from the rows: which filter chips and columns apply, which cipher types
  * the Type chip offers, and every faceted count. A host narrows `ciphers` and the table adjusts.
  *
+ * `ciphers` needs no ordering — the table sorts by name itself and keeps that as the tiebreak
+ * behind every other column. See {@link sortedCiphers}.
+ *
  * The toolbar's search goes through `SearchService`, so it matches on everything a client's own
  * vault search does — name, subtitle, login URIs, notes, and item id, diacritic-insensitively —
  * and honors `>`-prefixed lunr queries. See {@link cipherSearchMatches}.
@@ -245,8 +248,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
-  /** Reads {@link ciphers} as its data signal, so that input has to be declared before this. */
-  protected readonly table = defineTable<C, VaultItemsTableColumn>(this.ciphers);
+  /**
+   * {@link ciphers} ordered by name serving as the table's implicit secondary sort.
+   */
+  private readonly sortedCiphers = computed(() =>
+    [...this.ciphers()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
+  /** Reads {@link sortedCiphers} as its data signal, so that has to be declared before this. */
+  protected readonly table = defineTable<C, VaultItemsTableColumn>(this.sortedCiphers);
 
   /**
    * Must stay a stable reference — `bit-table-v2` rebuilds its selection model whenever this
@@ -456,17 +466,19 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   }
 
   /**
-   * The collections this cipher belongs to, as chips. Collections missing from
+   * The collections this cipher belongs to, as chips ordered by name. Collections missing from
    * {@link collections} are dropped, so every chip carries a value the Shared folders filter
    * actually offers.
    */
   protected sharedFolderChips(cipher: C): VaultItemsTableChip[] {
     const names = this.collectionNames();
-    return (cipher.collectionIds ?? []).flatMap((collectionId) => {
-      const value = idString(collectionId);
-      const name = value ? names.get(value) : undefined;
-      return value && name ? [{ value, name }] : [];
-    });
+    return (cipher.collectionIds ?? [])
+      .flatMap((collectionId) => {
+        const value = idString(collectionId);
+        const name = value ? names.get(value) : undefined;
+        return value && name ? [{ value, name }] : [];
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   /** This cipher's folder, as a chip list so it shares the chips cell — see {@link sharedFolderChips}. */
@@ -494,7 +506,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   protected readonly sortByFolders: SortFn = (a: C, b: C) =>
     this.compareChips(this.folderChips(a), this.folderChips(b));
 
-  /** Orders by first name; rows with no memberships sort last regardless of direction. */
+  /**
+   * Orders by first name, sorting rows with no memberships after named ones — so they land last
+   * ascending and first descending, since `bit-table-v2` negates the result for a descending sort.
+   *
+   * Equal first names return `0` so the row order falls through to {@link sortedCiphers}
+   */
   private compareChips(a: VaultItemsTableChip[], b: VaultItemsTableChip[]): number {
     const first = a.at(0)?.name;
     const second = b.at(0)?.name;
