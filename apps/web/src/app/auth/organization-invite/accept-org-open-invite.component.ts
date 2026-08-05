@@ -140,7 +140,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       );
     }
     const errorUi = getOpenOrgInviteStatusErrorUi(result.kind, isAuthed);
-    this.renderErrorSurface(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
+    this.renderErrorUi(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
     return null;
   }
 
@@ -274,7 +274,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    */
   private renderMappedError(kind: OpenOrgInviteAcceptRenderableErrorKind): void {
     const errorUi = getOpenOrgInviteAcceptErrorUi(kind);
-    this.renderErrorSurface(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
+    this.renderErrorUi(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
   }
 
   /**
@@ -291,14 +291,14 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     // rejected on a domain check if the email were unparseable, so this branch is a
     // defense against unexpected client-side state.
     const domain = email.includes("@") ? email.split("@")[1] : email;
-    this.renderErrorSurface(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey, domain));
+    this.renderErrorUi(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey, domain));
   }
 
   /**
    * Shared sink for both the status-endpoint and accept-endpoint mappers — both return
    * `OpenOrgInviteErrorUi`, and both converge on the same view-state transition here.
    */
-  private renderErrorSurface(errorUi: OpenOrgInviteErrorUi, resolvedBody: string): void {
+  private renderErrorUi(errorUi: OpenOrgInviteErrorUi, resolvedBody: string): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(errorUi.anonLayoutData);
     this.errorBody.set(resolvedBody);
     this.errorButton.set(errorUi.button);

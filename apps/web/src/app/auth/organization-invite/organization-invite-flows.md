@@ -351,7 +351,7 @@ whoever authenticates against the link at accept time.
 #### unauthedHandler
 
 1. `fetchStatusOrShowError(organizationId, code, isAuthed=false)` calls
-   `getOpenOrgInviteStatus` and either renders a classified error surface
+   `getOpenOrgInviteStatus` and either renders a classified error UI
    or returns the status payload. See [Status errors before accept](#status-errors-before-accept).
 2. Constructs an `OpenOrganizationInvite` via
    `OpenOrganizationInvite.fromLinkDataAndStatus` and stashes it via
@@ -376,9 +376,9 @@ whoever authenticates against the link at accept time.
    - `already-member` → info toast + navigate to `/` (success-adjacent)
    - `stashed-for-mp-policy-detour` → silently exit (detour has already
      stashed + persisted + logged out)
-   - `email-domain-not-allowed` → shared error surface with the user's
+   - `email-domain-not-allowed` → shared error UI with the user's
      domain interpolated
-   - Other classified error kinds → shared error surface via
+   - Other classified error kinds → shared error UI via
      `getOpenOrgInviteAcceptErrorUi`
    - See [Accept-time rejections](#accept-time-rejections) for the category
      map.
@@ -566,7 +566,7 @@ the active account's email domain into the body copy.
 `getOpenOrgInviteStatus(organizationId, code)` is called both from
 `unauthedHandler` and `authedHandler` and returns
 [`OpenOrgInviteStatusResult`](../../../../../../../libs/common/src/auth/organization-invite/types/open-org-invite-status-result.type.ts).
-Each non-`ok` kind maps to a shared error surface via
+Each non-`ok` kind maps to a shared error UI via
 `getOpenOrgInviteStatusErrorUi`. The pre-auth unauthed variant lands on
 [`OpenOrgInviteLinkInvalidComponent`](./open-org-invite-link-invalid.component.ts)
 for `not-found`; the other kinds render inline on the accept component.
