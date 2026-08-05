@@ -88,11 +88,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   private sealedOpenOrgInviteSecretState: GlobalState<
     Record<string, SealedOpenOrgInviteSecretState>
   >;
-  /**
-   * Merged stream of the two variant-specific state keys. Mutual exclusion is enforced
-   * by {@link setOrganizationInvite} so at most one of the two is non-null; the merge
-   * prefers direct, then open.
-   */
   readonly activeInvite$: Observable<OrganizationInvite | null>;
   // In-memory dedup of policy lookups across one invite ceremony. The same invite
   // can be checked from login, registration, and accept in a single session;
@@ -147,10 +142,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return await firstValueFrom(this.openOrgInviteState.state$);
   }
 
-  /**
-   * Writes the invite to the state key matching its `kind` and clears the opposite key,
-   * enforcing the "at most one stashed invite" mutual-exclusion invariant.
-   */
   async setOrganizationInvite(invite: OrganizationInvite): Promise<void> {
     switch (invite.kind) {
       case OrgInviteKind.Direct:
@@ -165,36 +156,17 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     this.policyCache.clear();
   }
 
-  /** Clears both invite keys defensively. Open-only callers should use {@link clearOpenOrgInvite}. */
   async clearOrganizationInvite(): Promise<void> {
     await this.directOrgInviteState.update(() => null);
     await this.openOrgInviteState.update(() => null);
     this.policyCache.clear();
   }
 
-  /**
-   * Clears only the open-org-invite key. Used by callers that should not wipe a concurrent
-   * stashed direct invite (e.g. the open-org-invite landing-page error path).
-   */
   async clearOpenOrgInvite(): Promise<void> {
     await this.openOrgInviteState.update(() => null);
     this.policyCache.clear();
   }
 
-  /**
-   * Validates and accepts the organization invite if possible.
-   *
-   * For direct invites: if the org enforces an MP policy and the user hasn't yet
-   * passed it, the invite is stashed and the user is logged out so they re-enter
-   * through the normal login flow (which validates the MP policy against their
-   * current master password). For open org invites, the same MP-policy-detour applies,
-   * plus a ResetPassword auto-enroll path when the org's policy requires it.
-   *
-   * @param postAuthRedirectUrl the URL to persist for the deep-link guard to replay after
-   *   re-auth on the MP-policy detour; ignored on clients without a deep-link redirect
-   *   service.
-   * @returns true if the invite was accepted; false if it was stashed pending re-auth.
-   */
   async validateAndAcceptDirectOrgInvite(
     invite: DirectOrganizationInvite,
     userId: UserId,
@@ -508,12 +480,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return String(e);
   }
 
-  /**
-   * Validates whether an email's domain is permitted by an open org invite link's
-   * `AllowedDomains` configuration. Consumed by `LoginComponent` /
-   * `RegistrationStartComponent` as a pre-auth UX check; server-side enforcement
-   * runs at accept time regardless.
-   */
   async validateOpenOrgInviteEmailDomain(
     organizationId: string,
     code: string,
@@ -640,11 +606,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return email.trim().toLowerCase();
   }
 
-  /**
-   * Idempotent: returns the same record reference when nothing is expired so the state
-   * provider can skip an unnecessary disk-local write. Uses strict `>` so entries at the TTL
-   * boundary survive clock jitter.
-   */
   async clearExpiredSealedOpenOrgInviteSecrets(): Promise<void> {
     const nowMs = Date.now();
     await this.sealedOpenOrgInviteSecretState.update((record) => {
@@ -654,12 +615,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       let anyExpired = false;
       const next: Record<string, SealedOpenOrgInviteSecretState> = {};
       for (const [email, entry] of Object.entries(record)) {
+        // Strict `>` so entries at the TTL boundary survive clock jitter.
         if (nowMs - entry.createdAtMs > SEALED_OPEN_ORG_INVITE_SECRET_TTL_MS) {
           anyExpired = true;
           continue;
         }
         next[email] = entry;
       }
+      // Preserve the reference when nothing expired so the state provider skips the disk-local write.
       return anyExpired ? next : record;
     });
   }
