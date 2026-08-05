@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { MockProxy, mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -20,7 +20,12 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ToastService } from "@bitwarden/components";
+import {
+  BitSubmitDirective,
+  ButtonComponent,
+  SelectItemView,
+  ToastService,
+} from "@bitwarden/components";
 
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
@@ -97,17 +102,30 @@ describe("AssignCollectionsComponent", () => {
 
   const organizations$ = jest.fn().mockReturnValue(of([org]));
 
-  beforeEach(async () => {
+  let toastService: MockProxy<ToastService>;
+
+  async function setup(vfo1Enabled = false) {
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(vfo1Enabled));
+
+    toastService = mock<ToastService>();
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>({ organizations$ }) },
         { provide: CollectionService, useValue: mock<CollectionService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: toastService },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        {
+          provide: ConfigService,
+          useValue: configService,
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
+        },
       ],
     }).compileComponents();
 
@@ -115,6 +133,10 @@ describe("AssignCollectionsComponent", () => {
     component = fixture.componentInstance;
     component.params = params;
     fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    await setup(false);
   });
 
   describe("read only collections", () => {
@@ -211,6 +233,211 @@ describe("AssignCollectionsComponent", () => {
         sharedCollection.id,
         defaultCollection.id,
       ]);
+    });
+  });
+
+  describe("getOrgIcon", () => {
+    it.each([
+      [ProductTierType.Free, "bwi-family"],
+      [ProductTierType.Families, "bwi-family"],
+      [ProductTierType.Teams, "bwi-business"],
+      [ProductTierType.Enterprise, "bwi-business"],
+      [ProductTierType.TeamsStarter, "bwi-business"],
+    ])("returns the correct icon for product tier %s", (tier, icon) => {
+      expect(component["getOrgIcon"]({ productTierType: tier } as Organization)).toBe(icon);
+    });
+
+    it("defaults to bwi-business for an unknown product tier", () => {
+      expect(
+        component["getOrgIcon"]({ productTierType: 99 as ProductTierType } as Organization),
+      ).toBe("bwi-business");
+    });
+  });
+
+  describe("transferWarningSegments", () => {
+    it("splits the plural sentence around the org name so it can be italicized", () => {
+      expect(component["transferWarningSegments"]("Acme", 3)).toEqual({
+        italicize: true,
+        before: "personalItemsWithOrgTransferWarningPlural 3 ",
+        orgName: "Acme",
+        after: "",
+      });
+    });
+
+    it("splits the singular sentence around the org name so it can be italicized", () => {
+      expect(component["transferWarningSegments"]("Acme", 1)).toEqual({
+        italicize: true,
+        before: "personalItemWithOrgTransferWarningSingular ",
+        orgName: "Acme",
+        after: "",
+      });
+    });
+
+    it("returns a single plain segment when there is no org name", () => {
+      expect(component["transferWarningSegments"]("", 3)).toEqual({
+        italicize: false,
+        text: "personalItemsTransferWarningPlural 3",
+      });
+    });
+  });
+
+  describe("submit button disablement", () => {
+    it("disables the submit button while the form is invalid and re-enables it when valid", () => {
+      const disabledSet = jest.fn();
+      component.submitBtn = {
+        disabled: { set: disabledSet },
+        loading: { set: jest.fn() },
+      } as unknown as ButtonComponent;
+
+      const disabled$ = new BehaviorSubject(false);
+      component["bitSubmit"] = {
+        disabled$,
+        loading$: new BehaviorSubject(false),
+      } as unknown as BitSubmitDirective;
+
+      component.ngAfterViewInit();
+
+      // The form starts invalid because no collections are selected.
+      expect(disabledSet).toHaveBeenLastCalledWith(true);
+
+      // Selecting a collection makes the form valid.
+      component.formGroup.patchValue({ collections: [{ id: "c1" } as SelectItemView] });
+      expect(disabledSet).toHaveBeenLastCalledWith(false);
+
+      // A disabling signal from bitSubmit re-disables the button even when the form is valid.
+      disabled$.next(true);
+      expect(disabledSet).toHaveBeenLastCalledWith(true);
+    });
+  });
+
+  describe("vault terminology disabled", () => {
+    it("transferWarningText uses the org-name keys when an org name is present", () => {
+      expect(component["transferWarningText"]("Acme", 3)).toBe(
+        "personalItemsWithOrgTransferWarningPlural 3 Acme",
+      );
+      expect(component["transferWarningText"]("Acme", 1)).toBe(
+        "personalItemWithOrgTransferWarningSingular Acme",
+      );
+    });
+
+    it("transferWarningText uses the collection keys when no org name is present", () => {
+      expect(component["transferWarningText"]("", 3)).toBe("personalItemsTransferWarningPlural 3");
+      expect(component["transferWarningText"]("", 1)).toBe("personalItemTransferWarningSingular");
+    });
+
+    it("submitButtonText returns the assign label regardless of the personal item count", () => {
+      component["personalItemsCount"] = 1;
+      expect(component["submitButtonText"]).toBe("assign");
+
+      component["personalItemsCount"] = 0;
+      expect(component["submitButtonText"]).toBe("assign");
+    });
+
+    it("emits the assign submit button text on init", async () => {
+      const emitted: string[] = [];
+      component.submitButtonTextChange.subscribe((text) => emitted.push(text));
+
+      await component.ngOnInit();
+
+      expect(emitted).toContain("assign");
+    });
+
+    it.each([
+      [1, 1, "itemMovedToCollection"],
+      [1, 2, "itemMovedToCollections"],
+      [2, 1, "itemsMovedToCollection"],
+      [2, 2, "itemsMovedToCollections"],
+    ])(
+      "collectionAssignmentToastKey maps %i ciphers / %i collections to %s",
+      (ciphers, collections, key) => {
+        expect(component["collectionAssignmentToastKey"](ciphers, collections)).toBe(key);
+      },
+    );
+
+    it("moveToOrganization falls back to the organization label when no org name is resolved", async () => {
+      component["orgName"] = undefined;
+
+      await component["moveToOrganization"](
+        "org-id" as OrganizationId,
+        [{ id: "c1" } as CipherView],
+        [],
+        mockUserId,
+      );
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "itemMovedToOrg organization" }),
+      );
+    });
+  });
+
+  describe("vault terminology enabled", () => {
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      await setup(true);
+    });
+
+    it("transferWarningText uses the vault keys when no org name is present", () => {
+      expect(component["transferWarningText"]("", 3)).toBe(
+        "personalItemsVaultTransferWarningPlural 3",
+      );
+      expect(component["transferWarningText"]("", 1)).toBe(
+        "personalItemVaultTransferWarningSingular",
+      );
+    });
+
+    it("transferWarningText still uses the org-name keys when an org name is present", () => {
+      expect(component["transferWarningText"]("Acme", 3)).toBe(
+        "personalItemsWithOrgTransferWarningPlural 3 Acme",
+      );
+      expect(component["transferWarningText"]("Acme", 1)).toBe(
+        "personalItemWithOrgTransferWarningSingular Acme",
+      );
+    });
+
+    it("submitButtonText returns the add label when there are no personal items to transfer", () => {
+      component["personalItemsCount"] = 0;
+      expect(component["submitButtonText"]).toBe("add");
+    });
+
+    it("submitButtonText returns the transfer-and-add label when there are personal items to transfer", () => {
+      component["personalItemsCount"] = 1;
+      expect(component["submitButtonText"]).toBe("transferAndAdd");
+    });
+
+    it("emits the transfer-and-add submit button text on init", async () => {
+      const emitted: string[] = [];
+      component.submitButtonTextChange.subscribe((text) => emitted.push(text));
+
+      await component.ngOnInit();
+
+      expect(emitted).toContain("transferAndAdd");
+    });
+
+    it.each([
+      [1, 1, "itemAddedToSharedFolder"],
+      [1, 2, "itemAddedToSharedFolders"],
+      [2, 1, "itemsAddedToSharedFolder"],
+      [2, 2, "itemsAddedToSharedFolders"],
+    ])(
+      "collectionAssignmentToastKey maps %i ciphers / %i collections to %s",
+      (ciphers, collections, key) => {
+        expect(component["collectionAssignmentToastKey"](ciphers, collections)).toBe(key);
+      },
+    );
+
+    it("moveToOrganization falls back to the vault label when no org name is resolved", async () => {
+      component["orgName"] = undefined;
+
+      await component["moveToOrganization"](
+        "org-id" as OrganizationId,
+        [{ id: "c1" } as CipherView],
+        [],
+        mockUserId,
+      );
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ message: "itemMovedToOrg vault" }),
+      );
     });
   });
 });

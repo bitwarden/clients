@@ -85,7 +85,7 @@
                       bitMenuItem
                       (click)="conditionallyNavigateToAssignCollections(cipher)"
                     >
-                      {{ "assignToCollections" | i18n }}
+                      {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
                     </button>
                   }
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">

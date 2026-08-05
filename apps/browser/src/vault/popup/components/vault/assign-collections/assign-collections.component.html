@@ -1,5 +1,9 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'assignToCollections' | i18n" showBackButton>
+  <popup-header
+    slot="header"
+    [pageTitle]="'assignToCollections' | vfo1I18n: 'addToSharedFolder'"
+    showBackButton
+  >
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
@@ -11,6 +15,7 @@
         [params]="params"
         [submitBtn]="assignSubmitButton"
         (onCollectionAssign)="navigateBack()"
+        (submitButtonTextChange)="submitButtonText = $event"
       ></assign-collections>
     }
   </bit-card>
@@ -23,7 +28,7 @@
       buttonType="primary"
       type="submit"
     >
-      {{ "assign" | i18n }}
+      {{ submitButtonText ?? ("assign" | vfo1I18n: "transferAndAdd") }}
     </button>
     <a bitButton buttonType="secondary" (click)="navigateBack()">
       {{ "cancel" | i18n }}
