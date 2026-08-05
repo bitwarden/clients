@@ -311,5 +311,28 @@ describe("VaultFilterComponent", () => {
         expect(section.add).toBeUndefined();
       });
     });
+
+    describe("panel inclusion", () => {
+      beforeEach(() => {
+        const archiveService = TestBed.inject(CipherArchiveService);
+        archiveService.archivedCiphers$ = jest.fn().mockReturnValue(of([]));
+        archiveService.userHasPremium$ = jest.fn().mockReturnValue(of(true));
+      });
+
+      it("includes vault selection when the VFO1 flag is off", async () => {
+        const filters = await component.buildAllFilters();
+
+        expect(filters.organizationFilter).toBeDefined();
+      });
+
+      it("omits vault selection when the VFO1 flag is on, since the side nav owns it", async () => {
+        vfo1Enabled.mockReturnValue(true);
+
+        const filters = await component.buildAllFilters();
+
+        expect(filters.organizationFilter).toBeUndefined();
+        expect(filters.typeFilter).toBeDefined();
+      });
+    });
   });
 });
