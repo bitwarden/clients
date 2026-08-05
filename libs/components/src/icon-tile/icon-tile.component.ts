@@ -9,7 +9,7 @@ type DecorativeVariant = "brand" | "teal" | "green" | "orange" | "red" | "purple
 
 export type IconTileVariant = SemanticVariant | DecorativeVariant;
 
-export type IconTileEmphasis = "muted" | "bold";
+export type IconTileEmphasis = "subtle" | "bold";
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
@@ -22,7 +22,7 @@ type EmphasisStyles = Record<IconTileEmphasis, TileClasses>;
 // Decorative color families are the single source of truth for the categorical palette.
 const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
   brand: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-brand",
       "tw-border-border-decorative-brand",
       "tw-text-fg-decorative-brand",
@@ -34,7 +34,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   teal: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-teal",
       "tw-border-border-decorative-teal",
       "tw-text-fg-decorative-teal",
@@ -46,7 +46,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   green: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-green",
       "tw-border-border-decorative-green",
       "tw-text-fg-decorative-green",
@@ -58,7 +58,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   orange: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-orange",
       "tw-border-border-decorative-orange",
       "tw-text-fg-decorative-orange",
@@ -70,7 +70,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   red: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-red",
       "tw-border-border-decorative-red",
       "tw-text-fg-decorative-red",
@@ -82,7 +82,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   purple: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-purple",
       "tw-border-border-decorative-purple",
       "tw-text-fg-decorative-purple",
@@ -94,7 +94,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
     ],
   },
   gray: {
-    muted: [
+    subtle: [
       "tw-bg-bg-decorative-gray",
       "tw-border-border-decorative-gray",
       "tw-text-fg-decorative-gray",
@@ -109,7 +109,7 @@ const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
 
 // Semantic variants ignore emphasis — map both emphases to the same triple.
 const emphasisAgnostic = (classes: TileClasses): EmphasisStyles => ({
-  muted: classes,
+  subtle: classes,
   bold: classes,
 });
 
@@ -122,11 +122,11 @@ const variantStyles: Record<IconTileVariant, EmphasisStyles> = {
   red: decorativeVariantStyles.red,
   purple: decorativeVariantStyles.purple,
   gray: decorativeVariantStyles.gray,
-  // overlapping semantic variants delegate to the decorative muted triple so they render identically
-  primary: emphasisAgnostic(decorativeVariantStyles.brand.muted),
-  success: emphasisAgnostic(decorativeVariantStyles.green.muted),
-  danger: emphasisAgnostic(decorativeVariantStyles.red.muted),
-  warning: emphasisAgnostic(decorativeVariantStyles.orange.muted),
+  // overlapping semantic variants delegate to the decorative subtle triple so they render identically
+  primary: emphasisAgnostic(decorativeVariantStyles.brand.subtle),
+  success: emphasisAgnostic(decorativeVariantStyles.green.subtle),
+  danger: emphasisAgnostic(decorativeVariantStyles.red.subtle),
+  warning: emphasisAgnostic(decorativeVariantStyles.orange.subtle),
   // no decorative equivalent — keep existing styles
   subtle: emphasisAgnostic(["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"]),
   dark: emphasisAgnostic(["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"]),
@@ -202,7 +202,7 @@ export class IconTileComponent {
    * Emphasis level for the decorative color families (`brand`, `teal`, `green`, `orange`, `red`,
    * `purple`, `gray`). Ignored by the semantic variants, which render the same regardless.
    */
-  readonly emphasis = input<IconTileEmphasis>("muted");
+  readonly emphasis = input<IconTileEmphasis>("subtle");
 
   /**
    * The size of the icon tile

@@ -12,7 +12,7 @@ export default {
   args: {
     icon: "bwi-star",
     variant: "primary",
-    emphasis: "muted",
+    emphasis: "subtle",
     size: "base",
   },
   argTypes: {
@@ -35,7 +35,7 @@ export default {
       control: { type: "select" },
     },
     emphasis: {
-      options: ["muted", "bold"],
+      options: ["subtle", "bold"],
       control: { type: "select" },
     },
     size: {
