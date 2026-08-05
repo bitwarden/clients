@@ -1,0 +1,22 @@
+<app-vault-banners [organizations]="organizationOptions()"></app-vault-banners>
+
+<vault-items-table
+  [ciphers]="rows()"
+  [rowActions]="rowActions()"
+  [folders]="folders()"
+  [collections]="collectionOptions()"
+  [organizations]="organizationOptions()"
+  [itemAction]="itemAction"
+  (action)="onVaultItemsEvent($event)"
+>
+  <button
+    slot="toolbar"
+    id="vault-next_button_add-item"
+    type="button"
+    bitButton
+    buttonType="primary"
+    (click)="openAddItemDialog()"
+  >
+    {{ "addItem" | i18n }}
+  </button>
+</vault-items-table>
