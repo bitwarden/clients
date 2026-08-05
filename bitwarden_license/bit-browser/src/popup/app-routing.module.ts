@@ -31,7 +31,7 @@ const routes: Routes = [
     ],
   },
   {
-    path: "exposed-passwords",
+    path: "health-risk-category-details",
     component: HealthRiskCategoryDetailComponent,
     canActivate: [authGuard, canAccessHealth],
     data: { elevation: 0 } satisfies RouteDataProperties,

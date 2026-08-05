@@ -1,4 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal } from "@angular/core";
+import { Component, ChangeDetectionStrategy, signal, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
+import { map } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
@@ -14,6 +17,7 @@ import {
   ButtonModule,
   IconButtonModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,9 +35,17 @@ import {
     ButtonModule,
     IconButtonModule,
     AppVaultIconComponent,
+    I18nPipe,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
+  readonly route = inject(ActivatedRoute);
+
+  readonly titleKey = toSignal(this.route.params.pipe(map((params) => params["titleKey"])));
+  readonly descriptionKey = toSignal(
+    this.route.params.pipe(map((params) => params["descriptionKey"])),
+  );
+
   readonly items = signal<Partial<CipherView>[]>([
     {
       initializerKey: 1,

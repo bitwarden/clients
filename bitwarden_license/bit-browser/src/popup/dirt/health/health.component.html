@@ -9,7 +9,29 @@
     <health-intro (onTriggerHealthScan)="handleHealthScan()" />
   } @else {
     <div>
-      <button type="button" (click)="routeToDetails()">Go to details</button>
+      <!-- TODO: REMOVE BUTTONS. FOR TEMPORARY TESTING. -->
+      <button
+        class="tw-block"
+        type="button"
+        (click)="routeToCategory('exposedPasswordsTitle', 'exposedPasswordsDescription')"
+      >
+        Go to exposed passwords
+      </button>
+      <button
+        class="tw-block"
+        type="button"
+        (click)="routeToCategory('weakPasswordsTitle', 'weakPasswordsDescription')"
+      >
+        Go to weak passwords
+      </button>
+      <button
+        class="tw-block"
+        type="button"
+        (click)="routeToCategory('reusedPasswordsTitle', 'reusedPasswordsDescription')"
+      >
+        Go to reused passwords
+      </button>
+      <!-- END TODO -->
     </div>
   }
 </popup-page>
