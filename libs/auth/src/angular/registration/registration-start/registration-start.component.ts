@@ -130,7 +130,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       }
     });
 
-    await this.applyOpenInviteTitleOverride();
+    await this.applyOpenOrgInviteTitleOverride();
   }
 
   /**
@@ -141,7 +141,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    *
    * Defense in depth: stale flag-on state may persist into a flag-off session.
    */
-  private async applyOpenInviteTitleOverride(): Promise<void> {
+  private async applyOpenOrgInviteTitleOverride(): Promise<void> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return;
