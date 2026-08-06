@@ -83,14 +83,14 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
-      const setUserKeyInMemoryPromises = [];
       for (const userId of userIds) {
-        // For each acct, we must await the process of setting the user key in memory
-        // if the auto user key is set to avoid race conditions of any code trying to access
-        // the user key from mem.
-        setUserKeyInMemoryPromises.push(this.unlockService.unlockWithAutoUnlockKey(userId));
+        try {
+          await this.unlockService.unlockWithAutoUnlockKey(userId);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(`Error occurred while unlocking user key for user ${userId}:`, e);
+        }
       }
-      await Promise.all(setUserKeyInMemoryPromises);
 
       await this.serverCommunicationConfigService.init();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
