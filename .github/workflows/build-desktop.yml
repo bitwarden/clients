@@ -270,8 +270,8 @@ jobs:
       - name: Upload .deb artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.deb
+          path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
@@ -435,6 +435,13 @@ jobs:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
           USE_SYSTEM_FPM: true
         run: npm run dist:lin:arm64
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.deb
+          path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.deb
+          if-no-files-found: error
 
       - name: Upload .snap artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -2103,14 +2110,29 @@ jobs:
           upload_sources: true
           upload_translations: false
 
-  validate-linux-x64-deb:
-    name: Validate Linux x64 .deb
-    runs-on: ubuntu-22.04
+  validate-linux-deb:
+    name: Validate Linux ${{ matrix.os.distro }} .deb
+    runs-on: ${{ matrix.os.distro }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Covers both architectures we publish, on the oldest and newest supported
+        # Ubuntu LTS. The 22.04/24.04 split matters because the 64-bit time_t
+        # transition renamed libgtk-3-0 and libatspi2.0-0 to their `t64` variants
+        # without providing the old names, so the alternation in the `deb.depends`
+        # list in `apps/desktop/electron-builder.json` must resolve on both.
+        os:
+          - { distro: ubuntu-22.04, arch: amd64 }
+          - { distro: ubuntu-24.04, arch: amd64 }
+          - { distro: ubuntu-22.04-arm, arch: arm64 }
+          - { distro: ubuntu-24.04-arm, arch: arm64 }
     needs:
       - setup
       - linux
+      - linux-arm64
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _CPU_ARCH: ${{ matrix.os.arch }}
     steps:
       - name: Check out repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -2124,16 +2146,19 @@ jobs:
         with:
           run_id: ${{ github.run_id }}
           path: apps/desktop/artifacts/linux/deb
-          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.deb
 
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libasound2 xvfb
+          sudo apt-get install -y xvfb
+          # libasound2 was renamed to libasound2t64 in Ubuntu 24.04, and the old
+          # name is only provided there by an unrelated OSS4 package.
+          sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
 
       - name: Install .deb
         working-directory: apps/desktop/artifacts/linux/deb
-        run: sudo apt-get install -y ./Bitwarden-${_PACKAGE_VERSION}-amd64.deb
+        run: sudo apt-get install -y ./bitwarden_${_PACKAGE_VERSION}_${_CPU_ARCH}.deb
 
       - name: Run .deb
         run: |

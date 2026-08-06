@@ -264,8 +264,23 @@
     ]
   },
   "deb": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "depends": ["libnotify4", "libxtst6", "libnss3", "libxss1"]
+    "artifactName": "${name}_${version}_${arch}.${ext}",
+    "maintainer": "Bitwarden Inc. <hello@bitwarden.com>",
+    "packageCategory": "utils",
+    "synopsis": "secure and free password manager for all of your devices",
+    "description": "Bitwarden is an open source password manager that stores logins, cards, identities, and notes in an end-to-end encrypted vault. Vault data is encrypted locally before it is synced, so only you can read it.\n\nThis package provides the Bitwarden desktop application, including browser integration over native messaging.",
+    "depends": [
+      "libgtk-3-0t64 | libgtk-3-0",
+      "libatspi2.0-0t64 | libatspi2.0-0",
+      "libnotify4",
+      "libnss3",
+      "libsecret-1-0",
+      "libuuid1",
+      "libxss1",
+      "libxtst6",
+      "xdg-utils"
+    ],
+    "recommends": ["libayatana-appindicator3-1"]
   },
   "appImage": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
