@@ -5,7 +5,16 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogModule, ButtonModule, DialogRef, ToastService } from "@bitwarden/components";
+import {
+  DialogModule,
+  ButtonModule,
+  DialogRef,
+  ToastService,
+  SectionComponent,
+  SectionHeaderComponent,
+  IconTileComponent,
+  CardComponent,
+} from "@bitwarden/components";
 
 export interface HealthDeleteAtRiskItemDialogData {
   item: CipherView;
@@ -15,7 +24,14 @@ export interface HealthDeleteAtRiskItemDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "health-delete-at-risk-item-dialog",
   templateUrl: "./health-delete-at-risk-item-dialog.component.html",
-  imports: [DialogModule, ButtonModule],
+  imports: [
+    DialogModule,
+    ButtonModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    IconTileComponent,
+    CardComponent,
+  ],
 })
 export class HealthDeleteAtRiskItemDialogComponent {
   readonly accountService = inject(AccountService);
