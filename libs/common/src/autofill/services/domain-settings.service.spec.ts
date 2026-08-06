@@ -24,12 +24,13 @@ describe("DefaultDomainSettingsService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const policyService = mock<PolicyService>();
-  const configService = mock<ConfigService>();
+  let configService: MockProxy<ConfigService>;
   let fakeStateProvider: FakeStateProvider;
   let environmentService: MockProxy<EnvironmentService>;
   let authService: MockProxy<AuthService>;
   let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
   let fillAssistPolicyMock$: BehaviorSubject<Policy[]>;
+  let serverConfigMock$: BehaviorSubject<any>;
 
   const makeFillAssistPolicy = (data: unknown, enabled: boolean = true): Policy =>
     ({
@@ -48,6 +49,7 @@ describe("DefaultDomainSettingsService", () => {
 
   beforeEach(() => {
     fakeStateProvider = new FakeStateProvider(accountService);
+    configService = mock<ConfigService>();
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue(MOCK_API_URL);
@@ -67,6 +69,12 @@ describe("DefaultDomainSettingsService", () => {
     // consumers (e.g. defaultUriMatchStrategyPolicy$) stay cold unless a test
     // subscribes to them.
     policyService.policiesByType$.mockReturnValue(fillAssistPolicyMock$);
+
+    // effectiveFillAssistRulesUrl$ subscribes to serverConfig$; default the
+    // mock to an empty environment so the URL derivation falls back to the
+    // hardcoded default.
+    serverConfigMock$ = new BehaviorSubject<any>({ environment: {} });
+    (configService as any).serverConfig$ = serverConfigMock$;
 
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -804,6 +812,85 @@ describe("DefaultDomainSettingsService", () => {
       const result = await firstValueFrom(domainSettingsService.fillAssistPolicy$);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe("effectiveFillAssistRulesUrl$", () => {
+    const DEFAULT_URL_TRAILING =
+      "https://github.com/bitwarden/map-the-web/releases/latest/download/";
+
+    beforeEach(() => {
+      accountService.activeAccountSubject.next({ id: mockUserId } as any);
+    });
+
+    it("falls back to the hardcoded default when no policy URL and no server config URL", async () => {
+      fillAssistPolicyMock$.next([]);
+      serverConfigMock$.next({ environment: {} });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe(DEFAULT_URL_TRAILING);
+    });
+
+    it("uses the server config URL when no policy URL is set", async () => {
+      fillAssistPolicyMock$.next([]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
+    it("prefers a custom policy URL over the server config URL", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://policy.example.com/rules" }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://policy.example.com/rules/");
+    });
+
+    it("falls back to server config when the policy URL matches the hardcoded default", async () => {
+      // A policy configured with the Bitwarden default URL should not shadow
+      // the server config — otherwise self-hosted admins couldn't override.
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({
+          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",
+        }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
+    it("appends a trailing slash when the resolved URL is missing one", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://policy.example.com/rules" }),
+      ]);
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url.endsWith("/")).toBe(true);
+    });
+
+    it("preserves an existing trailing slash without doubling it", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://policy.example.com/rules/" }),
+      ]);
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://policy.example.com/rules/");
     });
   });
 

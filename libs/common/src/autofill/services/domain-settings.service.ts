@@ -38,8 +38,19 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { DEFAULT_FILL_ASSIST_RULES_URL } from "../constants";
 import { FormContent, TargetingRulesByDomain } from "../types";
 import { matchTargetingRulesForUrl } from "../utils/targeting-rules";
+
+/**
+ * Cache key for Fill Assist targeting rules. Compound so that two accounts on
+ * the same server with different effective rules-feed URLs (e.g. one member of
+ * an org with a custom policy, one without) get separate cache entries — no
+ * cross-account bleed during account switch.
+ */
+function fillAssistRulesCacheKey(apiUrl: string, effectiveUrl: string): string {
+  return `${apiUrl}::${effectiveUrl}`;
+}
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -164,6 +175,13 @@ export abstract class DomainSettingsService {
   fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
 
   /**
+   * The effective Fill Assist rules-feed URL, in priority order: org policy's
+   * custom URL (if it differs from the Bitwarden default) → server config's
+   * URL → hardcoded default. Always ends with a trailing slash.
+   */
+  effectiveFillAssistRulesUrl$: Observable<string>;
+
+  /**
    * Resolved state for enabling Fill Assist, combining the feature flag, the
    * user setting, and the org policy with user-explicit-wins semantics: if the
    * user has explicitly set the toggle (true or false), their choice wins. If
@@ -217,6 +235,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private enableFillAssistState: GlobalState<boolean | null>;
   readonly enableFillAssist$: Observable<boolean>;
   readonly fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
+  readonly effectiveFillAssistRulesUrl$: Observable<string>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
@@ -283,6 +302,23 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
+    this.effectiveFillAssistRulesUrl$ = combineLatest([
+      this.fillAssistPolicy$,
+      this.configService.serverConfig$,
+    ]).pipe(
+      map(([policy, serverConfig]) => {
+        const policyUrl = policy?.rulesUrl;
+        if (policyUrl && policyUrl !== DEFAULT_FILL_ASSIST_RULES_URL) {
+          return policyUrl.endsWith("/") ? policyUrl : `${policyUrl}/`;
+        }
+        const serverUrl =
+          serverConfig?.environment?.fillAssistRules || DEFAULT_FILL_ASSIST_RULES_URL;
+        return serverUrl.endsWith("/") ? serverUrl : `${serverUrl}/`;
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
     // Reads the raw underlying state (naturally `boolean | null`) so the resolver
     // can distinguish pristine (never touched) from explicit-false. User-explicit-wins:
     // if the user has explicitly set the toggle, their choice wins; if they've never
@@ -307,11 +343,19 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    this.targetingRules$ = this.environmentService.environment$.pipe(
-      switchMap((env) =>
+    this.targetingRules$ = combineLatest([
+      this.environmentService.environment$,
+      this.effectiveFillAssistRulesUrl$,
+    ]).pipe(
+      switchMap(([env, effectiveUrl]) =>
         this.stateProvider
           .getGlobal(SERVER_TARGETING_RULES)
-          .state$.pipe(map((records) => records?.[env.getApiUrl()] ?? null)),
+          .state$.pipe(
+            map(
+              (records) =>
+                records?.[fillAssistRulesCacheKey(env.getApiUrl(), effectiveUrl)] ?? null,
+            ),
+          ),
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -387,11 +431,12 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const apiUrl = env.getApiUrl();
+    const effectiveUrl = await firstValueFrom(this.effectiveFillAssistRulesUrl$);
+    const key = fillAssistRulesCacheKey(env.getApiUrl(), effectiveUrl);
     await this.stateProvider
       .getGlobal(SERVER_TARGETING_RULES)
-      .update((existing) => ({ ...existing, [apiUrl]: rules }), {
-        shouldUpdate: (existing) => existing?.[apiUrl] !== rules,
+      .update((existing) => ({ ...existing, [key]: rules }), {
+        shouldUpdate: (existing) => existing?.[key] !== rules,
       });
   }
 
