@@ -1037,39 +1037,38 @@ describe("DefaultOrganizationInviteService", () => {
         {
           serverErrorName: "EmailDomainNotAllowed",
           statusCode: 400,
-          message: "Your email domain is not allowed to join this organization.",
+          message: "You're not allowed to join the Acme Co vault with your email domain.",
           expectedKind: "email-domain-not-allowed",
         },
         {
           serverErrorName: "AlreadyOrganizationMember",
           statusCode: 400,
-          message: "You are already a member of this organization.",
+          message: "You're already a member of Acme Co.",
           expectedKind: "already-member",
         },
         {
           serverErrorName: "OrganizationAccessRevoked",
           statusCode: 400,
-          message: "Your organization access has been revoked.",
+          message: "Your access to the Acme Co vault has been revoked.",
           expectedKind: "org-access-revoked",
         },
         {
           serverErrorName: "OrganizationHasNoAvailableSeats",
           statusCode: 400,
-          message: "This organization has no available seats.",
+          message: "The Acme Co vault has no available seats.",
           expectedKind: "no-seats",
         },
         {
           serverErrorName: "SeatAddFailed (folded into no-seats)",
           statusCode: 400,
-          message:
-            "Unable to join this organization right now. Please contact your organization administrator.",
+          message: "Unable to join this vault right now. Please contact your organization admin.",
           expectedKind: "no-seats",
         },
         {
           serverErrorName: "TwoFactorRequiredForMembership",
           statusCode: 400,
           message:
-            "You cannot join this organization until you enable two-step login on your user account.",
+            "You cannot join this organization vault until you enable two-step login on your user account.",
           expectedKind: "two-factor-required",
         },
         {
@@ -1082,54 +1081,40 @@ describe("DefaultOrganizationInviteService", () => {
           serverErrorName: "UserIsAMemberOfAnotherOrganization",
           statusCode: 400,
           message:
-            "Member cannot join the organization until they leave or remove all other organizations.",
+            "Member cannot join this organization vault until they leave all other organization vaults.",
           expectedKind: "single-org-policy-violation-target-org",
         },
         {
           serverErrorName: "UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy",
           statusCode: 400,
           message:
-            "Member cannot join the organization because they are in another organization which forbids it.",
+            "Member cannot join this organization's vault because they are a member of another organization which forbids it.",
           expectedKind: "single-org-policy-violation-other-org",
         },
         {
           serverErrorName: "UserCannotBelongToAnotherOrganization",
           statusCode: 400,
           message:
-            "Cannot confirm this member to the organization until they leave or remove all other organizations",
+            "Cannot confirm user@example.com until they leave all other organization vaults.",
           expectedKind: "auto-confirm-policy-violation-target-org",
         },
         {
           serverErrorName: "OtherOrganizationDoesNotAllowOtherMembership",
           statusCode: 400,
           message:
-            "Cannot confirm this member to the organization because they are in another organization which forbids it.",
+            "Cannot confirm user@example.com because they are a member of another organization which forbids it.",
           expectedKind: "auto-confirm-policy-violation-other-org",
         },
         {
           serverErrorName: "ProviderUsersCannotAcceptInviteLink",
           statusCode: 400,
-          message: "Provider users cannot join organizations via invite link.",
-          expectedKind: "provider-users-disallowed",
-        },
-        {
-          serverErrorName: "ProviderUsersCannotJoin (auto-confirm variant, folded)",
-          statusCode: 400,
-          message:
-            "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining.",
-          expectedKind: "provider-users-disallowed",
-        },
-        {
-          serverErrorName: "UserCannotJoinProvider (auto-confirm variant, folded)",
-          statusCode: 400,
-          message:
-            "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support the user joining a provider.",
+          message: "Provider users cannot join organization vaults via invite link.",
           expectedKind: "provider-users-disallowed",
         },
         {
           serverErrorName: "OnlyOneFreeOrganizationAdminAllowed",
           statusCode: 400,
-          message: "You can only be an admin of one free organization.",
+          message: "You can only be an admin of 1 free organization vault.",
           expectedKind: "free-admin-limit-reached",
         },
         {

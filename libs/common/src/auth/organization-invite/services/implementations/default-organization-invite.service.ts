@@ -325,29 +325,32 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (message === "Your organization's plan does not support invite links.") {
       return { kind: "plan-not-supported" };
     }
-    if (message === "Your email domain is not allowed to join this organization.") {
+    // Server interpolates the org name: "You're not allowed to join the {OrgName} vault with your email domain."
+    if (/^You're not allowed to join the .+ vault with your email domain\.$/.test(message)) {
       return { kind: "email-domain-not-allowed" };
     }
-    if (message === "You are already a member of this organization.") {
+    // Server interpolates the org name: "You're already a member of {OrgName}."
+    if (/^You're already a member of .+\.$/.test(message)) {
       return { kind: "already-member" };
     }
-    if (message === "Your organization access has been revoked.") {
+    // Server interpolates the org name: "Your access to the {OrgName} vault has been revoked."
+    if (/^Your access to the .+ vault has been revoked\.$/.test(message)) {
       return { kind: "org-access-revoked" };
     }
-    if (message === "This organization has no available seats.") {
+    // Server interpolates the org name: "The {OrgName} vault has no available seats."
+    if (/^The .+ vault has no available seats\.$/.test(message)) {
       return { kind: "no-seats" };
     }
     // SeatAddFailed reads the same to the user as OrganizationHasNoAvailableSeats — both
     // mean "seat unavailable"; the distinction is billing plumbing the user can't act on.
     if (
-      message ===
-      "Unable to join this organization right now. Please contact your organization administrator."
+      message === "Unable to join this vault right now. Please contact your organization admin."
     ) {
       return { kind: "no-seats" };
     }
     if (
       message ===
-      "You cannot join this organization until you enable two-step login on your user account."
+      "You cannot join this organization vault until you enable two-step login on your user account."
     ) {
       return { kind: "two-factor-required" };
     }
@@ -357,49 +360,35 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // Target org has single-org policy on + user is in other orgs.
     if (
       message ===
-      "Member cannot join the organization until they leave or remove all other organizations."
+      "Member cannot join this organization vault until they leave all other organization vaults."
     ) {
       return { kind: "single-org-policy-violation-target-org" };
     }
     // Another org the user belongs to has single-org policy on.
     if (
       message ===
-      "Member cannot join the organization because they are in another organization which forbids it."
+      "Member cannot join this organization's vault because they are a member of another organization which forbids it."
     ) {
       return { kind: "single-org-policy-violation-other-org" };
     }
-    // Target org's auto-confirm on + user has multiple memberships.
-    if (
-      message ===
-      "Cannot confirm this member to the organization until they leave or remove all other organizations"
-    ) {
+    // Target org's auto-confirm on + user has multiple memberships. Server interpolates
+    // the user's email: "Cannot confirm {Email} until they leave all other organization vaults."
+    if (/^Cannot confirm .+ until they leave all other organization vaults\.$/.test(message)) {
       return { kind: "auto-confirm-policy-violation-target-org" };
     }
-    // Another org the user belongs to has auto-confirm on.
+    // Another org the user belongs to has auto-confirm on. Server interpolates the user's
+    // email: "Cannot confirm {Email} because they are a member of another organization which forbids it."
     if (
-      message ===
-      "Cannot confirm this member to the organization because they are in another organization which forbids it."
+      /^Cannot confirm .+ because they are a member of another organization which forbids it\.$/.test(
+        message,
+      )
     ) {
       return { kind: "auto-confirm-policy-violation-other-org" };
     }
-    if (message === "Provider users cannot join organizations via invite link.") {
+    if (message === "Provider users cannot join organization vaults via invite link.") {
       return { kind: "provider-users-disallowed" };
     }
-    // AutoConfirm's provider variants; same user-facing meaning as the direct provider
-    // block above. Two distinct server messages fold to the same client kind.
-    if (
-      message ===
-      "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support provider users joining."
-    ) {
-      return { kind: "provider-users-disallowed" };
-    }
-    if (
-      message ===
-      "An organization the user is a part of has enabled Automatic User Confirmation policy, and it does not support the user joining a provider."
-    ) {
-      return { kind: "provider-users-disallowed" };
-    }
-    if (message === "You can only be an admin of one free organization.") {
+    if (message === "You can only be an admin of 1 free organization vault.") {
       return { kind: "free-admin-limit-reached" };
     }
     if (message === "Master Password reset is required, but not provided.") {
