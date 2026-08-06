@@ -1,11 +1,11 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, ChangeDetectionStrategy, input, inject } from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, inject, computed } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DialogModule,
   ButtonModule,
@@ -19,7 +19,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface HealthDeleteAtRiskItemDialogData {
-  item: CipherView;
+  currentCategory: string;
+  item: CipherHealthView;
 }
 
 @Component({
@@ -44,7 +45,24 @@ export class HealthDeleteAtRiskItemDialogComponent {
   readonly dialogRef = inject(DialogRef);
   readonly inputData = inject<HealthDeleteAtRiskItemDialogData>(DIALOG_DATA);
 
-  readonly item = input<CipherView>(this.inputData.item);
+  readonly item = input<CipherHealthView>(this.inputData.item);
+  readonly currentCategory = input<string>(this.inputData.currentCategory);
+
+  readonly additionalRisks = computed<{ showWeak: boolean; showReused: boolean }>(() => {
+    const item = this.item();
+    const category = this.currentCategory();
+
+    // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused.
+    switch (category) {
+      case "exposed-passwords":
+        return { showWeak: item.hasWeakPassword, showReused: item.hasReusedPassword };
+      case "weak-passwords":
+        return { showWeak: false, showReused: item.hasReusedPassword };
+      case "reused-passwords":
+      default:
+        return { showWeak: false, showReused: false };
+    }
+  });
 
   readonly onDeleteItem = async () => {
     const user = await firstValueFrom(this.accountService.activeAccount$);
@@ -52,7 +70,7 @@ export class HealthDeleteAtRiskItemDialogComponent {
       return;
     }
 
-    await this.cipherService.softDeleteWithServer(this.item().id, user.id);
+    await this.cipherService.softDeleteWithServer(this.item().cipherId, user.id);
 
     this.toastService.showToast({
       message: this.i18nService.t("deletedItem"),

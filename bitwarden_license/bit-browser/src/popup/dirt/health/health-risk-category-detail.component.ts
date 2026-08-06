@@ -5,6 +5,7 @@ import { filter, map, switchMap, take } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
@@ -120,9 +121,21 @@ export class HealthRiskCategoryDetailComponent {
   };
 
   readonly onDeleteItem = async (item: CipherView) => {
+    // TODO: UPDATE - FOR TESTING ONLY
+    const cipherHealthView = new CipherHealthView({
+      cipherId: item.id,
+      hasWeakPassword: true,
+      hasReusedPassword: true,
+      hasExposedPassword: true,
+      exposedCount: 1,
+    });
+
     await this.dialogService.open(HealthDeleteAtRiskItemDialogComponent, {
       positionStrategy: new CenterPositionStrategy(),
-      data: { item } satisfies HealthDeleteAtRiskItemDialogData,
+      data: {
+        item: cipherHealthView,
+        currentCategory: this.category(),
+      } satisfies HealthDeleteAtRiskItemDialogData,
     });
   };
 
