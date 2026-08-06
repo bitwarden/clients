@@ -3,17 +3,11 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 /**
- * Service owning the never-lock ("auto") copy of the user key.
- *
- * The never-lock key lets a user's vault load unlocked without them entering a credential, so it may
- * only be stored while their vault timeout is set to never.
- *
- * To unlock a user with their never-lock key, use `UnlockService.unlockWithAutoUnlockKey`.
+ * The auto unlock service is responsible for the never-lock key
  */
 export abstract class AutoUnlockService {
   /**
-   * Retrieves the user's never-lock key, if one is stored. Any stored copies of the user key are
-   * thrown away when the retrieved key fails validation.
+   * Retrieves the user's never-lock key, if one is stored.
    *
    * @param userId - The user's id
    * @returns The never-lock user key, or null when none is stored

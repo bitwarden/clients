@@ -456,8 +456,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
-    // Enroll the biometrics-protected user key. This used to happen implicitly inside
-    // ElectronKeyService.storeAdditionalKeys via KeyService.refreshAdditionalKeys.
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
     await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
