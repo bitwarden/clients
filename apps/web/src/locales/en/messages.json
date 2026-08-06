@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Favorites"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Task summary"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "My folders"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Add shared folder"
@@ -3318,6 +3324,27 @@
   },
   "options": {
     "message": "Options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Preferences"
