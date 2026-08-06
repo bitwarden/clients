@@ -18,10 +18,10 @@ import { IconTileComponent } from "@bitwarden/components";
 
 Icon tiles come in two groups of color variants:
 
-- **Decorative color families** — the categorical color palette, each available in a `muted` or
+- **Decorative color families** — the categorical color palette, each available in a `subtle` or
   `bold` emphasis.
 - **Semantic variants** — backward-compatible aliases (`primary`, `success`, etc.). The overlapping
-  ones render identically to a `muted` decorative color.
+  ones render identically to a `subtle` decorative color.
 
 <Canvas of={stories.AllVariants} />
 
@@ -30,26 +30,29 @@ Icon tiles come in two groups of color variants:
 The decorative families (`brand`, `teal`, `green`, `orange`, `red`, `purple`, `gray`) are the single
 source of truth for the categorical palette. Each family responds to the `emphasis` input:
 
-- **`muted`** (default) — softer background for lower-emphasis indicators.
+- **`subtle`** (default) — softer background for lower-emphasis indicators.
 - **`bold`** — saturated background for higher-emphasis indicators.
 
 ### Semantic variants
 
 The original semantic variants remain fully usable. They **ignore the `emphasis` input** and always
-render the muted styling. The overlapping variants map directly onto a decorative color family, so
-`variant="primary"` and `variant="brand"` (muted) render identically — prefer whichever name best
+render the subtle styling. The overlapping variants map directly onto a decorative color family, so
+`variant="primary"` and `variant="brand"` (subtle) render identically — prefer whichever name best
 communicates intent at the call site.
 
 | Semantic variant | Renders as         | Use for                                                      |
 | ---------------- | ------------------ | ------------------------------------------------------------ |
-| `primary`        | `brand` (muted)    | Brand-colored indicators and primary visual elements.        |
-| `success`        | `green` (muted)    | Successful operations, positive status, or completed states. |
-| `danger`         | `red` (muted)      | Errors, destructive actions, or critical warnings.           |
-| `warning`        | `orange` (muted)   | Caution states, alerts, or situations requiring attention.   |
+| `primary`        | `brand` (subtle)   | Brand-colored indicators and primary visual elements.        |
+| `success`        | `green` (subtle)   | Successful operations, positive status, or completed states. |
+| `danger`         | `red` (subtle)     | Errors, destructive actions, or critical warnings.           |
+| `warning`        | `orange` (subtle)  | Caution states, alerts, or situations requiring attention.   |
 | `subtle`         | — (unique styling) | Low-emphasis indicators on standard backgrounds.             |
 | `dark`           | — (unique styling) | High-contrast indicators on light backgrounds.               |
 
-`subtle` and `dark` have no decorative equivalent and keep their own dedicated styling.
+Note that `subtle` is both an **emphasis** level on the decorative families _and_ a distinct
+**semantic variant** with its own dedicated styling — the `subtle` variant in this table does not
+map onto a decorative color family. `subtle` and `dark` have no decorative equivalent and keep their
+own dedicated styling.
 
 ## Custom color
 
