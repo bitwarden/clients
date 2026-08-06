@@ -6287,7 +6287,6 @@ name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
  "autofill_provider",
- "base64",
  "desktop_core",
  "tracing",
  "tracing-subscriber",

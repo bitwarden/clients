@@ -5,12 +5,15 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   OnInit,
   Output,
+  output,
   ViewChild,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -18,6 +21,7 @@ import {
   map,
   Observable,
   shareReplay,
+  startWith,
   Subject,
   switchMap,
   takeUntil,
@@ -40,6 +44,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -50,6 +55,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
+  BitwardenIcon,
   ButtonComponent,
   ButtonModule,
   DialogModule,
@@ -60,6 +66,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 export interface CollectionAssignmentParams {
@@ -100,6 +107,11 @@ export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignme
 
 const MY_VAULT_ID = "MyVault";
 
+// Sentinel substituted for the organization name so a fully translated sentence can be split
+// around it, letting the org name be italicized in the template without embedding markup in (or
+// splitting up) the translated string.
+const ORG_NAME_TOKEN = "\uFFFC";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -115,9 +127,19 @@ const MY_VAULT_ID = "MyVault";
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
+    Vfo1I18nPipe,
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
+  protected vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  /**
+   * The terminology flag resolves asynchronously, so track it as a stream rather than reading it
+   * once. The submit button label is re-emitted whenever it changes (see `ngOnInit`), keeping the
+   * host's button in step with the reactively-rendered dialog body.
+   */
+  private vfo1Enabled$ = toObservable(this.vfo1TerminologyService.enabled);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
@@ -142,6 +164,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onCollectionAssign = new EventEmitter<CollectionAssignmentResult>();
+
+  /**
+   * Emits the text that the host's submit button should display. The button lives in the host
+   * template (as projected content), so the resolved label is pushed out from here where the
+   * relevant state (`showOrgSelector`, terminology flag) is known.
+   */
+  readonly submitButtonTextChange = output<string>();
 
   formGroup = this.formBuilder.group({
     selectedOrg: [null],
@@ -188,6 +217,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     ),
   );
 
+  protected getOrgIcon = (org: Organization): BitwardenIcon => {
+    switch (org.productTierType) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return "bwi-family";
+      case ProductTierType.Teams:
+      case ProductTierType.Enterprise:
+      case ProductTierType.TeamsStarter:
+      default:
+        return "bwi-business";
+    }
+  };
+
   protected transferWarningText = (orgName: string, itemsCount: number) => {
     const haveOrgName = !!orgName;
 
@@ -195,12 +237,40 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return this.i18nService.t("personalItemsWithOrgTransferWarningPlural", itemsCount, orgName);
     }
     if (itemsCount > 1 && !haveOrgName) {
-      return this.i18nService.t("personalItemsTransferWarningPlural", itemsCount);
+      return this.vfo1TerminologyService.enabled()
+        ? this.i18nService.t("personalItemsVaultTransferWarningPlural", itemsCount)
+        : this.i18nService.t("personalItemsTransferWarningPlural", itemsCount);
     }
     if (itemsCount === 1 && haveOrgName) {
       return this.i18nService.t("personalItemWithOrgTransferWarningSingular", orgName);
     }
-    return this.i18nService.t("personalItemTransferWarningSingular");
+    return this.vfo1TerminologyService.enabled()
+      ? this.i18nService.t("personalItemVaultTransferWarningSingular")
+      : this.i18nService.t("personalItemTransferWarningSingular");
+  };
+
+  /**
+   * Breaks the transfer-warning sentence into display segments so the organization name can be
+   * italicized. A sentinel is substituted for the org name and the fully translated sentence is
+   * split around it, so word order stays correct in every language and the org name is always
+   * rendered as plain text rather than markup.
+   */
+  protected transferWarningSegments = (orgName: string, itemsCount: number) => {
+    if (!orgName) {
+      return { italicize: false as const, text: this.transferWarningText(orgName, itemsCount) };
+    }
+
+    const sentence =
+      itemsCount > 1
+        ? this.i18nService.t(
+            "personalItemsWithOrgTransferWarningPlural",
+            itemsCount,
+            ORG_NAME_TOKEN,
+          )
+        : this.i18nService.t("personalItemWithOrgTransferWarningSingular", ORG_NAME_TOKEN);
+
+    const [before, after = ""] = sentence.split(ORG_NAME_TOKEN);
+    return { italicize: true as const, before, orgName, after };
   };
 
   private editableItems: CipherView[] = [];
@@ -220,7 +290,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private toastService: ToastService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
@@ -231,6 +300,11 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     }
 
     await this.initializeItems(this.selectedOrgId);
+
+    // Re-emit the label whenever the terminology flag resolves so it can't be snapshotted stale.
+    this.vfo1Enabled$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.submitButtonTextChange.emit(this.submitButtonText));
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
       await this.handleOrganizationCiphers(this.selectedOrgId);
@@ -248,13 +322,19 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.submitBtn.loading.set(loading);
     });
 
-    this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-      if (!this.submitBtn) {
-        return;
-      }
+    // Disable the submit button while the form is submitting or invalid.
+    combineLatest([
+      this.bitSubmit.disabled$,
+      this.formGroup.statusChanges.pipe(startWith(this.formGroup.status)),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([disabled, status]) => {
+        if (!this.submitBtn) {
+          return;
+        }
 
-      this.submitBtn.disabled.set(disabled);
-    });
+        this.submitBtn.disabled.set(disabled || status === "INVALID");
+      });
   }
 
   ngOnDestroy(): void {
@@ -266,6 +346,18 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     const currentCollections = this.formGroup.controls.collections.value as SelectItemView[];
     const updatedCollections = [...currentCollections, ...items].sort(this.sortItems);
     this.formGroup.patchValue({ collections: updatedCollections });
+  }
+
+  /**
+   * The label shown on the host's submit button. When the feature flag is off, falls back to "assign" wording.
+   * When at least 1 personal item would be transferred, use transferAndAdd, otherwise use add.
+   */
+  private get submitButtonText(): string {
+    if (this.vfo1TerminologyService.enabled()) {
+      return this.i18nService.t(this.personalItemsCount > 0 ? "transferAndAdd" : "add");
+    }
+
+    return this.i18nService.t("assign");
   }
 
   submit = async () => {
@@ -313,7 +405,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           selectedCollectionsCount,
         );
       } else {
-        assignedMessageKey = "successfullyAssignedCollections";
+        assignedMessageKey = this.vfo1TerminologyService.enabled()
+          ? "successfullyAddedSharedFolders"
+          : "successfullyAssignedCollections";
       }
       const assignedMessage = this.i18nService.t(assignedMessageKey);
 
@@ -519,9 +613,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
 
   private collectionAssignmentToastKey(ciphersCount: number, collectionsCount: number): string {
     if (ciphersCount === 1) {
-      return collectionsCount === 1 ? "itemMovedToCollection" : "itemMovedToCollections";
+      return collectionsCount === 1
+        ? this.vfo1TerminologyService.enabled()
+          ? "itemAddedToSharedFolder"
+          : "itemMovedToCollection"
+        : this.vfo1TerminologyService.enabled()
+          ? "itemAddedToSharedFolders"
+          : "itemMovedToCollections";
     }
-    return collectionsCount === 1 ? "itemsMovedToCollection" : "itemsMovedToCollections";
+    return collectionsCount === 1
+      ? this.vfo1TerminologyService.enabled()
+        ? "itemsAddedToSharedFolder"
+        : "itemsMovedToCollection"
+      : this.vfo1TerminologyService.enabled()
+        ? "itemsAddedToSharedFolders"
+        : "itemsMovedToCollections";
   }
 
   private async moveToOrganization(
@@ -555,7 +661,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         title: null,
         message: this.i18nService.t(
           shareableCiphers.length === 1 ? "itemMovedToOrg" : "itemsMovedToOrg",
-          this.orgName ?? this.i18nService.t("organization"),
+          this.orgName ??
+            (this.vfo1TerminologyService.enabled()
+              ? this.i18nService.t("vault")
+              : this.i18nService.t("organization")),
         ),
       });
     }

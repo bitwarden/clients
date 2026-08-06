@@ -56,7 +56,7 @@ export class PassportSectionComponent implements OnInit {
     this.passportForm = this.formBuilder.group({
       surname: [""],
       givenName: [""],
-      dateOfBirth: [""],
+      dateOfBirth: [undefined],
       sex: [""],
       birthPlace: [""],
       nationality: [""],
@@ -65,8 +65,8 @@ export class PassportSectionComponent implements OnInit {
       passportType: [""],
       nationalIdentificationNumber: [""],
       issuingAuthority: [""],
-      issueDate: [""],
-      expirationDate: [""],
+      issueDate: [undefined],
+      expirationDate: [undefined],
     });
 
     this.cipherFormContainer.registerChildForm("passportDetails", this.passportForm);

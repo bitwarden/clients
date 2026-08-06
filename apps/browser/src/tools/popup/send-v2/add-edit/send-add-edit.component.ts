@@ -291,6 +291,11 @@ export class SendAddEditComponent {
         edit: "editItemHeaderFileSendV2",
         add: "newItemHeaderFileSendV2",
       },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
+      },
     };
     return this.i18nService.t(translation[type][sendAction]);
   }
