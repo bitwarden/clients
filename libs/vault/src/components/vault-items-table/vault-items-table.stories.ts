@@ -1,16 +1,21 @@
+import { PortalModule } from "@angular/cdk/portal";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -18,11 +23,25 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/services/search.service";
-import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  I18nMockService,
+  LayoutFooterService,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { PasswordRepromptService } from "../../services/password-reprompt.service";
+import { RoutedVaultFilterBridgeService } from "../../services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
+import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { ASSIGN_COLLECTIONS_DIALOG } from "../../tokens/assign-collections-dialog.token";
+import { BULK_DELETE_DIALOG } from "../../tokens/bulk-delete-dialog.token";
+import { VaultBatchActionComponent } from "../vault-batch-bar/vault-batch-action.component";
 import { VaultItemEvent } from "../vault-item-event";
 
 import {
@@ -31,6 +50,24 @@ import {
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
+
+/**
+ * Renders whatever `LayoutFooterService` is holding.
+ *
+ * `<bit-vault-batch-action>` doesn't render its bar inline — it hands a `TemplatePortal` to that
+ * service, and `bit-layout` is what normally provides the outlet. These stories deliberately skip
+ * the layout so the table isn't buried under navigation chrome, so this stands in as the outlet
+ * and nothing more. The real bar's `position: fixed` still pins it to the viewport.
+ */
+@Component({
+  selector: "story-layout-footer",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class StoryLayoutFooterComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
 
 const organizations = [
   { id: "org-1", name: "Acme corporation" },
@@ -425,6 +462,8 @@ const template = `
       Add
     </button>
   </vault-items-table>
+  <bit-vault-batch-action />
+  <story-layout-footer />
 `;
 
 const baseProps: StoryProps = {
@@ -445,7 +484,12 @@ export default {
   args: baseProps,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, TypographyModule],
+      imports: [
+        ButtonModule,
+        TypographyModule,
+        VaultBatchActionComponent,
+        StoryLayoutFooterComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -493,6 +537,24 @@ export default {
               launchWebsiteName: (name) => `Launch website ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              // Bulk-action bar chrome
+              bulkActionsBar: "Bulk actions",
+              bulkActionsBarAnnouncement: (count, shortcut) =>
+                `${count} item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press ${shortcut} to toggle focus to the bulk action bar.`,
+              selectedLowercase: "selected",
+              selectionCleared: "Selection cleared",
+              additionalActions: "Additional actions",
+              close: "Close",
+              loading: "Loading",
+              // Bulk-action bar actions
+              addToFolder: "Add to folder",
+              assignToCollections: "Assign to collections",
+              editAccess: "Edit access",
+              archiveVerb: "Archive",
+              unArchive: "Unarchive",
+              restore: "Restore",
+              delete: "Delete",
+              permanentlyDelete: "Permanently delete",
               // Empty states
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
@@ -543,13 +605,44 @@ export default {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        // The batch bar gates itself on its own flag, so it has to read as enabled here for the
+        // bulk-action bar to appear at all.
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.PM37785_VaultBatchBar),
+          },
+        },
         { provide: CipherService, useValue: { updateLastLaunchedDate: () => Promise.resolve() } },
         { provide: PlatformUtilsService, useValue: { launchUri: (): void => undefined } },
         {
           provide: CopyCipherFieldService,
           useValue: { copy: () => Promise.resolve(true), totpAllowed: () => Promise.resolve(true) },
         },
+        // The real batch bar service, so checking rows drives the same `can*` permission signals and
+        // bulk-action bar a client gets. Its collaborators below are the ones its permission checks
+        // read; the dialog tokens resolve to no-ops, since a story can't complete a bulk action
+        // against a server.
+        VaultBatchBarService,
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
+        { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(true) } },
+        {
+          provide: CipherAuthorizationService,
+          useValue: { canDeleteCipher$: () => of(true), canRestoreCipher$: () => of(true) },
+        },
+        { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
+        {
+          provide: PasswordRepromptService,
+          useValue: { showPasswordPrompt: () => Promise.resolve(true) },
+        },
+        { provide: ToastService, useValue: { showToast: (): void => undefined } },
+        { provide: RoutedVaultFilterService, useValue: { filter$: of({}) } },
+        { provide: RoutedVaultFilterBridgeService, useValue: { activeFilter$: of({}) } },
+        {
+          provide: ASSIGN_COLLECTIONS_DIALOG,
+          useValue: { open: () => Promise.resolve(undefined) },
+        },
+        { provide: BULK_DELETE_DIALOG, useValue: { open: () => Promise.resolve(undefined) } },
       ],
     }),
   ],
