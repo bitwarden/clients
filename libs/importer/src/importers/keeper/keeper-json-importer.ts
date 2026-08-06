@@ -287,11 +287,7 @@ export class KeeperJsonImporter extends KeeperImporter implements Importer {
       return;
     }
     if (useNewDedicatedTypes) {
-      return [
-        date.getUTCFullYear().toString(),
-        (date.getUTCMonth() + 1).toString().padStart(2, "0"),
-        date.getUTCDate().toString().padStart(2, "0"),
-      ].join("-");
+      return this.formatDateString(date);
     }
     return date.toUTCString();
   }

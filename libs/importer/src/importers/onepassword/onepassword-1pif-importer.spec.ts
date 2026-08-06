@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
-import { assertFieldsStructure } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { BankAccountTestData } from "../spec-data/onepassword-1pif/bankaccount";
 import { DriversLicenseTestData } from "../spec-data/onepassword-1pif/driverslicense";
 import { PassportTestData } from "../spec-data/onepassword-1pif/passport";
@@ -141,7 +141,7 @@ describe("1Password 1Pif Importer", () => {
       expect(cipher.type).toEqual(CipherType.SecureNote);
       expect(cipher.login).toBeNull();
       expect(cipher.fields.length).toEqual(10);
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["bank name", "Bank of the Shire"],
         ["owner", "Bilbo Baggins"],
         ["account type", "Checking"],
@@ -188,7 +188,7 @@ describe("1Password 1Pif Importer", () => {
 
       expect(cipher.name).toEqual("Test Passport");
       expect(cipher.type).toEqual(CipherType.SecureNote);
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "Shire Passport"],
         ["issuing country", "The Shire"],
         ["number", "1234567890"],
@@ -224,7 +224,7 @@ describe("1Password 1Pif Importer", () => {
       expect(cipher.passport.birthPlace).toEqual("Bag End, The Shire");
       expect(cipher.passport.issueDate).toEqual("2941-06-19");
       expect(cipher.passport.expirationDate).toEqual("2951-06-19");
-      assertFieldsStructure(cipher.fields, [["gender", "Male"]]);
+      assertCustomFieldsStructure(cipher.fields, [["gender", "Male"]]);
     });
   });
 
@@ -238,7 +238,7 @@ describe("1Password 1Pif Importer", () => {
 
       expect(cipher.name).toEqual("Test Driver's License");
       expect(cipher.type).toEqual(CipherType.SecureNote);
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["full name", "Bilbo Baggins"],
         ["address", "Bag End, Bagshot Row, Under-Hill, Hobbiton, Westfarthing, The Shire"],
         ["date of birth", "Fri, 22 Sep 2890 00:00:00 GMT"],
@@ -271,7 +271,7 @@ describe("1Password 1Pif Importer", () => {
       expect(cipher.driversLicense.issuingState).toEqual("Westfarthing");
       expect(cipher.driversLicense.issuingCountry).toEqual("The Shire");
       expect(cipher.driversLicense.expirationDate).toEqual("2951-06-30");
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["address", "Bag End, Bagshot Row, Under-Hill, Hobbiton, Westfarthing, The Shire"],
         ["gender", "Male"],
         ["height", "4'0\""],

@@ -172,7 +172,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           bankAccount.nameOnAccount = row.account_holder;
           bankAccount.accountNumber = row.account_number;
           cipher.bankAccount = bankAccount;
-          // We don't actually map the type field, but all it says is "bank"
+          // Type isn't mapped to a property but we don't want it as a custom field
           mappedValues.push("type");
         } else {
           cipher.card.cardholderName = row.account_holder;
@@ -213,7 +213,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           passport.expirationDate = this.parseDashlaneDateString(row.expiration_date);
           passport.issuingCountry = row.place_of_issue;
           cipher.passport = passport;
-          // Type is not mapped to a property but we don't want it as a custom field
+          // Type isn't mapped to a property but we don't want it as a custom field
           mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
         } else {
           this.processFullName(cipher, row.name);
@@ -235,7 +235,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           license.issuingCountry = row.place_of_issue;
           license.issuingState = row.state;
           cipher.driversLicense = license;
-          // We don't actually map the type field, but it's not needed with the specific DriversLicense type
+          // Type isn't mapped to a property but we don't want it as a custom field
           mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
         } else {
           this.processFullName(cipher, row.name);

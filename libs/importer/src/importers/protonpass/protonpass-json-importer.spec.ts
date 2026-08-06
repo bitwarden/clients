@@ -6,7 +6,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 
-import { assertCustomFieldExists, assertFieldsStructure } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { testData } from "../spec-data/protonpass-json/protonpass.json";
 
 import { ProtonPassJsonImporter } from "./protonpass-json-importer";
@@ -49,14 +49,12 @@ describe("Protonpass Json Importer", () => {
     expect(uriView.uri).toEqual("https://example.com/");
     expect(cipher.notes).toEqual("My login secure note.");
 
-    // Custom field test cases of the form [fieldName, fieldValue, fieldType]
-    const customFields: [string, string, FieldType | undefined][] = [
+    assertCustomFieldsStructure(cipher.fields, [
       ["email", "Email", FieldType.Text],
+      ["non-hidden field", "non-hidden field content", FieldType.Text],
+      ["hidden field", "hidden field content", FieldType.Hidden],
       ["second 2fa secret", "TOTPCODE", FieldType.Hidden],
-    ];
-    customFields.forEach(([name, value, type]) => {
-      assertCustomFieldExists(cipher.fields, name, value, type);
-    });
+    ]);
   });
 
   it("should parse note data", async () => {
@@ -68,7 +66,7 @@ describe("Protonpass Json Importer", () => {
     expect(noteCipher.name).toEqual("My Secure Note");
     expect(noteCipher.notes).toEqual("Secure note contents.");
 
-    assertFieldsStructure(noteCipher.fields, [
+    assertCustomFieldsStructure(noteCipher.fields, [
       ["note text field", "note text value", FieldType.Text],
       ["note hidden field", "note hidden value", FieldType.Hidden],
     ]);
@@ -85,7 +83,7 @@ describe("Protonpass Json Importer", () => {
     expect(creditCardCipher.card.expMonth).toBe("1");
     expect(creditCardCipher.card.expYear).toBe("2025");
     expect(creditCardCipher.card.code).toBe("333");
-    assertFieldsStructure(creditCardCipher.fields, [
+    assertCustomFieldsStructure(creditCardCipher.fields, [
       ["PIN", "1234", FieldType.Hidden],
       ["card text field", "card text value", FieldType.Text],
       ["card hidden field", "card hidden value", FieldType.Hidden],
@@ -162,7 +160,7 @@ describe("Protonpass Json Importer", () => {
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.notes).toEqual("custom item note");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["Account number", "123456789", FieldType.Text],
       ["PIN", "0000", FieldType.Hidden],
       // Fields nested in content sections are preserved as custom fields
@@ -183,7 +181,7 @@ describe("Protonpass Json Importer", () => {
     );
     expect(cipher.sshKey.publicKey).toEqual("ssh-ed25519 AAAAPUBLICKEY");
 
-    assertFieldsStructure(cipher.fields, [["Host", "example.com"]]);
+    assertCustomFieldsStructure(cipher.fields, [["Host", "example.com"]]);
   });
 
   describe("should parse identity data", () => {
@@ -210,9 +208,7 @@ describe("Protonpass Json Importer", () => {
       expect(cipher.identity.postalCode).toBe("4038456");
       expect(cipher.identity.country).toBe("US");
 
-      expect(cipher.fields.length).toEqual(13);
-      // Custom field test cases of the form [fieldName, fieldValue, fieldType]
-      const customFields: [string, string, FieldType | undefined][] = [
+      assertCustomFieldsStructure(cipher.fields, [
         ["gender", "Male", FieldType.Text],
         ["TestPersonal", "Personal", FieldType.Text],
         ["TestAddress", "Address", FieldType.Text],
@@ -226,10 +222,7 @@ describe("Protonpass Json Importer", () => {
         ["TestSection", "Section", FieldType.Text],
         ["TestSectionHidden", "SectionHidden", FieldType.Hidden],
         ["TestExtra", "Extra", FieldType.Text],
-      ];
-      customFields.forEach(([name, value, type]) => {
-        assertCustomFieldExists(cipher.fields, name, value, type);
-      });
+      ]);
     });
 
     it("with new item types feature flag ON", async () => {
@@ -281,9 +274,7 @@ describe("Protonpass Json Importer", () => {
       expect(identityCipher.identity.postalCode).toBe("4038456");
       expect(identityCipher.identity.country).toBe("US");
 
-      expect(identityCipher.fields.length).toEqual(13);
-      // Custom field test cases of the form [fieldName, fieldValue, fieldType]
-      const customFields: [string, string, FieldType | undefined][] = [
+      assertCustomFieldsStructure(identityCipher.fields, [
         ["gender", "Male", FieldType.Text],
         ["TestPersonal", "Personal", FieldType.Text],
         ["TestAddress", "Address", FieldType.Text],
@@ -297,10 +288,7 @@ describe("Protonpass Json Importer", () => {
         ["TestSection", "Section", FieldType.Text],
         ["TestSectionHidden", "SectionHidden", FieldType.Hidden],
         ["TestExtra", "Extra", FieldType.Text],
-      ];
-      customFields.forEach(([name, value, type]) => {
-        assertCustomFieldExists(identityCipher.fields, name, value, type);
-      });
+      ]);
     });
   });
 });

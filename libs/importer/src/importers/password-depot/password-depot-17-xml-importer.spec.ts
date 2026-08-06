@@ -7,7 +7,7 @@ import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { assertCustomFieldExists } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsExist } from "../spec-data/importer-test-utils";
 import {
   EncryptedFileData,
   InvalidRootNodeData,
@@ -106,12 +106,10 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.type).toBe(CipherType.Login);
     expect(cipher.name).toBe("password type");
 
-    expect(cipher.fields).not.toBeNull();
-    // Custom field test cases of the form [fieldName, fieldValue, fieldType]
-    const customFields: [string, string, FieldType | undefined][] = [
+    assertCustomFieldsExist(cipher.fields, [
       ["lastmodified", "07.05.2025 13:37:56", FieldType.Text],
       ["expirydate", "07.05.2025", FieldType.Text],
-      ["importance", "0", undefined],
+      ["importance", "0"],
       ["passwort", "password", FieldType.Hidden],
       ["memo", "memo", FieldType.Text],
       ["datum", new Date("2025-05-13T00:00:00Z").toLocaleDateString(), FieldType.Text],
@@ -120,10 +118,7 @@ describe("Password Depot 17 Xml Importer", () => {
       ["decimal", "1,01", FieldType.Text],
       ["email", "who@cares.com", FieldType.Text],
       ["url", "example.com", FieldType.Text],
-    ];
-    customFields.forEach(([name, value, type]) => {
-      assertCustomFieldExists(cipher.fields, name, value, type);
-    });
+    ]);
   });
 
   it("should parse credit cards", async () => {
@@ -199,8 +194,7 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.secureNote).not.toBeNull();
     expect(cipher.secureNote.type).toBe(SecureNoteType.Generic);
 
-    // Custom field test cases of the form [fieldName, fieldValue]
-    const customFields: [string, string][] = [
+    assertCustomFieldsExist(cipher.fields, [
       ["IDS_LicenseProduct", "someProduct"],
       ["IDS_LicenseVersion", "someVersion"],
       ["IDS_LicenseName", "some User"],
@@ -214,10 +208,7 @@ describe("Password Depot 17 Xml Importer", () => {
       ["IDS_LicenseOrderNumber", "order number"],
       ["IDS_LicenseEmail", "someEmail"],
       ["IDS_LicenseExpires", "Nie"],
-    ];
-    customFields.forEach(([name, value]) => {
-      assertCustomFieldExists(cipher.fields, name, value);
-    });
+    ]);
   });
 
   it("should parse team viewer into login type", async () => {
@@ -236,7 +227,7 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.login.username).toBe("");
     expect(cipher.login.uri).toBe("partnerId");
 
-    assertCustomFieldExists(cipher.fields, "IDS_TeamViewerMode", "0");
+    assertCustomFieldsExist(cipher.fields, [["IDS_TeamViewerMode", "0"]]);
   });
 
   it("should parse putty into login type", async () => {
@@ -255,16 +246,12 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.login.username).toBe("someUser");
     expect(cipher.login.uri).toBe("localhost");
 
-    // Custom field test cases of the form [fieldName, fieldValue]
-    const customFields: [string, string][] = [
+    assertCustomFieldsExist(cipher.fields, [
       ["IDS_PuTTyProtocol", "0"],
       ["IDS_PuTTyKeyFile", "pathToKeyFile"],
       ["IDS_PuTTyKeyPassword", "passwordForKeyFile"],
       ["IDS_PuTTyPort", "8080"],
-    ];
-    customFields.forEach(([name, value]) => {
-      assertCustomFieldExists(cipher.fields, name, value);
-    });
+    ]);
   });
 
   describe("should parse banking item type into login type", () => {
@@ -284,8 +271,7 @@ describe("Password Depot 17 Xml Importer", () => {
       expect(cipher.login.username).toBe("someUser");
       expect(cipher.login.uri).toBe("http://some-bank.com");
 
-      // Custom field test cases of the form [fieldName, fieldValue]
-      const customFields: [string, string][] = [
+      assertCustomFieldsExist(cipher.fields, [
         ["IDS_ECHolder", "account holder"],
         ["IDS_ECAccountNumber", "1234567890"],
         ["IDS_ECBLZ", "12345678"],
@@ -304,10 +290,7 @@ describe("Password Depot 17 Xml Importer", () => {
         ["tan_1_ccode", "123"],
         ["tan_2_value", "4321"],
         ["tan_2_amount", " 0,00"],
-      ];
-      customFields.forEach(([name, value]) => {
-        assertCustomFieldExists(cipher.fields, name, value);
-      });
+      ]);
     });
 
     it("with new item types feature flag ON", async () => {
@@ -341,8 +324,7 @@ describe("Password Depot 17 Xml Importer", () => {
       expect(loginCipher.login.username).toBe("someUser");
       expect(loginCipher.login.uri).toBe("http://some-bank.com");
 
-      // Custom field test cases of the form [fieldName, fieldValue]
-      const loginCipherCustomFields: [string, string][] = [
+      assertCustomFieldsExist(loginCipher.fields, [
         ["IDS_ECBIC", "bic"],
         ["IDS_ECCardNumber", "12345678"],
         ["IDS_ECLegitimacyID", "1234"],
@@ -354,10 +336,7 @@ describe("Password Depot 17 Xml Importer", () => {
         ["tan_1_ccode", "123"],
         ["tan_2_value", "4321"],
         ["tan_2_amount", " 0,00"],
-      ];
-      loginCipherCustomFields.forEach(([name, value]) => {
-        assertCustomFieldExists(loginCipher.fields, name, value);
-      });
+      ]);
 
       // Bank Account cipher
       const bankAccountCipher = result.ciphers[bankAccountCipherIdx];
@@ -429,13 +408,11 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.name).toBe("document type");
     expect(cipher.notes).toBe("document comment");
 
-    assertCustomFieldExists(cipher.fields, "IDS_DocumentSize", "27071");
-    assertCustomFieldExists(cipher.fields, "IDS_DocumentFolder", "C:\\Users\\DJSMI\\Downloads\\");
-    assertCustomFieldExists(
-      cipher.fields,
-      "IDS_DocumentFile",
-      "C:\\Users\\DJSMI\\Downloads\\some.pdf",
-    );
+    assertCustomFieldsExist(cipher.fields, [
+      ["IDS_DocumentSize", "27071"],
+      ["IDS_DocumentFolder", "C:\\Users\\DJSMI\\Downloads\\"],
+      ["IDS_DocumentFile", "C:\\Users\\DJSMI\\Downloads\\some.pdf"],
+    ]);
   });
 
   it("should parse favourites and set them on the target item", async () => {

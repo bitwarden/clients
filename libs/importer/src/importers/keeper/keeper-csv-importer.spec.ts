@@ -5,7 +5,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { assertFieldsStructure } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import {
   testData as TestData,
   testDataMultiCollection,
@@ -181,7 +181,7 @@ describe("Keeper CSV Importer", () => {
       expect(bankAccountCipher.login.password).toEqual("d{24|452Jv/p`m7bZpJ[");
       expect(bankAccountCipher.login.uris.length).toEqual(1);
       expect(bankAccountCipher.login.uris[0].uri).toEqual("https://bankoftheshire.com");
-      assertFieldsStructure(bankAccountCipher.fields, [
+      assertCustomFieldsStructure(bankAccountCipher.fields, [
         ["Bank Account", "Checking | 1234567890 | 12345"],
         ["Name", "Bilbo Baggins"],
       ]);
@@ -189,7 +189,7 @@ describe("Keeper CSV Importer", () => {
       const passportCipher = result.ciphers[1];
       expect(passportCipher.type).toEqual(CipherType.Login);
       expect(passportCipher.name).toEqual("Test Passport");
-      assertFieldsStructure(passportCipher.fields, [
+      assertCustomFieldsStructure(passportCipher.fields, [
         ["Passport Number", "1234567890"],
         ["Name", "Bilbo Baggins"],
         ["Date of Birth", "09/22/2890"],
@@ -201,7 +201,7 @@ describe("Keeper CSV Importer", () => {
       const driversLicenseCipher = result.ciphers[2];
       expect(driversLicenseCipher.type).toEqual(CipherType.Login);
       expect(driversLicenseCipher.name).toEqual("Test Drivers License");
-      assertFieldsStructure(driversLicenseCipher.fields, [
+      assertCustomFieldsStructure(driversLicenseCipher.fields, [
         ["Driver's License Number", "1234567890"],
         ["Name", "Bilbo Baggins"],
         ["Date of Birth", "09/22/2890"],
@@ -223,7 +223,7 @@ describe("Keeper CSV Importer", () => {
       expect(bankAccountLoginCipher.login.password).toEqual("d{24|452Jv/p`m7bZpJ[");
       expect(bankAccountLoginCipher.login.uris.length).toEqual(1);
       expect(bankAccountLoginCipher.login.uris[0].uri).toEqual("https://bankoftheshire.com");
-      assertFieldsStructure(bankAccountLoginCipher.fields, []);
+      assertCustomFieldsStructure(bankAccountLoginCipher.fields, []);
 
       const bankAccountCipher = result.ciphers[1];
       expect(bankAccountCipher.type).toEqual(CipherType.BankAccount);
@@ -232,7 +232,7 @@ describe("Keeper CSV Importer", () => {
       expect(bankAccountCipher.bankAccount.accountNumber).toEqual("1234567890");
       expect(bankAccountCipher.bankAccount.routingNumber).toEqual("12345");
       expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Bilbo Baggins");
-      assertFieldsStructure(bankAccountCipher.fields, []);
+      assertCustomFieldsStructure(bankAccountCipher.fields, []);
 
       // The new bank account cipher should be in the same folder as the login
       expect(result.folders.length).toBe(1);
@@ -250,7 +250,7 @@ describe("Keeper CSV Importer", () => {
       expect(passportCipher.passport.dateOfBirth).toEqual("2890-09-22");
       expect(passportCipher.passport.expirationDate).toEqual("2951-06-19");
       expect(passportCipher.passport.issueDate).toEqual("2941-06-19");
-      assertFieldsStructure(passportCipher.fields, [
+      assertCustomFieldsStructure(passportCipher.fields, [
         ["Address", "Bag End, Bagshot Row | Under-Hill | Hobbiton | Westfarthing, The Shire | US"],
       ]);
 
@@ -263,7 +263,7 @@ describe("Keeper CSV Importer", () => {
       expect(driversLicenseCipher.driversLicense.lastName).toEqual("Baggins");
       expect(driversLicenseCipher.driversLicense.dateOfBirth).toEqual("2890-09-22");
       expect(driversLicenseCipher.driversLicense.expirationDate).toEqual("2916-09-22");
-      assertFieldsStructure(driversLicenseCipher.fields, [
+      assertCustomFieldsStructure(driversLicenseCipher.fields, [
         ["Address", "Bag End, Bagshot Row | Under-Hill | Hobbiton | Westfarthing, The Shire | US"],
       ]);
     });

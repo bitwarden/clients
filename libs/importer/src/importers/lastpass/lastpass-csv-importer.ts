@@ -393,7 +393,7 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
    * files are expressed as a newline-delimited list of information, where each line is of the form
    * <key>:<value>. Here we take the list as an array of strings, along with a map of keys to their
    * corresponding properties on the data object we are going to return. For example, having a list of
-   * `["Number:12345"]` and map of `{ "Number": "passportNumber" }` results in return object `{ "passportNumber": "12345" }`
+   * `["Number:12345"]` and map of `{ "Number": "passportNumber" }` returns `{ "passportNumber": "12345" }`
    */
   private parseSecureNoteMapping<T>(
     cipher: CipherView,

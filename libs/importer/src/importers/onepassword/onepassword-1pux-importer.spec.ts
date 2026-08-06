@@ -7,7 +7,7 @@ import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/e
 import * as sdkInternal from "@bitwarden/sdk-internal";
 
 import { ImportRecordErrorReason } from "../../models";
-import { assertFieldsStructure } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { APICredentialsData } from "../spec-data/onepassword-1pux/api-credentials";
 import { BankAccountData } from "../spec-data/onepassword-1pux/bank-account";
 import { CreditCardData } from "../spec-data/onepassword-1pux/credit-card";
@@ -111,7 +111,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.login.totp).toEqual("otpseed777");
 
     // remaining fields as custom fields
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["terms", "false"],
       ["policies", "true"],
       ["Create an account", "username123123"],
@@ -218,7 +218,7 @@ describe("1Password 1Pux Importer", () => {
     expect(card.expYear).toEqual("2099");
 
     // remaining fields as custom fields
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["valid from", "200101"],
       ["", "card"],
       // Section "Contact Information"
@@ -259,7 +259,7 @@ describe("1Password 1Pux Importer", () => {
     expect(identity.username).toEqual("gengels");
 
     // remaining fields as custom fields
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["sex", "male"],
       ["birth date", "Thu, 01 Jan 1981 12:01:00 GMT"],
       ["occupation", "Steel Worker"],
@@ -344,7 +344,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.name).toEqual("Limux Product Key");
     expect(cipher.notes).toEqual("My Software License");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["version", "5.10.1000"],
       ["license key", "265453-13457355-847327"],
       ["licensed to", "Kay Riddler"],
@@ -375,7 +375,7 @@ describe("1Password 1Pux Importer", () => {
 
       expect(cipher.card.cardholderName).toEqual("Cool Guy");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["bank name", "Super Credit Union"],
         ["type", "checking"],
         ["routing number", "111000999"],
@@ -410,7 +410,7 @@ describe("1Password 1Pux Importer", () => {
       expect(cipher.bankAccount.pin).toEqual("5555");
       expect(cipher.bankAccount.bankContactPhone).toEqual("9399399933");
 
-      assertFieldsStructure(cipher.fields, [["address", "1 Fifth Avenue"]]);
+      assertCustomFieldsStructure(cipher.fields, [["address", "1 Fifth Avenue"]]);
     });
   });
 
@@ -430,7 +430,7 @@ describe("1Password 1Pux Importer", () => {
     expect(login.username).toEqual("cooldbuser");
     expect(login.password).toEqual("^+kTjhLaN7wVPAhGU)*J");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["type", "postgresql"],
       ["server", "my.secret.db.server"],
       ["port", "1337"],
@@ -463,7 +463,7 @@ describe("1Password 1Pux Importer", () => {
       expect(identity.country).toEqual("United States");
       expect(identity.licenseNumber).toEqual("12345678901");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["date of birth", "Sun, 01 Jan 1978 12:01:00 GMT"],
         ["sex", "male"],
         ["height", "5'11\""],
@@ -496,7 +496,7 @@ describe("1Password 1Pux Importer", () => {
       expect(driversLicense.licenseClass).toEqual("C");
       expect(driversLicense.expirationDate).toEqual("2030-12-31");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["address", "2120 Mifflin Rd."],
         ["sex", "male"],
         ["height", "5'11\""],
@@ -525,7 +525,7 @@ describe("1Password 1Pux Importer", () => {
     expect(identity.state).toEqual("Washington");
     expect(identity.country).toEqual("United States of America");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["valid from", "Thu, 01 Apr 2021 12:01:00 GMT"],
       ["expires", "Fri, 01 Apr 2044 12:01:00 GMT"],
       ["approved wildlife", "Bananas,blueberries,corn"],
@@ -551,7 +551,7 @@ describe("1Password 1Pux Importer", () => {
     expect(identity.company).toEqual("National Public Library");
     expect(identity.phone).toEqual("9995555555");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["website", "https://npl.nullvalue.gov.test"],
       ["member since", "199901"],
       ["expiry date", "203412"],
@@ -578,7 +578,7 @@ describe("1Password 1Pux Importer", () => {
       expect(identity.lastName).toEqual("Global");
       expect(identity.passportNumber).toEqual("76436847");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "US Passport"],
         ["sex", "female"],
         ["nationality", "International"],
@@ -614,7 +614,7 @@ describe("1Password 1Pux Importer", () => {
       expect(passport.issueDate).toEqual("2020-01-01");
       expect(passport.expirationDate).toEqual("2050-01-01");
 
-      assertFieldsStructure(cipher.fields, [["sex", "female"]]);
+      assertCustomFieldsStructure(cipher.fields, [["sex", "female"]]);
     });
   });
 
@@ -635,7 +635,7 @@ describe("1Password 1Pux Importer", () => {
     expect(identity.lastName).toEqual("Coldroom");
     expect(identity.company).toEqual("Super Cool Store Co.");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["member ID", "member-29813569"],
       ["PIN", "99913"],
       ["member ID (additional)", "additional member id"],
@@ -674,7 +674,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.name).toEqual("Wireless Router");
     expect(cipher.notes).toEqual("My Wifi Router Config");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["base station name", "pixel 2Xl"],
       ["base station password", "BqatGTVQ9TCN72tLbjrsHqkb"],
       ["server / ip address", "127.0.0.1"],
@@ -702,7 +702,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.login.password).toEqual("*&YHJI87yjy78u");
     expect(cipher.login.uri).toEqual("https://coolserver.nullvalue.test");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["admin console URL", "https://coolserver.nullvalue.test/admin"],
       ["admin console username", "frankly-idontknowwhatimdoing"],
       ["console password", "^%RY&^YUiju8iUYHJI(U"],
@@ -725,7 +725,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.name).toEqual("Email Config");
     expect(cipher.notes).toEqual("My Email Config");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["type", "either"],
       ["username", "someuser@nullvalue.test"],
       ["server", "mailserver.nullvalue.test"],
@@ -764,7 +764,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.login.password).toEqual("apiapiapiapiapiapiappy");
     expect(cipher.login.uri).toEqual("http://not.your.everyday.hostname");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["type", "jwt"],
       ["filename", "filename.jwt"],
       ["valid from", "Mon, 04 Apr 2011 12:01:00 GMT"],
@@ -798,7 +798,7 @@ describe("1Password 1Pux Importer", () => {
     expect(cipher.notes).toEqual("Some notes about my medical history");
     expect(cipher.secureNote.type).toEqual(SecureNoteType.Generic);
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["date", "Sat, 01 Jan 2022 12:01:00 GMT"],
       ["location", "some hospital/clinic"],
       ["healthcare professional", "Some Doctor"],

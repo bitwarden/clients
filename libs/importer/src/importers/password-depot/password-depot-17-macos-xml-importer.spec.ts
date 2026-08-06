@@ -32,47 +32,49 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
     expect(result.folders.length).toBe(0);
   });
 
-  it("should create folders and with correct assignments", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
-    const result = await importer.parse(MacOS_MultipleFolders);
+  describe("should create folders with correct assignments", () => {
+    it("with new item types feature flag OFF", async () => {
+      const importer = new PasswordDepot17XmlImporter(configService);
+      const result = await importer.parse(MacOS_MultipleFolders);
 
-    // Expect 10 ciphers, 5 without a folder and 3 within 'folder macos' and 2 with 'folder 2'
-    expect(result.ciphers.length).toBe(10);
+      // Expect 10 ciphers, 5 without a folder, 3 within 'folder macos', and 2 within 'folder 2'
+      expect(result.ciphers.length).toBe(10);
 
-    expect(result.folders.length).toBe(2);
-    expect(result.folders[0].name).toBe("folder macos");
-    expect(result.folders[1].name).toBe("folder 2");
+      expect(result.folders.length).toBe(2);
+      expect(result.folders[0].name).toBe("folder macos");
+      expect(result.folders[1].name).toBe("folder 2");
 
-    // 3 items within 'folder macos'
-    expect(result.folderRelationships[0]).toEqual([5, 0]);
-    expect(result.folderRelationships[1]).toEqual([6, 0]);
-    expect(result.folderRelationships[2]).toEqual([7, 0]);
+      // 3 items within 'folder macos'
+      expect(result.folderRelationships[0]).toEqual([5, 0]);
+      expect(result.folderRelationships[1]).toEqual([6, 0]);
+      expect(result.folderRelationships[2]).toEqual([7, 0]);
 
-    //2 items with 'folder 2'
-    expect(result.folderRelationships[3]).toEqual([8, 1]);
-    expect(result.folderRelationships[4]).toEqual([9, 1]);
-  });
+      // 2 items within 'folder 2'
+      expect(result.folderRelationships[3]).toEqual([8, 1]);
+      expect(result.folderRelationships[4]).toEqual([9, 1]);
+    });
 
-  it("should create folders with correct assignments when new item types feature flag is ON", async () => {
-    configService.getFeatureFlag.mockResolvedValueOnce(true);
-    const importer = new PasswordDepot17XmlImporter(configService);
-    const result = await importer.parse(MacOS_MultipleFolders);
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const importer = new PasswordDepot17XmlImporter(configService);
+      const result = await importer.parse(MacOS_MultipleFolders);
 
-    // Expect 10 ciphers, 6 without a folder and 3 within 'folder macos' and 2 with 'folder 2'
-    expect(result.ciphers.length).toBe(11);
+      // Expect 11 ciphers, 6 without a folder, 3 within 'folder macos', and 2 within 'folder 2'
+      expect(result.ciphers.length).toBe(11);
 
-    expect(result.folders.length).toBe(2);
-    expect(result.folders[0].name).toBe("folder macos");
-    expect(result.folders[1].name).toBe("folder 2");
+      expect(result.folders.length).toBe(2);
+      expect(result.folders[0].name).toBe("folder macos");
+      expect(result.folders[1].name).toBe("folder 2");
 
-    // 3 items within 'folder macos'
-    expect(result.folderRelationships[0]).toEqual([6, 0]);
-    expect(result.folderRelationships[1]).toEqual([7, 0]);
-    expect(result.folderRelationships[2]).toEqual([8, 0]);
+      // 3 items within 'folder macos'
+      expect(result.folderRelationships[0]).toEqual([6, 0]);
+      expect(result.folderRelationships[1]).toEqual([7, 0]);
+      expect(result.folderRelationships[2]).toEqual([8, 0]);
 
-    //2 items with 'folder 2'
-    expect(result.folderRelationships[3]).toEqual([9, 1]);
-    expect(result.folderRelationships[4]).toEqual([10, 1]);
+      // 2 items within 'folder 2'
+      expect(result.folderRelationships[3]).toEqual([9, 1]);
+      expect(result.folderRelationships[4]).toEqual([10, 1]);
+    });
   });
 
   it("should parse custom fields from a MacOS exported file", async () => {

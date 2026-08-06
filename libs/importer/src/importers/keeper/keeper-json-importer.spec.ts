@@ -9,7 +9,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
-import { assertCustomFieldExists } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import {
   CliTestData,
   WebTestData,
@@ -551,13 +551,9 @@ describe("Keeper Json Importer", () => {
         expect(passport.passport.issueDate).toEqual("2023-08-14");
 
         // Fields
-        expect(passport.fields.length).toEqual(1);
-        assertCustomFieldExists(
-          passport.fields,
-          "Password",
-          "Passport2023!Secure",
-          FieldType.Hidden,
-        );
+        assertCustomFieldsStructure(passport.fields, [
+          ["Password", "Passport2023!Secure", FieldType.Hidden],
+        ]);
       });
     });
   });

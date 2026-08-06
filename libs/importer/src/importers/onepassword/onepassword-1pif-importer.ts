@@ -291,8 +291,8 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
         } else {
           return field;
         }
-        // Returning [] allows the flatMap on 269 to filter out fields that have already
-        // been set to dedicated fields on the driver's license object
+        // Returning [] allows the flatMap above to filter out fields that have
+        // already been set to dedicated fields on the driver's license object
         return [];
       });
     }

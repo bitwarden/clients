@@ -11,7 +11,7 @@ import { multiplePersonalInfoData } from "../spec-data/dashlane-csv/multiple-per
 import { paymentsData } from "../spec-data/dashlane-csv/payments.csv";
 import { personalInfoData } from "../spec-data/dashlane-csv/personal-info.csv";
 import { secureNoteData } from "../spec-data/dashlane-csv/securenotes.csv";
-import { assertFieldsStructure } from "../spec-data/importer-test-utils";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 
 describe("Dashlane CSV Importer", () => {
   let importer: DashlaneCsvImporter;
@@ -80,7 +80,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher.card.expMonth).toBeUndefined();
       expect(cipher.card.expYear).toBeUndefined();
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "bank"],
         ["routing_number", "routingNumber"],
         ["country", "US"],
@@ -98,7 +98,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher2.card.expMonth).toEqual("1");
       expect(cipher2.card.expYear).toEqual("2023");
 
-      assertFieldsStructure(cipher2.fields, [
+      assertCustomFieldsStructure(cipher2.fields, [
         ["type", "credit_card"],
         ["country", "US"],
       ]);
@@ -117,7 +117,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher.bankAccount.nameOnAccount).toEqual("John Doe");
       expect(cipher.bankAccount.accountNumber).toEqual("accountNumber");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["routing_number", "routingNumber"],
         ["country", "US"],
         ["issuing_bank", "US-ALLY"],
@@ -134,7 +134,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher2.card.expMonth).toEqual("1");
       expect(cipher2.card.expYear).toEqual("2023");
 
-      assertFieldsStructure(cipher2.fields, [
+      assertCustomFieldsStructure(cipher2.fields, [
         ["type", "credit_card"],
         ["country", "US"],
       ]);
@@ -157,7 +157,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher.identity.lastName).toEqual("Doe");
       expect(cipher.identity.licenseNumber).toEqual("123123123");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "card"],
         ["issue_date", "2022-1-30"],
         ["expiration_date", "2032-1-30"],
@@ -173,7 +173,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher2.identity.lastName).toEqual("Doe");
       expect(cipher2.identity.passportNumber).toEqual("123123123");
 
-      assertFieldsStructure(cipher2.fields, [
+      assertCustomFieldsStructure(cipher2.fields, [
         ["type", "passport"],
         ["issue_date", "2022-1-30"],
         ["expiration_date", "2032-1-30"],
@@ -191,7 +191,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher3.identity.licenseNumber).toEqual("1234556");
       expect(cipher3.identity.state).toEqual("DC");
 
-      assertFieldsStructure(cipher3.fields, [
+      assertCustomFieldsStructure(cipher3.fields, [
         ["type", "license"],
         ["issue_date", "2022-8-10"],
         ["expiration_date", "2022-10-10"],
@@ -207,7 +207,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher4.identity.lastName).toEqual("Doe");
       expect(cipher4.identity.ssn).toEqual("123123123");
 
-      assertFieldsStructure(cipher4.fields, [["type", "social_security"]]);
+      assertCustomFieldsStructure(cipher4.fields, [["type", "social_security"]]);
 
       // Type tax_number
       const cipher5 = result.ciphers[4];
@@ -215,7 +215,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher5.name).toEqual("tax_number");
       expect(cipher5.identity.licenseNumber).toEqual("123123123");
 
-      assertFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
+      assertCustomFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
     });
 
     it("with new item types feature flag ON", async () => {
@@ -234,7 +234,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher.identity.lastName).toEqual("Doe");
       expect(cipher.identity.licenseNumber).toEqual("123123123");
 
-      assertFieldsStructure(cipher.fields, [
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "card"],
         ["issue_date", "2022-1-30"],
         ["expiration_date", "2032-1-30"],
@@ -251,7 +251,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher2.passport.expirationDate).toEqual("2032-01-30");
       expect(cipher2.passport.issuingCountry).toEqual("somewhere in Germany");
 
-      assertFieldsStructure(cipher2.fields, []);
+      assertCustomFieldsStructure(cipher2.fields, []);
 
       // Type license
       const cipher3 = result.ciphers[2];
@@ -266,7 +266,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher3.driversLicense.issuingCountry).toEqual("");
       expect(cipher3.driversLicense.issuingState).toEqual("DC");
 
-      assertFieldsStructure(cipher3.fields, []);
+      assertCustomFieldsStructure(cipher3.fields, []);
 
       // Type social_security
       const cipher4 = result.ciphers[3];
@@ -278,7 +278,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher4.identity.lastName).toEqual("Doe");
       expect(cipher4.identity.ssn).toEqual("123123123");
 
-      assertFieldsStructure(cipher4.fields, [["type", "social_security"]]);
+      assertCustomFieldsStructure(cipher4.fields, [["type", "social_security"]]);
 
       // Type tax_number
       const cipher5 = result.ciphers[4];
@@ -286,7 +286,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher5.name).toEqual("tax_number");
       expect(cipher5.identity.licenseNumber).toEqual("123123123");
 
-      assertFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
+      assertCustomFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
     });
   });
 
@@ -311,7 +311,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toEqual("MR John Doe");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["type", "name"],
       ["title", "MR"],
       ["first_name", "John"],
@@ -326,7 +326,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher2.type).toEqual(CipherType.SecureNote);
     expect(cipher2.name).toEqual("Johns email");
 
-    assertFieldsStructure(cipher2.fields, [
+    assertCustomFieldsStructure(cipher2.fields, [
       ["type", "email"],
       ["email", "jdoe@example.com"],
       ["email_type", "personal"],
@@ -338,7 +338,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher3.type).toEqual(CipherType.SecureNote);
     expect(cipher3.name).toEqual("John's number");
 
-    assertFieldsStructure(cipher3.fields, [
+    assertCustomFieldsStructure(cipher3.fields, [
       ["type", "number"],
       ["item_name", "John's number"],
       ["phone_number", "+49123123123"],
@@ -349,7 +349,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher4.type).toEqual(CipherType.SecureNote);
     expect(cipher4.name).toEqual("John's home address");
 
-    assertFieldsStructure(cipher4.fields, [
+    assertCustomFieldsStructure(cipher4.fields, [
       ["type", "address"],
       ["item_name", "John's home address"],
       ["address", "1 some street"],
@@ -369,7 +369,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher5.type).toEqual(CipherType.SecureNote);
     expect(cipher5.name).toEqual("Website");
 
-    assertFieldsStructure(cipher5.fields, [
+    assertCustomFieldsStructure(cipher5.fields, [
       ["type", "website"],
       ["item_name", "Website"],
       ["url", "website.com"],
@@ -380,7 +380,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher6.type).toEqual(CipherType.SecureNote);
     expect(cipher6.name).toEqual("Mrs Jane Doe");
 
-    assertFieldsStructure(cipher6.fields, [
+    assertCustomFieldsStructure(cipher6.fields, [
       ["type", "name"],
       ["title", "Mrs"],
       ["first_name", "Jane"],
@@ -407,7 +407,7 @@ describe("Dashlane CSV Importer", () => {
     expect(cipher.identity.email).toEqual("jdoe@example.com");
     expect(cipher.identity.phone).toEqual("+49123123123");
 
-    assertFieldsStructure(cipher.fields, [
+    assertCustomFieldsStructure(cipher.fields, [
       ["date_of_birth", "2022-01-30"],
       ["place_of_birth", "world"],
       ["email_type", "personal"],

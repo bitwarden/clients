@@ -112,25 +112,13 @@ export class ImportSuccessDialogComponent implements OnInit {
       return [];
     }
 
-    const resultCounts = new Map<CipherType, number>();
-    importResult.ciphers.forEach((c) => {
-      const curCount = resultCounts.get(c.type);
-      if (curCount === undefined) {
-        resultCounts.set(c.type, 1);
-      } else {
-        resultCounts.set(c.type, curCount + 1);
+    const list: ResultList[] = [];
+    for (const row of this.cipherTypeRows) {
+      const count = importResult.ciphers.filter((c) => c.type === row.type).length;
+      if (count > 0) {
+        list.push({ icon: row.icon, type: row.label, count });
       }
-    });
-
-    const list: ResultList[] = Array.from(resultCounts.entries()).flatMap(([cipherType, count]) => {
-      const cipherTypeMapping = this.cipherTypeRows.find((ctr) => ctr.type === cipherType);
-      if (cipherTypeMapping) {
-        return { icon: cipherTypeMapping.icon, type: cipherTypeMapping.label, count };
-      } else {
-        // Ignore any CipherType we don't know about yet. The flatMap will remove this
-        return [] as ResultList[];
-      }
-    });
+    }
     if (importResult.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: importResult.folders.length });
     }

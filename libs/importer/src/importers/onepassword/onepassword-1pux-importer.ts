@@ -697,7 +697,6 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       field.id === "expiry_date" &&
       this.isNullOrWhitespace(cipher.driversLicense.expirationDate)
     ) {
-      // This field is a single number that expresses a month and year in the format YYYYMM
       const yearPart = fieldValue.slice(0, 4);
       const monthPart = fieldValue.slice(4);
       // We set the expiration date to the last of the specified year and month by getting
