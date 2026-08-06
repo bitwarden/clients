@@ -34,7 +34,7 @@ const routes: Routes = [
     path: "health-risk-category-details",
     component: HealthRiskCategoryDetailComponent,
     canActivate: [authGuard, canAccessHealth],
-    data: { elevation: 0 } satisfies RouteDataProperties,
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
 ];
 
