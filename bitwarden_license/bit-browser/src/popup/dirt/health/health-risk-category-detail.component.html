@@ -28,16 +28,19 @@
             </span>
           </div>
           <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
-            <bit-item-action>
-              <button
-                type="button"
-                bitButton
-                buttonType="primaryOutline"
-                endIcon="bwi-external-link"
-              >
-                {{ "changePassword" | i18n }}
-              </button>
-            </bit-item-action>
+            @if (item.login.uri != null) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="primaryOutline"
+                  endIcon="bwi-external-link"
+                  (click)="onChangePassword(item)"
+                >
+                  {{ "changePassword" | i18n }}
+                </button>
+              </bit-item-action>
+            }
             <bit-item-action>
               <button type="button" bitIconButton="bwi-more-horizontal" label="Options"></button>
             </bit-item-action>
