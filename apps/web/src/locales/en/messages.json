@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Add shared folder"
   },
-  "addToSharedFolder": {
-    "message": "Add to shared folder"
-  },
   "newSharedFolder": {
     "message": "New shared folder"
   },
@@ -1576,6 +1573,9 @@
   "item": {
     "message": "Item"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "Item details"
   },
@@ -1732,8 +1732,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1756,11 +1756,11 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "No values to copy"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2725,6 +2725,21 @@
   "copyVerificationCode": {
     "message": "Copy verification code"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "copyUuid": {
     "message": "Copy UUID"
   },
@@ -3319,6 +3334,9 @@
   "options": {
     "message": "Options"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "preferences": {
     "message": "Preferences"
   },
@@ -3336,6 +3354,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "Default"
@@ -6900,6 +6921,9 @@
   },
   "inviteLink": {
     "message": "Invite link"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "lastGenerated": {
     "message": "Last generated: $DATE$",
@@ -12763,14 +12787,23 @@
   "assignToCollections": {
     "message": "Assign to collections"
   },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
@@ -12781,17 +12814,32 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -12820,6 +12868,9 @@
   },
   "items": {
     "message": "Items"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignedSeats": {
     "message": "Assigned seats"
@@ -13706,8 +13757,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -14219,6 +14282,15 @@
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14924,6 +14996,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "billingAddress": {
     "message": "Billing address"
