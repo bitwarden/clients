@@ -11,6 +11,7 @@ import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/p
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  NoItemsModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -39,6 +40,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     AppVaultIconComponent,
     I18nPipe,
     SvgModule,
+    NoItemsModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {

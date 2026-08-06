@@ -46,12 +46,13 @@
       }
     </bit-section>
   } @else {
-    <div class="tw-flex tw-flex-col tw-gap-2 tw-h-full tw-justify-center tw-items-center">
-      <div class="tw-size-[100px] tw-content-center">
-        <bit-svg [content]="emptyIcon()" aria-hidden="true" class="tw-h-full"></bit-svg>
-      </div>
-      <h5 bitTypography="h5">{{ "youreAllSet" | i18n }}</h5>
-      <p bitTypography="body2">{{ contentKeys().emptyKey | i18n }}</p>
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-no-items [icon]="emptyIcon()" class="tw-text-main">
+        <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+        <ng-container slot="description">
+          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ contentKeys().emptyKey | i18n }}</p>
+        </ng-container>
+      </bit-no-items>
     </div>
   }
 </popup-page>
