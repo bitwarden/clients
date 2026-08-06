@@ -29,11 +29,9 @@
     ></bit-bulk-action>
   </bit-bulk-actions-bar>
 
-  <bit-column sortable defaultSort="asc">
+  <bit-column sortable defaultSort="asc" width="minmax(12rem, 20rem)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.name; let row">
-      <span class="tw-truncate">{{ row.displayName }}</span>
-    </bit-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.displayName }}</bit-cell>
   </bit-column>
 
   <bit-column sortable width="120px">
@@ -41,10 +39,13 @@
     <bit-cell *bitCellDef="table.columns.itemCount; let row">{{ row.itemCount }}</bit-cell>
   </bit-column>
 
-  <bit-column width="120px">
-    <bit-header-cell>{{ "options" | i18n }}</bit-header-cell>
+  <bit-column>
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
     <bit-cell *bitCellDef="table.columns.options; let row">
       <button
+        slot="end"
         type="button"
         bitIconButton="bwi-pencil-square"
         size="small"
@@ -53,6 +54,7 @@
         (click)="editFolder(row)"
       ></button>
       <button
+        slot="end"
         type="button"
         bitIconButton="bwi-trash"
         buttonType="danger"
