@@ -29,6 +29,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
@@ -553,7 +554,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async lock() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await this.lockService.lock(activeUserId);
+    await this.lockService.lock(activeUserId, LockSource.Manual);
   }
 
   async logOut() {

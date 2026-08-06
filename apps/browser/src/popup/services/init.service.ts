@@ -9,6 +9,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
+import { ForegroundUnlockNotifierService } from "../../key-management/shared-unlock/foreground-unlock-notifier.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
@@ -27,6 +28,7 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
+    private readonly foregroundUnlockNotifierService: ForegroundUnlockNotifierService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -38,6 +40,8 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+      // Unlocks performed here must be reported to the background, where shared unlock lives.
+      this.foregroundUnlockNotifierService.init();
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);

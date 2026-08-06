@@ -14,6 +14,7 @@ import { PlatformUtilsService } from "../../platform/abstractions/platform-utils
 import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../../types/key";
+import { LockSource } from "../lock";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
 function fromSdkUserId(userId: UserId): TSUserId {
@@ -42,7 +43,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       return;
     }
 
-    await this.lockService.lock(fromSdkUserId(user_id));
+    await this.lockService.lock(fromSdkUserId(user_id), LockSource.SharedUnlock);
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
@@ -50,7 +51,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       return;
     }
 
-    await this.unlockService.unlockWithDecryptedUserKey(
+    await this.unlockService.unlockWithSharedUnlock(
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );

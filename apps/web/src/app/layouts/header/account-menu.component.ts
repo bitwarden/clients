@@ -4,6 +4,7 @@ import { map, Observable } from "rxjs";
 
 import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -37,7 +38,7 @@ export class AccountMenuComponent {
   protected async lock() {
     const userId = this.account()?.id;
     if (userId) {
-      await this.lockService.lock(userId);
+      await this.lockService.lock(userId, LockSource.Manual);
     }
   }
 

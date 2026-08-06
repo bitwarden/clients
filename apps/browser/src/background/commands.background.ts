@@ -8,6 +8,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -78,7 +79,7 @@ export default class CommandsBackground {
         break;
       case ExtensionCommand.LockVault: {
         const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-        await this.lockService.lock(activeUserId);
+        await this.lockService.lock(activeUserId, LockSource.Manual);
         break;
       }
       default:

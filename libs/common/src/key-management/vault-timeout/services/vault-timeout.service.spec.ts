@@ -16,6 +16,7 @@ import { PlatformUtilsService } from "../../../platform/abstractions/platform-ut
 import { Utils } from "../../../platform/misc/utils";
 import { TaskSchedulerService } from "../../../platform/scheduling";
 import { UserId } from "../../../types/guid";
+import { LockSource } from "../../lock";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
 
@@ -158,7 +159,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectUserToHaveLocked = (userId: string) => {
-    expect(lockService.lock).toHaveBeenCalledWith(userId);
+    expect(lockService.lock).toHaveBeenCalledWith(userId, LockSource.VaultTimeout);
   };
 
   const expectUserToHaveLoggedOut = (userId: string) => {
@@ -166,7 +167,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectNoAction = (userId: string) => {
-    expect(lockService.lock).not.toHaveBeenCalledWith(userId);
+    expect(lockService.lock).not.toHaveBeenCalledWith(userId, LockSource.VaultTimeout);
     expect(logoutService.logout).not.toHaveBeenCalledWith(userId, "vaultTimeout");
   };
 

@@ -8,6 +8,7 @@ import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import {
   VaultTimeoutAction,
   VaultTimeoutService,
@@ -127,13 +128,13 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async lock(userId: string) {
     this.loading = true;
-    await this.lockService.lock(userId as UserId);
+    await this.lockService.lock(userId as UserId, LockSource.Manual);
     await this.router.navigate(["lock"]);
   }
 
   async lockAll() {
     this.loading = true;
-    await this.lockService.lockAll();
+    await this.lockService.lockAll(LockSource.Manual);
     await this.router.navigate(["lock"]);
   }
 

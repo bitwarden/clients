@@ -8,6 +8,7 @@ import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/a
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { LockSource, toLockSource } from "@bitwarden/common/key-management/lock";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -321,17 +322,17 @@ export default class RuntimeBackground {
         this.lockedVaultPendingNotifications = [];
         break;
       case "lockVault":
-        await this.lockService.lock(msg.userId);
+        await this.lockService.lock(msg.userId, toLockSource(msg.source) ?? LockSource.Manual);
         break;
       case "lockAll":
         {
-          await this.lockService.lockAll();
+          await this.lockService.lockAll(toLockSource(msg.source) ?? LockSource.Manual);
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
         }
         break;
       case "lockUser":
         {
-          await this.lockService.lock(msg.userId);
+          await this.lockService.lock(msg.userId, toLockSource(msg.source) ?? LockSource.Manual);
           this.messagingService.send("lockUserFinished", {
             requestId: msg.requestId,
           });

@@ -3,6 +3,7 @@ import MainBackground from "@bitwarden/browser/background/main.background";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -53,8 +54,8 @@ export class ExtensionLockService extends DefaultLockService {
     );
   }
 
-  async runPlatformOnLockActions(userId: UserId): Promise<void> {
-    await super.runPlatformOnLockActions(userId);
+  async runPlatformOnLockActions(userId: UserId, source: LockSource): Promise<void> {
+    await super.runPlatformOnLockActions(userId, source);
     await this.main.refreshMenu(true);
   }
 }
