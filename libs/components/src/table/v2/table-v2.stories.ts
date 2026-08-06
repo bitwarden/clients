@@ -273,6 +273,62 @@ class DemoFilterableTableComponent {
 }
 
 /**
+ * Search on its own, with no filter chips. A projected `<bit-search>` registers the
+ * `search` key with the table the same way a chip registers its own key, so the
+ * model's `filter` just reads `f.search` and the "no matching items" state comes for
+ * free when a query excludes everything.
+ */
+@Component({
+  selector: "demo-searchable-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    SearchModule,
+    ButtonModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button bitButton buttonType="primary" type="button" slot="end">New</button>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoSearchableTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly filter = (row: VaultRow, f: { search?: string }) =>
+    !f.search || row.name.toLowerCase().includes(f.search.toLowerCase());
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
+/**
  * Sync filters, sort, and pagination to the URL with **`queryParam`** — set it to a
  * namespace and the table mirrors its state to `?<namespace>.*` params. A shared
  * link restores the view; inactive/default facets leave no param behind. The live
@@ -394,6 +450,7 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
@@ -901,6 +958,16 @@ export const FillPage: Story = {
 export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
+  }),
+};
+
+/**
+ * Search with no filter chips — the toolbar holds only `<bit-search>` and an action
+ * button. Searching is just another filter key, so nothing else has to be wired up.
+ */
+export const Searchable: Story = {
+  render: () => ({
+    template: `<demo-searchable-table></demo-searchable-table>`,
   }),
 };
 

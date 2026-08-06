@@ -55,6 +55,9 @@ export class BitTableToolbarComponent {
   /** The projected filters, matched by their shared `FILTER_PRESENTER` contract. */
   private readonly filters = contentChildren(FILTER_PRESENTER, { descendants: true });
 
+  /** Whether any filter chips are projected — false for a search-only toolbar. */
+  protected readonly hasFilters = computed(() => this.filters().length > 0);
+
   /** How many projected filters currently have a selection — the trigger's berry count. */
   readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
 

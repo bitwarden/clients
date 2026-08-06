@@ -10,7 +10,7 @@
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (!isLargeScreen()) {
+    @if (!isLargeScreen() && hasFilters()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
@@ -36,9 +36,12 @@
     removed) below md so the chips stay instantiated to back the dialog and the
     small-screen active-filter chips below.
   -->
-  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" [class.tw-hidden]="!isLargeScreen()">
+  <div
+    class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 empty:tw-hidden"
+    [class.tw-hidden]="!isLargeScreen()"
+  >
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
-    @if (table) {
+    @if (table && hasFilters()) {
       <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-muted">
         {{ "itemCount" | i18n: itemCount() }}
       </span>
