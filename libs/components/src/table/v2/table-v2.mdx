@@ -240,6 +240,12 @@ cell uses only the default slot.
 Set `truncate` (default `true`) to `false` to let the title and subtitle wrap instead of showing an
 ellipsis. The `secondary` and `end` slots are hidden when empty.
 
+## Forms
+
+Cells can hold form controls. Keep the controls in a **`FormRecord` keyed by row id**.
+
+<Canvas of={stories.FormRecordRows} />
+
 ## Sorting
 
 Add `sortable` to a `<bit-column>` to enable click-to-sort. Clicks cycle unsorted → ascending →

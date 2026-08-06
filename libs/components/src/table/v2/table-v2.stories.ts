@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -9,13 +10,16 @@ import { userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { AsyncActionsModule } from "../../async-actions";
 import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.component";
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule } from "../../filter-menu";
+import { FormFieldModule } from "../../form-field";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
+import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
 import { SearchModule } from "../../search";
@@ -374,6 +378,83 @@ class DemoUrlSyncTableComponent {
   }
 }
 
+type SeatRow = { id: number; name: string; email: string };
+
+const SEAT_ROWS: SeatRow[] = [
+  { id: 1, name: "Alex Chen", email: "alex.chen@example.com" },
+  { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com" },
+  { id: 3, name: "Jordan Park", email: "jordan.park@example.com" },
+  { id: 4, name: "Robin Vale", email: "robin.vale@example.com" },
+];
+
+@Component({
+  selector: "demo-form-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    FormFieldModule,
+    InputModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
+  template: `
+    <form [formGroup]="emails" [bitSubmit]="submit">
+      <bit-table-v2 [tableDef]="table" [trackBy]="trackBy">
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Email</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <bit-form-field disableMargin>
+              <bit-label class="tw-sr-only">Email for {{ row.name }}</bit-label>
+              <input bitInput [formControlName]="row.id" />
+            </bit-form-field>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+
+      <button bitButton bitFormButton buttonType="primary" type="submit" class="tw-mt-4">
+        Submit
+      </button>
+    </form>
+
+    @if (submitted(); as json) {
+      <pre class="tw-mt-4 tw-text-xs">{{ json }}</pre>
+    }
+  `,
+})
+class DemoFormTableComponent {
+  protected readonly emails = new FormRecord<FormControl<string>>(
+    Object.fromEntries(
+      SEAT_ROWS.map((seat) => [seat.id, new FormControl(seat.email, { nonNullable: true })]),
+    ),
+  );
+
+  protected readonly table = defineTable<SeatRow>(signal(SEAT_ROWS));
+
+  protected readonly trackBy = (_: number, row: SeatRow) => row.id;
+
+  protected readonly submitted = signal<string | undefined>(undefined);
+
+  protected readonly submit = async () => {
+    // `bitSubmit` only disables buttons, so lock the fields here.
+    this.emails.disable();
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      this.submitted.set(JSON.stringify(this.emails.getRawValue(), null, 2));
+    } finally {
+      this.emails.enable();
+    }
+  };
+}
+
 export default {
   title: "Component Library/Table V2 (Beta)",
   decorators: [
@@ -395,6 +476,7 @@ export default {
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
         DemoUrlSyncTableComponent,
+        DemoFormTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
@@ -1087,6 +1169,17 @@ export const Pagination: Story = {
         <bit-table-paginator [pageSize]="10" [pageSizeOptions]="pageSizeOptions"></bit-table-paginator>
       </bit-table-v2>
     `,
+  }),
+};
+
+/**
+ * A table used as a form. Controls live in a `FormRecord` keyed by row id rather than
+ * a `FormArray` indexed by position, so sorting can't repoint a cell at the wrong
+ * control.
+ */
+export const FormRecordRows: Story = {
+  render: () => ({
+    template: `<demo-form-table></demo-form-table>`,
   }),
 };
 
