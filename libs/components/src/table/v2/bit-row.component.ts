@@ -52,7 +52,10 @@ export class BitRowComponent {
     // `group/row` lets cell templates reveal row-hover affordances (e.g. quick
     // copy/launch actions) with `group-hover/row:*`. Rows don't nest, so the
     // shared group name scopes to each row's own subtree without collisions.
-    const layout = "tw-group/row tw-grid tw-grid-flow-col tw-auto-cols-fr";
+    // A fixed height can't absorb a tall cell, so clip it rather than let it overlap the next row.
+    const layout = `tw-group/row tw-grid tw-grid-flow-col tw-auto-cols-fr${
+      this.fixedHeight() != null ? " tw-overflow-clip" : ""
+    }`;
     if (this.table?.presentation() === "list") {
       // `list` rows size to content off a `bit-item`-style minimum height.
       return `${layout} tw-min-h-9 tw-mb-1.5 tw-rounded-lg tw-bg-background tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow hover:tw-bg-hover-default`;
