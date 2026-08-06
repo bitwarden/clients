@@ -103,14 +103,13 @@ describe("DefaultAutoUnlockService", () => {
       expect(keyService.clearAllStoredUserKeys).not.toHaveBeenCalled();
     });
 
-    it("throws away the stored keys when the stored key fails validation", async () => {
+    it("throws away the stored keys and returns null when the stored key fails validation", async () => {
       stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
       keyService.validateUserKey.mockResolvedValue(false);
 
-      // Note: the invalid key is still returned, preserving the behavior this replaced.
       const result = await sut.getAutoUnlockKey(mockUserId);
 
-      expect(result).toEqual(mockUserKey);
+      expect(result).toBeNull();
       expect(logService.warning).toHaveBeenCalledWith("Invalid key, throwing away stored keys");
       expect(keyService.clearAllStoredUserKeys).toHaveBeenCalledWith(mockUserId);
     });

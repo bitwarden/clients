@@ -1828,7 +1828,11 @@ export default class MainBackground {
     await this.tokenService.cleanupTokenStorage(userIds);
 
     for (const userId of userIds) {
-      await this.unlockService.unlockWithAutoUnlockKey(userId);
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(userId);
+      } catch (e) {
+        this.logService.error("Failed to auto-unlock user on bootstrap", e);
+      }
     }
 
     await (this.i18nService as I18nService).init();

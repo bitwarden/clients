@@ -36,6 +36,7 @@ export class DefaultAutoUnlockService implements AutoUnlockService {
     if (!(await this.keyService.validateUserKey(autoUnlockKey, userId))) {
       this.logService.warning("Invalid key, throwing away stored keys");
       await this.keyService.clearAllStoredUserKeys(userId);
+      return null;
     }
 
     return autoUnlockKey;
