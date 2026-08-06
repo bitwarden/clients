@@ -329,6 +329,9 @@ describe("VaultCipherRowComponent", () => {
       component.cipher = cipher;
       component.organizations = [];
       component.collections = [];
+      // The badge lives in the Controlled access column, which the table shows only when the
+      // seam is provided — mirror that gating here.
+      component.showControlledAccess = provideBadge;
       fixture.detectChanges();
     }
 
@@ -339,7 +342,7 @@ describe("VaultCipherRowComponent", () => {
       expect(fixture.debugElement.query(By.directive(TestLeaseBadgeComponent))).toBeNull();
     });
 
-    it("renders the host badge with the row's cipher", async () => {
+    it("renders the host badge in the Controlled access column with the row's cipher", async () => {
       await setupBadge(true);
 
       expect(component["leaseBadge"]).toBe(TestLeaseBadgeComponent);

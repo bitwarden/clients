@@ -275,7 +275,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * clobber the suppressed fields with the blanks the client holds.
    */
   protected get isPartialData() {
-    return this.cipher?.partialData != null;
+    return this.cipher?.partial ?? false;
   }
 
   protected get showEdit() {

@@ -110,6 +110,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() viewingOrgVault: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCipher: boolean;

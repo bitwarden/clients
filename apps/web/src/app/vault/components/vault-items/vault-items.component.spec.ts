@@ -3,6 +3,7 @@ import { TestBed } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -14,6 +15,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { RoutedVaultFilterService, RoutedVaultFilterModel, VaultItem } from "@bitwarden/vault";
 
 import { VaultItemsComponent } from "./vault-items.component";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
@@ -75,6 +77,57 @@ describe("VaultItemsComponent", () => {
 
     const fixture = TestBed.createComponent(VaultItemsComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("showControlledAccess (Controlled access column)", () => {
+    class TestLeaseBadge {}
+
+    async function setup(provideBadge: boolean): Promise<VaultItemsComponent<CipherViewLike>> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        declarations: [VaultItemsComponent],
+        imports: [ScrollingModule, TableModule, I18nPipe, MenuModule],
+        providers: [
+          {
+            provide: CipherAuthorizationService,
+            useValue: { canDeleteCipher$: jest.fn(), canRestoreCipher$: jest.fn() },
+          },
+          {
+            provide: RestrictedItemTypesService,
+            useValue: { restricted$: of([]), isCipherRestricted: jest.fn().mockReturnValue(false) },
+          },
+          { provide: I18nService, useValue: { t: (key: string) => key } },
+          { provide: RoutedVaultFilterService, useValue: { filter$: filterSelect } },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
+          ...(provideBadge ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadge }] : []),
+        ],
+      });
+      return TestBed.createComponent(VaultItemsComponent).componentInstance;
+    }
+
+    const pamOrg = { usePam: true } as Organization;
+    const normalOrg = { usePam: false } as Organization;
+
+    it("is hidden when no host provides the badge seam, even with a PAM-enabled org", async () => {
+      const c = await setup(false);
+      c.allOrganizations = [pamOrg];
+      expect(c.showControlledAccess).toBe(false);
+    });
+
+    it("is hidden when the badge seam is present but no org has PAM enabled", async () => {
+      const c = await setup(true);
+      c.allOrganizations = [normalOrg];
+      expect(c.showControlledAccess).toBe(false);
+    });
+
+    it("is shown when the badge seam is present and a PAM-enabled org is in view", async () => {
+      const c = await setup(true);
+      c.allOrganizations = [normalOrg, pamOrg];
+      expect(c.showControlledAccess).toBe(true);
+    });
   });
 
   describe("bulkArchiveAllowed", () => {

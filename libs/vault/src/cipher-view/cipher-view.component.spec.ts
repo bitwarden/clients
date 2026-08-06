@@ -37,7 +37,7 @@ import { CipherViewComponent } from "./cipher-view.component";
 })
 class TestBannerComponent {
   readonly cipherId = input<string>();
-  readonly partialData = input<string | undefined>();
+  readonly partial = input<boolean>();
   readonly leaseGated = input<boolean>();
 }
 
@@ -161,7 +161,7 @@ describe("CipherViewComponent", () => {
             bannerComponent;
             inputs: {
               cipherId: cipher().id,
-              partialData: cipher().partialData,
+              partial: cipher().partial,
               leaseGated: cipher().leaseGated,
             }
           "
@@ -216,11 +216,11 @@ describe("CipherViewComponent", () => {
       expect(fixture.debugElement.query(By.directive(TestBannerComponent))).toBeNull();
     });
 
-    it("renders the host banner with the cipher's id, partialData, and leaseGated", async () => {
+    it("renders the host banner with the cipher's id, partial flag, and leaseGated", async () => {
       await setupBanner(true);
       const cipher = new CipherView();
       cipher.id = "cipher-id";
-      cipher.partialData = "partial-blob";
+      cipher.partial = true;
       cipher.leaseGated = true;
       fixture.componentRef.setInput("cipher", cipher);
       fixture.detectChanges();
@@ -230,7 +230,7 @@ describe("CipherViewComponent", () => {
       expect(banner).not.toBeNull();
       const instance = banner.componentInstance as TestBannerComponent;
       expect(instance.cipherId()).toBe("cipher-id");
-      expect(instance.partialData()).toBe("partial-blob");
+      expect(instance.partial()).toBe(true);
       expect(instance.leaseGated()).toBe(true);
     });
   });

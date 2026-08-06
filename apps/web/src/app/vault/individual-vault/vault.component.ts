@@ -1170,6 +1170,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     // under privileged access; unprovided means every cipher opens from local state.
     const verdict = (await this.cipherOpenGate?.check(cipher, activeUserId)) ?? "open";
 
+    if (verdict === "handled") {
+      // The gate surfaced its own UX (e.g. the unlicensed "license required" dialog) and
+      // blocked the open. Don't build a form config or open the dialog.
+      return;
+    }
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,

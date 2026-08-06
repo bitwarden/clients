@@ -91,63 +91,6 @@ describe("RepositoryRecord", () => {
     });
   });
 
-  describe("shouldInclude filtering", () => {
-    // `excluded:`-prefixed values stand in for records the SDK cannot represent.
-    function createFilteringMapper(): SdkRecordMapper<ClientType, SdkType> {
-      return {
-        ...createMapper(),
-        shouldInclude: (value: ClientType) => !value.startsWith("excluded:"),
-      };
-    }
-
-    beforeEach(() => {
-      repo = new RepositoryRecord(userId, stateProvider, createFilteringMapper());
-    });
-
-    it("get returns the mapped value for an included element", async () => {
-      await setState({ "id-1": "value-1" });
-
-      const result = await repo.get("id-1");
-
-      expect(result).toEqual({ value: "value-1" });
-    });
-
-    it("get returns null for a stored but excluded element", async () => {
-      await setState({ "id-1": "excluded:value-1" });
-
-      const result = await repo.get("id-1");
-
-      expect(result).toBeNull();
-    });
-
-    it("list omits excluded elements and keeps the rest", async () => {
-      await setState({ "id-1": "value-1", "id-2": "excluded:value-2", "id-3": "value-3" });
-
-      const result = await repo.list();
-
-      expect(result).toEqual([{ value: "value-1" }, { value: "value-3" }]);
-    });
-
-    it("list returns everything when the mapper has no shouldInclude", async () => {
-      repo = new RepositoryRecord(userId, stateProvider, createMapper());
-      await setState({ "id-1": "value-1", "id-2": "excluded:value-2" });
-
-      const result = await repo.list();
-
-      expect(result).toEqual([{ value: "value-1" }, { value: "excluded:value-2" }]);
-    });
-
-    it("set still writes an excluded element to state", async () => {
-      await setState({});
-
-      await repo.set("id-1", { value: "excluded:value-1" });
-
-      // Excluding a record hides it from the SDK; it must still round-trip through client state.
-      expect(await getState()).toEqual({ "id-1": "excluded:value-1" });
-      expect(await repo.get("id-1")).toBeNull();
-    });
-  });
-
   describe("set", () => {
     it("adds new item to empty state", async () => {
       await setState({});

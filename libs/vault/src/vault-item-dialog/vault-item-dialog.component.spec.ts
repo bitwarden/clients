@@ -234,14 +234,14 @@ describe("VaultItemDialogComponent", () => {
       expect(component["isPartialData"]).toBe(false);
     });
 
-    it("isPartialData is true when the cipher carries partialData", () => {
-      component.setTestCipher({ id: "c1", type: CipherType.Login, partialData: "{}" } as any);
+    it("isPartialData is true when the cipher is partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
       expect(component["isPartialData"]).toBe(true);
     });
 
     it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
-      component.setTestCipher({ id: "c1", type: CipherType.Login, partialData: "{}" } as any);
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
       // Saving a partial cipher would clobber the server-suppressed fields.
       expect(component["showEdit"]).toBe(false);
@@ -257,7 +257,7 @@ describe("VaultItemDialogComponent", () => {
       const partial = { id: "c1", partialData: "{}" } as any;
       cipherServiceMock.decrypt.mockResolvedValue({
         id: "c1",
-        partialData: "{}",
+        partial: true,
         collectionIds: [],
       } as any);
       component.setTestParams({ mode: "form" });

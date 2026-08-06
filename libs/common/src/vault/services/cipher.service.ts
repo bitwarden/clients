@@ -2169,25 +2169,16 @@ export class CipherService implements CipherServiceAbstraction {
       return [[], []];
     }
 
-    // PAM gated rows can't go through the SDK (no partial-data decrypt path), so decrypt
-    // them separately and merge the results back in, keeping them in the vault list.
-    const partialCiphers = ciphers.filter((c) => c.partialData != null);
-    const decryptableCiphers = ciphers.filter((c) => c.partialData == null);
-    const partialViews = await this.decryptPartialCiphers(partialCiphers, userId);
-
     if (fullDecryption) {
       const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
-        decryptableCiphers,
+        ciphers,
         userId,
       );
-      return [
-        [...partialViews, ...decryptedViews].sort(this.getLocaleSortingFunction()),
-        failedViews,
-      ];
+      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
     }
 
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
-      decryptableCiphers,
+      ciphers,
       userId,
     );
 
@@ -2198,48 +2189,7 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher_view;
     });
 
-    return [[...partialViews, ...decrypted].sort(this.getLocaleSortingFunction()), failedViews];
-  }
-
-  /**
-   * Decrypt PAM gated rows. The encrypted name has been lifted out of `partialData` onto
-   * `cipher.name` by {@link CipherResponse}, so the standard decrypt path handles it; every
-   * other field on a gated cipher is null, so the type-specific branches short-circuit and
-   * the view ends up with just a decrypted name (plus login URIs, for logins) and the
-   * `partialData` marker that keeps it gated.
-   *
-   * This is the one caller that still needs the deprecated {@link Cipher.decrypt}. That
-   * deprecation is about blob encryption, and a gated cipher never carries a blob — the
-   * server only strips ciphers whose data is not blob-encrypted. Going through the SDK
-   * instead is what fails here, and decrypting the fields by hand would mean duplicating
-   * the login-URI checksum validation, which is not worth reimplementing.
-   */
-  private async decryptPartialCiphers(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
-    if (ciphers.length === 0) {
-      return [];
-    }
-
-    const keys = await firstValueFrom(
-      this.keyService.cipherDecryptionKeys$(userId, true).pipe(filterOutNullish()),
-    );
-
-    return Promise.all(
-      ciphers.map(async (cipher) => {
-        const key = cipher.organizationId
-          ? keys.orgKeys?.[cipher.organizationId as OrganizationId]
-          : keys.userKey;
-
-        if (key == null) {
-          // No key for this cipher's scope. Render the row with an empty name rather than
-          // dropping it — the gating marker is preserved either way.
-          const view = new CipherView(cipher);
-          view.name = "";
-          return view;
-        }
-
-        return cipher.decrypt(key);
-      }),
-    );
+    return [decrypted.sort(this.getLocaleSortingFunction()), failedViews];
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */

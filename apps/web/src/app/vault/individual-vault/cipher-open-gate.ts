@@ -5,11 +5,14 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
  * Verdict returned by the open gate.
  *
  * - `"open"` — proceed with the cipher already in local state.
+ * - `"handled"` — the gate fully handled the interaction (e.g. it surfaced a "Privileged
+ *   Controls license required" dialog for an unlicensed member, or a request-access flow)
+ *   and the vault must NOT open the cipher.
  * - `{ kind: "openWith", cipher }` — proceed, but render the supplied {@link Cipher}
  *   instead of the locally-cached one. Lets a gate substitute a transient full cipher
  *   fetched from the server while the local cache keeps only partial data.
  */
-export type CipherOpenVerdict = "open" | { kind: "openWith"; cipher: Cipher };
+export type CipherOpenVerdict = "open" | "handled" | { kind: "openWith"; cipher: Cipher };
 
 /**
  * Structural shape of the cipher passed to {@link CipherOpenGate.check}. Only the id and

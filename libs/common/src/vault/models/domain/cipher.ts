@@ -70,16 +70,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
   data?: string;
-  /** Raw JSON-string partial-data payload for PAM-gated rows; see {@link CipherData.partialData}. */
+  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
   partialData?: string;
-  /**
-   * Client-only, transient marker stamped on a full cipher served under an active PAM
-   * lease. Unlike {@link partialData} it is never sent by the server, persisted to
-   * `CipherData`, or round-tripped through JSON — it exists only so gating surfaces can
-   * tell a leased cipher is PAM-governed once it is fully decrypted and `partialData`
-   * is gone.
-   */
-  leaseGated?: boolean;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -311,7 +303,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
-    // `leaseGated` is deliberately not persisted — it is transient, per-view state.
+    // The gating envelope is persisted so it round-trips to the SDK on every decrypt.
     c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
@@ -396,7 +388,6 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
 
-    // `leaseGated` is deliberately absent — it must not survive serialization.
     domain.partialData = obj.partialData ?? undefined;
 
     domain.collectionIds = obj.collectionIds;
@@ -512,6 +503,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       driversLicense: undefined,
       passport: undefined,
       data: this.data,
+      // Carry the gating envelope into the SDK, which parses it and decrypts the partial view.
+      partialData: this.partialData,
     };
 
     switch (this.type) {
@@ -604,6 +597,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
     cipher.data = sdkCipher.data;
+    // Preserve the gating envelope across the SDK round trip so it stays persisted.
+    cipher.partialData = sdkCipher.partialData;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);

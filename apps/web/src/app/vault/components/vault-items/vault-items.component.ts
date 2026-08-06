@@ -46,6 +46,7 @@ import {
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 76.5;
@@ -159,6 +160,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected readonly batchBarService = inject(VaultBatchBarService, {
     optional: true,
   }) as VaultBatchBarService<C> | null;
+
+  /**
+   * Host-provided "Controlled access" badge seam. Its presence (a privileged-access feature is
+   * installed) is what surfaces the Controlled access column; unprovided, the column is absent
+   * and the table is unchanged.
+   */
+  protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
@@ -277,7 +285,17 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get showExtraColumn() {
-    return this.showCollections || this.showGroups || this.showOwner;
+    return this.showCollections || this.showGroups || this.showOwner || this.showControlledAccess;
+  }
+
+  /**
+   * Whether to render the "Controlled access" column. Shown only when the viewer actually has
+   * PAM enabled — i.e. at least one organization in view has the Privileged Access capability
+   * (`usePam`) — and a host provides the badge seam. Without a PAM-enabled org the column is
+   * absent and the table is unchanged.
+   */
+  get showControlledAccess() {
+    return this.leaseBadge != null && this.allOrganizations.some((o) => o.usePam);
   }
 
   get isAllSelected() {

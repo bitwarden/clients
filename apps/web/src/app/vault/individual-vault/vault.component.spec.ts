@@ -484,6 +484,15 @@ describe("VaultComponent", () => {
       const params = openVaultItemDialogSpy.mock.lastCall[1];
       expect(params.formConfig.originalCipher).toBe(mockCipher);
     });
+
+    it("does not open the dialog when the gate returns handled", async () => {
+      // The gate blocked the open and surfaced its own UX (e.g. the unlicensed-license modal).
+      component["cipherOpenGate"] = { check: jest.fn().mockResolvedValue("handled") };
+
+      await openAndFlush();
+
+      expect(openVaultItemDialogSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("addCollection", () => {

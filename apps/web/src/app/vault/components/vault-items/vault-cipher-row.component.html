@@ -36,11 +36,6 @@
     >
       {{ cipher.name }}
     </button>
-    @if (leaseBadge) {
-      <span class="tw-ml-2">
-        <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
-      </span>
-    }
     @if (hasAttachments) {
       <ng-container>
         <i
@@ -100,6 +95,13 @@
     >
       {{ permissionText }}
     </p>
+  </td>
+}
+@if (showControlledAccess) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    @if (leaseBadge) {
+      <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
+    }
   </td>
 }
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">

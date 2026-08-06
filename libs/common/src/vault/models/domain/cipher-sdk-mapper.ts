@@ -20,14 +20,4 @@ export class CipherRecordMapper implements SdkRecordMapper<CipherData, SdkCipher
     const cipher = Cipher.fromSdkCipher(value);
     return cipher!.toCipherData();
   }
-
-  /**
-   * Excludes PAM gated rows from the SDK-visible state. The SDK has no partial-data
-   * decrypt path and rejects sparsely-populated ciphers with a serde
-   * "invalid type: unit value" error, so we hide them entirely. They still live in
-   * client state, where the cipher service and the vault-row badge can see them.
-   */
-  shouldInclude(value: CipherData): boolean {
-    return value.partialData == null;
-  }
 }

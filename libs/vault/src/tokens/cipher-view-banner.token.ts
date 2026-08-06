@@ -9,8 +9,8 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
  * leave it unprovided, so the cipher view injects `null` and renders nothing.
  *
  * The token holds the component CLASS — `cipher-view` renders it with
- * `NgComponentOutlet`, passing `cipherId` (string), `partialData` (string | undefined),
- * and `leaseGated` (boolean) — so `libs/vault` needs no dependency on the feature
- * library that implements the banner.
+ * `NgComponentOutlet`, passing `cipherId` (string), `partial` (boolean — true when the
+ * server gated this cipher), and `leaseGated` (boolean) — so `libs/vault` needs no
+ * dependency on the feature library that implements the banner.
  */
 export const CIPHER_VIEW_BANNER = new SafeInjectionToken<Type<unknown>>("CipherViewBanner");
