@@ -1,10 +1,11 @@
 import { UserKeyState } from "@bitwarden/sdk-internal";
 
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
-import { USER_KEY } from "../platform/services/key-state/user-key.state";
 import { SdkRecordMapper } from "../platform/services/sdk/client-managed-state";
 import { UserKeyDefinition } from "../platform/state";
 import { UserKey } from "../types/key";
+
+import { USER_KEY } from "./state-definitions";
 
 export class UserKeyRecordMapper implements SdkRecordMapper<UserKey, UserKeyState> {
   userKeyDefinition(): UserKeyDefinition<Record<string, UserKey>> {
