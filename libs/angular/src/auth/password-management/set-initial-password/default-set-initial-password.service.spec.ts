@@ -485,32 +485,16 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should create and set master password unlock data to prevent race condition with sync", async () => {
+        it("should set master password unlock data to state to prevent race condition with sync", async () => {
           // Arrange
           setupMocks();
-
-          const mockUnlockData = {
-            salt: credentials.salt,
-            kdf: credentials.kdfConfig,
-            masterKeyWrappedUserKey: "wrapped_key_string",
-          };
-
-          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-            mockUnlockData as any,
-          );
 
           // Act
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-            credentials.newPassword,
-            credentials.kdfConfig,
-            credentials.salt,
-            masterKeyEncryptedUserKey[0],
-          );
           expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-            mockUnlockData,
+            unlockData,
             userId,
           );
         });
@@ -737,32 +721,16 @@ describe("DefaultSetInitialPasswordService", () => {
           );
         });
 
-        it("should create and set master password unlock data to prevent race condition with sync", async () => {
+        it("should set master password unlock data to state to prevent race condition with sync", async () => {
           // Arrange
           setupMocks({ ...defaultMockConfig, userType });
-
-          const mockUnlockData = {
-            salt: credentials.salt,
-            kdf: credentials.kdfConfig,
-            masterKeyWrappedUserKey: "wrapped_key_string",
-          };
-
-          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-            mockUnlockData as any,
-          );
 
           // Act
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-            credentials.newPassword,
-            credentials.kdfConfig,
-            credentials.salt,
-            masterKeyEncryptedUserKey[0],
-          );
           expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-            mockUnlockData,
+            unlockData,
             userId,
           );
         });
