@@ -6,11 +6,6 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { InvoicePreviewResponse } from "./invoice-preview.response";
 import { StorageResponse } from "./storage.response";
 
-// Compared as literals rather than via the `SubscriptionStatuses` const object: a value import
-// would load the `@bitwarden/subscription` barrel — and its Angular components — at runtime,
-// which libs/common (consumed by the non-Angular CLI) must not do. `satisfies` checks each
-// literal against `SubscriptionStatus` (so drift from the union is still a compile error) while
-// keeping the literal type, which the `toDomain` switch needs to narrow the status union.
 const Incomplete = "incomplete" satisfies SubscriptionStatus;
 const IncompleteExpired = "incomplete_expired" satisfies SubscriptionStatus;
 const Trialing = "trialing" satisfies SubscriptionStatus;

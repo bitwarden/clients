@@ -23,18 +23,10 @@ export class InvoicePreviewItemResponse extends BaseResponse implements InvoiceP
   constructor(response: any) {
     super(response);
 
-    // Deliberately not validated against the `PurchasableReference` union. A reference the client
-    // does not recognize is a forward-compatibility case, not a parse failure: the translation
-    // layer logs it and renders an empty label rather than failing the whole cart.
     this.reference = this.getResponseProperty("Reference");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
 
-    // Discount members are serialized PascalCase like the enclosing fields, per the
-    // PM-39925/PM-39926 preview contract. `InvoicePreviewDiscountResponse` tolerates either
-    // casing via `getResponseProperty`, so a serializer surprise degrades gracefully instead of
-    // leaving every member `undefined`. The same contract applies to
-    // `InvoicePreviewResponse.discounts`.
     const discounts = this.getResponseProperty("Discounts");
     if (discounts) {
       this.discounts = discounts.map(
