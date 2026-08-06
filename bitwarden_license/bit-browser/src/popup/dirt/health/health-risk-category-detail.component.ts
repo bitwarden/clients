@@ -24,6 +24,8 @@ import {
   TypographyModule,
   ButtonModule,
   IconButtonModule,
+  MenuModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -47,6 +49,8 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     IconButtonModule,
     AppVaultIconComponent,
     I18nPipe,
+    MenuModule,
+    IconModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
