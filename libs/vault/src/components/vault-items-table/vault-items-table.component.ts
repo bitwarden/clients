@@ -3,10 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 
@@ -46,6 +48,9 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { VaultItem } from "../vault-item";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -174,6 +179,13 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
  *
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
+ * Selection is always on: every row carries a checkbox and the header offers select-all over the
+ * filtered rows. `VaultBatchBarService` is a **required collaborator** the host provides — the
+ * table bridges its own selection into that service's CDK `SelectionModel` (see
+ * {@link bridgeSelection}), so the bulk actions in `<bit-vault-batch-action>` follow from the rows
+ * a user checks with no per-client wiring. A host that renders this table therefore has to provide
+ * the service and render the batch action component beside it.
+ *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
  *
  * @example
@@ -188,6 +200,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
  * >
  *   <button slot="toolbar" bitButton buttonType="primary" type="button">Add</button>
  * </vault-items-table>
+ * <bit-vault-batch-action />
  * ```
  */
 @Component({
@@ -222,6 +235,12 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
 })
 export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
+
+  /**
+   * The batch bar's selection state, bridged to the table's own in {@link bridgeSelection}. A
+   * required collaborator the host provides — see the class docs.
+   */
+  private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService);
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
@@ -558,6 +577,47 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * memoized search result has to be computed outside the per-row call.
    */
   private readonly tableComponent = viewChild(BitTableV2Component);
+
+  /**
+   * Bridges `bit-table-v2`'s signal-native `TableSelectionModel<C>` to the batch bar's CDK
+   * `SelectionModel<VaultItem<C>>`, so selecting rows drives `VaultBatchBarService`'s `can*`
+   * permission signals and `<bit-vault-batch-action>` without any per-client wiring.
+   *
+   * The two models differ in more than shape. The table's is keyed by row *reference* and scoped to
+   * the filtered view; the batch bar's is keyed by cipher *id* (`compareVaultItems`) and holds
+   * `VaultItem` wrappers that may also carry collections. Because this table is cipher-only, the
+   * mapping is the total function `C` ⇄ `{ cipher: C }`.
+   *
+   * Sync runs table → batch bar: the table owns the checkbox UI, so it's the source of truth, and
+   * `setSelection` makes the batch bar match it wholesale rather than diffing. The reverse
+   * direction is handled by the batch bar clearing its own selection after a completed action and
+   * on route-filter changes — {@link syncFromBatchBar} mirrors those clears back so the checkboxes
+   * don't stay checked against rows that no longer exist.
+   */
+  private readonly bridgeSelection = effect(() => {
+    const model = this.tableComponent()?.selectionModel();
+    if (model == null) {
+      return;
+    }
+    const items = model.selected().map((cipher) => ({ cipher }) as VaultItem<C>);
+    // Untracked: `setSelection` emits on the CDK model, which `syncFromBatchBar` reads. Writing it
+    // as a tracked read would make the two effects retrigger each other.
+    untracked(() => this.batchBarService.selection.setSelection(...items));
+  });
+
+  /**
+   * Mirrors a cleared batch-bar selection back onto the table — see {@link bridgeSelection}.
+   *
+   * Only clears propagate. The batch bar never adds to its own selection, and a partial
+   * `deselect` can't be mapped back to row references reliably, so treating "empty" as the one
+   * inbound signal keeps the bridge one-directional in every other case.
+   */
+  private readonly syncFromBatchBar = effect(() => {
+    if (this.batchBarService.selectedCount() > 0) {
+      return;
+    }
+    untracked(() => this.tableComponent()?.selectionModel()?.clear());
+  });
 
   /**
    * The live search term. Cast because a view query erases the table's generics, so its
