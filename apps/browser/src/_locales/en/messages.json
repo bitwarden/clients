@@ -1058,6 +1058,21 @@
   "addedFolder": {
     "message": "Folder added"
   },
+  "folderEdited": {
+    "message": "Folder edited"
+  },
+  "enterANameMaxLength": {
+    "message": "Enter a name that's $MAX$ characters or fewer.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "enterAName": {
+    "message": "Enter a name."
+  },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
