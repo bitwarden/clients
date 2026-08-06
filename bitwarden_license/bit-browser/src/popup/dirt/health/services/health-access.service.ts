@@ -10,12 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
-import {
-  HEALTH_TAB_VIEWED_DISK,
-  RUN_HEALTH_SCAN_DISK,
-  StateProvider,
-  UserKeyDefinition,
-} from "@bitwarden/state";
+import { BROWSER_HEALTH_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 /**
  * Service responsible for determining access to the browser extension Health report feature.
@@ -105,17 +100,21 @@ export class HealthAccessService {
 }
 
 const HEALTH_TAB_OPENED_KEY = new UserKeyDefinition<boolean>(
-  HEALTH_TAB_VIEWED_DISK,
+  BROWSER_HEALTH_DISK,
   "healthTabOpened",
   {
     deserializer: (value) => value ?? false,
     clearOn: [],
   },
 );
-const RUN_HEALTH_SCAN_KEY = new UserKeyDefinition<boolean>(RUN_HEALTH_SCAN_DISK, "runHealthScan", {
-  deserializer: (value) => value ?? false,
-  clearOn: [],
-});
+const RUN_HEALTH_SCAN_KEY = new UserKeyDefinition<boolean>(
+  BROWSER_HEALTH_DISK,
+  "hasRunHealthScan",
+  {
+    deserializer: (value) => value ?? false,
+    clearOn: [],
+  },
+);
 
 export const canAccessHealth: CanActivateFn = () => {
   const router = inject(Router);

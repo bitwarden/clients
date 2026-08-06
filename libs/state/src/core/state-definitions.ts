@@ -123,10 +123,7 @@ export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
-  web: "disk-local",
-});
-export const RUN_HEALTH_SCAN_DISK = new StateDefinition("runHealthScan", "disk", {
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
   web: "disk-local",
 });
 
