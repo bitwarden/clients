@@ -11,7 +11,8 @@ import {
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { BiometricStateService } from "@bitwarden/key-management";
+import { AutoUnlockService } from "@bitwarden/unlock";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -39,7 +40,7 @@ import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.st
 describe("VaultTimeoutSettingsService", () => {
   let accountService: FakeAccountService;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
-  let keyService: MockProxy<KeyService>;
+  let autoUnlockService: MockProxy<AutoUnlockService>;
   let tokenService: MockProxy<TokenService>;
   let policyService: MockProxy<PolicyService>;
   const biometricStateService = mock<BiometricStateService>();
@@ -56,7 +57,7 @@ describe("VaultTimeoutSettingsService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
-    keyService = mock<KeyService>();
+    autoUnlockService = mock<AutoUnlockService>();
     tokenService = mock<TokenService>();
     policyService = mock<PolicyService>();
 
@@ -965,7 +966,7 @@ describe("VaultTimeoutSettingsService", () => {
         stateProvider.singleUser.getFake(mockUserId, VAULT_TIMEOUT).nextMock,
       ).toHaveBeenCalledWith(timeout);
 
-      expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
+      expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
     });
 
     it("should re-store the tokens when the timeout is not never and the action is log out", async () => {
@@ -1009,7 +1010,7 @@ describe("VaultTimeoutSettingsService", () => {
     return new VaultTimeoutSettingsService(
       accountService,
       userDecryptionOptionsService,
-      keyService,
+      autoUnlockService,
       tokenService,
       policyService,
       biometricStateService,

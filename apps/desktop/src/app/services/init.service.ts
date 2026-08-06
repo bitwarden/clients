@@ -20,7 +20,6 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
@@ -52,7 +51,7 @@ export class InitService {
     private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
-    private userAutoUnlockKeyService: UserAutoUnlockKeyService,
+    private unlockService: UnlockService,
     private accountService: AccountService,
     private tokenService: TokenService,
     private versionService: VersionService,
@@ -65,7 +64,6 @@ export class InitService {
     private configService: ConfigService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
-    private unlockService: UnlockService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
@@ -85,16 +83,14 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
-      const setUserKeyInMemoryPromises = [];
       for (const userId of userIds) {
-        // For each acct, we must await the process of setting the user key in memory
-        // if the auto user key is set to avoid race conditions of any code trying to access
-        // the user key from mem.
-        setUserKeyInMemoryPromises.push(
-          this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
-        );
+        try {
+          await this.unlockService.unlockWithAutoUnlockKey(userId);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(`Error occurred while unlocking user key for user ${userId}:`, e);
+        }
       }
-      await Promise.all(setUserKeyInMemoryPromises);
 
       await this.serverCommunicationConfigService.init();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

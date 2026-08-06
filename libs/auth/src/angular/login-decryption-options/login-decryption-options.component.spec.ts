@@ -37,6 +37,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { AnonLayoutWrapperDataService, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsComponent } from "./login-decryption-options.component";
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
@@ -69,6 +70,7 @@ describe("LoginDecryptionOptionsComponent", () => {
   let accountCryptographicStateService: MockProxy<any>;
   let authService: MockProxy<AuthService>;
   let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
+  let unlockService: MockProxy<UnlockService>;
 
   const mockUserId = "user-id-123" as UserId;
   const mockEmail = "test@example.com";
@@ -101,6 +103,7 @@ describe("LoginDecryptionOptionsComponent", () => {
     accountCryptographicStateService = mock();
     authService = mock<AuthService>();
     sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
+    unlockService = mock<UnlockService>();
 
     // Setup default mocks
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
@@ -147,6 +150,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       accountCryptographicStateService,
       authService,
       sharedUnlockSettingsService,
+      unlockService,
     );
   });
 
@@ -303,13 +307,13 @@ describe("LoginDecryptionOptionsComponent", () => {
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(
-        expect.any(SymmetricCryptoKey),
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
         mockUserId,
+        expect.any(SymmetricCryptoKey),
       );
 
       const [, deviceKeyArg] = deviceTrustService.setDeviceKey.mock.calls[0];
-      const [userKeyArg] = keyService.setUserKey.mock.calls[0];
+      const [, userKeyArg] = unlockService.unlockWithDecryptedUserKey.mock.calls[0];
 
       expect((deviceKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedDeviceKey.keyB64);
       expect((userKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedUserKey.keyB64);

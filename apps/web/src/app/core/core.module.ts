@@ -341,6 +341,7 @@ const safeProviders: SafeProvider[] = [
       RouterService,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({

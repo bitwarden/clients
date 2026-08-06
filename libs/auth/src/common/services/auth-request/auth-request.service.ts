@@ -24,6 +24,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -58,6 +59,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private stateProvider: StateProvider,
     private authRequestApiService: AuthRequestApiServiceAbstraction,
     private accountService: AccountService,
+    private unlockService: UnlockService,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
     this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
@@ -159,7 +161,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.keyService.setUserKey(userKey, userId);
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   // Decryption helpers

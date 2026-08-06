@@ -63,7 +63,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
@@ -162,7 +161,6 @@ import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
-import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -380,25 +378,6 @@ const safeProviders: SafeProvider[] = [
     deps: [WINDOW],
   }),
   safeProvider({
-    provide: KeyServiceAbstraction,
-    useClass: ElectronKeyService,
-    deps: [
-      InternalMasterPasswordServiceAbstraction,
-      KeyGenerationService,
-      CryptoFunctionServiceAbstraction,
-      EncryptService,
-      PlatformUtilsServiceAbstraction,
-      LogService,
-      StateServiceAbstraction,
-      AccountServiceAbstraction,
-      StateProvider,
-      BiometricStateService,
-      KdfConfigService,
-      DesktopBiometricsService,
-      AccountCryptographicStateService,
-    ],
-  }),
-  safeProvider({
     provide: DesktopSettingsService,
     deps: [StateProvider],
   }),
@@ -510,6 +489,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({

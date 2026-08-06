@@ -48,7 +48,7 @@ import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
+import { DeviceKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -64,6 +64,7 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
@@ -142,6 +143,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private accountCryptographicStateService: AccountCryptographicStateService,
     private authService: AuthService,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private unlockService: UnlockService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -372,7 +374,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           throw new Error("Unexpected V1 account cryptographic state");
         }
 
-        // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+        // Note: When SDK state management matures, the state writes and the unlock below should all
+        // be moved into post_keys_for_tde_registration
         // Set account cryptography state
         await this.accountCryptographicStateService.setAccountCryptographicState(
           register_result.account_cryptographic_state,
@@ -385,10 +388,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
         );
 
-        // Set user key - user is now unlocked
-        await this.keyService.setUserKey(
-          SymmetricCryptoKey.fromString(register_result.user_key) as UserKey,
+        // User is now unlocked. Unlocking initializes the SDK from state, so it has to run after
+        // the account cryptographic state above has been persisted.
+        await this.unlockService.unlockWithDecryptedUserKey(
           userId,
+          SymmetricCryptoKey.fromString(register_result.user_key),
         );
       } else {
         const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
