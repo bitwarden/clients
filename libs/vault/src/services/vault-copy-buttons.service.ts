@@ -17,7 +17,7 @@ const COPY_BUTTON = new KeyDefinition<CopyButtonDisplayMode>(VAULT_APPEARANCE, "
  * Settings service for vault copy button settings
  **/
 @Injectable({ providedIn: "root" })
-export class VaultPopupCopyButtonsService {
+export class VaultCopyButtonsService {
   private readonly DEFAULT_DISPLAY_MODE = "combined";
   private state = inject(GlobalStateProvider).get(COPY_BUTTON);
 
