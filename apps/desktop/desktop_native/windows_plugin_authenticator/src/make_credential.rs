@@ -8,15 +8,13 @@ use autofill_provider::{
     CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
     TimedCallback, UserVerification, WindowDetails,
 };
+use desktop_core::autofill::create_context_string;
 use win_webauthn::{
     plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
     CborParser, CborValue, CtapTransport,
 };
 
-use crate::{
-    ipc::IpcClient,
-    util::{create_context_string, HwndExt},
-};
+use crate::{ipc::IpcClient, util::HwndExt};
 
 pub fn make_credential(
     ipc_client: &dyn IpcClient,

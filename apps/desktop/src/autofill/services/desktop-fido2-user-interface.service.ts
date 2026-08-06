@@ -43,9 +43,31 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
  */
 export type NativeWindowObject = {
   /**
-   * The position of the window, first entry is the x position, second is the y position
+   * The position of the client window.
    */
-  windowXy?: { x: number; y: number };
+  windowXy: { x: number; y: number };
+
+  /**
+   * The native handle of the client window.
+   */
+  clientWindowHandle: Uint8Array | null;
+
+  /**
+   * The native handle of the Bitwarden app window, or null if the app has no
+   * window at the time of the request.
+   */
+  appWindowHandle: Uint8Array | null;
+
+  /**
+   * OS-specific request context required for calls back to the OS during the
+   * authentication ceremony.
+   */
+  requestContext: string;
+
+  /**
+   * RP ID of the request.
+   */
+  rpId: string;
 };
 
 /**

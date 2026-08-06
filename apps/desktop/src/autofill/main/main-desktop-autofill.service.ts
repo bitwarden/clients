@@ -95,6 +95,13 @@ export class DesktopAutofillMain {
         return this.enable();
       },
     );
+
+    // Read on demand rather than sent with each request: the handle belongs to
+    // the window, not to any one request, and the window may be recreated.
+    ipcMain.handle(
+      AutofillIpcChannelControl.GetAppWindowHandle,
+      (): Uint8Array | null => this.windowMain.win?.getNativeWindowHandle() ?? null,
+    );
   }
 
   /**
@@ -178,7 +185,7 @@ export class DesktopAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on(AutofillIpcChannelOutgoing.Error, (event, data) => {
+    ipcMain.on(AutofillIpcChannelOutgoing.Error, (_event, data) => {
       this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
