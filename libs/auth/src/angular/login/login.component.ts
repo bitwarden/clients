@@ -711,9 +711,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   /**
    * Builds the MP-entry anon-layout override for the open-org-invite path: preserves
    * "Join <org>" title, surfaces the entered email as subtitle (matching the default
-   * MP-entry treatment), and swaps the icon to LockIcon as a placeholder until design
-   * specifies a final asset. Returns undefined when no open org invite is in state or the
-   * feature is disabled, so the caller can fall through to the default override path.
+   * MP-entry treatment), and swaps the icon to LockIcon. Returns undefined when no
+   * open org invite is in state or the feature is disabled, so the caller can fall
+   * through to the default override path.
    */
   private async buildOpenOrgInviteMpEntryOverride(): Promise<
     Partial<AnonLayoutWrapperData> | undefined
@@ -725,9 +725,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return {
       pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
       pageSubtitle: this.emailFormControl.value,
-      // TODO: placeholder — pending design. LockIcon is a stand-in for the
-      // MP-entry sub-state of the open-org-invite flow until design specifies the
-      // final asset.
       pageIcon: this.Icons.LockIcon,
     };
   }
