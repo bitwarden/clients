@@ -26,7 +26,7 @@ import { ItemComponent } from "./item.component";
        * `lg` -> `tw-py-3`) via `sizeClass`. Compact mode is marked `!important` so it always
        * wins over the size-derived padding.
        */
-      "tw-outline-none tw-text-main hover:tw-text-main tw-no-underline hover:tw-no-underline tw-text-base bit-compact:!tw-py-1.5 bit-compact:tw-ps-3 tw-bg-transparent tw-w-full tw-border-none tw-flex tw-gap-4 tw-items-center tw-justify-between disabled:tw-cursor-not-allowed [&[disabled]_[bittypography]]:!tw-text-fg-inactive [&[disabled]_i]:!tw-text-fg-inactive",
+      "tw-outline-none tw-text-main hover:tw-text-main tw-no-underline hover:tw-no-underline tw-text-base bit-compact:!tw-py-1.5 tw-bg-transparent tw-w-full tw-border-none tw-flex tw-gap-4 tw-items-center tw-justify-between disabled:tw-cursor-not-allowed [&[disabled]_[bittypography]]:!tw-text-fg-inactive [&[disabled]_i]:!tw-text-fg-inactive",
     "[class]": "sizeClass()",
     "data-fvw-target": "",
   },
