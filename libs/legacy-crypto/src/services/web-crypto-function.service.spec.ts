@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
-import { Utils } from "../../../platform/misc/utils";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { WebCryptoFunctionService } from "./web-crypto-function.service";
 
