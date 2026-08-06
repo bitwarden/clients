@@ -5,10 +5,11 @@
       Deleting this login removes it from your vault but doesn't fix the risk. To protect your
       account, change your password first.
     </p>
+    <strong>{{ item().name }}</strong>
     <!-- TODO: ADDITIONAL RISKS TABLE HERE -->
   </div>
   <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
-    <button bitButton type="button" buttonType="danger">Delete</button>
+    <button bitButton type="button" buttonType="danger" (click)="onDeleteItem()">Delete</button>
     <button bitButton type="button" bitDialogClose>Cancel</button>
   </div>
 </bit-simple-dialog>
