@@ -178,15 +178,14 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
-      await this.cipherService.clear(response.profile.id);
-
       // The crypto sync handler *MUST* be the first sync handler to run. It reserves
-      // the option to reject a sync, should the data be inconsitent. In this case ,it will throw.
+      // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
       await this.runCryptoSyncHandler(
         response.profile.id,
         response.profile,
         response.userDecryption,
       );
+
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -378,6 +377,7 @@ export class DefaultSyncService extends CoreSyncService {
   }
 
   private async syncCiphers(response: CipherResponse[], userId: UserId) {
+    await this.cipherService.clear(userId);
     const ciphers: { [id: string]: CipherData } = {};
     response.forEach((c) => {
       ciphers[c.id] = new CipherData(c);
@@ -452,21 +452,7 @@ export class DefaultSyncService extends CoreSyncService {
   ) {
     await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
       sdk.crypto_sync_handler().on_sync({
-        userDecryption:
-          userDecryption == null
-            ? undefined
-            : {
-                masterPasswordUnlock: userDecryption.masterPasswordUnlock
-                  ?.toMasterPasswordUnlockData()
-                  .toSdk(),
-                v2UpgradeToken: userDecryption.v2UpgradeToken?.toV2UpgradeToken(),
-                webAuthnPrfOptions:
-                  userDecryption.webAuthnPrfOptions == null
-                    ? []
-                    : userDecryption.webAuthnPrfOptions
-                        ?.map((option) => option.toWebAuthnPrfUnlockOption())
-                        .filter((option) => option != null),
-              },
+        userDecryption: userDecryption?.toSdk(),
         accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
       }),
     );
