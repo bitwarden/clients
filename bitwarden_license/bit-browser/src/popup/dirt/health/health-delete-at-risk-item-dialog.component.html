@@ -5,8 +5,26 @@
       Deleting this login removes it from your vault but doesn't fix the risk. To protect your
       account, change your password first.
     </p>
-    <strong>{{ item().name }}</strong>
-    <!-- TODO: ADDITIONAL RISKS TABLE HERE -->
+    <!-- TODO: update below to read categories properly for item -->
+    @if (true) {
+      <bit-section>
+        <bit-section-header>
+          <p>This password has additional risks:</p>
+        </bit-section-header>
+        <bit-card class="tw-flex tw-flex-col tw-gap-2 tw-justify-start tw-items-start">
+          <div class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2">
+            <bit-icon-tile icon="bwi-warning" variant="warning" slot="start" />
+            Weak
+            <span class="tw-ml-auto">Yes</span>
+          </div>
+          <div class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2">
+            <bit-icon-tile icon="bwi-refresh" variant="primary" slot="start" />
+            Reused
+            <span class="tw-ml-auto">6 times</span>
+          </div>
+        </bit-card>
+      </bit-section>
+    }
   </div>
   <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
     <button bitButton type="button" buttonType="danger" (click)="onDeleteItem()">Delete</button>
