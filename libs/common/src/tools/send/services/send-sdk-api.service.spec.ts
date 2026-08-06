@@ -18,7 +18,6 @@ import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
 import { SendFileView } from "../models/view/send-file.view";
@@ -195,9 +194,7 @@ describe("SendSdkApiService", () => {
       return {
         sends: jest.fn().mockReturnValue({
           access_send: jest.fn().mockResolvedValue({}),
-          access_send_v1: jest.fn().mockResolvedValue({}),
           get_file_download_data: jest.fn().mockResolvedValue({}),
-          get_file_download_data_v1: jest.fn().mockResolvedValue({}),
         }),
       };
     }
@@ -210,7 +207,7 @@ describe("SendSdkApiService", () => {
     });
 
     it("uses the shared client when no apiUrl is supplied", async () => {
-      await service.postSendAccessV2(accessToken);
+      await service.postSendAccess(accessToken);
 
       expect(sharedAccessClient.sends).toHaveBeenCalled();
       expect(sdkService.createEphemeralClient).not.toHaveBeenCalled();
@@ -219,26 +216,12 @@ describe("SendSdkApiService", () => {
     it.each([
       [
         "postSendAccess",
-        (s: SendSdkApiService, apiUrl: string) =>
-          s.postSendAccess("id", new SendAccessRequest(), apiUrl),
-      ],
-      [
-        "postSendAccessV2",
-        (s: SendSdkApiService, apiUrl: string) => s.postSendAccessV2(accessToken, apiUrl),
+        (s: SendSdkApiService, apiUrl: string) => s.postSendAccess(accessToken, apiUrl),
       ],
       [
         "getSendFileDownloadData",
         (s: SendSdkApiService, apiUrl: string) =>
           s.getSendFileDownloadData(
-            { id: "id", file: { id: "file-id" } } as SendAccessView,
-            new SendAccessRequest(),
-            apiUrl,
-          ),
-      ],
-      [
-        "getSendFileDownloadDataV2",
-        (s: SendSdkApiService, apiUrl: string) =>
-          s.getSendFileDownloadDataV2(
             { id: "id", file: { id: "file-id" } } as SendAccessView,
             accessToken,
             apiUrl,

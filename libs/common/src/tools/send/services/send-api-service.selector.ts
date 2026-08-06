@@ -6,7 +6,6 @@ import { ListResponse } from "../../../models/response/list.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
@@ -119,19 +118,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * link while signed in to a different server) is forwarded to whichever service the flag
    * selects; both honour it.
    */
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    return (await this.getService()).postSendAccess(id, request, apiUrl);
-  }
-
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    return (await this.getService()).postSendAccessV2(accessToken, apiUrl);
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
+    return (await this.getService()).postSendAccess(accessToken, apiUrl);
   }
 
   /**
@@ -162,17 +150,9 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   /** See {@link postSendAccess} — `apiUrl` is forwarded to the selected service. */
   async getSendFileDownloadData(
     send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse> {
-    return (await this.getService()).getSendFileDownloadData(send, request, apiUrl);
-  }
-
-  async getSendFileDownloadDataV2(
-    send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    return (await this.getService()).getSendFileDownloadDataV2(send, accessToken, apiUrl);
+    return (await this.getService()).getSendFileDownloadData(send, accessToken, apiUrl);
   }
 }

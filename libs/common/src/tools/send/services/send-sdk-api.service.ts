@@ -21,7 +21,6 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { UserId } from "../../../types/guid";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
@@ -194,21 +193,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    return await this.withAccessClient(apiUrl, async (sdk) => {
-      const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
-      return new SendAccessResponse(view);
-    });
-  }
-
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
     return await this.withAccessClient(apiUrl, async (sdk) => {
       const view = await sdk.sends().access_send(accessToken.token);
       return new SendAccessResponse(view);
@@ -255,19 +240,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   }
 
   async getSendFileDownloadData(
-    send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse> {
-    return await this.withAccessClient(apiUrl, async (sdk) => {
-      const data = await sdk
-        .sends()
-        .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
-      return new SendFileDownloadDataResponse(data);
-    });
-  }
-
-  async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,

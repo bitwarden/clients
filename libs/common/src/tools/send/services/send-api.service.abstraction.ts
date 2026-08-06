@@ -2,7 +2,6 @@ import { SendAccessToken } from "../../../auth/send-access";
 import { ListResponse } from "../../../models/response/list.response";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
@@ -12,11 +11,6 @@ import { SendView } from "../models/view/send.view";
 export abstract class SendApiService {
   abstract getSend(id: string): Promise<SendResponse>;
   abstract postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse>;
-  abstract postSendAccessV2(
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendAccessResponse>;
@@ -24,11 +18,6 @@ export abstract class SendApiService {
   abstract putSendRemovePassword(id: string): Promise<SendResponse>;
   abstract deleteSend(id: string): Promise<any>;
   abstract getSendFileDownloadData(
-    send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse>;
-  abstract getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
