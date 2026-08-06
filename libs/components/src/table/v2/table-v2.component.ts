@@ -566,7 +566,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   protected groupHeaderClass(level: number): string {
     if (this.presentation() !== "list") {
-      return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow tw-bg-background-alt tw-px-3 tw-py-2 tw-text-sm tw-font-bold tw-text-muted";
+      return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
     // Match the extension's section/subsection type: top = `h6` (text-sm, main,
     // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.

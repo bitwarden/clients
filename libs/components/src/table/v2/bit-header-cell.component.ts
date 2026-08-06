@@ -111,7 +111,7 @@ export class BitHeaderCellComponent {
     "hover:tw-no-underline",
     "focus:tw-outline-none",
     "tw-bg-transparent",
-    "!tw-text-muted",
+    "tw-text-fg-body",
     "tw-border-transparent",
     "hover:tw-bg-transparent-hover",
     "hover:tw-border-primary-700",

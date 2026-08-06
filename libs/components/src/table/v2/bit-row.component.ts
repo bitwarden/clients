@@ -25,6 +25,7 @@ import { BitTableV2Component } from "./table-v2.component";
     role: "row",
     "[class]": "hostClasses()",
     "[style.grid-template-columns]": "gridTemplateColumns()",
+    "[style.height.px]": "fixedHeight()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,9 +37,14 @@ export class BitRowComponent {
 
   protected readonly gridTemplateColumns = computed(() => this.table?.gridTemplateColumns());
 
+  /** Virtualized rows are positioned by offset, so they must render at exactly the height the scroll strategy assumed. */
+  protected readonly fixedHeight = computed(() =>
+    this.table?.presentation() === "list" ? undefined : this.table?.virtualRowHeight(),
+  );
+
   /**
    * Row chrome. The grid classes lay the cells out in both presentations; the
-   * rest is presentation-specific: `table` connects rows with a top divider,
+   * rest is presentation-specific: `table` connects rows with a bottom divider,
    * `list` renders each row as a standalone `bit-item`-style card (background,
    * rounded corners, spacing, hover).
    */
@@ -51,7 +57,6 @@ export class BitRowComponent {
       // `list` rows size to content off a `bit-item`-style minimum height.
       return `${layout} tw-min-h-9 tw-mb-1.5 tw-rounded-lg tw-bg-background tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow hover:tw-bg-hover-default`;
     }
-    // `table` rows own the fixed row height; cells stretch to fill it and center content.
-    return `${layout} tw-h-16 tw-border-0 tw-border-t tw-border-solid tw-border-border-base first:tw-border-t-0`;
+    return `${layout} tw-min-h-14 tw-border-0 tw-border-b tw-border-solid tw-border-border-base`;
   });
 }

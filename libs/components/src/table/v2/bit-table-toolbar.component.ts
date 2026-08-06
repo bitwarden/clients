@@ -64,6 +64,11 @@ export class BitTableToolbarComponent {
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
 
+  /** Whether a filter row renders below the search row; gates the divider between the two. */
+  protected readonly hasFilterRow = computed(() =>
+    this.isLargeScreen() ? this.hasFilters() : this.activeFilters().length > 0,
+  );
+
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
   protected appliedLabel(filter: FilterPresenter): string {
     const summary = filter.summary();
