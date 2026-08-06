@@ -8,8 +8,8 @@ import { OpenOrganizationInvite } from "../../models/open-organization-invite";
  *
  * The storage string was renamed from `"organizationInvite"` to
  * `"directOrganizationInvite"` to be symmetric with the open-org-invite key. Existing
- * on-disk data is moved by migration 83
- * (`state-migrations/migrations/83-rename-organization-invite-to-direct.ts`).
+ * on-disk data is moved by migration 84
+ * (`state-migrations/migrations/84-rename-organization-invite-to-direct.ts`).
  */
 export const DIRECT_ORGANIZATION_INVITE = new KeyDefinition<DirectOrganizationInvite | null>(
   ORGANIZATION_INVITE_DISK,

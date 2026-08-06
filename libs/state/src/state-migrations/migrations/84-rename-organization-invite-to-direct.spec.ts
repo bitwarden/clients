@@ -1,10 +1,10 @@
 import { runMigrator } from "../migration-helper.spec";
 import { IRREVERSIBLE } from "../migrator";
 
-import { RenameOrganizationInviteToDirect } from "./83-rename-organization-invite-to-direct";
+import { RenameOrganizationInviteToDirect } from "./84-rename-organization-invite-to-direct";
 
 describe("RenameOrganizationInviteToDirect", () => {
-  const sut = new RenameOrganizationInviteToDirect(82, 83);
+  const sut = new RenameOrganizationInviteToDirect(83, 84);
 
   describe("migrate", () => {
     it("moves an existing stashed invite to the new key and removes the old key", async () => {

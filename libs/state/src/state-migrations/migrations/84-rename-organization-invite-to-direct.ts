@@ -18,7 +18,7 @@ const NEW_KEY: KeyDefinitionLike = {
  * (`DirectOrganizationInvite` / `OpenOrganizationInvite`). Value shape is unchanged.
  * Global state.
  */
-export class RenameOrganizationInviteToDirect extends Migrator<82, 83> {
+export class RenameOrganizationInviteToDirect extends Migrator<83, 84> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const existing = await helper.getFromGlobal(OLD_KEY);
     if (existing != null) {
