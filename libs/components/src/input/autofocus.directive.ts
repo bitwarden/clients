@@ -84,8 +84,18 @@ export class AutofocusDirective implements AfterContentChecked {
     const el = this.getElement();
 
     if (el) {
-      el.focus();
-      this.focused = el === document.activeElement;
+      if (document.activeElement !== el) {
+        el.focus();
+      }
+
+      /**
+       * Being the active element is not enough to consider the focus settled — the document
+       * also has to own focus. Safari's extension popover gives its web view keyboard focus
+       * after the page has loaded, and assigns initial focus to the first focusable element,
+       * discarding anything focused before that. Staying unlatched lets the attempt repeat on
+       * later change detection passes so it survives the handoff.
+       */
+      this.focused = el === document.activeElement && document.hasFocus();
     }
   }
 

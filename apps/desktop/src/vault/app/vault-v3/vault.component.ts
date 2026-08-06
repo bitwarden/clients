@@ -78,7 +78,13 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, ToastService, SearchModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  DialogService,
+  ToastService,
+  SearchModule,
+  AutofocusDirective,
+} from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -147,6 +153,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     FormsModule,
     VaultBatchActionComponent,
     VaultOrganizationUserNotificationsComponent,
+    AutofocusDirective,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
