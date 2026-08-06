@@ -10,6 +10,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon } from "@bitwarden/components";
 
@@ -24,6 +26,7 @@ export class EventService {
     private i18nService: I18nService,
     policyService: PolicyService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     accountService.activeAccount$
       .pipe(
@@ -66,6 +69,18 @@ export class EventService {
   private async getEventMessage(ev: EventResponse, options: EventOptions) {
     let msg = "";
     let humanReadableMsg = "";
+
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+    if (vfo1Enabled) {
+      const vfo1Result = this.getEventMessageVfo1(ev, options);
+      if (vfo1Result.msg && vfo1Result.humanReadableMsg) {
+        return {
+          message: vfo1Result.msg,
+          humanReadableMessage: vfo1Result.humanReadableMsg,
+        };
+      }
+    }
+
     switch (ev.type) {
       // User
       case EventType.User_LoggedIn:
@@ -1011,6 +1026,335 @@ export class EventService {
     };
   }
 
+  // Produces the updated terminology/personalization for event types that have one; returns
+  // empty strings for anything else (including cases where an organization name was needed but
+  // couldn't be resolved), signaling getEventMessage to fall back to its own messaging.
+  private getEventMessageVfo1(
+    ev: EventResponse,
+    options: EventOptions,
+  ): { msg: string; humanReadableMsg: string } {
+    let msg = "";
+    let humanReadableMsg = "";
+
+    switch (ev.type) {
+      case EventType.Cipher_Shared: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "movedItemIdToOrgWithName",
+            this.formatCipherId(ev, options),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "movedItemIdToOrgWithName",
+            this.getShortId(ev.cipherId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.Cipher_UpdatedCollections:
+        msg = this.i18nService.t("editedSharedFoldersForItem", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedSharedFoldersForItem",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Collection_Created:
+        msg = this.i18nService.t("createdSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "createdSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.Collection_Updated:
+        msg = this.i18nService.t("editedSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "editedSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.Collection_Deleted:
+        msg = this.i18nService.t("deletedSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.OrganizationUser_Revoked: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Restored: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "restoredUserIdWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "restoredUserIdWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Left: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "userLeftOrganizationWithName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "userLeftOrganizationWithName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_SelfRevoked: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "userSelfRevokedOrganizationOwnershipWithName",
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "userSelfRevokedOrganizationOwnershipWithName",
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdTwoFactorNonComplianceWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdTwoFactorNonComplianceWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.Organization_Updated: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("editedOrgSettingsWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("editedOrgSettingsWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_PurgedVault: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("purgedOrganizationVaultWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("purgedOrganizationVaultWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_ClientExportedVault: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("exportedOrganizationVaultWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("exportedOrganizationVaultWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_CollectionManagementUpdated:
+        msg = this.i18nService.t("modifiedSharedFolderManagement", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "modifiedSharedFolderManagement",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
+        msg = this.i18nService.t("limitSharedFolderCreationEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderCreationEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
+        msg = this.i18nService.t(
+          "limitSharedFolderCreationDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderCreationDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
+        msg = this.i18nService.t("limitSharedFolderDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
+        msg = this.i18nService.t(
+          "limitSharedFolderDeletionDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsEnabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_ItemOrganization_Accepted: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("userAcceptedTransferWithOrgName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("userAcceptedTransferWithOrgName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_ItemOrganization_Declined: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdDeclinedTransferWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdDeclinedTransferWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Created: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "createdOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "createdOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Added: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "addedOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "addedOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Removed: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "removedOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "removedOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_VaultAccessed: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "accessedClientVaultWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "accessedClientVaultWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    return { msg, humanReadableMsg };
+  }
+
   private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
@@ -1269,6 +1613,13 @@ export class EventService {
     return id?.substring(0, 8);
   }
 
+  // Resolves the display name of the organization an event pertains to. Returns undefined if the
+  // caller hasn't wired up a resolver or it can't resolve one, so callers can fall back to
+  // messaging that doesn't reference an organization name.
+  private resolveOrgName(ev: EventResponse, options: EventOptions): string | undefined {
+    return options.getOrganizationName?.(ev);
+  }
+
   private escapeHtml(unsafe: string): string {
     if (!unsafe) {
       return unsafe;
@@ -1315,4 +1666,9 @@ export class EventOptions {
   // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
   // keeps all creator ids linked (for callers that don't gate on membership).
   linkableMemberIds?: ReadonlySet<string>;
+  // Resolves the display name of the organization an event pertains to, used to personalize
+  // organization-level event copy (e.g. "Purged Acme Inc vault."). A function rather than a plain
+  // string because a single batch of events can span multiple organizations (e.g. the provider
+  // events page, where each row references a different client organization).
+  getOrganizationName?: (ev: EventResponse) => string | undefined;
 }

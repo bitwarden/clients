@@ -85,7 +85,13 @@ describe("DesktopFido2UserInterfaceSession", () => {
       router,
       desktopSettingsService,
       abortController,
-      {},
+      {
+        rpId: "example.com",
+        requestContext: "request-context",
+        windowXy: { x: 0, y: 0 },
+        appWindowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
+        clientWindowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
+      },
     );
   });
 

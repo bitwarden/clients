@@ -5,9 +5,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -17,10 +19,14 @@ describe("AppearanceComponent", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockVaultCopyButtonsService: MockProxy<VaultCopyButtonsService>;
 
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
   const mockUserSetLocale$ = new BehaviorSubject<string | undefined>("en");
+  const mockShowQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+  const mockFeatureFlag$ = new BehaviorSubject<boolean>(true);
 
   const mockSupportedLocales = ["en", "es", "fr", "de"];
   const mockLocaleNames = new Map([
@@ -34,6 +40,8 @@ describe("AppearanceComponent", () => {
     mockI18nService = mock<I18nService>();
     mockThemeStateService = mock<ThemeStateService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
+    mockConfigService = mock<ConfigService>();
+    mockVaultCopyButtonsService = mock<VaultCopyButtonsService>();
 
     mockI18nService.supportedTranslationLocales = mockSupportedLocales;
     mockI18nService.localeNames = mockLocaleNames;
@@ -45,10 +53,13 @@ describe("AppearanceComponent", () => {
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
+    mockVaultCopyButtonsService.showQuickCopyActions$ = mockShowQuickCopyActions$;
+    mockConfigService.getFeatureFlag$.mockReturnValue(mockFeatureFlag$);
 
     mockDomainSettingsService.setShowFavicons.mockResolvedValue(undefined);
     mockThemeStateService.setSelectedTheme.mockResolvedValue(undefined);
     mockI18nService.setLocale.mockResolvedValue(undefined);
+    mockVaultCopyButtonsService.setShowQuickCopyActions.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent, ReactiveFormsModule, NoopAnimationsModule],
@@ -56,6 +67,8 @@ describe("AppearanceComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: VaultCopyButtonsService, useValue: mockVaultCopyButtonsService },
       ],
     })
       .overrideComponent(AppearanceComponent, {
@@ -106,6 +119,7 @@ describe("AppearanceComponent", () => {
       mockShowFavicons$.next(false);
       mockSelectedTheme$.next(ThemeTypes.Dark);
       mockUserSetLocale$.next("es");
+      mockShowQuickCopyActions$.next(true);
 
       fixture.detectChanges();
       flush();
@@ -114,6 +128,7 @@ describe("AppearanceComponent", () => {
         enableFavicons: false,
         theme: ThemeTypes.Dark,
         locale: "es",
+        showQuickCopyActions: true,
       });
     }));
 
@@ -210,6 +225,28 @@ describe("AppearanceComponent", () => {
 
       expect(mockI18nService.setLocale).toHaveBeenCalledWith(null);
       expect(reloadMock).toHaveBeenCalled();
+    }));
+  });
+
+  describe("showQuickCopyActions value changes", () => {
+    beforeEach(fakeAsync(() => {
+      fixture.detectChanges();
+      flush();
+      jest.clearAllMocks();
+    }));
+
+    it("should call setShowQuickCopyActions when the value changes to true", fakeAsync(() => {
+      component.form.controls.showQuickCopyActions.setValue(true);
+      flush();
+
+      expect(mockVaultCopyButtonsService.setShowQuickCopyActions).toHaveBeenCalledWith(true);
+    }));
+
+    it("should call setShowQuickCopyActions when the value changes to false", fakeAsync(() => {
+      component.form.controls.showQuickCopyActions.setValue(false);
+      flush();
+
+      expect(mockVaultCopyButtonsService.setShowQuickCopyActions).toHaveBeenCalledWith(false);
     }));
   });
 });
