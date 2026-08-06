@@ -344,7 +344,7 @@
 
   /* Brand */
   --color-bg-decorative-brand: var(--color-brand-100);
-  --color-fg-decorative-brand: var(--color-brand-600);
+  --color-fg-decorative-brand: var(--color-brand-700);
   --color-border-decorative-brand: var(--color-brand-200);
   --color-bg-decorative-brand-bold: var(--color-brand-700);
   --color-fg-decorative-brand-bold: var(--color-white);
@@ -352,7 +352,7 @@
 
   /* Teal */
   --color-bg-decorative-teal: var(--color-teal-100);
-  --color-fg-decorative-teal: var(--color-teal-800);
+  --color-fg-decorative-teal: var(--color-teal-700);
   --color-border-decorative-teal: var(--color-teal-200);
   --color-bg-decorative-teal-bold: var(--color-teal-700);
   --color-fg-decorative-teal-bold: var(--color-white);
@@ -384,7 +384,7 @@
 
   /* Purple */
   --color-bg-decorative-purple: var(--color-purple-100);
-  --color-fg-decorative-purple: var(--color-purple-700);
+  --color-fg-decorative-purple: var(--color-purple-800);
   --color-border-decorative-purple: var(--color-purple-200);
   --color-bg-decorative-purple-bold: var(--color-purple-700);
   --color-fg-decorative-purple-bold: var(--color-white);
