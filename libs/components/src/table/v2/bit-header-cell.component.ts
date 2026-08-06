@@ -92,7 +92,7 @@ export class BitHeaderCellComponent {
     if (!this.column || sort?.column !== this.column.name()) {
       return "bwi-up-down-btn";
     }
-    return sort.direction === "asc" ? "bwi-up-solid" : "bwi-down-solid";
+    return sort.direction === "asc" ? "bwi-arrow-up" : "bwi-arrow-down";
   });
 
   protected onSortClick(): void {
@@ -103,31 +103,21 @@ export class BitHeaderCellComponent {
 
   protected readonly sortButtonClasses = [
     "tw-min-w-max",
-    "tw-font-medium",
-    "tw-border",
-    "tw-border-solid",
+    "tw-p-1",
+    "tw-border-0",
     "tw-rounded",
+    "tw-font-medium",
     "tw-transition",
     "hover:tw-no-underline",
-    "focus:tw-outline-none",
     "tw-bg-transparent",
     "tw-text-fg-body",
-    "tw-border-transparent",
-    "hover:tw-bg-transparent-hover",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
+    "hover:tw-bg-hover-default",
+    "disabled:tw-text-fg-inactive",
     "disabled:hover:tw-bg-transparent",
     "tw-relative",
-    "before:tw-content-['']",
-    "before:tw-block",
-    "before:tw-absolute",
-    "before:-tw-inset-[3px]",
-    "before:tw-rounded-md",
-    "before:tw-transition",
-    "before:tw-ring",
-    "before:tw-ring-transparent",
+    "focus-visible:tw-outline-none",
+    "focus-visible:tw-ring-2",
+    "focus-visible:tw-ring-border-focus",
     "focus-visible:tw-z-10",
   ];
 }
