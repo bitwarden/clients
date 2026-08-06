@@ -162,6 +162,25 @@ type EmptyStateItem = {
 
 type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 
+/**
+ * The services {@link VaultComponent} and its subclasses provide at the component level.
+ *
+ * Shared as a constant because Angular does not inherit `@Component` metadata: a subclass gets the
+ * base class's *code* but none of its `providers`, so any page extending `VaultComponent` has to
+ * declare these itself or fail at runtime with NG0201. Referencing this list keeps the two
+ * declarations from drifting apart.
+ */
+export const VAULT_COMPONENT_PROVIDERS = [
+  RoutedVaultFilterService,
+  RoutedVaultFilterBridgeService,
+  DefaultCipherFormConfigService,
+  WebVaultPromptService,
+  { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
+  VaultBatchBarService,
+  { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
+  { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+];
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -177,16 +196,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     SharedModule,
     VaultBatchActionComponent,
   ],
-  providers: [
-    RoutedVaultFilterService,
-    RoutedVaultFilterBridgeService,
-    DefaultCipherFormConfigService,
-    WebVaultPromptService,
-    { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
-    VaultBatchBarService,
-    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
-    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
-  ],
+  providers: VAULT_COMPONENT_PROVIDERS,
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);

@@ -21,7 +21,7 @@ import {
 } from "@bitwarden/vault";
 
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
-import { VaultComponent } from "./vault.component";
+import { VAULT_COMPONENT_PROVIDERS, VaultComponent } from "./vault.component";
 
 /**
  * The vault page behind the `vfo1-foundation` flag: the same individual vault, rendered on the
@@ -35,12 +35,17 @@ import { VaultComponent } from "./vault.component";
  *
  * The table owns search, filtering, and sorting internally, so this page renders no
  * `app-vault-filter` sidebar — the reason the flag swaps the whole page rather than just the list.
+ *
+ * The base class's providers have to be repeated here: Angular inherits a base class's code but
+ * not its `@Component` metadata, so without {@link VAULT_COMPONENT_PROVIDERS} the inherited
+ * services fail to resolve at runtime (NG0201).
  */
 @Component({
   selector: "app-vault-next",
   templateUrl: "vault-next.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonModule, I18nPipe, VaultBannersComponent, VaultItemsTableComponent],
+  providers: VAULT_COMPONENT_PROVIDERS,
 })
 export class VaultNextComponent<C extends CipherViewLike> extends VaultComponent<C> {
   private readonly i18nStrings = inject(I18nService);

@@ -286,6 +286,9 @@ describe("VaultNextComponent", () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
+      // Note: TestBed supplies the component-level providers itself, so this suite cannot catch a
+      // subclass that forgets to declare VAULT_COMPONENT_PROVIDERS — that surfaces only when the
+      // real app builds the component (NG0201). Verified separately against the AOT build.
       .overrideComponent(VaultNextComponent, {
         set: {
           providers: [
