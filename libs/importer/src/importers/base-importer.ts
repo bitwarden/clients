@@ -461,7 +461,10 @@ export abstract class BaseImporter {
   }
 
   /** Converts a Date to a string with format `YYYY-MM-DD` */
-  protected formatDateString(date: Date): string {
+  protected formatDateString(date: Date | undefined): string {
+    if (!date) {
+      return;
+    }
     return [
       date.getUTCFullYear().toString(),
       (date.getUTCMonth() + 1).toString().padStart(2, "0"),

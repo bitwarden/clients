@@ -209,8 +209,8 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           }
           passport.surname = lastName;
           passport.passportNumber = row.number;
-          passport.issueDate = this.parseDateString(row.issue_date);
-          passport.expirationDate = this.parseDateString(row.expiration_date);
+          passport.issueDate = this.parseDashlaneDateString(row.issue_date);
+          passport.expirationDate = this.parseDashlaneDateString(row.expiration_date);
           passport.issuingCountry = row.place_of_issue;
           cipher.passport = passport;
           // Type is not mapped to a property but we don't want it as a custom field
@@ -230,8 +230,8 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           license.middleName = middleName;
           license.lastName = lastName;
           license.licenseNumber = row.number;
-          license.issueDate = this.parseDateString(row.issue_date);
-          license.expirationDate = this.parseDateString(row.expiration_date);
+          license.issueDate = this.parseDashlaneDateString(row.issue_date);
+          license.expirationDate = this.parseDashlaneDateString(row.expiration_date);
           license.issuingCountry = row.place_of_issue;
           license.issuingState = row.state;
           cipher.driversLicense = license;
@@ -260,6 +260,19 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
 
     // If you add more mapped fields please extend this
     this.importUnmappedFields(cipher, row, new Set(mappedValues));
+  }
+
+  // Dashlane dates are formatted as `YYYY-MM-DD` but the month and day omit leading zeros
+  private parseDashlaneDateString(dateString: string): string | undefined {
+    const [year, month, day] = dateString.split("-");
+    if (
+      this.isNullOrWhitespace(year) ||
+      this.isNullOrWhitespace(month) ||
+      this.isNullOrWhitespace(day)
+    ) {
+      return;
+    }
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
 
   parsePersonalInformationRecord(cipher: CipherView, row: PersonalInformationRecord) {

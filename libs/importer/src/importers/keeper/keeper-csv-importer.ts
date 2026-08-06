@@ -103,25 +103,25 @@ export class KeeperCsvImporter extends KeeperImporter implements Importer {
               break;
             case "Date of Birth":
               if (isPassport) {
-                passportView.dateOfBirth = this.parseDateString(fieldValue);
+                passportView.dateOfBirth = this.parseKeeperCsvDateString(fieldValue);
               } else if (isDriversLicense) {
-                driversLicenseView.dateOfBirth = this.parseDateString(fieldValue);
+                driversLicenseView.dateOfBirth = this.parseKeeperCsvDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }
               break;
             case "Date":
               if (isPassport) {
-                passportView.expirationDate = this.parseDateString(fieldValue);
+                passportView.expirationDate = this.parseKeeperCsvDateString(fieldValue);
               } else if (isDriversLicense) {
-                driversLicenseView.expirationDate = this.parseDateString(fieldValue);
+                driversLicenseView.expirationDate = this.parseKeeperCsvDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }
               break;
             case "Date Issued":
               if (isPassport) {
-                passportView.issueDate = this.parseDateString(fieldValue);
+                passportView.issueDate = this.parseKeeperCsvDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }
@@ -164,5 +164,18 @@ export class KeeperCsvImporter extends KeeperImporter implements Importer {
 
     result.success = true;
     return Promise.resolve(result);
+  }
+
+  // Keeper CSV dates are formatted as `MM/DD/YYYY`
+  private parseKeeperCsvDateString(dateString: string): string | undefined {
+    const [month, day, year] = dateString.split("/");
+    if (
+      this.isNullOrWhitespace(year) ||
+      this.isNullOrWhitespace(month) ||
+      this.isNullOrWhitespace(day)
+    ) {
+      return;
+    }
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
 }
