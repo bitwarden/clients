@@ -1,33 +1,34 @@
-<bit-simple-dialog title="Delete item" hideIcon>
-  <div bitDialogTitle class="tw-text-left">Delete item</div>
+<bit-simple-dialog hideIcon>
+  <div bitDialogTitle class="tw-text-left">{{ "deleteItem" | i18n }}</div>
   <div bitDialogContent class="tw-flex tw-flex-col tw-gap-2 tw-w-full">
     <p class="tw-text-left">
-      Deleting this login removes it from your vault but doesn't fix the risk. To protect your
-      account, change your password first.
+      {{ "deleteAtRiskItemDescription" | i18n }}
     </p>
     <!-- TODO: update below to read categories properly for item -->
     @if (true) {
       <bit-section>
         <bit-section-header>
-          <p>This password has additional risks:</p>
+          <p>{{ "passwordHasAdditionalRisks" | i18n }}</p>
         </bit-section-header>
         <bit-card class="tw-flex tw-flex-col tw-gap-2 tw-justify-start tw-items-start">
           <div class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2">
             <bit-icon-tile icon="bwi-warning" variant="warning" slot="start" />
-            Weak
-            <span class="tw-ml-auto">Yes</span>
+            {{ "weak" | i18n }}
+            <span class="tw-ml-auto">{{ "yes" | i18n }}</span>
           </div>
           <div class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2">
             <bit-icon-tile icon="bwi-refresh" variant="primary" slot="start" />
-            Reused
-            <span class="tw-ml-auto">6 times</span>
+            {{ "reused" | i18n }}
+            <span class="tw-ml-auto">{{ "xTimes" | i18n: 6 }}</span>
           </div>
         </bit-card>
       </bit-section>
     }
   </div>
   <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
-    <button bitButton type="button" buttonType="danger" (click)="onDeleteItem()">Delete</button>
-    <button bitButton type="button" bitDialogClose>Cancel</button>
+    <button bitButton type="button" buttonType="danger" (click)="onDeleteItem()">
+      {{ "delete" | i18n }}
+    </button>
+    <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>
   </div>
 </bit-simple-dialog>
