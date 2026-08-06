@@ -10,10 +10,10 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CheckboxModule, IconModule, LinkModule, TableModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
+  Vfo1I18nPipe,
   Vfo1IconPipe,
 } from "@bitwarden/vault";
 
@@ -26,12 +26,12 @@ import {
     TableModule,
     LinkModule,
     NgClass,
-    I18nPipe,
     RouterLink,
     OrganizationNameBadgeComponent,
     GetOrgNameFromIdPipe,
     CheckboxModule,
     IconModule,
+    Vfo1I18nPipe,
     Vfo1IconPipe,
   ],
 })

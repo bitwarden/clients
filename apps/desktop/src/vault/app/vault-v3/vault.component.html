@@ -20,7 +20,7 @@
     class="tw-mb-4 tw-px-6"
     [ngModel]="currentSearchText$ | async"
     (ngModelChange)="filterSearchText($event)"
-    [placeholder]="searchPlaceholderText"
+    [placeholder]="searchPlaceholderText()"
     appAutofocus
   />
   <app-vault-list
@@ -33,7 +33,7 @@
     [showOwner]="true"
     [userCanArchive]="userCanArchive$ | async"
     [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-    [placeholderText]="searchPlaceholderText"
+    [placeholderText]="searchPlaceholderText()"
     [isEmpty]="isEmpty && !performingInitialLoad"
     [showAddCipherBtn]="showAddCipherBtn$ | async"
     [emptyStateItem]="emptyState$ | async"
