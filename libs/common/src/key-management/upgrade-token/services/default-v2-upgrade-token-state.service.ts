@@ -5,8 +5,8 @@ import { V2UpgradeToken } from "@bitwarden/sdk-internal";
 import { assertNonNullish } from "../../../auth/utils";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { V2_UPGRADE_TOKEN } from "../../state-definitions";
 import { V2UpgradeTokenStateService } from "../abstractions/v2-upgrade-token-state.service.abstraction";
-import { V2_UPGRADE_TOKEN } from "../v2-upgrade-token.state";
 
 export class DefaultV2UpgradeTokenStateService implements V2UpgradeTokenStateService {
   constructor(private readonly stateProvider: StateProvider) {}
