@@ -247,8 +247,8 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher2.passport.givenName).toEqual("John");
       expect(cipher2.passport.surname).toEqual("Doe");
       expect(cipher2.passport.passportNumber).toEqual("123123123");
-      expect(cipher2.passport.issueDate).toEqual("2022-1-30");
-      expect(cipher2.passport.expirationDate).toEqual("2032-1-30");
+      expect(cipher2.passport.issueDate).toEqual("2022-01-30");
+      expect(cipher2.passport.expirationDate).toEqual("2032-01-30");
       expect(cipher2.passport.issuingCountry).toEqual("somewhere in Germany");
 
       assertFieldsStructure(cipher2.fields, []);
@@ -261,7 +261,7 @@ describe("Dashlane CSV Importer", () => {
       expect(cipher3.driversLicense.middleName).toBeUndefined();
       expect(cipher3.driversLicense.lastName).toEqual("Doe");
       expect(cipher3.driversLicense.licenseNumber).toEqual("1234556");
-      expect(cipher3.driversLicense.issueDate).toEqual("2022-8-10");
+      expect(cipher3.driversLicense.issueDate).toEqual("2022-08-10");
       expect(cipher3.driversLicense.expirationDate).toEqual("2022-10-10");
       expect(cipher3.driversLicense.issuingCountry).toEqual("");
       expect(cipher3.driversLicense.issuingState).toEqual("DC");

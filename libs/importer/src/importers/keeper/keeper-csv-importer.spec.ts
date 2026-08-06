@@ -247,9 +247,9 @@ describe("Keeper CSV Importer", () => {
       expect(passportCipher.passport.passportNumber).toEqual("1234567890");
       expect(passportCipher.passport.givenName).toEqual("Bilbo");
       expect(passportCipher.passport.surname).toEqual("Baggins");
-      expect(passportCipher.passport.dateOfBirth).toEqual("09/22/2890");
-      expect(passportCipher.passport.expirationDate).toEqual("06/19/2951");
-      expect(passportCipher.passport.issueDate).toEqual("06/19/2941");
+      expect(passportCipher.passport.dateOfBirth).toEqual("2890-09-22");
+      expect(passportCipher.passport.expirationDate).toEqual("2951-06-19");
+      expect(passportCipher.passport.issueDate).toEqual("2941-06-19");
       assertFieldsStructure(passportCipher.fields, [
         ["Address", "Bag End, Bagshot Row | Under-Hill | Hobbiton | Westfarthing, The Shire | US"],
       ]);
@@ -261,8 +261,8 @@ describe("Keeper CSV Importer", () => {
       expect(driversLicenseCipher.driversLicense.firstName).toEqual("Bilbo");
       expect(driversLicenseCipher.driversLicense.middleName).toBeUndefined();
       expect(driversLicenseCipher.driversLicense.lastName).toEqual("Baggins");
-      expect(driversLicenseCipher.driversLicense.dateOfBirth).toEqual("09/22/2890");
-      expect(driversLicenseCipher.driversLicense.expirationDate).toEqual("09/22/2916");
+      expect(driversLicenseCipher.driversLicense.dateOfBirth).toEqual("2890-09-22");
+      expect(driversLicenseCipher.driversLicense.expirationDate).toEqual("2916-09-22");
       assertFieldsStructure(driversLicenseCipher.fields, [
         ["Address", "Bag End, Bagshot Row | Under-Hill | Hobbiton | Westfarthing, The Shire | US"],
       ]);

@@ -229,13 +229,13 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
           passportView.surname = last;
         } else if (field.n === "birthdate") {
           const dob = new Date(field.v * 1000);
-          passportView.dateOfBirth = dob.toUTCString();
+          passportView.dateOfBirth = this.formatDateString(dob);
         } else if (field.n === "issue_date") {
           const dateOfIssue = new Date(field.v * 1000);
-          passportView.issueDate = dateOfIssue.toUTCString();
+          passportView.issueDate = this.formatDateString(dateOfIssue);
         } else if (field.n === "expiry_date") {
           const expiryDate = new Date(field.v * 1000);
-          passportView.expirationDate = expiryDate.toUTCString();
+          passportView.expirationDate = this.formatDateString(expiryDate);
         } else {
           return field;
         }
@@ -273,7 +273,7 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
           driversLicenseView.lastName = last;
         } else if (field.n === "birthdate") {
           const dob = new Date(field.v * 1000);
-          driversLicenseView.dateOfBirth = dob.toUTCString();
+          driversLicenseView.dateOfBirth = this.formatDateString(dob);
         } else if (field.n === "expiry_date") {
           // This field is a single number that expresses a month and year in the format YYYYMM
           const strValue: string = field.v.toString();
@@ -284,7 +284,7 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
           const expirationDate = new Date(
             Date.UTC(Number(yearPart), Number(monthPart), 1) - 24 * 60 * 60 * 1000,
           );
-          driversLicenseView.expirationDate = expirationDate.toUTCString();
+          driversLicenseView.expirationDate = this.formatDateString(expirationDate);
           // If field requires no special parsing simply set the value
         } else if (fieldMapValue) {
           driversLicenseView[fieldMapValue[0]] = field[fieldMapValue[1]];

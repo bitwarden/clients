@@ -103,25 +103,25 @@ export class KeeperCsvImporter extends KeeperImporter implements Importer {
               break;
             case "Date of Birth":
               if (isPassport) {
-                passportView.dateOfBirth = fieldValue;
+                passportView.dateOfBirth = this.parseDateString(fieldValue);
               } else if (isDriversLicense) {
-                driversLicenseView.dateOfBirth = fieldValue;
+                driversLicenseView.dateOfBirth = this.parseDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }
               break;
             case "Date":
               if (isPassport) {
-                passportView.expirationDate = fieldValue;
+                passportView.expirationDate = this.parseDateString(fieldValue);
               } else if (isDriversLicense) {
-                driversLicenseView.expirationDate = fieldValue;
+                driversLicenseView.expirationDate = this.parseDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }
               break;
             case "Date Issued":
               if (isPassport) {
-                passportView.issueDate = fieldValue;
+                passportView.issueDate = this.parseDateString(fieldValue);
               } else {
                 this.processKvp(cipher, fieldName, fieldValue);
               }

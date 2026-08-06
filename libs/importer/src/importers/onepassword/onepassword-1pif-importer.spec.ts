@@ -220,10 +220,10 @@ describe("1Password 1Pif Importer", () => {
       expect(cipher.passport.surname).toEqual("Baggins");
       expect(cipher.passport.nationality).toEqual("Shire-folk");
       expect(cipher.passport.issuingAuthority).toEqual("The Shire");
-      expect(cipher.passport.dateOfBirth).toEqual("Fri, 22 Sep 2890 00:00:00 GMT");
+      expect(cipher.passport.dateOfBirth).toEqual("2890-09-22");
       expect(cipher.passport.birthPlace).toEqual("Bag End, The Shire");
-      expect(cipher.passport.issueDate).toEqual("Mon, 19 Jun 2941 00:00:00 GMT");
-      expect(cipher.passport.expirationDate).toEqual("Sat, 19 Jun 2951 00:00:00 GMT");
+      expect(cipher.passport.issueDate).toEqual("2941-06-19");
+      expect(cipher.passport.expirationDate).toEqual("2951-06-19");
       assertFieldsStructure(cipher.fields, [["gender", "Male"]]);
     });
   });
@@ -265,12 +265,12 @@ describe("1Password 1Pif Importer", () => {
       expect(cipher.driversLicense.firstName).toEqual("Bilbo");
       expect(cipher.driversLicense.middleName).toBeUndefined();
       expect(cipher.driversLicense.lastName).toEqual("Baggins");
-      expect(cipher.driversLicense.dateOfBirth).toEqual("Fri, 22 Sep 2890 00:00:00 GMT");
+      expect(cipher.driversLicense.dateOfBirth).toEqual("2890-09-22");
       expect(cipher.driversLicense.licenseNumber).toEqual("1234567890");
       expect(cipher.driversLicense.licenseClass).toEqual("D");
       expect(cipher.driversLicense.issuingState).toEqual("Westfarthing");
       expect(cipher.driversLicense.issuingCountry).toEqual("The Shire");
-      expect(cipher.driversLicense.expirationDate).toEqual("Wed, 30 Jun 2951 00:00:00 GMT");
+      expect(cipher.driversLicense.expirationDate).toEqual("2951-06-30");
       assertFieldsStructure(cipher.fields, [
         ["address", "Bag End, Bagshot Row, Under-Hill, Hobbiton, Westfarthing, The Shire"],
         ["gender", "Male"],

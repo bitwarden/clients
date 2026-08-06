@@ -281,10 +281,17 @@ export class KeeperJsonImporter extends KeeperImporter implements Importer {
     return true;
   }
 
-  private convertMillisToDate(msString: string): string | undefined {
+  private convertMillisToDate(msString: string, useNewDedicatedTypes: boolean): string | undefined {
     const date = new Date(Number(msString));
     if (isNaN(date.getTime())) {
       return;
+    }
+    if (useNewDedicatedTypes) {
+      return [
+        date.getUTCFullYear().toString(),
+        (date.getUTCMonth() + 1).toString().padStart(2, "0"),
+        date.getUTCDate().toString().padStart(2, "0"),
+      ].join("-");
     }
     return date.toUTCString();
   }
@@ -302,13 +309,19 @@ export class KeeperJsonImporter extends KeeperImporter implements Importer {
       // Date of birth is returned as a milliseconds string
       const birthDateMsString = this.findCustomField(record.custom_fields, "$birthDate");
       if (birthDateMsString) {
-        driversLicense.dateOfBirth = this.convertMillisToDate(birthDateMsString);
+        driversLicense.dateOfBirth = this.convertMillisToDate(
+          birthDateMsString,
+          useNewDedicatedTypes,
+        );
         this.deleteTopLevelCustomField(record.custom_fields, "$birthDate");
       }
       // Expiration date is returned as a milliseconds string
       const expirationDateMsString = this.findCustomField(record.custom_fields, "$expirationDate");
       if (expirationDateMsString) {
-        driversLicense.expirationDate = this.convertMillisToDate(expirationDateMsString);
+        driversLicense.expirationDate = this.convertMillisToDate(
+          expirationDateMsString,
+          useNewDedicatedTypes,
+        );
         this.deleteTopLevelCustomField(record.custom_fields, "$expirationDate");
       }
       cipher.driversLicense = driversLicense;
@@ -352,19 +365,22 @@ export class KeeperJsonImporter extends KeeperImporter implements Importer {
       // Date of birth is returned as a milliseconds string
       const birthDateMsString = this.findCustomField(record.custom_fields, "$birthDate");
       if (birthDateMsString) {
-        passport.dateOfBirth = this.convertMillisToDate(birthDateMsString);
+        passport.dateOfBirth = this.convertMillisToDate(birthDateMsString, useNewDedicatedTypes);
         this.deleteTopLevelCustomField(record.custom_fields, "$birthDate");
       }
       // Expiration date is returned as a milliseconds string
       const expirationDateMsString = this.findCustomField(record.custom_fields, "$expirationDate");
       if (expirationDateMsString) {
-        passport.expirationDate = this.convertMillisToDate(expirationDateMsString);
+        passport.expirationDate = this.convertMillisToDate(
+          expirationDateMsString,
+          useNewDedicatedTypes,
+        );
         this.deleteTopLevelCustomField(record.custom_fields, "$expirationDate");
       }
       // Date of issued is returned as a milliseconds string
       const dateOfIssueMsString = this.findCustomField(record.custom_fields, "$date:dateIssued");
       if (dateOfIssueMsString) {
-        passport.issueDate = this.convertMillisToDate(dateOfIssueMsString);
+        passport.issueDate = this.convertMillisToDate(dateOfIssueMsString, useNewDedicatedTypes);
         this.deleteTopLevelCustomField(record.custom_fields, "$date:dateIssued");
       }
       cipher.passport = passport;

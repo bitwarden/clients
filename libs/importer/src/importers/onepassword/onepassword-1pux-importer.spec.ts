@@ -492,9 +492,9 @@ describe("1Password 1Pux Importer", () => {
       expect(driversLicense.issuingState).toEqual("Pennsylvania");
       expect(driversLicense.issuingCountry).toEqual("United States");
       expect(driversLicense.licenseNumber).toEqual("12345678901");
-      expect(driversLicense.dateOfBirth).toEqual("Sun, 01 Jan 1978 12:01:00 GMT");
+      expect(driversLicense.dateOfBirth).toEqual("1978-01-01");
       expect(driversLicense.licenseClass).toEqual("C");
-      expect(driversLicense.expirationDate).toEqual("Tue, 31 Dec 2030 00:00:00 GMT");
+      expect(driversLicense.expirationDate).toEqual("2030-12-31");
 
       assertFieldsStructure(cipher.fields, [
         ["address", "2120 Mifflin Rd."],
@@ -609,10 +609,10 @@ describe("1Password 1Pux Importer", () => {
       expect(passport.passportNumber).toEqual("76436847");
       expect(passport.nationality).toEqual("International");
       expect(passport.issuingAuthority).toEqual("Department of State");
-      expect(passport.dateOfBirth).toEqual("Fri, 01 Apr 1983 12:01:00 GMT");
+      expect(passport.dateOfBirth).toEqual("1983-04-01");
       expect(passport.birthPlace).toEqual("A cave somewhere in Maine");
-      expect(passport.issueDate).toEqual("Wed, 01 Jan 2020 12:01:00 GMT");
-      expect(passport.expirationDate).toEqual("Sat, 01 Jan 2050 12:01:00 GMT");
+      expect(passport.issueDate).toEqual("2020-01-01");
+      expect(passport.expirationDate).toEqual("2050-01-01");
 
       assertFieldsStructure(cipher.fields, [["sex", "female"]]);
     });

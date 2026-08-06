@@ -449,4 +449,23 @@ export abstract class BaseImporter {
     const hasExternalEntities = regex.test(data);
     return !hasExternalEntities;
   }
+
+  /** Parses a date from a string and returns its representation in
+   * `YYYY-MM-DD` format or null if the string isn't a valid date */
+  protected parseDateString(dateString: string): string | undefined {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return;
+    }
+    return this.formatDateString(date);
+  }
+
+  /** Converts a Date to a string with format `YYYY-MM-DD` */
+  protected formatDateString(date: Date): string {
+    return [
+      date.getUTCFullYear().toString(),
+      (date.getUTCMonth() + 1).toString().padStart(2, "0"),
+      date.getUTCDate().toString().padStart(2, "0"),
+    ].join("-");
+  }
 }

@@ -320,10 +320,8 @@ describe("Keeper Json Importer", () => {
         expect(driverLicense.driversLicense.firstName).toEqual("Robert");
         expect(driverLicense.driversLicense.middleName).toEqual("William");
         expect(driverLicense.driversLicense.lastName).toEqual("Anderson");
-        expect(driverLicense.driversLicense.dateOfBirth).toEqual("Thu, 14 Mar 1985 23:00:00 GMT");
-        expect(driverLicense.driversLicense.expirationDate).toEqual(
-          "Tue, 14 Mar 2028 23:00:00 GMT",
-        );
+        expect(driverLicense.driversLicense.dateOfBirth).toEqual("1985-03-14");
+        expect(driverLicense.driversLicense.expirationDate).toEqual("2028-03-14");
 
         // Fields
         expect(driverLicense.fields.length).toEqual(0);
@@ -548,9 +546,9 @@ describe("Keeper Json Importer", () => {
         expect(passport.passport.passportNumber).toEqual("543826194");
         expect(passport.passport.givenName).toEqual("Jennifer Lynn");
         expect(passport.passport.surname).toEqual("Williams");
-        expect(passport.passport.dateOfBirth).toEqual("Sat, 21 Jul 1990 22:00:00 GMT");
-        expect(passport.passport.expirationDate).toEqual("Thu, 21 Jul 2033 22:00:00 GMT");
-        expect(passport.passport.issueDate).toEqual("Mon, 14 Aug 2023 22:00:00 GMT");
+        expect(passport.passport.dateOfBirth).toEqual("1990-07-21");
+        expect(passport.passport.expirationDate).toEqual("2033-07-21");
+        expect(passport.passport.issueDate).toEqual("2023-08-14");
 
         // Fields
         expect(passport.fields.length).toEqual(1);

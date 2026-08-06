@@ -705,14 +705,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       const expirationDate = new Date(
         Date.UTC(Number(yearPart), Number(monthPart), 1) - 24 * 60 * 60 * 1000,
       );
-      cipher.driversLicense.expirationDate = expirationDate.toUTCString();
+      cipher.driversLicense.expirationDate = this.formatDateString(expirationDate);
       return true;
     }
 
     if (useNewDedicatedTypes) {
       const fieldMapValue = this.driversLicenseDedicatedFieldMap.get(field.id);
       if (fieldMapValue && this.isNullOrWhitespace(cipher.driversLicense[fieldMapValue])) {
-        cipher.driversLicense[fieldMapValue] = fieldValue;
+        if (field.id === "birthdate") {
+          cipher.driversLicense[fieldMapValue] = this.parseDateString(fieldValue);
+        } else {
+          cipher.driversLicense[fieldMapValue] = fieldValue;
+        }
         return true;
       }
       return false;
@@ -830,7 +834,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       }
       const fieldMapValue = this.passportDedicatedItemFieldMap.get(field.id);
       if (fieldMapValue && this.isNullOrWhitespace(cipher.passport[fieldMapValue])) {
-        cipher.passport[fieldMapValue] = fieldValue;
+        if (field.id === "birthdate" || field.id === "issue_date" || field.id === "expiry_date") {
+          cipher.passport[fieldMapValue] = this.parseDateString(fieldValue);
+        } else {
+          cipher.passport[fieldMapValue] = fieldValue;
+        }
         return true;
       }
     }

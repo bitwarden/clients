@@ -209,8 +209,8 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           }
           passport.surname = lastName;
           passport.passportNumber = row.number;
-          passport.issueDate = row.issue_date;
-          passport.expirationDate = row.expiration_date;
+          passport.issueDate = this.parseDateString(row.issue_date);
+          passport.expirationDate = this.parseDateString(row.expiration_date);
           passport.issuingCountry = row.place_of_issue;
           cipher.passport = passport;
           // Type is not mapped to a property but we don't want it as a custom field
@@ -230,8 +230,8 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           license.middleName = middleName;
           license.lastName = lastName;
           license.licenseNumber = row.number;
-          license.issueDate = row.issue_date;
-          license.expirationDate = row.expiration_date;
+          license.issueDate = this.parseDateString(row.issue_date);
+          license.expirationDate = this.parseDateString(row.expiration_date);
           license.issuingCountry = row.place_of_issue;
           license.issuingState = row.state;
           cipher.driversLicense = license;
