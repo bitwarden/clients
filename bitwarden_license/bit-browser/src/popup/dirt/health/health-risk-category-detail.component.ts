@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { filter, map, switchMap, take } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -24,6 +24,7 @@ import {
   SvgModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,8 +48,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
   ],
 })
 export class HealthRiskCategoryDetailComponent {
+  readonly router = inject(Router);
   readonly route = inject(ActivatedRoute);
   readonly changeLoginPasswordService = inject(ChangeLoginPasswordService);
+  readonly passwordRepromptService = inject(PasswordRepromptService);
 
   readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
   readonly contentKeys = computed<{
@@ -92,6 +95,16 @@ export class HealthRiskCategoryDetailComponent {
     if (changePasswordUrl != null) {
       window.open(changePasswordUrl, "_blank");
     }
+  };
+
+  readonly onItemClick = async (item: CipherView) => {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(item);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/view-cipher"], {
+      queryParams: { cipherId: item.id, type: item.type },
+    });
   };
 
   // TODO: REMOVE - FOR TESTING ONLY
