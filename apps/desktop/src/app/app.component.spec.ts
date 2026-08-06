@@ -45,6 +45,7 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -113,6 +114,9 @@ describe("AppComponent (desktop)", () => {
     const documentLangSetter = mock<DocumentLangSetter>();
     documentLangSetter.start.mockReturnValue({ unsubscribe: jest.fn() } as any);
 
+    const featureFlagOverrideMenuService = mock<FeatureFlagOverrideMenuService>();
+    (featureFlagOverrideMenuService as { enabled$: Observable<boolean> }).enabled$ = of(false);
+
     // The constructor calls `takeUntilDestroyed()`, which requires an injection context.
     component = TestBed.runInInjectionContext(
       () =>
@@ -161,6 +165,7 @@ describe("AppComponent (desktop)", () => {
           premiumCheckoutPendingService,
           mock<BillingAccountProfileStateService>(),
           accountSwitcherService,
+          featureFlagOverrideMenuService,
         ),
     );
 

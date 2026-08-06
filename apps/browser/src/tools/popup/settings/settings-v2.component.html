@@ -135,5 +135,19 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
+    @if (featureFlagOverrideMenuEnabled$ | async) {
+      <!-- Developer tooling, intentionally not localized. -->
+      <bit-item>
+        <button
+          type="button"
+          bit-item-content
+          id="settings_button_feature-flag-overrides"
+          (click)="openFeatureFlagOverrides()"
+        >
+          <i slot="start" class="bwi bwi-sliders" aria-hidden="true"></i>
+          Feature flag overrides
+        </button>
+      </bit-item>
+    }
   </bit-item-group>
 </popup-page>

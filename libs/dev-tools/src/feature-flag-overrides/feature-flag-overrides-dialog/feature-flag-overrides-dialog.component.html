@@ -1,0 +1,62 @@
+<bit-dialog dialogSize="large" title="Feature flag overrides" subtitle="Developer tooling">
+  <ng-container bitDialogContent>
+    <p bitTypography="body2" class="tw-text-fg-body-subtle">
+      Inspect and set the local feature flag state for this client. Setting a value to on or off
+      will override what the server has configured.
+    </p>
+
+    <bit-search
+      class="tw-block tw-mb-3"
+      placeholder="Filter flags"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    ></bit-search>
+
+    @if (overrideCount() > 0) {
+      <p bitTypography="body2" class="tw-text-fg-body-subtle">
+        {{ overrideCount() }} flag(s) overridden.
+      </p>
+    }
+
+    @for (row of rows(); track row.flag) {
+      <div
+        class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-py-2 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
+      >
+        <div class="tw-min-w-0">
+          <div class="tw-truncate tw-text-fg-heading" [title]="row.name">{{ row.name }}</div>
+          <div class="tw-truncate tw-text-xs tw-text-fg-body-subtle" [title]="row.flag">
+            {{ row.flag }}
+          </div>
+        </div>
+        <bit-toggle-group
+          inline
+          [label]="row.name"
+          [selected]="row.choice"
+          (selectedChange)="setChoice(row.flag, $event)"
+        >
+          <bit-toggle value="on">On</bit-toggle>
+          <bit-toggle value="off">Off</bit-toggle>
+          <bit-toggle value="default">
+            Default ({{ row.unoverriddenValue ? "on" : "off" }})
+          </bit-toggle>
+        </bit-toggle-group>
+      </div>
+    } @empty {
+      <p bitTypography="body1">No feature flags match "{{ search() }}".</p>
+    }
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="reload()">Reload</button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      [disabled]="overrideCount() === 0"
+      (click)="clearAll()"
+    >
+      Clear all overrides
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>Close</button>
+  </ng-container>
+</bit-dialog>
