@@ -58,6 +58,12 @@ export class SendFileDetailsComponent implements OnInit {
     }
     this.fileName.set(file.name);
     this.sendFormService.setFile(file);
+    // The file input is not bound via `formControlName`: native file inputs only ever expose a
+    // fake path string to reactive forms, never the selected `File`. Populate the control
+    // ourselves with the view shape `SendSdkApiService` expects.
+    this.sendFileDetailsForm.controls.file.setValue(
+      Object.assign(new SendFileView(), { fileName: file.name, size: file.size.toString() }),
+    );
   }
 
   ngOnInit() {

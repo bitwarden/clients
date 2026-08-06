@@ -30,14 +30,7 @@
           {{ fileName() || ("noFileChosen" | i18n) }}</span
         >
       </div>
-      <input
-        bitInput
-        #fileSelector
-        type="file"
-        formControlName="file"
-        hidden
-        (change)="onFileSelected($event)"
-      />
+      <input bitInput #fileSelector type="file" hidden (change)="onFileSelected($event)" />
       <bit-hint>
         {{ "maxFileSize" | i18n }}
       </bit-hint>

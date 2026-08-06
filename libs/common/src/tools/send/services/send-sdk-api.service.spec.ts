@@ -3,6 +3,8 @@ import { of } from "rxjs";
 
 import {
   AuthEdit,
+  CreateFileSendResponse,
+  FileUploadType,
   SendAddRequest,
   SendAuthType,
   SendEditRequest,
@@ -41,7 +43,13 @@ describe("SendSdkApiService", () => {
   let sendsClient: {
     create: jest.Mock;
     edit: jest.Mock;
+    create_file_send: jest.Mock;
+    upload_send_file: jest.Mock;
+    delete: jest.Mock;
   };
+
+  /** What `create_file_send` hands back: the created send plus everything the upload needs. */
+  let createFileSendResponse: CreateFileSendResponse;
 
   let service: SendSdkApiService;
 
@@ -53,9 +61,21 @@ describe("SendSdkApiService", () => {
     logService = mock<LogService>();
 
     const sdkView = { id: "server-id", accessId: "server-access-id" } as unknown as SdkSendView;
+    createFileSendResponse = {
+      send: sdkView,
+      url: "https://upload.example/blob",
+      fileUploadType: FileUploadType.Azure,
+      fileId: "server-file-id",
+      // The SDK encrypted these internally under the key it generated; the caller only relays them.
+      encryptedFileName: "2.encrypted-file-name",
+      encryptedFileBuffer: [9, 8, 7],
+    };
     sendsClient = {
       create: jest.fn().mockResolvedValue(sdkView),
       edit: jest.fn().mockResolvedValue(sdkView),
+      create_file_send: jest.fn().mockResolvedValue(createFileSendResponse),
+      upload_send_file: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
     };
     const client = {
       take: jest.fn().mockReturnValue({
@@ -271,13 +291,80 @@ describe("SendSdkApiService", () => {
     });
 
     describe("file send creation", () => {
-      // Blocked on an sdk-internal bump, so `SendApiServiceSelector` keeps routing these to
-      // legacy; this guard covers direct callers. See `SendSdkApiService.saveView`.
-      it("rejects new file sends, which require the legacy service", async () => {
-        await expect(service.saveView(fileView(), new Uint8Array([1]).buffer)).rejects.toThrow(
-          "SendSdkApiService.saveView: file send creation requires SendApiService.",
-        );
+      const plaintextBytes = new Uint8Array([1, 2, 3, 4]);
+
+      it("hands the plaintext bytes and the request built from the view to `create_file_send`", async () => {
+        const view = fileView({ name: "plaintext-name" });
+
+        await service.saveView(view, plaintextBytes.buffer);
+
+        expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
+        const [request, buffer] = sendsClient.create_file_send.mock.calls[0];
+        expect((request as SendAddRequest).name).toBe("plaintext-name");
+        // Plaintext: the SDK encrypts internally under the key it generates, so nothing is
+        // encrypted client-side and no key material is exposed here.
+        expect(buffer).toEqual(plaintextBytes);
+        expect(sendService.encrypt).not.toHaveBeenCalled();
         expect(sendsClient.create).not.toHaveBeenCalled();
+      });
+
+      it("reads the plaintext bytes out of a `File`", async () => {
+        const file = {
+          arrayBuffer: jest.fn().mockResolvedValue(plaintextBytes.buffer),
+        } as unknown as File;
+
+        await service.saveView(fileView(), file);
+
+        expect(sendsClient.create_file_send.mock.calls[0][1]).toEqual(plaintextBytes);
+      });
+
+      it("uploads the ciphertext and metadata the create step returned", async () => {
+        await service.saveView(fileView(), plaintextBytes.buffer);
+
+        expect(sendsClient.upload_send_file).toHaveBeenCalledWith(
+          "server-id",
+          "server-file-id",
+          "2.encrypted-file-name",
+          FileUploadType.Azure,
+          "https://upload.example/blob",
+          new Uint8Array([9, 8, 7]),
+        );
+      });
+
+      it("refreshes the wire-encrypted form of the created send once the upload lands", async () => {
+        await service.saveView(fileView(), plaintextBytes.buffer);
+
+        expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id");
+      });
+
+      it("rejects a file create with no file data, which the create step cannot size", async () => {
+        await expect(service.saveView(fileView(), null)).rejects.toThrow(
+          "File send creation requires file data.",
+        );
+        expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+      });
+
+      describe("when the upload fails", () => {
+        beforeEach(() => {
+          sendsClient.upload_send_file.mockRejectedValue(new Error("upload failed"));
+        });
+
+        it("rolls back the created send and surfaces the upload error", async () => {
+          await expect(service.saveView(fileView(), plaintextBytes.buffer)).rejects.toThrow(
+            "upload failed",
+          );
+
+          // Without the rollback the server keeps a permanent, content-less send.
+          expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
+        });
+
+        it("still surfaces the upload error when the rollback itself fails", async () => {
+          sendsClient.delete.mockRejectedValue(new Error("rollback failed"));
+
+          await expect(service.saveView(fileView(), plaintextBytes.buffer)).rejects.toThrow(
+            "upload failed",
+          );
+        });
       });
 
       it("edits an existing file send through the SDK", async () => {

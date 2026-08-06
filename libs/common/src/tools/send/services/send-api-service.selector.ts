@@ -54,8 +54,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Routes pre-encrypted saves to SDK when the flag is on, except for new file sends which fall
    * back to legacy regardless: the buffer arriving here is already encrypted under a
    * client-generated key, and the SDK generates its own key on create, so the two can never
-   * match. {@link saveView} carries the plaintext instead, but it also falls back to legacy for
-   * file creates for a separate reason — see its doc comment.
+   * match. {@link saveView} carries the plaintext instead, and does route file creates through
+   * the flag.
    *
    * `plaintextPassword` is forwarded unchanged to whichever service handles the save. The
    * legacy service ignores it; the SDK service uses it to derive the send password over the
@@ -73,19 +73,15 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Routes plaintext saves to whichever service the flag selects, so each implementation
    * encrypts once on the side that owns the send key: legacy client-side, the SDK in the SDK.
    *
-   * New file sends are the exception and fall back to legacy regardless of the flag, matching
-   * {@link save}. The SDK path is blocked on an `@bitwarden/sdk-internal` bump, not on anything
-   * in this repo — see `SendSdkApiService.saveView` for the details and for what to restore once
-   * that bump lands.
+   * This includes new file sends, unlike {@link save}: carrying the plaintext contents lets the
+   * SDK create and upload under the key it generates, so there is no key mismatch to work
+   * around.
    */
   async saveView(
     view: SendView,
     file: File | ArrayBuffer | null,
     plaintextPassword?: string,
   ): Promise<Send> {
-    if (view.id == null && view.type === SendType.File) {
-      return this.sendApiService.saveView(view, file, plaintextPassword);
-    }
     return (await this.getService()).saveView(view, file, plaintextPassword);
   }
 

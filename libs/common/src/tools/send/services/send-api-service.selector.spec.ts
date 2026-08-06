@@ -156,7 +156,10 @@ describe("SendApiServiceSelector", () => {
       return sendView;
     }
 
+    // Unlike `save`, file creates are flag-controlled here: the plaintext contents let the SDK
+    // create and upload under the key it generates. See `SendSdkApiService.saveView`.
     it.each([
+      ["file create", SendType.File, null],
       ["file edit", SendType.File, "existing-id"],
       ["text create", SendType.Text, null],
       ["text edit", SendType.Text, "existing-id"],
@@ -183,19 +186,6 @@ describe("SendApiServiceSelector", () => {
       await selector.saveView(sendView, null);
 
       expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined);
-      expect(sdk.saveView).not.toHaveBeenCalled();
-    });
-
-    // Mirrors the same fallback `save` makes, though for a different reason: the SDK path for
-    // file creates is blocked on an sdk-internal bump. See `SendSdkApiService.saveView`.
-    it("routes a file create to legacy even with the flag on", async () => {
-      const selector = buildSelector(true);
-      const sendView = view(SendType.File, null);
-      const file = new ArrayBuffer(4);
-
-      await selector.saveView(sendView, file, "hunter2");
-
-      expect(legacy.saveView).toHaveBeenCalledWith(sendView, file, "hunter2");
       expect(sdk.saveView).not.toHaveBeenCalled();
     });
   });
