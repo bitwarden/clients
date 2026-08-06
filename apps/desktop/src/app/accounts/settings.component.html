@@ -198,6 +198,24 @@
                   runInBackgroundDescText
                 }}</small>
               </div>
+              @if (showQuickCopyActionsSetting()) {
+                <div class="form-group">
+                  <div class="checkbox">
+                    <label for="showQuickCopyActions">
+                      <input
+                        id="showQuickCopyActions"
+                        type="checkbox"
+                        formControlName="showQuickCopyActions"
+                        (change)="saveQuickCopyActions()"
+                      />
+                      {{ "showQuickCopyActionsInVault" | i18n }}
+                    </label>
+                    <div class="tw-inline-block tw-ml-2">
+                      <show-quick-copy-actions-details-popover></show-quick-copy-actions-details-popover>
+                    </div>
+                  </div>
+                </div>
+              }
               <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">

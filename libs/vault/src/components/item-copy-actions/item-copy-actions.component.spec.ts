@@ -25,11 +25,15 @@ describe("VaultItemCopyActionsComponent", () => {
   let component: VaultItemCopyActionsComponent;
 
   let i18nService: jest.Mocked<I18nService>;
+  let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
 
   beforeEach(async () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+
+    copyCipherFieldService = mock<CopyCipherFieldService>();
+    copyCipherFieldService.totpAllowed.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -42,7 +46,7 @@ describe("VaultItemCopyActionsComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: i18nService },
-        { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+        { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
       ],
@@ -137,6 +141,62 @@ describe("VaultItemCopyActionsComponent", () => {
         expect(labelFor("bwi-hashtag")).toBe("translated-noNumber");
         expect(labelFor("bwi-key")).toBe("translated-noSecurityCode");
       });
+    });
+  });
+
+  describe("disabled input", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+    });
+
+    const disabledFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-disabled");
+
+    it("leaves copy actions enabled by default", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBeNull();
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
+
+    it("disables copy actions when disabled is true", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBe("true");
+      expect(disabledFor("bwi-clock")).toBe("true");
+    });
+
+    it("keeps empty-value copy actions disabled after disabled toggles off (list refresh)", async () => {
+      // A login with no username: the username quick-copy button should always be disabled.
+      (component.cipher() as any).__copyable = { username: false, password: true, totp: true };
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Simulate a list refresh toggling the disabled input true -> false.
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The empty username button must remain disabled; the populated ones become enabled again.
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
     });
   });
 

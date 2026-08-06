@@ -1,4 +1,12 @@
-import { Directive, HostBinding, HostListener, Input, OnChanges, Optional } from "@angular/core";
+import {
+  booleanAttribute,
+  Directive,
+  HostBinding,
+  HostListener,
+  Input,
+  OnChanges,
+  Optional,
+} from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -44,6 +52,18 @@ export class CopyCipherFieldDirective implements OnChanges {
   @Input({ required: true })
   cipher!: CipherViewLike;
 
+  /**
+   * Externally-forced disabled state, e.g. while the containing list is refreshing. This is
+   * combined with the field-availability check so the directive remains the sole writer of the
+   * host and icon-button disabled state. Binding `[disabled]` directly on the same element would
+   * otherwise clobber the disabled state this directive owns — an external re-enable could make a
+   * button with no value to copy clickable again.
+   */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input({ transform: booleanAttribute })
+  disabled = false;
+
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
     private accountService: AccountService,
@@ -53,7 +73,7 @@ export class CopyCipherFieldDirective implements OnChanges {
   ) {}
 
   @HostBinding("attr.disabled")
-  protected disabled: boolean | null = null;
+  protected hostDisabled: boolean | null = null;
 
   /**
    * Hide the element if it is disabled and is a menu item.
@@ -61,11 +81,16 @@ export class CopyCipherFieldDirective implements OnChanges {
    */
   @HostBinding("class.tw-hidden")
   private get hidden() {
-    return this.disabled && this.menuItemComponent;
+    return this.hostDisabled && this.menuItemComponent;
   }
 
   @HostListener("click")
   async copy() {
+    // Guard against copying when disabled. The click-capture guard normally prevents this, but
+    // this ensures a disabled field (no value, or externally disabled) never copies an empty value.
+    if (this.hostDisabled) {
+      return;
+    }
     const value = await this.getValueToCopy();
     await this.copyCipherFieldService.copy(value ?? "", this.action, this.cipher);
   }
@@ -75,21 +100,21 @@ export class CopyCipherFieldDirective implements OnChanges {
   }
 
   private async updateDisabledState() {
-    this.disabled =
+    const unavailable =
       !this.cipher ||
       !this.hasValueToCopy() ||
-      (this.action === "totp" && !(await this.copyCipherFieldService.totpAllowed(this.cipher)))
-        ? true
-        : null;
+      (this.action === "totp" && !(await this.copyCipherFieldService.totpAllowed(this.cipher)));
+
+    this.hostDisabled = this.disabled || unavailable ? true : null;
 
     // When used on an icon button, update the disabled state of the button component
     if (this.iconButtonComponent) {
-      this.iconButtonComponent.disabled.set(this.disabled ?? false);
+      this.iconButtonComponent.disabled.set(this.hostDisabled ?? false);
     }
 
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
     if (this.menuItemComponent) {
-      this.menuItemComponent.disabled = this.disabled ?? false;
+      this.menuItemComponent.disabled = this.hostDisabled ?? false;
     }
   }
 

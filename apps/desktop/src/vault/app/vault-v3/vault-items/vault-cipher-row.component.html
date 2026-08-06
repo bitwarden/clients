@@ -63,7 +63,7 @@
       size="small"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      label="{{ 'options' | i18n }}"
+      label="{{ 'moreOptions' | i18n }}"
     ></button>
     <bit-menu #corruptedCipherOptions>
       @if (canDeleteCipher()) {
@@ -79,26 +79,17 @@
         [disabled]="disabled()"
         bitIconButton="bwi-external-link"
         type="button"
-        label="{{ 'launch' | i18n }}"
+        [label]="'launchWebsiteForName' | i18n: cipher().name"
         (click)="handleLaunch()"
       ></button>
     }
-    @if (showCopyButton()) {
-      <button
-        [bitMenuTriggerFor]="copyOptions"
+    @if (showCopyActions()) {
+      <vault-item-copy-actions
+        class="tw-inline-flex tw-align-middle"
+        [cipher]="cipher()"
+        [showQuickCopyActions]="showQuickCopyActions()"
         [disabled]="disabled()"
-        bitIconButton="bwi-clone"
-        type="button"
-        label="{{ 'copyValue' | i18n }}"
-      ></button>
-      <bit-menu #copyOptions>
-        @for (copyField of copyFields(); track copyField.field) {
-          <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ copyField.title | i18n }}
-          </button>
-        }
-      </bit-menu>
+      ></vault-item-copy-actions>
     }
 
     <button
@@ -107,7 +98,7 @@
       [disabled]="disabled()"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      label="{{ 'options' | i18n }}"
+      label="{{ 'moreOptions' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
       @if (showFavorite()) {

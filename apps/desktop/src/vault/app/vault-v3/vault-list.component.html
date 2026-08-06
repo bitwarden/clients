@@ -82,7 +82,6 @@
               [disabled]="disabled()"
               [cipher]="item.cipher"
               [showOwner]="showOwner()"
-              [showPremiumFeatures]="showPremiumFeatures()"
               [cloneable]="canClone$(item) | async"
               [organizations]="allOrganizations()"
               [canEditCipher]="canEditCipher(item.cipher)"

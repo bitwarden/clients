@@ -8,6 +8,7 @@
         size="small"
         appCopyField="username"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         [label]="
           CipherViewLikeUtils.hasCopyableValue(_cipher, 'username')
             ? ('copyUsername' | i18n)
@@ -23,6 +24,7 @@
           size="small"
           appCopyField="password"
           [cipher]="_cipher"
+          [disabled]="disabled()"
           [label]="
             CipherViewLikeUtils.hasCopyableValue(_cipher, 'password')
               ? ('copyPassword' | i18n)
@@ -38,6 +40,7 @@
         size="small"
         appCopyField="totp"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         [label]="
           CipherViewLikeUtils.hasCopyableValue(_cipher, 'totp')
             ? ('copyVerificationCode' | i18n)
@@ -55,6 +58,7 @@
           [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : _cipher.name"
           [appCopyField]="singleCopyableLogin.field"
           [cipher]="_cipher"
+          [disabled]="disabled()"
         ></button>
       }
       @if (!singleCopyableLogin) {
@@ -65,7 +69,7 @@
           [label]="
             hasLoginValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noDetailsToCopy' | i18n)
           "
-          [disabled]="!hasLoginValues"
+          [disabled]="disabled() || !hasLoginValues"
           [bitMenuTriggerFor]="loginOptions"
         ></button>
         <bit-menu #loginOptions>
@@ -95,6 +99,7 @@
         size="small"
         appCopyField="cardNumber"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         [label]="
           CipherViewLikeUtils.hasCopyableValue(_cipher, 'cardNumber')
             ? ('copyNumber' | i18n)
@@ -109,6 +114,7 @@
         size="small"
         appCopyField="securityCode"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         [label]="
           CipherViewLikeUtils.hasCopyableValue(_cipher, 'securityCode')
             ? ('copySecurityCode' | i18n)
@@ -126,6 +132,7 @@
           [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : _cipher.name"
           [appCopyField]="singleCopyableCard.field"
           [cipher]="_cipher"
+          [disabled]="disabled()"
           showToast
         ></button>
       }
@@ -137,7 +144,7 @@
           [label]="
             hasCardValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noDetailsToCopy' | i18n)
           "
-          [disabled]="!hasCardValues"
+          [disabled]="disabled() || !hasCardValues"
           [bitMenuTriggerFor]="cardOptions"
         ></button>
         <bit-menu #cardOptions>
@@ -163,6 +170,7 @@
         [label]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : _cipher.name"
         [appCopyField]="singleCopyableIdentity.field"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         showToast
       ></button>
     }
@@ -174,7 +182,7 @@
         [label]="
           hasIdentityValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noDetailsToCopy' | i18n)
         "
-        [disabled]="!hasIdentityValues"
+        [disabled]="disabled() || !hasIdentityValues"
         [bitMenuTriggerFor]="identityOptions"
       ></button>
       <bit-menu #identityOptions>
@@ -206,6 +214,7 @@
       "
       appCopyField="secureNote"
       [cipher]="_cipher"
+      [disabled]="disabled()"
     ></button>
   </bit-item-action>
 }
@@ -219,7 +228,7 @@
       [label]="
         hasSshKeyValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noDetailsToCopy' | i18n)
       "
-      [disabled]="!hasSshKeyValues"
+      [disabled]="disabled() || !hasSshKeyValues"
       [bitMenuTriggerFor]="sshKeyOptions"
     ></button>
     <bit-menu #sshKeyOptions>
@@ -246,6 +255,7 @@
         [label]="'copyFieldCipherName' | i18n: singleCopyableBankAccount.key : _cipher.name"
         [appCopyField]="singleCopyableBankAccount.field"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         showToast
       ></button>
     } @else {
@@ -258,7 +268,7 @@
             ? ('copyDetailsTitle' | i18n: _cipher.name)
             : ('noDetailsToCopy' | i18n)
         "
-        [disabled]="!hasBankAccountValues"
+        [disabled]="disabled() || !hasBankAccountValues"
         [bitMenuTriggerFor]="bankAccountOptions"
       ></button>
       <bit-menu #bankAccountOptions>
@@ -298,6 +308,7 @@
         [label]="'copyFieldCipherName' | i18n: singleCopyableDriversLicense.key : _cipher.name"
         [appCopyField]="singleCopyableDriversLicense.field"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         showToast
       ></button>
     } @else {
@@ -310,7 +321,7 @@
             ? ('copyDetailsTitle' | i18n: _cipher.name)
             : ('noDetailsToCopy' | i18n)
         "
-        [disabled]="!hasDriversLicenseValues"
+        [disabled]="disabled() || !hasDriversLicenseValues"
         [bitMenuTriggerFor]="driversLicenseOptions"
       ></button>
       <bit-menu #driversLicenseOptions>
@@ -341,6 +352,7 @@
         [label]="'copyFieldCipherName' | i18n: singleCopyablePassport.key : _cipher.name"
         [appCopyField]="singleCopyablePassport.field"
         [cipher]="_cipher"
+        [disabled]="disabled()"
         showToast
       ></button>
     } @else {
@@ -351,7 +363,7 @@
         [label]="
           hasPassportValues ? ('copyDetailsTitle' | i18n: _cipher.name) : ('noDetailsToCopy' | i18n)
         "
-        [disabled]="!hasPassportValues"
+        [disabled]="disabled() || !hasPassportValues"
         [bitMenuTriggerFor]="passportOptions"
       ></button>
       <bit-menu #passportOptions>
