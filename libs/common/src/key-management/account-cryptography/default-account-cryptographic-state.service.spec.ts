@@ -5,11 +5,9 @@ import { FakeStateProvider } from "@bitwarden/state-test-utils";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ACCOUNT_CRYPTOGRAPHIC_STATE } from "../state-definitions";
 
-import {
-  ACCOUNT_CRYPTOGRAPHIC_STATE,
-  DefaultAccountCryptographicStateService,
-} from "./default-account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "./default-account-cryptographic-state.service";
 
 describe("DefaultAccountCryptographicStateService", () => {
   let service: DefaultAccountCryptographicStateService;
@@ -116,18 +114,6 @@ describe("DefaultAccountCryptographicStateService", () => {
       const result = await firstValueFrom(service.accountCryptographicState$(mockUserId));
 
       expect(result).toEqual(mockState2);
-    });
-  });
-
-  describe("ACCOUNT_CRYPTOGRAPHIC_STATE key definition", () => {
-    it("deserializer returns object as-is", () => {
-      const mockState: any = {
-        V1: {
-          private_key: "test" as any,
-        },
-      };
-      const result = ACCOUNT_CRYPTOGRAPHIC_STATE.deserializer(mockState);
-      expect(result).toBe(mockState);
     });
   });
 });

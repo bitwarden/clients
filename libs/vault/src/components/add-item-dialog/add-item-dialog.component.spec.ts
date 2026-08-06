@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -42,7 +43,10 @@ describe("AddItemDialogComponent", () => {
           provide: RestrictedItemTypesService,
           useValue: { restricted$ },
         },
-        { provide: Vfo1TerminologyService, useValue: { iconClass: (icon: string) => icon } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: signal(false) },
+        },
       ],
     }).compileComponents();
   });

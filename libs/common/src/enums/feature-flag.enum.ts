@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
@@ -75,7 +74,6 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
-  SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -89,6 +87,7 @@ export enum FeatureFlag {
   PasskeyLoginReport = "inno-passkey-directory-report",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
+  BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -101,6 +100,7 @@ export enum FeatureFlag {
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
+  PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
   PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
   PM29968_FillAfterSave = "pm-29968-fill-after-save",
@@ -115,12 +115,16 @@ export enum FeatureFlag {
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
+  ManagedDeviceFramework = "pm-27719-managed-device-framework",
 
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -143,7 +147,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
@@ -165,7 +168,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
-  [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
@@ -179,6 +181,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
+  [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
@@ -190,6 +193,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
+  [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
   [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
   [FeatureFlag.PM29968_FillAfterSave]: FALSE,
@@ -241,12 +245,16 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
+  [FeatureFlag.ManagedDeviceFramework]: FALSE,
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* PAM */
+  [FeatureFlag.Pam]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,

@@ -24,11 +24,22 @@ type CipherItem = {
   templateUrl: "./item-copy-actions.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ItemModule, IconButtonModule, JslibModule, MenuModule, CopyCipherFieldDirective],
+  host: {
+    /**
+     * Space the copy actions consistently regardless of the consumer. Matches the spacing
+     * `bit-item` applies to its end slot, so the actions look the same in list contexts
+     * (browser popup) and outside of them (web vault table rows).
+     */
+    class: "tw-flex tw-items-center tw-gap-2 [&_button[biticonbutton]]:-tw-mx-1",
+  },
 })
 export class VaultItemCopyActionsComponent {
   readonly cipher = input.required<CipherViewLike>();
 
   readonly showQuickCopyActions = input(false);
+
+  /** Disables all copy actions, e.g. while the containing list is refreshing. */
+  readonly disabled = input(false);
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly CipherType = CipherType;
@@ -101,8 +112,8 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyablePassport(): CipherItem | null {
     const passportItems: CipherItem[] = [
-      { key: "givenName", field: "givenName" },
-      { key: "surname", field: "surname" },
+      { key: "firstName", field: "givenName" },
+      { key: "lastName", field: "surname" },
       { key: "passportNumber", field: "passportNumber" },
       { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
     ];

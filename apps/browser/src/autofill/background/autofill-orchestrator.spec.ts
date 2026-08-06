@@ -12,7 +12,11 @@ import {
   AutofillLifecycleService,
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
-import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import {
+  AutoFillResult,
+  AutofillService,
+  PageDetail,
+} from "../services/abstractions/autofill.service";
 import {
   createAutofillPageDetailsMock,
   createChromeTabMock,
@@ -64,8 +68,8 @@ describe("AutofillOrchestrator", () => {
 
   // A promise whose resolution the test controls, so it can hold a fill in flight.
   const deferred = () => {
-    let resolve!: (value: string | null) => void;
-    const promise = new Promise<string | null>((r) => (resolve = r));
+    let resolve!: (value: AutoFillResult) => void;
+    const promise = new Promise<AutoFillResult>((r) => (resolve = r));
     return { promise, resolve };
   };
 
@@ -100,8 +104,8 @@ describe("AutofillOrchestrator", () => {
 
     autofillService = mock<AutofillService>();
     autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
-    autofillService.doAutoFillActiveTab.mockResolvedValue(null);
-    autofillService.doAutoFillOnTab.mockResolvedValue(null);
+    autofillService.doAutoFillActiveTab.mockResolvedValue({ didAutofill: false });
+    autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: false });
 
     // Page-load fills re-resolve the target tab by id and require its URL to still match the
     // transition. By default the live tab matches (same id, same default url) and is the active
@@ -154,7 +158,7 @@ describe("AutofillOrchestrator", () => {
       });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
-      autofillService.doAutoFillOnTab.mockResolvedValue("999999");
+      autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: true, totp: "999999" });
 
       emitPageTransition(pd);
       await flushPromises();
@@ -257,7 +261,7 @@ describe("AutofillOrchestrator", () => {
     });
 
     it("records activity and refreshes the overlay but does not fill when the frame has no fields", async () => {
-      // An empty collection short-circuits before doAutoFillOnTab (which throws on empty details),
+      // An empty collection short-circuits before doAutoFillOnTab,
       // while the surrounding side effects still run.
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
@@ -272,8 +276,8 @@ describe("AutofillOrchestrator", () => {
 
     it("does not fill when the reported frame is fresh but has zero fields", async () => {
       // Isolates the fields guard from the freshness check: the url matches (frame is fresh), but
-      // the collected detail has no fields, so doAutoFillOnTab (which throws on empty details) must
-      // still be skipped while the side effects run.
+      // the collected detail has no fields, so doAutoFillOnTab must still be skipped
+      // while the side effects run.
       const tab = createChromeTabMock({ id: 1 });
       const pd = createPageDetailMock({
         frameId: 0,
@@ -349,7 +353,7 @@ describe("AutofillOrchestrator", () => {
     it("does not copy to the clipboard when the fill returns no TOTP", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFillOnTab.mockResolvedValue(null);
+      autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: false });
 
       emitPageTransition(pd);
       await flushPromises();
@@ -385,7 +389,7 @@ describe("AutofillOrchestrator", () => {
   describe("user-initiated fills", () => {
     it("fills the active tab from a keyboard command with the full side effects", async () => {
       const pd = pageDetail(1, 0);
-      autofillService.doAutoFillActiveTab.mockResolvedValue("111111");
+      autofillService.doAutoFillActiveTab.mockResolvedValue({ didAutofill: true, totp: "111111" });
 
       autofillOrchestrator.autofillActiveTabFromCommand(pd);
       await flushPromises();
@@ -439,7 +443,7 @@ describe("AutofillOrchestrator", () => {
 
       // The tab is removed while the first is in flight: the queued second is abandoned.
       removeTab(1);
-      inFlight.resolve(null);
+      inFlight.resolve({ didAutofill: false });
       await flushPromises();
 
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
@@ -459,8 +463,8 @@ describe("AutofillOrchestrator", () => {
       // Neither has resolved, yet both are in flight — different frames do not serialize.
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(2);
 
-      first.resolve(null);
-      second.resolve(null);
+      first.resolve({ didAutofill: false });
+      second.resolve({ didAutofill: false });
       await flushPromises();
     });
 
@@ -482,7 +486,7 @@ describe("AutofillOrchestrator", () => {
       expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
 
       // Once the page-load fill completes, the queued keyboard fill runs.
-      pageLoadFill.resolve(null);
+      pageLoadFill.resolve({ didAutofill: false });
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
