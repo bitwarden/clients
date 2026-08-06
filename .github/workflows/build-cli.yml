@@ -300,6 +300,61 @@ jobs:
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
+      # The .deb wraps the same `pkg` binary the zip ships. It is built inside this job rather than
+      # a separate one so `dpkg-shlibdeps` resolves the binary's library versions against a runner
+      # of the same architecture as the binary itself.
+      - name: Install deb tooling
+        if: ${{ matrix.os.base == 'linux' && matrix.license_type.type == 'commercial' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends dpkg-dev fakeroot
+
+      - name: Package deb
+        if: ${{ matrix.os.base == 'linux' && matrix.license_type.type == 'commercial' }}
+        env:
+          _PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
+          _BIN_DIR: ./dist/${{ matrix.license_type.build_prefix }}/linux${{ matrix.os.target_suffix }}
+        run: |
+          set -euo pipefail
+
+          DEB_ARCH=$(dpkg --print-architecture)
+          echo "DEB_ARCH=$DEB_ARCH" >> "$GITHUB_ENV"
+          PKG_ROOT="dist/deb/bitwarden-cli_${_PACKAGE_VERSION}_${DEB_ARCH}"
+
+          install -Dm755 "$_BIN_DIR/bw" "$PKG_ROOT/usr/bin/bw"
+          install -Dm644 "$GITHUB_WORKSPACE/LICENSE.txt" "$PKG_ROOT/usr/share/doc/bitwarden-cli/copyright"
+
+          # Generated from the binary being shipped, so completions cannot drift from its commands.
+          "$_BIN_DIR/bw" completion --shell zsh > _bw
+          install -Dm644 _bw "$PKG_ROOT/usr/share/zsh/vendor-completions/_bw"
+
+          # Installed-Size is measured before DEBIAN/ exists, since control files are not installed.
+          INSTALLED_SIZE=$(du -ks "$PKG_ROOT" | cut -f1)
+
+          # dpkg-shlibdeps expects a debian/ skeleton in the working directory. Resolving the deps
+          # from the binary keeps the glibc floor correct if the build runner is ever upgraded.
+          mkdir -p debian && touch debian/control
+          DEPENDS=$(dpkg-shlibdeps -O --ignore-missing-info "$PKG_ROOT/usr/bin/bw" | sed 's/^shlibs:Depends=//')
+          rm -rf debian
+          echo "Resolved dependencies: $DEPENDS"
+
+          mkdir -p "$PKG_ROOT/DEBIAN"
+          sed -e "s/__version__/$_PACKAGE_VERSION/" \
+              -e "s/__arch__/$DEB_ARCH/" \
+              -e "s/__installed_size__/$INSTALLED_SIZE/" \
+              -e "s#__depends__#$DEPENDS#" \
+              stores/deb/control > "$PKG_ROOT/DEBIAN/control"
+
+          fakeroot dpkg-deb --build "$PKG_ROOT" "dist/bitwarden-cli_${_PACKAGE_VERSION}_${DEB_ARCH}.deb"
+
+      - name: Upload deb asset
+        if: ${{ matrix.os.base == 'linux' && matrix.license_type.type == 'commercial' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bitwarden-cli_${{ env._PACKAGE_VERSION }}_${{ env.DEB_ARCH }}.deb
+          path: apps/cli/dist/bitwarden-cli_${{ env._PACKAGE_VERSION }}_${{ env.DEB_ARCH }}.deb
+          if-no-files-found: error
+
       # We want to confirm the CLI is runnable using the dependencies defined in `apps/cli/package.json`.
       - name: Remove node_modules (root)
         run: rm -rf node_modules
@@ -627,3 +682,54 @@ jobs:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
+
+  validate-linux-deb:
+    name: Validate Linux ${{ matrix.os.distro }} .deb
+    runs-on: ${{ matrix.os.distro }}
+    needs: [setup, cli]
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both published architectures on the oldest and newest supported Ubuntu LTS. 22.04 is the
+        # distro the binary is built on, so it proves the glibc floor `dpkg-shlibdeps` resolved is
+        # actually satisfiable there; 24.04 catches breakage from the 64-bit time_t library renames.
+        os:
+          - { distro: ubuntu-22.04, arch: amd64 }
+          - { distro: ubuntu-24.04, arch: amd64 }
+          - { distro: ubuntu-22.04-arm, arch: arm64 }
+          - { distro: ubuntu-24.04-arm, arch: arm64 }
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _CPU_ARCH: ${{ matrix.os.arch }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Download deb artifact
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          run_id: ${{ github.run_id }}
+          path: apps/cli/dist/deb
+          artifacts: bitwarden-cli_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.deb
+
+      # Installing via apt-get rather than `dpkg -i` so that a dependency the package declares but
+      # the distro cannot satisfy fails here instead of leaving a half-configured package.
+      - name: Install .deb
+        run: sudo apt-get install -y "./dist/deb/bitwarden-cli_${_PACKAGE_VERSION}_${_CPU_ARCH}.deb"
+
+      - name: Version test
+        run: |
+          testVersion=$(bw -v)
+          echo "version: $_PACKAGE_VERSION"
+          echo "testVersion: $testVersion"
+          if [[ $testVersion != "$_PACKAGE_VERSION" ]]; then
+            echo "Version test failed."
+            exit 1
+          fi
+
+      - name: Completions test
+        run: test -s /usr/share/zsh/vendor-completions/_bw

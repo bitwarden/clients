@@ -1,0 +1,16 @@
+Package: bitwarden-cli
+Version: __version__
+Architecture: __arch__
+Maintainer: Bitwarden Inc. <hello@bitwarden.com>
+Installed-Size: __installed_size__
+Depends: __depends__
+Section: utils
+Priority: optional
+Homepage: https://bitwarden.com
+Description: secure and free password manager for all of your devices
+ Bitwarden is an open source password manager that stores logins, cards,
+ identities, and notes in an end-to-end encrypted vault. Vault data is
+ encrypted locally before it is synced, so only you can read it.
+ .
+ This package provides the bw command-line interface for managing and
+ scripting against a Bitwarden vault.
