@@ -123,10 +123,7 @@ export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
-  web: "disk-local",
-});
-export const RUN_HEALTH_SCAN_DISK = new StateDefinition("runHealthScan", "disk", {
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
   web: "disk-local",
 });
 
@@ -225,7 +222,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
