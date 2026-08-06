@@ -16,6 +16,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -97,6 +98,7 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+import { MyFoldersComponent } from "./vault/my-folders/my-folders.component";
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -673,6 +675,12 @@ const routes: Routes = [
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { titleId: "myFolders" } satisfies RouteDataProperties,
       },
       {
         path: "sm-landing",

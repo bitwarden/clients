@@ -64,7 +64,7 @@
         [open]="true"
         [hideActiveStyles]="true"
       >
-        <bit-nav-item [text]="'myFolders' | i18n"></bit-nav-item>
+        <bit-nav-item [text]="'myFolders' | i18n" route="folders"></bit-nav-item>
         <bit-nav-item [text]="'archiveNoun' | i18n" (mainContentClicked)="selectArchive()">
           @if (showArchivePremiumBadge()) {
             <bit-badge slot="end" variant="primary" size="small" startIcon="bwi-premium">{{
