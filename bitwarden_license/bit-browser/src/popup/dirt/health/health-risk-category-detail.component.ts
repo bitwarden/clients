@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, inject, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs/operators";
+import { filter, map, switchMap, take } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
@@ -9,6 +9,8 @@ import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-s
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   NoItemsModule,
@@ -83,5 +85,16 @@ export class HealthRiskCategoryDetailComponent {
     }
   });
 
-  readonly items = signal<CipherView[]>([]);
+  // TODO: REMOVE - FOR TESTING ONLY
+  readonly accountService = inject(AccountService);
+  readonly cipherService = inject(CipherService);
+  readonly items = toSignal<CipherView[]>(
+    this.accountService.activeAccount$.pipe(
+      filter((account) => account != null),
+      switchMap((account) =>
+        this.cipherService.cipherViews$(account.id).pipe(filter((ciphers) => ciphers != null)),
+      ),
+      take(5),
+    ),
+  );
 }
