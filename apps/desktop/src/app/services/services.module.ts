@@ -35,7 +35,6 @@ import {
   LockService,
   LoginEmailService,
   SsoUrlService,
-  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -149,6 +148,7 @@ import {
   RoutedVaultFilterService,
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -480,7 +480,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
@@ -615,6 +615,7 @@ const safeProviders: SafeProvider[] = [
       CollectionService,
       AccountServiceAbstraction,
       ConfigService,
+      Vfo1TerminologyService,
     ],
   }),
   safeProvider({

@@ -1206,6 +1206,111 @@
   "myFolders": {
     "message": "Мои папки"
   },
+  "addSharedFolder": {
+    "message": "Добавить общую папку"
+  },
+  "addToSharedFolder": {
+    "message": "Добавить в общую папку"
+  },
+  "newSharedFolder": {
+    "message": "Новая общая папка"
+  },
+  "searchSharedFolder": {
+    "message": "Поиск в общей папке"
+  },
+  "searchMyFolder": {
+    "message": "Поиск в моих папках"
+  },
+  "addToMyFolder": {
+    "message": "Добавить в мою папку"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Выберите элемент общей папки"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Просмотр общей папки - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Эта общая папка доступна только из консоли администратора"
+  },
+  "editSharedFolder": {
+    "message": "Изменить общую папку"
+  },
+  "deleteSharedFolder": {
+    "message": "Удалить общую папку"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Удалить $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderDesc": {
+    "message": "Эта общая папка будет окончательно удалена."
+  },
+  "deleteSharedFolderNameDesc": {
+    "message": "Общая папка $NAME$ будет окончательно удалена.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersDesc": {
+    "message": "Эти общие папки будут удалены навсегда."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ общих папок(-ки) будут удалены навсегда.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Выбранные элементы и общие папки будут удалены навсегда."
+  },
+  "sharedFolderDeleted": {
+    "message": "Общая папка удалена"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Общие папки удалены"
+  },
+  "deletedSharedFolders": {
+    "message": "Общие папки удалены"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "В бесплатных организациях может быть до $COLLECTIONCOUNT$ общих папок. Перейдите на платный план, чтобы добавить больше общих папок.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "В бесплатных организациях может быть до $COLLECTIONCOUNT$ общих папок. Свяжитесь с владельцем вашей организации для обновления.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Переместив элемент в общую папку, вы можете безопасно поделиться им с другими участниками хранилища."
+  },
   "attachments": {
     "message": "Вложения"
   },
@@ -2345,6 +2450,10 @@
   },
   "youDoNotHavePermissions": {
     "message": "У вас нет прав на эту коллекцию"
+  },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "У вас нет прав на эту общую папку",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
     "message": "Нет коллекций для отображения."
@@ -4665,6 +4774,9 @@
   "defaultCollection": {
     "message": "Коллекция по умолчанию"
   },
+  "defaultSharedFolder": {
+    "message": "Общая папка по умолчанию"
+  },
   "getHelp": {
     "message": "Получить помощь"
   },
@@ -4749,6 +4861,10 @@
   "nestCollectionUnder": {
     "message": "Разместить коллекцию под:"
   },
+  "nestSharedFolderUnder": {
+    "message": "Разместить общую папку в",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Контроль доступа"
   },
@@ -4767,11 +4883,23 @@
   "viewCollection": {
     "message": "Посмотреть коллекцию"
   },
+  "viewSharedFolder": {
+    "message": "Просмотр общей папки",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Информация о коллекции"
   },
+  "sharedFolderInfo": {
+    "message": "Информация об общей папке",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Вы действительно хотите удалить эту коллекцию?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Вы хотите удалить эту общую папку?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Изменить участника"
@@ -4848,6 +4976,24 @@
   },
   "owner": {
     "message": "Владелец"
+  },
+  "ownerAriaLabel": {
+    "message": "Владелец $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Хранилище $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Управление всеми аспектами деятельности вашей организации, включая биллинг и подписки"
@@ -5400,6 +5546,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Создана общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Изменена коллекция $ID$.",
     "placeholders": {
@@ -5408,6 +5564,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Изменена общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Коллекция удалена"
@@ -5426,6 +5592,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Удалена общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Отменить изменения"
@@ -9701,6 +9877,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавить префикс сайта",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Если эта опция включена, домен текущего сайта будет использоваться в качестве префикса для сгенерированного адреса email",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Имя хоста",
     "description": "Part of a URL."
@@ -10520,6 +10704,10 @@
   "noCollection": {
     "message": "Нет коллекций"
   },
+  "noSharedFolder": {
+    "message": "Нет общей папки",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Нет добавленных коллекций"
   },
@@ -10690,6 +10878,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Email обновится при сохранении"
+  },
+  "emailNotClaimedHint": {
+    "message": "У этого пользователя нет подтвержденного аккаунта. Свяжитесь с ним, чтобы обновить его адрес email."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "У этого пользователя есть мастер-пароль. Свяжитесь с ним, чтобы обновить его адрес email."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Новый адрес email должен соответствовать домену, который использует ваша организация."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Этот адрес email уже используется одним из сотрудников вашей организации."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Адрес email уже используется. Вы можете пригласить его в вашу организацию."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Невозможно изменить адрес email пользователя, у которого есть мастер-пароль."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Не удалось изменить адрес email. Пожалуйста, попробуйте снова."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Невозможно изменить имя пользователя, который не принят в организацию."
+  },
+  "nameNotClaimedHint": {
+    "message": "У этого пользователя нет подтвержденного аккаунта. Свяжитесь с ним, чтобы обновить его имя."
   },
   "createdDate": {
     "message": "Дата создания"
@@ -11757,6 +11972,10 @@
   "assignCollectionAccess": {
     "message": "Назначить доступ к коллекциям"
   },
+  "assignSharedFolderAccess": {
+    "message": "Назначить доступ",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Изменение коллекции"
   },
@@ -11766,8 +11985,16 @@
   "collectionEdited": {
     "message": "Коллекция изменена"
   },
+  "sharedFolderEdited": {
+    "message": "Общая папка изменена",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Коллекции изменены"
+  },
+  "sharedFoldersEdited": {
+    "message": "Общие папки изменены",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -11936,20 +12163,44 @@
   "readOnlyCollectionAccess": {
     "message": "У вас нет доступа к управлению этой коллекцией."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "У вас нет доступа к управлению этой общей папкой.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Отсутствуют разрешения на управление коллекцией"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Отсутствуют права доступа к управлению",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Представить разрешения на управление коллекцией, включая ее удаление."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Предоставить права на управление, что разрешил полное распоряжение общими папками, включая их удаление.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Предоставить группам или участникам доступ к этой коллекции."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Предоставить группам или участникам доступ к этой общей папке.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Предоставить участникам доступ к этой коллекции."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Предоставить участникам доступ к этой общей папке.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Администраторы могут получать доступ к коллекциям и управлять ими."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Администраторы могут получать доступ и управлять общими папками.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Доступ сервисного аккаунта изменен"
@@ -12679,6 +12930,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Общая папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Коллекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моя папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Создайте новую клиентскую организацию для управления ею в качестве провайдера. Дополнительные места будут отражены в следующем биллинговом цикле."
   },
@@ -12811,6 +13098,10 @@
   },
   "noCollectionsSelected": {
     "message": "Вы не выбрали ни одной коллекции."
+  },
+  "noSharedFoldersSelected": {
+    "message": "Вы не выбрали ни одной общей папки.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
     "message": "Обновить название"
@@ -13981,6 +14272,10 @@
   },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
+  },
+  "cannotCreateSharedFolder": {
+    "message": "В бесплатных организациях может быть до 2 общих папок. Перейдите на платный план, чтобы добавить больше общих папок.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "Поиск в архиве"

@@ -20,6 +20,7 @@ import {
   CipherFormConfigService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
@@ -50,6 +51,7 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
     PipesModule,
     ChipFilterComponent,
     BerryComponent,
+    Vfo1IconPipe,
   ],
 })
 export class ExposedPasswordsReportComponent
