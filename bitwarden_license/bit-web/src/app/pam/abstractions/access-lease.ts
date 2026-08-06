@@ -5,6 +5,7 @@
 // a real function exported by the SDK, so it needs a plain `export` to keep working at
 // runtime (callers actually invoke it as a type guard).
 export type {
+  AccessApprovalMode,
   AccessApprover,
   AccessDecider,
   AccessDecisionVerdict,
@@ -13,10 +14,15 @@ export type {
   AccessLeaseRevokeRequest,
   AccessLeaseStatus,
   AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
   AccessRequestDecisionView,
   AccessRequestId,
+  AccessRequestResultView,
   AccessRequestStatus,
+  AccessRequestSummaryView,
   AccessRequestView,
+  CipherAccessStateView,
   LeasingError,
 } from "@bitwarden/sdk-internal";
 export { isLeasingError } from "@bitwarden/sdk-internal";

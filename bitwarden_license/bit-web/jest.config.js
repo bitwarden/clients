@@ -8,15 +8,22 @@ const sharedConfig = require("../../libs/shared/jest.config.angular");
 module.exports = {
   ...sharedConfig,
   setupFilesAfterEnv: ["../../apps/web/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(
-    {
-      "@bitwarden/common/spec": ["libs/common/spec"],
-      "@bitwarden/common": ["libs/common/src/*"],
-      "@bitwarden/admin-console/common": ["libs/admin-console/src/common"],
-      ...(compilerOptions?.paths ?? {}),
-    },
-    {
-      prefix: "<rootDir>/../../",
-    },
-  ),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(
+      {
+        "@bitwarden/common/spec": ["libs/common/spec"],
+        "@bitwarden/common": ["libs/common/src/*"],
+        "@bitwarden/admin-console/common": ["libs/admin-console/src/common"],
+        ...(compilerOptions?.paths ?? {}),
+      },
+      {
+        prefix: "<rootDir>/../../",
+      },
+    ),
+    // Mirrors webpack.config.js's resolve.alias: bit-* clients replace @bitwarden/sdk-internal
+    // with the commercial SDK build, so its runtime (non-type) exports — e.g. PAM's
+    // `isLeasingError` — resolve under jest the same way they do in the real bundle. Type-only
+    // imports from @bitwarden/sdk-internal are unaffected (erased at compile time either way).
+    "^@bitwarden/sdk-internal$": "@bitwarden/commercial-sdk-internal",
+  },
 };

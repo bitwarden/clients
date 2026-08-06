@@ -23,6 +23,46 @@ create/edit page, and the IP-allowlist editor. Gated behind `FeatureFlag.Pam`
   validity flows through the parent form, and the page disables the array while
   the condition is off. Per-row CIDR validation rides on each pushed control.
 
+## Vault-gating providers
+
+Concrete implementations bound to the optional seam tokens `libs/vault`/
+`apps/web` define for privileged-access hosts (unprovided elsewhere, so those
+repos have no PAM dependency):
+
+- `cipher-open-gate.service.ts` (`PamCipherOpenGate`) → `CIPHER_OPEN_GATE`.
+  Fetches the full cipher via `LeasedCipherFetcherService` when an active
+  lease already covers it; otherwise opens the partial copy and lets the
+  cipher-lease banner drive the request flow.
+- `gated-cipher-reloader.service.ts` (`PamGatedCipherReloader`) →
+  `GATED_CIPHER_RELOADER`. Polls `AccessRequestSdkService.getCipherAccessState`
+  (the SDK-backed leasing services here are pull-, not push-based) and reveals
+  the full cipher in place once a lease appears.
+- `services/leased-cipher-fetcher.service.ts` (`LeasedCipherFetcherService`) —
+  the sole producer that re-reads a cipher straight from the server and hands
+  back a full `Cipher` domain object once it is no longer gated; both
+  providers above depend on it. Never writes the result to the local cache.
+- `vault-row-lease-badge/` (`VaultRowLeaseBadgeComponent`) →
+  `VAULT_ROW_LEASE_BADGE`. One-shot (not polled) per-row access-state fetch;
+  the reveal-in-place behavior that needs live polling lives in the reloader.
+- `cipher-lease-banner/` (`CipherLeaseBannerComponent`) → `CIPHER_VIEW_BANNER`.
+  The fold-out "request access" form: pre-checks the approval workflow
+  (`preCheckAccessRequest`), submits (`createAccessRequest`), and activates an
+  approved request (`activateAccessRequest`). Lease extension/early-end stay
+  on the "My access" page (`AccessLeaseSdkService`), not in this banner.
+
+Known limitation: `CipherView.leaseGated` has no reachable producer through
+`libs/vault`'s decrypt path since the partial-cipher pivot removed the
+domain-`Cipher` field it used to ride on (`DefaultCipherEncryptionService.decrypt`
+never re-attaches it). This only affects whether the banner keeps polling
+lease state _after_ a reveal in the same dialog session — the core
+request → activate → reveal flow is unaffected, since it keys off `partial`.
+
+`AccessRequestSdkService` also carries three cipher-scoped methods
+(`getCipherAccessState`, `preCheckAccessRequest`, `createAccessRequest`)
+alongside its "My access" ones — all served via the SDK's
+`commercial().pam().access_requests()` client, `cipherId` taken as a plain
+`string` to match the seam tokens' shape.
+
 ## CRUD is SDK-served, not HTTP
 
 Access-rule CRUD goes through the Rust SDK

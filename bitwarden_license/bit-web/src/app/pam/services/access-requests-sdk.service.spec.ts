@@ -12,7 +12,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import type { AccessLeaseView, AccessRequestId, AccessRequestView } from "@bitwarden/sdk-internal";
+import type {
+  AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
+  AccessRequestId,
+  AccessRequestResultView,
+  AccessRequestView,
+  CipherAccessStateView,
+} from "@bitwarden/sdk-internal";
 
 import { AccessRequestsSdkService } from "./access-requests-sdk.service";
 
@@ -129,6 +137,83 @@ describe("AccessRequestsSdkService", () => {
       accessRequests.cancel.mockRejectedValue(error);
 
       await expect(service.cancelAccessRequest(requestId)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  const cipherId = "1b1e4c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e";
+
+  describe("getCipherAccessState", () => {
+    it("calls access_requests().cipher_access_state() with the cipher id", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const state = { cipherId, activeLease: undefined } as unknown as CipherAccessStateView;
+      accessRequests.cipher_access_state.mockResolvedValue(state);
+
+      const result = await service.getCipherAccessState(cipherId);
+
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledWith(cipherId);
+      expect(result).toEqual(state);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("boom");
+      accessRequests.cipher_access_state.mockRejectedValue(error);
+
+      await expect(service.getCipherAccessState(cipherId)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("preCheckAccessRequest", () => {
+    it("calls access_requests().pre_check() with the cipher id", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const preCheck = {
+        cipherId,
+        approvalMode: "automatic",
+        hasActiveLease: false,
+      } as unknown as AccessPreCheckView;
+      accessRequests.pre_check.mockResolvedValue(preCheck);
+
+      const result = await service.preCheckAccessRequest(cipherId);
+
+      expect(accessRequests.pre_check).toHaveBeenCalledWith(cipherId);
+      expect(result).toEqual(preCheck);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("boom");
+      accessRequests.pre_check.mockRejectedValue(error);
+
+      await expect(service.preCheckAccessRequest(cipherId)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("createAccessRequest", () => {
+    it("calls access_requests().request() with the cipher id and body", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const body = { durationSeconds: 3600 } as unknown as AccessRequestCreateRequest;
+      const result_ = {
+        approvalMode: "automatic",
+        request: { id: requestId, cipherId },
+      } as unknown as AccessRequestResultView;
+      accessRequests.request.mockResolvedValue(result_);
+
+      const result = await service.createAccessRequest(cipherId, body);
+
+      expect(accessRequests.request).toHaveBeenCalledWith(cipherId, body);
+      expect(result).toEqual(result_);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("boom");
+      const body = { durationSeconds: 3600 } as unknown as AccessRequestCreateRequest;
+      accessRequests.request.mockRejectedValue(error);
+
+      await expect(service.createAccessRequest(cipherId, body)).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
     });
   });

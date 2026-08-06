@@ -16,6 +16,7 @@ export {
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
 
 export type {
+  AccessApprovalMode,
   AccessApprover,
   AccessDecider,
   AccessDecisionVerdict,
@@ -24,10 +25,15 @@ export type {
   AccessLeaseRevokeRequest,
   AccessLeaseStatus,
   AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
   AccessRequestDecisionView,
   AccessRequestId,
+  AccessRequestResultView,
   AccessRequestStatus,
+  AccessRequestSummaryView,
   AccessRequestView,
+  CipherAccessStateView,
   LeasingError,
 } from "./abstractions/access-lease";
 export { isLeasingError } from "./abstractions/access-lease";

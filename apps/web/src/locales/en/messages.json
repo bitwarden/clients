@@ -17042,6 +17042,75 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
+  "pamRequestAccessBannerTitle": {
+    "message": "This item requires approval to access."
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestAccessDuration": {
+    "message": "Duration"
+  },
+  "pamRequestAccessReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "pamRequestAccessReasonRequired": {
+    "message": "Reason"
+  },
+  "pamRequestAccessReasonHint": {
+    "message": "Help the approver understand why you need access."
+  },
+  "pamRequestAccessReasonPlaceholder": {
+    "message": "e.g. Investigating a production incident"
+  },
+  "pamRequestAccessDate": {
+    "message": "Date"
+  },
+  "pamRequestAccessStart": {
+    "message": "Start time"
+  },
+  "pamRequestAccessEnd": {
+    "message": "End time"
+  },
+  "pamRequestAccessEndBeforeStart": {
+    "message": "The end time must be after the start time."
+  },
+  "pamRequestAccessApprovedSuccess": {
+    "message": "Request approved. Start access when you're ready."
+  },
+  "pamRequestAccessPendingSuccess": {
+    "message": "Request submitted. Awaiting approval."
+  },
+  "pamRequestAccessGenericError": {
+    "message": "Something went wrong submitting your request. Please try again."
+  },
+  "pamPendingRequestBannerTitle": {
+    "message": "Your access request is pending approval."
+  },
+  "pamApprovedRequestBannerTitle": {
+    "message": "Your access request was approved."
+  },
+  "pamApprovedRequestBannerApprovedBy": {
+    "message": "Approved by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Jane Doe"
+      }
+    }
+  },
+  "cipherLeaseExpiresIn": {
+    "message": "Expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "5m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to access"
+  },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
   },
