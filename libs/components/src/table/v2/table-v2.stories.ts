@@ -470,7 +470,15 @@ const basicData = signal<DemoRow[]>(
   })),
 );
 
+const sparseData = signal<DemoRow[]>([
+  { id: 0, name: "name-0", other: "other-0" },
+  { id: 1, name: "", other: "other-1" },
+  { id: 2, name: "name-2", other: "" },
+  { id: 3, name: "", other: "" },
+]);
+
 const basicTable = defineTable<DemoRow>(basicData);
+const sparseTable = defineTable<DemoRow>(sparseData);
 const emptyTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
 const loadingTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
 
@@ -606,6 +614,27 @@ export const RichCells: Story = {
             {{ row.email }}
             <span slot="secondary">User #{{ row.id }}</span>
           </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+export const EmptyCells: Story = {
+  render: () => ({
+    props: { table: sparseTable },
+    template: `
+      <bit-table-v2 [tableDef]="table" cellPlaceholder="Not set">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">
+            <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
+            {{ row.name }}
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Other</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row" placeholder="">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,
