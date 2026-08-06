@@ -119,6 +119,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly onDeleteItem = async (item: CipherView) => {
     await this.dialogService.open(HealthDeleteAtRiskItemDialogComponent, {
       positionStrategy: new CenterPositionStrategy(),
+      data: { item },
     });
   };
 
