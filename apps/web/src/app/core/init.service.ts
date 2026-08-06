@@ -84,15 +84,14 @@ export class InitService {
       this.taskService.listenForTaskNotifications();
 
       // Opportunistic sweep of any sealed open-org-invite secrets whose TTL has expired
-      // (defense-in-depth for abandoned registration-crossing flows). Runs once per boot
-      // when the feature is enabled; wrapped so a sweep failure does not block app startup.
-      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed.
-      if (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink)) {
-        try {
-          await this.organizationInviteService.clearExpiredSealedOpenOrgInviteSecrets();
-        } catch {
-          // Non-fatal: entries linger until the next boot's sweep.
-        }
+      // (defense-in-depth for abandoned registration-crossing flows). Runs unconditionally
+      // once per boot so seeded entries still get cleaned up
+      // The sweep is a cheap no-op when the state is empty. Wrapped so a
+      // sweep failure does not block app startup.
+      try {
+        await this.organizationInviteService.clearExpiredSealedOpenOrgInviteSecrets();
+      } catch {
+        // Non-fatal: entries linger until the next boot's sweep.
       }
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
