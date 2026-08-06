@@ -11,7 +11,7 @@
     </p>
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">Items</h2>
+        <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
       @for (item of items(); track item.id) {
@@ -47,14 +47,14 @@
               <button
                 type="button"
                 bitIconButton="bwi-more-horizontal"
-                label="Options"
+                [label]="'moreOptionsLabelNoPlaceholder' | i18n"
                 [bitMenuTriggerFor]="itemMenu"
               ></button>
             </bit-item-action>
             <bit-menu #itemMenu>
               <button bitMenuItem type="button" variant="danger" (click)="onDeleteItem(item)">
                 <bit-icon name="bwi-delete" slot="start" />
-                Delete item
+                {{ "deleteItem" | i18n }}
               </button>
             </bit-menu>
           </div>

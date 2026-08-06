@@ -7530,7 +7530,7 @@
   },
   "weakPasswordsDescription": {
     "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
-  },    
+  },
   "weakPasswordsEmpty": {
     "message": "All of your passwords are strong."
   },
@@ -7545,5 +7545,25 @@
   },
   "youreAllSet": {
     "message": "You're all set!"
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   }
 }
