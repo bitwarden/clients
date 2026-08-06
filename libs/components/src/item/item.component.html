@@ -4,7 +4,7 @@
 
 <div
   #endSlot
-  class="tw-flex tw-items-center tw-gap-2 [&:has(>bit-item-action:last-child>button[bitIconButton],>button[bitIconButton]:last-child)]:tw-pe-2 bit-compact:!tw-pe-2"
+  class="tw-flex tw-items-center tw-gap-2 [&:has(>button[bitIconButton]:last-child,>*:last-child_button[bitIconButton])]:tw-pe-2 bit-compact:!tw-pe-2"
   [class]="endSlotPaddingClass()"
   [hidden]="!endSlotHasChildren()"
 >

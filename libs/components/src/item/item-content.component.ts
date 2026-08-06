@@ -48,7 +48,7 @@ export class ItemContentComponent implements AfterContentChecked {
   );
 
   private readonly endSlotOverrides =
-    "[&:has(>bit-item-action:last-child>button[bitIconButton],>button[bitIconButton]:last-child)]:tw-pe-2 bit-compact:!tw-pe-2";
+    "[&:has(>button[bitIconButton]:last-child,>*:last-child_button[bitIconButton])]:tw-pe-2 bit-compact:!tw-pe-2";
 
   /**
    * Trailing edge padding is owned by the right-most non-empty slot. The content end slot owns it
