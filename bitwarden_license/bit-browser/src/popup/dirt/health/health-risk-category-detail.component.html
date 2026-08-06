@@ -15,18 +15,20 @@
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
       @for (item of items(); track item.id) {
-        <bit-item class="tw-py-2 tw-flex tw-gap-2 tw-items-center">
-          <div slot="start" class="tw-px-3 tw-flex tw-items-center">
-            <app-vault-icon [cipher]="item"></app-vault-icon>
-          </div>
-          <div slot="secondary" class="tw-flex tw-flex-col">
+        <bit-item class="tw-flex tw-gap-2 tw-items-center">
+          <button bit-item-content type="button" (click)="onItemClick(item)">
+            <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+              <app-vault-icon [cipher]="item"></app-vault-icon>
+            </div>
             <span bitTypography="body1">
               {{ item.name }}
             </span>
-            <span bitTypography="body2" class="tw-text-muted">
-              {{ item.login.username }}
-            </span>
-          </div>
+            <div slot="secondary" class="tw-flex tw-flex-col">
+              <span bitTypography="body2" class="tw-text-muted">
+                {{ item.login.username }}
+              </span>
+            </div>
+          </button>
           <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
             @if (item.login.uri != null) {
               <bit-item-action>
