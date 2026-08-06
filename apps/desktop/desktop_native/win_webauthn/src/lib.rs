@@ -52,6 +52,13 @@ impl WinWebAuthnError {
             cause: Some(cause),
         }
     }
+
+    /// Whether the user dismissed an OS prompt, as opposed to the operation
+    /// failing. Callers generally want to report this as an outcome rather than
+    /// an error.
+    pub fn is_user_cancelled(&self) -> bool {
+        matches!(self.kind, ErrorKind::UserCancelled)
+    }
 }
 
 #[derive(Debug)]
@@ -68,6 +75,9 @@ enum ErrorKind {
     /// An unknown error occurred.
     Other,
 
+    /// The user dismissed an OS prompt.
+    UserCancelled,
+
     /// An internal library error occurred.
     WindowsInternal,
 }
@@ -79,6 +89,7 @@ impl Display for WinWebAuthnError {
             ErrorKind::DllLoad => "Failed to load function from DLL",
             ErrorKind::InvalidArguments => "Invalid arguments passed to function",
             ErrorKind::Other => "An error occurred",
+            ErrorKind::UserCancelled => "The user cancelled the operation",
             ErrorKind::WindowsInternal => "A Windows error occurred",
         };
         f.write_str(msg)?;
