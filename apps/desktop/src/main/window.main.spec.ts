@@ -2,7 +2,9 @@ import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { BrowserWindow } from "electron";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -106,6 +108,96 @@ describe("WindowMain", () => {
 
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
+    });
+  });
+
+  describe("show", () => {
+    let sut: WindowMain;
+
+    beforeEach(() => {
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        mock<DesktopSettingsService>(),
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+    });
+
+    it("calls maximize() when the window is already visible and stored isMaximized is true", () => {
+      // Arrange
+      const mockWin = mock<BrowserWindow>();
+      mockWin.isVisible.mockReturnValue(true);
+      sut.win = mockWin;
+      (sut as any).windowStates["mainWindowSize"] = { isMaximized: true };
+
+      // Act
+      sut.show();
+
+      // Assert
+      expect(mockWin.maximize).toHaveBeenCalledTimes(1);
+    });
+
+    it("does NOT call maximize() when stored isMaximized is false", () => {
+      // Arrange
+      const mockWin = mock<BrowserWindow>();
+      mockWin.isVisible.mockReturnValue(false);
+      sut.win = mockWin;
+      (sut as any).windowStates["mainWindowSize"] = { isMaximized: false };
+
+      // Act
+      sut.show();
+
+      // Assert
+      expect(mockWin.maximize).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateWindowState", () => {
+    let sut: WindowMain;
+    let desktopSettingsService: ReturnType<typeof mock<DesktopSettingsService>>;
+
+    beforeEach(() => {
+      desktopSettingsService = mock<DesktopSettingsService>();
+      // updateWindowState reads modalMode$ via firstValueFrom; provide a non-modal value.
+      desktopSettingsService.modalMode$ = new BehaviorSubject({
+        isModalModeActive: false,
+        showTrafficButtons: false,
+        modalPosition: undefined,
+      });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+    });
+
+    it("does NOT overwrite a stored isMaximized:true to false when the window is minimized", async () => {
+      // Arrange
+      const mockWin = mock<BrowserWindow>();
+      mockWin.isDestroyed.mockReturnValue(false);
+      mockWin.isMinimized.mockReturnValue(true);
+      mockWin.isMaximized.mockReturnValue(false);
+      mockWin.isFullScreen.mockReturnValue(false);
+      mockWin.getBounds.mockReturnValue({ x: 0, y: 0, width: 800, height: 600 });
+
+      // Pre-seed the stored state as maximized (set before the window was minimized)
+      (sut as any).windowStates["mainWindowSize"] = { isMaximized: true };
+
+      // Act
+      await (sut as any).updateWindowState("mainWindowSize", mockWin);
+
+      // Assert
+      expect((sut as any).windowStates["mainWindowSize"].isMaximized).toBe(true);
     });
   });
 });
