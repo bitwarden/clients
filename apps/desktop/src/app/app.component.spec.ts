@@ -2,7 +2,7 @@ import { DestroyRef, NgZone } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, Observable, of } from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
