@@ -2,23 +2,15 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import {
-  USER_DECRYPTION_OPTIONS,
-  UserDecryptionOptions,
-  WebAuthnPrfUserDecryptionOption,
-} from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
-import { fromSdkKdfConfig, KDF_CONFIG } from "@bitwarden/key-management";
+import { fromSdkKdfConfig } from "@bitwarden/key-management";
 import {
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
-  UnsignedSharedKey,
   V2UpgradeToken,
   WasmStateBridge,
   WebAuthnPrfUnlockData as SdkWebAuthnPrfUnlockData,
-  WebAuthnPrfUnlockOption as SdkWebAuthnPrfUnlockOption,
   WrappedAccountCryptographicState,
   Kdf,
 } from "@bitwarden/sdk-internal";
@@ -26,19 +18,21 @@ import { UserId } from "@bitwarden/user-core";
 
 import { compareValues } from "../platform/misc/compare-values";
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
-import { USER_KEY } from "../platform/services/key-state/user-key.state";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
 import { UserKey } from "../types/key";
 
-import { ACCOUNT_CRYPTOGRAPHIC_STATE } from "./account-cryptography/default-account-cryptographic-state.service";
-import { MASTER_PASSWORD_UNLOCK_KEY } from "./master-password/services/master-password.service";
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
 import {
+  ACCOUNT_CRYPTOGRAPHIC_STATE,
+  KDF_CONFIG,
+  MASTER_PASSWORD_UNLOCK_DATA,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+  USER_KEY,
   USER_KEY_ENCRYPTED_PIN,
-} from "./pin/pin.state";
-import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
+  V2_UPGRADE_TOKEN,
+  WEBAUTHN_PRF_OPTIONS,
+} from "./state-definitions";
 
 // Helper functions to work around unreliable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.
@@ -86,28 +80,6 @@ async function deleteAtomic<T>(
   await waitForStateValue(stateProvider, userId, keyDefinition, undefined);
 }
 
-function toWebAuthnPrfUserDecryptionOption(
-  option: SdkWebAuthnPrfUnlockOption,
-): WebAuthnPrfUserDecryptionOption {
-  const decryptionOption = new WebAuthnPrfUserDecryptionOption();
-  decryptionOption.encryptedPrivateKey = option.encryptedPrivateKey;
-  decryptionOption.encryptedUserKey = option.encryptedUserKey;
-  decryptionOption.credentialId = option.credentialId as string;
-  decryptionOption.transports = option.transports ?? [];
-  return decryptionOption;
-}
-
-function toSdkWebAuthnPrfUnlockOption(
-  option: WebAuthnPrfUserDecryptionOption,
-): SdkWebAuthnPrfUnlockOption {
-  return {
-    encryptedPrivateKey: option.encryptedPrivateKey as EncString,
-    encryptedUserKey: option.encryptedUserKey as UnsignedSharedKey,
-    credentialId: option.credentialId,
-    transports: option.transports,
-  };
-}
-
 export class JsWasmStateBridge implements WasmStateBridge {
   constructor(
     private stateProvider: StateProvider,
@@ -142,56 +114,30 @@ export class JsWasmStateBridge implements WasmStateBridge {
     await writeAtomic(
       this.stateProvider,
       this.userId,
-      MASTER_PASSWORD_UNLOCK_KEY,
+      MASTER_PASSWORD_UNLOCK_DATA,
       MasterPasswordUnlockData.fromSdk(value),
     );
   }
 
   async get_masterpassword_unlock_data(): Promise<SdkMasterPasswordUnlockData | null> {
-    const data = await readAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_KEY);
+    const data = await readAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_DATA);
     return data == null ? null : data.toSdk();
   }
 
   async clear_masterpassword_unlock_data(): Promise<void> {
-    await deleteAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_KEY);
+    await deleteAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_DATA);
   }
 
   async set_webauthn_prf_unlock_data(value: SdkWebAuthnPrfUnlockData): Promise<void> {
-    await this.updateWebAuthnPrfOptions(value.options.map(toWebAuthnPrfUserDecryptionOption));
+    await writeAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS, value);
   }
 
   async get_webauthn_prf_unlock_data(): Promise<SdkWebAuthnPrfUnlockData | null> {
-    const options = await readAtomic(this.stateProvider, this.userId, USER_DECRYPTION_OPTIONS);
-    if (options?.webAuthnPrfOptions == null) {
-      return null;
-    }
-    return { options: options.webAuthnPrfOptions.map(toSdkWebAuthnPrfUnlockOption) };
+    return await readAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS);
   }
 
   async clear_webauthn_prf_unlock_data(): Promise<void> {
-    await this.updateWebAuthnPrfOptions(undefined);
-  }
-
-  /**
-   * WebAuthn PRF unlock data is one field of the larger user decryption options blob, so it has to
-   * be written back without disturbing the sibling options.
-   *
-   * When no decryption options exist yet there is nothing to merge into: writing a fresh blob would
-   * publish defaults (notably `hasMasterPassword: undefined`) that the rest of the client reads as
-   * fact, so the write is skipped instead.
-   */
-  private async updateWebAuthnPrfOptions(
-    prfOptions: WebAuthnPrfUserDecryptionOption[] | undefined,
-  ): Promise<void> {
-    const current = await readAtomic(this.stateProvider, this.userId, USER_DECRYPTION_OPTIONS);
-    if (current == null) {
-      return;
-    }
-
-    const updated = Object.assign(new UserDecryptionOptions(), current);
-    updated.webAuthnPrfOptions = prfOptions;
-
-    await writeAtomic(this.stateProvider, this.userId, USER_DECRYPTION_OPTIONS, updated);
+    await deleteAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS);
   }
 
   async set_user_key(userKey: SymmetricKey): Promise<void> {
