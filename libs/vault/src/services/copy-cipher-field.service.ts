@@ -80,7 +80,7 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     protected: true,
     event: EventType.Cipher_ClientCopiedPassword,
   },
-  totp: { typeI18nKey: "verificationCodeTotp", protected: true },
+  totp: { typeI18nKey: "verificationCode", protected: true },
   cardNumber: { typeI18nKey: "number", protected: true },
   securityCode: {
     typeI18nKey: "securityCode",

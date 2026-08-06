@@ -17,12 +17,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
-import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -119,11 +119,11 @@ describe("AppearanceComponent", () => {
           useValue: { enabled$: enableCompactMode$, setEnabled: setEnableCompactMode },
         },
         {
-          provide: VaultPopupCopyButtonsService,
+          provide: VaultCopyButtonsService,
           useValue: {
             showQuickCopyActions$,
             setShowQuickCopyActions,
-          } as Partial<VaultPopupCopyButtonsService>,
+          } as Partial<VaultCopyButtonsService>,
         },
         {
           provide: PopupSizeService,
