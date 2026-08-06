@@ -9,7 +9,7 @@
 </p>
 
 ---
-
+ 
 # Bitwarden Client Applications
 
 This repository houses all Bitwarden client applications except the mobile applications ([iOS](https://github.com/bitwarden/ios) | [android](https://github.com/bitwarden/android)).
