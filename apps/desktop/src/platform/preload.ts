@@ -15,6 +15,7 @@ import {
   EnvAccessTokenLocation,
   accessTokenLocation,
   allowBrowserintegrationOverride,
+  featureFlagOverrideMenuEnvEnabled,
   isAppImage,
   isDev,
   isFlatpak,
@@ -135,6 +136,7 @@ export default {
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
+  featureFlagOverrideMenuEnvEnabled: featureFlagOverrideMenuEnvEnabled(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
     const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);

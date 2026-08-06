@@ -12,7 +12,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  lastValueFrom,
+  map,
+  Subject,
+  takeUntil,
+  timeout,
+} from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
@@ -67,6 +76,10 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
+import {
+  FeatureFlagOverrideMenuService,
+  FeatureFlagOverridesDialogComponent,
+} from "@bitwarden/dev-tools";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
@@ -186,6 +199,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountDeletionService: AccountDeletionService,
     private premiumCheckoutPendingService: PremiumCheckoutPendingService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private featureFlagOverrideMenuService: FeatureFlagOverrideMenuService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -199,6 +213,14 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
+
+    // Rebuild the menu when the developer toggles the override menu from the console, so the View
+    // menu entry appears (or disappears) without a restart.
+    this.featureFlagOverrideMenuService.enabled$
+      .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        void this.updateAppMenu();
+      });
 
     this.ngZone.runOutsideAngular(() => {
       setTimeout(async () => {
@@ -301,6 +323,9 @@ export class AppComponent implements OnInit, OnDestroy {
           }
           case "openTroubleshootingDialog":
             TroubleshootingDialogComponent.open(this.dialogService);
+            break;
+          case "openFeatureFlagOverridesDialog":
+            FeatureFlagOverridesDialogComponent.open(this.dialogService);
             break;
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
@@ -610,12 +635,16 @@ export class AppComponent implements OnInit, OnDestroy {
   private async updateAppMenu() {
     let updateRequest: MenuUpdateRequest;
     const stateAccounts = await firstValueFrom(this.accountService.accounts$);
+    const featureFlagOverrideMenuEnabled = await firstValueFrom(
+      this.featureFlagOverrideMenuService.enabled$,
+    );
 
     if (stateAccounts == null || Object.keys(stateAccounts).length < 1) {
       updateRequest = {
         accounts: null,
         activeUserId: null,
         restrictedCipherTypes: null,
+        featureFlagOverrideMenuEnabled,
       };
     } else {
       const accounts: { [userId: string]: MenuAccount } = {};
@@ -664,6 +693,7 @@ export class AppComponent implements OnInit, OnDestroy {
         restrictedCipherTypes: (
           await firstValueFrom(this.restrictedItemTypesService.restricted$)
         ).map((restrictedItems) => restrictedItems.cipherType),
+        featureFlagOverrideMenuEnabled,
       };
     }
 
