@@ -70,6 +70,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
   data?: string;
+  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -98,6 +100,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
+    this.partialData = obj.partialData ?? undefined;
 
     switch (this.type) {
       case CipherType.Login:
@@ -300,6 +303,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    // The gating envelope is persisted so it round-trips to the SDK on every decrypt.
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -382,6 +387,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (obj.permissions != null) {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
+
+    domain.partialData = obj.partialData ?? undefined;
 
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;
@@ -496,6 +503,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       driversLicense: undefined,
       passport: undefined,
       data: this.data,
+      // Carry the gating envelope into the SDK, which parses it and decrypts the partial view.
+      partialData: this.partialData,
     };
 
     switch (this.type) {
@@ -588,6 +597,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
     cipher.data = sdkCipher.data;
+    // Preserve the gating envelope across the SDK round trip so it stays persisted.
+    cipher.partialData = sdkCipher.partialData;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);

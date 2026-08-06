@@ -996,6 +996,39 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("decryptCiphers with PAM gated rows", () => {
+    const gated_id = "33333333-3333-3333-3333-333333333333";
+    const normal_id = "44444444-4444-4444-4444-444444444444";
+
+    it("passes gated ciphers through the SDK like any other cipher", async () => {
+      // The SDK now decrypts restricted ciphers itself (into a `partial` view), so the
+      // service no longer partitions them out or hand-decrypts them.
+      const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
+      gatedCipher.partialData = '{"Name":"enc-name"}';
+      const normalCipher = new Cipher({ ...cipherData, id: normal_id, organizationId: orgId });
+
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
+        [
+          { id: gated_id, name: "Gated item", partial: true } as CipherView,
+          { id: normal_id, name: "Normal item" } as CipherView,
+        ],
+        [],
+      ]);
+
+      const [successes] = await (cipherService as any).decryptCiphers(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+
+      // Both ciphers — the gated one included — are handed to the SDK unchanged.
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [gatedCipher, normalCipher],
+        userId,
+      );
+      expect(successes.map((c: CipherView) => c.name)).toEqual(["Gated item", "Normal item"]);
+    });
+  });
+
   describe("softDelete", () => {
     it("clears archivedDate when soft deleting", async () => {
       const cipherId = "cipher-id-1" as CipherId;
