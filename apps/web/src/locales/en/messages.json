@@ -4544,6 +4544,9 @@
   "organizationName": {
     "message": "Organization name"
   },
+  "vaultName": {
+    "message": "Vault name"
+  },
   "accountOwnedBusiness": {
     "message": "This account is owned by a business."
   },
@@ -15343,6 +15346,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "View all plans"

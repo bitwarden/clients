@@ -18,7 +18,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { UpdateLicenseDialogComponent } from "../../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
@@ -36,6 +36,7 @@ import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
     LinkModule,
     I18nPipe,
     PricingCardComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class SelfHostedPremiumComponent {

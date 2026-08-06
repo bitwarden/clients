@@ -23,7 +23,10 @@
         {{ "alreadyHaveSubscriptionQuestion" | i18n }}
       </p>
       <p class="tw-text-sm tw-text-muted tw-mb-0.5">
-        {{ "alreadyHaveSubscriptionSelfHostedMessage" | i18n }}
+        {{
+          "alreadyHaveSubscriptionSelfHostedMessage"
+            | vfo1I18n: "alreadyHaveSubscriptionSelfHostedMessageV2"
+        }}
       </p>
       <a
         bitLink
