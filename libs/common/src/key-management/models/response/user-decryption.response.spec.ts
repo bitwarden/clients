@@ -72,4 +72,82 @@ describe("UserDecryptionResponse", () => {
       expect(userDecryptionResponse.v2UpgradeToken).toBeUndefined();
     },
   );
+
+  describe("toSdk", () => {
+    it("should map every option when the response is fully populated", () => {
+      const userDecryptionResponse = new UserDecryptionResponse({
+        MasterPasswordUnlock: {
+          Salt: "test@example.com",
+          Kdf: {
+            KdfType: KdfType.PBKDF2_SHA256 as number,
+            Iterations: 600_000,
+          },
+          MasterKeyEncryptedUserKey: "masterKeyEncryptedUserKey",
+        },
+        V2UpgradeToken: {
+          WrappedUserKey1: "wrappedUserKey1",
+          WrappedUserKey2: "wrappedUserKey2",
+        },
+        WebAuthnPrfOptions: [
+          {
+            EncryptedPrivateKey: "2.abc|def|ghi",
+            EncryptedUserKey: "4.jkl",
+            CredentialId: "credentialId",
+            Transports: ["usb"],
+          },
+        ],
+      });
+
+      expect(userDecryptionResponse.toSdk()).toEqual({
+        masterPasswordUnlock: {
+          salt: "test@example.com",
+          kdf: {
+            pBKDF2: { iterations: 600_000 },
+          },
+          masterKeyWrappedUserKey: "masterKeyEncryptedUserKey",
+        },
+        v2UpgradeToken: {
+          wrapped_user_key_1: "wrappedUserKey1",
+          wrapped_user_key_2: "wrappedUserKey2",
+        },
+        webAuthnPrfOptions: [
+          {
+            encryptedPrivateKey: "2.abc|def|ghi",
+            encryptedUserKey: "4.jkl",
+            credentialId: "credentialId",
+            transports: ["usb"],
+          },
+        ],
+      });
+    });
+
+    it("should leave optional options undefined and default webAuthnPrfOptions to an empty array", () => {
+      const userDecryptionResponse = new UserDecryptionResponse({});
+
+      expect(userDecryptionResponse.toSdk()).toEqual({
+        masterPasswordUnlock: undefined,
+        v2UpgradeToken: undefined,
+        webAuthnPrfOptions: [],
+      });
+    });
+
+    it("should drop webAuthnPrfOptions that are missing a wrapped key", () => {
+      const userDecryptionResponse = new UserDecryptionResponse({
+        WebAuthnPrfOptions: [
+          {
+            EncryptedUserKey: "4.jkl",
+            CredentialId: "missingPrivateKey",
+            Transports: [],
+          },
+          {
+            EncryptedPrivateKey: "2.abc|def|ghi",
+            CredentialId: "missingUserKey",
+            Transports: [],
+          },
+        ],
+      });
+
+      expect(userDecryptionResponse.toSdk().webAuthnPrfOptions).toEqual([]);
+    });
+  });
 });
