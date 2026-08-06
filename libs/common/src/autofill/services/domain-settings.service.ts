@@ -81,9 +81,16 @@ const SERVER_TARGETING_RULES = KeyDefinition.record<TargetingRulesByDomain, stri
   },
 );
 
-const ENABLE_FILL_ASSIST = new KeyDefinition(DOMAIN_SETTINGS_DISK, "enableFillAssist", {
-  deserializer: (value: boolean) => value ?? false,
-});
+// Preserve null for pristine state so `resolvedEnableFillAssist$` can
+// tell pristine from explicit false. `enableFillAssist$` still coalesces
+// to false, so existing consumers see no change.
+const ENABLE_FILL_ASSIST = new KeyDefinition<boolean | null>(
+  DOMAIN_SETTINGS_DISK,
+  "enableFillAssist",
+  {
+    deserializer: (value) => value ?? null,
+  },
+);
 
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
@@ -207,7 +214,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
-  private enableFillAssistState: GlobalState<boolean>;
+  private enableFillAssistState: GlobalState<boolean | null>;
   readonly enableFillAssist$: Observable<boolean>;
   readonly fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
