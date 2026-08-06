@@ -129,7 +129,7 @@ describe("HealthOverviewComponent", () => {
 
     await initComponent();
 
-    expect(text()).toContain("yourVaultIsAtRisk");
+    expect(text()).toContain("yourVaultRiskIsHigh");
     expect(text()).toContain("passwordsNeedFixing");
     expect(text()).not.toContain("yourVaultIsHealthy");
   });
@@ -143,7 +143,18 @@ describe("HealthOverviewComponent", () => {
 
     expect(text()).toContain("yourVaultIsHealthy");
     expect(text()).toContain("passwordsAreSecure");
-    expect(text()).not.toContain("yourVaultIsAtRisk");
+    expect(text()).not.toContain("yourVaultRiskIsHigh");
+  });
+
+  it("labels the category list with a section header", async () => {
+    reportService.buildVaultHealthReport$.mockReturnValue(
+      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
+    );
+
+    await initComponent();
+
+    expect(fixture.nativeElement.querySelector("bit-section-header")).not.toBeNull();
+    expect(text()).toContain("risksIdentified");
   });
 
   it("renders the three categories in Exposed, Weak, Reused order", async () => {

@@ -12,6 +12,7 @@ import {
   BitwardenIcon,
   IconTileVariant,
   ItemModule,
+  SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -73,6 +74,7 @@ const RISK_CATEGORY_ROWS: readonly {
     AtRiskGaugeComponent,
     RiskCategoryItemComponent,
     ItemModule,
+    SectionHeaderComponent,
     TypographyModule,
     I18nPipe,
   ],

@@ -18,11 +18,11 @@ export default {
           useFactory: () =>
             new I18nMockService({
               exposedPasswords: "Exposed passwords",
-              exposedPasswordsDesc: "Found in known data breaches",
+              exposedPasswordsDesc: "Exposed in data breaches",
               weakPasswords: "Weak passwords",
-              weakPasswordsDesc: "Easy to guess or brute-force",
+              weakPasswordsDesc: "Too short or simple",
               reusedPasswords: "Reused passwords",
-              reusedPasswordsDesc: "Used across multiple logins",
+              reusedPasswordsDesc: "Reused for several logins",
               categoryHealthy: "No items need attention",
             }),
         },

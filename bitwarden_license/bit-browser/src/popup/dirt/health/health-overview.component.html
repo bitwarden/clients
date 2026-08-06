@@ -8,7 +8,7 @@
       bitTypography="body1"
       class="tw-mb-0 tw-mt-2 tw-text-center tw-font-semibold tw-text-fg-heading"
     >
-      {{ (isAtRisk() ? "yourVaultIsAtRisk" : "yourVaultIsHealthy") | i18n }}
+      {{ (isAtRisk() ? "yourVaultRiskIsHigh" : "yourVaultIsHealthy") | i18n }}
     </h2>
 
     <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
@@ -21,6 +21,10 @@
       }
     </span>
   </div>
+
+  <bit-section-header class="tw-mx-4">
+    <h2 bitTypography="h6">{{ "risksIdentified" | i18n }}</h2>
+  </bit-section-header>
 
   <bit-item-group>
     @for (row of categoryRows(); track row.category) {
