@@ -179,6 +179,7 @@ import {
 } from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
@@ -206,6 +207,7 @@ import { ForegroundBrowserBiometricsService } from "../../key-management/biometr
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { ForegroundUnlockNotifierService } from "../../key-management/shared-unlock/foreground-unlock-notifier.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -562,6 +564,11 @@ const safeProviders: SafeProvider[] = [
     provide: SharedUnlockSettingsService,
     useClass: DefaultSharedUnlockSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: ForegroundUnlockNotifierService,
+    useClass: ForegroundUnlockNotifierService,
+    deps: [UnlockService, MessageSender],
   }),
   safeProvider({
     provide: PhishingDetectionSettingsServiceAbstraction,

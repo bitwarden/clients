@@ -6,7 +6,7 @@ import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { UnlockService, UnlockSource } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
@@ -15,12 +15,12 @@ import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
+import { LockSource } from "../lock";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
 import { JsSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockLeaderService } from "./shared-unlock-leader.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
-import { pollForUnlockEvents } from "./unlock-state-poll";
 
 export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderService {
   private leader: SharedUnlockLeader | null = null;
@@ -54,7 +54,12 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
 
     this.leader = SharedUnlockLeader.try_new(this.ipcService.client, sharedUnlockDriver);
     await this.leader.start();
-    this.lockService.registerOnLockAction(async (userId) => {
+    this.lockService.registerOnLockAction(async (userId, source) => {
+      // Ignore locks we applied ourselves, otherwise they are broadcast straight back out.
+      if (source === LockSource.SharedUnlock) {
+        return;
+      }
+
       if (!(await this.enabled(userId))) {
         return;
       }
@@ -66,12 +71,22 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
       });
     });
 
-    this.unlockService.registerOnUnlockAction(async (userId, userKey) =>
-      this.onUnlock(userId, userKey),
+    this.unlockService.registerOnUnlockAction(async (userId, userKey, source) =>
+      this.onUnlock(userId, userKey, source),
     );
-    pollForUnlockEvents(this.keyService, this.accountService, async (userId, userKey) =>
-      this.onUnlock(userId, userKey),
-    );
+  }
+
+  async notifyUnlock(userId: UserId, source: UnlockSource): Promise<void> {
+    if (this.leader == null) {
+      return;
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      return;
+    }
+
+    await this.onUnlock(userId, userKey, source);
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
@@ -88,7 +103,16 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
     }
   }
 
-  private async onUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
+  private async onUnlock(
+    userId: UserId,
+    userKey: SymmetricCryptoKey,
+    source: UnlockSource,
+  ): Promise<void> {
+    // Ignore unlocks we applied ourselves, otherwise they are broadcast straight back out.
+    if (source === UnlockSource.SharedUnlock) {
+      return;
+    }
+
     if (!(await this.enabled(userId))) {
       return;
     }

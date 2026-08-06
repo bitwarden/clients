@@ -4,7 +4,7 @@ import { of } from "rxjs";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -12,7 +12,6 @@ import { mockAccountServiceWith, mockAccountInfoWith } from "@bitwarden/common/s
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { StateEventRunnerService } from "@bitwarden/state";
@@ -31,9 +30,7 @@ describe("DefaultLockService", () => {
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const logoutService = mock<LogoutService>();
   const messagingService = mock<MessagingService>();
-  const searchService = mock<SearchService>();
   const folderService = mock<FolderService>();
-  const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const stateEventRunnerService = mock<StateEventRunnerService>();
   const cipherService = mock<CipherService>();
   const authService = mock<AuthService>();
@@ -47,9 +44,7 @@ describe("DefaultLockService", () => {
     vaultTimeoutSettingsService,
     logoutService,
     messagingService,
-    searchService,
     folderService,
-    masterPasswordService,
     stateEventRunnerService,
     cipherService,
     authService,
@@ -66,9 +61,7 @@ describe("DefaultLockService", () => {
       vaultTimeoutSettingsService,
       logoutService,
       messagingService,
-      searchService,
       folderService,
-      masterPasswordService,
       stateEventRunnerService,
       cipherService,
       authService,
@@ -97,14 +90,22 @@ describe("DefaultLockService", () => {
 
       const lockSpy = jest.spyOn(sut, "lock").mockResolvedValue(undefined);
 
-      await sut.lockAll();
+      await sut.lockAll(LockSource.Manual);
 
       // Non-Active users should be called first
-      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2);
-      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3);
+      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual);
+      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual);
 
       // Active user should be called last
-      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1);
+      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual);
+    });
+
+    it("passes the source through to each user's lock", async () => {
+      const lockSpy = jest.spyOn(sut, "lock").mockResolvedValue(undefined);
+
+      await sut.lockAll(LockSource.VaultTimeout);
+
+      expect(lockSpy).toHaveBeenCalledWith(mockUser1, LockSource.VaultTimeout);
     });
   });
 
@@ -113,7 +114,7 @@ describe("DefaultLockService", () => {
 
     it("returns early if user is already logged out", async () => {
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
-      await sut.lock(userId);
+      await sut.lock(userId, LockSource.Manual);
       // Should return early, not call logoutService.logout
       expect(logoutService.logout).not.toHaveBeenCalled();
       expect(stateEventRunnerService.handleEvent).not.toHaveBeenCalled();
@@ -122,7 +123,7 @@ describe("DefaultLockService", () => {
     it("logs out if user cannot lock", async () => {
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
       vaultTimeoutSettingsService.canLock.mockResolvedValue(false);
-      await sut.lock(userId);
+      await sut.lock(userId, LockSource.Manual);
       expect(logoutService.logout).toHaveBeenCalledWith(userId, "vaultTimeout");
       expect(stateEventRunnerService.handleEvent).not.toHaveBeenCalled();
     });
@@ -131,9 +132,20 @@ describe("DefaultLockService", () => {
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
       logoutService.logout.mockClear();
       vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
-      await sut.lock(userId);
+      await sut.lock(userId, LockSource.Manual);
       expect(logoutService.logout).not.toHaveBeenCalled();
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", userId);
+    });
+
+    it("passes the source to registered on-lock actions", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+      vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
+      const onLockAction = jest.fn().mockResolvedValue(undefined);
+      sut.registerOnLockAction(onLockAction);
+
+      await sut.lock(userId, LockSource.SharedUnlock);
+
+      expect(onLockAction).toHaveBeenCalledWith(userId, LockSource.SharedUnlock);
     });
   });
 });

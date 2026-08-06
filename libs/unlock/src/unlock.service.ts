@@ -2,6 +2,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
+import { UnlockSource } from "./unlock-source";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -59,6 +60,19 @@ export abstract class UnlockService {
   abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
 
   /**
+   * Unlocks the user's account with a user key received from another device through shared unlock.
+   *
+   * Reported to {@link registerOnUnlockAction} callbacks as {@link UnlockSource.SharedUnlock}, so
+   * that shared unlock does not broadcast the unlock it just applied back out.
+   *
+   * @param userId - The user's id
+   * @param userKey - The decrypted user key received from the other device
+   * @throws If the SDK is not available
+   * @throws If decryption fails or the key is invalid
+   */
+  abstract unlockWithSharedUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
+
+  /**
    * Unlocks the user's account using their never-lock ("auto") key, if one is stored.
    *
    * Users whose vault timeout is set to never have a copy of their user key persisted, so their
@@ -73,10 +87,10 @@ export abstract class UnlockService {
   /**
    * Registers an action to be run when a user is unlocked through this service.
    *
-   * @param action Callback invoked after a successful unlock with the user id and the
-   *   freshly-decrypted user key.
+   * @param action Callback invoked after a successful unlock with the user id, the
+   *   freshly-decrypted user key, and the source the unlock originated from.
    */
   abstract registerOnUnlockAction(
-    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+    action: (userId: UserId, userKey: SymmetricCryptoKey, source: UnlockSource) => Promise<void>,
   ): void;
 }

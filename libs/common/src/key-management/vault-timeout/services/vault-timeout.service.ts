@@ -13,6 +13,7 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { TaskSchedulerService, ScheduledTaskNames } from "../../../platform/scheduling";
 import { UserId } from "../../../types/guid";
+import { LockSource } from "../../lock";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
@@ -129,6 +130,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
     timeoutAction === VaultTimeoutAction.LogOut
       ? await this.logoutService.logout(userId, "vaultTimeout")
-      : await this.lockService.lock(userId);
+      : await this.lockService.lock(userId, LockSource.VaultTimeout);
   }
 }

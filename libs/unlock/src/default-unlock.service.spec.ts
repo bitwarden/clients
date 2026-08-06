@@ -28,6 +28,7 @@ import { StateProvider } from "@bitwarden/state";
 
 import { AutoUnlockService } from "./auto-unlock.service";
 import { DefaultUnlockService } from "./default-unlock.service";
+import { UnlockSource } from "./unlock-source";
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 const mockEmail = "test@example.com";
@@ -397,6 +398,98 @@ describe("DefaultUnlockService", () => {
           method: { decryptedKey: { decrypted_user_key: mockAutoUnlockKey.toSdk() } },
         }),
       );
+    });
+  });
+
+  describe("unlockWithSharedUnlock", () => {
+    const mockSharedUnlockKey = new SymmetricCryptoKey(
+      new Uint8Array(64) as CsprngArray,
+    ) as UserKey;
+
+    it("calls SDK initialize_user_crypto with the decrypted key method", async () => {
+      await service.unlockWithSharedUnlock(mockUserId, mockSharedUnlockKey);
+
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: mockUserId,
+          method: { decryptedKey: { decrypted_user_key: mockSharedUnlockKey.toSdk() } },
+        }),
+      );
+    });
+
+    it("throws when SDK is not available", async () => {
+      registerSdkService.registerClient$.mockReturnValue(of(null as any));
+
+      await expect(service.unlockWithSharedUnlock(mockUserId, mockSharedUnlockKey)).rejects.toThrow(
+        "SDK not available",
+      );
+    });
+  });
+
+  describe("registerOnUnlockAction", () => {
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+    let onUnlockAction: jest.Mock;
+
+    beforeEach(() => {
+      onUnlockAction = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(onUnlockAction);
+    });
+
+    const expectSource = (source: UnlockSource) => {
+      expect(onUnlockAction).toHaveBeenCalledWith(
+        mockUserId,
+        expect.any(SymmetricCryptoKey),
+        source,
+      );
+    };
+
+    it("reports a PIN unlock as manual", async () => {
+      await service.unlockWithPin(mockUserId, mockPin);
+
+      expectSource(UnlockSource.Manual);
+    });
+
+    it("reports a master password unlock as manual", async () => {
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expectSource(UnlockSource.Manual);
+    });
+
+    it("reports a biometrics unlock as manual", async () => {
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(mockUserKey);
+
+      await service.unlockWithBiometrics(mockUserId);
+
+      expectSource(UnlockSource.Manual);
+    });
+
+    it("reports a key connector unlock as manual", async () => {
+      await service.unlockWithKeyConnector(mockUserId, {
+        url: "https://key-connector.example.com",
+        keyConnectorKeyWrappedUserKey: "wrapped-user-key" as EncString,
+      });
+
+      expectSource(UnlockSource.Manual);
+    });
+
+    it("reports a decrypted user key unlock as manual", async () => {
+      await service.unlockWithDecryptedUserKey(mockUserId, mockUserKey);
+
+      expectSource(UnlockSource.Manual);
+    });
+
+    it("reports a never-lock key unlock as never lock", async () => {
+      autoUnlockService.getAutoUnlockKey.mockResolvedValue(mockUserKey);
+
+      await service.unlockWithAutoUnlockKey(mockUserId);
+
+      expectSource(UnlockSource.NeverLock);
+    });
+
+    it("reports a shared unlock as shared unlock", async () => {
+      await service.unlockWithSharedUnlock(mockUserId, mockUserKey);
+
+      expectSource(UnlockSource.SharedUnlock);
     });
   });
 

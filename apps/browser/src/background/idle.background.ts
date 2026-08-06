@@ -2,6 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LockSource } from "@bitwarden/common/key-management/lock";
 import {
   VaultTimeoutAction,
   VaultTimeoutService,
@@ -74,7 +75,7 @@ export default class IdleBackground {
                 if (action === VaultTimeoutAction.LogOut) {
                   await this.logoutService.logout(userId as UserId, "vaultTimeout");
                 } else {
-                  await this.lockService.lock(userId as UserId);
+                  await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
                 }
               }
             }

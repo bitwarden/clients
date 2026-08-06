@@ -378,7 +378,10 @@ import { PhishingDataService } from "../dirt/phishing-detection/services/phishin
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
-import { SHARED_UNLOCK_EXTERNAL } from "../key-management/shared-unlock-messages";
+import {
+  SHARED_UNLOCK_EXTERNAL,
+  SHARED_UNLOCK_LOCAL_UNLOCK,
+} from "../key-management/shared-unlock-messages";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -563,6 +566,8 @@ export default class MainBackground {
   private restrictedItemTypesService: RestrictedItemTypesService;
   private securityStateService: SecurityStateService;
 
+  private messageListener: MessageListener;
+
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
   sharedUnlockLeaderService: SharedUnlockLeaderService;
@@ -643,6 +648,7 @@ export default class MainBackground {
         fromChromeRuntimeMessaging(), // For messages from other contexts
       ),
     );
+    this.messageListener = messageListener;
 
     this.offscreenDocumentService = new DefaultOffscreenDocumentService(this.logService);
 
@@ -1880,13 +1886,26 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
+    const sharedUnlockLeaderEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.SharedUnlockPart1,
+    );
+    if (sharedUnlockLeaderEnabled) {
       await this.sharedUnlockLeaderService.start();
     }
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
+    const sharedUnlockFollowerEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.SharedUnlockPart2,
+    );
+    if (sharedUnlockFollowerEnabled) {
       await this.sharedUnlockFollowerService.start();
       this.sharedUnlockFollowerService.externalUnlock$.subscribe((userId) => {
         this.messagingService.send(SHARED_UNLOCK_EXTERNAL, { userId });
+      });
+    }
+    if (sharedUnlockLeaderEnabled || sharedUnlockFollowerEnabled) {
+      // The popup has its own UnlockService instance, so unlocks performed there are reported here.
+      this.messageListener.messages$(SHARED_UNLOCK_LOCAL_UNLOCK).subscribe(({ userId, source }) => {
+        void this.sharedUnlockLeaderService.notifyUnlock(userId, source);
+        void this.sharedUnlockFollowerService.notifyUnlock(userId, source);
       });
     }
     this.badgeService.startListening();
