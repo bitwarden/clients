@@ -9,6 +9,7 @@ import {
   AccessRequestStatus,
   AccessRequestView,
   findHumanDecision,
+  humanApprover,
   requestedWindowSeconds,
 } from "..";
 
@@ -126,7 +127,7 @@ export function statusLabelKey(status: AccessRequestStatus): string {
  */
 function endedByHolder(request: Pick<AccessRequestView, "requesterId" | "decisions">): boolean {
   return request.decisions.some(
-    (d) => d.verdict === "deny" && d.deciderKind === "human" && d.id === request.requesterId,
+    (d) => d.verdict === "deny" && humanApprover(d)?.id === request.requesterId,
   );
 }
 
@@ -170,10 +171,10 @@ export function historyDisplayStatus(
  * Resolve who actioned a request.
  *
  * The API surfaces the request's decision log. A system / access-rule decision has
- * `deciderKind: "automatic"` (no approver identity); a human decision carries the approver's
- * name/email alongside the id. For a human decision we show the name, falling back to the email,
- * then the raw id if the server could not resolve the user (e.g. a deleted account) — so the
- * column is never blank.
+ * `decider: "automatic"` (no approver identity); a human decision carries the approver under
+ * `decider.human` with name/email alongside the id. For a human decision we show the name, falling
+ * back to the email, then the raw id if the server could not resolve the user (e.g. a deleted
+ * account) — so the column is never blank.
  *
  * Returns an i18n key for system decisions (translated in the template) and a display name for
  * human decisions, keeping localization out of the row model. Exported for tests.
@@ -188,9 +189,13 @@ export function resolveResolver(
   if (human == null) {
     return { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
   }
+  const approver = humanApprover(human);
   return {
     resolverLabelKey: null,
-    resolverName: human.name || human.email || (human.id == null ? "" : uuidAsString(human.id)),
+    resolverName:
+      approver == null
+        ? ""
+        : approver.name || approver.email || (approver.id == null ? "" : uuidAsString(approver.id)),
   };
 }
 

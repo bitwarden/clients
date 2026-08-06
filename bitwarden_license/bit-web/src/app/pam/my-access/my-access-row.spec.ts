@@ -45,15 +45,18 @@ function request(id: string, overrides: Record<string, unknown> = {}): AccessReq
 
 function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
   return {
-    deciderKind: "automatic",
-    id: undefined,
-    name: undefined,
-    email: undefined,
+    decider: "automatic",
     comment: undefined,
     verdict: "approve",
     decidedAt: "2024-01-01T00:15:00.000Z",
     ...overrides,
   } as unknown as AccessRequestDecisionView;
+}
+
+/** A human decision carrying the given approver identity (id/name/email); other fields via the rest. */
+function humanDecision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
+  const { id, name, email, ...rest } = overrides;
+  return decision({ decider: { human: { id, name, email } }, ...rest });
 }
 
 function lease(id: string, overrides: Record<string, unknown> = {}): AccessLeaseView {
@@ -111,7 +114,7 @@ describe("historyDisplayStatus", () => {
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
-      decisions: [decision({ deciderKind: "human", id: "user-1", verdict: "deny" })],
+      decisions: [humanDecision({ id: "user-1", verdict: "deny" })],
     });
     expect(historyDisplayStatus(r)).toEqual({
       statusLabelKey: "pamStatusEndedByYou",
@@ -125,7 +128,7 @@ describe("historyDisplayStatus", () => {
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
-      decisions: [decision({ deciderKind: "human", id: "operator-1", verdict: "deny" })],
+      decisions: [humanDecision({ id: "operator-1", verdict: "deny" })],
     });
     expect(historyDisplayStatus(r)).toEqual({
       statusLabelKey: "pamStatusRevoked",
@@ -184,7 +187,7 @@ describe("resolveResolver", () => {
   });
 
   it("returns the human decider's name", () => {
-    const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
+    const human = humanDecision({ name: "Jane Doe", email: "jane@example.com" });
     expect(resolveResolver("denied", human)).toEqual({
       resolverLabelKey: null,
       resolverName: "Jane Doe",
@@ -192,11 +195,10 @@ describe("resolveResolver", () => {
   });
 
   it("falls back to email, then id, when the name is unresolved", () => {
-    const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
+    const byEmail = humanDecision({ name: undefined, email: "jane@example.com" });
     expect(resolveResolver("denied", byEmail).resolverName).toBe("jane@example.com");
 
-    const byId = decision({
-      deciderKind: "human",
+    const byId = humanDecision({
       name: undefined,
       email: undefined,
       id: "user-9",
@@ -245,7 +247,7 @@ describe("toRequestRow", () => {
     const row = toRequestRow(
       request("req-1", {
         status: "denied",
-        decisions: [decision({ deciderKind: "human", name: "Jane Doe", comment: "Not now" })],
+        decisions: [humanDecision({ name: "Jane Doe", comment: "Not now" })],
       }),
       emptyResolvedNames(),
     );

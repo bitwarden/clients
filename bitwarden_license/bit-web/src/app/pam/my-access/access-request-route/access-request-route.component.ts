@@ -38,6 +38,7 @@ import {
   durationLabel,
   exactWindow,
   formatRemaining,
+  humanApprover,
   reasonText,
   relativeStart,
 } from "../..";
@@ -179,17 +180,22 @@ export class AccessRequestRouteComponent implements OnInit {
       // A Deny recorded against a request that did not end Denied is the lease ending, not a
       // denial: the revoke / self-end path stores its reason as a Deny decision.
       const leaseEnd = denied && request.status !== "denied";
+      const approver = humanApprover(decision);
       const outcome = !denied
         ? "approved"
         : !leaseEnd
           ? "denied"
-          : decision.id === request.requesterId
+          : approver?.id === request.requesterId
             ? "endedByHolder"
             : "revoked";
       return {
-        automatic: decision.deciderKind === "automatic",
+        automatic: decision.decider === "automatic",
         who:
-          decision.name || decision.email || (decision.id == null ? "" : uuidAsString(decision.id)),
+          approver == null
+            ? ""
+            : approver.name ||
+              approver.email ||
+              (approver.id == null ? "" : uuidAsString(approver.id)),
         outcome,
         labelKey: DECISION_LABEL_KEYS[outcome],
         comment: decision.comment,

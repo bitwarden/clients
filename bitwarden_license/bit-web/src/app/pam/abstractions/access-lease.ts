@@ -5,7 +5,8 @@
 // a real function exported by the SDK, so it needs a plain `export` to keep working at
 // runtime (callers actually invoke it as a type guard).
 export type {
-  AccessDeciderKind,
+  AccessApprover,
+  AccessDecider,
   AccessDecisionVerdict,
   AccessLeaseExtensionRequest,
   AccessLeaseId,

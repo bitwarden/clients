@@ -1,4 +1,4 @@
-import type { AccessRequestDecisionView } from "../abstractions/access-lease";
+import type { AccessApprover, AccessRequestDecisionView } from "../abstractions/access-lease";
 
 /**
  * The human decision on a request — the deciding approver, or the holder ending their own lease
@@ -9,5 +9,13 @@ import type { AccessRequestDecisionView } from "../abstractions/access-lease";
 export function findHumanDecision(
   decisions: AccessRequestDecisionView[],
 ): AccessRequestDecisionView | undefined {
-  return decisions.find((d) => d.deciderKind === "human");
+  return decisions.find((d) => d.decider !== "automatic");
+}
+
+/**
+ * The approver identity carried by a human decision, or `undefined` for an automatic
+ * (access-rule) decision. The SDK models the decider as `"automatic" | { human: AccessApprover }`.
+ */
+export function humanApprover(decision: AccessRequestDecisionView): AccessApprover | undefined {
+  return decision.decider === "automatic" ? undefined : decision.decider.human;
 }
