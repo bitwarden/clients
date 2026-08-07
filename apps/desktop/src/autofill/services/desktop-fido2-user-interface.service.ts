@@ -179,7 +179,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * already verifies the user, so the OS is not asked to do it a second time.
    */
   private vaultUnlockedDuringCeremony: boolean = false;
-  private rpId = new BehaviorSubject<string | null>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
@@ -258,8 +257,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     }
   }
 
-  async getRpId(): Promise<string> {
-    return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
+  get rpId(): string {
+    return this.windowObject.rpId;
   }
 
   confirmChosenCipher(cipher?: CipherView): void {
@@ -448,7 +447,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       needsUserVerification,
       rpId,
     );
-    this.rpId.next(rpId);
 
     const abortSignal = this.abortController.signal;
     try {

@@ -1,9 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
 
 import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
@@ -22,10 +20,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
-import {
-  DesktopFido2UserInterfaceService,
-  DesktopFido2UserInterfaceSession,
-} from "../../services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 @Component({
   standalone: true,
@@ -46,20 +41,14 @@ import {
   templateUrl: "fido2-excluded-ciphers.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
-  session?: DesktopFido2UserInterfaceSession = null;
+export class Fido2ExcludedCiphersComponent implements OnDestroy {
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
+
+  readonly session = this.fido2UserInterfaceService.getCurrentSession();
   readonly Icons = { BitwardenShield, NoResults };
-
-  constructor(
-    private readonly desktopSettingsService: DesktopSettingsService,
-    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
-    private readonly accountService: AccountService,
-    private readonly router: Router,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
-    this.session = this.fido2UserInterfaceService.getCurrentSession();
-  }
 
   async ngOnDestroy(): Promise<void> {
     await this.closeModal();

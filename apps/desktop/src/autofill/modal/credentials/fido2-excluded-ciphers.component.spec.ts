@@ -54,19 +54,15 @@ describe("Fido2ExcludedCiphersComponent", () => {
     jest.restoreAllMocks();
   });
 
-  describe("ngOnInit", () => {
-    it("should initialize session", async () => {
-      await component.ngOnInit();
-
+  describe("session", () => {
+    it("uses the current session", () => {
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
     });
   });
 
   describe("closeModal", () => {
-    it("should notify the session and let it reset the window when a session exists", async () => {
-      component.session = mockSession;
-
+    it("should close modal and notify session when session exists", async () => {
       await component.closeModal();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
@@ -80,7 +76,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
     });
 
     it("should reset the window itself when there is no session to hand off to", async () => {
-      component.session = null;
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
 
       await component.closeModal();
 
