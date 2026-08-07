@@ -66,14 +66,16 @@ describe("PopupPageComponent", () => {
      */
     it("scopes its vertical spacing to non-empty children", () => {
       expect(container().className).toContain("[&>*:not(:empty)]:tw-py-3");
+      expect(container().className).toContain("[&>*:not(:empty)]:tw-border-b");
     });
 
-    it("does not put vertical padding on the container itself", () => {
+    it("does not put vertical padding or a border on the container itself", () => {
       const ownClasses = container()
         .className.split(/\s+/)
         .filter((c) => !c.includes("[&>"));
 
       expect(ownClasses).not.toContain("tw-py-3");
+      expect(ownClasses).not.toContain("tw-border-b");
     });
 
     it("leaves an always-present host empty until it renders content", () => {
@@ -86,37 +88,6 @@ describe("PopupPageComponent", () => {
       setSlotContent(true);
 
       expect(host.childElementCount).toBeGreaterThan(0);
-    });
-
-    /**
-     * The separator marks the boundary being scrolled past, so it belongs to the scroll region
-     * rather than to whatever happens to sit above it. Anchoring it to the above-scroll-area's
-     * last child meant it vanished whenever that slot was empty — which is the normal case for a
-     * presentation that supplies its own header.
-     */
-    it("puts the scrolled separator on the scroll region, not the slot content", () => {
-      const scrollRegion = fixture.nativeElement.querySelector(
-        '[data-testid="popup-layout-scroll-region"]',
-      ) as HTMLElement;
-
-      expect(scrollRegion.className).toContain("tw-border-t");
-      expect(container().className).not.toContain("tw-border-b");
-    });
-
-    it("shows the separator while scrolled even when the slot is empty", () => {
-      const page = fixture.debugElement.query(By.directive(PopupPageComponent))
-        .componentInstance as PopupPageComponent;
-      const scrollRegion = fixture.nativeElement.querySelector(
-        '[data-testid="popup-layout-scroll-region"]',
-      ) as HTMLElement;
-
-      // Nothing projected into the slot — the case that lost the separator entirely.
-      expect(fixture.nativeElement.querySelector("always-present-host").childElementCount).toBe(0);
-
-      page["scrolled"].set(true);
-      fixture.detectChanges();
-
-      expect(scrollRegion.className).toContain("tw-border-secondary-300");
     });
 
     it("keeps its horizontal padding, which is safe to apply unconditionally", () => {

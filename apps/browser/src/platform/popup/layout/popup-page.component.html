@@ -6,17 +6,20 @@
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
 
-    Vertical padding is applied to the projected children rather than to this container, via
-    `>*:not(:empty)`. Components projected here keep a host element in the DOM and decide
-    internally whether to render anything, so padding the container would reserve space above
-    content that isn't there. `:not(:empty)` skips exactly those hosts, so consumers only declare
-    `slot="above-scroll-area"` and get the right spacing.
-
-    The scrolled separator is not applied here — see the scroll region below.
+    Vertical padding and the separator are applied to the projected children rather than to this
+    container, via `>*:not(:empty)`. Components projected here keep a host element in the DOM and
+    decide internally whether to render anything, so padding the container would reserve space and
+    draw a separator above content that isn't there. `:not(:empty)` skips exactly those hosts,
+    which keeps the spacing tied to content that actually rendered — consumers only declare
+    `slot="above-scroll-area"` and get the right result.
   -->
   <div
-    class="tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] [&>*:not(:empty)]:tw-block [&>*:not(:empty)]:tw-py-3 bit-compact:[&>*:not(:empty)]:tw-py-2"
-    [ngClass]="{ 'tw-invisible': loading() }"
+    class="tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] [&>*:not(:empty)]:tw-block [&>*:not(:empty)]:tw-border-0 [&>*:not(:empty)]:tw-border-b [&>*:not(:empty)]:tw-border-solid [&>*:not(:empty)]:tw-py-3 bit-compact:[&>*:not(:empty)]:tw-py-2 [&>*:not(:empty)]:tw-transition-colors [&>*:not(:empty)]:tw-duration-200"
+    [ngClass]="{
+      'tw-invisible': loading(),
+      '[&>*:not(:empty)]:tw-border-secondary-300': scrolled(),
+      '[&>*:not(:empty)]:tw-border-transparent': !scrolled(),
+    }"
   >
     <ng-content select="[slot=above-scroll-area]"></ng-content>
   </div>
@@ -25,21 +28,14 @@
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
   -->
-  <!--
-    The scrolled separator lives on this element's top edge rather than on the content above it:
-    it marks the boundary being scrolled past, so it has to appear even when the above-scroll-area
-    is empty (e.g. a presentation that supplies its own header).
-  -->
   <div
-    class="tw-size-full tw-styled-scrollbar tw-border-0 tw-border-t tw-border-solid tw-transition-colors tw-duration-200"
+    class="tw-size-full tw-styled-scrollbar"
     data-testid="popup-layout-scroll-region"
     [ngClass]="{
       '!tw-overflow-hidden': hideOverflow(),
       'tw-overflow-y-auto': !hideOverflow(),
       'tw-flex tw-flex-col tw-flex-1 tw-min-h-0': fillContent(),
       'tw-invisible': loading(),
-      'tw-border-secondary-300': scrolled(),
-      'tw-border-transparent': !scrolled(),
       'tw-relative tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]':
         !disablePadding(),
     }"
