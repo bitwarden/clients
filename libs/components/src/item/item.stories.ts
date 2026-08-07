@@ -445,7 +445,7 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="55" class="tw-h-[500px]">
         <bit-item-group>
           <bit-item *cdkVirtualFor="let item of data">
             <button type="button" bit-item-content>
