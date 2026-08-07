@@ -119,6 +119,9 @@
   "vault": {
     "message": "Sejf"
   },
+  "vaults": {
+    "message": "Sejfy"
+  },
   "myVault": {
     "message": "Mój sejf"
   },
@@ -625,11 +628,11 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Archiwizuj element",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "Zarchiwizowane elementy zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
   "itemRestored": {
     "message": "Element został przywrócony"
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Uruchom stronę internetową"
   },
-  "launchWebsiteName": {
-    "message": "Uruchom stronę internetową $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Uruchom stronę $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Kopiuj kod weryfikacyjny"
+  },
+  "noUsername": {
+    "message": "Brak nazwy użytkownika"
+  },
+  "noPassword": {
+    "message": "Brak hasła"
+  },
+  "noVerificationCode": {
+    "message": "Brak kodu weryfikacyjnego"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "Załączniki"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Wyczyść filtry lub użyj innej frazy"
   },
-  "copyInfoTitle": {
-    "message": "Kopiuj informacje - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Kopiuj szczegóły $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "Nie wpisano wartości",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Brak wartości do skopiowania"
+  "noDetailsToCopy": {
+    "message": "Brak szczegółów do skopiowania"
   },
   "assignToCollections": {
     "message": "Przypisz do kolekcji"
+  },
+  "addToSharedFolder": {
+    "message": "Dodaj do udostępnionego folderu"
+  },
+  "transferAndAdd": {
+    "message": "Przenieś i dodaj"
   },
   "copyEmail": {
     "message": "Kopiuj adres e-mail"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć ten element."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć te elementy."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Wybrałeś $TOTAL_COUNT$ elementów. Nie możesz zaktualizować $READONLY_COUNT$ elementów, ponieważ nie masz uprawnień do edycji.",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "Element zostanie przeniesiony do organizacji. Nie będziesz już właścicielem elementu."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "Nie będziesz już właścicielem $PERSONAL_ITEMS_COUNT$ elementów przeniesionych do organizacji.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Przypisano kolekcje"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Element został przeniesiony do kolekcji"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Element został dodany do udostępnionego folderu"
   },
   "itemMovedToCollections": {
     "message": "Element został przeniesiony do kolekcji"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Element został dodany do udostępnionych folderów"
+  },
   "itemsMovedToCollection": {
     "message": "Elementy zostały przeniesione do kolekcji"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Elementy zostały dodane do udostępnionego folderu"
+  },
   "itemsMovedToCollections": {
     "message": "Elementy zostały przeniesione do kolekcji"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Elementy zostały dodane do udostępnionych folderów"
   },
   "itemAssignedToCollections": {
     "message": "Element został przypisany do kolekcji"
@@ -6401,10 +6458,16 @@
     "message": "Lokalizacja elementu"
   },
   "fileSends": {
-    "message": "Wysyłki plików"
+    "message": "Wysyłki plików",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Wysyłki tekstów"
+    "message": "Wysyłki tekstów",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Akcje konta"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Pokaż akcje szybkiego kopiowania w sejfie"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "Domyślny systemu"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Zaktualizuj aplikację desktopową"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "Nie masz uprawnień do przeglądania tej strony. Zaloguj się na inne konto."
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Kondycja"
+  },
+  "scanMyVault": {
+    "message": "Przeskanuj sejf"
+  },
+  "introducingHealth": {
+    "message": "Przedstawiamy kondycję"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }
