@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   computed,
@@ -165,7 +166,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogDesktopAdapter },
   ],
 })
-export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private i18nService = inject(I18nService);
@@ -208,6 +209,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
   protected cipherRepromptId: string | null = null;
   protected showingModal = false;
+
+  ngAfterViewInit() {
+    // Focus the search input after the view initializes so it's ready to type
+    // into immediately after unlock.
+    this.focusSearchInput();
+  }
+
+  private focusSearchInput() {
+    // Don't steal focus if a drawer or dialog is open.
+    if (this.activeDrawerRef != null || document.querySelector("cdk-dialog-container") != null) {
+      return;
+    }
+    setTimeout(() => {
+      document.querySelector<HTMLInputElement>("bit-search input")?.focus();
+    });
+  }
 
   protected readonly cipher = signal<CipherView | null>(null);
 
@@ -413,6 +430,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
               break;
             case "focusSearch":
               (document.querySelector("bit-search input") as HTMLInputElement)?.select();
+              detectChanges = false;
+              break;
+            case "windowIsFocused":
+              if (message.windowIsFocused === true) {
+                this.focusSearchInput();
+              }
               detectChanges = false;
               break;
             case "syncCompleted":
