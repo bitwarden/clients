@@ -195,6 +195,91 @@ describe("EditCommand", () => {
       expect(savedView.fields[0].value).toBe("real-hidden-value");
       expect(savedView.fields[1].value).toBe("visible-value");
     });
+
+    it("preserves hidden field values when fields are removed or reordered", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.fields = [
+        Object.assign(new FieldView(), { type: FieldType.Text, name: "note", value: "a note" }),
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "a", value: "value-a" }),
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "b", value: "value-b" }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      // The text field is dropped and the two hidden fields swap places, so positions no
+      // longer line up with the original cipher.
+      const reorderedReq: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        fields: [
+          { type: FieldType.Hidden, name: "b", value: null },
+          { type: FieldType.Hidden, name: "a", value: null },
+        ],
+      };
+      const encodedReorderedReq = Buffer.from(JSON.stringify(reorderedReq)).toString("base64");
+
+      const result = await command.run("item", cipherId, encodedReorderedReq, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(savedView.fields[0].value).toBe("value-b");
+      expect(savedView.fields[1].value).toBe("value-a");
+    });
+
+    it("does not restore password, totp, or hidden field values the user explicitly set", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.login = Object.assign(new LoginView(), {
+        password: "real-password",
+        totp: "real-totp",
+      });
+      cipherView.fields = [
+        Object.assign(new FieldView(), {
+          type: FieldType.Hidden,
+          name: "secret",
+          value: "real-hidden-value",
+        }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      const req: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        login: { password: "rotated-password", totp: "rotated-totp" },
+        fields: [{ type: FieldType.Hidden, name: "secret", value: "user-supplied-value" }],
+      };
+      const encoded = Buffer.from(JSON.stringify(req)).toString("base64");
+
+      const result = await command.run("item", cipherId, encoded, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(savedView.login.password).toBe("rotated-password");
+      expect(savedView.login.totp).toBe("rotated-totp");
+      expect(savedView.fields[0].value).toBe("user-supplied-value");
+    });
   });
 
   describe("editOrganizationCollection", () => {
