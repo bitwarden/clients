@@ -314,6 +314,28 @@ describe("DefaultSetInitialPasswordService", () => {
         userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
       });
 
+      it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
+        // Arrange
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+        );
+
+        expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+          masterKeyEncryptedUserKey[0],
+        );
+      });
+
       describe("given the user has an existing local key pair", () => {
         it("should NOT create a brand new key pair for the user", async () => {
           // Arrange
