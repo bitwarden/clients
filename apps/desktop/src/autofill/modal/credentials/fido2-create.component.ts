@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
@@ -137,7 +135,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     // Let the session clean up the modal, if present.
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(null);
+      this.session.confirmChosenCipher(undefined);
     } else {
       await this.desktopSettingsService.setModalMode(false);
       await this.accountService.setShowHeader(true);

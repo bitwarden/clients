@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
@@ -58,7 +56,7 @@ export class Fido2ExcludedCiphersComponent implements OnDestroy {
     if (this.session) {
       // Clean up session state
       this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(null);
+      this.session.confirmChosenCipher(undefined);
 
       // The session knows whether this ceremony showed any UI, so let it decide
       // whether the window needs to be reset and navigated away from.

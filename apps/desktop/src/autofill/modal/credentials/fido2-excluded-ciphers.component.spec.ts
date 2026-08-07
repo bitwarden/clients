@@ -46,9 +46,13 @@ describe("Fido2ExcludedCiphersComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
+    createComponent();
+  });
+
+  function createComponent(): void {
     fixture = TestBed.createComponent(Fido2ExcludedCiphersComponent);
     component = fixture.componentInstance;
-  });
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -66,7 +70,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
       await component.closeModal();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
       expect(mockSession.hideUi).toHaveBeenCalled();
 
       // The session owns this teardown; the component must not duplicate it.
@@ -77,6 +81,7 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
     it("should reset the window itself when there is no session to hand off to", async () => {
       mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      createComponent();
 
       await component.closeModal();
 

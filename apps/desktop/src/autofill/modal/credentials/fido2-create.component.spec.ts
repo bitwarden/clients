@@ -212,7 +212,7 @@ describe("Fido2CreateComponent", () => {
       await component.closeModal();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
     });
   });
 });

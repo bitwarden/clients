@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
@@ -10,7 +8,10 @@ import { BitwardenShield } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -58,10 +59,11 @@ export class Fido2VaultComponent {
   private readonly router = inject(Router);
 
   readonly session = this.fido2UserInterfaceService.getCurrentSession();
-  readonly ciphers$: Observable<CipherView[]> = this.buildCiphers$();
+  readonly ciphers$: Observable<CipherViewLike[]> = this.buildCiphers$();
   readonly Icons = { BitwardenShield };
+  protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
-  async chooseCipher(cipher: CipherView): Promise<void> {
+  async chooseCipher(cipher: CipherViewLike): Promise<void> {
     if (!this.session) {
       await this.dialogService.openSimpleDialog({
         title: { key: "unexpectedErrorShort" },
@@ -83,7 +85,7 @@ export class Fido2VaultComponent {
   async closeModal(): Promise<void> {
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(null);
+      this.session.confirmChosenCipher(undefined);
     } else {
       await this.desktopSettingsService.setModalMode(false);
       await this.accountService.setShowHeader(true);
@@ -91,25 +93,28 @@ export class Fido2VaultComponent {
     }
   }
 
-  private buildCiphers$(): Observable<CipherView[]> {
+  private buildCiphers$(): Observable<CipherViewLike[]> {
     return this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
       switchMap((activeUserId) => {
         if (!activeUserId) {
-          return of<CipherView[]>([]);
+          return of<CipherViewLike[]>([]);
         }
 
         // Combine the cipher list with the optional cipher IDs filter the
         // session made available for this ceremony.
         return combineLatest([
           this.cipherService.cipherListViews$(activeUserId),
-          this.session?.availableCipherIds$ ?? of(null),
+          this.session?.availableCipherIds$ ?? of(null as string[] | null),
         ]).pipe(
-          map(([ciphers, cipherIds]) => {
+          map(([ciphers, cipherIds]): CipherViewLike[] => {
             const activeCiphers = ciphers.filter((cipher) => !cipher.deletedDate);
 
-            if (cipherIds?.length > 0) {
-              return activeCiphers.filter((cipher) => cipherIds.includes(cipher.id as string));
+            if (cipherIds != null && cipherIds.length > 0) {
+              return activeCiphers.filter((cipher) => {
+                const id = cipher.id?.toString();
+                return id != null && cipherIds.includes(id);
+              });
             }
 
             return activeCiphers;
@@ -118,8 +123,8 @@ export class Fido2VaultComponent {
       }),
       catchError((error: unknown) => {
         this.logService.error("Failed to load ciphers", error);
-        return of<CipherView[]>([]);
+        return of<CipherViewLike[]>([]);
       }),
-    ) as Observable<CipherView[]>;
+    );
   }
 }

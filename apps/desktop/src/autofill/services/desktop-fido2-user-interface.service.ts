@@ -188,7 +188,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     take(1),
   );
 
-  private chosenCipherSubject = new Subject<CipherView | undefined>();
+  private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
 
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
@@ -248,7 +248,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         { signal: abortSignal },
       );
 
-      return { cipherId: chosenCipher.id, userVerified };
+      return { cipherId: chosenCipher.id?.toString(), userVerified };
     } catch (error) {
       throw this.mapUserVerificationCancellation(error);
     } finally {
@@ -261,7 +261,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     return this.windowObject.rpId;
   }
 
-  confirmChosenCipher(cipher?: CipherView): void {
+  confirmChosenCipher(cipher?: CipherViewLike): void {
     this.chosenCipherSubject.next(cipher);
     this.chosenCipherSubject.complete();
   }
@@ -372,7 +372,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     signal,
   }: {
     signal: AbortSignal;
-  }): Promise<CipherView | undefined> {
+  }): Promise<CipherViewLike | undefined> {
     try {
       signal.throwIfAborted();
       return await firstValueFrom(this.chosenCipherSubject.pipe(throwOnAbort(signal)));
