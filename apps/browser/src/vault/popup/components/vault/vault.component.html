@@ -1,6 +1,6 @@
-<!-- With the table presentation the `height="fill"` table owns its own scroll region, so the page
-     must not scroll as well. -->
-<popup-page [hideOverflow]="vfo1Enabled() || (showSkeletonsLoaders$ | async)">
+<!-- The table manages its own scrolling via `height="fill"`, so the scroll region has to become a
+     bounded flex column for it to have any height to fill. -->
+<popup-page [hideOverflow]="showSkeletonsLoaders$ | async" [fillContent]="vfo1Enabled()">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown

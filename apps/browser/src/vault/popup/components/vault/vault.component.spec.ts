@@ -524,6 +524,39 @@ describe("VaultComponent", () => {
       flush();
     }));
 
+    /**
+     * The table sizes itself with `height="fill"`, which needs an unbroken flex-column chain to a
+     * bounded ancestor. The scroll region is `tw-size-full` but not a flex container by default, so
+     * without `fillContent` the chain breaks and the table collapses to zero height — rendering no
+     * rows even though `rows$` emits them.
+     */
+    it("makes the scroll region a bounded flex column when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      const scrollRegion = fixture.nativeElement.querySelector(
+        '[data-testid="popup-layout-scroll-region"]',
+      ) as HTMLElement;
+
+      expect(scrollRegion.classList).toContain("tw-flex");
+      expect(scrollRegion.classList).toContain("tw-flex-col");
+      expect(scrollRegion.classList).toContain("tw-min-h-0");
+
+      flush();
+    }));
+
+    it("leaves the scroll region scrollable when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      const scrollRegion = fixture.nativeElement.querySelector(
+        '[data-testid="popup-layout-scroll-region"]',
+      ) as HTMLElement;
+
+      expect(scrollRegion.classList).toContain("tw-overflow-y-auto");
+      expect(scrollRegion.classList).not.toContain("tw-flex");
+
+      flush();
+    }));
+
     /** Puts the vault into its loading state and waits out the skeleton's show delay. */
     function enterLoading(fixture: ComponentFixture<VaultComponent>) {
       (loadingSvc.loading$ as BehaviorSubject<boolean>).next(true);
