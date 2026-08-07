@@ -16,6 +16,7 @@ export type {
   AccessRequestId,
   AccessRequestStatus,
   AccessRequestView,
+  CipherAccessStateView,
   LeasingError,
 } from "@bitwarden/sdk-internal";
 export { isLeasingError } from "@bitwarden/sdk-internal";
