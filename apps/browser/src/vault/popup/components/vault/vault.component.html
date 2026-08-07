@@ -1,4 +1,6 @@
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
+<!-- The table manages its own scrolling via `height="fill"`, so the scroll region has to become a
+     bounded flex column for it to have any height to fill. -->
+<popup-page [hideOverflow]="showSkeletonsLoaders$ | async" [fillContent]="vfo1Enabled()">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown
@@ -83,17 +85,17 @@
     }
     @if (vaultState === VaultStateEnum.Empty) {
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        class="tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        class="tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
-        <div class="tw-mb-4">
+        <div>
           <bit-callout
             [title]="'hasItemsVaultNudgeTitle' | i18n"
             [icon]="null"
@@ -107,12 +109,24 @@
           </bit-callout>
         </div>
       }
-      <app-vault-header></app-vault-header>
+      <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is
+           only rendered when the flag is off. -->
+      @if (!vfo1Enabled()) {
+        <app-vault-header></app-vault-header>
+      }
     }
   </ng-container>
 
   @if (vaultState !== VaultStateEnum.Empty) {
-    @if (vaultState === VaultStateEnum.NoResults) {
+    <!--
+      The table owns the search input, so it has to stay mounted in the no-results state —
+      unmounting it would remove the only way to clear the term, and it renders its own empty
+      state. It must still yield to the deactivated-org state, which exists to stop showing items
+      belonging to a suspended organization.
+    -->
+    @if (vfo1Enabled() && vaultState !== VaultStateEnum.DeactivatedOrg) {
+      <app-vault-popup-list-table></app-vault-popup-list-table>
+    } @else if (!vfo1Enabled() && vaultState === VaultStateEnum.NoResults) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
         <bit-no-items [icon]="noResultsIcon">
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
@@ -135,7 +149,7 @@
       }
     </div>
 
-    @if (vaultState === null) {
+    @if (vaultState === null && !vfo1Enabled()) {
       <vault-fade-in-out>
         @if (!(loading$ | async)) {
           <!--If there is search text fold all the filtered ciphers into one container-->
@@ -169,7 +183,9 @@
     }
   }
 
-  @if (showSkeletonsLoaders$ | async) {
+  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`, so the page-level
+       skeleton is only used by the legacy list. -->
+  @if (!vfo1Enabled() && (showSkeletonsLoaders$ | async)) {
     <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
     </vault-fade-in-out-skeleton>

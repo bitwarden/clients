@@ -1,5 +1,6 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
-import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -24,6 +25,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -57,6 +59,7 @@ import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fil
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
+import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultComponent } from "./vault.component";
 
 @Component({
@@ -158,6 +161,14 @@ class VaultListItemsContainerStubComponent {
   readonly collapsibleKey = input<string>();
 }
 
+@Component({
+  selector: "app-vault-popup-list-table",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultPopupListTableStubComponent {}
+
 const mockDialogRef = {
   close: jest.fn(),
   afterClosed: jest.fn().mockReturnValue(of(undefined)),
@@ -181,6 +192,7 @@ jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 
 describe("VaultComponent", () => {
   let component: VaultComponent;
+  let defaultFixture: ComponentFixture<VaultComponent>;
 
   interface FakeAccount {
     id: string;
@@ -328,6 +340,9 @@ describe("VaultComponent", () => {
           useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
         },
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
+        // The real CDK announcer appends a live element to the document body and tears it down
+        // with the first fixture, so later fixtures would announce into a detached node.
+        { provide: LiveAnnouncer, useValue: mock<LiveAnnouncer>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -346,6 +361,7 @@ describe("VaultComponent", () => {
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
           VaultOrganizationUserNotificationsComponent,
+          VaultPopupListTableComponent,
         ],
         providers: [
           { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
@@ -364,13 +380,14 @@ describe("VaultComponent", () => {
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
           VaultOrganizationUserNotificationsStubComponent,
+          VaultPopupListTableStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
     });
 
-    const fixture = TestBed.createComponent(VaultComponent);
-    component = fixture.componentInstance;
+    defaultFixture = TestBed.createComponent(VaultComponent);
+    component = defaultFixture.componentInstance;
   });
 
   describe("vaultState", () => {
@@ -453,6 +470,188 @@ describe("VaultComponent", () => {
 
     expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
   }));
+
+  describe("vfo1-foundation presentation gate", () => {
+    /**
+     * The flag signal is read in a field initializer, so the mock has to be set before the
+     * component is constructed.
+     */
+    function createWithFlag(enabled: boolean) {
+      // The shared `beforeEach` already built a fixture against these same service subjects;
+      // tear it down so its subscriptions don't react to state pushed for this test.
+      defaultFixture.destroy();
+
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
+      );
+
+      // Put the vault in its populated, settled state so the list branch renders.
+      itemsSvc.emptyVault$.next(false);
+      itemsSvc.noFilteredResults$.next(false);
+      itemsSvc.showDeactivatedOrg$.next(false);
+      itemsSvc.hasSearchText$.next(false);
+      loadingSvc.loading$.next(false);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+
+      // Unblock loading
+      fixture.componentInstance["readySubject"].next(true);
+      (filtersSvc.allFilters$ as Subject<any>).next({});
+
+      tick();
+      fixture.detectChanges();
+
+      return fixture;
+    }
+
+    it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeNull();
+
+      flush();
+    }));
+
+    /**
+     * With the flag on, the table's toolbar holds the only search input — the legacy
+     * `app-vault-header` is gated off. Unmounting the table on a zero-result search would strand
+     * the user with no way to clear the term.
+     */
+    it("keeps the table mounted when a search returns no results", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.hasSearchText$.next(true);
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["vaultState"]).toBe(
+        fixture.componentInstance["VaultStateEnum"].NoResults,
+      );
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+
+      flush();
+    }));
+
+    it("defers to the table's own empty state instead of the page-level one", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      // The table is stubbed here, so this only asserts the page-level block is suppressed —
+      // the copy the table renders in its place is covered in the table component's own spec.
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    /**
+     * The deactivated-org state exists to stop showing items belonging to a suspended
+     * organization, so the table must yield to it rather than render alongside it.
+     */
+    it("unmounts the table in the deactivated-org state", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still shows the page-level no-results state when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    it("renders the legacy header and list and no table when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeTruthy();
+
+      flush();
+    }));
+
+    /**
+     * The table sizes itself with `height="fill"`, which needs an unbroken flex-column chain to a
+     * bounded ancestor. The scroll region is `tw-size-full` but not a flex container by default, so
+     * without `fillContent` the chain breaks and the table collapses to zero height — rendering no
+     * rows even though `rows$` emits them.
+     */
+    it("makes the scroll region a bounded flex column when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      const scrollRegion = fixture.nativeElement.querySelector(
+        '[data-testid="popup-layout-scroll-region"]',
+      ) as HTMLElement;
+
+      expect(scrollRegion.classList).toContain("tw-flex");
+      expect(scrollRegion.classList).toContain("tw-flex-col");
+      expect(scrollRegion.classList).toContain("tw-min-h-0");
+
+      flush();
+    }));
+
+    it("leaves the scroll region scrollable when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      const scrollRegion = fixture.nativeElement.querySelector(
+        '[data-testid="popup-layout-scroll-region"]',
+      ) as HTMLElement;
+
+      expect(scrollRegion.classList).toContain("tw-overflow-y-auto");
+      expect(scrollRegion.classList).not.toContain("tw-flex");
+
+      flush();
+    }));
+
+    /** Puts the vault into its loading state and waits out the skeleton's show delay. */
+    function enterLoading(fixture: ComponentFixture<VaultComponent>) {
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(true);
+      // `skeletonLoadingDelay` holds the skeleton back for 1s before showing it.
+      tick(1500);
+      fixture.detectChanges();
+    }
+
+    it("shows the page-level skeleton while loading when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeTruthy();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+
+    it("suppresses the page-level skeleton when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeNull();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+  });
 
   it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
     component["showPremiumDialog"]();

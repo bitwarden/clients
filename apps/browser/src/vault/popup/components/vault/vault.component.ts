@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
@@ -79,6 +79,7 @@ import {
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -119,6 +120,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
     VaultOrganizationUserNotificationsComponent,
+    VaultPopupListTableComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -224,6 +226,17 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
+
+  /**
+   * When enabled, the popup renders the new table-based list presentation
+   * (`app-vault-popup-list-table`), which supplies its own search toolbar and section
+   * grouping. The legacy header + grouped-container list stays in the template behind the
+   * `@else` branches so the flag can be turned back off for rollback.
+   */
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected vaultIcon = VaultOpen;
   protected deactivatedIcon = DeactivatedOrg;
