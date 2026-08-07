@@ -119,6 +119,9 @@
   "vault": {
     "message": "Trezor"
   },
+  "vaults": {
+    "message": "Trezory"
+  },
   "myVault": {
     "message": "Můj trezor"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Otevřít webovou stránku"
   },
-  "launchWebsiteName": {
-    "message": "Spustit web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Spustit web pro $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
+  },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
   },
   "attachments": {
     "message": "Přílohy"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
-  "copyInfoTitle": {
-    "message": "Kopírovat informace - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Žádné hodnoty ke zkopírování"
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
   },
   "copyEmail": {
     "message": "Kopírovat e-mail"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -6401,10 +6458,16 @@
     "message": "Umístění položky"
   },
   "fileSends": {
-    "message": "Sends se soubory"
+    "message": "Sends se soubory",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Sends s texty"
+    "message": "Sends s texty",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Položky Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Činnosti účtu"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Zobrazit tlačítka pro rychlé zkopírování v trezoru"
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "systemDefault": {
     "message": "Výchozí systémový"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte aplikaci pro stolní počítač"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Zdraví"
+  },
+  "scanMyVault": {
+    "message": "Prohledat můj trezor"
+  },
+  "introducingHealth": {
+    "message": "Představujeme Zdraví"
+  },
+  "healthIntroDescription": {
+    "message": "Sledujte a zlepšujte zdraví Vašeho trezoru opravením hesel, která jsou ohrožená, slabá a/nebo znovu použita."
   }
 }
