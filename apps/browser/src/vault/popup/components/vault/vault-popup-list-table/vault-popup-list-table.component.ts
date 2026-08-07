@@ -1,7 +1,16 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnDestroy,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { filter, map, Subject } from "rxjs";
@@ -28,6 +37,8 @@ import {
   defineTable,
   IconButtonModule,
   IconComponent,
+  NoItemsModule,
+  ScrollLayoutService,
   SearchModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -67,6 +78,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     BitTableToolbarComponent,
     IconButtonModule,
     IconComponent,
+    NoItemsModule,
     SearchModule,
     TypographyModule,
     ChipActionComponent,
@@ -75,13 +87,15 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     OrgIconDirective,
   ],
 })
-export class VaultPopupListTableComponent {
+export class VaultPopupListTableComponent implements OnDestroy {
   private readonly vaultPopupLoadingService = inject(VaultPopupLoadingService);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
   private readonly listTableService = inject(VaultPopupListTableService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
 
@@ -115,6 +129,47 @@ export class VaultPopupListTableComponent {
 
   /** Whether the popup is rendered in the sidebar, where the autofill refresh control is offered. */
   protected readonly showRefresh = BrowserPopupUtils.inSidebar(this.window);
+
+  /** The viewport this component published, so repeat render passes can skip re-publishing. */
+  private publishedScrollHost: ElementRef<HTMLElement> | null = null;
+
+  /** The host `popup-page` had claimed, restored on teardown. */
+  private displacedScrollHost: ElementRef<HTMLElement> | null = null;
+
+  /**
+   * Hands the table's virtual-scroll viewport to {@link ScrollLayoutService} while this component
+   * is mounted, and restores the previous host on teardown.
+   *
+   * `popup-page` marks its own scroll region as the layout's scroll host, but with the table
+   * mounted that region no longer overflows — the viewport scrolls instead. Consumers that read
+   * the host (scroll-position restore when returning from an item, the header's scrolled-state
+   * separator) would otherwise be watching an element that never fires a scroll event.
+   *
+   * The viewport is found by DOM query rather than `viewChild`: it lives in `bit-table-v2`'s own
+   * template, so it is neither in this component's view nor content from its perspective.
+   */
+  private readonly _publishScrollHost = afterRenderEffect(() => {
+    const viewport = this.host.nativeElement.querySelector<HTMLElement>(
+      "cdk-virtual-scroll-viewport",
+    );
+
+    // This runs on every render pass, so publish only when the element actually changes —
+    // re-setting the signal each pass would churn every consumer that reads it.
+    if (!viewport || this.publishedScrollHost?.nativeElement === viewport) {
+      return;
+    }
+
+    this.displacedScrollHost ??= this.scrollLayout.scrollableRef();
+    this.publishedScrollHost = new ElementRef(viewport);
+    this.scrollLayout.scrollableRef.set(this.publishedScrollHost);
+  });
+
+  ngOnDestroy() {
+    // Only yield the host back if nothing else has claimed it in the meantime.
+    if (this.scrollLayout.scrollableRef() === this.publishedScrollHost) {
+      this.scrollLayout.scrollableRef.set(this.displacedScrollHost);
+    }
+  }
 
   /** Keyboard-shortcut tooltip shown on the legacy (flag-off) autofill chip, e.g. "Autofill ⌘⇧L". */
   protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
