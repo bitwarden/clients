@@ -119,6 +119,9 @@
   "vault": {
     "message": "保管庫"
   },
+  "vaults": {
+    "message": "保管庫"
+  },
   "myVault": {
     "message": "保管庫"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "ウェブサイトを開く"
   },
-  "launchWebsiteName": {
-    "message": "ウェブサイト $ITEMNAME$ を開く",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "認証コードのコピー"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "添付ファイル"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "フィルタをクリアするか、別の検索ワードをお試しください"
   },
-  "copyInfoTitle": {
-    "message": "情報をコピー - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "値が入力されていません",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "コピーする値がありません"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "コレクションに割り当て"
+  },
+  "addToSharedFolder": {
+    "message": "共有フォルダーに追加する"
+  },
+  "transferAndAdd": {
+    "message": "転送して追加"
   },
   "copyEmail": {
     "message": "メールアドレスをコピー"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "共有フォルダーにアクセスできる保管庫のメンバーのみが、このアイテムを表示できます。"
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "共有フォルダーにアクセスできる保管庫のメンバーのみが、このアイテムを表示できます。"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ アイテムを選択しました。編集権限がないため、$READONLY_COUNT$ アイテムを更新できません。",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1個のアイテムは選択した組織に恒久的に移行されます。このアイテムはあなたの所有ではなくなります。"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1個のアイテムは選択した保管庫に恒久的に移行されます。このアイテムはあなたの所有ではなくなります。"
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 個のアイテムは選択した組織に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$個のアイテムは選択した保管庫に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "コレクションの割り当てに成功しました"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "共有フォルダーを追加しました"
+  },
   "itemMovedToCollection": {
     "message": "アイテムをコレクションに移動しました"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "アイテムを共有フォルダーに追加しました"
   },
   "itemMovedToCollections": {
     "message": "アイテムをコレクションに移動しました"
   },
+  "itemAddedToSharedFolders": {
+    "message": "アイテムを共有フォルダーに追加しました"
+  },
   "itemsMovedToCollection": {
     "message": "アイテムをコレクションに移動しました"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "アイテムを共有フォルダーに追加しました"
+  },
   "itemsMovedToCollections": {
     "message": "アイテムをコレクションに移動しました"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "アイテムを共有フォルダーに追加しました"
   },
   "itemAssignedToCollections": {
     "message": "コレクションに割り当てられたアイテム"
@@ -6401,10 +6458,16 @@
     "message": "アイテムの場所"
   },
   "fileSends": {
-    "message": "ファイル Send"
+    "message": "ファイル Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "テキスト Send"
+    "message": "テキスト Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "アイテム Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "アカウントの操作"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "保管庫にクイックコピー操作を表示する"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "システムのデフォルト"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "共有フォルダーを表示のみの権限で削除することはできません: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "デスクトップアプリを更新してください"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden は、保存されたログイン URI を使用して、どのアイコンまたはパスワード変更 URL を使用するかを判断し、使いやすさを向上させます。このサービスの利用時に、情報が収集または保存されることはありません。"
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
@@ -7430,6 +7505,15 @@
     }
   },
   "health": {
-    "message": "健康度"
+    "message": "安全性チェック"
+  },
+  "scanMyVault": {
+    "message": "保管庫をスキャン"
+  },
+  "introducingHealth": {
+    "message": "安全性チェックの紹介"
+  },
+  "healthIntroDescription": {
+    "message": "流出済み、脆弱、再利用されたパスワードを修正することで、保管庫の安全性を監視・改善しましょう。"
   }
 }
