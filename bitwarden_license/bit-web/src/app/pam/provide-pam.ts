@@ -8,8 +8,14 @@ import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
+import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 
-import { AccessLeaseSdkService, AccessRequestSdkService, AccessRuleSdkService } from ".";
+import {
+  AccessLeaseSdkService,
+  AccessRequestSdkService,
+  AccessRuleSdkService,
+  LeasingErrorService,
+} from ".";
 
 /**
  * PAM-owned root-level providers. Consumed by the commercial web `AppModule` so
@@ -39,6 +45,11 @@ export function providePam(): SafeProvider[] {
       provide: AccessLeaseSdkService,
       useClass: AccessLeasesSdkService,
       deps: [SdkService, AccountService, LogService],
+    }),
+    safeProvider({
+      provide: LeasingErrorService,
+      useClass: DefaultLeasingErrorService,
+      deps: [],
     }),
     safeProvider({
       provide: CidrValidationService,

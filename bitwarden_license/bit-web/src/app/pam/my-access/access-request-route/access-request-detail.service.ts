@@ -12,7 +12,7 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-  isLeasingError,
+  LeasingErrorService,
 } from "../..";
 import {
   AccessNameResolverService,
@@ -36,6 +36,7 @@ export class AccessRequestDetailService {
   private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
+  private readonly leasingErrors = inject(LeasingErrorService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -119,7 +120,7 @@ export class AccessRequestDetailService {
     } catch (e) {
       // A 404 (the request doesn't exist, or isn't visible to this caller — the server returns
       // the same for both, so ids can't be probed) is a not-found state, not an error banner.
-      if (isRequestNotFoundError(e)) {
+      if (this.isRequestNotFoundError(e)) {
         this._request$.next(null);
         this._notFound$.next(true);
       } else {
@@ -129,17 +130,17 @@ export class AccessRequestDetailService {
       this._loading$.next(false);
     }
   }
-}
 
-/**
- * Whether a `getAccessRequest` failure means "not found".
- *
- * The SDK's `LeasingError` has no distinct not-found variant (see `bitwarden-pam`'s `error.rs`):
- * a 404 folds into the generic `"Api"` variant, whose flattened `message` is the only place the
- * status code survives ("Received error message from server: [404] ..."). This is best-effort
- * string-matching pending a structured variant from the SDK; a false negative just downgrades to
- * the generic load-error banner instead of the not-found state.
- */
-function isRequestNotFoundError(e: unknown): boolean {
-  return isLeasingError(e) && e.variant === "Api" && /\[404\]/.test(e.message);
+  /**
+   * Whether a `getAccessRequest` failure means "not found".
+   *
+   * The SDK's `LeasingError` has no distinct not-found variant (see `bitwarden-pam`'s `error.rs`):
+   * a 404 folds into the generic `"Api"` variant, whose flattened `message` is the only place the
+   * status code survives ("Received error message from server: [404] ..."). This is best-effort
+   * string-matching pending a structured variant from the SDK; a false negative just downgrades to
+   * the generic load-error banner instead of the not-found state.
+   */
+  private isRequestNotFoundError(e: unknown): boolean {
+    return this.leasingErrors.isLeasingError(e) && e.variant === "Api" && /\[404\]/.test(e.message);
+  }
 }

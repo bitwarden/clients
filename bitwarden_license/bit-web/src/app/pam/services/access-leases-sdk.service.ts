@@ -27,14 +27,12 @@ import { AccessLeaseSdkService } from "..";
  * callers to interpret via `isLeasingError` (`..`); this service does not wrap
  * or translate them.
  */
-export class AccessLeasesSdkService extends AccessLeaseSdkService {
+export class AccessLeasesSdkService implements AccessLeaseSdkService {
   constructor(
     private sdkService: SdkService,
     private accountService: AccountService,
     private logService: LogService,
-  ) {
-    super();
-  }
+  ) {}
 
   async listMyLeases(): Promise<AccessLeaseView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

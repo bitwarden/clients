@@ -72,7 +72,7 @@
               {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
             </td>
             <td bitCell>
-              <span bitBadge variant="success">{{ leaseRemainingLabel(lease) }}</span>
+              <span bitBadge variant="success">{{ lease.notAfter | remainingTime: nowMs() }}</span>
             </td>
             <td bitCell>
               <button
@@ -166,11 +166,9 @@
                     >
                       {{ "pamStartLeaseButton" | i18n }}
                     </button>
-                    @if (redemptionRemainingLabel(row); as remaining) {
-                      <span class="tw-text-xs tw-text-muted">
-                        {{ "pamActivateWithin" | i18n: remaining }}
-                      </span>
-                    }
+                    <span class="tw-text-xs tw-text-muted">
+                      {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
+                    </span>
                   </div>
                 }
                 @if (canCancel(row)) {
@@ -304,11 +302,9 @@
                     >
                       {{ "pamStartLeaseButton" | i18n }}
                     </button>
-                    @if (redemptionRemainingLabel(row); as remaining) {
-                      <span class="tw-text-xs tw-text-muted">
-                        {{ "pamActivateWithin" | i18n: remaining }}
-                      </span>
-                    }
+                    <span class="tw-text-xs tw-text-muted">
+                      {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
+                    </span>
                   </div>
                 }
                 @if (canCancel(row)) {
