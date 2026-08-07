@@ -104,6 +104,66 @@
   "shared": {
     "message": "Споделено"
   },
+  "sharedFolder": {
+    "message": "Споделена папка"
+  },
+  "sharedFolders": {
+    "message": "Споделени папки"
+  },
+  "myFolder": {
+    "message": "Моята папка"
+  },
+  "myFolders": {
+    "message": "Моите папки"
+  },
+  "addSharedFolder": {
+    "message": "Добавяне на споделена папка"
+  },
+  "newSharedFolder": {
+    "message": "Нова споделена папка"
+  },
+  "searchSharedFolder": {
+    "message": "Търсене в споделената папка"
+  },
+  "searchMyFolder": {
+    "message": "Търсене в моите папки"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Преглед на споделена папка — $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Изтриване на споделената папка"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Изтриване на $COUNT$ споделени папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Тази споделена папка ще бъде изтрита завинаги. Елементите в папката няма да бъдат изтрити."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Тези споделени папки ще бъдат изтрити завинаги. Елементите в папките няма да бъдат изтрити."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Избраните елементи и споделени папки ще бъдат изтрити завинаги."
+  },
+  "sharedFolderDeleted": {
+    "message": "Споделената папка е изтрита"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Споделените папки са изтрити"
+  },
   "share": {
     "message": "Споделяне"
   },
@@ -425,6 +485,10 @@
   "passphrase": {
     "message": "Парола-фраза"
   },
+  "passwordAnnounceSpace": {
+    "message": "интервал",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Редактиране на елемента"
   },
@@ -455,15 +519,24 @@
   "launch": {
     "message": "Пускане"
   },
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "copyValue": {
     "message": "Копиране на стойността",
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Копиране на уеб сайта"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Копиране на $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -750,7 +823,7 @@
     "message": "Вид"
   },
   "items": {
-    "message": "Items"
+    "message": "Елементи"
   },
   "firstName": {
     "message": "Собствено име"
@@ -823,10 +896,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "Приложение (адрес)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "Приложение (адрес) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -842,16 +915,16 @@
     "message": "Добавяне на уеб сайт"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Добавяне на уеб сайт или приложение"
   },
   "app": {
-    "message": "App"
+    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Изтриване на уеб сайт"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Изтриване на $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -862,6 +935,60 @@
   "owner": {
     "message": "Собственик"
   },
+  "sharedFolderAriaLabel": {
+    "message": "Споделена папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Колекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моята папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Собственик $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Трезор $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "Добавяне на поле"
   },
@@ -869,7 +996,7 @@
     "message": "Редактиране на полето"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Редактиране на $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -901,7 +1028,7 @@
   "linkedHelpText": {
     "message": "Използвайте свързано поле, когато имате проблеми с автоматичното попълване на конкретен уеб сайт."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Въведете подробности за полето от атрибутите му в HTML – id, name, aria-label или placeholder."
   },
   "folder": {
@@ -1225,7 +1352,7 @@
     "message": "Файл"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Снимка"
   },
   "selectFile": {
     "message": "Избор на файл."
@@ -1888,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Показване на действията за бързо копиране в трезора"
+  },
+  "copyNoteTitle": {
+    "message": "Копиране на бележката – $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Няма подробности за копиране"
+  },
   "runInBackground": {
     "message": "Поддържайте Битуорден работещ във фонов режим"
   },
@@ -1983,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Копиране на кода за потвърждаване"
+  },
+  "noUsername": {
+    "message": "Няма потребителско име"
+  },
+  "noPassword": {
+    "message": "Няма парола"
+  },
+  "noVerificationCode": {
+    "message": "Няма код за потвърждаване"
+  },
+  "noNumber": {
+    "message": "Няма номер"
+  },
+  "noSecurityCode": {
+    "message": "Няма код за сигурност"
+  },
+  "copyDetailsTitle": {
+    "message": "Копиране на подробностите за $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Копиране на потребителското име"
@@ -2098,7 +2266,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Изчистване на историята на генериране"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ако продължите, всички записи в историята на генериране ще бъдат изтрити завинаги. Наистина ли искате това?"
   },
   "clear": {
@@ -2134,11 +2302,97 @@
   "selectAll": {
     "message": "Избиране на всичко"
   },
+  "selectAllRows": {
+    "message": "Избиране на всички редове"
+  },
+  "selectRow": {
+    "message": "Избиране на реда"
+  },
+  "showingItemRange": {
+    "message": "Показани: $START$ – $END$ от $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Редове на страница"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ реда на страница",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Всички"
+  },
+  "clearAll": {
+    "message": "Изчистване на всичко"
+  },
+  "done": {
+    "message": "Готово"
+  },
+  "filter": {
+    "message": "Филтриране"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ избрани",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Предходна страница"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Към страница"
+  },
+  "ofPageCount": {
+    "message": "от $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Няма съвпадащи елементи"
+  },
   "selected": {
     "message": "Избрано"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "избрани",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2374,11 +2628,8 @@
   "restrictCardTypeImportDesc": {
     "message": "Политика, зададена от 1 или повече организации, не позволява да внасяте карти в трезорите си."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
-  },
-  "done": {
-    "message": "Готово"
   },
   "warning": {
     "message": "ВНИМАНИЕ",
@@ -2387,8 +2638,8 @@
   "confirmVaultExport": {
     "message": "Потвърждаване на изнасянето на трезора"
   },
-  "exportWarningDesc": {
-    "message": "Данните от трезора ви ще се изнесат в незащитен формат. Не го пращайте по незащитени канали като е-поща. Изтрийте файла незабавно след като свършите работата си с него."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "При изнасяне данните се шифрират с ключа ви. Ако го смените, ще трябва наново да ги изнесете, защото няма да може да дешифрирате настоящия файл."
@@ -2629,7 +2880,7 @@
     "message": "Колекциите са изтрити"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Елементът е преместен"
   },
   "movedItems": {
     "message": "Елементите са преместени"
@@ -3289,6 +3540,9 @@
   "options": {
     "message": "Настройки"
   },
+  "moreOptions": {
+    "message": "Още настройки"
+  },
   "sessionTimeout": {
     "message": "Сесията Ви изтече. Моля, върнете се назад и се опитайте да влезете отново."
   },
@@ -3502,7 +3756,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3512,7 +3766,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3526,7 +3780,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3536,7 +3790,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3600,6 +3854,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавяне на преставка на уеб сайт",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Когато това е включено, домейнът на текущия уеб сайт ще се използва като представка за създадения адрес на е-поща",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Име на сървъра",
     "description": "Part of a URL."
@@ -3610,7 +3872,7 @@
   "apiKey": {
     "message": "Ключ за API"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Изисква се платен абонамент"
   },
   "organizationIsDisabled": {
@@ -4196,7 +4458,7 @@
     "message": "Нищо не бе внесено."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ елемента ще бъдат пропуснати",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4204,44 +4466,65 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ елемент ще бъде пропуснат",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Следните елементи не могат да бъдат прочетени и няма да бъдат включени при внасянето:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Този SSH ключ не може да бъде внесен"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Неподдържан вид елемент"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Този елемент не може да бъде внесен"
+  },
+  "identifier": {
+    "message": "Идентификатор"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Контакт"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Членство"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Шофьорска книжка"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Лична карта"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Акт за раждане"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Удостоверителни днни за база данни"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Удостоверителни данни за сървър"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Софтуерен лиценз"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Здравна застраховка"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Удостоверителни данни за безжична мрежа"
   },
   "general": {
-    "message": "General"
+    "message": "Общи"
   },
   "importEncKeyError": {
     "message": "Грешка при дешифрирането на изнесения файл. Ключът за шифриране не отговаря на този, който е използван за изнасянето на данните."
@@ -4307,6 +4590,30 @@
   "confirmFilePassword": {
     "message": "Потвърждаване на паролата на файла"
   },
+  "keePassMasterPassword": {
+    "message": "Главна парола на KeePass"
+  },
+  "addKeyFile": {
+    "message": "Добави файл с ключ"
+  },
+  "keyFileUpload": {
+    "message": "Качване на файл с ключ"
+  },
+  "kdbxFileUpload": {
+    "message": "Качване на файл KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Поддържани формати: kbdx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Данните са в неправилен формат. Проверете файла за внасяне и пробвайте отново."
+  },
+  "kdbxWrongFileType": {
+    "message": "Този файл не е база данни на KeePass (.kdbx). Изберете файл .kdbx и опитайте отново."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Тази база данни на KeePass е твърде голяма за внасяне."
+  },
   "exportSuccess": {
     "message": "Данните от трезора са изнесени"
   },
@@ -4347,7 +4654,7 @@
     "message": "Многостъпковото удостоверяване беше неуспешно"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Възникна проблем при комуникацията с Keeper. Опитайте внасянето отново."
   },
   "includeSharedFolders": {
     "message": "Да се включат и споделените папки"
@@ -4408,43 +4715,43 @@
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Е-поща за Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Въведете е-пощата, която използвате за вписване в Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Местоположение на центъра за данни"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Главна парола за Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Моля, въведете главната си парола за Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Моля, въведете кода от двустепенното си удостоверяване"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Моля, въведете кода от приложението си за удостоверяване"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Моля, въведете кода изпратен чрез текстово съобщение"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Моля, въведете кода от приложението Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Одобрение от администратор"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Изпратихме заявка за одобрение до Вашия администратор"
   },
   "method": {
-    "message": "Method"
+    "message": "Метод"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Директно внасяне"
   },
   "csv": {
     "message": "CSV"
@@ -4453,76 +4760,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Изисква се еднократно удостоверяване"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Вашият акаунт в Keeper акаунт изисква еднократно удостоверяване. Завършете вписването в прозореца на браузър, който беше отворен и поставете идентификатора, който ще се покаже в страницата."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Завършете вписването в раздела на браузъра, който беше отворен. Идентификаторът ще бъде разпознат автоматично."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Идентификатор за еднократно удостоверяване"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Изисква се удостоверяване през Keeper"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Изисква се одобрение от устройство на Keeper"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Начини за одобрение"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Необходимо е одобрение на устройството"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Одобрете това устройство като изберете метод по-долу"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Двустепенен метод"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Потвърждение чрез е-поща"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Проверете е-пощата си и въведете кода за потвърждение по-долу"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Изпратено е известие Keeper Push до одобрено устройство"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push е изпратено"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Молбата за одобрение ще бъде отменена"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Наистина ли искате да напуснете? Вашата заявка за одобрение от администратор ще бъде отменена."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Отмяна на заявката"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Изисква се двустепенно удостоверяване през Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Одобрете заявката за вписване чрез приложението си за удостоверяване. Този прозорец ще се затвори автоматично."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Изберете как искате да потвърдите самоличността си."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Приложение за удостоверяване (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Текстово съобщение (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4531,70 +4838,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Резервни кодове"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Ключ за сигурност (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Ключ за сигурност (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Потвърждение чрез Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Потвърдете известието от Keeper DNA на устройството си"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Изберете метод за Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Изберете как искате да извършите потвърждението чрез Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Изскачащо известие"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Ръчно въвеждане на код"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двустепенно удостоверяване"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Непознат метод"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Изберете метод за Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Изберете как искате да извършите потвърждението чрез Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Телефонно обаждане"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Потвърждение на Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Потвърдете известието от Duo на устройството си."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "На телефона Ви беше изпратено текстово съобщение. Въведете кода в приложението на Duo, за да продължите."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Отговорете на телефонното обаждане от Duo и следвайте инструкциите."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Опитайте друг метод"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Вашият акаунт в Keeper изисква метод за двустепенно удостоверяване, който в момента не се поддържа при директно внасяне."
   },
   "commonImportFormats": {
     "message": "Често използвани формати",
@@ -4654,6 +4961,12 @@
   },
   "removePasskey": {
     "message": "Премахване на секретния ключ"
+  },
+  "deletePasskey": {
+    "message": "Изтриване на секретния ключ"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Секретният ключ ще бъде изтрит завинаги от записа за вписване. Това действие е необратимо."
   },
   "passkeyRemoved": {
     "message": "Секретният ключ е премахнат"
@@ -4928,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Не можете да премахвате споделени папки с права „Само за преглед“: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Преместване"
   },
@@ -5026,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
+  },
   "assignToCollections": {
     "message": "Свързване с колекции"
+  },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
+  "transferAndAdd": {
+    "message": "Прехвърляне и добавяне"
+  },
+  "itemLower": {
+    "message": "елемент"
+  },
+  "itemsLower": {
+    "message": "елементи"
   },
   "assignToTheseCollections": {
     "message": "Свързване с тези колекции"
@@ -5035,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елемента."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елементите."
   },
   "noCollectionsAssigned": {
     "message": "Няма свързани колекции"
@@ -5096,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избрания трезор. Вече няма да притежавате този елемент."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избрания трезор. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5121,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Споделените папки са добавени успешно"
+  },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "Елементът е преместен в колекция"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Елементът е добавен към споделена папка"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "Елементът е преместен в колекции"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Елементът е добавен към споделени папки"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "Елементите са преместени в колекция"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Елементите са добавени към споделена папка"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "Елементите са преместени в колекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Елементите са добавени към споделени папки"
   },
   "itemAssignedToCollections": {
     "message": "Елементът е добавен към колекции"
@@ -5293,7 +5663,7 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Архивиране на елемента",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
@@ -5641,11 +6011,11 @@
     "message": "Въведете година."
   },
   "sendTypes": {
-    "message": "Send types",
+    "message": "Видове Изпращания",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "Всякакви"
   },
   "invalidDay": {
     "message": "Въведете правилен ден."
@@ -5766,7 +6136,7 @@
     "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "Дата на изтриване"
   },
   "discardEditsTitle": {
     "message": "Отхвърляне на промените"
@@ -5826,15 +6196,15 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "Текстовите Изпращания не са разрешени за Вашата организация",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "Файловите Изпращания не са разрешени за Вашата организация",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Давността на това Изпращане ще изтече на зададената дата за изтриване",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -5889,7 +6259,7 @@
     "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "Тази дата за изтриване е зададена от $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5919,7 +6289,7 @@
     "message": "Тези колекции ще бъдат изтрити завинаги."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "Елементите не могат да имат прикачени файлове с едно и също име"
   },
   "labelWithNotification": {
     "message": "$LABEL$: Ново известие",

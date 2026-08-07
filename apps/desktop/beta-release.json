@@ -1,0 +1,4 @@
+{
+  "$comment": "Read by the beta jobs in build-desktop.yml. betaNumber is the ordinal appended to each beta build.",
+  "betaNumber": 1
+}

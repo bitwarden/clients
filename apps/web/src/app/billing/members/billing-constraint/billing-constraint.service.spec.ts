@@ -275,6 +275,48 @@ describe("BillingConstraintService", () => {
 
       expect(seatLimitReached).toBe(true);
     });
+
+    it("should use restore-specific content and title when action is 'restore'", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: false,
+      };
+      const organization = createMockOrganization({
+        productTierType: ProductTierType.Free,
+        canEditSubscription: false,
+        seats: 5,
+      });
+
+      await service.seatLimitReached(result, organization, "restore");
+
+      expect(i18nService.t).toHaveBeenCalledWith("cannotRestoreAccessError");
+      expect(i18nService.t).toHaveBeenCalledWith("freeOrgRestoreLimitReachedNoManageBilling", 5);
+      expect(i18nService.t).not.toHaveBeenCalledWith("upgradeOrganization");
+      expect(i18nService.t).not.toHaveBeenCalledWith(
+        "freeOrgInvLimitReachedNoManageBilling",
+        expect.anything(),
+      );
+    });
+
+    it("should default to invite-specific content and title when no action is provided", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: false,
+      };
+      const organization = createMockOrganization({
+        productTierType: ProductTierType.Free,
+        canEditSubscription: false,
+        seats: 5,
+      });
+
+      await service.seatLimitReached(result, organization);
+
+      expect(i18nService.t).toHaveBeenCalledWith("upgradeOrganization");
+      expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5);
+      expect(i18nService.t).not.toHaveBeenCalledWith("cannotRestoreAccessError");
+    });
   });
 
   describe("navigateToPaymentMethod", () => {
@@ -361,6 +403,46 @@ describe("BillingConstraintService", () => {
 
         await expect(service.seatLimitReached(result, organization)).rejects.toThrow(
           `Unsupported product type: ${ProductTierType.Enterprise}`,
+        );
+      });
+
+      it("should get correct restore dialog content for TeamsStarter organization", async () => {
+        const result: SeatLimitResult = {
+          canAddUsers: false,
+          reason: "fixed-seat-limit",
+          shouldShowUpgradeDialog: false,
+        };
+        const organization = createMockOrganization({
+          productTierType: ProductTierType.TeamsStarter,
+          canEditSubscription: false,
+          seats: 3,
+        });
+
+        await service.seatLimitReached(result, organization, "restore");
+
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "teamsStarterPlanRestoreLimitReachedNoManageBilling",
+          3,
+        );
+      });
+
+      it("should get correct restore dialog content for Families organization", async () => {
+        const result: SeatLimitResult = {
+          canAddUsers: false,
+          reason: "fixed-seat-limit",
+          shouldShowUpgradeDialog: false,
+        };
+        const organization = createMockOrganization({
+          productTierType: ProductTierType.Families,
+          canEditSubscription: false,
+          seats: 6,
+        });
+
+        await service.seatLimitReached(result, organization, "restore");
+
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "familiesPlanRestoreLimitReachedNoManageBilling",
+          6,
         );
       });
     });

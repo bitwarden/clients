@@ -257,6 +257,10 @@ impl WebAuthnPlugin {
         }
     }
 
+    pub fn get_authenticator_state(&self) -> Result<AuthenticatorState, WinWebAuthnError> {
+        get_authenticator_state(&self.clsid)
+    }
+
     /// Registers a COM server with Windows and starts the COM message loop on a dedicated thread.
     ///
     /// The handler should be an instance of your type that implements [PluginAuthenticator].
@@ -347,12 +351,23 @@ impl WebAuthnPlugin {
 
     /// Adds this implementation as a Windows WebAuthn plugin.
     ///
+    /// Returns None if the authenticator already is registered; call
+    /// [WebAuthnPlugin::update_authenticator_details] to update the details.
+    ///
     /// This only needs to be called on installation of your application.
     pub fn add_authenticator(
         options: &PluginAddAuthenticatorOptions,
-    ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
+    ) -> Result<Option<PluginAddAuthenticatorResponse>, WinWebAuthnError> {
         let options_raw = options.try_into()?;
         add_authenticator(&options_raw)
+    }
+
+    /// Updates details about your Windows WebAuthn plugin.
+    pub fn update_authenticator_details(
+        options: &PluginUpdateAuthenticatorDetails,
+    ) -> Result<(), WinWebAuthnError> {
+        let options_raw = options.try_into()?;
+        update_authenticator(&options_raw)
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.
@@ -391,6 +406,15 @@ impl WebAuthnPlugin {
             ));
         };
 
+        // With nothing to add, removing is the whole operation - signing out syncs an empty
+        // list to clear the store - so a failure here cannot be reported as a successful sync.
+        if credentials.is_empty() {
+            tracing::debug!("No credentials to add to Windows, removing all existing ones...");
+            remove_all_credentials(self.clsid)?;
+            tracing::debug!("Successfully removed existing credentials - sync completed");
+            return Ok(());
+        }
+
         // First try to remove all existing credentials for this plugin
         tracing::debug!("Attempting to remove all existing credentials before sync...");
         match remove_all_credentials(self.clsid) {
@@ -402,12 +426,6 @@ impl WebAuthnPlugin {
                 // Continue anyway, as this might be the first sync or an older Windows version
             }
         };
-
-        // Add the new credentials (only if we have any)
-        if credentials.is_empty() {
-            tracing::debug!("No credentials to add to Windows - sync completed successfully");
-            return Ok(());
-        }
         tracing::debug!("Adding new credentials to Windows...");
 
         // Convert to raw credentials to Windows credential details

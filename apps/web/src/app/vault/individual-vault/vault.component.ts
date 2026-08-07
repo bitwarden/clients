@@ -1,4 +1,12 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
@@ -116,6 +124,7 @@ import {
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
   VaultOrganizationUserNotificationsComponent,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -134,6 +143,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -179,6 +189,8 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
 
@@ -987,10 +999,34 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Whether a cipher can be created in the currently selected organization/collection context.
+   * Returns `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected get canCreateCipher(): boolean {
+    const organizationId = this.addCipherOrganizationId();
+    const organization = this.allOrganizations?.find((o) => o.id === organizationId);
+    return !organization || organization.enabled;
+  }
+
+  /**
+   * Resolves the organization ID that a new cipher would be created under, based on the
+   * currently active filter or selected collection.
+   */
+  private addCipherOrganizationId(): OrganizationId | null {
+    if (this.selectedCollection?.node.organizationId) {
+      return this.selectedCollection.node.organizationId as OrganizationId;
+    }
+    return this.filter.organizationId !== "MyVault" && this.filter.organizationId != null
+      ? (this.filter.organizationId as OrganizationId)
+      : null;
+  }
+
+  /**
    * Opens the add-item type selection dialog and handles the result.
    */
   protected async openAddItemDialog(): Promise<void> {
     const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher: this.canCreateCipher,
       canCreateFolder: true,
       canCreateCollection: this.canCreateCollections,
       canCreateSshKey: true,
@@ -1032,6 +1068,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         organizationId = organizationIdFromCollection;
       }
     }
+
+    const organization = organizationId
+      ? this.allOrganizations?.find((o) => o.id === organizationId)
+      : undefined;
+    if (organization && !organization.enabled) {
+      // The organization is suspended and cannot have new items saved to it.
+      return;
+    }
+
     cipherFormConfig.initialValues = {
       organizationId: organizationId as OrganizationId,
       collectionIds: [collectionId as CollectionId],
@@ -1225,11 +1270,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.showMissingPermissionsError();
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: collection.name,
-      content: { key: "deleteCollectionConfirmation" },
-      type: "warning",
-    });
+    const confirmed = this.vfo1TerminologyService.enabled()
+      ? ((await lastValueFrom(
+          openDeleteSharedFolderDialog(this.dialogService, collection.name).closed,
+        )) ?? false)
+      : await this.dialogService.openSimpleDialog({
+          title: collection.name,
+          content: { key: "deleteCollectionConfirmation" },
+          type: "warning",
+        });
     if (!confirmed) {
       return;
     }
@@ -1247,7 +1296,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("deletedCollectionId", collection.name),
+        message: this.vfo1TerminologyService.enabled()
+          ? this.i18nService.t("sharedFolderDeleted")
+          : this.i18nService.t("deletedCollectionId", collection.name),
       });
       if (navigateAway) {
         await this.router.navigate([], {

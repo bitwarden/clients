@@ -14,7 +14,10 @@
       <ng-container>
         @if (users().length > 0 && !error()) {
           <p bitTypography="body1">
-            {{ "deleteManyOrganizationUsersWarningDesc" | i18n }}
+            {{
+              "deleteManyOrganizationUsersWarningDesc"
+                | vfo1I18n: "deleteManyOrganizationUsersWarningDescSharedFolders"
+            }}
           </p>
         }
         <bit-table>
@@ -27,7 +30,11 @@
             @for (user of users(); track user.id) {
               <tr bitRow>
                 <td bitCell class="tw-w-5">
-                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                  <bit-avatar
+                    [text]="user | userName"
+                    [id]="user | avatarId"
+                    [color]="user.avatarColor"
+                  ></bit-avatar>
                 </td>
                 <td bitCell>
                   <div>
@@ -61,7 +68,11 @@
             @for (user of users(); track user.id) {
               <tr bitRow>
                 <td bitCell class="tw-w-5">
-                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                  <bit-avatar
+                    [text]="user | userName"
+                    [id]="user | avatarId"
+                    [color]="user.avatarColor"
+                  ></bit-avatar>
                 </td>
                 <td bitCell>
                   {{ user.email }}

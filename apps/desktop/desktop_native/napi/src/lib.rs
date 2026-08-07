@@ -10,8 +10,8 @@ mod registry;
 // namespace.
 pub mod autofill;
 pub mod autostart;
-pub mod autotype;
-pub mod biometrics_v2;
+pub mod autotype_mvp; // MVP, delete with PM-41067
+pub mod biometrics;
 pub mod chromium_importer;
 pub mod clipboards;
 pub mod ipc;
