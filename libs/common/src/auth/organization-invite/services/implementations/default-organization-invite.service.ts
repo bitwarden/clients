@@ -434,9 +434,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     try {
       const response = await this.organizationInviteLinkApiService.getStatus(organizationId, code);
       if (!response.linksEnabled) {
+        await this.clearOpenOrgInvite();
         return { kind: "plan-not-supported", organizationName: response.organizationName };
       }
       if (!response.seatsAvailable) {
+        await this.clearOpenOrgInvite();
         return { kind: "no-seats", organizationName: response.organizationName };
       }
       const sso: OpenOrgInviteSsoConfig | null =
@@ -445,6 +447,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
           : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
       return { kind: "ok", status: { organizationName: response.organizationName, sso } };
     } catch (e) {
+      await this.clearOpenOrgInvite();
       if (e instanceof ErrorResponse && e.statusCode === 404) {
         return { kind: "not-found" };
       }

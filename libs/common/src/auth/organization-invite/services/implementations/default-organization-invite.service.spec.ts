@@ -1209,13 +1209,21 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("getOpenOrgInviteStatus", () => {
-    it("returns ok with a mapped non-SSO status on success", async () => {
+    // Pre-stashes an open invite so every non-ok row proves the service-level clear
+    // happened alongside its result — a refactor that drops the clear on any variant
+    // then fails its row. Ok rows use the same helper to prove the stash survives.
+    const prestashOpenInvite = async () => {
+      await sut.setOrganizationInvite(createOpenOrgInvite());
+    };
+
+    it("returns ok with a mapped non-SSO status on success and leaves the stash intact", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
         organizationName: "Acme",
         linksEnabled: true,
         seatsAvailable: true,
         sso: null,
       } as any);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
@@ -1227,15 +1235,17 @@ describe("DefaultOrganizationInviteService", () => {
         },
       });
       expect(organizationInviteLinkApiService.getStatus).toHaveBeenCalledWith("org-id", "abc");
+      expect(await sut.getOrganizationInvite()).not.toBeNull();
     });
 
-    it("returns ok with the SSO config carried through on the mapped status", async () => {
+    it("returns ok with the SSO config carried through on the mapped status and leaves the stash intact", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
         organizationName: "Acme",
         linksEnabled: true,
         seatsAvailable: true,
         sso: { orgSsoId: "acme-sso", required: true },
       } as any);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
@@ -1243,46 +1253,53 @@ describe("DefaultOrganizationInviteService", () => {
       if (result.kind === "ok") {
         expect(result.status.sso).toEqual({ orgSsoId: "acme-sso", required: true });
       }
+      expect(await sut.getOrganizationInvite()).not.toBeNull();
     });
 
-    it("returns plan-not-supported with organizationName when linksEnabled is false", async () => {
+    it("returns plan-not-supported with organizationName and clears the stash when linksEnabled is false", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
         organizationName: "Acme",
         linksEnabled: false,
         seatsAvailable: true,
         sso: null,
       } as any);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "plan-not-supported", organizationName: "Acme" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns no-seats with organizationName when linksEnabled is true but seatsAvailable is false", async () => {
+    it("returns no-seats with organizationName and clears the stash when linksEnabled is true but seatsAvailable is false", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
         organizationName: "Acme",
         linksEnabled: true,
         seatsAvailable: false,
         sso: null,
       } as any);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "no-seats", organizationName: "Acme" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns not-found when the server responds with 404", async () => {
+    it("returns not-found and clears the stash when the server responds with 404", async () => {
       const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
         statusCode: 404,
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "not-found" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns unexpected with the server's message for unclassified ErrorResponse", async () => {
+    it("returns unexpected with the server's message and clears the stash for unclassified ErrorResponse", async () => {
       const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
         statusCode: 500,
         message: "boom",
@@ -1291,26 +1308,32 @@ describe("DefaultOrganizationInviteService", () => {
         },
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns unexpected with .message for non-ErrorResponse Error throws", async () => {
+    it("returns unexpected with .message and clears the stash for non-ErrorResponse Error throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue(new Error("network gone"));
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns unexpected with String(e) for unknown throws", async () => {
+    it("returns unexpected with String(e) and clears the stash for unknown throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue("bare string");
+      await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
+      expect(await sut.getOrganizationInvite()).toBeNull();
     });
   });
 
