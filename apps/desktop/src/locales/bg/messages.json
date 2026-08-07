@@ -123,13 +123,13 @@
     "message": "Нова споделена папка"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Търсене в споделената папка"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Търсене в моите папки"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Преглед на споделена папка — $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Изтриване на споделената папка"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Изтриване на $COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Тази споделена папка ще бъде изтрита завинаги. Елементите в папката няма да бъдат изтрити."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Тези споделени папки ще бъдат изтрити завинаги. Елементите в папките няма да бъдат изтрити."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Избраните елементи и споделени папки ще бъдат изтрити завинаги."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Споделената папка е изтрита"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Споделените папки са изтрити"
   },
   "share": {
     "message": "Споделяне"
@@ -520,7 +520,7 @@
     "message": "Пускане"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Показване на действията за бързо копиране в трезора"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Копиране на бележката – $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Няма подробности за копиране"
   },
   "runInBackground": {
     "message": "Поддържайте Битуорден работещ във фонов режим"
@@ -2128,22 +2128,22 @@
     "message": "Копиране на кода за потвърждаване"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Няма потребителско име"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Няма парола"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Няма код за потвърждаване"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Няма номер"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Няма код за сигурност"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Копиране на подробностите за $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Настройки"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Още настройки"
   },
   "sessionTimeout": {
     "message": "Сесията Ви изтече. Моля, върнете се назад и се опитайте да влезете отново."
@@ -5349,7 +5349,7 @@
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
