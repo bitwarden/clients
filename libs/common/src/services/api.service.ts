@@ -86,6 +86,7 @@ import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { ListResponse } from "../models/response/list.response";
+import { ProblemDetailsErrorResponse } from "../models/response/problem-details-error.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
@@ -1825,6 +1826,10 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     const responseJson = await this.getJsonResponse(response);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.indexOf("application/problem+json") > -1) {
+      return new ProblemDetailsErrorResponse(responseJson, response.status);
+    }
     return new ErrorResponse(responseJson, response.status);
   }
 
@@ -1878,7 +1883,11 @@ export class ApiService implements ApiServiceAbstraction {
 
   private isJsonResponse(response: Response): boolean {
     const typeHeader = response.headers.get("content-type");
-    return typeHeader != null && typeHeader.indexOf("application/json") > -1;
+    return (
+      typeHeader != null &&
+      (typeHeader.indexOf("application/json") > -1 ||
+        typeHeader.indexOf("application/problem+json") > -1)
+    );
   }
 
   private isTextPlainResponse(response: Response): boolean {

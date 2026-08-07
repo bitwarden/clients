@@ -95,6 +95,13 @@ export class DesktopAutofillMain {
         return this.enable();
       },
     );
+
+    // Read on demand rather than sent with each request: the handle belongs to
+    // the window, not to any one request, and the window may be recreated.
+    ipcMain.handle(
+      AutofillIpcChannelControl.GetAppWindowHandle,
+      (): Uint8Array | null => this.windowMain.win?.getNativeWindowHandle() ?? null,
+    );
   }
 
   /**
@@ -178,7 +185,7 @@ export class DesktopAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on(AutofillIpcChannelOutgoing.Error, (event, data) => {
+    ipcMain.on(AutofillIpcChannelOutgoing.Error, (_event, data) => {
       this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
@@ -195,14 +202,14 @@ export class DesktopAutofillMain {
    */
   private doWindowHandleQuery: Listener<void> = (error, clientId, sequenceNumber) => {
     if (error) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery", error);
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery", error);
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
       return;
     }
 
     const window = this.windowMain.win;
     if (!window) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery: No window available");
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery: No window available");
       this.ipcServer?.completeError(clientId, sequenceNumber, "No window available");
       return;
     }
@@ -240,7 +247,7 @@ export class DesktopAutofillMain {
       request,
     ) => {
       if (error) {
-        this.logService.error("[NativeAutofillMain]", `${toRendererChannel}:`, error);
+        this.logService.error("[DesktopAutofillMain]", `${toRendererChannel}:`, error);
         this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
         return;
       }
@@ -272,7 +279,7 @@ export class DesktopAutofillMain {
         // without ipcServer being set.
         if (!this.ipcServer) {
           this.logService.error(
-            "[NativeAutofillMain]",
+            "[DesktopAutofillMain]",
             `${fromRendererChannel}: Cannot find IPC server instance to return response to autofill provider.`,
           );
           throw new Error(
@@ -280,8 +287,12 @@ export class DesktopAutofillMain {
           );
         }
 
-        this.logService.debug(fromRendererChannel, data);
         const { clientId, sequenceNumber, response } = data;
+        this.logService.debug(
+          "[DesktopAutofillMain]",
+          `${fromRendererChannel}: Received response from renderer channel`,
+          { clientId, sequenceNumber },
+        );
         completeCallback.call(this.ipcServer, clientId, sequenceNumber, response);
       });
 
