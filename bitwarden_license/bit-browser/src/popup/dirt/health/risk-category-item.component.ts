@@ -23,6 +23,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "dirt-risk-category-item",
   templateUrl: "./risk-category-item.component.html",
+  // bit-item projects into <bit-item-action class="tw-flex tw-flex-1">, and
+  // bit-item-content relies on being that flex child: its host carries
+  // tw-w-full + tw-justify-between to push slot="end" to the row's edge.
+  // Without display:contents this wrapper becomes the flex item instead,
+  // shrinks to fit its text, and the chevron lands mid-row at a different
+  // position on every row, leaving the rest of the row unclickable.
+  host: { class: "tw-contents" },
   imports: [RouterModule, ItemModule, IconTileComponent, IconComponent, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

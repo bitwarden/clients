@@ -153,7 +153,7 @@ export class HealthOverviewComponent {
     const categoryItems = this.report()?.categoryItems;
     return RISK_CATEGORY_ROWS.map((row) => ({
       ...row,
-      count: categoryItems?.[row.category].length ?? 0,
+      count: categoryItems?.[row.category]?.length ?? 0,
     }));
   });
 }

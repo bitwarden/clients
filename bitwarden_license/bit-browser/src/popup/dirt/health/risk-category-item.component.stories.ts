@@ -18,13 +18,13 @@ export default {
           useFactory: () =>
             new I18nMockService({
               exposedPassword: "1 exposed password",
-              exposedPasswordsPlural: "$COUNT$ exposed passwords",
+              exposedPasswordsPlural: "__$1__ exposed passwords",
               exposedPasswordsDesc: "Exposed in data breaches",
               weakPassword: "1 weak password",
-              weakPasswordsPlural: "$COUNT$ weak passwords",
+              weakPasswordsPlural: "__$1__ weak passwords",
               weakPasswordsDesc: "Too short or simple",
               reusedPassword: "1 reused password",
-              reusedPasswordsPlural: "$COUNT$ reused passwords",
+              reusedPasswordsPlural: "__$1__ reused passwords",
               reusedPasswordsDesc: "Reused for several logins",
               categoryHealthy: "No items need attention",
             }),
