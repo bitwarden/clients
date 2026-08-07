@@ -7,9 +7,15 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
+import {
+  CloudEnvironment,
+  PRODUCTION_REGIONS,
+} from "@bitwarden/common/platform/services/default-environment.service";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -38,12 +44,9 @@ describe("SendReceiveCommand", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    environmentService.environment$ = of({
-      getUrls: () => ({
-        api: "https://api.bitwarden.com",
-        webVault: "https://vault.bitwarden.com",
-      }),
-    } as any);
+    environmentService.environment$ = of(
+      new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.US)),
+    );
 
     environmentService.availableRegions.mockReturnValue(PRODUCTION_REGIONS);
 
@@ -71,6 +74,18 @@ describe("SendReceiveCommand", () => {
 
       expect(response.success).toBe(false);
       expect(response.message).toContain("Failed to parse");
+    });
+
+    it("should refuse a mismatched domain in non-interactive mode", async () => {
+      process.env.BW_NOINTERACTION = "true";
+
+      const response = await command.run("https://send.example.com/#/send/abc123/key456", {});
+
+      expect(response.success).toBe(false);
+      expect(response.message).toContain("does not match the configured domain");
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+
+      delete process.env.BW_NOINTERACTION;
     });
 
     it("should return error when URL is missing send ID or key", async () => {
@@ -456,7 +471,7 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const [apiUrl] = await (command as any).getApiUrl(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.com");
     });
 
@@ -468,20 +483,17 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const [apiUrl] = await (command as any).getApiUrl(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.eu");
     });
 
     it("should handle custom domain URLs", async () => {
-      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
-      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
-
       const customUrl = "https://custom.example.com/#/send/abc123/key456";
-      await command.run(customUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
+      const [apiUrl, matchesConfigDomain] = await (command as any).getApiUrl(new URL(customUrl));
+
       expect(apiUrl).toBe("https://custom.example.com/api");
+      expect(matchesConfigDomain).toBe(false);
     });
   });
 });
