@@ -143,9 +143,9 @@ export class MyFoldersComponent {
       }
       untracked(() => {
         const selected = model.selected();
-        const current = selected.flatMap((row) => rows.find((r) => r.id === row.id) ?? []);
+        const current = rows.filter((row) => selected.some((sel) => sel.id === row.id));
 
-        if (current.length === selected.length && current.every((row, i) => row === selected[i])) {
+        if (current.length === selected.length && current.every((row) => selected.includes(row))) {
           return;
         }
 
