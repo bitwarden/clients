@@ -564,9 +564,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
 
-    // TODO: Add tests for when matching logins exist and the overwrite/add
-    // picker should be shown, covering both the URI match and the
-    // existing-passkey rpId match below.
     return ciphers.filter(
       (cipher) =>
         cipher != null &&
