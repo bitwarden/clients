@@ -117,10 +117,52 @@
     "message": "Meine Ordner"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Geteilten Ordner hinzufügen"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Neuer geteilter Ordner"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
   },
   "share": {
     "message": "Teilen"
@@ -476,6 +518,15 @@
   },
   "launch": {
     "message": "Öffnen"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Wert kopieren",
@@ -885,7 +936,7 @@
     "message": "Besitzer"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Geteilter Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -894,7 +945,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Sammlung $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -903,7 +954,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Mein Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -912,7 +963,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -921,7 +972,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Eigentümer $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -930,7 +981,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Tresor $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Bitwarden im Hintergrund laufen lassen"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Verifizierungscode kopieren"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Benutzername kopieren"
@@ -2211,13 +2303,13 @@
     "message": "Alles auswählen"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Alle Zeilen auswählen"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Zeile auswählen"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Es werden $START$ - $END$ von $TOTAL$ angezeigt",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2234,10 +2326,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Zeilen pro Seite"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ Zeilen pro Seite",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2246,7 +2338,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ Einträge",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2255,10 +2347,10 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Alle"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Alles löschen"
   },
   "done": {
     "message": "Fertig"
@@ -2267,7 +2359,7 @@
     "message": "Filter"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ ausgewählt",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2276,16 +2368,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Vorherige Seite"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Nächste Seite"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Zur Seite gehen"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "von $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2294,7 +2386,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Keine passenden Einträge"
   },
   "selected": {
     "message": "Ausgewählt"
@@ -3448,6 +3540,9 @@
   "options": {
     "message": "Optionen"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "sessionTimeout": {
     "message": "Deine Sitzung ist abgelaufen. Bitte gehe zurück und versuche dich erneut anzumelden."
   },
@@ -3760,11 +3855,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Website-Präfix hinzufügen",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Wenn diese Option aktiviert ist, wird die Domain der aktuellen Website als Präfix für die generierte E-Mail-Adresse verwendet",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4372,7 +4467,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ Einträge werden übersprungen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4384,16 +4479,16 @@
     "message": "Die folgenden Einträge konnten nicht gelesen werden und werden nicht in deinen Import einbezogen:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Dieser SSH-Schlüssel konnte nicht importiert werden"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Das Dateiformat wird nicht unterstützt"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Dieser Eintrag konnte nicht importiert werden"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Kennung"
   },
   "contact": {
     "message": "Kontakt"
@@ -4868,10 +4963,10 @@
     "message": "Passkey entfernen"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Passkey löschen"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Dieser Passkey wird dauerhaft aus diesen Zugangsdaten gelöscht. Dies kann nicht rückgängig gemacht werden."
   },
   "passkeyRemoved": {
     "message": "Passkey entfernt"
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Verschieben"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden verwendet gespeicherte URIs für die Anmeldung, um zu bestimmen, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "Diesen Sammlungen zuweisen"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können diesen Eintrag sehen."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
     "message": "Es wurden keine Sammlungen zugewiesen"
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Sammlungen erfolgreich zugewiesen"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Eintrag in Sammlung verschoben"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Eintrag in Sammlungen verschoben"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Einträge in Sammlung verschoben"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Einträge in Sammlungen verschoben"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Zu Sammlungen zugewiesener Eintrag"

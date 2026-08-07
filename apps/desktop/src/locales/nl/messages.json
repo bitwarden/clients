@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "Nieuwe gedeelde map"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "Delen"
   },
@@ -476,6 +518,15 @@
   },
   "launch": {
     "message": "Starten"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Kopieer waarde",
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Bitwarden actief op de achtergrond houden"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Verificatiecode kopiëren"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Gebruikersnaam kopiëren"
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Opties"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "sessionTimeout": {
     "message": "Je sessie is verlopen. Ga terug en probeer opnieuw in te loggen."
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Je kunt gedeelde mappen niet verwijderen met alleen rechten voor weergeven: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Verplaatsen"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Aan collecties toewijzen"
+  },
+  "addToSharedFolder": {
+    "message": "Aan gedeelde map toevoegen"
+  },
+  "transferAndAdd": {
+    "message": "Overdragen en toevoegen"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "Items"
   },
   "assignToTheseCollections": {
     "message": "Aan deze collecties toewijzen"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen het item zien."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen de items zien."
   },
   "noCollectionsAssigned": {
     "message": "Er zijn geen collecties toegewezen"
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van dit item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van deze items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Succesvol toegewezen collecties"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Succesvol gedeelde mappen toegevoegd"
+  },
   "itemMovedToCollection": {
     "message": "Item naar collectie verplaatst"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item aan gedeelde map toegevoegd"
   },
   "itemMovedToCollections": {
     "message": "Item naar collecties verplaatst"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item aan gedeelde mappen toegevoegd"
+  },
   "itemsMovedToCollection": {
     "message": "Items naar collectie verplaatst"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items aan gedeelde map toegevoegd"
+  },
   "itemsMovedToCollections": {
     "message": "Items naar collecties verplaatst"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items aan gedeelde mappen toegevoegd"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"

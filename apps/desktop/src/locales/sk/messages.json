@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "Nový zdieľaný priečinok"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "Zdieľať"
   },
@@ -476,6 +518,15 @@
   },
   "launch": {
     "message": "Spustiť"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Kopírovať hodnotu",
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Ponechať Bitwarden bežať na pozadí"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovať overovací kód"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Kopírovať používateľské meno"
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Možnosti"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "sessionTimeout": {
     "message": "Vaša relácia vypršala. Vráťte sa späť a skúste sa prihlásiť znova."
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemôžete odstrániť zdieľané priečinky s povoleniami len na zobrazenie: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Presunúť"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Priradiť ku zbierkam"
+  },
+  "addToSharedFolder": {
+    "message": "Pridať do zdieľaného priečinka"
+  },
+  "transferAndAdd": {
+    "message": "Presunúť a pridať"
+  },
+  "itemLower": {
+    "message": "položka"
+  },
+  "itemsLower": {
+    "message": "položky"
   },
   "assignToTheseCollections": {
     "message": "Priradiť k týmto zbierkam"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Položku si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Položku si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Položky si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
   },
   "noCollectionsAssigned": {
     "message": "Neboli priradené žiadne zbierky"
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybraného trezora. Už ju nebudete vlastniť."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybranú organizáciu. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybraný trezor. Tieto položky už nebudú vo vašom vlastníctve.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Zdieľané priečinky boli úspešne pridané"
+  },
   "itemMovedToCollection": {
     "message": "Položka bola presunutá do zbierky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka bola pridaná do zdieľaného priečinka"
   },
   "itemMovedToCollections": {
     "message": "Položka bola presunutá do zbierok"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka bola pridaná do zdieľaných priečinkov"
+  },
   "itemsMovedToCollection": {
     "message": "Položky blli presunuté do zbierky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky pridané do zdieľaného priečinka"
+  },
   "itemsMovedToCollections": {
     "message": "Položky boli presunuté do zbierok"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky pridané do zdieľaných priečinkov"
   },
   "itemAssignedToCollections": {
     "message": "Položka bola priradená do zbierok"

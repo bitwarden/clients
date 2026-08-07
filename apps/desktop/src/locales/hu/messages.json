@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "Új megosztott mappa"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "Megosztás"
   },
@@ -476,6 +518,15 @@
   },
   "launch": {
     "message": "Megnyitás"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Érték másolása",
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Bitwarden futtatásban tartása a háttérben"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Ellenőrző kód másolása"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Felhasználónév másolása"
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Opciók"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "sessionTimeout": {
     "message": "A munkamenet lejárt. Lépjünk vissza és próbáljunk újra bejelentkezni."
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Áthelyezés"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
+  },
+  "itemLower": {
+    "message": "elem"
+  },
+  "itemsLower": {
+    "message": "elem"
   },
   "assignToTheseCollections": {
     "message": "Hozzárendelés ezen gyűjteményekhez"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "noCollectionsAssigned": {
     "message": "Nem lettek gyűjtemények hozzárendelve."
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elemek tulajdonosa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "A gyűjtemények sikeresen hozzárendelésre kerültek."
   },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
   "itemMovedToCollection": {
     "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
   },
   "itemMovedToCollections": {
     "message": "Az elem átkerült a gyűjteményekhez:"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
   "itemsMovedToCollection": {
     "message": "Az elemek átkerültek a gyűjteményhez:"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
   "itemsMovedToCollections": {
     "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
   },
   "itemAssignedToCollections": {
     "message": "Az elem hozzárendelésre került a gyűjteményekhez."

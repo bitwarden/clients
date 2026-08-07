@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "新しい共有フォルダー"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "共有"
   },
@@ -477,6 +519,15 @@
   "launch": {
     "message": "開く"
   },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "copyValue": {
     "message": "値のコピー",
     "description": "Copy value to clipboard"
@@ -666,7 +717,7 @@
     "message": "ブラウザーと同期"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "$VAULTURL$ に接続するには、Bitwarden アプリで既定のブラウザを同期する必要があります。ブラウザーが同期されると、このアプリにリダイレクトされます。",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -1049,10 +1100,10 @@
     "message": "これらのアイテムはあなたのゴミ箱に送られます。30日後に完全に削除されます。"
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "アイテムを完全に削除"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "$COUNT$ 件のアイテムを完全に削除",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1061,16 +1112,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "アイテムを復元することはできません。"
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "アイテムを復元することはできません。"
   },
   "deleteSelection": {
     "message": "選択箇所を削除"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "選択したアイテムとコレクションは完全に削除されます。"
   },
   "deleteFolder": {
     "message": "フォルダーの削除"
@@ -1289,7 +1340,7 @@
     "message": "暗号化を修正"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "このファイルは古い暗号化方法を使用しています。"
   },
   "attachmentUpdated": {
     "message": "添付ファイルを更新しました"
@@ -1699,7 +1750,7 @@
     "message": "詳細情報"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "暗号化設定の更新中にエラーが発生しました。"
   },
   "updateEncryptionSettingsTitle": {
     "message": "暗号化設定を更新する"
@@ -1726,7 +1777,7 @@
     "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "保存済みのアカウント制限付きエクスポートは無効になります。"
   },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
@@ -1879,7 +1930,7 @@
     "message": "マスターパスワードが間違っています"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "マスターパスワードが正しくありません。メールアドレスが正しく、アカウントが $HOST$ で作成されたことを確認してください。",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1962,16 +2013,32 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "ウェブサイトのアイコンを表示し、パスワード変更 URL を取得する"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "runInBackground": {
-    "message": "Keep Bitwarden running in the background"
+    "message": "Bitwarden をバックグラウンドで実行する"
   },
   "runInBackgroundDesc": {
-    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
+    "message": "ウィンドウを閉じても、トレイから Bitwarden にアクセスできます。SSH エージェントまたはブラウザの統合を使用している場合におすすめです。"
   },
   "runInBackgroundDescMac": {
-    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
+    "message": "ウィンドウを閉じても、メニューバーから Bitwarden にアクセスできます。SSH エージェントまたはブラウザの統合を使用している場合におすすめです。"
   },
   "openAtLogin": {
     "message": "ログイン時に自動的に起動"
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "認証コードのコピー"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "ユーザー名のコピー"
@@ -2175,7 +2267,7 @@
     "message": "生成履歴を消去"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "続行すると、すべてのエントリが生成履歴から完全に削除されます。続行してもよろしいですか？"
   },
   "clear": {
     "message": "消去する",
@@ -3371,7 +3463,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "カスタムタイムアウトの最小値は 1 分です。"
   },
   "inviteAccepted": {
     "message": "招待が承認されました"
@@ -3448,6 +3540,9 @@
   "options": {
     "message": "オプション"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "sessionTimeout": {
     "message": "セッションがタイムアウトしました。もう一度ログインしてください。"
   },
@@ -3458,10 +3553,10 @@
     "message": "組織保管庫のエクスポート"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "個人の保管庫のアイテムのみがエクスポートされます。"
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "$ORGANIZATION$ の保管庫に関連付けられたアイテムのみがエクスポートされます。個人の保管庫内のアイテムはエクスポートされません。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3760,11 +3855,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "ウェブサイトのプレフィックスを追加",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "有効にすると、生成したメールアドレスのプレフィックスに現在のウェブサイトのドメインが使用されます",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4119,7 +4214,7 @@
     "message": "ログイン状態"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "最近アクティブ"
   },
   "recentlyActiveToday": {
     "message": "今日"
@@ -4152,7 +4247,7 @@
     "message": "デバイスIDがありません"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "デバイス種類がありません"
   },
   "deviceCreationDateMissing": {
     "message": "Device creation date is missing"
@@ -4170,13 +4265,13 @@
     "message": "組織は信頼されていません"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "アカウントのセキュリティ保護のため、このユーザーに緊急アクセスを許可しており、かつ表示されているフィンガープリントが相手のアカウントのものと一致する場合にのみ確認してください"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "アカウントのセキュリティ保護のため、自分がこの組織のメンバーであり、アカウント復旧が有効になっていて、下に表示されているフィンガープリントが組織のフィンガープリントと一致する場合にのみ続行してください。"
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "この組織には、あなたをアカウント復旧に登録するエンタープライズポリシーがあります。登録すると、組織の管理者があなたのパスワードを変更できるようになります。この組織に心当たりがあり、下に表示されているフィンガープリントフレーズが組織のフィンガープリントと一致する場合にのみ続行してください。"
   },
   "trustUser": {
     "message": "ユーザーを信頼"
@@ -4351,7 +4446,7 @@
     "message": "以下の手順に従ってログインを完了してください。"
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "セキュリティキーでログインを完了するには、以下の手順に従ってください。"
   },
   "launchDuo": {
     "message": "ブラウザで Duo を起動"
@@ -4363,7 +4458,7 @@
     "message": "何もインポートされませんでした。"
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ 個のアイテムはスキップされます",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4372,7 +4467,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ 個のアイテムはスキップされます",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4381,10 +4476,10 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "以下のアイテムは読み込めないためインポートに含まれません:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "この SSH キーはインポートできませんでした"
   },
   "importSkipReasonUnsupportedType": {
     "message": "Unsupported item type"
@@ -4770,25 +4865,25 @@
     "message": "プッシュ通知"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "コードを手動で入力"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "2 段階認証"
   },
   "unknownMethod": {
     "message": "不明な方法"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Duo メソッドを選択"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Duo Security で認証する方法を選択してください。"
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "電話をかける"
   },
   "duoVerification": {
     "message": "Duo 認証"
@@ -4991,7 +5086,7 @@
     "message": "拒否"
   },
   "sshkeyApprovalTitle": {
-    "message": "SSH 鍵の使用を確認します"
+    "message": "SSH キーの使用を承認"
   },
   "agentForwardingWarningTitle": {
     "message": "警告: エージェント転送"
@@ -5123,7 +5218,7 @@
     "message": "危険なパスワードの変更"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "このログインはリスクが高く、ウェブサイトが設定されていません。セキュリティを強化するには、Webサイトを追加してパスワードを変更してください。"
   },
   "vulnerablePassword": {
     "message": "脆弱なパスワードです。"
@@ -5141,6 +5236,15 @@
     "message": "表示のみの権限が与えられているコレクションを削除することはできません: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5166,7 +5270,7 @@
     "message": "No search results returned"
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "どのプラットフォームでも、誰とでも安全にファイルとデータを共有できます。流出を防止しながら、あなたの情報はエンドツーエンドで暗号化されます。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
@@ -5211,7 +5315,7 @@
     "message": "シームレスなオンライン決済"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "カードを使って、支払いフォームを安全かつ正確に簡単に自動入力できます。"
   },
   "newIdentityNudgeTitle": {
     "message": "アカウント作成を簡素化"
@@ -5244,29 +5348,50 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden は、保存されたログイン URI を使用して、どのアイコンまたはパスワード変更 URL を使用するかを判断し、使いやすさを向上させます。このサービスの利用時に、情報が収集または保存されることはありません。"
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "コレクションに割り当て"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "これらのコレクションに割り当てる"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "コレクションが割り当てられていません"
   },
   "assign": {
     "message": "割り当て"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "これらのコレクションにアクセスできる組織メンバーのみがアイテムを見ることができます。"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "$TOTAL_COUNT$ アイテムを選択しました。編集権限がないため、$READONLY_COUNT$ アイテムを更新できません。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5278,10 +5403,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "割り当てるコレクションを選択"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ は選択した組織に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5290,7 +5415,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ は $ORG$ に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 個のアイテムは選択した組織に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5324,7 +5461,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 個のアイテムは $ORG$ に恒久的に移行されます。これらのアイテムはあなたの所有ではなくなります。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,20 +5476,35 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "コレクションに割り当てられたアイテム"
   },
   "itemsAssignedToCollections": {
     "message": "Items assigned to collections"
@@ -5511,7 +5663,7 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "アイテムをアーカイブ",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
@@ -5593,7 +5745,7 @@
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "ログインするには組織を確認してください"
   },
   "organizationVerified": {
     "message": "組織を確認しました"
@@ -5602,7 +5754,7 @@
     "message": "ドメインを確認しました"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "組織を確認しない場合、組織へのアクセス権が取り消されます。"
   },
   "leaveNow": {
     "message": "今すぐ退出"
@@ -5611,13 +5763,13 @@
     "message": "ログインするにはドメインを確認してください"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "ログインを続行するには、このドメインを確認してください。"
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "ログインを続行するには、組織とドメインを確認してください。"
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "タイムアウト時のアクション"
   },
   "errorCannotDecrypt": {
     "message": "エラー: 復号できません"
@@ -5670,7 +5822,7 @@
     "message": "再起動時"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "タイムアウト時の動作を変更するには、ロック解除方法を設定してください"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
     "message": "Session timeout is controlled by the desktop app"
@@ -5706,10 +5858,10 @@
     "message": "Are you sure you want to leave?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "拒否すると個人のアイテムはアカウントに残りますが、共有アイテムや組織の機能にアクセスできなくなります。"
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "アクセスを取り戻すには管理者に連絡してください。"
   },
   "leaveConfirmationDialogConfirmButton": {
     "message": "$ORGANIZATION$ を退出する",
@@ -5733,7 +5885,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ は、セキュリティとコンプライアンスのためにすべてのアイテムを組織が所有することを必要としています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5742,10 +5894,10 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "転送を承認するボタンを押すとアイテムの所有権を譲渡します。"
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "アイテムの転送に関するヘルプ記事を開く"
   },
   "acceptTransfer": {
     "message": "転送を承認する"
@@ -5757,7 +5909,7 @@
     "message": "組織は無効です"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "無効な組織のアイテムにアクセスすることはできません。組織の所有者に連絡してください。"
   },
   "percentageCompleted": {
     "message": "$PERCENT$% 完了",
@@ -5769,10 +5921,10 @@
     }
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "ゴミ箱にアイテムがありません"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "削除したアイテムはここに表示され、30 日後に完全に削除されます"
   },
   "noItemsInVault": {
     "message": "保管庫にアイテムがありません"
@@ -5790,7 +5942,7 @@
     "message": "No search results returned"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "フィルタをクリアするか、別の検索ワードをお試しください"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -5912,7 +6064,7 @@
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "銀行の連絡先"
   },
   "searchBankAccount": {
     "message": "銀行口座を検索"
@@ -5969,10 +6121,10 @@
     "message": "限度額"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "投資/証券取引"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "短期市場"
   },
   "bankAccountTypeOther": {
     "message": "その他"
@@ -5996,7 +6148,7 @@
     "message": "編集を破棄"
   },
   "keepEditing": {
-    "message": "Keep editing"
+    "message": "編集を続ける"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -6022,7 +6174,7 @@
     "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "サイドバーナビゲーション"
   },
   "skipLink": {
     "message": "リンクをスキップ"
@@ -6104,10 +6256,10 @@
     "message": "免許種別"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "アイテムを保存できません。アイテムを保存するには組織に確認する必要があります。"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "$ORGNAME$ がこの削除日を設定しました",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -6137,7 +6289,7 @@
     "message": "These collections will be permanently deleted."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "アイテムは同じファイル名の複数の添付ファイルを持つことはできません"
   },
   "labelWithNotification": {
     "message": "$LABEL$: 新しい通知",

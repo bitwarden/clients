@@ -12,7 +12,7 @@
     "message": "Favoratoj"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Forigi de preferaĵo"
   },
   "types": {
     "message": "Tipoj"
@@ -36,55 +36,55 @@
     "message": "SSH-ŝlosilo"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Banka konto"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Retejo aŭ apo"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Kreditkarto aŭ debetkarto"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Persona informo"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Grava teksto"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Ensaluto-ĵetono de servilo"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Bankaj detaloj"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Pasporto"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Pasportaj detaloj"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Aldonis pasporton"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Vojdokumento"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Aranĝi viajn erojn"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Aranĝi komunajn erojn"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Permesilo"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Stirpermesilo aŭ identigilo"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Elekti eron por aldoni"
   },
   "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
+    "message": "Elekti la tipon de ero kiun vi volas aldoni en vian trezorejon."
   },
   "folders": {
     "message": "Dosierujoj"
@@ -96,7 +96,7 @@
     "message": "Traserĉi la trezorejon"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Nuligi serĉon"
   },
   "addItem": {
     "message": "Aldoni eron"
@@ -105,22 +105,64 @@
     "message": "Konigita"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Komuna dosierujo"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Komunaj dosierujoj"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Mia dosierujo"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Miaj dosierujoj"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Aldoni komunan dosierujon"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Nova komuna dosierujo"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
   },
   "share": {
     "message": "Konigi"
@@ -142,10 +184,10 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Vi ne atingis permeson por modifi tiun ĉi eron"
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "Bonrevenon"
   },
   "moveToOrgDesc": {
     "message": "Elektu organizaĵon, al kiu vi volas movi ĉi tiun eron. Movado al organizaĵo transdonas la posedon de la ero al tiu organizaĵo. Vi ne plu estos la rekta posedanto de la ero post kiam ĝi estos movita."
@@ -154,13 +196,13 @@
     "message": "Aldonaĵoj"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "Tiu ĉi ero havas malnovajn dosiero-kunsendaĵojn kiuj riparendas."
   },
   "viewItem": {
     "message": "Vidi la eron"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Vidi aron $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -169,163 +211,163 @@
     }
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Vidi salutilon",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Vidi karton",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Vidi identon",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Vidi noton",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Vidi sekuran noton",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Vidi SSH-ŝlosilon",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Vidi bankan konton",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Vidi permesilon",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Vidi pasporton",
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Aldoni salutilon",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Aldoni karton",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Aldoni identon",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Aldoni noton",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Aldoni sekuran noton",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Aldoni SSH-ŝlosilon",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Aldoni bankan konton",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Aldoni permesilon",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Aldoni pasporton",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nova salutilo",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nova karto",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nova idento",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nova noto",
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Nova sekura noto",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nova SSH-ŝlosilo",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nova banka konto",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nova permesilo",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nova pasporto",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Redakti salutilon",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Redakti karton",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Redakti identon",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Redakti noton",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Redakti sekuran noton",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Redakti salutilon",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Redakti karton",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Redakti identon",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Redakti noton",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Redakti SSH-ŝlosilon",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Redakti bankan konton",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Redakti permesilon",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Redakti pasporton",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -345,23 +387,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "La Send'o foriĝos definitive je tiu ĉi dato.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
     "message": "File to share"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Kaŝi tekston defaŭlte"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Kaŝi vian retadreson for de spektantoj."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Limigi rigardojn"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ rigardoj restas",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -371,64 +413,64 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Neniu povas rigardi tiun ĉi Send'on post kiam la limo atingiĝas.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privata noto"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send'aj detaloj",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
     "message": "Text to share"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Nova teksto",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Nova dosiero",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Redakti tekston",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Redakti dosieron",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Ĉu vi vere volas definitive forigi tiun ĉi Send'on?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Vidi salutilon",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Vidi karton",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Vidi identon",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Vidi noton",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Krei",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Aldoni aron"
   },
   "new": {
-    "message": "New",
+    "message": "Nova",
     "description": "for adding new items"
   },
   "newUri": {
@@ -444,14 +486,14 @@
     "message": "Pasfrazo"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "spaceto",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Redakti la eron"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Redakti eron $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -477,15 +519,24 @@
   "launch": {
     "message": "Lanĉi"
   },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "copyValue": {
     "message": "Kopii la valoron",
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopii la retejon"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopii la $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -494,26 +545,26 @@
     }
   },
   "minimizeOnCopyToClipboard": {
-    "message": "Minimize when copying to clipboard"
+    "message": "Minimumigi kopiante en tondobufron"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "Minimize application when copying an item's data to the clipboard."
+    "message": "Minimumigi la apon kopiante datumojn de ero en tondobufron."
   },
   "toggleVisibility": {
-    "message": "Toggle visibility"
+    "message": "Baskuli videblecon"
   },
   "toggleCollapse": {
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
   "cardholderName": {
-    "message": "Cardholder name"
+    "message": "Nomo de la kartestro"
   },
   "number": {
     "message": "Numero"
   },
   "brand": {
-    "message": "Brand"
+    "message": "Varmarko"
   },
   "expiration": {
     "message": "Eksvalidiĝo"
@@ -534,31 +585,31 @@
     "message": "Numero de pasporto"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Sekso"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Kopii sekson"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Naskiĝoloko"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Kopii naskiĝolokon"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Etno"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Kopii etnon"
   },
   "copyIssuingCountry": {
     "message": "Copy issuing country"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Tipo de pasporto"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Kopii tipon de pasporto"
   },
   "copyNationalIdentificationNumber": {
     "message": "Copy national identification number"
@@ -597,19 +648,19 @@
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048-bitoj"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072-bitoj"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096-bitoj"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "Nova SSH-ŝlosilo generiĝis"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "La enigita pasvorto malĝustas."
   },
   "importSshKey": {
     "message": "Enporti"
@@ -618,28 +669,28 @@
     "message": "Konfirmu la pasvorton"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Enigi la pasvorton por la SSH-ŝlosilo."
   },
   "enterSshKeyPassword": {
     "message": "Enmetu la pasvorton"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Bonvolu malŝlosi vian trezorejon por akcepti la peton por la SSH-ŝlosilo."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "Peto por SSH-ŝlosilo eksvalidiĝis."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Ŝalti SSH-agenton"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Ŝalti la SSH-agenton por subskribi SSH-petojn rekte per via Bitwarden-trezorejo."
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "La SSH-agento estas servo por programistoj kiu ebligas al oni subskribi SSH-petojn rekte per via Bitwarden-trezorejo."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Peti permeson kiam uzante SSH-agenton"
   },
   "sshAgentPromptBehaviorDesc": {
     "message": "Choose how to handle SSH-agent authorization requests."
@@ -648,25 +699,25 @@
     "message": "Remember SSH authorizations"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Ĉiam"
   },
   "sshAgentPromptBehaviorNever": {
     "message": "Neniam"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Memori ĝis la trezorejo ŝlosiĝas"
   },
   "premiumRequired": {
     "message": "Necesas Premium"
   },
   "premiumRequiredDesc": {
-    "message": "A Premium membership is required to use this feature."
+    "message": "Altkvalita membreco necesas por uzi ĉi tiun funkcion."
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "Sinkronigi kun retumilo"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "Por konekti al $VAULTURL$, vi devas sinkronigi vian defaŭltan retumilon kaj la Bitwarden-apon. Sinkroniginte, vi alidirektos ĉi tien.",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -676,10 +727,10 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "Ruli retumilon"
   },
   "errorOccurred": {
-    "message": "An error has occurred."
+    "message": "Eraro okazis."
   },
   "error": {
     "message": "Eraro"
@@ -688,14 +739,14 @@
     "message": "Eraro en malĉifrado"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden ne povis malĉifri la subajn erojn de la trezorejo."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Kontaktu kliento-sukceson",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "por eviti plua perdo de datumoj.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -757,10 +808,10 @@
     "message": "Dr-o"
   },
   "expirationMonth": {
-    "message": "Expiration month"
+    "message": "Monato de eksvalidiĝo"
   },
   "expirationYear": {
-    "message": "Expiration year"
+    "message": "Jaro de eksvalidiĝo"
   },
   "select": {
     "message": "Elekti"
@@ -772,13 +823,13 @@
     "message": "Tipo"
   },
   "items": {
-    "message": "Items"
+    "message": "Eroj"
   },
   "firstName": {
     "message": "Persona nomo"
   },
   "middleName": {
-    "message": "Middle name"
+    "message": "Meza nomo"
   },
   "lastName": {
     "message": "Familia nomo"
@@ -799,7 +850,7 @@
     "message": "Urbo / Urbeto"
   },
   "stateProvince": {
-    "message": "State / Province"
+    "message": "Ŝtato / Provinco"
   },
   "zipPostalCode": {
     "message": "Poŝtkodo"
@@ -864,16 +915,16 @@
     "message": "Aldoni retejon"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Aldoni retejon aŭ apon"
   },
   "app": {
-    "message": "App"
+    "message": "Apo"
   },
   "deleteWebsite": {
     "message": "Forigi retejon"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Forigi je $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -885,7 +936,7 @@
     "message": "Posedanto"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Komuna dosierujo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -894,7 +945,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Aro $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -903,7 +954,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Mia dosierujo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -912,7 +963,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Dosierujo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -930,7 +981,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Trezorejo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -945,7 +996,7 @@
     "message": "Redakti kampon"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Redakti je $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -960,7 +1011,7 @@
     "message": "Tipo de kampo"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Kampa etikedo"
   },
   "add": {
     "message": "Aldoni"
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Copy verification code"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Kopii la uzantonomon"
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Elektebloj"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "sessionTimeout": {
     "message": "Via salutaĵo eksvalidiĝis. Bonvole reiru kaj provu saluti denove."
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Movi"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
     "message": "No collections have been assigned"
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
