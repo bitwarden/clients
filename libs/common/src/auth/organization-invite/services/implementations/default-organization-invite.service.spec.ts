@@ -1299,7 +1299,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns unexpected with the server's message and clears the stash for unclassified ErrorResponse", async () => {
+    it("returns unexpected with the server's message and preserves the stash for unclassified ErrorResponse", async () => {
       const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
         statusCode: 500,
         message: "boom",
@@ -1313,27 +1313,27 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
-      expect(await sut.getOrganizationInvite()).toBeNull();
+      expect(await sut.getOrganizationInvite()).not.toBeNull();
     });
 
-    it("returns unexpected with .message and clears the stash for non-ErrorResponse Error throws", async () => {
+    it("returns unexpected with .message and preserves the stash for non-ErrorResponse Error throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue(new Error("network gone"));
       await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
-      expect(await sut.getOrganizationInvite()).toBeNull();
+      expect(await sut.getOrganizationInvite()).not.toBeNull();
     });
 
-    it("returns unexpected with String(e) and clears the stash for unknown throws", async () => {
+    it("returns unexpected with String(e) and preserves the stash for unknown throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue("bare string");
       await prestashOpenInvite();
 
       const result = await sut.getOpenOrgInviteStatus("org-id", "abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
-      expect(await sut.getOrganizationInvite()).toBeNull();
+      expect(await sut.getOrganizationInvite()).not.toBeNull();
     });
   });
 

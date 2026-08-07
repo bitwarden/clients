@@ -447,10 +447,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
           : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
       return { kind: "ok", status: { organizationName: response.organizationName, sso } };
     } catch (e) {
-      await this.clearOpenOrgInvite();
       if (e instanceof ErrorResponse && e.statusCode === 404) {
+        await this.clearOpenOrgInvite();
         return { kind: "not-found" };
       }
+      // `unexpected` covers transient failures (network, 5xx, non-`ErrorResponse` throws).
+      // Preserve the stash so a retry after a blip doesn't force a second MP-policy
+      // detour on orgs whose invite the user has already validated against.
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
   }

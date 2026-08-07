@@ -121,9 +121,11 @@ export abstract class OrganizationInviteService {
    * surfaces. Unclassified failures (network / 5xx / non-`ErrorResponse` throws) return
    * `unexpected` with a best-effort message.
    *
-   * Any non-`ok` kind clears the stashed open-org invite — same invariant as
-   * {@link acceptOpenOrgInvite} — so downstream policy consumers (login MP policy,
-   * voluntary password change) can't observe a stash for a server-invalidated invite.
+   * Server-authoritative terminal kinds (`not-found`, `plan-not-supported`, `no-seats`)
+   * clear the stashed open-org invite — same invariant as {@link acceptOpenOrgInvite}.
+   * The transient `unexpected` kind preserves the stash so a retry after a network/5xx
+   * blip doesn't re-trigger the MP-policy detour on orgs whose invite the user has
+   * already validated.
    */
   abstract getOpenOrgInviteStatus(
     organizationId: string,
