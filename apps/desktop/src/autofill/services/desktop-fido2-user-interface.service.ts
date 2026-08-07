@@ -192,43 +192,36 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private chosenCipherSubject = new Subject<CipherView | undefined>();
 
   // Method implementation
-  async pickCredential({
-    cipherIds,
-    userVerification,
-    assumeUserPresence,
-    masterPasswordRepromptRequired,
-  }: PickCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
-    this.logService.debug("pickCredential desktop function", {
-      cipherIds,
-      userVerification,
-      assumeUserPresence,
-      masterPasswordRepromptRequired,
-    });
+  async pickCredential(
+    params: PickCredentialParams,
+  ): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
+    this.logService.debug("pickCredential desktop function", params);
+
+    const abortSignal = this.abortController.signal;
 
     try {
       // Check if we can return the credential without user interaction
-      await this.accountService.setShowHeader(false);
-      if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
-        this.logService.debug(
-          "shortcut - Assuming user presence and returning cipherId",
-          cipherIds[0],
-        );
-        return { cipherId: cipherIds[0], userVerified: userVerification };
+      const response = await this.tryWithoutUserInteraction(params, {
+        signal: abortSignal,
+      });
+      if (response) {
+        return response;
       }
 
       this.logService.debug("Could not shortcut, showing UI");
 
+      await this.accountService.setShowHeader(false);
+
       // make the cipherIds available to the UI.
-      this.availableCipherIdsSubject.next(cipherIds);
+      this.availableCipherIdsSubject.next(params.cipherIds);
 
       await this.showUi("/fido2-assertion", this.windowObject.windowXy, false);
 
       // TODO: Extend this to the deadline indicated by the timeout on the WebAuthn request.
       const chosenCipherTimeout = AbortSignal.timeout(60 * 1000);
       const chosenCipher = await this.waitForUiChosenCipher({
-        signal: AbortSignal.any([this.abortController.signal, chosenCipherTimeout]),
+        signal: AbortSignal.any([abortSignal, chosenCipherTimeout]),
       });
-
       this.logService.debug("Received chosen cipher", chosenCipher?.id);
 
       if (!chosenCipher) {
@@ -239,9 +232,9 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       const userVerified = await this.verifyUser(
         "assertion",
         username,
-        userVerification,
+        params.userVerification,
         chosenCipher,
-        { signal: this.abortController.signal },
+        { signal: abortSignal },
       );
 
       return { cipherId: chosenCipher.id, userVerified };
@@ -260,6 +253,84 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   confirmChosenCipher(cipher?: CipherView): void {
     this.chosenCipherSubject.next(cipher);
     this.chosenCipherSubject.complete();
+  }
+
+  private async tryWithoutUserInteraction(
+    params: PickCredentialParams,
+    { signal }: { signal: AbortSignal },
+  ): Promise<{ cipherId: string; userVerified: boolean } | undefined> {
+    const canRetrieveSilently =
+      params.cipherIds.length === 1 && !params.masterPasswordRepromptRequired;
+    if (!canRetrieveSilently) {
+      return undefined;
+    }
+
+    const selectedCipherId = params.cipherIds[0];
+
+    if (params.userVerification) {
+      // retrieve the cipher
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      if (!activeUserId) {
+        return;
+      }
+      const cipherView = await firstValueFrom(
+        this.cipherService.cipherListViews$(activeUserId).pipe(
+          map((ciphers) => {
+            return ciphers.find((cipher) => cipher.id == selectedCipherId && !cipher.deletedDate);
+          }),
+        ),
+      );
+
+      if (!cipherView) {
+        this.logService.warning(
+          "[DesktopFido2UserInterfaceSession]",
+          `Could not find an active cipher for ID: ${selectedCipherId}`,
+        );
+        return undefined;
+      }
+
+      const username = fido2UserNameFromCipher(cipherView);
+      try {
+        const userVerified = await this.verifyUser(
+          "assertion",
+          username,
+          params.userVerification,
+          cipherView,
+          { signal },
+        );
+        const response = { cipherId: selectedCipherId, userVerified };
+        this.logService.debug(
+          "[DesktopFido2UserInterfaceSession]",
+          "tryWithoutUserInteraction() succeeded",
+          response,
+        );
+        return response;
+      } catch (error) {
+        // A dismissed prompt or a cipher we refuse to use ends the ceremony
+        // outright; only a recoverable failure falls back to the picker.
+        if (error instanceof UserVerificationCanceled || error instanceof Fido2AuthenticatorError) {
+          throw error;
+        }
+        // Fall back to showing the picker, which offers the user another way
+        // through the ceremony.
+        this.logService.debug(
+          "[DesktopFido2UserInterfaceSession]",
+          "Failed to prompt for user verification without showing UI",
+          error,
+        );
+        return undefined;
+      }
+    } else if (params.assumeUserPresence) {
+      this.logService.debug(
+        "[DesktopFido2UserInterfaceSession]",
+        "shortcut - Assuming user presence and returning cipherId",
+        selectedCipherId,
+      );
+      return { cipherId: selectedCipherId, userVerified: false };
+    }
   }
 
   private async waitForUiChosenCipher({
