@@ -4,22 +4,20 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { AboveScrollAreaDirective } from "./above-scroll-area.directive";
 import { PopupPageComponent } from "./popup-page.component";
 
 /**
  * Stands in for a real slot component (a banner, a callout): its host element is always present
  * and it decides internally whether to render anything. Padding the container for this would
- * reserve space even when it shows nothing, which is why the padding moved onto the content.
+ * reserve space even while it shows nothing, which is why the spacing targets non-empty children.
  */
 @Component({
   selector: "always-present-host",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `@if (show()) {
-    <div bitAboveScrollArea>content</div>
+    <div>content</div>
   }`,
-  imports: [AboveScrollAreaDirective],
 })
 class AlwaysPresentHostComponent {
   readonly show = signal(false);
@@ -38,13 +36,16 @@ class HostComponent {}
 describe("PopupPageComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
 
-  /** The above-scroll-area container — the element that used to own the padding and border. */
+  /** The above-scroll-area container, which owns the spacing rules for its children. */
   function container(): HTMLElement {
     return fixture.nativeElement.querySelector("always-present-host").parentElement;
   }
 
-  function slotContent(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("[bitAboveScrollArea]");
+  function setSlotContent(show: boolean) {
+    const host = fixture.debugElement.query(By.directive(AlwaysPresentHostComponent))
+      .componentInstance as AlwaysPresentHostComponent;
+    host.show.set(show);
+    fixture.detectChanges();
   }
 
   beforeEach(async () => {
@@ -58,33 +59,41 @@ describe("PopupPageComponent", () => {
   });
 
   describe("above-scroll-area", () => {
-    it("reserves no vertical space when the slot renders nothing", () => {
-      // The host element is present but empty — the case that made a container-owned padding
-      // leave a visible gap above the scroll area.
-      expect(container().childElementCount).toBeGreaterThan(0);
-      expect(slotContent()).toBeNull();
+    /**
+     * The spacing is applied by `>*:not(:empty)`, so what matters is that the container carries
+     * the rule and that the projected host is genuinely empty until it renders. jsdom doesn't
+     * apply stylesheets, so the selector's effect is asserted through those two facts.
+     */
+    it("scopes its vertical spacing to non-empty children", () => {
+      expect(container().className).toContain("[&>*:not(:empty)]:tw-py-3");
+      expect(container().className).toContain("[&>*:not(:empty)]:tw-border-b");
+    });
 
-      expect(container().className).not.toContain("tw-py-3");
-      expect(container().className).not.toContain("tw-border-b");
+    it("does not put vertical padding or a border on the container itself", () => {
+      const ownClasses = container()
+        .className.split(/\s+/)
+        .filter((c) => !c.includes("[&>"));
+
+      expect(ownClasses).not.toContain("tw-py-3");
+      expect(ownClasses).not.toContain("tw-border-b");
+    });
+
+    it("leaves an always-present host empty until it renders content", () => {
+      // `:empty` is what lets the CSS skip a host that is present but showing nothing — the case
+      // a child count can't distinguish from real content.
+      const host = fixture.nativeElement.querySelector("always-present-host");
+      expect(container().childElementCount).toBeGreaterThan(0);
+      expect(host.childElementCount).toBe(0);
+
+      setSlotContent(true);
+
+      expect(host.childElementCount).toBeGreaterThan(0);
     });
 
     it("keeps its horizontal padding, which is safe to apply unconditionally", () => {
-      // Centering is a layout concern and costs nothing vertically, so it stays on the container.
       expect(container().className).toContain(
         "tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]",
       );
-    });
-
-    it("applies vertical padding and the separator to content that renders", () => {
-      const host = fixture.debugElement.query(By.directive(AlwaysPresentHostComponent))
-        .componentInstance as AlwaysPresentHostComponent;
-      host.show.set(true);
-      fixture.detectChanges();
-
-      const content = slotContent();
-      expect(content).not.toBeNull();
-      expect(content!.className).toContain("tw-py-3");
-      expect(content!.className).toContain("tw-border-b");
     });
   });
 });

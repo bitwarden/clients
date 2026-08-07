@@ -60,7 +60,6 @@ import {
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
-import { AboveScrollAreaDirective } from "../../../../platform/popup/layout/above-scroll-area.directive";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
@@ -101,7 +100,6 @@ type VaultState = UnionOfValues<typeof VaultState>;
     BlockedInjectionBanner,
     FillAssistActiveBannerComponent,
     PopupPageComponent,
-    AboveScrollAreaDirective,
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,

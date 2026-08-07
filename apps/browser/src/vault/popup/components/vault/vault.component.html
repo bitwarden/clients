@@ -49,7 +49,6 @@
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
       <bit-callout
-        bitAboveScrollArea
         [title]="'unlockAdvancedSecurity' | i18n"
         [icon]="null"
         (dismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
@@ -68,7 +67,6 @@
     }
     @if (vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async) {
       <bit-callout
-        bitAboveScrollArea
         [title]="'emptyVaultNudgeTitle' | i18n"
         [icon]="null"
         (dismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
@@ -97,7 +95,7 @@
       ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
-        <div bitAboveScrollArea>
+        <div>
           <bit-callout
             [title]="'hasItemsVaultNudgeTitle' | i18n"
             [icon]="null"
@@ -114,9 +112,7 @@
       <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is
            only rendered when the flag is off. -->
       @if (!vfo1Enabled()) {
-        <div bitAboveScrollArea>
-          <app-vault-header></app-vault-header>
-        </div>
+        <app-vault-header></app-vault-header>
       }
     }
   </ng-container>
