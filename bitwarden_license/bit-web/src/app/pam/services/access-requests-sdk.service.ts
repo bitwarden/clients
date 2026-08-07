@@ -21,14 +21,12 @@ import { AccessRequestSdkService } from "..";
  * callers to interpret via `isLeasingError` (`..`); this service does not wrap
  * or translate them.
  */
-export class AccessRequestsSdkService extends AccessRequestSdkService {
+export class AccessRequestsSdkService implements AccessRequestSdkService {
   constructor(
     private sdkService: SdkService,
     private accountService: AccountService,
     private logService: LogService,
-  ) {
-    super();
-  }
+  ) {}
 
   async listMyAccessRequests(): Promise<AccessRequestView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
