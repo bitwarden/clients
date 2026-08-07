@@ -2,6 +2,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
+import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
@@ -9,6 +10,7 @@ import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
 import {
   AccessLeaseSdkService,
@@ -55,6 +57,10 @@ export function providePam(): SafeProvider[] {
       provide: CidrValidationService,
       useClass: DefaultCidrValidationService,
       deps: [],
+    }),
+    safeProvider({
+      provide: VAULT_ROW_LEASE_BADGE,
+      useValue: VaultRowLeaseBadgeComponent,
     }),
   ];
 }
