@@ -226,7 +226,7 @@ describe("HealthAccessService", () => {
       await firstValueFrom(service.hasRunHealthScan$(userId));
 
       expect(stateProvider.mock.getUserState$).toHaveBeenCalledWith(
-        expect.objectContaining({ key: "runHealthScan" }),
+        expect.objectContaining({ key: "hasRunHealthScan" }),
         userId,
       );
     });
@@ -237,7 +237,7 @@ describe("HealthAccessService", () => {
       await service.setHasRunHealthScan(userId);
 
       expect(stateProvider.mock.setUserState).toHaveBeenCalledWith(
-        expect.objectContaining({ key: "runHealthScan" }),
+        expect.objectContaining({ key: "hasRunHealthScan" }),
         true,
         userId,
       );

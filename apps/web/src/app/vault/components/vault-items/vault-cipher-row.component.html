@@ -130,11 +130,14 @@
               type="button"
               (click)="openUri(launchUri)"
               data-testid="launch-website"
-              [label]="'launchWebsiteName' | i18n: cipher.name"
+              [label]="'launchWebsiteForName' | i18n: cipher.name"
             ></button>
           }
 
-          <vault-item-copy-actions [cipher]="cipher"></vault-item-copy-actions>
+          <vault-item-copy-actions
+            [cipher]="cipher"
+            [showQuickCopyActions]="showQuickCopyActions()"
+          ></vault-item-copy-actions>
         </div>
       }
 
@@ -145,7 +148,7 @@
         bitIconButton="bwi-ellipsis-v"
         type="button"
         appStopProp
-        label="{{ 'options' | i18n }}"
+        label="{{ 'moreOptions' | i18n }}"
       ></button>
       <bit-menu #cipherOptions>
         @if (!(showCopyAndLaunchActions$ | async)) {
