@@ -17,11 +17,14 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              exposedPasswords: "Exposed passwords",
+              exposedPassword: "1 exposed password",
+              exposedPasswordsPlural: "$COUNT$ exposed passwords",
               exposedPasswordsDesc: "Exposed in data breaches",
-              weakPasswords: "Weak passwords",
+              weakPassword: "1 weak password",
+              weakPasswordsPlural: "$COUNT$ weak passwords",
               weakPasswordsDesc: "Too short or simple",
-              reusedPasswords: "Reused passwords",
+              reusedPassword: "1 reused password",
+              reusedPasswordsPlural: "$COUNT$ reused passwords",
               reusedPasswordsDesc: "Reused for several logins",
               categoryHealthy: "No items need attention",
             }),
@@ -42,7 +45,8 @@ export default {
     },
   },
   args: {
-    labelKey: "exposedPasswords",
+    labelKeySingular: "exposedPassword",
+    labelKeyPlural: "exposedPasswordsPlural",
     descriptionKey: "exposedPasswordsDesc",
     count: 7,
     icon: "bwi-error",
@@ -57,7 +61,8 @@ export default {
       <bit-item-group>
         <bit-item>
           <dirt-risk-category-item
-            [labelKey]="labelKey"
+            [labelKeySingular]="labelKeySingular"
+            [labelKeyPlural]="labelKeyPlural"
             [descriptionKey]="descriptionKey"
             [count]="count"
             [icon]="icon"
@@ -94,7 +99,8 @@ export const AllCategories: Story = {
       <bit-item-group>
         <bit-item>
           <dirt-risk-category-item
-            labelKey="exposedPasswords"
+            labelKeySingular="exposedPassword"
+            labelKeyPlural="exposedPasswordsPlural"
             descriptionKey="exposedPasswordsDesc"
             [count]="7"
             icon="bwi-error"
@@ -104,7 +110,8 @@ export const AllCategories: Story = {
         </bit-item>
         <bit-item>
           <dirt-risk-category-item
-            labelKey="weakPasswords"
+            labelKeySingular="weakPassword"
+            labelKeyPlural="weakPasswordsPlural"
             descriptionKey="weakPasswordsDesc"
             [count]="2"
             icon="bwi-warning"
@@ -114,7 +121,8 @@ export const AllCategories: Story = {
         </bit-item>
         <bit-item>
           <dirt-risk-category-item
-            labelKey="reusedPasswords"
+            labelKeySingular="reusedPassword"
+            labelKeyPlural="reusedPasswordsPlural"
             descriptionKey="reusedPasswordsDesc"
             [count]="0"
             icon="bwi-refresh"

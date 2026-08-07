@@ -27,8 +27,18 @@ import { I18nPipe } from "@bitwarden/ui-common";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RiskCategoryItemComponent {
-  /** Localization key for the category name, e.g. "exposedPasswords". */
-  readonly labelKey = input.required<string>();
+  /**
+   * Localization key for the title when the count is exactly 1, e.g.
+   * "exposedPassword". The string hard-codes the "1" and takes no placeholder,
+   * matching the reviewXAtRiskPassword convention.
+   */
+  readonly labelKeySingular = input.required<string>();
+  /**
+   * Localization key for the title at any other count, e.g.
+   * "exposedPasswordsPlural". Takes the count as its one placeholder, and is
+   * also used for zero ("0 exposed passwords").
+   */
+  readonly labelKeyPlural = input.required<string>();
   /** Localization key for the one-line description under the name. */
   readonly descriptionKey = input.required<string>();
   /** Number of at-risk logins counted under this category. */
@@ -45,4 +55,13 @@ export class RiskCategoryItemComponent {
    * count of zero and a checkmark, so the state never depends on colour alone.
    */
   protected readonly isHealthy = computed(() => this.count() === 0);
+
+  /**
+   * The title carries the count, per the design. English has no single form
+   * that reads correctly at both 1 and N, and the repo has no plural helper,
+   * so the two strings are separate keys chosen here.
+   */
+  protected readonly labelKey = computed(() =>
+    this.count() === 1 ? this.labelKeySingular() : this.labelKeyPlural(),
+  );
 }

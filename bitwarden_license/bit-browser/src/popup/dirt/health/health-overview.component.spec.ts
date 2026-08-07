@@ -37,7 +37,8 @@ class MockAtRiskGaugeComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockRiskCategoryItemComponent {
-  readonly labelKey = input.required<string>();
+  readonly labelKeySingular = input.required<string>();
+  readonly labelKeyPlural = input.required<string>();
   readonly descriptionKey = input.required<string>();
   readonly count = input.required<number>();
   readonly icon = input.required<string>();
@@ -164,10 +165,15 @@ describe("HealthOverviewComponent", () => {
 
     await initComponent();
 
-    expect(rows().map((r) => r.labelKey())).toEqual([
-      "exposedPasswords",
-      "weakPasswords",
-      "reusedPasswords",
+    expect(rows().map((r) => r.labelKeyPlural())).toEqual([
+      "exposedPasswordsPlural",
+      "weakPasswordsPlural",
+      "reusedPasswordsPlural",
+    ]);
+    expect(rows().map((r) => r.labelKeySingular())).toEqual([
+      "exposedPassword",
+      "weakPassword",
+      "reusedPassword",
     ]);
   });
 

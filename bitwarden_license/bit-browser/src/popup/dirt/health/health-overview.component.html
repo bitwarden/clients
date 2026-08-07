@@ -30,7 +30,8 @@
     @for (row of categoryRows(); track row.category) {
       <bit-item>
         <dirt-risk-category-item
-          [labelKey]="row.labelKey"
+          [labelKeySingular]="row.labelKeySingular"
+          [labelKeyPlural]="row.labelKeyPlural"
           [descriptionKey]="row.descriptionKey"
           [count]="row.count"
           [icon]="row.icon"
