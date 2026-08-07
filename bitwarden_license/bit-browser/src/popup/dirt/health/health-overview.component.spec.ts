@@ -214,6 +214,35 @@ describe("HealthOverviewComponent", () => {
     expect(counts.reduce((a, b) => a + b, 0)).toBe(10);
   });
 
+  it("ignores a replayed null cipher emission instead of reporting a healthy vault", async () => {
+    // cipherViews$ is shareReplay-cached and emits null when the decrypted
+    // ciphers are cleared, so a fresh subscriber can receive null FIRST. Taking
+    // it would scan an empty vault and, because take(1) completes, strand the
+    // user on a permanent "healthy" reading.
+    const ciphers$ = new BehaviorSubject<CipherView[] | null>(null);
+    cipherService.cipherViews$.mockReturnValue(ciphers$ as never);
+    reportService.buildVaultHealthReport$.mockReturnValue(
+      of(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 })),
+    );
+
+    await initComponent();
+
+    // Nothing should have been scanned off the null.
+    expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+    expect(gauge()).toBeNull();
+
+    // The real ciphers arrive; now it scans, exactly once, with those ciphers.
+    const real = [{} as CipherView, {} as CipherView];
+    ciphers$.next(real);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledWith(real, userId);
+    expect(gauge()?.value()).toBe(12);
+    expect(text()).toContain("yourVaultRiskIsHigh");
+  });
+
   it("renders nothing until the report resolves", async () => {
     reportService.buildVaultHealthReport$.mockReturnValue(new Subject<VaultHealthReportView>());
 

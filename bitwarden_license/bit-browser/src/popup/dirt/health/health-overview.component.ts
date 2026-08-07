@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BitwardenIcon,
   IconTileVariant,
@@ -110,6 +111,13 @@ export class HealthOverviewComponent {
       getUserId,
       switchMap((userId) =>
         this.cipherService.cipherViews$(userId).pipe(
+          // cipherViews$ is cached with shareReplay and emits null when the
+          // decrypted ciphers are cleared (lock, logout, vault clear). Because
+          // the buffer is kept with refCount: false, a later subscriber can
+          // receive that null as its FIRST emission. Taking it would scan an
+          // empty vault and, since take(1) then completes, leave a permanent
+          // "Your vault is healthy" on a vault that was never actually read.
+          filterOutNullish(),
           take(1),
           switchMap((ciphers) =>
             this.vaultHealthReportService.buildVaultHealthReport$(ciphers, userId),
