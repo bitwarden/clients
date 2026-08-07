@@ -220,6 +220,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     portKey: "portKey",
     token: "test-token",
     inlineMenuFillType: CipherType.Login,
+    useLitComponents: false,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
         icon: {
