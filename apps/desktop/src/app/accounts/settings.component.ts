@@ -21,6 +21,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { autotypeMvpOrGaEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
