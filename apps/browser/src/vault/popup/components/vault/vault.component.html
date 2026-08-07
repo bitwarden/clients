@@ -1,4 +1,6 @@
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
+<!-- With the table presentation the `height="fill"` table owns its own scroll region, so the page
+     must not scroll as well. -->
+<popup-page [hideOverflow]="vfo1Enabled() || (showSkeletonsLoaders$ | async)">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown
@@ -107,7 +109,11 @@
           </bit-callout>
         </div>
       }
-      <app-vault-header></app-vault-header>
+      <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is
+           only rendered when the flag is off. -->
+      @if (!vfo1Enabled()) {
+        <app-vault-header></app-vault-header>
+      }
     }
   </ng-container>
 
@@ -136,40 +142,46 @@
     </div>
 
     @if (vaultState === null) {
-      <vault-fade-in-out>
-        @if (!(loading$ | async)) {
-          <!--If there is search text fold all the filtered ciphers into one container-->
-          @if (hasSearchText$ | async) {
-            <app-vault-list-items-container
-              [title]="'searchResults' | i18n"
-              [ciphers]="(filteredCiphers$ | async) || []"
-              id="allItems"
-              disableSectionMargin
-              collapsibleKey="allItems"
-            ></app-vault-list-items-container>
-          } @else {
-            <app-autofill-vault-list-items></app-autofill-vault-list-items>
-            <app-vault-list-items-container
-              [title]="'favorites' | i18n"
-              [ciphers]="(favoriteCiphers$ | async) || []"
-              id="favorites"
-              collapsibleKey="favorites"
-            ></app-vault-list-items-container>
-            <!--Change the title header when a filter is applied-->
-            <app-vault-list-items-container
-              [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
-              [ciphers]="(filteredCiphers$ | async) || []"
-              id="allItems"
-              disableSectionMargin
-              collapsibleKey="allItems"
-            ></app-vault-list-items-container>
+      @if (vfo1Enabled()) {
+        <app-vault-popup-list-table></app-vault-popup-list-table>
+      } @else {
+        <vault-fade-in-out>
+          @if (!(loading$ | async)) {
+            <!--If there is search text fold all the filtered ciphers into one container-->
+            @if (hasSearchText$ | async) {
+              <app-vault-list-items-container
+                [title]="'searchResults' | i18n"
+                [ciphers]="(filteredCiphers$ | async) || []"
+                id="allItems"
+                disableSectionMargin
+                collapsibleKey="allItems"
+              ></app-vault-list-items-container>
+            } @else {
+              <app-autofill-vault-list-items></app-autofill-vault-list-items>
+              <app-vault-list-items-container
+                [title]="'favorites' | i18n"
+                [ciphers]="(favoriteCiphers$ | async) || []"
+                id="favorites"
+                collapsibleKey="favorites"
+              ></app-vault-list-items-container>
+              <!--Change the title header when a filter is applied-->
+              <app-vault-list-items-container
+                [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
+                [ciphers]="(filteredCiphers$ | async) || []"
+                id="allItems"
+                disableSectionMargin
+                collapsibleKey="allItems"
+              ></app-vault-list-items-container>
+            }
           }
-        }
-      </vault-fade-in-out>
+        </vault-fade-in-out>
+      }
     }
   }
 
-  @if (showSkeletonsLoaders$ | async) {
+  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`, so the page-level
+       skeleton is only used by the legacy list. -->
+  @if (!vfo1Enabled() && (showSkeletonsLoaders$ | async)) {
     <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
     </vault-fade-in-out-skeleton>
