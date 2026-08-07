@@ -75,7 +75,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         acceptAction: async () => this.dialogService.closeAll(),
       },
       overwritePasskey: {
-        title: { key: "overwritePasskey" },
+        title: { key: "overwritePasskey2" },
         content: { key: "alreadyContainsPasskey" },
         type: "warning",
       },
