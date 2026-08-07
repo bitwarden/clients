@@ -1,5 +1,3 @@
-import { Jsonify } from "type-fest";
-
 import {
   CiphersClient,
   CipherView as SdkCipherView,
@@ -13,7 +11,6 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
@@ -94,23 +91,13 @@ describe("CipherView", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("handle both string and object inputs for the cipher key", () => {
-      const cipherKeyString = "cipherKeyString";
-      const cipherKeyObject = new EncString("cipherKeyObject");
+    it("passes the cipher key through as a plain string", () => {
+      const cipherKeyB64 = "c29tZS1iYXNlNjQta2V5";
 
-      // Test with string input
-      let actual = CipherView.fromJSON({
-        key: cipherKeyString,
+      const actual = CipherView.fromJSON({
+        key: cipherKeyB64,
       });
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyString);
-
-      // Test with object input (which can happen when cipher view is stored in an InMemory state provider)
-      actual = CipherView.fromJSON({
-        key: cipherKeyObject,
-      } as Jsonify<CipherView>);
-      expect(actual.key).toBeInstanceOf(EncString);
-      expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
+      expect(actual.key).toBe(cipherKeyB64);
     });
 
     it("fromJSON should always restore top-level CipherView properties", () => {
@@ -143,7 +130,7 @@ describe("CipherView", () => {
       original.deletedDate = new Date("2022-01-03");
       original.archivedDate = new Date("2022-01-04");
       original.reprompt = CipherRepromptType.Password;
-      original.key = new EncString("test-key");
+      original.key = "dGVzdC1rZXktYjY0";
       original.decryptionFailure = true;
 
       // Serialize and deserialize
@@ -304,7 +291,7 @@ describe("CipherView", () => {
       cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
       cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
-      cipherView.key = new EncString("some-key");
+      cipherView.key = "some-key-b64";
       cipherView.name = "name";
       cipherView.notes = "notes";
       cipherView.type = CipherType.Login;
@@ -334,7 +321,7 @@ describe("CipherView", () => {
         organizationId: asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"),
         folderId: asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"),
         collectionIds: [asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")],
-        key: "some-key" as any,
+        key: "some-key-b64" as any,
         name: "name",
         notes: "notes",
         type: SdkCipherType.Login,
@@ -516,7 +503,7 @@ describe("CipherView", () => {
       cipherView.reprompt = CipherRepromptType.Password;
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
       cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
-      cipherView.key = new EncString("cipher-key");
+      cipherView.key = "cipher-key-b64";
 
       const mockField = new RealFieldView();
       mockField.name = "testField";

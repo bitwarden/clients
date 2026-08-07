@@ -7,7 +7,6 @@ import {
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
@@ -65,9 +64,7 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate?: Date;
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
-  // We need a copy of the encrypted key so we can pass it to
-  // the SdkCipherView during encryption
-  key?: EncString;
+  key?: string;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -97,7 +94,6 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    this.key = c.key;
   }
 
   private get item(): ItemView | undefined {
@@ -252,17 +248,7 @@ export class CipherView implements View, InitializerMetadata {
     view.passwordHistory =
       obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
 
-    if (obj.key != null) {
-      let key: EncString | undefined;
-      if (typeof obj.key === "string") {
-        // If the key is a string, we need to parse it as EncString
-        key = EncString.fromJSON(obj.key);
-      } else if ((obj.key as any) instanceof EncString) {
-        // If the key is already an EncString instance, we can use it directly
-        key = obj.key;
-      }
-      view.key = key;
-    }
+    view.key = obj.key ?? undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -299,7 +285,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView, sdk?: CiphersClient): CipherView | undefined {
+  static fromSdkCipherView(obj: SdkCipherView): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }
@@ -340,7 +326,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
-    cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    cipherView.key = obj.key ?? undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -353,17 +339,9 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.Login:
         cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
-        if (sdk && obj.login?.fido2Credentials?.length) {
-          const fido2CredentialViews = sdk.decrypt_fido2_credentials(obj);
-          const decryptedKeyValue = sdk.decrypt_fido2_private_key(obj);
-          cipherView.login.fido2Credentials = fido2CredentialViews
-            .map((cred) => {
-              const view = Fido2CredentialView.fromSdkFido2CredentialView(cred);
-              if (view) {
-                view.keyValue = decryptedKeyValue;
-              }
-              return view;
-            })
+        if (obj.login?.fido2Credentials?.length) {
+          cipherView.login.fido2Credentials = obj.login.fido2Credentials
+            .map((cred) => Fido2CredentialView.fromSdkFido2CredentialView(cred))
             .filter((cred): cred is Fido2CredentialView => !!cred);
         }
         break;
@@ -447,7 +425,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: this.revisionDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
-      key: this.key?.toSdk(),
+      key: (this.key ?? undefined) as any,
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
@@ -552,7 +530,7 @@ export class CipherView implements View, InitializerMetadata {
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
-      key: this.key?.toSdk(),
+      key: (this.key ?? undefined) as any,
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions
