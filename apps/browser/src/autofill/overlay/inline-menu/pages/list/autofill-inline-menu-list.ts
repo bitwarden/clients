@@ -129,8 +129,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.theme = resolveTheme(theme);
     }
 
-    const themeClass = `theme_${theme}`;
-    globalThis.document.documentElement.classList.add(themeClass);
+    const themeClass = `theme_${theme}`;    globalThis.document.documentElement.classList.add(themeClass);
 
     this.inlineMenuListContainer = globalThis.document.createElement("div");
     this.inlineMenuListContainer.classList.add("inline-menu-list-container", themeClass);
