@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
   },
-  "addToSharedFolder": {
-    "message": "Toevoegen aan gedeelde map"
-  },
   "newSharedFolder": {
     "message": "Nieuwe gedeelde map"
   },
@@ -1254,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Deze gedeelde map wordt definitief verwijderd."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "De gedeelde map $NAME$ wordt definitief verwijderd.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Deze gedeelde mappen worden definitief verwijderd."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ gedeelde mappen worden definitief verwijderd.",
@@ -1310,6 +1304,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Door een item in een gedeelde map te plaatsen, kun je het veilig delen met andere leden van de kluis."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Dit verwijdert alle items in eigendom van de volgende leden permanent. Geldeelde map-items blijven buiten schot.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Dit verwijdert alle items in eigendom van $NAME$ permanent. Gedeelde map-items blijven buiten schot.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Toegang beheren tot de organisatie, alle gedeelde mappen,, leden, rapportages en beveiligingsinstellingen"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Alle gedeelde mappen, leden, rapportages en beveiligingsinstellingen beheren"
+  },
+  "userDescSharedFolders": {
+    "message": "Items openen en toevoegen aan toegewezen gedeelde mappen"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Geef leden toegang tot gedeelde mappen door ze aan 1 of meer groepen toe te voegen."
+  },
+  "manageAllSharedFolders": {
+    "message": "Alle gedeelde mappen beheren"
+  },
+  "createNewSharedFolders": {
+    "message": "Nieuwe gedeelde mappen aanmaken"
+  },
+  "editAnySharedFolder": {
+    "message": "Iedere gedeelde map bewerken"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Iedere gedeelde map verwijderen"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Je kunt jezelf niet aan gedeelde mappen toevoegen."
   },
   "attachments": {
     "message": "Bijlagen"
@@ -1535,6 +1570,9 @@
   "item": {
     "message": "Item"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "Itemdetails"
   },
@@ -1691,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Info kopiëren - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Gegevens voor $ITEMNAME$ kopiëren",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,11 +1753,11 @@
     "message": "Geen waarde ingevoerd",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Geen waarden om te kopiëren"
+  "noDetailsToCopy": {
+    "message": "Geen details om te kopiëren"
   },
-  "launchWebsiteName": {
-    "message": "Start website $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Website starten voor $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2452,7 +2490,7 @@
     "message": "Je hebt geen rechten op deze collectie"
   },
   "youDoNotHavePermissionsSharedFolder": {
-    "message": "You do not have permissions to this shared folder",
+    "message": "Je hebt geen rechten op deze gedeelde map",
     "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
@@ -2680,6 +2718,21 @@
   },
   "copyVerificationCode": {
     "message": "Verificatiecode kopiëren"
+  },
+  "noUsername": {
+    "message": "Geen gebruikersnaam"
+  },
+  "noPassword": {
+    "message": "Geen wachtwoord"
+  },
+  "noVerificationCode": {
+    "message": "Geen verificatiecode"
+  },
+  "noNumber": {
+    "message": "Geen nummer"
+  },
+  "noSecurityCode": {
+    "message": "Geen beveiligingscode"
   },
   "copyUuid": {
     "message": "UUID kopiëren"
@@ -3047,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "Organisatiekluis verwijderd."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Kluis $ORGNAME$ opgeruimd.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Kluis benaderd door provider."
   },
@@ -3266,6 +3328,9 @@
   "options": {
     "message": "Opties"
   },
+  "moreOptions": {
+    "message": "Meer opties"
+  },
   "preferences": {
     "message": "Voorkeuren"
   },
@@ -3283,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Toon snelle kopieeracties in kluis"
   },
   "default": {
     "message": "Standaard"
@@ -3654,6 +3722,10 @@
   },
   "orgsReportsDesc": {
     "message": "Identificeer en sluit beveiligingsgaten in je de accounts van je organisatie door op één van de onderstaande rapporten te klikken.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4862,7 +4934,7 @@
     "message": "Plaats collectie onder"
   },
   "nestSharedFolderUnder": {
-    "message": "Nest shared folder under",
+    "message": "Nest gedeelde map onder",
     "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
   },
   "accessControl": {
@@ -4884,21 +4956,21 @@
     "message": "Collectie weergeven"
   },
   "viewSharedFolder": {
-    "message": "View shared folder",
+    "message": "Gedeelde map weergeven",
     "description": "VFO1 terminology feature flag variant of viewCollection"
   },
   "collectionInfo": {
     "message": "Collectieinformatie"
   },
   "sharedFolderInfo": {
-    "message": "Shared folder info",
+    "message": "Gedeelde map-informatie",
     "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Weet je zeker dat je deze verzameling wilt verwijderen?"
   },
   "deleteSharedFolderConfirmation": {
-    "message": "Are you sure you want to delete this shared folder?",
+    "message": "Weet je zeker dat je deze gedeelde map wilt verwijderen?",
     "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
@@ -4921,6 +4993,10 @@
   },
   "inviteUserDescription": {
     "message": "Nodig nieuwe gebruikers uit voor je organisatie door hun e-mailadres hieronder in te vullen."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Nodig een nieuwe gebruiker uit voor je organisatie door het e-mailadres van hun Bitwarden-account hieronder in te vullen. Wanneer ze nog geen Bitwarden-account hebben wordt ze gevraagd om een nieuw account aan te maken.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Je kunt tot $COUNT$ gebruikers per keer uitnodigen door middel van een lijst met komma's gescheiden e-mailadressen.",
@@ -5005,7 +5081,7 @@
     "message": "Beheerder"
   },
   "adminDesc": {
-    "message": "Beheerders hebben toegang tot alle items, verzamelingen en gebruikers binnen je organisatie en kunnen deze ook beheren"
+    "message": "Toegang beheren tot de organisatie, alle verzamelingen, leden, rapportages en beveiligingsinstellingen"
   },
   "adminRoleDesc": {
     "message": "Beheer alle verzamelingen, leden, rapportages en beveiligingsinstellingen"
@@ -5107,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "Organisatiekluis geëxporteerd."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Kluis $ORGNAME$ geëxporteerd.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Organisatie-instellingen gewijzigd."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Kluisinstellingen $ORGNAME$ bewerkt.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Aangemaakt item $ID$.",
@@ -5303,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Item $ID$ verplaatst naar kluis $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5547,7 +5654,7 @@
     }
   },
   "createdSharedFolderId": {
-    "message": "Created shared folder $ID$.",
+    "message": "Gedeelde map $ID$ aangemaakt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5566,7 +5673,7 @@
     }
   },
   "editedSharedFolderId": {
-    "message": "Edited shared folder $ID$.",
+    "message": "Gedeelde map $ID$ bewerkt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5594,7 +5701,7 @@
     }
   },
   "deletedSharedFolderId": {
-    "message": "Deleted shared folder $ID$.",
+    "message": "Gedeelde map $ID$ verwijderd.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5687,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Toegang tot kluis $ORGNAME$ ingetrokken voor $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Gefaseerde gebruiker $ID$ toegevoegd.",
     "placeholders": {
@@ -5723,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Kluistoegang $ORGNAME$ ingetrokken voor $ID$ wegens niet-naleven van het tweestapsaanmeldingsbeleid.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor niet-naleving van het één organisatiebeleid.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Kluistoegang $ORGNAME$ ingetrokken voor $ID$ wegens niet-naleven van het beleid van enkelvoudig organisatielidmaatschap.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Toegang voor $ID$ ingetrokken wegens het afwijzen van overdracht van kluiseigendom aan $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Toegang tot de organisatie hersteld voor $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Toegang tot kluis $ORGNAME$ hersteld voor $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Gedeelde mappen voor item $ID$ bewerkt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Overdracht naar organisatie-eigendom geaccepteerd."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Overdracht kluiseigendom naar $ORGNAME$ geaccepteerd.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Gebruiker uitgenodigd $ID$.",
@@ -5855,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "$ORGNAME$ kluis $ID$ aangemaakt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Organisatie $ID$ toegevoegd.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "$ORGNAME$ kluis $ID$ toegevoegd.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "$ORGNAME$ kluis $ID$ verwijderd.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "$ID$ organisatiekluis geopend.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "$ID$ in kluis $ORGNAME$ geopend.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6013,7 +6255,7 @@
     "message": "Groepstoegang"
   },
   "groupAccessUserDesc": {
-    "message": "Wijzig de groep waar deze gebruiker bij hoort."
+    "message": "Geef leden toegang tot collecties door ze aan 1 of meer groepen toe te voegen."
   },
   "invitedUsers": {
     "message": "Gebruiker(s) uitgenodigd"
@@ -6673,6 +6915,9 @@
   },
   "inviteLink": {
     "message": "Uitnodigingslink"
+  },
+  "transferAndAdd": {
+    "message": "Overdragen en toevoegen"
   },
   "lastGenerated": {
     "message": "Laatst gegenereerd: $DATE$",
@@ -7849,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Lid $ID$ heeft een uitnodiging via uitnodigingslink geaccepteerd",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Beheerdersgoedkeuring vereisen voor uitnodigingslink is uitgeschakeld",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Beheerdersgoedkeuring vereisen voor uitnodigingslink is ingeschakeld",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Lid $ID$ is bevestigd via uitnodigingslink",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10671,17 +10933,29 @@
   "editGroupMembersDesc": {
     "message": "Geef leden toegang tot de aan de groep toegewezen collecties."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "Geef toegang tot collecties door ze aan deze groep toe te voegen."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Je kunt alleen verzamelingen toewijzen die je beheert."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "Leden selecteren"
   },
   "selectCollections": {
     "message": "Collecties selecteren"
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
   },
   "role": {
     "message": "Rol"
@@ -10705,11 +10979,14 @@
     "message": "Geen collectie"
   },
   "noSharedFolder": {
-    "message": "No shared folder",
+    "message": "Geen gedeelde map",
     "description": "VFO1 terminology feature flag variant of noCollection"
   },
   "noCollectionsAdded": {
     "message": "Geen collecties toegevoegd"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "Geen leden toegevoegd"
@@ -11596,6 +11873,30 @@
     "message": "enkele organisatie",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "enkele organisatiekluis",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO vereist",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": "en",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Accountherstel-administratie",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "beleid zal automatisch worden ingeschakeld.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "beleid,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12220,38 @@
   "collectionManagement": {
     "message": "Collectiebeheer"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folders settings"
+  },
   "collectionManagementDescription": {
     "message": "Het gedrag van de collectie voor de organisatie instellen"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Eigenaren en beheerders toestaan om alle collecties en items via Admin Console te beheren"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Aanmaken van collecties beperken tot eigenaren en managers"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Verwijderen van collecties beperken tot eigenaren en managers"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Het verwijderen van items beperken tot leden met de ",
@@ -11941,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Instelling collectiebeheer bijgewerkt"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Abonnementskosten wachtwoordbeheerder"
@@ -11973,7 +12298,7 @@
     "message": "Toegang collectie toewijzen"
   },
   "assignSharedFolderAccess": {
-    "message": "Assign access",
+    "message": "Toegang toewijzen",
     "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
   },
   "editedCollections": {
@@ -11986,14 +12311,14 @@
     "message": "Collectie bewerkt"
   },
   "sharedFolderEdited": {
-    "message": "Shared folder edited",
+    "message": "Gedeelde map bewerkt",
     "description": "VFO1 terminology feature flag variant of collectionEdited"
   },
   "collectionsEdited": {
     "message": "Collecties bewerkt"
   },
   "sharedFoldersEdited": {
-    "message": "Shared folders edited",
+    "message": "Gedeelde mappen bewerkt",
     "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
@@ -12033,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Beheersinstelling voor gedeelde mappen $ID$ gewijzigd.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Instelling Collecties aanmaken beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Instelling Beperk aanmaken van gedeelde mappen $ID$ ingeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Instelling Beperk aanmaken van gedeelde mappen $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Instelling Collecties verwijderen beperken $ID$ ingeschakeld.",
     "placeholders": {
@@ -12060,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Instelling Beperk verwijderen van gedeelde mappen $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Instelling Collecties verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Instelling Beperk verwijderen van gedeelde mappen $ID$ uitgeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Instelling Beheer van alle gedeelde mappen en items toestaan aan eigenaren en beheerders $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Instelling Beheer van alle gedeelde mappen en items toestaan aan eigenaren en beheerders $ID$ uitgeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12164,42 +12552,42 @@
     "message": "Je hebt geen toegang om deze collectie te beheren."
   },
   "readOnlySharedFolderAccess": {
-    "message": "You do not have access to manage this shared folder.",
+    "message": "Je hebt geen toegang om deze gedeelde map te beheren.",
     "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
   },
   "grantManageCollectionWarningTitle": {
     "message": "Recht voor het beheren van machtigingen ontbreekt"
   },
   "grantManagePermissionsWarningTitle": {
-    "message": "Missing Manage Permissions",
+    "message": "Machtigingen beheren ontbreekt",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Beheren van machtigingen toekennen voor het toestaan van het volledig verzamelingenbeheer, inclusief het verwijderen van een verzameling."
   },
   "grantManagePermissionsWarning": {
-    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "message": "Beheren van machtigingen verlenen voor volledig beheer van gedeelde mappen, inclusief het verwijderen van een gedeelde map.",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantCollectionAccess": {
     "message": "Groepen of mensen toegang tot deze collectie geven."
   },
   "grantSharedFolderAccess": {
-    "message": "Grant groups or members access to this shared folder.",
+    "message": "Groepen of leden toegang tot deze gedeelde map geven.",
     "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Leden toegang tot deze collectie geven."
   },
   "grantSharedFolderAccessMembersOnly": {
-    "message": "Grant members access to this shared folder.",
+    "message": "Groepen toegang tot deze gedeelde map geven.",
     "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
   },
   "adminCollectionAccess": {
     "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
   },
   "adminSharedFolderAccess": {
-    "message": "Administrators can access and manage shared folders.",
+    "message": "Beheerders hebben toegang tot gedeelde mappen en kunnen deze beheren.",
     "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
@@ -12393,14 +12781,23 @@
   "assignToCollections": {
     "message": "Toewijzen aan collecties"
   },
+  "addToSharedFolder": {
+    "message": "Aan gedeelde map toevoegen"
+  },
   "assignToTheseCollections": {
     "message": "Aan deze collecties toewijzen"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen het item zien."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen de items zien."
   },
   "selectCollectionsToAssign": {
     "message": "Collecties voor toewijzen selecteren"
@@ -12411,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "Succesvol toegewezen collecties"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Succesvol gedeelde mappen toegevoegd"
+  },
   "itemMovedToCollection": {
     "message": "Item naar collectie verplaatst"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item aan gedeelde map toegevoegd"
   },
   "itemMovedToCollections": {
     "message": "Item naar collecties verplaatst"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item aan gedeelde mappen toegevoegd"
+  },
   "itemsMovedToCollection": {
     "message": "Items naar collectie verplaatst"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items aan gedeelde map toegevoegd"
+  },
   "itemsMovedToCollections": {
     "message": "Items naar collecties verplaatst"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items aan gedeelde mappen toegevoegd"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -12449,6 +12861,9 @@
     "message": "Veld bewerken"
   },
   "items": {
+    "message": "Items"
+  },
+  "itemsLower": {
     "message": "Items"
   },
   "assignedSeats": {
@@ -13100,7 +13515,7 @@
     "message": "Je hebt geen verzamelingen geselecteerd."
   },
   "noSharedFoldersSelected": {
-    "message": "You have not selected any shared folders.",
+    "message": "Je hebt geen gedeelde mappen geselecteerd.",
     "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
@@ -13214,6 +13629,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit de toegang van een organisatielid tot groepen, verzamelingen en verzamelen van items. De CSV-export biedt een gedetailleerde verdeling per lid, inclusief informatie over verzamelrechten en accountconfiguraties."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(Geen collectie)"
@@ -13333,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van dit item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van deze items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13763,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Gebruiker $ID$ heeft kluis $ORGNAME$ verlaten",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Gebruiker $ID$ heeft zichzelf ingetrokken van de organisatie.",
     "placeholders": {
@@ -13774,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Ingetrokken wegens afwijzen van overdracht naar organisatie-eigendom."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Ingetrokken wegens het afwijzen van overdracht van kluiseigendom aan $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "De $ORGANIZATION$ is geschorst",
@@ -13824,6 +14276,15 @@
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Je kunt gedeelde mappen niet verwijderen met alleen rechten voor weergeven: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14274,7 +14735,7 @@
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
   },
   "cannotCreateSharedFolder": {
-    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "message": "Gratis organisaties kunnen maximaal 2 gedeelde mappen hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer gedeelde mappen.",
     "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
@@ -14529,6 +14990,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "3 sneltoetsen toevoegen naast items om je gebruikersnaam, wachtwoord of verificatiecode naar het klembord te kopiëren."
   },
   "billingAddress": {
     "message": "Factuuradres"
@@ -16066,6 +16530,282 @@
   },
   "copy": {
     "message": "Kopiëren"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Toegangsregels"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Ingeschakeld"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Wanneer uitgeschakeld, is de regel inactief en beperkt de toegang niet."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Regel inschakelen"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Regel uitschakelen"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Toegangsregel ingeschakeld."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Toegangsregel uitgeschakeld."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Toegangsregel niet gevonden."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Stel regels in om te bepalen wie toegang kan vragen tot gevoelige gegevens, onder welke voorwaarden en voor hoe lang."
+  },
+  "pamAccessRuleNew": {
+    "message": "Nieuwe regel"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Nieuwe toegangsregel"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Toegangsregel bewerken"
+  },
+  "pamAccessRuleName": {
+    "message": "Naam"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "bijv. VPN + kantooruren"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Algemene informatie"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Toegangsduur"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optionele voorwaarden"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Verzamelingen selecteren"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Deze toegangsregel is van toepassing op alle geselecteerde verzamelingen."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Kon geen verzamelingen inladen. Vernieuw de pagina om het opnieuw te proberen."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Deze duur zal vooraf ingevuld worden in toegangsverzoeken."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Omschrijving"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Standaard toegangsduur"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximale toegangsduur"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Geen limiet"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Maximale duur van een reservering, ongeacht de aangevraagde duur."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minuten"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minuten"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 uur"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 uur"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 uur"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 uur"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 uur"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 dagen"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Slechts één gebruiker kan een actieve reservering hebben"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Nieuwe aanvragen worden in een wachtrij geplaatst totdat de huidige reservering afloopt of wordt ingetrokken."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Verlenging van reserveringen toestaan"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Leden kunnen een actieve reservering één keer verlengen zonder nieuwe goedkeuring, tot maximaal de hieronder ingestelde duur."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximale reserveringsduur"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "De maximale duur van één verlenging."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Goedkeuring vereisen"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Beperken op IP-adres"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Goedkeurders"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Collectiebeheerders"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Toegangsregel aangemaakt."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Toegangsregel bijgewerkt."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Toegangsregel verwijderen?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "\"$NAME$\" verwijderen? Alle verzamelingen die deze regel gebruiken zullen reserveren uitgeschakeld hebben.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Nog geen toegangsregels"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Regel aanmaken voor het toevoegen van extra bescherming voor gevoelige verzamelingen."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Aangepaste regel aanmaken"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Vanuit een sjabloon starten"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Sjabloon gebruiken"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Precies op tijd"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Automatisch goedgekeurd • Verloopt na 1 uur • Ingelogd Audit"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Precies-op-tijd-toegang"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Goedkeuring vereist"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Menselijke goedkeuring • 1 goedkeurder vereist • Controle gelogd"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Goedkeuring vereist"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP-beperking"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Automatisch goedgekeurd • IP toegestane lijst • Audit gelogd"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP-toegang beperkt"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Verzamelingen"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Niet toegewezen"
+  },
+  "pamSearchRules": {
+    "message": "Zoekregels"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Van toepassing op"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Voorwaarden"
+  },
+  "pamAccessWindow": {
+    "message": "Toegangsvenster"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Laatst gewijzigd"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Automatisch goedgekeurd"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Goedkeuring vereist"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP-beperking"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Er komen geen toegangsregels overeen met je filters."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Inschakelen"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Uitschakelen"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Toegangsregels bijgewerkt."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Toegangsregels verwijderd."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Toegangsregels verwijderen?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ toegangsregels worden permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Alleen verzoeken uit deze IP-bereiken worden toegestaan."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR-bereik"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "Bijv. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "CIDR-bereik toevoegen"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "CIDR-bereik verwijderen"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Voeg ten minste één CIDR-bereik toe."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Voer een geldig CIDR-bereik in."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Dit CIDR-bereik is al toegevoegd."
   },
   "paymentSuccessful": {
     "message": "Betaling succesvol"
