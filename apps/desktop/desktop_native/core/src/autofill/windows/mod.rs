@@ -1,9 +1,11 @@
+mod context;
 mod status;
 mod sync;
 
 use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
 
 use anyhow::{anyhow, Context, Result};
+pub use context::{create_context_string, parse_context_string};
 use serde::{Deserialize, Serialize};
 use status::{handle_status_request, StatusResponse};
 use sync::{handle_sync_request, SyncParameters, SyncResponse};
