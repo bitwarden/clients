@@ -51,6 +51,7 @@ jobs:
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
+      beta_number: ${{ steps.gen_vars.outputs.beta_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
@@ -68,6 +69,17 @@ jobs:
 
           echo "repo_url=$repo_url" >> "$GITHUB_OUTPUT"
           echo "adj_build_number=$adj_build_num" >> "$GITHUB_OUTPUT"
+
+          # beta-release.json holds the beta ordinal, which is bumped on rc for a
+          # second beta off the same base version. The Chrome Web Store rejects an
+          # upload that does not out-rank the previous one in the same listing.
+          beta_number=$(jq -r '.betaNumber' apps/browser/beta-release.json)
+          if [[ ! "$beta_number" =~ ^[0-9]+$ ]]; then
+            echo "[!] Invalid beta ordinal '$beta_number'; expected a positive integer"
+            exit 1
+          fi
+          echo "Setting beta ordinal to $beta_number"
+          echo "beta_number=$beta_number" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -242,6 +254,8 @@ jobs:
             npm_command_suffix: "beta:chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3-beta"
+            artifact_name_dev: "dev-chrome-MV3-beta"
+            archive_name_dev: "dev-chrome-beta.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -355,7 +369,11 @@ jobs:
               exit 1
           fi
 
+      # The chrome-beta npm script stamps BETA_NUMBER into the built manifest via
+      # update-manifest-beta.sh.
       - name: Build extension
+        env:
+          BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
         run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
