@@ -120,7 +120,7 @@
     "message": "Trezor"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Trezory"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -5647,7 +5647,7 @@
     }
   },
   "copyNoteTitle": {
-    "message": "Skopírovať poznámku - $ITEMNAME$",
+    "message": "Skopírovať poznámku – $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {

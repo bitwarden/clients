@@ -713,7 +713,7 @@
     "message": "ウェブサイトを開く"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "$ITEMNAME$ のウェブサイトを開く",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1561,19 +1561,19 @@
     "message": "認証コードのコピー"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "ユーザー名がありません"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "パスワードがありません"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "認証コードがありません"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "数値がありません"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "セキュリティコードがありません"
   },
   "attachments": {
     "message": "添付ファイル"
@@ -5637,7 +5637,7 @@
     "message": "フィルタをクリアするか、別の検索ワードをお試しください"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "$ITEMNAME$ の詳細をコピー",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5746,7 +5746,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "コピーできる詳細がありません"
   },
   "assignToCollections": {
     "message": "コレクションに割り当て"
@@ -6488,7 +6488,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "保管庫にクイックコピー操作を表示する"
   },
   "systemDefault": {
     "message": "システムのデフォルト"
@@ -6994,7 +6994,7 @@
     "message": "Bitwarden は、保存されたログイン URI を使用して、どのアイコンまたはパスワード変更 URL を使用するかを判断し、使いやすさを向上させます。このサービスの利用時に、情報が収集または保存されることはありません。"
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "ユーザー名、パスワード、認証コードをクリップボードにコピーするクイックコピーボタンをアイテムの横に追加します。"
   },
   "noPermissionsViewPage": {
     "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
