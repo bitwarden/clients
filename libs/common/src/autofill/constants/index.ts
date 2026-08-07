@@ -181,6 +181,12 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
+ * The default location where Fill Assist targeting rules are published.
+ */
+export const DEFAULT_FILL_ASSIST_RULES_URL =
+  "https://github.com/bitwarden/map-the-web/releases/latest/download";
+
+/**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in
  * the Forms Map schema.
  */

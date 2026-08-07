@@ -27,10 +27,6 @@ import {
   KeyDefinition,
 } from "@bitwarden/state";
 
-/** Fallback resource location when the server does not provide one */
-const DEFAULT_RESOURCE_BASE_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download";
-
 /** Client-owned manifest filename, resolved against the resource base URL */
 const MANIFEST_FILENAME = "manifest.json";
 
@@ -57,6 +53,15 @@ const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta,
     }),
   },
 );
+
+/**
+ * Cache key for Fill Assist targeting-rules metadata. Compound so that two
+ * accounts on the same server with different effective feed URLs get separate
+ * cache entries — no cross-account bleed on account switch.
+ */
+function fillAssistRulesCacheKey(apiUrl: string, effectiveUrl: string): string {
+  return `${apiUrl}::${effectiveUrl}`;
+}
 
 /**
  * Browser-specific service responsible for fetching and syncing targeting rules
@@ -116,6 +121,12 @@ export class TargetingRulesDataService {
     this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);
     });
+
+    // Trigger a fetch when the Fill Assist policy changes, so the fetcher
+    // re-checks against a possibly-new effective URL / cache key.
+    this.domainSettingsService.fillAssistPolicy$.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this._triggerUpdate$.next(false);
+    });
   }
 
   /**
@@ -129,10 +140,10 @@ export class TargetingRulesDataService {
 
   private async _resetMeta(): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const apiUrl = env.getApiUrl();
+    const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), await this._resolveResourceBaseUrl());
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { cid: undefined, timestamp: 0 },
+      [cacheKey]: { cid: undefined, timestamp: 0 },
     }));
   }
 
@@ -195,10 +206,11 @@ export class TargetingRulesDataService {
     this.logService.info("[TargetingRulesDataService] Update triggered...");
 
     const env = await firstValueFrom(this.environmentService.environment$);
-    const apiUrl = env.getApiUrl();
+    const resourceBaseUrl = await this._resolveResourceBaseUrl();
+    const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), resourceBaseUrl);
 
     const allMeta = await firstValueFrom(this._metaState.state$);
-    const meta = allMeta?.[apiUrl];
+    const meta = allMeta?.[cacheKey];
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
     if (!skipCacheAgeCheck && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
@@ -206,7 +218,6 @@ export class TargetingRulesDataService {
       return;
     }
 
-    const resourceBaseUrl = await this._resolveResourceBaseUrl();
     const manifestUrl = new URL(MANIFEST_FILENAME, resourceBaseUrl);
 
     // Step 1: Fetch the lightweight manifest to check if the data has changed
@@ -238,14 +249,16 @@ export class TargetingRulesDataService {
 
     const remoteCid = formsEntry.cid;
 
-    // If the content hash matches, the data hasn't changed; skip download
+    // If the content hash matches, the data hasn't changed; skip download.
+    // The compound cache key guarantees `meta.cid` was recorded against the
+    // current effective URL, so the comparison is always apples-to-apples.
     if (remoteCid && meta?.cid && meta.cid === remoteCid) {
       this.logService.debug(
         `[TargetingRulesDataService] Data unchanged (cid match), skipping download.`,
       );
       await this._metaState.update((existing) => ({
         ...existing,
-        [apiUrl]: { ...meta, timestamp: Date.now() },
+        [cacheKey]: { ...meta, timestamp: Date.now() },
       }));
       return;
     }
@@ -275,10 +288,12 @@ export class TargetingRulesDataService {
 
     const rules: TargetingRulesByDomain = resource.hosts;
 
-    await this.domainSettingsService.setTargetingRules(rules);
+    // Pin the write to the snapshot URL so rules and meta land under the
+    // same cache key, even if the effective URL changes mid-fetch.
+    await this.domainSettingsService.setTargetingRules(rules, resourceBaseUrl);
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { timestamp: Date.now(), cid: remoteCid },
+      [cacheKey]: { timestamp: Date.now(), cid: remoteCid },
     }));
 
     this.logService.info(
@@ -287,14 +302,10 @@ export class TargetingRulesDataService {
   }
 
   /**
-   * Resolves the resource base URL from the server config, falling back to
-   * the hardcoded default. The trailing slash is enforced so that relative
-   * resolution (`new URL(filename, baseUrl)`) treats the value as a directory
-   * rather than dropping its final path segment.
+   * Snapshots the shared effective rules-feed URL so the fetcher and the
+   * targeting-rules reader/writer key their caches off identical inputs.
    */
   private async _resolveResourceBaseUrl(): Promise<string> {
-    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_RESOURCE_BASE_URL;
-    return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    return firstValueFrom(this.domainSettingsService.effectiveFillAssistRulesUrl$);
   }
 }
