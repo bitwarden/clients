@@ -97,6 +97,13 @@
     </p>
   </td>
 }
+@if (showControlledAccess) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    @if (leaseBadge) {
+      <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
+    }
+  </td>
+}
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   @if (decryptionFailure) {
     <button
