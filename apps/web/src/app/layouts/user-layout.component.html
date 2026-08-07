@@ -6,7 +6,7 @@
       @if (vaultNav(); as nav) {
         @if (nav.allItemsItem || nav.vaults.length) {
           <bit-nav-item
-            icon="bwi-filter"
+            icon="bwi-list"
             [text]="'allItems' | i18n"
             (mainContentClicked)="selectAllItems()"
           ></bit-nav-item>
