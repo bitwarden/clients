@@ -123,13 +123,13 @@
     "message": "Nový zdieľaný priečinok"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Hľadať v zdieľanom priečinku"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Hľadať v mojich priečinkoch"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Zobraziť zdieľaný priečinok – $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Odstrániť zdieľaný priečinok"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Odstrániť zdieľané priečinky ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Tento zdieľaný priečinok bude natrvalo odstránený. Položky v priečinku sa neodstránia."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Tieto zdieľané priečinky budú natrvalo odstránené. Položky v priečinkoch sa neodstránia."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Vybrané položky a zdieľané priečinky budú natrvalo odstránené."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Zdieľaný priečinok bol odstránený"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Zdieľané priečinky boli odstránené"
   },
   "share": {
     "message": "Zdieľať"
@@ -520,7 +520,7 @@
     "message": "Spustiť"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Otvoriť stránku pre $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Zobraziť v trezore rýchle akcie kopírovania"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Skopírovať poznámku – $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Žiadne podrobnosti na kopírovanie"
   },
   "runInBackground": {
     "message": "Ponechať Bitwarden bežať na pozadí"
@@ -2128,22 +2128,22 @@
     "message": "Kopírovať overovací kód"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Žiadne používateľské meno"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Žiadne heslo"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Žiadny overovací kód"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Žiadne číslo"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Žiadny bezpečnostný kód"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Kopírovať podrobnosti o položke $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Možnosti"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Ďalšie možnosti"
   },
   "sessionTimeout": {
     "message": "Vaša relácia vypršala. Vráťte sa späť a skúste sa prihlásiť znova."
@@ -5349,7 +5349,7 @@
     "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Vedľa položiek pridá 3 tlačidlá na rýchle kopírovanie, pomocou ktorých môžete skopírovať používateľské meno, heslo alebo overovací kód do schránky."
   },
   "assignToCollections": {
     "message": "Priradiť ku zbierkam"

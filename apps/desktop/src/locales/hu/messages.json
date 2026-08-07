@@ -123,13 +123,13 @@
     "message": "Új megosztott mappa"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Megosztott mappa keresése"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Saját mappák keresése"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Megosztott mappa megtekintése - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Megosztott mappa törlése"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "$COUNT$ megosztott mappa törlése",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Ezek a megosztott mappa véglegesen törlésre kerül. A mappában lévő elemek nem törlődnek."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Ezek a megosztott mappák véglegesen törlésre kerülnek. A mappákban lévő elemek nem törlődnek."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "A kiválasztott elemek és megosztott mappák végleges törlésre kerülnek."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "A megosztott mappa törlésre került."
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "A megosztott mappák törlésre kerültek."
   },
   "share": {
     "message": "Megosztás"
@@ -520,7 +520,7 @@
     "message": "Megnyitás"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "$ITEMNAME$ webhely elindítása",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Jegyzet másolása - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Nincsenek másolandó adatok."
   },
   "runInBackground": {
     "message": "Bitwarden futtatásban tartása a háttérben"
@@ -2128,22 +2128,22 @@
     "message": "Ellenőrző kód másolása"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Nincs felhasználónév"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Nincs jelszó"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Nincs ellenőrző kód"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Nincs szám"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Nincs biztonsági kód"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Adatok másolása: $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Opciók"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "További opciók"
   },
   "sessionTimeout": {
     "message": "A munkamenet lejárt. Lépjünk vissza és próbáljunk újra bejelentkezni."
@@ -5349,7 +5349,7 @@
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"

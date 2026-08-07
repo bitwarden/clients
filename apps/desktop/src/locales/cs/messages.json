@@ -123,13 +123,13 @@
     "message": "Nová sdílená složka"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Prohledat sdílenou složku"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Prohledat Moje složky"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Zobrazit sdílenou složku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Smazat sdílenou složku"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Smazat $COUNT$ sdílených složek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Tato sdílená složka bude trvale smazána. Položky ve složce nebudou smazány."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Tyto sdílené složky budou trvale smazány. Položky ve složkách nebudou smazány."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Vybrané položky a sdílené složky budou trvale smazány."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Sdílená složka byla smazána"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Sdílené složky byly smazány"
   },
   "share": {
     "message": "Sdílet"
@@ -520,7 +520,7 @@
     "message": "Spustit"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Spustit web pro $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Kopírovat poznámku - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Žádné podrobnosti ke kopírování"
   },
   "runInBackground": {
     "message": "Nechat Bitwarden běžet na pozadí"
@@ -2128,22 +2128,22 @@
     "message": "Kopírovat ověřovací kód"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Žádné uživatelské jméno"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Žádné heslo"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Žádný ověřovací kód"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Žádné číslo"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Žádný bezpečnostní kód"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Volby"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Více voleb"
   },
   "sessionTimeout": {
     "message": "Vypršel časový limit relace. Vraťte se zpět a zkuste se znovu přihlásit."
@@ -5349,7 +5349,7 @@
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"

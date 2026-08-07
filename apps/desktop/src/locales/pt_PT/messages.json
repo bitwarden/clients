@@ -123,13 +123,13 @@
     "message": "Nova pasta partilhada"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Pesquisar pasta partilhada"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Pesquisar as minhas pastas"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Ver pasta partilhada - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Eliminar pasta partilhada"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Eliminar $COUNT$ pastas partilhadas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Esta pasta partilhada será eliminada permanentemente. Os itens da pasta não serão eliminados."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Estas pastas partilhadas serão eliminadas permanentemente. Os itens das pastas não serão eliminados."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Os itens e as pastas partilhadas selecionados serão eliminados permanentemente."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Pasta partilhada eliminada"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Pastas partilhadas eliminadas"
   },
   "share": {
     "message": "Partilhar"
@@ -520,7 +520,7 @@
     "message": "Iniciar"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Abrir o site de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Mostrar ações rápidas de cópia no cofre"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Copiar nota - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Não há detalhes para copiar"
   },
   "runInBackground": {
     "message": "Manter o Bitwarden em execução em segundo plano"
@@ -2128,22 +2128,22 @@
     "message": "Copiar código de verificação"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Sem nome de utilizador"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Sem palavras-passe"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Sem código de verificação"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Sem número"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Sem código de segurança"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Copiar detalhes de $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Opções"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Mais opções"
   },
   "sessionTimeout": {
     "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
@@ -5349,7 +5349,7 @@
     "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Adiciona 3 botões de cópia rápida junto aos itens para copiar o nome de utilizador, a palavra-passe ou o código de verificação para a área de transferência."
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
