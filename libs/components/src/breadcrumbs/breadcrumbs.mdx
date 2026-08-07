@@ -41,6 +41,14 @@ they are not hooked into the router.
 
 <Canvas of={stories.DefaultAsButtons} />
 
+### Start slot
+
+A leading element can be projected into the `start` slot for a richer visual than the `icon` input —
+most commonly a `bit-icon-tile`. When a `bit-icon-tile` is projected, its `size` is controlled by
+the breadcrumbs `size`, so it stays in step with the crumbs without any extra wiring.
+
+<Canvas of={stories.WithStartSlot} />
+
 ### Sizes
 
 Size should be chosen based on available space. Use the base size on large screen layouts where
@@ -57,11 +65,19 @@ screen widths and the extension.
 
 ### Overflow
 
-When a user is several levels deep into a tree, the breadcrumbs list will truncate. Based on the
-number passed to the `show` input (which defaults to 4), it will display any overflow breadcrumbs in
-a menu before the last breadcrumb.
+When a trail doesn't fit the available width, breadcrumbs collapse the middle: the first (root) and
+last (current page) crumbs stay anchored, and the crumbs between them move into a "More" menu opened
+by an <i class="bwi bwi-ellipsis-h"></i> button placed just after the root. Overflow is width-driven
+— it responds to the container size rather than a fixed count — so the same breadcrumbs adapt across
+layouts and screen sizes.
 
 <Canvas of={stories.OverflowLinks} />
+
+As space gets tighter, more middle crumbs collapse; at very small widths the root collapses into the
+menu too, and finally the current page truncates. Drag the resizable container below to see it
+adapt.
+
+<Canvas of={stories.ResponsiveOverflow} />
 
 ### Breadcrumbs with page header
 
