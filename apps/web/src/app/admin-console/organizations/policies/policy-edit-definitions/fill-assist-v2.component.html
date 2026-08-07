@@ -1,0 +1,17 @@
+<bit-form-control>
+  <bit-switch [formControl]="enabled" id="fill-assist-policy_input_enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <bit-form-field class="tw-flex-auto">
+    <bit-label>{{ "fillAssistRulesUrl" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      formControlName="rulesUrl"
+      id="fill-assist-policy_input_rules-url"
+    />
+    <bit-hint>{{ "fillAssistRulesUrlHint" | i18n }}</bit-hint>
+  </bit-form-field>
+</div>

@@ -8236,6 +8236,23 @@
     "message": "Please select a valid URI match detection option.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
+  "fillAssistPolicy": {
+    "message": "Fill Assist",
+    "description": "'Fill Assist' is a Bitwarden feature name. Preserve capitalization; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on Fill Assist by default for organization members who have never set their own Fill Assist preference. Members can still turn Fill Assist off for themselves at any time. Optionally supply a custom targeting-rules feed URL to replace the default rules feed."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Rules URL"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "The URL clients use to fetch Fill Assist targeting rules. Defaults to the Bitwarden-maintained rules feed. To customize, fork bitwarden/map-the-web and provide the URL to your fork's latest release."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Please provide a valid Fill Assist rules URL.",
+    "description": "Error message displayed when a user attempts to save the Fill Assist policy with an invalid or missing rules URL."
+  },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",
     "placeholders": {
