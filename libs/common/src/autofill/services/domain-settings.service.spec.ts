@@ -873,6 +873,23 @@ describe("DefaultDomainSettingsService", () => {
       expect(url).toBe("https://server.example.com/rules/");
     });
 
+    it("also falls back to server config when the policy URL is the default with a trailing slash", async () => {
+      // The comparison normalizes both sides — an admin saving the default
+      // URL with a slash must not shadow server config.
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({
+          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download/",
+        }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
     it("appends a trailing slash when the resolved URL is missing one", async () => {
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({ rulesUrl: "https://policy.example.com/rules" }),

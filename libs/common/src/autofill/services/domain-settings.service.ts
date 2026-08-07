@@ -309,13 +309,17 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       this.configService.serverConfig$,
     ]).pipe(
       map(([policy, serverConfig]) => {
+        const withSlash = (u: string) => (u.endsWith("/") ? u : `${u}/`);
+        const defaultUrl = withSlash(DEFAULT_FILL_ASSIST_RULES_URL);
+
+        // Normalize before comparing so a default URL entered with a
+        // trailing slash doesn't shadow server-config on self-hosted.
         const policyUrl = policy?.rulesUrl;
-        if (policyUrl && policyUrl !== DEFAULT_FILL_ASSIST_RULES_URL) {
-          return policyUrl.endsWith("/") ? policyUrl : `${policyUrl}/`;
+        if (policyUrl && withSlash(policyUrl) !== defaultUrl) {
+          return withSlash(policyUrl);
         }
-        const serverUrl =
-          serverConfig?.environment?.fillAssistRules || DEFAULT_FILL_ASSIST_RULES_URL;
-        return serverUrl.endsWith("/") ? serverUrl : `${serverUrl}/`;
+        const serverUrl = serverConfig?.environment?.fillAssistRules;
+        return serverUrl ? withSlash(serverUrl) : defaultUrl;
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
