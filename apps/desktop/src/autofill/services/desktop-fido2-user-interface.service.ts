@@ -173,6 +173,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private chosenCipherSubject = new Subject<CipherView | undefined>();
 
+  /**
+   * Whether this ceremony took over the app window to show UI. Some ceremonies
+   * complete without any UI at all, and those must leave a window the user
+   * already had open untouched.
+   */
+  private uiShown = false;
+
   // Method implementation
   async pickCredential({
     cipherIds,
@@ -189,7 +196,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     try {
       // Check if we can return the credential without user interaction
-      await this.accountService.setShowHeader(false);
       if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
         this.logService.debug(
           "shortcut - Assuming user presence and returning cipherId",
@@ -351,7 +357,23 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   private async hideUi(): Promise<void> {
+  /**
+   * Returns the app to the state it was in before this ceremony showed any UI,
+   * leaving a window the user already had open untouched when no UI was shown.
+   */
+    // Always clear modal mode so the app can never get stuck in it. The main
+    // process only restyles the window on the modal -> standard transition, so
+    // this is inert when the ceremony never entered modal mode.
     await this.desktopSettingsService.setModalMode(false);
+
+    // The ceremony completed without showing UI, so there is nothing of ours to
+    // tear down. The user may have had a window open the whole time; leave it
+    // where they left it.
+    if (!this.uiShown) {
+      return;
+    }
+
+    // Reset to standard UI.
     await this.accountService.setShowHeader(true);
     await this.router.navigate(["/"]);
   }
@@ -371,6 +393,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         "disable-redirect": disableRedirect || null,
       },
     ]);
+    this.uiShown = true;
   }
 
   /**
@@ -431,7 +454,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // make the cipherIds available to the UI.
     this.availableCipherIdsSubject.next(existingCipherIds);
 
-    await this.accountService.setShowHeader(false);
     await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
   }
 

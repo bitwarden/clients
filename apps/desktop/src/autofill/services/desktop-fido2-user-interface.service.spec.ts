@@ -143,6 +143,21 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
 
+    it("leaves the window the user already had open alone when no UI was shown", async () => {
+      accountService.activeAccount$ = new BehaviorSubject({
+        id: "user-1",
+      } as any);
+      await session.pickCredential({
+        cipherIds: ["cipher-1"],
+        userVerification: true,
+        assumeUserPresence: true,
+        masterPasswordRepromptRequired: false,
+      });
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(accountService.setShowHeader).not.toHaveBeenCalled();
+    });
+
     it("resolves with the cipher the user selects", async () => {
       const result = session.pickCredential(params);
       await tick();
@@ -150,6 +165,18 @@ describe("DesktopFido2UserInterfaceSession", () => {
       session.confirmChosenCipher(Object.assign(new CipherView(), { id: "cipher-2" }));
 
       await expect(result).resolves.toEqual({ cipherId: "cipher-2", userVerified: true });
+    });
+
+    it("returns to the standard UI once the ceremony that showed it finishes", async () => {
+      const result = session.pickCredential(params);
+      await tick();
+
+      session.confirmChosenCipher(Object.assign(new CipherView(), { id: "cipher-2" }));
+      await result;
+
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
     });
 
     it("reprompts for the master password when the chosen cipher requires it", async () => {
@@ -339,6 +366,8 @@ describe("DesktopFido2UserInterfaceSession", () => {
         expect.anything(),
         expect.anything(),
       );
+      // Nothing of ours was on screen, so the user's own window keeps its route.
+      expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it("logs a timeout (not a cancellation) and throws when the unlock deadline elapses", async () => {
