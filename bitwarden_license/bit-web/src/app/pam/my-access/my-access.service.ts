@@ -30,11 +30,10 @@ import {
 /**
  * Page-level data service for "My access": owns the caller's own access requests and leases,
  * loads them, resolves display names, and performs the request/lease lifecycle mutations
- * (activate, cancel, end). Faithful port of the poc's `MyAccessRequestsService`, adapted to the
- * Rust-SDK-served pass-1 services (`AccessRequestSdkService`/`AccessLeaseSdkService`) in place of
- * the poc's HTTP `PamApiService`, and with no live-push refresh (deferred — see the pam
- * `CLAUDE.md`): the page loads once on open and after every mutation reconciles itself, either via
- * an optimistic local patch (cancel/endLease) or an explicit reload (activate).
+ * (activate, cancel, end) via the Rust-SDK-served services
+ * (`AccessRequestSdkService`/`AccessLeaseSdkService`). No live-push refresh (deferred — see the
+ * pam `CLAUDE.md`): the page loads once on open and after every mutation reconciles itself, either
+ * via an optimistic local patch (cancel/endLease) or an explicit reload (activate).
  *
  * Provided at the route level so each visit gets its own instance. View concerns (toasts, confirm
  * dialogs, the live countdown clock, action gating) stay in {@link MyAccessComponent}; this
