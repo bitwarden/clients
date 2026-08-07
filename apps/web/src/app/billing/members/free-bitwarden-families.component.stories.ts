@@ -109,9 +109,12 @@ export const Default: Story = {};
 
 /**
  * With the VFO1 terminology flag on — renders the updated "Sponsored Families Plan" copy
- * (intro paragraph and "The Bitwarden Families plan includes" heading) and the info bullet
+ * (intro paragraph and "The Bitwarden Families plan includes" heading), the info bullet
  * renders "Shared folders for family members" instead of "Shared collections for family
- * members".
+ * members", the table section heading renders "Non-member redemptions" instead of
+ * "Sponsored families", and the empty state renders "No redemptions yet" / "No non-members
+ * have redeemed the Sponsored Family Plan." instead of "No sponsored families" / "Sponsored
+ * non-member families plans will display here".
  */
 export const Vfo1Enabled: Story = {
   decorators: [

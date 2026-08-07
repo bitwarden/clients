@@ -28,7 +28,9 @@
       </ul>
     </div>
 
-    <h2 bitTypography="h2" class="">{{ "sponsoredBitwardenFamilies" | i18n }}</h2>
+    <h2 bitTypography="h2" class="">
+      {{ "sponsoredBitwardenFamilies" | vfo1I18n: "sponsoredBitwardenFamiliesV2" }}
+    </h2>
 
     @if (loading()) {
       <ng-container>
@@ -103,8 +105,12 @@
       </ng-container>
     } @else if (!loading()) {
       <bit-no-items>
-        <div slot="title">{{ "noSponsoredFamiliesMessage" | i18n }}</div>
-        <p slot="description" bitTypography="body2">{{ "noSponsoredFamiliesDetails" | i18n }}</p>
+        <div slot="title">
+          {{ "noSponsoredFamiliesMessage" | vfo1I18n: "noSponsoredFamiliesMessageV2" }}
+        </div>
+        <p slot="description" bitTypography="body2">
+          {{ "noSponsoredFamiliesDetails" | vfo1I18n: "noSponsoredFamiliesDetailsV2" }}
+        </p>
       </bit-no-items>
     }
 
