@@ -36,7 +36,7 @@
     "message": "Chiave SSH"
   },
   "typeBankAccount": {
-    "message": "Account bancario"
+    "message": "Conto corrente"
   },
   "typeLoginSubtitle": {
     "message": "Sito web o app"
@@ -60,7 +60,7 @@
     "message": "Passaporto"
   },
   "passportDetails": {
-    "message": "Dettagli passaporto"
+    "message": "Dettagli del passaporto"
   },
   "passportAdded": {
     "message": "Passaporto aggiunto"
@@ -105,31 +105,31 @@
     "message": "Condiviso"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Cartella condivisa"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Cartelle condivise"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "La mia cartella"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Le mie cartelle"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Aggiungi cartella condivisa"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Nuova cartella condivisa"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Cerca cartella condivisa"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Cerca le mie cartelle"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Visualizza cartella condivisa - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Elimina cartella condivisa"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Elimina $COUNT$ cartelle condivise",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Questa cartella condivisa verrà eliminata definitivamente. Gli elementi nella cartella non verranno eliminati."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Queste cartelle condivise verranno eliminate definitivamente. Gli elementi nelle cartelle non verranno eliminati."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Gli elementi e le cartelle condivise selezionati verranno eliminati definitivamente."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Cartella condivisa eliminata"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Cartelle condivise eliminate"
   },
   "share": {
     "message": "Condividi"
@@ -187,7 +187,7 @@
     "message": "Non hai i permessi per modificare questo elemento"
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "È bello rivederti"
   },
   "moveToOrgDesc": {
     "message": "Scegli un'organizzazione in cui vuoi spostare questo elemento. Spostarlo in un'organizzazione trasferisce la proprietà dell'elemento all'organizzazione. Una volta spostato, non sarai più il proprietario diretto di questo elemento."
@@ -196,13 +196,13 @@
     "message": "Allegati"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "Questo elemento ha vecchi file allegati che devono essere corretti."
   },
   "viewItem": {
     "message": "Visualizza elemento"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Visualizza raccolta - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -227,7 +227,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Visualizza nota sicura",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -247,39 +247,39 @@
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Aggiungi login",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Aggiungi carta",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Aggiungi identità",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Aggiungi nota",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Aggiungi nota sicura",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Aggiungi chiave SSH",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Aggiungi conto corrente",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Aggiungi patente",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Aggiungi passaporto",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -299,7 +299,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Nuova nota sicura",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -335,23 +335,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Modifica nota sicura",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Modifica login",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Modifica carta",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Modifica identità",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Modifica nota",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -447,27 +447,27 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Visualizza login",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Visualizza carta",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Visualizza identità",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Visualizza nota",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Crea",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Aggiungi raccolta"
   },
   "new": {
     "message": "Nuovo",
@@ -486,14 +486,14 @@
     "message": "Frase segreta"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "spazio",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Modifica elemento"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Modifica elemento - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -520,7 +520,7 @@
     "message": "Avvia"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Apri sito web $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -533,10 +533,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copia sito web"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copia $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -823,7 +823,7 @@
     "message": "Tipo"
   },
   "items": {
-    "message": "Items"
+    "message": "Elementi"
   },
   "firstName": {
     "message": "Nome"
@@ -915,7 +915,7 @@
     "message": "Aggiungi URL"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Aggiungi sito web o app"
   },
   "app": {
     "message": "App"
@@ -924,7 +924,7 @@
     "message": "Elimina URL"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Elimina $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -936,7 +936,7 @@
     "message": "Proprietario"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Cartella condivisa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -945,7 +945,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Raccolta $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -954,7 +954,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "La mia cartella $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -963,7 +963,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Cartella $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -972,7 +972,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Proprietario $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -981,7 +981,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Cassaforte $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -996,7 +996,7 @@
     "message": "Modifica campo"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Modifica $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1029,7 +1029,7 @@
     "message": "Usa un campo collegato quando si verificano problemi di riempimento automatico per un sito web specifico."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "Inserisci l'ID HTML, il nome, l'aria-label o il segnaposto del campo."
   },
   "folder": {
     "message": "Cartella"
@@ -1085,7 +1085,7 @@
     "message": "Elimina elemento"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "Elimina $COUNT$ elementi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1094,16 +1094,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "Questo elemento verrà inviato al cestino. Dopo 30 giorni lì, verrà eliminato definitivamente."
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "Questi elementi verranno inviati al cestino. Dopo 30 giorni verranno eliminati definitivamente."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "Elimina elemento definitivamente"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "Elimina $COUNT$ elementi definitivamente",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1112,16 +1112,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "Non sarà possibile recuperare questo elemento in futuro."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "Non sarà possibile recuperare questi elementi in futuro."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Elimina selezionati"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "Gli elementi e le raccolte selezionati verranno eliminati definitivamente."
   },
   "deleteFolder": {
     "message": "Elimina cartella"
@@ -1209,13 +1209,13 @@
     }
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copia chiave privata"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copia chiave pubblica"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copia impronta"
   },
   "length": {
     "message": "Lunghezza"
@@ -1352,7 +1352,7 @@
     "message": "File"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Foto"
   },
   "selectFile": {
     "message": "Seleziona un file"
@@ -1394,7 +1394,7 @@
     "message": "Accedi"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Accedi a Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Inserisci il codice inviato alla tua e-mail"
@@ -1726,7 +1726,7 @@
     "message": "URL del server di icone"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Invia URL del server"
   },
   "environmentSaved": {
     "message": "URL dell'ambiente salvati"
@@ -2016,10 +2016,10 @@
     "message": "Mostra le icone dei siti e recupera gli URL di cambio password"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Mostra azioni di copia rapida nella Cassaforte"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Copia nota - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,16 +2029,16 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Nessun dettaglio da copiare"
   },
   "runInBackground": {
-    "message": "Keep Bitwarden running in the background"
+    "message": "Mantieni Bitwarden in esecuzione in background"
   },
   "runInBackgroundDesc": {
-    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
+    "message": "Quando chiudi la finestra, Bitwarden resta accessibile dall'area di notifica. Consigliato quando si utilizza l'agente SSH o l'integrazione con il browser."
   },
   "runInBackgroundDescMac": {
-    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
+    "message": "Quando chiudi la finestra, Bitwarden resta accessibile dalla barra del menu. Consigliato quando si utilizza l'agente SSH o l'integrazione con il browser."
   },
   "openAtLogin": {
     "message": "Avvia automaticamente all'accesso"
@@ -2128,22 +2128,22 @@
     "message": "Copia codice di verifica"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Nessun nome utente"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Nessuna password"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Nessun codice di verifica"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Nessun numero"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Nessun codice di sicurezza"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Copia dettagli di $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -2267,7 +2267,7 @@
     "message": "Cancella cronologia generatore"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Se continui, tutte le voci verranno eliminate definitivamente dalla cronologia del generatore. Confermi di voler continuare?"
   },
   "clear": {
     "message": "Cancella",
@@ -2303,13 +2303,13 @@
     "message": "Seleziona tutto"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Seleziona tutte le righe"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Seleziona riga"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Mostrando $START$ - $END$ di $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2326,10 +2326,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Righe per pagina"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ righe per pagina",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2338,7 +2338,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ elementi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2347,19 +2347,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Tutti"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Cancella tutto"
   },
   "done": {
     "message": "Fatto"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Filtra"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ selezionati",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2368,16 +2368,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Pagina precedente"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Pagina successiva"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Vai alla pagina"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "di $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2386,13 +2386,13 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Nessun elemento corrispondente"
   },
   "selected": {
     "message": "Selezionato"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "selezionato",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2554,7 +2554,7 @@
     "message": "Esci"
   },
   "show": {
-    "message": "Show",
+    "message": "Mostra",
     "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
@@ -2629,7 +2629,7 @@
     "message": "Non puoi importare carte nelle tue casseforti a causa di una politica impostata da una o più organizzazioni."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "Le due password del file non corrispondono."
   },
   "warning": {
     "message": "ATTENZIONE",
@@ -2639,7 +2639,7 @@
     "message": "Conferma esportazione della cassaforte"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Questa esportazione contiene i dati della cassaforte in un formato non crittografato. Non salvare, inviare o condividere il file esportato tramite mezzi non protetti (come le email). Elimina il file non appena hai finito di usarlo."
   },
   "encExportKeyWarningDesc": {
     "message": "Questa esportazione crittografa i tuoi dati usando la chiave di crittografia del tuo account. Se cambi la chiave di crittografia del tuo account, non potrai più decifrare il file esportato e dovrai eseguire una nuova esportazione."
@@ -2853,37 +2853,37 @@
     "message": "Elemento estratto dall'archivio"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Elementi archiviati ripristinati"
   },
   "restoredItem": {
     "message": "Elemento ripristinato"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "Elementi ripristinati"
   },
   "permanentlyDelete": {
     "message": "Elimina definitivamente"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "Elementi eliminati definitivamente"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "Elementi spostati nel cestino"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Raccolte eliminate"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "Raccolta eliminata"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "Raccolte eliminate"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Elemento spostato"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "Elementi spostati"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Uscire rimuoverà tutti gli accessi alla tua cassaforte e richiede l'autenticazione online dopo il periodo di timeout. Sei sicuro di voler usare questa opzione?"
@@ -3028,7 +3028,7 @@
     "message": "Uno o più criteri di organizzazione richiedono la password principale per soddisfare i seguenti requisiti:"
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Ricevi aggiornamenti da Bitwarden nella tua casella di posta."
   },
   "unsubscribe": {
     "message": "Annulla iscrizione"
@@ -3097,7 +3097,7 @@
     "message": "La tua nuova password non può essere identica alla precedente."
   },
   "hint": {
-    "message": "Hint"
+    "message": "Suggerimento"
   },
   "hintEqualsPassword": {
     "message": "Il suggerimento per la password non può essere uguale alla tua password."
@@ -3221,7 +3221,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Crea Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3541,7 +3541,7 @@
     "message": "Opzioni"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Altre opzioni"
   },
   "sessionTimeout": {
     "message": "La tua sessione è scaduta. Torna indietro e prova ad accedere di nuovo."
@@ -3757,7 +3757,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Token API $SERVICENAME$ non valido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3767,7 +3767,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Token API $SERVICENAME$ non valido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3781,7 +3781,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ ha rifiutato la tua richiesta. Contatta il tuo fornitore di servizi per assistenza.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3791,7 +3791,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ ha rifiutato la tua richiesta: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3855,11 +3855,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Aggiungi prefisso del sito web",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Se abilitato, il dominio del sito web corrente verrà utilizzato come prefisso per l'indirizzo email generato",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -3873,7 +3873,7 @@
     "message": "Chiave API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "È richiesto un abbonamento Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizzazione disabilitata"
@@ -4458,7 +4458,7 @@
     "message": "Non è stato importato niente."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ elementi verranno saltati",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4467,7 +4467,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ elemento verrà saltato",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4476,16 +4476,16 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Non è stato possibile leggere i seguenti elementi e non saranno inclusi nella tua importazione:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Non è stato possibile importare questa chiave SSH"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Tipo di elemento non supportato"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Non è stato possibile importare questo elemento"
   },
   "identifier": {
     "message": "Identifier"
@@ -4778,25 +4778,25 @@
     "message": "Keeper device approval required"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Metodo di approvazione"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Approvazione dispositivo richiesta"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Approva questo dispositivo selezionando un metodo tra questi"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Metodo di autenticazione a due fattori"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Verifica dell'email"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Controlla la tua email e inserisci il codice di verifica qui sotto"
   },
   "otherDeviceApprovalPushDesc": {
     "message": "Keeper Push notification sent to approved device"
@@ -5361,10 +5361,10 @@
     "message": "Transfer and add"
   },
   "itemLower": {
-    "message": "item"
+    "message": "elemento"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "elementi"
   },
   "assignToTheseCollections": {
     "message": "Assegna a queste raccolte"
@@ -5483,31 +5483,31 @@
     "message": "Item moved to collection"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Elemento aggiunto alla cartella condivisa"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "Elemento spostato nelle raccolte"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Elemento aggiunto alle cartelle condivise"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "Elementi spostati nella raccolta"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Elementi aggiunti alla cartella condivisa"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "Elementi spostati nelle raccolte"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Elementi aggiunti alle cartelle condivise"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Elemento assegnato alle raccolte"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Elementi assegnati alle raccolte"
   },
   "nothingSelected": {
     "message": "La selezione è vuota."

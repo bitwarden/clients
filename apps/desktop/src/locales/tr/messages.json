@@ -1103,7 +1103,7 @@
     "message": "Öğeler kalıcı olarak silinsin mi?"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "$COUNT$Öğesini kalıcı olarak sil",
+    "message": "$COUNT$ Öğesini kalıcı olarak sil",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2309,7 +2309,7 @@
     "message": "Satırı seç"
   },
   "showingItemRange": {
-    "message": "$START$$END$ve$TOTAL$Gösteriliyor",
+    "message": "$START$ - $END$ ve $TOTAL$ Gösteriliyor",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2329,7 +2329,7 @@
     "message": "Sayfa başına satır"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$satır sayısı ",
+    "message": "$COUNT$ satır sayısı",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2338,7 +2338,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$Öğeler",
+    "message": "$COUNT$ Öğeler",
     "placeholders": {
       "count": {
         "content": "$1",
