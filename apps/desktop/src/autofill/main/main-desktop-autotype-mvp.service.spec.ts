@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
+// MVP, delete with PM-41067
+
 import { TestBed } from "@angular/core/testing";
 import { ipcMain, globalShortcut } from "electron";
 
-import { autotype } from "@bitwarden/desktop-napi";
+import { autotype_mvp } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
 import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
+import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
-import { MainDesktopAutotypeService } from "./main-desktop-autotype.service";
+import { MainDesktopAutotypeMvpService } from "./main-desktop-autotype-mvp.service";
 
 // Mock electron modules
 jest.mock("electron", () => ({
@@ -33,7 +35,7 @@ jest.mock("electron", () => ({
 
 // Mock desktop-napi
 jest.mock("@bitwarden/desktop-napi", () => ({
-  autotype: {
+  autotype_mvp: {
     getForegroundWindowTitle: jest.fn(),
     typeInput: jest.fn(),
   },
@@ -48,8 +50,8 @@ jest.mock("../models/main-autotype-keyboard-shortcut", () => ({
   })),
 }));
 
-describe("MainDesktopAutotypeService", () => {
-  let service: MainDesktopAutotypeService;
+describe("MainDesktopAutotypeMvpService", () => {
+  let service: MainDesktopAutotypeMvpService;
   let mockLogService: jest.Mocked<LogService>;
   let mockWindowMain: jest.Mocked<WindowMain>;
   let ipcHandlers: Map<string, Function>;
@@ -91,7 +93,7 @@ describe("MainDesktopAutotypeService", () => {
     });
 
     // Create service manually since it doesn't use Angular DI
-    service = new MainDesktopAutotypeService(mockLogService, mockWindowMain);
+    service = new MainDesktopAutotypeMvpService(mockLogService, mockWindowMain);
   });
 
   afterEach(() => {
@@ -109,14 +111,20 @@ describe("MainDesktopAutotypeService", () => {
     });
 
     it("should register IPC handlers", () => {
-      expect(ipcMain.on).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.TOGGLE, expect.any(Function));
       expect(ipcMain.on).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.CONFIGURE,
+        AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE,
         expect.any(Function),
       );
-      expect(ipcMain.on).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.EXECUTE, expect.any(Function));
       expect(ipcMain.on).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
+        AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE,
+        expect.any(Function),
+      );
+      expect(ipcMain.on).toHaveBeenCalledWith(
+        AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE,
+        expect.any(Function),
+      );
+      expect(ipcMain.on).toHaveBeenCalledWith(
+        AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
         expect.any(Function),
       );
     });
@@ -124,7 +132,7 @@ describe("MainDesktopAutotypeService", () => {
 
   describe("TOGGLE handler", () => {
     it("should enable autotype when toggle is true", () => {
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
 
       toggleHandler({}, true);
 
@@ -134,7 +142,7 @@ describe("MainDesktopAutotypeService", () => {
 
     it("should disable autotype when toggle is false", () => {
       (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
 
       toggleHandler({}, false);
 
@@ -156,7 +164,7 @@ describe("MainDesktopAutotypeService", () => {
       };
       (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
-      const configureHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
+      const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
 
       expect(mockNewShortcut.set).toHaveBeenCalledWith(config.keyboardShortcut);
@@ -174,7 +182,7 @@ describe("MainDesktopAutotypeService", () => {
       };
       (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
-      const configureHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
+      const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
 
       expect(mockLogService.error).toHaveBeenCalledWith(
@@ -199,7 +207,7 @@ describe("MainDesktopAutotypeService", () => {
       };
       (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
-      const configureHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
+      const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
 
       expect(globalShortcut.unregister).toHaveBeenCalled();
@@ -217,7 +225,7 @@ describe("MainDesktopAutotypeService", () => {
 
       (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
 
-      const configureHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
+      const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
 
       expect(mockLogService.debug).toHaveBeenCalledWith(
@@ -237,10 +245,14 @@ describe("MainDesktopAutotypeService", () => {
         .spyOn(service.autotypeKeyboardShortcut, "getArrayFormat")
         .mockReturnValue(["Control", "Alt", "B"]);
 
-      const executeHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       await executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).toHaveBeenCalledWith(expect.any(Array), ["Control", "Alt", "B"]);
+      expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expect.any(Array), [
+        "Control",
+        "Alt",
+        "B",
+      ]);
     });
 
     it("should not execute autotype with empty username", () => {
@@ -249,10 +261,10 @@ describe("MainDesktopAutotypeService", () => {
         password: "testpass",
       };
 
-      const executeHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).not.toHaveBeenCalled();
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
     });
 
     it("should not execute autotype with empty password", () => {
@@ -261,10 +273,10 @@ describe("MainDesktopAutotypeService", () => {
         password: "",
       };
 
-      const executeHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       executeHandler({}, vaultData);
 
-      expect(autotype.typeInput).not.toHaveBeenCalled();
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
     });
 
     it("should format input with tab separator", () => {
@@ -281,14 +293,14 @@ describe("MainDesktopAutotypeService", () => {
         password: "pass",
       };
 
-      const executeHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       executeHandler({}, vaultData);
 
       // Verify the input array contains char codes for "user\tpass"
       const expectedPattern = "user\tpass";
       const expectedArray = Array.from(expectedPattern).map((c) => c.charCodeAt(0));
 
-      expect(autotype.typeInput).toHaveBeenCalledWith(expectedArray, ["Control", "Alt", "B"]);
+      expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expectedArray, ["Control", "Alt", "B"]);
     });
   });
 
@@ -299,15 +311,15 @@ describe("MainDesktopAutotypeService", () => {
         errorMessage: "No matching vault item",
       };
 
-      const errorHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR);
+      const errorHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR);
       errorHandler({}, matchError);
 
       expect(mockLogService.debug).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
+        AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
         "No match for window: Test Window",
       );
       expect(mockLogService.error).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
+        AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
         "No matching vault item",
       );
     });
@@ -339,11 +351,11 @@ describe("MainDesktopAutotypeService", () => {
     it("should remove all IPC listeners", () => {
       service.dispose();
 
-      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.TOGGLE);
-      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
-      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
+      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
       expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
+        AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
       );
     });
 
@@ -358,7 +370,7 @@ describe("MainDesktopAutotypeService", () => {
 
   describe("enableAutotype (via TOGGLE handler)", () => {
     it("should register global shortcut", () => {
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
 
       toggleHandler({}, true);
 
@@ -367,7 +379,7 @@ describe("MainDesktopAutotypeService", () => {
 
     it("should not register if already registered", () => {
       (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
 
       toggleHandler({}, true);
 
@@ -379,7 +391,7 @@ describe("MainDesktopAutotypeService", () => {
 
     it("should log error if registration fails", () => {
       (globalShortcut.register as jest.Mock).mockReturnValue(false);
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
 
       toggleHandler({}, true);
 
@@ -387,18 +399,18 @@ describe("MainDesktopAutotypeService", () => {
     });
 
     it("should send window title to renderer on shortcut activation", () => {
-      (autotype.getForegroundWindowTitle as jest.Mock).mockReturnValue("Notepad");
+      (autotype_mvp.getForegroundWindowTitle as jest.Mock).mockReturnValue("Notepad");
 
-      const toggleHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.TOGGLE);
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
       toggleHandler({}, true);
 
       // Get the registered callback
       const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
       registeredCallback();
 
-      expect(autotype.getForegroundWindowTitle).toHaveBeenCalled();
+      expect(autotype_mvp.getForegroundWindowTitle).toHaveBeenCalled();
       expect(mockWindowMain.win.webContents.send).toHaveBeenCalledWith(
-        AUTOTYPE_IPC_CHANNELS.LISTEN,
+        AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
         { windowTitle: "Notepad" },
       );
     });

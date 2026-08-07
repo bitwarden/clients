@@ -1,6 +1,8 @@
+// MVP, delete with PM-41067
+
 import { ipcMain, globalShortcut } from "electron";
 
-import { autotype } from "@bitwarden/desktop-napi";
+import { autotype_mvp } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
 
 import { WindowMain } from "../../main/window.main";
@@ -8,10 +10,10 @@ import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS } from "../models/ipc-channels";
+import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
-export class MainDesktopAutotypeService {
+export class MainDesktopAutotypeMvpService {
   private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
 
   constructor(
@@ -24,7 +26,7 @@ export class MainDesktopAutotypeService {
   }
 
   registerIpcListeners() {
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
+    ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE, (_event, enable: boolean) => {
       if (enable) {
         this.enableAutotype();
       } else {
@@ -32,7 +34,7 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.CONFIGURE, (_event, config: AutotypeConfig) => {
+    ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, (_event, config: AutotypeConfig) => {
       const newKeyboardShortcut = new AutotypeKeyboardShortcut();
       const newKeyboardShortcutIsValid = newKeyboardShortcut.set(config.keyboardShortcut);
 
@@ -44,7 +46,7 @@ export class MainDesktopAutotypeService {
       this.setKeyboardShortcut(newKeyboardShortcut);
     });
 
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTE, (_event, vaultData: AutotypeVaultData) => {
+    ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE, (_event, vaultData: AutotypeVaultData) => {
       if (
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
@@ -53,13 +55,16 @@ export class MainDesktopAutotypeService {
       }
     });
 
-    ipcMain.on(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, (_event, matchError: AutotypeMatchError) => {
-      this.logService.debug(
-        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
-        "No match for window: " + matchError.windowTitle,
-      );
-      this.logService.error(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR, matchError.errorMessage);
-    });
+    ipcMain.on(
+      AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
+      (_event, matchError: AutotypeMatchError) => {
+        this.logService.debug(
+          AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR,
+          "No match for window: " + matchError.windowTitle,
+        );
+        this.logService.error(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR, matchError.errorMessage);
+      },
+    );
   }
 
   // Deregister the keyboard shortcut if registered.
@@ -75,10 +80,10 @@ export class MainDesktopAutotypeService {
   }
 
   dispose() {
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.TOGGLE);
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTE);
-    ipcMain.removeAllListeners(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR);
+    ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+    ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
+    ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
+    ipcMain.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTION_ERROR);
 
     // Also unregister the global shortcut
     this.disableAutotype();
@@ -97,9 +102,9 @@ export class MainDesktopAutotypeService {
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
-        const windowTitle = autotype.getForegroundWindowTitle();
+        const windowTitle = autotype_mvp.getForegroundWindowTitle();
 
-        this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
+        this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
           windowTitle,
         });
       },
@@ -142,6 +147,6 @@ export class MainDesktopAutotypeService {
       inputArray[i] = inputPattern.charCodeAt(i);
     }
 
-    autotype.typeInput(inputArray, keyboardShortcut);
+    autotype_mvp.typeInput(inputArray, keyboardShortcut);
   }
 }

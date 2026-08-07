@@ -168,7 +168,7 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/autotype.rs  @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys

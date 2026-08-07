@@ -1,3 +1,5 @@
+// MVP, delete with PM-41067
+
 // Electron modifier keys
 // <https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts#cross-platform-modifiers>
 pub(crate) const CONTROL_KEY_STR: &str = "Control";

@@ -57,7 +57,7 @@ import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -98,7 +98,7 @@ describe("SettingsDialogComponent", () => {
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
-  const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
@@ -162,7 +162,7 @@ describe("SettingsDialogComponent", () => {
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -203,8 +203,8 @@ describe("SettingsDialogComponent", () => {
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
-    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
-    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
+    desktopAutotypeMvpService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeMvpService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
 

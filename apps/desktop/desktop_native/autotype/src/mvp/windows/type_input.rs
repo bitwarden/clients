@@ -1,3 +1,5 @@
+// MVP, delete with PM-41067
+
 use anyhow::{anyhow, Result};
 use tracing::{debug, error};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
@@ -6,7 +8,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
 };
 
 use super::{ErrorOperations, KeyboardShortcutInput, Win32ErrorOperations};
-use crate::get_numeric_modifier_key;
+use crate::mvp::get_numeric_modifier_key;
 
 const IS_VIRTUAL_KEY: bool = true;
 const IS_REAL_KEY: bool = false;
@@ -227,7 +229,7 @@ mod tests {
     use windows::Win32::Foundation::WIN32_ERROR;
 
     use super::*;
-    use crate::windowing::MockErrorOperations;
+    use crate::mvp::windowing::MockErrorOperations;
 
     #[test]
     fn get_alphabetic_hot_key_succeeds() {

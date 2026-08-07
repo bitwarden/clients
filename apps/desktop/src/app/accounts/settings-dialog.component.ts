@@ -61,7 +61,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -116,7 +116,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly userVerificationService = inject(UserVerificationServiceAbstraction);
   private readonly desktopSettingsService = inject(DesktopSettingsService);
-  private readonly desktopAutotypeService = inject(DesktopAutotypeService);
+  private readonly desktopAutotypeMvpService = inject(DesktopAutotypeMvpService);
   private readonly biometricStateService = inject(BiometricStateService);
   private readonly biometricsService = inject(DesktopBiometricsService);
   private readonly desktopAutofillSettingsService = inject(DesktopAutofillSettingsService);
@@ -286,9 +286,11 @@ export class SettingsDialogComponent implements OnInit {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      enableAutotype: await firstValueFrom(
+        this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
+      ),
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
-        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+        (await firstValueFrom(this.desktopAutotypeMvpService.autotypeKeyboardShortcut$)) ?? [],
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
@@ -627,9 +629,9 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async saveEnableAutotype() {
-    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(this.form.value.enableAutotype);
     const currentShortcut = await firstValueFrom(
-      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+      this.desktopAutotypeMvpService.autotypeKeyboardShortcut$,
     );
     if (currentShortcut) {
       this.form.controls.autotypeShortcut.setValue(
@@ -644,14 +646,14 @@ export class SettingsDialogComponent implements OnInit {
     // it is not necessary to check if it's already enabled, because
     // the edit shortcut is only available if the feature is enabled
     // in the settings.
-    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(false);
 
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
     const newShortcutArray = await firstValueFrom(dialogRef.closed);
 
     // re-enable
-    await this.desktopAutotypeService.setAutotypeEnabledState(true);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(true);
 
     if (!newShortcutArray) {
       return;
@@ -660,7 +662,7 @@ export class SettingsDialogComponent implements OnInit {
     this.form.controls.autotypeShortcut.setValue(
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
-    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+    await this.desktopAutotypeMvpService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   protected get biometricText() {

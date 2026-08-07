@@ -1,12 +1,14 @@
 #![cfg(target_os = "windows")]
 
+// MVP, delete with PM-41067
+
 use std::{
     sync::{Arc, Mutex},
     thread,
     time::Duration,
 };
 
-use autotype::{get_foreground_window_title, type_input};
+use autotype::mvp::{get_foreground_window_title, type_input};
 use serial_test::serial;
 use tracing::debug;
 use windows::Win32::{

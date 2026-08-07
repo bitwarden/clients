@@ -1,3 +1,5 @@
+// MVP, delete with PM-41067
+
 use std::{ffi::OsString, os::windows::ffi::OsStringExt};
 
 use anyhow::{anyhow, Result};
@@ -178,7 +180,7 @@ mod tests {
     use windows::Win32::Foundation::WIN32_ERROR;
 
     use super::*;
-    use crate::windowing::MockErrorOperations;
+    use crate::mvp::windowing::MockErrorOperations;
 
     #[test]
     #[serial]
