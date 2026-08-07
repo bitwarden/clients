@@ -1252,7 +1252,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "Общая папка $NAME$ будет удалена безвозвратно. Элементы из папки удалены не будут.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1261,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Эти общие папки будут удалены безвозвратно. Элементы в папках удалены не будут."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ общих папок(-ки) будут удалены навсегда.",
@@ -16637,7 +16637,7 @@
     "message": "7 дней"
   },
   "pamAccessRuleSingleActiveLease": {
-    "message": "Только один пользователь может одновременно иметь активную аренду.\n\n\n\n\n"
+    "message": "Только один пользователь может одновременно иметь активную аренду"
   },
   "pamAccessRuleSingleActiveLeaseHint": {
     "message": "Новые запросы помещаются в очередь до тех пор, пока текущий срок аренды не истечет или не будет аннулирован."

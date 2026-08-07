@@ -1571,7 +1571,7 @@
     "message": "Kayıt"
   },
   "itemLower": {
-    "message": "item"
+    "message": "kayıt"
   },
   "itemDetails": {
     "message": "Kayıt ayrıntıları"
@@ -16535,16 +16535,16 @@
     "message": "PAM"
   },
   "pamAccessRules": {
-    "message": "Access rules"
+    "message": "Erişim kuralları"
   },
   "pamAccessRuleEnabled": {
-    "message": "Enabled"
+    "message": "Etkinleştirildi"
   },
   "pamAccessRuleEnabledHint": {
     "message": "When disabled, the rule is inactive and does not restrict access."
   },
   "pamAccessRuleEnable": {
-    "message": "Enable rule"
+    "message": "Kuralı etkinleştir"
   },
   "pamAccessRuleDisable": {
     "message": "Disable rule"
@@ -16562,7 +16562,7 @@
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
   "pamAccessRuleNew": {
-    "message": "New rule"
+    "message": "Yeni kural"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -16613,28 +16613,28 @@
     "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
   },
   "pamAccessRuleDuration15m": {
-    "message": "15 minutes"
+    "message": "15 dakika"
   },
   "pamAccessRuleDuration30m": {
-    "message": "30 minutes"
+    "message": "30 dakika"
   },
   "pamAccessRuleDuration1h": {
-    "message": "1 hour"
+    "message": "1 saat"
   },
   "pamAccessRuleDuration2h": {
-    "message": "2 hours"
+    "message": "2 saat"
   },
   "pamAccessRuleDuration4h": {
-    "message": "4 hours"
+    "message": "4 saat"
   },
   "pamAccessRuleDuration8h": {
-    "message": "8 hours"
+    "message": "8 saat"
   },
   "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+    "message": "24 saat"
   },
   "pamAccessRuleDuration7d": {
-    "message": "7 days"
+    "message": "7 gün"
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Only one user can hold an active lease at a time"
