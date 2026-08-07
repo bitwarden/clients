@@ -12,6 +12,7 @@ import {
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -91,13 +92,13 @@ describe("CipherView", () => {
       expect(actual).toMatchObject(expected);
     });
 
-    it("passes the cipher key through as a plain string", () => {
-      const cipherKeyB64 = "c29tZS1iYXNlNjQta2V5";
+    it("deserializes the cipher key to a SymmetricCryptoKey", () => {
+      const mockKey = { keyB64: "c29tZS1iYXNlNjQta2V5" };
+      jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey as any);
 
-      const actual = CipherView.fromJSON({
-        key: cipherKeyB64,
-      });
-      expect(actual.key).toBe(cipherKeyB64);
+      const actual = CipherView.fromJSON({ key: mockKey as any });
+      expect(actual.key).toBe(mockKey);
+      expect(SymmetricCryptoKey.fromJSON).toHaveBeenCalledWith(mockKey);
     });
 
     it("fromJSON should always restore top-level CipherView properties", () => {
@@ -130,7 +131,7 @@ describe("CipherView", () => {
       original.deletedDate = new Date("2022-01-03");
       original.archivedDate = new Date("2022-01-04");
       original.reprompt = CipherRepromptType.Password;
-      original.key = "dGVzdC1rZXktYjY0";
+      original.key = new SymmetricCryptoKey(new Uint8Array(64));
       original.decryptionFailure = true;
 
       // Serialize and deserialize
@@ -291,7 +292,7 @@ describe("CipherView", () => {
       cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
       cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
-      cipherView.key = "some-key-b64";
+      cipherView.key = { toBase64: () => "some-key-b64" } as any;
       cipherView.name = "name";
       cipherView.notes = "notes";
       cipherView.type = CipherType.Login;
@@ -503,7 +504,7 @@ describe("CipherView", () => {
       cipherView.reprompt = CipherRepromptType.Password;
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
       cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
-      cipherView.key = "cipher-key-b64";
+      cipherView.key = { toBase64: () => "cipher-key-b64" } as any;
 
       const mockField = new RealFieldView();
       mockField.name = "testField";

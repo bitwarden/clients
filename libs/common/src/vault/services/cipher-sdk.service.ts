@@ -313,7 +313,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           );
 
           return results
-            .map((c) => CipherView.fromSdkCipherView(c, sdkCiphersClient))
+            .map((c) => CipherView.fromSdkCipherView(c))
             .filter((c): c is CipherView => c !== undefined);
         }),
         catchError((error: unknown) => {
@@ -465,9 +465,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
           const decryptResult = await sdkCiphersClient.get_all();
 
           const successes = [...(decryptResult.successes ?? [])]
-            .map((sdkCipherView: any) =>
-              CipherView.fromSdkCipherView(sdkCipherView, sdkCiphersClient),
-            )
+            .map((sdkCipherView: any) => CipherView.fromSdkCipherView(sdkCipherView))
             .filter((v): v is CipherView => v !== undefined);
 
           const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure: any) => {

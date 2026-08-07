@@ -9,6 +9,7 @@ import {
   SymmetricKey,
   V2UpgradeToken,
   WasmStateBridge,
+  WebAuthnPrfUnlockData,
   WrappedAccountCryptographicState,
   Kdf,
 } from "@bitwarden/sdk-internal";
@@ -17,6 +18,7 @@ import { UserId } from "@bitwarden/user-core";
 import { compareValues } from "../platform/misc/compare-values";
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { USER_KEY } from "../platform/services/key-state/user-key.state";
+import { CRYPTO_DISK } from "../platform/state";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
 import { UserKey } from "../types/key";
 
@@ -29,6 +31,16 @@ import {
   USER_KEY_ENCRYPTED_PIN,
 } from "./pin/pin.state";
 import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
+
+const WEBAUTHN_PRF_UNLOCK_DATA = new UserKeyDefinition<WebAuthnPrfUnlockData>(
+  CRYPTO_DISK,
+  "webAuthnPrfUnlockData",
+  {
+    deserializer: (jsonValue) => jsonValue,
+    clearOn: ["logout"],
+    cleanupDelayMs: 0,
+  },
+);
 
 // Helper functions to work around unreliable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.
@@ -210,5 +222,17 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_kdf_config(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, KDF_CONFIG);
+  }
+
+  async set_webauthn_prf_unlock_data(value: WebAuthnPrfUnlockData): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_UNLOCK_DATA, value);
+  }
+
+  async get_webauthn_prf_unlock_data(): Promise<WebAuthnPrfUnlockData | null> {
+    return await readAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_UNLOCK_DATA);
+  }
+
+  async clear_webauthn_prf_unlock_data(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_UNLOCK_DATA);
   }
 }

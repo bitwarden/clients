@@ -10,6 +10,7 @@ import {
 import { View } from "../../../models/view/view";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { CipherType, LinkedIdType } from "../../enums";
@@ -64,7 +65,7 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate?: Date;
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
-  key?: string;
+  key?: SymmetricCryptoKey;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -248,7 +249,7 @@ export class CipherView implements View, InitializerMetadata {
     view.passwordHistory =
       obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph)) ?? [];
 
-    view.key = obj.key ?? undefined;
+    view.key = obj.key != null ? SymmetricCryptoKey.fromJSON(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -326,7 +327,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.deletedDate = obj.deletedDate == null ? undefined : new Date(obj.deletedDate);
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
-    cipherView.key = obj.key ?? undefined;
+    cipherView.key = obj.key ? SymmetricCryptoKey.fromString(obj.key) : undefined;
 
     switch (obj.type) {
       case CipherType.Card:
@@ -425,7 +426,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: this.revisionDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
-      key: (this.key ?? undefined) as any,
+      key: this.key?.toBase64() ?? undefined,
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
@@ -530,7 +531,7 @@ export class CipherView implements View, InitializerMetadata {
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
-      key: (this.key ?? undefined) as any,
+      key: (this.key?.toBase64() ?? undefined) as any,
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions
