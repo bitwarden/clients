@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
   },
-  "addToSharedFolder": {
-    "message": "Hozzáadás megosztott mappához"
-  },
   "newSharedFolder": {
     "message": "Új megosztott mappa"
   },
@@ -1254,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "A megosztott mappa véglegesen törlésre kerül."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "$NAME$ megosztott mappa véglegesen törlésre kerül.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Ezek a megosztott mappák véglegesen törlésre kerülnek."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ megosztott mappa véglegesen törlésre kerül.",
@@ -1310,6 +1304,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Ha egy elemet megosztott mappába helyezünk, biztonságosan megoszthatjuk azt más széf tagokkal."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
   },
   "attachments": {
     "message": "Mellékletek"
@@ -1535,6 +1570,9 @@
   "item": {
     "message": "Elem"
   },
+  "itemLower": {
+    "message": "elem"
+  },
   "itemDetails": {
     "message": "Elem részletek"
   },
@@ -1691,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Infó másolása - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Adatok másolása: $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,10 +1753,10 @@
     "message": "Nincs megadva érték.",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Nincsenek másolandó értékek."
+  "noDetailsToCopy": {
+    "message": "Nincsenek másolandó adatok."
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "$ITEMNAME$ webhely elindítása",
     "placeholders": {
       "itemname": {
@@ -2681,6 +2719,21 @@
   "copyVerificationCode": {
     "message": "Copy Verification Code"
   },
+  "noUsername": {
+    "message": "Nincs felhasználónév"
+  },
+  "noPassword": {
+    "message": "Nincs jelszó"
+  },
+  "noVerificationCode": {
+    "message": "Nincs ellenőrző kód"
+  },
+  "noNumber": {
+    "message": "Nincs szám"
+  },
+  "noSecurityCode": {
+    "message": "Nincs biztonsági kód"
+  },
   "copyUuid": {
     "message": "UUID másolása"
   },
@@ -3047,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "A szervezeti széf kitakarításra került."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "$ORGNAME$ széf kiürítésre került.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "A tárolóhoz a szolgáltató fér hozzá."
   },
@@ -3266,6 +3328,9 @@
   "options": {
     "message": "Opciók"
   },
+  "moreOptions": {
+    "message": "További opciók"
+  },
   "preferences": {
     "message": "Beállítások"
   },
@@ -3283,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
   "default": {
     "message": "Alapértelmezett"
@@ -3654,6 +3722,10 @@
   },
   "orgsReportsDesc": {
     "message": "Az alábbi jelentésekre kattintva azonosíthatjuk és megszüntethetjük a szervezet fiókjaiban lévő biztonsági hiányosságokat.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4922,6 +4994,10 @@
   "inviteUserDescription": {
     "message": "Új felhasználók meghívása a szervezetbe az email cím megadásával lentebb."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Legfeljebb $COUNT$, egymástól vesszővel elválasztott email cím.",
     "placeholders": {
@@ -5107,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "A szervezeti széf exportálásra került."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "$ORGNAME$ széf exportálásra került.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "A szervezeti beállítások módosításra kerültek."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "$ORGNAME$ széf beállítások szerkesztésre kerültek.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "$ID$ azonosítójú elem létrehozásra került.",
@@ -5303,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "$ID$ elem áthelyezésre került $ORGNAME$ széfbe.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5687,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "$ORGNAME$ széf elérés visszavonásra került $ID$ esetében.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Teszt felhasználó $ID$ hozzáadásra került.",
     "placeholders": {
@@ -5723,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "$ORGNAME$ széf elérés visszavonásra került $ID$ esetében a kétfaktoros bejelentkezési szabályzat be nem tartása miatt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "A szervezet hozzáférés $ID$ elemhez visszavonásra került az önálló szervezetre vonatkozó szabályzat be nem tartása miatt.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "$ORGNAME$ széf elérés visszavonásra került $ID$ esetében, mert nem felelt meg az önálló szervezet tagsági szabályzatnak.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Az elérés $ID$ esetében visszavonásra került $ORGNAME$ széf tulajdonába átruházás elutasítása miatt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "$ID$ szervezeti hozzáférése helyreállításra került.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "$ORGNAME$ széf elérés visszaállításra került $ID$ esetében.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "$ID$ megosztott mappa szerkesztésre került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Az átruházás a szervezet tulajdonába elfogadásra került."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Az átruházás elfogadásra került $ORGNAME$ széf tulajdonjogára.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "$ID$ azonosítójú felhasználó meghívásra került.",
@@ -5855,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "$ORGNAME$ $ID$ széf létrehozásra került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Hozzáadott szervezet: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "$ORGNAME$ $ID$ széf hozzáadásra került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "$ORGNAME$ $ID$ széf eltávolításra került.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Hozzáfért $ID$ szervezeti széf.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "$ID$ elérésre került $ORGNAME$ széfben.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6673,6 +6915,9 @@
   },
   "inviteLink": {
     "message": "Meghívó hivatkozás"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
   },
   "lastGenerated": {
     "message": "Utolsó generálás: $DATE$",
@@ -7849,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "$ID$ tag elfogadta a meghívást a meghívó hivatkozáson keresztül.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Az adminisztrátori jóváhagyás szükséges a meghívóhoz hivatkozás letiltásra került.",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Az adminisztrátori jóváhagyás szükséges a meghívóhoz hivatkozás engedélyezésre került.",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "$ID$ tag megerősítésre került a meghívó hivatkozáson keresztül.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10671,17 +10933,29 @@
   "editGroupMembersDesc": {
     "message": "A csoporthoz társított gyűjtmények elérésének kiosztása a tagoknak."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "A csoporthoz társított megosztott mappák elérésének kiosztása a tagoknak."
+  },
   "editGroupCollectionsDesc": {
     "message": "Hozzáférés kiosztása gyűjteményekhez csoporthoz adásukkal."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Hozzáférés kiosztása a megosztott mappákhoz csoporthoz adásukkal."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Csak a saját kezelésű gyűjteményeket lehet hozzárendelni."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Csak a saját kezelésű megosztott mappákat lehet hozzárendelni."
   },
   "selectMembers": {
     "message": "Tagok kválasztása"
   },
   "selectCollections": {
     "message": "Gyűjtemények kiválasztása"
+  },
+  "selectSharedFolders": {
+    "message": "Megosztott mappák kiválasztása"
   },
   "role": {
     "message": "Szerepkör"
@@ -10710,6 +10984,9 @@
   },
   "noCollectionsAdded": {
     "message": "Nem lett gyűjtemény hozzáadva."
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nem lettek megosztott mappák hozzáadva."
   },
   "noMembersAdded": {
     "message": "Nem lett tag hozzáadva."
@@ -11596,6 +11873,30 @@
     "message": "önálló szervezet",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "önálló szervezeti széf",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO szükséges",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": "és",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Fiók helyreállítási adminisztráció",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "a házirendek automatikusan bekapcsolásra kerülnek.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "rendszabály,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12220,38 @@
   "collectionManagement": {
     "message": "Gyűjtemény kezelés"
   },
+  "sharedFolderManagement": {
+    "message": "Megosztott mappák beállításai"
+  },
   "collectionManagementDescription": {
     "message": "Gyűjtési viselkedés konfuguráció a szervezet részére."
+  },
+  "sharedFolderManagementDescription": {
+    "message": "A megosztott mappák viselkedésének konfigurálása a szervezeti széfen belül."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "További információ a gyűjteményekről"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "További információ a megosztott mappákról"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Lehetővé teszi a tulajdonosok és adminisztrátorok számára, hogy kezeljék az összes gyűjteményt és elemet az Adminisztrációs konzolból."
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Lehetővé teszi a tulajdonosok és adminisztrátorok számára, hogy kezeljék az összes megosztott mappát és elemet az Adminisztrációs konzolból."
+  },
   "restrictCollectionCreationDescription": {
     "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra."
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "A megosztott mappa létrehozásának korlátozása tulajdonosokra és adminisztrátorokra."
+  },
   "restrictCollectionDeletionDescription": {
     "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra."
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "A megosztott mappa törlésének korlátozása tulajdonosokra és adminisztrátorokra."
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Az elem törlésének korlátozása: ",
@@ -11941,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Frissített gyűjteménykezelési beállítás"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Frissített megosztott mappa kezelési beállítás"
   },
   "passwordManagerPlanPrice": {
     "message": "Jelszókezelő csomag ár"
@@ -12033,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Módosított megosztott mappa kezelési beállítás: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "A Gyűjtemény létrehozás korlátozás beállítás bekapcsolásra került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "A megosztott mappa létrehozás korlátozás beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "A megosztott mappa létrehozás korlátozás beállítás kikapcsolásra került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "A Gyűjtemény létrehozás törlés beállítás bekapcsolásra került: $ID$.",
     "placeholders": {
@@ -12060,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "A megosztott mappa létrehozás korlátozás beállítás törlésre került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "A Gyűjtemény létrehozás törlés beállítás kikapcsolásra került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "A megosztott mappa törlés beállítás korlátozás kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Az engedélyezés tulajdonosok és adminisztrátorok számára az összes megosztott mappa és elem kezelésére bekapcsolásra került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "A tulajdonosok és adminisztrátorok engedélyezés az összes gyűjtemény és elem kezeléséhez beállítás kikapcsolásra került: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Az engedélyezés tulajdonosok és adminisztrátorok számára az összes megosztott mappa és elem kezelésére kikapcsolásra került: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12393,14 +12781,23 @@
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
   },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
   "assignToTheseCollections": {
     "message": "Hozzárendelés ezen gyűjteményekhez"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "selectCollectionsToAssign": {
     "message": "Hozzárendelendő gyűjtemények kiválasztása"
@@ -12411,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "A gyűjtemények sikeresen hozzárendelésre kerültek."
   },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
   "itemMovedToCollection": {
     "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
   },
   "itemMovedToCollections": {
     "message": "Az elem átkerült a gyűjteményekhez:"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
   "itemsMovedToCollection": {
     "message": "Az elemek átkerültek a gyűjteményhez:"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
   "itemsMovedToCollections": {
     "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
   },
   "itemAssignedToCollections": {
     "message": "Az elem hozzárendelésre került a gyűjteményekhez."
@@ -12450,6 +12862,9 @@
   },
   "items": {
     "message": "Elemek"
+  },
+  "itemsLower": {
+    "message": "elem"
   },
   "assignedSeats": {
     "message": "Hozzárendelt helyek"
@@ -13215,6 +13630,9 @@
   "memberAccessReportPageDesc": {
     "message": "A szervezeti tagok hozzáférésének ellenőrzése a csoportok, gyűjtemények és gyűjteményelemek között. A CSV exportálás tagonként részletes lebontást biztosít, beleértve a gyűjtemény engedélyekre és a fiókkonfigurációkra vonatkozó információkat."
   },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
   "memberAccessReportNoCollection": {
     "message": "(Nincs gyűjtemény)"
   },
@@ -13333,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elemek tulajdonosa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13763,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "$ID$ elhagyta $ORGNAME$ széfet.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "$ID$ felhasználó saját maga visszavonta a szervezettől.",
     "placeholders": {
@@ -13774,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Visszavonásra került a szervezeti tulajdonba átruházás elutasítása miatt."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "$ORGNAME$ széf tulajdonába átruházás elutasítása visszavonásra került.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ felfüggesztésre került.",
@@ -13824,6 +14276,15 @@
     "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14529,6 +14990,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
   },
   "billingAddress": {
     "message": "Számlázási cím"
@@ -16066,6 +16530,282 @@
   },
   "copy": {
     "message": "Másolás"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Hozzáférési szabályok"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Engedélyezve"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Letiltva a szabály inaktív és nem korlátozza a hozzáférést."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Szabály engedélyezése"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Szabály letiltása"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "A hozzáférési szabály engedélyezésre került."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "A hozzáférési szabály letiltásra került."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "A hozzáférési szabály nem található."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Állítsunk be szabályokat annak vezérlésére, hogy ki, milyen feltételek mellett és mennyi ideig kérhet hozzáférést az érzékeny hitelesítő adatokhoz."
+  },
+  "pamAccessRuleNew": {
+    "message": "Új szabály"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Új hozzáférési szabály"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Hozzáférési szabály szerkesztése"
+  },
+  "pamAccessRuleName": {
+    "message": "Név"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "például VPN + munkaidő"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Általános információ"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Hozzáférési időtartam"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Opcionális feltételek"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Gyűjtemények kiválasztása"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Ez a hozzáférési szabály minden kiválasztott gyűjteményre vonatkozik."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Nem sikerült betölteni a gyűjteményeket. Frissítsük az oldalt az újbóli próbálkozáshoz."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Ez az időtartam a hozzáférési kéréseket előre kitölti."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Leírás"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Alapértelmezett hozzáférési időtartam"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximális hozzáférési időtartam"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Nincs felső határ"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Bármely egyszeri bérlet legfeljebb ennyi ideig kötött, bármit is kér a kérelmező."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 perc"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 perc"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 óra"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 óra"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 óra"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 óra"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 óra"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 nap"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Egyszerre csak egy felhasználó tarthat aktív bérletet."
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Az új kérések sorba állnak, amíg az aktuális bérlet le nem jár vagy vissza nem vonják."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Bérlet kiterjesztések engedélyezése"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "A tagok új jóváhagyás nélkül egyszer meghosszabbíthatják az aktív bérletet, az alábbi maximális hosszig."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximális kiterjesztés hossz"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "A leghosszabb ideőameddig egy önálló kiterjesztés futhat."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Jóváhagyás kérése"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "IP cím szerinti korlátozás"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Jóváhagyók"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Gyűjtemény kezelők"
+  },
+  "pamAccessRuleCreated": {
+    "message": "A hozzáférési szabály létrehozásra került."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "A hozzáférési szabály frissítésre került."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Törlésre kerüljön a hozzáférési szabály?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "\"$NAME$“ törlésre kerüljön? Az ezt a szabályt használó gyűjtemények bérlése le van tiltva.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Még nincsenek hozzáférési szabályok."
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Hozzunk létre egy szabályt, amely extra védelmet biztosít az érzékeny gyűjteményeknek."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Egyedi szabály létrehozása"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Kezdés sablonból"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Sablon használata"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Azonnal"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Automatikus jóváhagyás • 1 óra után lejár • Az ellenőrzés naplózásra került."
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Azonnali hozzáférés"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Jóváhagyás szükséges"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Emberi jóváhagyás • 1 jóváhagyó szükséges • Az ellenőrzés naplózásra került."
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Jóváhagyás szükséges"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP cím korlátozott"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Automatikus jóváhagyás • IP engedélyezés lista • Az ellenőrzés naplózásra került."
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP cím korlátozott elérés"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Gyűjtemények"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Nincs hozzárendelve"
+  },
+  "pamSearchRules": {
+    "message": "Szabályok keresése"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Vonatkozás:"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Feltételek"
+  },
+  "pamAccessWindow": {
+    "message": "Elérési ablak"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Utolsó módosítás"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Automatikusan jóváhagyva"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Jóváhagyást igényel"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP cím korlátozott"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "A szűrőkkel nem egyeznek hozzáférési szabályok."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Engedélyezés"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Letiltás"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "A hozzáférési szabályok frissítésre kerültek."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "A hozzáférési szabályok törlésre kerültek."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Törlésre kerüljenek a hozzáférési szabályok?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ hozzáférési szabály véglegesen törlődik. Ezt a műveletet nem lehet visszavonni.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Csak ezekből az IP tartományokból származó kérések engedélyezettek."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR tartomány"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "például 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "CIDR tartomány hozzáadása"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "CIDR tartomány eltávolítása"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Adjunk hozzá legalább egy CIDR tartományt."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Adjunk meg egy érvényes CIDR tartományt."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Ez a CIDR tartomány már hozzáadásra került."
   },
   "paymentSuccessful": {
     "message": "Sikeres fizetés"
