@@ -16786,6 +16786,256 @@
       }
     }
   },
+  "pamMyAccess": {
+    "message": "My access"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Could not load your requests"
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "No requests yet"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "You haven't submitted any access requests."
+  },
+  "pamMyLeasesActiveSection": {
+    "message": "Active leases"
+  },
+  "pamMyLeasesActiveEmpty": {
+    "message": "No active leases"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests"
+  },
+  "pamMyRequestsHistorySection": {
+    "message": "History"
+  },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnWindow": {
+    "message": "Window"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Resolver"
+  },
+  "pamColumnComment": {
+    "message": "Comment"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
+  },
+  "pamColumnRemaining": {
+    "message": "Remaining"
+  },
+  "pamColumnActions": {
+    "message": "Actions"
+  },
+  "pamWindowUntil": {
+    "message": "Until $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Extended +$DURATION$ · until $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Activate within $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Access rule"
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
+  },
+  "pamInboxReasonMissing": {
+    "message": "No reason provided"
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hour"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "starting now"
+  },
+  "pamInboxStartToday": {
+    "message": "today"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "tomorrow"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ days",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamMyRequestsCancelSuccess": {
+    "message": "Request cancelled"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Could not cancel request"
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamStatusPending": {
+    "message": "Pending"
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusActivated": {
+    "message": "Active"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCanceled": {
+    "message": "Canceled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusRevoked": {
+    "message": "Revoked"
+  },
+  "pamStatusEndedByYou": {
+    "message": "Cancelled"
+  },
+  "pamStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamAuditKindLeaseEndedByHolder": {
+    "message": "Lease ended by holder"
+  },
+  "pamAuditKindLeaseRevoked": {
+    "message": "Lease revoked"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Access request"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Access"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Access request not available"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Couldn't load this access request."
+  },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
   },
