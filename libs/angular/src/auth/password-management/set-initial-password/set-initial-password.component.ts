@@ -39,7 +39,6 @@ import {
   IconModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -86,7 +85,6 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
-    private keyService: KeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -129,32 +127,6 @@ export class SetInitialPasswordComponent implements OnInit {
           await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
           return;
         }
-
-        /**
-         * Assuming the KM flag above is off, this JIT_PROVISIONED_MP_ORG_USER case still relies on us making
-         * `newMasterKey` and `newServerMasterKeyHash` here in the component. This is a temporary state. This
-         * flow will be updated to use the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
-         * as part of https://bitwarden.atlassian.net/browse/PM-32526
-         */
-
-        const ctx = "Could not set initial password.";
-        assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
-        assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
-        assertTruthy(this.email, "email", ctx);
-
-        const newMasterKey = await this.keyService.makeMasterKey(
-          passwordInputResult.newPassword,
-          this.email.trim().toLowerCase(),
-          passwordInputResult.kdfConfig,
-        );
-
-        const newServerMasterKeyHash = await this.keyService.hashMasterKey(
-          passwordInputResult.newPassword,
-          newMasterKey,
-        );
-
-        passwordInputResult.newMasterKey = newMasterKey;
-        passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
 
         await this.setInitialPassword(passwordInputResult);
         break;
@@ -315,8 +287,6 @@ export class SetInitialPasswordComponent implements OnInit {
    */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
-    assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
-    assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
@@ -329,8 +299,6 @@ export class SetInitialPasswordComponent implements OnInit {
 
     try {
       const credentials: SetInitialPasswordCredentials = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier: this.orgSsoIdentifier,
