@@ -50,6 +50,7 @@ export enum FeatureFlag {
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
   DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
+  PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -223,6 +224,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
+  [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

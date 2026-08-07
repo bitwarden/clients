@@ -168,13 +168,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     if (this.showSubscription) {
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
-      this.lineItems = this.sub?.subscription?.items;
+
+      // When an annual upgrade is scheduled but not yet active, show the scheduled (annual) line
+      // items instead of the still-active monthly ones. Classify Password Manager vs. Secrets
+      // Manager against the scheduled plan's seat price so the label matches the shown items.
+      const effectivePlan = this.sub?.pendingAnnualUpgrade?.plan ?? this.sub?.plan;
+      this.lineItems =
+        this.sub?.pendingAnnualUpgrade?.lineItems ?? this.sub?.subscription?.items ?? [];
 
       if (this.lineItems && this.lineItems.length) {
         this.lineItems = this.lineItems
           .map((item) => {
             const itemTotalAmount = item.amount * item.quantity;
-            const seatPriceTotal = this.sub.plan?.SecretsManager?.seatPrice * item.quantity;
+            const seatPriceTotal = effectivePlan?.SecretsManager?.seatPrice * item.quantity;
             item.productName =
               itemTotalAmount === seatPriceTotal || item.name.includes("Service Accounts")
                 ? "secretsManager"

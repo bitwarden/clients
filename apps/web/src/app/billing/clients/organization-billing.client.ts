@@ -26,6 +26,19 @@ export class ChurnMitigationOfferResponseModel extends BaseResponse {
   }
 }
 
+export class AnnualUpgradeOfferResponseModel extends BaseResponse {
+  currentAnnualCost: number;
+  newAnnualCost: number;
+  savings: number;
+
+  constructor(response: any) {
+    super(response);
+    this.currentAnnualCost = this.getResponseProperty("CurrentAnnualCost");
+    this.newAnnualCost = this.getResponseProperty("NewAnnualCost");
+    this.savings = this.getResponseProperty("Savings");
+  }
+}
+
 @Injectable({ providedIn: "root" })
 export class OrganizationBillingClient {
   constructor(private apiService: ApiService) {}
@@ -59,6 +72,29 @@ export class OrganizationBillingClient {
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/vnext/churn-mitigation-offer/redeem`,
+      null,
+      true,
+      false,
+    );
+  };
+
+  getAnnualUpgradeOffer = async (
+    organizationId: OrganizationId,
+  ): Promise<AnnualUpgradeOfferResponseModel | null> => {
+    const response = await this.apiService.send(
+      "GET",
+      `/organizations/${organizationId}/billing/vnext/annual-upgrade-offer`,
+      null,
+      true,
+      true,
+    );
+    return response ? new AnnualUpgradeOfferResponseModel(response) : null;
+  };
+
+  redeemAnnualUpgradeOffer = async (organizationId: OrganizationId): Promise<void> => {
+    await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/vnext/annual-upgrade-offer/redeem`,
       null,
       true,
       false,

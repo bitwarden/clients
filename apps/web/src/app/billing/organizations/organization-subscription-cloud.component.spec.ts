@@ -184,6 +184,135 @@ describe("OrganizationSubscriptionCloudComponent.cancelSubscription", () => {
   });
 });
 
+describe("OrganizationSubscriptionCloudComponent.load (pendingAnnualUpgrade line items)", () => {
+  const mockApiService = mock<ApiService>();
+  const mockI18nService = mock<I18nService>();
+  const mockLogService = mock<LogService>();
+  const mockOrganizationService = mock<OrganizationService>();
+  const mockAccountService = mock<AccountService>();
+  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
+  const mockDialogService = mock<DialogService>();
+  const mockToastService = mock<ToastService>();
+  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
+  const mockDatePipe = mock<DatePipe>();
+  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
+
+  let component: OrganizationSubscriptionCloudComponent;
+
+  const mockUserOrg = {
+    hasProvider: false,
+    isOwner: true,
+    hasReseller: false,
+    isProviderUser: false,
+    hasBillableProvider: false,
+    productTierType: 1,
+  } as any;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        OrganizationSubscriptionCloudComponent,
+        { provide: ApiService, useValue: mockApiService },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+              queryParams: {},
+              queryParamMap: { get: (_key: string): string | null => null },
+            },
+          },
+        },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: ToastService, useValue: mockToastService },
+        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
+        { provide: DatePipe, useValue: mockDatePipe },
+        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
+      ],
+    });
+
+    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
+
+    mockAccountService.activeAccount$ = of({ id: "user-1" } as any);
+    mockOrganizationService.organizations$ = jest.fn().mockReturnValue(of([mockUserOrg])) as any;
+    mockI18nService.locale$ = of("en");
+    mockOrganizationApiService.getApiKeyInformation.mockResolvedValue({ data: [] } as any);
+  });
+
+  it("sources line items from pendingAnnualUpgrade when present", async () => {
+    const pendingItems = [
+      {
+        name: "Teams (Annually) Seat",
+        amount: 48,
+        quantity: 5,
+        interval: "year",
+        productName: null,
+      } as any,
+    ];
+    mockOrganizationApiService.getSubscription.mockResolvedValue({
+      subscription: {
+        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
+      },
+      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
+      pendingAnnualUpgrade: {
+        plan: { name: "Teams (Annually)" },
+        lineItems: pendingItems,
+        effectiveDate: new Date(),
+      },
+    } as any);
+
+    await component.load();
+
+    expect(component.lineItems[0].interval).toBe("year");
+    expect(component.lineItems[0].name).toBe("Teams (Annually) Seat");
+  });
+
+  it("classifies pending line items against the pending plan's SecretsManager seat price", () => {
+    const pendingItems = [
+      { name: "Secrets Manager Seat", amount: 6, quantity: 3, interval: "year" } as any,
+      { name: "Members", amount: 48, quantity: 3, interval: "year" } as any,
+    ];
+    mockOrganizationApiService.getSubscription.mockResolvedValue({
+      subscription: {
+        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
+      },
+      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
+      pendingAnnualUpgrade: {
+        plan: { name: "Teams (Annually)", SecretsManager: { seatPrice: 6 } },
+        lineItems: pendingItems,
+        effectiveDate: new Date(),
+      },
+    } as any);
+
+    return component.load().then(() => {
+      const smItem = component.lineItems.find((i: any) => i.name === "Secrets Manager Seat");
+      const pmItem = component.lineItems.find((i: any) => i.name === "Members");
+
+      expect(smItem.productName).toBe("secretsManager");
+      expect(pmItem.productName).toBe("passwordManager");
+    });
+  });
+
+  it("falls back to the current subscription items when there is no pendingAnnualUpgrade", async () => {
+    mockOrganizationApiService.getSubscription.mockResolvedValue({
+      subscription: {
+        items: [{ name: "Teams (Monthly) Seat", amount: 4, quantity: 5, interval: "month" }],
+      },
+      plan: { name: "Teams (Monthly)", SecretsManager: { seatPrice: 0 } },
+    } as any);
+
+    await component.load();
+
+    expect(component.lineItems[0].interval).toBe("month");
+    expect(component.lineItems[0].name).toBe("Teams (Monthly) Seat");
+  });
+});
+
 describe("OrganizationSubscriptionCloudComponent.discountPrice", () => {
   const mockApiService = mock<ApiService>();
   const mockI18nService = mock<I18nService>();

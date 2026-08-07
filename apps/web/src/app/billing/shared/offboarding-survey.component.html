@@ -14,6 +14,45 @@
           </bit-radio-button>
         }
       </bit-radio-group>
+      @if (annualUpgradeOffer(); as offer) {
+        @if (reason() === annualOfferReasonValue) {
+          <div data-testid="annual-upgrade-offer" class="tw-mt-3">
+            <bit-callout
+              type="info"
+              [icon]="null"
+              [title]="'switchToAnnualAndSave' | i18n: formatCurrency(offer.savings)"
+            >
+              <div>
+                <div class="tw-flex tw-mb-1">
+                  <span class="tw-text-muted tw-min-w-52">{{
+                    "currentCostMonthlyBilling" | i18n
+                  }}</span>
+                  <span class="tw-font-medium">{{ formatCurrency(offer.currentAnnualCost) }}</span>
+                </div>
+                <div class="tw-flex">
+                  <span class="tw-text-muted tw-min-w-52">{{ "annualBillingCost" | i18n }}</span>
+                  <span class="tw-font-medium">{{ formatCurrency(offer.newAnnualCost) }}</span>
+                </div>
+              </div>
+              <p class="tw-text-muted tw-text-xs tw-mt-2">{{ "annualSwitchDisclaimer" | i18n }}</p>
+              @if (annualUpgradeRedeemError()) {
+                <p class="tw-text-danger">{{ annualUpgradeRedeemError() }}</p>
+              }
+              <button
+                type="button"
+                bitButton
+                bitFormButton
+                buttonType="primary"
+                [bitAction]="switchToAnnualBilling"
+                [loading]="annualUpgradeRedeemLoading()"
+                [disabled]="cancellationLoading()"
+              >
+                {{ "switchToAnnualBilling" | i18n }}
+              </button>
+            </bit-callout>
+          </div>
+        }
+      }
     } @else {
       <bit-form-field>
         <bit-label>
@@ -43,7 +82,13 @@
     </bit-form-field>
   </div>
   <ng-container bitDialogFooter>
-    <button bitButton bitFormButton buttonType="primary" type="submit" [disabled]="!reason()">
+    <button
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+      [disabled]="!reason() || annualUpgradeRedeemLoading()"
+    >
       {{ "completeCancellation" | i18n }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
