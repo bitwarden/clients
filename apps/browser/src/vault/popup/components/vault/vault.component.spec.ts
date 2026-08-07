@@ -514,6 +514,52 @@ describe("VaultComponent", () => {
       flush();
     }));
 
+    /**
+     * With the flag on, the table's toolbar holds the only search input — the legacy
+     * `app-vault-header` is gated off. Unmounting the table on a zero-result search would strand
+     * the user with no way to clear the term.
+     */
+    it("keeps the table mounted when a search returns no results", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.hasSearchText$.next(true);
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["vaultState"]).toBe(
+        fixture.componentInstance["VaultStateEnum"].NoResults,
+      );
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+
+      flush();
+    }));
+
+    it("defers to the table's own empty state instead of the page-level one", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      // The table renders `noMatchingItems` itself; showing both would double up.
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    it("still shows the page-level no-results state when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
     it("renders the legacy header and list and no table when the flag is off", fakeAsync(() => {
       const fixture = createWithFlag(false);
 

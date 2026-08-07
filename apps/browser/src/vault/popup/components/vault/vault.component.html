@@ -118,7 +118,14 @@
   </ng-container>
 
   @if (vaultState !== VaultStateEnum.Empty) {
-    @if (vaultState === VaultStateEnum.NoResults) {
+    <!--
+      The table owns the search input, so it has to stay mounted in the no-results state —
+      unmounting it would remove the only way to clear the term. It renders its own empty state, so
+      the page-level one below is for the legacy list.
+    -->
+    @if (vfo1Enabled()) {
+      <app-vault-popup-list-table></app-vault-popup-list-table>
+    } @else if (vaultState === VaultStateEnum.NoResults) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
         <bit-no-items [icon]="noResultsIcon">
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
@@ -141,41 +148,37 @@
       }
     </div>
 
-    @if (vaultState === null) {
-      @if (vfo1Enabled()) {
-        <app-vault-popup-list-table></app-vault-popup-list-table>
-      } @else {
-        <vault-fade-in-out>
-          @if (!(loading$ | async)) {
-            <!--If there is search text fold all the filtered ciphers into one container-->
-            @if (hasSearchText$ | async) {
-              <app-vault-list-items-container
-                [title]="'searchResults' | i18n"
-                [ciphers]="(filteredCiphers$ | async) || []"
-                id="allItems"
-                disableSectionMargin
-                collapsibleKey="allItems"
-              ></app-vault-list-items-container>
-            } @else {
-              <app-autofill-vault-list-items></app-autofill-vault-list-items>
-              <app-vault-list-items-container
-                [title]="'favorites' | i18n"
-                [ciphers]="(favoriteCiphers$ | async) || []"
-                id="favorites"
-                collapsibleKey="favorites"
-              ></app-vault-list-items-container>
-              <!--Change the title header when a filter is applied-->
-              <app-vault-list-items-container
-                [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
-                [ciphers]="(filteredCiphers$ | async) || []"
-                id="allItems"
-                disableSectionMargin
-                collapsibleKey="allItems"
-              ></app-vault-list-items-container>
-            }
+    @if (vaultState === null && !vfo1Enabled()) {
+      <vault-fade-in-out>
+        @if (!(loading$ | async)) {
+          <!--If there is search text fold all the filtered ciphers into one container-->
+          @if (hasSearchText$ | async) {
+            <app-vault-list-items-container
+              [title]="'searchResults' | i18n"
+              [ciphers]="(filteredCiphers$ | async) || []"
+              id="allItems"
+              disableSectionMargin
+              collapsibleKey="allItems"
+            ></app-vault-list-items-container>
+          } @else {
+            <app-autofill-vault-list-items></app-autofill-vault-list-items>
+            <app-vault-list-items-container
+              [title]="'favorites' | i18n"
+              [ciphers]="(favoriteCiphers$ | async) || []"
+              id="favorites"
+              collapsibleKey="favorites"
+            ></app-vault-list-items-container>
+            <!--Change the title header when a filter is applied-->
+            <app-vault-list-items-container
+              [title]="((numberOfAppliedFilters$ | async) === 0 ? 'allItems' : 'items') | i18n"
+              [ciphers]="(filteredCiphers$ | async) || []"
+              id="allItems"
+              disableSectionMargin
+              collapsibleKey="allItems"
+            ></app-vault-list-items-container>
           }
-        </vault-fade-in-out>
-      }
+        }
+      </vault-fade-in-out>
     }
   }
 
