@@ -142,10 +142,10 @@ export class TargetingRulesDataService {
 
   private async _resetMeta(): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const apiUrl = env.getApiUrl();
+    const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), await this._resolveResourceBaseUrl());
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { cid: undefined, timestamp: 0 },
+      [cacheKey]: { cid: undefined, timestamp: 0 },
     }));
   }
 
@@ -290,7 +290,9 @@ export class TargetingRulesDataService {
 
     const rules: TargetingRulesByDomain = resource.hosts;
 
-    await this.domainSettingsService.setTargetingRules(rules);
+    // Pin the write to the snapshot URL so rules and meta land under the
+    // same cache key, even if the effective URL changes mid-fetch.
+    await this.domainSettingsService.setTargetingRules(rules, resourceBaseUrl);
     await this._metaState.update((existing) => ({
       ...existing,
       [cacheKey]: { timestamp: Date.now(), cid: remoteCid },

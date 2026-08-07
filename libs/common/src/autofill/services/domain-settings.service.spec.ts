@@ -894,6 +894,62 @@ describe("DefaultDomainSettingsService", () => {
     });
   });
 
+  describe("setTargetingRules — snapshot URL", () => {
+    // Semantic anchor for the read side: getTargetingRulesForUrl reads the
+    // rules keyed by the current effective URL, so we verify by pointing the
+    // effective URL at the same host we wrote to.
+    const mockRulesForUrlTest: TargetingRulesByDomain = {
+      "example.com": {
+        forms: [
+          {
+            category: FormPurposeCategories.AccountLogin,
+            fields: { username: ["input#u"] },
+          },
+        ],
+      },
+    };
+
+    beforeEach(() => {
+      fillAssistFeatureFlagMock$.next(true);
+      accountService.activeAccountSubject.next({ id: mockUserId } as any);
+    });
+
+    it("writes rules under the passed-in effective URL, not the currently-resolved one", async () => {
+      const snapshotUrl = "https://org-a.example.com/rules/";
+      const currentUrl = "https://org-b.example.com/rules/";
+
+      // Simulate the mid-fetch drift: caller resolved snapshotUrl earlier, but
+      // by the time it calls setTargetingRules, the effective URL has moved.
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: currentUrl })]);
+      await domainSettingsService.setEnableFillAssist(true);
+      await domainSettingsService.setTargetingRules(mockRulesForUrlTest, snapshotUrl);
+
+      // Point the effective URL back at snapshotUrl — the rules should be
+      // there (i.e. the write pinned to snapshotUrl, not currentUrl).
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: snapshotUrl })]);
+      const result = await domainSettingsService.getTargetingRulesForUrl(
+        "https://example.com/login",
+      );
+
+      expect(result).not.toBeNull();
+    });
+
+    it("falls back to re-resolving the effective URL when no snapshot is passed", async () => {
+      const currentUrl = "https://org-b.example.com/rules/";
+
+      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: currentUrl })]);
+      await domainSettingsService.setEnableFillAssist(true);
+      await domainSettingsService.setTargetingRules(mockRulesForUrlTest);
+
+      // Effective URL is still currentUrl — the rules should read back here.
+      const result = await domainSettingsService.getTargetingRulesForUrl(
+        "https://example.com/login",
+      );
+
+      expect(result).not.toBeNull();
+    });
+  });
+
   describe("resolvedEnableFillAssist$ (user-explicit-wins semantics)", () => {
     beforeEach(() => {
       accountService.activeAccountSubject.next({ id: mockUserId } as any);

@@ -243,4 +243,32 @@ describe("TargetingRulesDataService", () => {
       expect(apiService.nativeFetch.mock.calls.length).toBe(callsAfterFirst);
     });
   });
+
+  describe("_resetMeta", () => {
+    it("clears meta under the compound cache key so the next fetch re-downloads", async () => {
+      const url = "https://acme-org.example.com/rules/";
+      effectiveUrlMock$.next(url);
+
+      // Warm the cache under the compound key.
+      apiService.nativeFetch
+        .mockResolvedValueOnce(makeManifestResponse("cid-1"))
+        .mockResolvedValueOnce(makeRulesResponse());
+      await (service as any)._fetchAndStoreRules(true);
+      const callsAfterWarm = apiService.nativeFetch.mock.calls.length;
+
+      // Sanity: same URL, non-skip → cache hit, no network.
+      await (service as any)._fetchAndStoreRules(false);
+      expect(apiService.nativeFetch.mock.calls.length).toBe(callsAfterWarm);
+
+      // Reset should clear the compound-key entry, forcing the next
+      // non-skip fetch to hit the network again.
+      await (service as any)._resetMeta();
+
+      apiService.nativeFetch
+        .mockResolvedValueOnce(makeManifestResponse("cid-2"))
+        .mockResolvedValueOnce(makeRulesResponse());
+      await (service as any)._fetchAndStoreRules(false);
+      expect(apiService.nativeFetch.mock.calls.length).toBeGreaterThan(callsAfterWarm);
+    });
+  });
 });

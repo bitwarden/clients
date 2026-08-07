@@ -197,9 +197,11 @@ export abstract class DomainSettingsService {
   targetingRules$: Observable<TargetingRulesByDomain | null>;
 
   /**
-   * Update the cached targeting rules
+   * Update the cached targeting rules. Pass `effectiveUrl` from the caller to
+   * pin the write to a snapshot of the rules-feed URL, avoiding a re-resolve
+   * that could disagree with the URL the caller actually fetched from.
    */
-  setTargetingRules: (rules: TargetingRulesByDomain) => Promise<void>;
+  setTargetingRules: (rules: TargetingRulesByDomain, effectiveUrl?: string) => Promise<void>;
 
   /**
    * Look up targeting rules for a given URL. Checks pathname-specific
@@ -429,10 +431,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     });
   }
 
-  async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
+  async setTargetingRules(rules: TargetingRulesByDomain, effectiveUrl?: string): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const effectiveUrl = await firstValueFrom(this.effectiveFillAssistRulesUrl$);
-    const key = fillAssistRulesCacheKey(env.getApiUrl(), effectiveUrl);
+    const url = effectiveUrl ?? (await firstValueFrom(this.effectiveFillAssistRulesUrl$));
+    const key = fillAssistRulesCacheKey(env.getApiUrl(), url);
     await this.stateProvider
       .getGlobal(SERVER_TARGETING_RULES)
       .update((existing) => ({ ...existing, [key]: rules }), {
