@@ -321,10 +321,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    // Reads the raw underlying state (naturally `boolean | null`) so the resolver
-    // can distinguish pristine (never touched) from explicit-false. User-explicit-wins:
-    // if the user has explicitly set the toggle, their choice wins; if they've never
-    // touched it, the org policy default applies when active.
+    // Read the raw underlying state (naturally `boolean | null`) so we can
+    // distinguish pristine (never touched) from explicit-false.
     this.resolvedEnableFillAssist$ = combineLatest([
       this.enableFillAssistState.state$,
       this.fillAssistPolicy$,

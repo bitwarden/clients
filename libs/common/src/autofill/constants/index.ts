@@ -182,10 +182,6 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 
 /**
  * The default location where Fill Assist targeting rules are published.
- * Used as the pre-fill value in the Fill Assist policy admin UI, the
- * comparison anchor for detecting whether an admin has customized the URL,
- * and the client-side fallback when neither the policy nor server config
- * supplies a URL.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL =
   "https://github.com/bitwarden/map-the-web/releases/latest/download";

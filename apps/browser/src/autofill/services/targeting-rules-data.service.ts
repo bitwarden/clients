@@ -122,10 +122,8 @@ export class TargetingRulesDataService {
       this._triggerUpdate$.next(false);
     });
 
-    // Trigger a fetch whenever the Fill Assist policy changes (admin toggles
-    // the policy, changes its rules URL, or the user's org membership changes).
-    // The URL-changed detection in _fetchAndStoreRules relies on this to
-    // invalidate cached rules from a stale effective URL.
+    // Trigger a fetch when the Fill Assist policy changes, so the fetcher
+    // re-checks against a possibly-new effective URL / cache key.
     this.domainSettingsService.fillAssistPolicy$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);
     });
