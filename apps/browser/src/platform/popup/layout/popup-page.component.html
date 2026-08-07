@@ -7,10 +7,10 @@
     640px in width (equivalent to tailwind's `sm` breakpoint)
   -->
   <div
-    #nonScrollable
+    #aboveScrollArea
     class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
     [ngClass]="{
-      'tw-invisible !tw-p-0 !tw-border-none': loading() || nonScrollable.childElementCount === 0,
+      'tw-invisible !tw-p-0 !tw-border-none': loading() || !aboveScrollAreaHasContent(),
       'tw-border-secondary-300': scrolled(),
       'tw-border-transparent': !scrolled(),
     }"
@@ -28,6 +28,7 @@
     [ngClass]="{
       '!tw-overflow-hidden': hideOverflow(),
       'tw-overflow-y-auto': !hideOverflow(),
+      'tw-flex tw-flex-col tw-flex-1 tw-min-h-0': fillContent(),
       'tw-invisible': loading(),
       'tw-relative tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]':
         !disablePadding(),
