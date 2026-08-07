@@ -11,6 +11,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
@@ -71,6 +72,12 @@ export default {
     }),
     componentWrapperDecorator((story) => `<div class="tw-bg-background-alt tw-p-2">${story}</div>`),
   ],
+  argTypes: {
+    size: {
+      control: "radio",
+      options: ["base", "lg"],
+    },
+  },
   parameters: {
     design: {
       type: "figma",
@@ -85,7 +92,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-item>
+      <bit-item ${formatArgsForCodeSnippet<ItemComponent>(args)}>
         <button type="button" bit-item-content>
           <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Foo
@@ -103,6 +110,26 @@ export const Default: Story = {
             <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
           </bit-item-action>
         </ng-container>
+      </bit-item>
+    `,
+  }),
+};
+
+export const Sizes: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-item size="base">
+        <button type="button" bit-item-content>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+          Base
+        </button>
+      </bit-item>
+      <bit-item size="lg">
+        <button type="button" bit-item-content>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+          Large
+        </button>
       </bit-item>
     `,
   }),
@@ -418,7 +445,7 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="55" class="tw-h-[500px]">
         <bit-item-group>
           <bit-item *cdkVirtualFor="let item of data">
             <button type="button" bit-item-content>
