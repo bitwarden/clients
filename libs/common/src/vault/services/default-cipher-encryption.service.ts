@@ -147,25 +147,32 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             clientCipherView.type === CipherType.Login &&
             sdkCipherView.login?.fido2Credentials?.length
           ) {
-            const fido2CredentialViews = ref.value
-              .vault()
-              .ciphers()
-              .decrypt_fido2_credentials(sdkCipherView);
+            try {
+              const fido2CredentialViews = ref.value
+                .vault()
+                .ciphers()
+                .decrypt_fido2_credentials(sdkCipherView);
 
-            // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials
-            // since we don't currently use the SDK for Fido2 Authentication.
-            const decryptedKeyValue = ref.value
-              .vault()
-              .ciphers()
-              .decrypt_fido2_private_key(sdkCipherView);
+              // TEMPORARY: Manually decrypt the keyValue for Fido2 credentials
+              // since we don't currently use the SDK for Fido2 Authentication.
+              const decryptedKeyValue = ref.value
+                .vault()
+                .ciphers()
+                .decrypt_fido2_private_key(sdkCipherView);
 
-            clientCipherView.login.fido2Credentials = fido2CredentialViews
-              .map((f) => {
-                const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
-                view.keyValue = decryptedKeyValue;
-                return view;
-              })
-              .filter((view): view is Fido2CredentialView => view !== undefined);
+              clientCipherView.login.fido2Credentials = fido2CredentialViews
+                .map((f) => {
+                  const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
+                  view.keyValue = decryptedKeyValue;
+                  return view;
+                })
+                .filter((view): view is Fido2CredentialView => view !== undefined);
+            } catch (e) {
+              this.logService.error(
+                `Failed to decrypt Fido2 credentials for cipher ${clientCipherView.id}: ${e}`,
+              );
+              clientCipherView.login.fido2Credentials = [];
+            }
           }
 
           return clientCipherView;
@@ -197,23 +204,30 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
                 clientCipherView.type === CipherType.Login &&
                 sdkCipherView.login?.fido2Credentials?.length
               ) {
-                const fido2CredentialViews = ref.value
-                  .vault()
-                  .ciphers()
-                  .decrypt_fido2_credentials(sdkCipherView);
+                try {
+                  const fido2CredentialViews = ref.value
+                    .vault()
+                    .ciphers()
+                    .decrypt_fido2_credentials(sdkCipherView);
 
-                const decryptedKeyValue = ref.value
-                  .vault()
-                  .ciphers()
-                  .decrypt_fido2_private_key(sdkCipherView);
+                  const decryptedKeyValue = ref.value
+                    .vault()
+                    .ciphers()
+                    .decrypt_fido2_private_key(sdkCipherView);
 
-                clientCipherView.login.fido2Credentials = fido2CredentialViews
-                  .map((f) => {
-                    const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
-                    view.keyValue = decryptedKeyValue;
-                    return view;
-                  })
-                  .filter((view): view is Fido2CredentialView => view !== undefined);
+                  clientCipherView.login.fido2Credentials = fido2CredentialViews
+                    .map((f) => {
+                      const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
+                      view.keyValue = decryptedKeyValue;
+                      return view;
+                    })
+                    .filter((view): view is Fido2CredentialView => view !== undefined);
+                } catch (e) {
+                  this.logService.error(
+                    `Failed to decrypt Fido2 credentials for cipher ${clientCipherView.id}: ${e}`,
+                  );
+                  clientCipherView.login.fido2Credentials = [];
+                }
               }
 
               successful.push(clientCipherView);
