@@ -1,0 +1,11 @@
+@if (recipe(); as recipe) {
+  <bit-badge
+    [variant]="recipe.variant"
+    [startIcon]="recipe.icon"
+    size="small"
+    [title]="recipe.label"
+    [attr.data-testid]="recipe.testId"
+  >
+    {{ recipe.label }}
+  </bit-badge>
+}
