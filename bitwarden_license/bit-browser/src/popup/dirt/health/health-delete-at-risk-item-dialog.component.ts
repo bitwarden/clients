@@ -1,0 +1,82 @@
+import { DIALOG_DATA } from "@angular/cdk/dialog";
+import { Component, ChangeDetectionStrategy, input, inject, computed } from "@angular/core";
+import { firstValueFrom } from "rxjs";
+
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  DialogModule,
+  ButtonModule,
+  DialogRef,
+  ToastService,
+  SectionComponent,
+  SectionHeaderComponent,
+  IconTileComponent,
+  CardComponent,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+export interface HealthDeleteAtRiskItemDialogData {
+  currentCategory: string;
+  item: CipherHealthView;
+}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "health-delete-at-risk-item-dialog",
+  templateUrl: "./health-delete-at-risk-item-dialog.component.html",
+  imports: [
+    DialogModule,
+    ButtonModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    IconTileComponent,
+    CardComponent,
+    I18nPipe,
+  ],
+})
+export class HealthDeleteAtRiskItemDialogComponent {
+  readonly accountService = inject(AccountService);
+  readonly cipherService = inject(CipherService);
+  readonly toastService = inject(ToastService);
+  readonly i18nService = inject(I18nService);
+  readonly dialogRef = inject(DialogRef);
+  readonly inputData = inject<HealthDeleteAtRiskItemDialogData>(DIALOG_DATA);
+
+  readonly item = input<CipherHealthView>(this.inputData.item);
+  readonly currentCategory = input<string>(this.inputData.currentCategory);
+
+  readonly additionalRisks = computed<{ showWeak: boolean; showReused: boolean }>(() => {
+    const item = this.item();
+    const category = this.currentCategory();
+
+    // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused.
+    switch (category) {
+      case "exposed-passwords":
+        return { showWeak: item.hasWeakPassword, showReused: item.hasReusedPassword };
+      case "weak-passwords":
+        return { showWeak: false, showReused: item.hasReusedPassword };
+      case "reused-passwords":
+      default:
+        return { showWeak: false, showReused: false };
+    }
+  });
+
+  readonly onDeleteItem = async () => {
+    const user = await firstValueFrom(this.accountService.activeAccount$);
+    if (!user) {
+      return;
+    }
+
+    await this.cipherService.softDeleteWithServer(this.item().cipherId, user.id);
+
+    this.toastService.showToast({
+      message: this.i18nService.t("deletedItem"),
+      variant: "success",
+    });
+
+    await this.dialogRef.close();
+  };
+}
