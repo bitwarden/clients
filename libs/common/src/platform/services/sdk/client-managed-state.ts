@@ -67,7 +67,10 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   async get(id: string): Promise<SdkType | null> {
     const record = await this.getRecord();
     const element = record[id];
-    return element ? this.mapper.toSdk(element) : null;
+    if (!element) {
+      return null;
+    }
+    return this.mapper.toSdk(element);
   }
 
   async list(): Promise<SdkType[]> {
