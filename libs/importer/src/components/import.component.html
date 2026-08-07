@@ -503,29 +503,9 @@
         </bit-form-field>
 
         @if (showKeyFile) {
-          <bit-form-field>
+          <bit-file-upload formControlName="keyFile" id="import_input_keyFile">
             <bit-label>{{ "keyFileUpload" | i18n }}</bit-label>
-            <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-              <button
-                bitButton
-                type="button"
-                buttonType="secondary"
-                (click)="keyFileSelector.click()"
-              >
-                {{ "chooseFile" | i18n }}
-              </button>
-              {{ this.keyFileSelected ? this.keyFileSelected.name : ("noFileChosen" | i18n) }}
-            </div>
-            <input
-              bitInput
-              #keyFileSelector
-              type="file"
-              id="import_input_keyFile"
-              (change)="setKeyFile($event)"
-              hidden
-              class="tw-hidden"
-            />
-          </bit-form-field>
+          </bit-file-upload>
         } @else {
           <button
             bitLink
@@ -540,32 +520,14 @@
           </button>
         }
 
-        <bit-form-field disableMargin>
+        <bit-file-upload
+          formControlName="file"
+          id="import_input_file"
+          [accept]="acceptedFileTypes ?? ''"
+        >
           <bit-label>{{ "kdbxFileUpload" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-            <button
-              bitButton
-              type="button"
-              buttonType="secondary"
-              (click)="kdbxFileSelector.click()"
-            >
-              {{ "chooseFile" | i18n }}
-            </button>
-            {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
-          </div>
-          <input
-            bitInput
-            #kdbxFileSelector
-            type="file"
-            id="import_input_file"
-            formControlName="file"
-            [attr.accept]="acceptedFileTypes"
-            (change)="setSelectedFile($event)"
-            hidden
-            class="tw-hidden"
-          />
           <bit-hint>{{ "acceptedFormatsKdbx" | i18n }}</bit-hint>
-        </bit-form-field>
+        </bit-file-upload>
       } @else {
         <!--
           We want to reuse the file selector below, so all the Keeper stuff has to be in this block.
@@ -580,26 +542,13 @@
 
         <!-- Show file selector and textarea for non-Keeper formats or non-direct Keeper methods -->
         @if (!isKeeperFormat || keeperMethod !== "direct") {
-          <bit-form-field>
+          <bit-file-upload
+            formControlName="file"
+            id="import_input_file"
+            [accept]="acceptedFileTypes ?? ''"
+          >
             <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-            <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-              <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-                {{ "chooseFile" | i18n }}
-              </button>
-              {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
-            </div>
-            <input
-              bitInput
-              #fileSelector
-              type="file"
-              id="import_input_file"
-              formControlName="file"
-              [attr.accept]="acceptedFileTypes"
-              (change)="setSelectedFile($event)"
-              hidden
-              class="tw-hidden"
-            />
-          </bit-form-field>
+          </bit-file-upload>
           <bit-form-field disableMargin>
             <bit-label>{{ "orCopyPasteFileContents" | i18n }}</bit-label>
             <textarea

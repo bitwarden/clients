@@ -1,0 +1,70 @@
+<bit-form-field [control]="formFieldControl">
+  <ng-content select="bit-label" ngProjectAs="bit-label" />
+
+  <div bitCustomInput>
+    <!-- Drag & drop area. The container forwards clicks to the (pointer-events-none) descendant
+       input; bit-form-field renders the sole canonical <label [for]> targeting the input via [id]. -->
+    <div
+      [class]="dropzoneClasses()"
+      (click)="onDropzoneClick()"
+      (dragenter)="onDragEnter($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <input
+        #fileInput
+        [id]="inputId()"
+        type="file"
+        class="tw-sr-only tw-pointer-events-none"
+        [accept]="accept()"
+        [multiple]="multiple()"
+        [disabled]="disabled() || null"
+        [attr.aria-describedby]="describedBy()"
+        (click)="onInputClick($event)"
+        (change)="onInputChange($event)"
+        (blur)="onBlur()"
+      />
+
+      <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
+        <span
+          [id]="instructionsId()"
+          class="tw-text-sm tw-font-medium"
+          [class.tw-text-fg-body-subtle]="!disabled()"
+          [class.tw-text-fg-inactive]="disabled()"
+        >
+          {{ "clickToUploadOrDragAndDrop" | i18n }}
+        </span>
+        @if (maxFileSize() != null) {
+          <span
+            [id]="maxFileSizeId()"
+            class="tw-text-xs"
+            [class.tw-text-fg-body-subtle]="!disabled()"
+            [class.tw-text-fg-inactive]="disabled()"
+          >
+            {{ "maxFileSizeParam" | i18n: maxFileSize() }}
+          </span>
+        }
+      </div>
+
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        tabindex="-1"
+        class="tw-pointer-events-none"
+        [disabled]="disabled()"
+      >
+        {{ "chooseFiles" | i18n }}
+      </button>
+    </div>
+
+    <span [id]="statusId()" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
+
+    <!-- Hint sits between the drop area and the file list; the wrapper owns this layout. -->
+    <ng-content select="bit-hint" />
+
+    <bit-file-list [files]="files()" [disabled]="disabled()" (fileRemoved)="onRemove($event)" />
+  </div>
+</bit-form-field>

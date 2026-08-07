@@ -44,8 +44,13 @@ export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfH
   protected async submit(): Promise<void> {
     await super.submit();
 
+    const file = this.formValue.file;
+    if (file == null) {
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("license", this.formValue.file);
+    formData.append("license", file);
 
     await this.apiService.postAccountLicense(formData);
 
