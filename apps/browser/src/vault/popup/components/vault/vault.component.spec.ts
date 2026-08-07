@@ -548,6 +548,23 @@ describe("VaultComponent", () => {
       flush();
     }));
 
+    /**
+     * The deactivated-org state exists to stop showing items belonging to a suspended
+     * organization, so the table must yield to it rather than render alongside it.
+     */
+    it("unmounts the table in the deactivated-org state", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
     it("still shows the page-level no-results state when the flag is off", fakeAsync(() => {
       const fixture = createWithFlag(false);
 

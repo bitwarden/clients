@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -33,15 +34,20 @@ class AlwaysPresentHostComponent {
 class HostComponent {}
 
 /**
- * jsdom reports every element as zero-height and never fires ResizeObserver, so drive the
- * measurement off a stubbed `offsetHeight` and an observer that invokes its callback on demand.
+ * jsdom reports every element as zero-height and never fires ResizeObserver, so the layout APIs
+ * are stubbed.
+ *
+ * Deliberately models the browser's behavior for **inline** elements, which is what the projected
+ * hosts are unless they opt out of it: `getBoundingClientRect` reports a real box, `offsetHeight`
+ * stays `0`, and ResizeObserver never reports at all. A measurement that keys off either of the
+ * latter two silently misses their content.
  */
 function stubLayout() {
-  const callbacks: (() => void)[] = [];
+  const resizeCallbacks: (() => void)[] = [];
 
   class FakeResizeObserver {
     constructor(private readonly cb: () => void) {
-      callbacks.push(() => this.cb());
+      resizeCallbacks.push(() => this.cb());
     }
     observe() {}
     disconnect() {}
@@ -49,7 +55,7 @@ function stubLayout() {
 
   (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = FakeResizeObserver;
 
-  return { flushResize: () => callbacks.forEach((cb) => cb()) };
+  return { flushResize: () => resizeCallbacks.forEach((cb) => cb()) };
 }
 
 describe("PopupPageComponent", () => {
@@ -62,13 +68,17 @@ describe("PopupPageComponent", () => {
   }
 
   /**
-   * Sets the rendered height of the projected host. Deliberately stubs the *child*, not the
-   * container: the container is padded even when empty, which is what made a container-level
-   * measurement report content that isn't there.
+   * Sets the rendered height of the projected host. Stubs the *child*, not the container: the
+   * container is padded even when empty, which is what made a container-level measurement report
+   * content that isn't there.
+   *
+   * `offsetHeight` stays `0` throughout — an inline element reports no offset box even when it has
+   * content — so only `getBoundingClientRect` reflects the height.
    */
   function setSlotHeight(height: number) {
-    const child = fixture.nativeElement.querySelector("always-present-host");
-    Object.defineProperty(child, "offsetHeight", { value: height, configurable: true });
+    const child = fixture.nativeElement.querySelector("always-present-host") as HTMLElement;
+    Object.defineProperty(child, "offsetHeight", { value: 0, configurable: true });
+    child.getBoundingClientRect = () => ({ height }) as DOMRect;
   }
 
   beforeEach(async () => {
@@ -112,6 +122,33 @@ describe("PopupPageComponent", () => {
     fixture.detectChanges();
 
     expect(container().className).toContain("!tw-p-0");
+  });
+
+  /**
+   * The real failure mode for an inline projected host: its content appears asynchronously inside
+   * the already-projected element, so the container's child list never changes and ResizeObserver
+   * — which does not report for non-replaced inline elements — never fires. Only a subtree
+   * mutation signals it.
+   */
+  it("notices content appearing inside an already-projected inline child", async () => {
+    setSlotHeight(0);
+    flushResize();
+    fixture.detectChanges();
+    expect(container().className).toContain("!tw-p-0");
+
+    // Content arrives inside the existing host — no new child of the container, no resize.
+    const host = fixture.debugElement.query(
+      By.directive(AlwaysPresentHostComponent),
+    ).componentInstance;
+    setSlotHeight(24);
+    host.show.set(true);
+    fixture.detectChanges();
+
+    // Let the MutationObserver deliver its records before asserting.
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+
+    expect(container().className).not.toContain("!tw-p-0");
   });
 
   it("settles instead of oscillating when the container collapses", () => {
