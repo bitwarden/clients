@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -29,8 +29,15 @@ import {
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../../platform/flags";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
+
+jest.mock("../../../platform/flags", () => ({
+  devFlagEnabled: jest.fn(),
+}));
+
+const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
 
 describe("VaultPopupAutofillService", () => {
   let testBed: TestBed;
@@ -55,10 +62,30 @@ describe("VaultPopupAutofillService", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  // A test overwrites `activeAccount$` to exercise the no-active-user path; capture the original
+  // stream so `beforeEach` can restore it and that overwrite cannot leak into later tests.
+  const activeAccountWithUser$ = accountService.activeAccount$;
+
+  // Controllable upstream subjects. `showFillAssistActiveBanner$` (and the other banner streams)
+  // capture these references at construction via shareReplay({ refCount: false }), so they must be
+  // wired before `testBed.inject` and driven via `.next()` rather than reassigned afterwards.
+  let pageDetailsSubject: BehaviorSubject<PageDetail[]>;
+  let blockedInteractionsUrisSubject: BehaviorSubject<any>;
+  let resolvedEnableFillAssistSubject: BehaviorSubject<boolean>;
+  let targetingRulesSubject: BehaviorSubject<any>;
 
   beforeEach(() => {
+    // `showFillAssistActiveBanner$` is gated behind this dev flag; default it on so the tests
+    // below exercise the targeting-rule logic. The gate itself is covered by its own test.
+    mockDevFlagEnabled.mockReturnValue(true);
+
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
+
+    // `clearAllMocks` clears call records but not implementations, and `accountService` is a shared
+    // instance, so re-establish both each test to keep cases order-independent.
+    mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+    accountService.activeAccount$ = activeAccountWithUser$;
     jest
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForCreditCardForm")
       .mockReturnValue(true);
@@ -66,8 +93,15 @@ describe("VaultPopupAutofillService", () => {
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForIdentityForm")
       .mockReturnValue(true);
 
-    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
-    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
+    pageDetailsSubject = new BehaviorSubject<PageDetail[]>([]);
+    blockedInteractionsUrisSubject = new BehaviorSubject({});
+    resolvedEnableFillAssistSubject = new BehaviorSubject(true);
+    targetingRulesSubject = new BehaviorSubject(null);
+
+    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(pageDetailsSubject);
+    mockDomainSettingsService.blockedInteractionsUris$ = blockedInteractionsUrisSubject;
+    mockDomainSettingsService.resolvedEnableFillAssist$ = resolvedEnableFillAssistSubject;
+    mockDomainSettingsService.targetingRules$ = targetingRulesSubject;
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -104,6 +138,82 @@ describe("VaultPopupAutofillService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
+  });
+
+  describe("showFillAssistActiveBanner$", () => {
+    const applicableTargetingRules = {
+      "example.com": { forms: [{ category: "login", fields: {} }] },
+    } as any;
+
+    it("emits `false` when the `fillAssistDevTools` dev flag is disabled, even if rules apply", async () => {
+      mockDevFlagEnabled.mockReturnValue(false);
+      targetingRulesSubject.next(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+      expect(mockDevFlagEnabled).toHaveBeenCalledWith("fillAssistDevTools");
+    });
+
+    it("emits `true` when the current tab has targeted fill rules", async () => {
+      targetingRulesSubject.next(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
+    });
+
+    it("emits `true` when the current tab is blocklisted by a targeting rule (a null host entry), which Fill Assist actively enforces", async () => {
+      // A `null` host entry suppresses autofill on all of the host's pages; the matcher returns an
+      // empty array (not `null`), so Fill Assist is still considered active for the tab.
+      targetingRulesSubject.next({ "example.com": null } as any);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
+    });
+
+    it("emits `false` when no targeting rules apply to the current tab", async () => {
+      targetingRulesSubject.next({ "other.example.org": { forms: [{}] } } as any);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits `false` when Fill Assist is disabled, even if rules apply", async () => {
+      resolvedEnableFillAssistSubject.next(false);
+      targetingRulesSubject.next(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits `false` when there is no current tab, even if rules would otherwise apply", async () => {
+      jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
+      service.refreshCurrentTab();
+      // `currentAutofillTab$` replays the tab resolved at construction, so wait for the refreshed
+      // (null) tab to propagate before asserting.
+      await firstValueFrom(service.currentAutofillTab$.pipe(filter((tab) => tab == null)));
+      targetingRulesSubject.next(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits `false` while the tab is blocklisted, even if the blocked banner was dismissed and rules apply", async () => {
+      targetingRulesSubject.next(applicableTargetingRules);
+      // `bannerIsDismissed: true` means the blocked banner is hidden, but the tab is still blocked.
+      blockedInteractionsUrisSubject.next({ "example.com": { bannerIsDismissed: true } });
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("re-evaluates and emits `true` once the tab is no longer blocklisted and rules apply", async () => {
+      targetingRulesSubject.next(applicableTargetingRules);
+      blockedInteractionsUrisSubject.next({ "example.com": { bannerIsDismissed: false } });
+
+      const tracked = subscribeTo(service.showFillAssistActiveBanner$);
+      await tracked.pauseUntilReceived(1);
+      expect(tracked.emissions[0]).toBe(false);
+
+      // Tab is unblocked (removed from the blocked-interactions list).
+      blockedInteractionsUrisSubject.next({});
+      await tracked.pauseUntilReceived(2);
+
+      expect(tracked.emissions[1]).toBe(true);
+      tracked.unsubscribe();
+    });
   });
 
   describe("currentAutofillTab$", () => {
@@ -187,6 +297,7 @@ describe("VaultPopupAutofillService", () => {
       mockPageDetails$ = new BehaviorSubject(mockPageDetails);
 
       mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(mockPageDetails$);
+      mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
 
       expectedAutofillArgs = {
         tab: mockCurrentTab,
@@ -205,16 +316,36 @@ describe("VaultPopupAutofillService", () => {
     describe("doAutofill()", () => {
       it("should return true if autofill is successful", async () => {
         mockCipher.id = "test-cipher-id";
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(true);
         expect(mockAutofillService.doAutoFill).toHaveBeenCalledWith(expectedAutofillArgs);
       });
 
       it("should return false if autofill is not successful", async () => {
-        mockAutofillService.doAutoFill.mockRejectedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: null,
+          message: mockI18nService.t("autofillError"),
+        });
+        // A no-fill is a normal outcome, not an error to log.
+        expect(mockLogService.error).not.toHaveBeenCalled();
+      });
+
+      it("should return false and surface an error toast if doAutoFill rejects unexpectedly", async () => {
+        // `doAutoFill` reports a no-fill as a value, but a genuine failure mid-fill still rejects; the
+        // retained catch keeps that from becoming an unhandled rejection.
+        const error = new Error("boom");
+        mockAutofillService.doAutoFill.mockRejectedValue(error);
+        const result = await service.doAutofill(mockCipher);
+        expect(result).toBe(false);
+        // Pin the failure to the catch path specifically: a guard firing before `doAutoFill` would
+        // produce the same result + toast, so assert the rejection was actually reached and logged.
+        expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
+        expect(mockLogService.error).toHaveBeenCalledWith(error);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -223,9 +354,12 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if tab is null", async () => {
-        jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
+        // `currentAutofillTab$` caches its construction-time value, so overriding it is the reliable
+        // way to drive a null tab into the guard.
+        (service as any).currentAutofillTab$ = of(null);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -234,9 +368,10 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if missing page details", async () => {
-        mockPageDetails$.next([]);
+        (service as any)._currentPageDetails$ = of([]);
         const result = await service.doAutofill(mockCipher);
         expect(result).toBe(false);
+        expect(mockAutofillService.doAutoFill).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           title: null,
@@ -254,7 +389,7 @@ describe("VaultPopupAutofillService", () => {
       it("should copy TOTP code to clipboard if available", async () => {
         mockCipher.id = "test-cipher-id-with-totp";
         const totpCode = "123456";
-        mockAutofillService.doAutoFill.mockResolvedValue(totpCode);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: totpCode });
         await service.doAutofill(mockCipher);
         expect(mockPlatformUtilsService.copyToClipboard).toHaveBeenCalledWith(
           totpCode,
@@ -265,7 +400,6 @@ describe("VaultPopupAutofillService", () => {
       it("skips password prompt when skipPasswordReprompt is true", async () => {
         mockCipher.id = "cipher-with-reprompt";
         mockCipher.reprompt = CipherRepromptType.Password;
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
 
         const result = await service.doAutofill(mockCipher, true, true);
 
@@ -326,7 +460,6 @@ describe("VaultPopupAutofillService", () => {
         mockPlatformUtilsService.isFirefox.mockReturnValue(true);
 
         // Default to happy path
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
         mockCipherService.updateWithServer.mockResolvedValue(null);
       });
 
@@ -338,7 +471,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should return false if autofill is not successful", async () => {
-        mockAutofillService.doAutoFill.mockRejectedValue(null);
+        mockAutofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(false);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -407,7 +540,6 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should show success toast after saving the cipher if closePop is false", async () => {
-        mockAutofillService.doAutoFill.mockResolvedValue(null);
         const result = await service.doAutofillAndSave(mockCipher, false);
         expect(result).toBe(true);
         expect(BrowserApi.closePopup).not.toHaveBeenCalled();

@@ -5,7 +5,6 @@ import {
   OrganizationUserBulkResponse,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import {
   AsyncActionsModule,
@@ -18,7 +17,10 @@ import {
   DialogService,
   TableModule,
 } from "@bitwarden/components";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 
 import { BaseBulkRemoveComponent } from "./base-bulk-remove.component";
 import { BulkUserDetails } from "./bulk-status.component";
@@ -35,6 +37,7 @@ type BulkRemoveDialogParams = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,
@@ -53,9 +56,13 @@ export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {
 
   constructor() {
     super();
+    const masterPasswordWarningStatuses: BulkUserDetails["status"][] = [
+      OrganizationUserStatusType.Accepted,
+      OrganizationUserStatusType.Confirmed,
+    ];
     this.showNoMasterPasswordWarning.set(
       this.users().some(
-        (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+        (u) => masterPasswordWarningStatuses.includes(u.status) && u.hasMasterPassword === false,
       ),
     );
   }

@@ -51,6 +51,14 @@ describe("Protonpass Json Importer", () => {
     expect(noteCipher.type).toEqual(CipherType.SecureNote);
     expect(noteCipher.name).toEqual("My Secure Note");
     expect(noteCipher.notes).toEqual("Secure note contents.");
+
+    expect(noteCipher.fields.length).toEqual(2);
+    expect(noteCipher.fields.at(0).name).toEqual("note text field");
+    expect(noteCipher.fields.at(0).value).toEqual("note text value");
+    expect(noteCipher.fields.at(0).type).toEqual(FieldType.Text);
+    expect(noteCipher.fields.at(1).name).toEqual("note hidden field");
+    expect(noteCipher.fields.at(1).value).toEqual("note hidden value");
+    expect(noteCipher.fields.at(1).type).toEqual(FieldType.Hidden);
   });
 
   it("should parse credit card data", async () => {
@@ -69,9 +77,17 @@ describe("Protonpass Json Importer", () => {
     expect(creditCardCipher.card.expMonth).toBe("1");
     expect(creditCardCipher.card.expYear).toBe("2025");
     expect(creditCardCipher.card.code).toBe("333");
+    expect(creditCardCipher.fields.length).toEqual(3);
     expect(creditCardCipher.fields.at(0).name).toEqual("PIN");
     expect(creditCardCipher.fields.at(0).value).toEqual("1234");
     expect(creditCardCipher.fields.at(0).type).toEqual(FieldType.Hidden);
+
+    expect(creditCardCipher.fields.at(1).name).toEqual("card text field");
+    expect(creditCardCipher.fields.at(1).value).toEqual("card text value");
+    expect(creditCardCipher.fields.at(1).type).toEqual(FieldType.Text);
+    expect(creditCardCipher.fields.at(2).name).toEqual("card hidden field");
+    expect(creditCardCipher.fields.at(2).value).toEqual("card hidden value");
+    expect(creditCardCipher.fields.at(2).type).toEqual(FieldType.Hidden);
   });
 
   it("should create folders if not part of an organization", async () => {
@@ -86,7 +102,7 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.folderRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.folderRelationships[4]).toEqual([4, 1]);
+    expect(result.folderRelationships[7]).toEqual([7, 1]);
   });
 
   it("should create collections if part of an organization", async () => {
@@ -103,7 +119,7 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.collectionRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.collectionRelationships[4]).toEqual([4, 1]);
+    expect(result.collectionRelationships[7]).toEqual([7, 1]);
   });
 
   it("should not add deleted items", async () => {
@@ -115,7 +131,7 @@ describe("Protonpass Json Importer", () => {
       expect(cipher.name).not.toBe("My Deleted Note");
     }
 
-    expect(ciphers.length).toBe(5);
+    expect(ciphers.length).toBe(8);
   });
 
   it("should set favorites", async () => {
@@ -128,14 +144,56 @@ describe("Protonpass Json Importer", () => {
     expect(ciphers[2].favorite).toBe(true);
   });
 
-  it("should skip unsupported items", async () => {
+  it("should parse alias data as a login", async () => {
     const testDataJson = JSON.stringify(testData);
     const result = await importer.parse(testDataJson);
     expect(result != null).toBe(true);
 
-    const ciphers = result.ciphers;
-    expect(ciphers.length).toBe(5);
-    expect(ciphers[4].type).toEqual(CipherType.Login);
+    const cipher = result.ciphers[4];
+    expect(cipher.name).toEqual("Alias");
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.login.username).toEqual("alias.removing005@passinbox.com");
+  });
+
+  it("should parse custom item data as a secure note", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers[5];
+    expect(cipher.name).toEqual("Custom Item");
+    expect(cipher.type).toEqual(CipherType.SecureNote);
+    expect(cipher.notes).toEqual("custom item note");
+
+    expect(cipher.fields.at(0).name).toEqual("Account number");
+    expect(cipher.fields.at(0).value).toEqual("123456789");
+    expect(cipher.fields.at(0).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(1).name).toEqual("PIN");
+    expect(cipher.fields.at(1).value).toEqual("0000");
+    expect(cipher.fields.at(1).type).toEqual(FieldType.Hidden);
+
+    // Fields nested in content sections are preserved as custom fields
+    expect(cipher.fields.at(2).name).toEqual("SectionField");
+    expect(cipher.fields.at(2).value).toEqual("section value");
+    expect(cipher.fields.at(2).type).toEqual(FieldType.Text);
+  });
+
+  it("should parse ssh key data", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    const cipher = result.ciphers[6];
+    expect(cipher.name).toEqual("SSH Key Item");
+    expect(cipher.type).toEqual(CipherType.SshKey);
+    expect(cipher.sshKey.privateKey).toEqual(
+      "-----BEGIN PRIVATE KEY-----\nPRIVATEKEYCONTENT\n-----END PRIVATE KEY-----\n",
+    );
+    expect(cipher.sshKey.publicKey).toEqual("ssh-ed25519 AAAAPUBLICKEY");
+
+    expect(cipher.fields.at(0).name).toEqual("Host");
+    expect(cipher.fields.at(0).value).toEqual("example.com");
   });
 
   it("should parse identity data", async () => {

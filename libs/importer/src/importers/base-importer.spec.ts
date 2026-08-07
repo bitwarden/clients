@@ -35,6 +35,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [],
       success: false,
       errorMessage: "",
@@ -49,6 +50,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -70,6 +72,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -94,6 +97,7 @@ describe("processFolder method", () => {
       folderRelationships: [],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [{ name: "cipher1", id: "cipher1" } as CipherView],
       success: false,
       errorMessage: "",
@@ -128,6 +132,7 @@ describe("processFolder method", () => {
       ],
       collections: [],
       collectionRelationships: [],
+      errors: [],
       ciphers: [
         { name: "cipher1", id: "cipher1" } as CipherView,
         { name: "cipher2", id: "cipher2" } as CipherView,
@@ -171,6 +176,13 @@ describe("processFolder method", () => {
       "Parent/Child",
       "Parent",
     ]);
+  });
+
+  it("should trim leading slashes from folder names to prevent unnecessary creations", () => {
+    importer.processFolder(result, "\\Parent\\Child");
+
+    expect(result.folders).toHaveLength(2);
+    expect(result.folders.map((f) => f.name)).toEqual(["Parent/Child", "Parent"]);
   });
 
   it("should handle empty or null folder names gracefully", () => {

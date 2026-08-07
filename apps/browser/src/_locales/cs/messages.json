@@ -119,6 +119,9 @@
   "vault": {
     "message": "Trezor"
   },
+  "vaults": {
+    "message": "Trezory"
+  },
   "myVault": {
     "message": "Můj trezor"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Otevřít webovou stránku"
   },
-  "launchWebsiteName": {
-    "message": "Spustit web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Spustit web pro $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,17 +1370,17 @@
   "additionalOptions": {
     "message": "Další volby"
   },
-  "enableFillAssist": {
-    "message": "Použít asistenta vyplňování"
+  "fillAssistActiveNotice": {
+    "message": "Automatické vyplňování na této stránce využívá Fill Assist."
   },
-  "turnOnFillAssist": {
-    "message": "Zapnout asistenta vyplňování"
+  "activateFillAssist": {
+    "message": "Zapnout Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Asistent vyplňování zvyšuje přesnost automatického vyplňování na podporovaných stránkách pomocí pravidel pro konkrétní web. Při použití této funkce nejsou shromažďována ani ukládána žádná data."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist zvyšuje přesnost automatického vyplňování na podporovaných webech pomocí pravidel specifických pro daný web. Při používání této funkce se žádná data neshromažďují ani neukládají."
   },
-  "aboutFillAssist": {
-    "message": "O asistentovi vyplňování"
+  "aboutFillAssistLabel": {
+    "message": "O Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
@@ -1455,7 +1458,7 @@
   "accountRestricted": {
     "message": "Omezeno jen na účet"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
   },
   "warning": {
@@ -1469,7 +1472,7 @@
   "confirmVaultExport": {
     "message": "Potvrdit export trezoru"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "Tento export obsahuje data Vašeho trezoru v nezašifrovaném formátu. Soubor s exportem byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití."
   },
   "encExportKeyWarningDesc": {
@@ -1495,6 +1498,12 @@
   },
   "myFolders": {
     "message": "Moje složky"
+  },
+  "addSharedFolder": {
+    "message": "Přidat sdílenou složku"
+  },
+  "newSharedFolder": {
+    "message": "Nová sdílená složka"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pro podnikání Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com."
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
+  },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
   },
   "attachments": {
     "message": "Přílohy"
@@ -1626,7 +1650,7 @@
   "premiumSignUpAndGet": {
     "message": "Přihlaste se k členství Premium a získejte:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1677,16 @@
   "restartPremium": {
     "message": "Restartovat Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Reporty o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
+  "premiumSignUpReports": {
+    "message": "Hlášení o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Generátor TOTP kódu dvoufázového přihlašování (2FA) pro přihlašovací údaje ve Vašem trezoru."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Prioritní zákaznickou podporu."
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "Všechny budoucí funkce členství Premium. Více již brzy!"
   },
   "premiumPurchase": {
@@ -1748,7 +1772,7 @@
     "message": "Přečíst bezpečnostní klíč"
   },
   "readingPasskeyLoading": {
-    "message": "Načítání přístupového klíče..."
+    "message": "Načítání přístupového klíče…"
   },
   "passkeyAuthenticationFailed": {
     "message": "Ověření přístupového klíče selhalo"
@@ -1757,7 +1781,7 @@
     "message": "Použít jinou metodu přihlášení"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+    "message": "Čeká se na interakci s bezpečnostním klíčem…"
   },
   "loginUnavailable": {
     "message": "Přihlášení není dostupné"
@@ -2548,7 +2572,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Vymazat historii generátoru"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Pokud budete pokračovat, všechny položky budou trvale smazány z historie generátoru. Jste si jisti, že chcete pokračovat?"
   },
   "back": {
@@ -2593,6 +2617,92 @@
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Vše"
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
   },
   "selected": {
     "message": "Vybráno"
@@ -3073,10 +3183,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Aplikace pro počítač je přihlášena k jinému účtu. Ujistěte se, že jsou obě aplikace přihlášeny ke stejnému účtu."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "Neshoda účtů"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Neshoda biometrického klíče"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,16 +3222,16 @@
   "biometricsFailedDesc": {
     "message": "Biometriku nelze dokončit, zvažte použití hlavního hesla nebo odhlášení. Pokud to přetrvává, kontaktujte podporu Bitwardenu."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Oprávnění nebylo uděleno"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Bez oprávnění ke komunikaci s aplikací Bitwarden pro počítač nelze v rozšíření prohlížeče používat biometrické údaje. Zkuste to znovu."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Žádost o oprávnění selhala"
   },
-  "nativeMessaginPermissionSidebarDesc": {
+  "nativeMessagingPermissionSidebarDesc": {
     "message": "Tuto akci nelze provést v postranním panelu, zkuste akci znovu v novém okně."
   },
   "personalOwnershipSubmitError": {
@@ -3185,6 +3295,10 @@
   },
   "atRiskPasswords": {
     "message": "Zranitelná hesla"
+  },
+  "atRisk": {
+    "message": "zranitelné",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ Vás žádá o změnu 1 hesla, protože je zranitelné.",
@@ -3621,7 +3735,7 @@
     "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo."
   },
   "selectFolder": {
-    "message": "Vyberte složku..."
+    "message": "Vyberte složku…"
   },
   "noFoldersFound": {
     "message": "Nebyly nalezeny žádné složky",
@@ -3930,7 +4044,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Neplatný token API $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +4054,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +4068,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +4078,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4028,6 +4142,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Přidat předponu webových stránek",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Pokud je povoleno, bude doména aktuální webové stránky použita jako předpona pro vygenerovanou e-mailovou adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Název hostitele",
     "description": "Part of a URL."
@@ -4041,7 +4163,7 @@
   "ssoKeyConnectorError": {
     "message": "Chyba Key Connector: ujistěte se, že je Key Connector k dispozici a funguje správně."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Je vyžadováno předplatné Premium"
   },
   "organizationIsDisabled": {
@@ -4570,7 +4692,7 @@
     "message": "-- Pište pro filtrování --"
   },
   "multiSelectLoading": {
-    "message": "Načítání voleb..."
+    "message": "Načítání voleb…"
   },
   "multiSelectNotFound": {
     "message": "Nebyly nalezeny žádné položky"
@@ -4799,8 +4921,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -5035,7 +5178,7 @@
     "message": "E-mail LastPass"
   },
   "importingYourAccount": {
-    "message": "Importování Vašeho účtu..."
+    "message": "Importování Vašeho účtu…"
   },
   "lastPassMFARequired": {
     "message": "Je vyžadováno vícefaktorové ověření LastPass"
@@ -5466,6 +5609,12 @@
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
   },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
+  },
   "passkeyRemoved": {
     "message": "Přístupový klíč byl odebrán"
   },
@@ -5487,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
-  "copyInfoTitle": {
-    "message": "Kopírovat informace - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5745,17 @@
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Žádné hodnoty ke zkopírování"
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
   },
   "copyEmail": {
     "message": "Kopírovat e-mail"
@@ -5744,6 +5899,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Sdílená složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Sbírka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Moje složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Vy",
@@ -6015,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -6054,8 +6269,8 @@
   "linkedHelpText": {
     "message": "Použijte propojené pole, pokud máte problémy s automatickým vyplňováním na konkrétní webové stránce."
   },
-  "linkedLabelHelpText": {
-    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak pole."
+  "linkedFieldLabelHelpText": {
+    "message": "Zadejte ID pole z HTML, název, popisek nebo zástupný znak."
   },
   "editField": {
     "message": "Upravit pole"
@@ -6122,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -6216,10 +6458,16 @@
     "message": "Umístění položky"
   },
   "fileSends": {
-    "message": "Sends se soubory"
+    "message": "Sends se soubory",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Sends s texty"
+    "message": "Sends s texty",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Položky Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Činnosti účtu"
@@ -6239,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Zobrazit tlačítka pro rychlé zkopírování v trezoru"
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "systemDefault": {
     "message": "Výchozí systémový"
@@ -6554,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte aplikaci pro stolní počítač"
   },
@@ -6736,6 +6993,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
+  },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
   },
@@ -6757,7 +7017,7 @@
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Více...",
+    "message": "Více…",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
@@ -7034,6 +7294,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Pokud je povoleno, stav odemknutí bude sdílen s webovým trezorem Bitwarden."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Sdílené odemknutí není k dispozici, protože jste se rozhodli nepamatovat si toto zařízení. Chcete-li toto nastavení povolit, zkuste se znovu přihlásit."
+  },
   "newPermissionNeeded": {
     "message": "Je vyžadováno nové oprávnění"
   },
@@ -7240,5 +7503,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Zdraví"
+  },
+  "scanMyVault": {
+    "message": "Prohledat můj trezor"
+  },
+  "introducingHealth": {
+    "message": "Představujeme Zdraví"
+  },
+  "healthIntroDescription": {
+    "message": "Sledujte a zlepšujte zdraví Vašeho trezoru opravením hesel, která jsou ohrožená, slabá a/nebo znovu použita."
   }
 }

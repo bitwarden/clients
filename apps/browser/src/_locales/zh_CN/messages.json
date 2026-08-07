@@ -119,6 +119,9 @@
   "vault": {
     "message": "密码库"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "我的密码库"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "打开网站"
   },
-  "launchWebsiteName": {
-    "message": "前往 $ITEMNAME$ 的网站",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,16 +1370,16 @@
   "additionalOptions": {
     "message": "附加选项"
   },
-  "enableFillAssist": {
-    "message": "使用填充辅助"
+  "fillAssistActiveNotice": {
+    "message": "正在在此页面上使用填充辅助自动填充。"
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "启用填充辅助"
   },
-  "enableFillAssistDescription": {
-    "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
+  "activateFillAssistDescription": {
+    "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能不会收集或保存任何数据。"
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "关于填充辅助"
   },
   "enableContextMenuItem": {
@@ -1455,8 +1458,8 @@
   "accountRestricted": {
     "message": "账户限制"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "「文件密码」与「确认文件密码」不一致。"
+  "filePasswordConfirmationMismatch": {
+    "message": "「文件密码」和「确认文件密码」不匹配。"
   },
   "warning": {
     "message": "警告",
@@ -1469,7 +1472,7 @@
   "confirmVaultExport": {
     "message": "确认密码库导出"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
@@ -1485,16 +1488,22 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "共享文件夹"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "共享文件夹"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "我的文件夹"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "我的文件夹"
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden 商业版允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。"
@@ -1516,7 +1525,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "learnMore": {
     "message": "进一步了解"
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "复制验证码"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "附件"
@@ -1626,7 +1650,7 @@
   "premiumSignUpAndGet": {
     "message": "注册高级版成员资格并获得："
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
   "premiumSignUpStorageV2": {
@@ -1653,16 +1677,16 @@
   "restartPremium": {
     "message": "重启高级版"
   },
-  "ppremiumSignUpReports": {
+  "premiumSignUpReports": {
     "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "优先客户支持。"
   },
-  "ppremiumSignUpFuture": {
+  "premiumSignUpFuture": {
     "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
@@ -1897,7 +1921,7 @@
     "message": "URI 匹配规则"
   },
   "neverMatch": {
-    "message": "永不匹配"
+    "message": "从不匹配"
   },
   "loginHasNoSiteSaved": {
     "message": "登录未保存任何站点"
@@ -2548,7 +2572,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "清除生成器历史记录"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "若继续，所有条目将从生成器历史记录中永久删除。确定要继续吗？"
   },
   "back": {
@@ -2593,6 +2617,92 @@
   "clear": {
     "message": "清除",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "选择所有行"
+  },
+  "selectRow": {
+    "message": "选择行"
+  },
+  "showingItemRange": {
+    "message": "显示 $START$ - $END$ / $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "每页行数"
+  },
+  "rowsPerPageOption": {
+    "message": "每页 $COUNT$ 行",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "全部"
+  },
+  "clearAll": {
+    "message": "清除全部"
+  },
+  "done": {
+    "message": "完成"
+  },
+  "filter": {
+    "message": "筛选"
+  },
+  "filtersSelected": {
+    "message": "已选择 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "上一页"
+  },
+  "nextPage": {
+    "message": "下一页"
+  },
+  "goToPage": {
+    "message": "跳转至..."
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "没有匹配的项目"
   },
   "selected": {
     "message": "已选择"
@@ -3073,10 +3183,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "桌面应用程序登录到了不同的账户。请确保两个应用程序都登录到同一个账户。"
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "账户不匹配"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "生物识别密钥不匹配"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -3112,17 +3222,17 @@
   "biometricsFailedDesc": {
     "message": "生物识别无法完成，请尝试使用主密码或注销。如果仍无法解决，请联系 Bitwarden 支持。"
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "未提供权限"
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "由于没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "权限请求错误"
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出对话框中重试。"
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出面板中重试。"
   },
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
@@ -3185,6 +3295,10 @@
   },
   "atRiskPasswords": {
     "message": "存在风险的密码"
+  },
+  "atRisk": {
+    "message": "存在风险",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ 要求您更改 1 个密码，因为它存在风险。",
@@ -3304,7 +3418,7 @@
     "message": "启用自动填充"
   },
   "turnedOnAutofill": {
-    "message": "已启用自动填充"
+    "message": "启用了自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -3930,7 +4044,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "无效的 $SERVICENAME$ API 令牌",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3940,7 +4054,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "无效的 $SERVICENAME$ API 令牌：$ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3954,7 +4068,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3964,7 +4078,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4028,6 +4142,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
@@ -4041,7 +4163,7 @@
   "ssoKeyConnectorError": {
     "message": "Key Connector 错误：请确保 Key Connector 可用且工作正常。"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "需要高级版订阅"
   },
   "organizationIsDisabled": {
@@ -4799,8 +4921,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "此 SSH 密钥无法导入"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "不受支持的项目类型"
+  },
+  "importSkipReasonGeneric": {
+    "message": "此项目无法导入"
+  },
+  "identifier": {
+    "message": "标识符"
   },
   "contact": {
     "message": "联系人"
@@ -5029,7 +5172,7 @@
     "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
   },
   "includeSharedFolders": {
-    "message": "包含共享的文件夹"
+    "message": "包含共享文件夹"
   },
   "lastPassEmail": {
     "message": "LastPass Email"
@@ -5417,7 +5560,7 @@
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "关闭浏览器自动填充设置以避免冲突。",
+    "message": "停用浏览器自动填充设置以避免冲突。",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
@@ -5466,6 +5609,12 @@
   "removePasskey": {
     "message": "移除通行密钥"
   },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
+  },
   "passkeyRemoved": {
     "message": "通行密钥已移除"
   },
@@ -5487,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "清除筛选或尝试其他搜索词"
   },
-  "copyInfoTitle": {
-    "message": "复制信息 - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5745,17 @@
     "message": "未输入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "没有可复制的值"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "分配到集合"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "复制电子邮箱"
@@ -5744,6 +5899,60 @@
   },
   "owner": {
     "message": "所有者"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "您",
@@ -6015,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
@@ -6054,8 +6269,8 @@
   "linkedHelpText": {
     "message": "当您遇到特定网站的自动填充问题时，请使用链接型字段。"
   },
-  "linkedLabelHelpText": {
-    "message": "输入字段的 html id、名称、aria-label 或占位符。"
+  "linkedFieldLabelHelpText": {
+    "message": "输入字段的 HTML id、name、aria-label 或占位符。"
   },
   "editField": {
     "message": "编辑字段"
@@ -6122,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -6216,10 +6458,16 @@
     "message": "项目位置"
   },
   "fileSends": {
-    "message": "文件 Send"
+    "message": "文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "文本 Send"
+    "message": "文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "账户操作"
@@ -6239,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "在密码库上显示快速复制操作"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "跟随系统"
@@ -6554,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "请更新您的桌面应用程序"
   },
@@ -6735,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
@@ -7034,6 +7294,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "启用后，解锁状态将与 Bitwarden 网页密码库共享。"
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"
+  },
   "newPermissionNeeded": {
     "message": "需要新权限"
   },
@@ -7240,5 +7503,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "健康度"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }

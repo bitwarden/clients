@@ -78,7 +78,6 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly disabled = input<boolean>();
   protected readonly showOwner = input<boolean>();
-  protected readonly showPremiumFeatures = input<boolean>();
   protected readonly allOrganizations = input<Organization[]>([]);
   protected readonly allCollections = input<CollectionView[]>([]);
   protected readonly userCanArchive = input<boolean>();
@@ -114,6 +113,11 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly barVisible = computed(
     () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
+  );
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
   );
 
   protected dataSource = new TableDataSource<VaultItem<C>>();

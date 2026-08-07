@@ -23,6 +23,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 
 export interface BulkUserDetails {
   id: string;
@@ -59,6 +60,7 @@ type BulkStatusDialogData = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AvatarIdPipe,
     AvatarModule,
     ButtonModule,
     CalloutModule,

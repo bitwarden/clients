@@ -105,16 +105,64 @@
     "message": "مشارك"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "المجلد المشترك"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "المجلدات المشتركة"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "مجلدي"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "مجلداتي"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
   },
   "share": {
     "message": "مشاركة"
@@ -438,7 +486,7 @@
     "message": "جملة المرور"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "مسافة",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
@@ -470,6 +518,15 @@
   },
   "launch": {
     "message": "تشغيل"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "نسخ القيمة",
@@ -878,6 +935,60 @@
   "owner": {
     "message": "المالك"
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "إضافة حقل"
   },
@@ -918,7 +1029,7 @@
     "message": "استخدم حقلا مرتبطا عند مواجهة مشكلات في الملء التلقائي لموقع ويب معين."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "أدخل معرف HTML الخاص بالحقل، أو اسمه، أو aria-label، أو النص النائب."
   },
   "folder": {
     "message": "المجلد"
@@ -1904,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "عرض أيقونات المواقع واسترداد روابط تغيير كلمة المرور"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "إبقاء Bitwarden قيد التشغيل في الخلفية"
   },
@@ -1999,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "نسخ رمز التحقق"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "نسخ اسم المستخدم"
@@ -2115,7 +2267,7 @@
     "message": "مسح سجل المولد"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "إذا تابعت، سيتم حذف جميع الإدخالات نهائيا من سجل المولد. هل أنت متأكد من أنك تريد المتابعة؟"
   },
   "clear": {
     "message": "مسح",
@@ -2149,6 +2301,92 @@
   },
   "selectAll": {
     "message": "تحديد الكل"
+  },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "تم"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
   },
   "selected": {
     "message": "تم اختياره"
@@ -2391,10 +2629,7 @@
     "message": "تمنعك سياسة محددة من منظمة واحدة أو أكثر من استيراد البطاقات إلى خزناتك."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
-  },
-  "done": {
-    "message": "تم"
+    "message": "\"كلمة مرور الملف\" و\"تأكيد كلمة مرور الملف\" غير متطابقتين."
   },
   "warning": {
     "message": "تحذير",
@@ -2404,7 +2639,7 @@
     "message": "تأكيد تصدير الخزنة"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "يحتوي هذا التصدير على بيانات خزنتك بصيغة غير مشفرة. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه فورا بعد الانتهاء من استخدامه."
   },
   "encExportKeyWarningDesc": {
     "message": "يشفر هذا التصدير بياناتك باستخدام مفتاح تشفير حسابك. إذا قمت بتدوير مفتاح تشفير حسابك في أي وقت، فيجب عليك التصدير مجدداً لأنك لن تتمكن من فك تشفير ملف التصدير هذا."
@@ -3305,6 +3540,9 @@
   "options": {
     "message": "الخيارات"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "sessionTimeout": {
     "message": "انتهت مهلة جلستك. يرجى العودة ومحاولة تسجيل الدخول مرة أخرى."
   },
@@ -3519,7 +3757,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "رمز API لـ $SERVICENAME$ غير صالح",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3529,7 +3767,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "رمز API لـ $SERVICENAME$ غير صالح: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3543,7 +3781,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "رفض $SERVICENAME$ طلبك. يرجى التواصل مع مزود الخدمة للحصول على المساعدة.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3553,7 +3791,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "رفض $SERVICENAME$ طلبك:$ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3616,6 +3854,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "اسم المضيف",
     "description": "Part of a URL."
@@ -3627,7 +3873,7 @@
     "message": "مفتاح API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "الاشتراك في الباقة Premium مطلوب"
   },
   "organizationIsDisabled": {
     "message": "تم تعليق نشاط المنظمة"
@@ -4220,8 +4466,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "تعذر قراءة العناصر التالية ولن يتم تضمينها في عملية الاستيراد الخاصة بك:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "جهة اتصال"
@@ -4695,6 +4962,12 @@
   "removePasskey": {
     "message": "إزالة مفتاح المرور"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "passkeyRemoved": {
     "message": "تمت إزالة مفتاح المرور"
   },
@@ -4968,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "نقل"
   },
@@ -5066,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "سيستخدم Bitwarden عناوين URI المحفوظة لتسجيل الدخول لتحديد الأيقونة المناسبة أو رابط تغيير كلمة المرور لتحسين تجربتك. لا يتم جمع أي معلومات أو حفظها عند استخدام هذه الخدمة."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "تعيين إلى المجموعات"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "تعيين لهذه المجموعات"
@@ -5075,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العناصر."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
     "message": "لم يتم تعيين أي مجموعات"
@@ -5136,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "سيتم نقل عنصر واحد بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذا العنصر بعد الآن."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "سيتم نقل عناصر $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذه العناصر بعد الآن.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "تم تخصيص المجموعات بنجاح"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "تم نقل العنصر إلى المجموعة"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "تم نقل العنصر إلى المجموعات"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "تم نقل العناصر إلى المجموعة"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "تم نقل العناصر إلى المجموعات"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "تم إدراج العنصر في المجموعات"

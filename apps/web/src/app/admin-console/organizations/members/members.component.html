@@ -103,7 +103,13 @@
                 </th>
               }
               <th bitCell bitSortable="email" default>{{ "name" | i18n }}</th>
-              <th bitCell>{{ (organization.useGroups ? "groups" : "collections") | i18n }}</th>
+              <th bitCell>
+                {{
+                  organization.useGroups
+                    ? ("groups" | i18n)
+                    : ("collections" | vfo1I18n: "sharedFolders")
+                }}
+              </th>
               <th bitCell bitSortable="type">{{ "role" | i18n }}</th>
               <th bitCell>{{ "policies" | i18n }}</th>
               <th bitCell class="tw-w-10">
@@ -222,7 +228,7 @@
                   <div class="tw-flex tw-items-center">
                     <bit-avatar
                       [text]="u | userName"
-                      [id]="u.userId"
+                      [id]="u | avatarId"
                       [color]="u.avatarColor"
                       class="tw-mr-3"
                     ></bit-avatar>
@@ -283,7 +289,7 @@
                   <div class="tw-flex tw-items-center">
                     <bit-avatar
                       [text]="u | userName"
-                      [id]="u.userId"
+                      [id]="u | avatarId"
                       [color]="u.avatarColor"
                       class="tw-mr-3"
                     ></bit-avatar>
@@ -462,8 +468,8 @@
                         bitMenuItem
                         (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
-                        {{ "collections" | i18n }}
+                        <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+                        {{ "collections" | vfo1I18n: "sharedFolders" }}
                       </button>
                       <bit-menu-divider></bit-menu-divider>
                     }

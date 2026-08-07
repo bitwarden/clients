@@ -41,6 +41,7 @@ import {
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -77,6 +78,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -113,10 +115,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       return "searchDriversLicense";
     }
     if (this.activeFilter.selectedFolderNode?.node) {
-      return "searchFolder";
+      return this.vfo1TerminologyService.enabled() ? "searchMyFolder" : "searchFolder";
     }
     if (this.activeFilter.selectedCollectionNode?.node) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     if (this.activeFilter.organizationId === "MyVault") {
       return "searchMyVault";
@@ -258,7 +260,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     const addAction = !singleOrgPolicy
-      ? { text: "newOrganization", route: "/create-organization" }
+      ? {
+          text: this.vfo1TerminologyService.enabled() ? "newVault" : "newOrganization",
+          route: "/create-organization",
+        }
       : undefined;
 
     const orgFilterSection: VaultFilterSection = {
@@ -346,7 +351,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
       edit: {
-        filterName: this.i18nService.t("folder"),
+        filterName: this.i18nService.t(
+          this.vfo1TerminologyService.enabled() ? "myFolder" : "folder",
+        ),
         action: this.editFolder as (filter: VaultFilterType) => void,
       },
     };

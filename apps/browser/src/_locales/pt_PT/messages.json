@@ -119,6 +119,9 @@
   "vault": {
     "message": "Cofre"
   },
+  "vaults": {
+    "message": "Cofres"
+  },
   "myVault": {
     "message": "O meu cofre"
   },
@@ -442,7 +445,7 @@
     "message": "Pastas"
   },
   "noFolders": {
-    "message": "Não existem pastas para listar."
+    "message": "Não existem pastas para apresentar."
   },
   "helpFeedback": {
     "message": "Ajuda e feedback"
@@ -653,7 +656,7 @@
     "message": "Ver credencial"
   },
   "noItemsInList": {
-    "message": "Não existem itens para listar."
+    "message": "Não existem itens para apresentar."
   },
   "itemInformation": {
     "message": "Informações do item"
@@ -707,10 +710,10 @@
     "message": "Iniciar"
   },
   "launchWebsite": {
-    "message": "Iniciar site"
+    "message": "Abrir site"
   },
-  "launchWebsiteName": {
-    "message": "Iniciar site $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Abrir o site de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,17 +1370,17 @@
   "additionalOptions": {
     "message": "Opções adicionais"
   },
-  "enableFillAssist": {
-    "message": "Utilizar assistência de preenchimento"
+  "fillAssistActiveNotice": {
+    "message": "O preenchimento automático está a utilizar o Assistente de preenchimento nesta página."
   },
-  "turnOnFillAssist": {
-    "message": "Ativar assistência de preenchimento"
+  "activateFillAssist": {
+    "message": "Ativar o Assistente de preenchimento"
   },
-  "enableFillAssistDescription": {
-    "message": "A assistência de preenchimento melhora a precisão do preenchimento automático em sites suportados através da utilização de regras específicas para cada site. Não são recolhidos nem guardados quaisquer dados quando utiliza esta funcionalidade."
+  "activateFillAssistDescription": {
+    "message": "O Assistente de preenchimento melhora a precisão do preenchimento automático em sites suportados através da utilização de regras específicas para cada site. Não são recolhidos nem guardados quaisquer dados quando utiliza esta funcionalidade."
   },
-  "aboutFillAssist": {
-    "message": "Sobre a assistência de preenchimento"
+  "aboutFillAssistLabel": {
+    "message": "Sobre o Assistente de preenchimento"
   },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
@@ -1455,8 +1458,8 @@
   "accountRestricted": {
     "message": "Conta restringida"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Palavra-passe do ficheiro\" e \"Confirmar palavra-passe do ficheiro\" não correspondem."
+  "filePasswordConfirmationMismatch": {
+    "message": "A palavra-passe do ficheiro e a confirmação da palavra-passe do ficheiro não coincidem."
   },
   "warning": {
     "message": "AVISO",
@@ -1469,8 +1472,8 @@
   "confirmVaultExport": {
     "message": "Confirmar a exportação do cofre"
   },
-  "exportWarningDesc": {
-    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização."
+  "exportUnencryptedWarningDesc": {
+    "message": "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve guardar nem enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente depois de terminar de o utilizar."
   },
   "encExportKeyWarningDesc": {
     "message": "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez regenerar a chave de encriptação da sua conta, deve exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação."
@@ -1496,6 +1499,12 @@
   "myFolders": {
     "message": "As minhas pastas"
   },
+  "addSharedFolder": {
+    "message": "Adicionar pasta partilhada"
+  },
+  "newSharedFolder": {
+    "message": "Nova pasta partilhada"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com."
   },
@@ -1516,7 +1525,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Escolha uma organização para a qual pretende mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Deixará de ser o proprietário direto deste item depois de este ter sido movido."
+    "message": "Escolha a organização para a qual pretende mover este item. Ao movê-lo para uma organização, a propriedade do item será transferida para essa organização. Deixará de ser o proprietário direto deste item após a transferência."
   },
   "learnMore": {
     "message": "Saber mais"
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Copiar código de verificação"
+  },
+  "noUsername": {
+    "message": "Sem nome de utilizador"
+  },
+  "noPassword": {
+    "message": "Sem palavras-passe"
+  },
+  "noVerificationCode": {
+    "message": "Sem código de verificação"
+  },
+  "noNumber": {
+    "message": "Sem número"
+  },
+  "noSecurityCode": {
+    "message": "Sem código de segurança"
   },
   "attachments": {
     "message": "Anexos"
@@ -1626,7 +1650,7 @@
   "premiumSignUpAndGet": {
     "message": "Subscreva uma subscrição Premium e obtenha:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
   "premiumSignUpStorageV2": {
@@ -1653,17 +1677,17 @@
   "restartPremium": {
     "message": "Reiniciar o Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "Higiene de palavras-passe, saúde da conta e relatórios de violação de dados para manter o seu cofre seguro."
+  "premiumSignUpReports": {
+    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
   },
-  "ppremiumSignUpTotp": {
+  "premiumSignUpTotp": {
     "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
   },
-  "ppremiumSignUpSupport": {
+  "premiumSignUpSupport": {
     "message": "Prioridade no apoio ao cliente."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Todas as futuras funcionalidades Premium. Mais em breve!"
+  "premiumSignUpFuture": {
+    "message": "Todas as futuras funcionalidades Premium. E muitas mais em breve!"
   },
   "premiumPurchase": {
     "message": "Adquirir Premium"
@@ -2548,8 +2572,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "Limpar o histórico do gerador"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "Se continuar, todas as entradas serão permanentemente eliminadas do histórico do gerador. Tem a certeza de que pretende continuar?"
+  "clearGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão eliminadas permanentemente do histórico do gerador. Tem a certeza de que pretende continuar?"
   },
   "back": {
     "message": "Voltar"
@@ -2593,6 +2617,92 @@
   "clear": {
     "message": "Limpar",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "Selecionar todas as linhas"
+  },
+  "selectRow": {
+    "message": "Selecionar linha"
+  },
+  "showingItemRange": {
+    "message": "A mostrar $START$ - $END$ de $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Linhas por página"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ linhas por página",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Tudo"
+  },
+  "clearAll": {
+    "message": "Limpar tudo"
+  },
+  "done": {
+    "message": "Concluído"
+  },
+  "filter": {
+    "message": "Filtrar"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selecionado(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Página anterior"
+  },
+  "nextPage": {
+    "message": "Página seguinte"
+  },
+  "goToPage": {
+    "message": "Ir para a página"
+  },
+  "ofPageCount": {
+    "message": "de $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nenhum item correspondente"
   },
   "selected": {
     "message": "Selecionado(s)"
@@ -2694,7 +2804,7 @@
     "message": "Todos os itens"
   },
   "noPasswordsInList": {
-    "message": "Não existem palavras-passe para listar."
+    "message": "Não existem palavras-passe para apresentar."
   },
   "clearHistory": {
     "message": "Limpar histórico"
@@ -2730,7 +2840,7 @@
     "message": "Não pertence a nenhuma organização. As organizações permitem-lhe partilhar itens em segurança com outros utilizadores."
   },
   "noCollectionsInList": {
-    "message": "Não existem coleções para listar."
+    "message": "Não existem coleções para apresentar."
   },
   "ownership": {
     "message": "Propriedade"
@@ -3073,11 +3183,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "A aplicação para computador tem a sessão iniciada numa conta diferente. Por favor, certifique-se de que ambas as aplicações têm a sessão iniciada na mesma conta."
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Incompatibilidade de contas"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Conta incompatível"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "Incompatibilidade da chave biométrica"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Chave biométrica incompatível"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "O desbloqueio biométrico falhou. A chave secreta biométrica não conseguiu desbloquear o cofre. Por favor, tente configurar a biometria novamente."
@@ -3112,17 +3222,17 @@
   "biometricsFailedDesc": {
     "message": "A biometria não pode ser concluída, considere a possibilidade de utilizar uma palavra-passe mestra ou terminar a sessão. Se o problema persistir, contacte a assistência do Bitwarden."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "Permissão não concedida"
   },
-  "nativeMessaginPermissionErrorDesc": {
+  "nativeMessagingPermissionErrorDesc": {
     "message": "Sem permissão para comunicar com a aplicação Bitwarden para computador, não é possível disponibilizar a autenticação biométrica na extensão do navegador. Por favor, tente novamente."
   },
-  "nativeMessaginPermissionSidebarTitle": {
+  "nativeMessagingPermissionSidebarTitle": {
     "message": "Erro ao pedir permissão"
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Esta ação não pode ser realizada na barra lateral. Por favor, repita a ação no pop-up ou no popout."
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "Esta ação não pode ser realizada na barra lateral. Tente novamente na janela pop-up ou na janela separada."
   },
   "personalOwnershipSubmitError": {
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
@@ -3185,6 +3295,10 @@
   },
   "atRiskPasswords": {
     "message": "Palavras-passe em risco"
+  },
+  "atRisk": {
+    "message": "em risco",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "A $ORGANIZATION$ pede-lhe que altere uma palavra-passe por estarem em risco.",
@@ -3930,8 +4044,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "Token da API de $SERVICENAME$ inválido",
+  "forwarderInvalidToken": {
+    "message": "Token de API de $SERVICENAME$ inválido",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3940,8 +4054,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Token de API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3954,8 +4068,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Contacte o seu fornecedor de serviços para obter assistência.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3964,7 +4078,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -4028,6 +4142,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Adicionar prefixo do site",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Quando ativada, o domínio do site atual será utilizado como prefixo do endereço de e-mail gerado",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Nome de domínio",
     "description": "Part of a URL."
@@ -4041,7 +4163,7 @@
   "ssoKeyConnectorError": {
     "message": "Erro no Key Connector: certifique-se de que o Key Connector está disponível e a funcionar corretamente."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "É necessária uma subscrição Premium"
   },
   "organizationIsDisabled": {
@@ -4456,7 +4578,7 @@
     "message": "A organização não é de confiança"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Para segurança da sua conta, confirme apenas se tiver concedido acesso de emergência a este utilizador e se a sua impressão digital corresponder à que é apresentada na sua conta"
+    "message": "Para a segurança da sua conta, confirme apenas se concedeu acesso de emergência a este utilizador e se a respetiva impressão digital corresponde à apresentada na conta dele"
   },
   "orgTrustWarning": {
     "message": "Para segurança da sua conta, prossiga apenas se for membro desta organização, tiver a recuperação de conta ativada e a impressão digital apresentada abaixo corresponder à impressão digital da organização."
@@ -4799,8 +4921,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item será ignorado",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Os seguintes itens não puderam ser lidos e não serão incluídos na sua importação:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Não foi possível importar esta chave SSH"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Tipo de item não suportado"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Não foi possível importar este item"
+  },
+  "identifier": {
+    "message": "Identificador"
   },
   "contact": {
     "message": "Contacto"
@@ -5388,7 +5531,7 @@
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "Ser-lhe-á pedido que conceda uma permissão do $BROWSER$ para definir o Bitwarden como o seu gestor de palavras-passe predefinido.",
+    "message": "Ser-lhe-á pedido que conceda a permissão do navegador $BROWSER$ para tornar o Bitwarden o seu gestor de palavras-passe predefinido.",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5398,11 +5541,11 @@
     }
   },
   "privacyPermissionAdditionNotGrantedTitle": {
-    "message": "Não é possível definir o Bitwarden como o gestor de palavras-passe predefinido",
+    "message": "Não foi possível definir o Bitwarden como gestor de palavras-passe predefinido",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "É necessário conceder permissões de privacidade do navegador ao Bitwarden para defini-lo como o gestor de palavras-passe predefinido.",
+    "message": "Tem de conceder ao Bitwarden permissões de privacidade do navegador para o definir como gestor de palavras-passe predefinido.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
@@ -5466,6 +5609,12 @@
   "removePasskey": {
     "message": "Remover chave de acesso"
   },
+  "deletePasskey": {
+    "message": "Eliminar chave de acesso"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Esta chave de acesso será eliminada permanentemente da sua credencial. Esta ação não pode ser anulada."
+  },
   "passkeyRemoved": {
     "message": "Chave de acesso removida"
   },
@@ -5487,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
-  "copyInfoTitle": {
-    "message": "Copiar informações - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copiar detalhes de $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5745,17 @@
     "message": "Nenhum valor introduzido",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Não existem valores para copiar"
+  "noDetailsToCopy": {
+    "message": "Não há detalhes para copiar"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
+  },
+  "addToSharedFolder": {
+    "message": "Adicionar à pasta partilhada"
+  },
+  "transferAndAdd": {
+    "message": "Transferir e adicionar"
   },
   "copyEmail": {
     "message": "Copiar e-mail"
@@ -5744,6 +5899,60 @@
   },
   "owner": {
     "message": "Proprietário"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Pasta partilhada $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Coleção $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "A minha pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Pasta $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Proprietário: $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Cofre: $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Eu",
@@ -6015,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver o item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver o item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver os itens."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver os itens."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Selecionou $TOTAL_COUNT$ itens. Não pode atualizar $READONLY_COUNT$ dos itens porque não tem permissões de edição.",
@@ -6054,8 +6269,8 @@
   "linkedHelpText": {
     "message": "Utilize um campo ligado quando tiver problemas de preenchimento automático para um site específico."
   },
-  "linkedLabelHelpText": {
-    "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
+  "linkedFieldLabelHelpText": {
+    "message": "Introduza o ID HTML, nome, aria-label ou placeholder do campo."
   },
   "editField": {
     "message": "Editar campo"
@@ -6122,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item será transferido permanentemente para a organização selecionada. Deixará de ser o proprietário deste item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item será transferido permanentemente para o cofre selecionado. Deixará de ser o proprietário deste item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Deixará de ser o proprietário destes itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para o cofre selecionado. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Pastas partilhadas adicionadas com sucesso"
+  },
   "itemMovedToCollection": {
     "message": "Item movido para a coleção"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item adicionado à pasta partilhada"
   },
   "itemMovedToCollections": {
     "message": "Item movido para as coleções"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item adicionado à pastas partilhadas"
+  },
   "itemsMovedToCollection": {
     "message": "Itens movidos para a coleção"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Itens adicionados à pasta partilhada"
+  },
   "itemsMovedToCollections": {
     "message": "Itens movidos para as coleções"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Itens adicionados às pastas partilhadas"
   },
   "itemAssignedToCollections": {
     "message": "Item atribuído a coleções"
@@ -6216,10 +6458,16 @@
     "message": "Localização do item"
   },
   "fileSends": {
-    "message": "Sends de ficheiros"
+    "message": "Sends de ficheiros",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Sends de texto"
+    "message": "Sends de texto",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Sends de itens",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Ações da conta"
@@ -6239,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Mostrar ações de cópia rápida no cofre"
+  "showQuickCopyActionsInVault": {
+    "message": "Mostrar ações rápidas de cópia no cofre"
   },
   "systemDefault": {
     "message": "Predefinição do sistema"
@@ -6546,9 +6794,18 @@
     "message": "Chave SSH importada com sucesso"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "message": "Não pode remover coleções com permissões apenas de visualização: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Não pode remover pastas partilhadas com permissões apenas de visualização: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -6735,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adiciona 3 botões de cópia rápida junto aos itens para copiar o nome de utilizador, a palavra-passe ou o código de verificação para a área de transferência."
   },
   "noPermissionsViewPage": {
     "message": "Não tem permissões para ver esta página. Tente iniciar sessão com uma conta diferente."
@@ -7034,6 +7294,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "O desbloqueio partilhado não está disponível porque optou por não memorizar este dispositivo. Para ativar esta definição, tente iniciar sessão novamente."
+  },
   "newPermissionNeeded": {
     "message": "É necessária uma nova permissão"
   },
@@ -7193,7 +7456,7 @@
     "message": "A sua organização requer a visibilidade do e-mail. Desmarque “Ocultar o seu e-mail dos utilizadores” para guardar."
   },
   "domainNotAllowed": {
-    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "message": "Inclua apenas os seguintes domínios: $DOMAINS$. Reveja-os e tente novamente",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -7240,5 +7503,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Analisar o meu cofre"
+  },
+  "introducingHealth": {
+    "message": "Apresentamos o Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitorize e melhore a segurança do seu cofre corrigindo palavras-passe expostas, fracas e reutilizadas."
   }
 }

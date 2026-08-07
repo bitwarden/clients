@@ -1,6 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -13,8 +14,14 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -72,6 +79,8 @@ function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMem
     organizationId: ORG_ID,
     organizationUserId: USER_ID,
     name: "Alice Smith",
+    email: "alice@example.com",
+    createdDate: new Date("2026-01-16T10:02:00Z"),
     usesKeyConnector: false,
     claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
@@ -137,9 +146,30 @@ const mockOrganizationMetadataService = {
   refreshMetadataCache: () => {},
 };
 
+const mockValidationService: Partial<ValidationService> = {
+  showError: () => [],
+};
+
+const mockLogService: Partial<LogService> = {
+  error: () => {},
+};
+
+function makeConfigService(detailsTabEnabled: boolean) {
+  return {
+    getFeatureFlag: (flag: FeatureFlag) =>
+      Promise.resolve(flag === FeatureFlag.PM28365_ChangeMemberEmail ? detailsTabEnabled : false),
+  };
+}
+
 function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
+
+type StoryArgs = {
+  detailsTabEnabled: boolean;
+  /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
+  vfo1FoundationEnabled: boolean;
+};
 
 const sharedDecorators = [
   moduleMetadata({
@@ -157,11 +187,16 @@ const sharedDecorators = [
         provide: DeleteManagedMemberWarningService,
         useValue: mockDeleteManagedMemberWarningService,
       },
-      { provide: BillingConstraintService, useValue: mockBillingConstraintService },
       {
         provide: OrganizationMetadataServiceAbstraction,
         useValue: mockOrganizationMetadataService,
       },
+      {
+        provide: BillingConstraintService,
+        useValue: mockBillingConstraintService,
+      },
+      { provide: ValidationService, useValue: mockValidationService },
+      { provide: LogService, useValue: mockLogService },
     ],
   }),
   applicationConfig({
@@ -173,20 +208,56 @@ export default {
   title: "Admin Console/Organizations/Members/Edit Member Dialog",
   component: EditMemberDialogComponent,
   decorators: sharedDecorators,
-} as Meta;
+  argTypes: {
+    detailsTabEnabled: {
+      control: "boolean",
+      description: "Toggle between the legacy Role tab and the new Details tab (PM-28365)",
+      name: "Details tab (flag on)",
+    },
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
+      name: "Shared folder terminology (flag on)",
+    },
+  },
+  args: {
+    detailsTabEnabled: false,
+    vfo1FoundationEnabled: false,
+  },
+} as Meta<StoryArgs>;
 
-type Story = StoryObj<EditMemberDialogComponent>;
+type Story = StoryObj<StoryArgs>;
 
 function makeRender(
   params: EditMemberDialogParams,
   org: Organization,
   userDetails?: OrganizationUserAdminView,
 ): Story["render"] {
-  return () => ({
+  return ({ detailsTabEnabled, vfo1FoundationEnabled }) => ({
     moduleMetadata: {
       providers: [
-        { provide: DIALOG_DATA, useValue: params },
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            ...params,
+            initialTab:
+              params.initialTab !== MemberDialogTab.Groups &&
+              params.initialTab !== MemberDialogTab.Collections
+                ? detailsTabEnabled
+                  ? MemberDialogTab.Details
+                  : MemberDialogTab.Role
+                : params.initialTab,
+          },
+        },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
+        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
+        },
         ...(userDetails
           ? [
               {
@@ -202,14 +273,14 @@ function makeRender(
 }
 
 /**
- * Default confirmed member — Role tab, Revoke + Remove buttons in footer.
+ * Default confirmed member.
  */
 export const Default: Story = {
   render: makeRender(defaultParams(), mockOrganization()),
 };
 
 /**
- * Organization with groups enabled — Groups tab is visible between Role and Collections.
+ * Organization with groups enabled — Groups tab visible.
  */
 export const WithGroups: Story = {
   render: makeRender(
@@ -220,14 +291,14 @@ export const WithGroups: Story = {
 };
 
 /**
- * Organization with Secrets Manager — SM access section appears at the bottom of the Role tab.
+ * Organization with Secrets Manager.
  */
 export const WithSecretsManager: Story = {
   render: makeRender(defaultParams(), mockOrganization({ useSecretsManager: true })),
 };
 
 /**
- * Enterprise org with custom permissions enabled — Custom role option is selectable.
+ * Enterprise org with custom permissions enabled.
  */
 export const WithCustomPermissions: Story = {
   render: makeRender(
@@ -237,7 +308,7 @@ export const WithCustomPermissions: Story = {
 };
 
 /**
- * Revoked member — "Revoked" badge appears in the dialog header and the footer shows Restore instead of Revoke.
+ * Revoked member — "Revoked" badge in the header.
  */
 export const RevokedMember: Story = {
   render: makeRender(
@@ -266,4 +337,167 @@ export const CollectionsTab: Story = {
     defaultParams({ initialTab: MemberDialogTab.Collections }),
     mockOrganization(),
   ),
+};
+
+// ─── Flag ON (vfo1-foundation: "Collection" → "Shared folder" terminology) ───
+
+/**
+ * Collections tab with the vfo1-foundation flag on — renders "Shared folder" terminology,
+ * including the role hint text and the tab/column labels.
+ */
+export const CollectionsTabSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams({ initialTab: MemberDialogTab.Collections }),
+    mockOrganization(),
+  ),
+};
+
+/**
+ * Custom permissions with the vfo1-foundation flag on — the nested-checkbox labels
+ * ("Manage all shared folders", "Create new shared folders", etc.) use the new terminology
+ * while the underlying form-control names are unchanged.
+ */
+export const WithCustomPermissionsSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
+  ),
+};
+
+// ─── Flag ON (new Details tab design) ────────────────────────────────────────
+
+/**
+ * Details tab — Name, Email, Member role select, Created date.
+ */
+export const DetailsTab: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(defaultParams(), mockOrganization()),
+};
+
+/**
+ * Details tab with Secrets Manager checkbox visible.
+ */
+export const DetailsTabWithSecretsManager: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(defaultParams(), mockOrganization({ useSecretsManager: true })),
+};
+
+/**
+ * Details tab with custom permissions — Custom option selectable in role select.
+ */
+export const DetailsTabWithCustomPermissions: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
+  ),
+};
+
+/**
+ * Details tab, revoked member — "Revoked" badge in header; More actions shows Restore.
+ */
+export const DetailsTabRevokedMember: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization(),
+    mockUserDetails({ status: OrganizationUserStatusType.Revoked }),
+  ),
+};
+
+/**
+ * Details tab, member claimed by the organization — More actions shows Delete instead of Remove.
+ */
+export const DetailsTabClaimedByOrganization: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams({ claimedByOrganization: true }),
+    mockOrganization({ productTierType: ProductTierType.Enterprise }),
+    mockUserDetails({ claimedByOrganization: true }),
+  ),
+};
+
+/**
+ * Details tab with groups — Groups tab visible alongside Details and Collections.
+ */
+export const DetailsTabWithGroups: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useGroups: true }),
+    mockUserDetails({ groups: ["grp-1"] }),
+  ),
+};
+
+/**
+ * Details tab with email editing enabled — member is claimed by the org and has no master
+ * password, so the email field is editable.
+ */
+export const DetailsTabEditEmail: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+    mockOrganization({ productTierType: ProductTierType.Enterprise }),
+    mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+  ),
+};
+
+/**
+ * Details tab — server rejects the email change with a domain-not-claimed error, showing the
+ * inline field error after submit.
+ */
+export const DetailsTabEditEmailError: Story = {
+  args: { detailsTabEnabled: true },
+  render: ({ detailsTabEnabled }) => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: defaultParams({
+            claimedByOrganization: true,
+            hasMasterPassword: false,
+            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+          }),
+        },
+        {
+          provide: OrganizationService,
+          useValue: makeOrganizationService(
+            mockOrganization({ productTierType: ProductTierType.Enterprise }),
+          ),
+        },
+        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: UserAdminService,
+          useValue: {
+            ...mockUserAdminService,
+            get: () =>
+              Promise.resolve(
+                mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+              ),
+            saveV2: () =>
+              Promise.reject(
+                new ProblemDetailsErrorResponse(
+                  {
+                    errors: {
+                      email: [
+                        { type: "new_email_domain_not_claimed", detail: "Domain not claimed" },
+                      ],
+                    },
+                  },
+                  400,
+                ),
+              ),
+          },
+        },
+      ],
+    },
+    template: `<app-edit-member-dialog></app-edit-member-dialog>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const submitButton = getByText(canvasElement, "Save");
+    await userEvent.click(submitButton);
+  },
 };

@@ -10,6 +10,7 @@ use std::{
 };
 
 use autofill_provider::{ConnectionStatus, WindowHandleQueryResponse};
+use desktop_core::autofill::create_context_string;
 use win_webauthn::plugin::{
     Clsid, PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
     PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
@@ -25,10 +26,7 @@ use windows::{
     },
 };
 
-use crate::{
-    ipc::{IpcClient, IpcConnector, RealIpcConnector},
-    util::create_context_string,
-};
+use crate::ipc::{IpcClient, IpcConnector, RealIpcConnector};
 
 pub(super) fn run_server(clsid: Clsid) -> Result<WebAuthnPlugin, String> {
     tracing::debug!("Setting up COM server");
@@ -202,7 +200,7 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
             let client = self.get_client()?;
             let context = create_context_string(transaction_id, request.operation_request_hash());
             tracing::debug!("Sending cancel operation for context: {context}");
-            client.send_native_status("cancel-operation".to_string(), context);
+            client.cancel_request(context);
         }
         Ok(())
     }
@@ -371,6 +369,13 @@ mod tests {
 
         fn send_native_status(&self, key: String, value: String) {
             self.sent.lock().unwrap().push((key, value));
+        }
+
+        fn cancel_request(&self, context: String) {
+            self.sent
+                .lock()
+                .unwrap()
+                .push(("cancel-operation".to_string(), context));
         }
 
         fn prepare_passkey_registration(

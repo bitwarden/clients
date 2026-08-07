@@ -35,6 +35,7 @@ import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
   DecryptionFailureDialogComponent,
+  VaultCopyButtonsService,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
   VaultOrganizationUserNotificationsComponent,
@@ -44,7 +45,6 @@ import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
-import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
@@ -53,6 +53,7 @@ import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-passw
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
@@ -92,6 +93,7 @@ class CurrentAccountStubComponent {}
 })
 class NewItemDropdownStubComponent {
   readonly initialValues = input();
+  readonly canCreateCipher = input();
 }
 
 @Component({
@@ -109,6 +111,14 @@ class PopOutStubComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class BlockedInjectionBannerStubComponent {}
+
+@Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -276,7 +286,7 @@ describe("VaultComponent", () => {
         { provide: IntroCarouselService, useValue: introSvc },
         { provide: NudgesService, useValue: nudgesSvc },
         {
-          provide: VaultPopupCopyButtonsService,
+          provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: new BehaviorSubject<boolean>(false) },
         },
         {
@@ -331,6 +341,7 @@ describe("VaultComponent", () => {
           NewItemDropdownComponent,
           PopOutComponent,
           BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
@@ -348,6 +359,7 @@ describe("VaultComponent", () => {
           NewItemDropdownStubComponent,
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
