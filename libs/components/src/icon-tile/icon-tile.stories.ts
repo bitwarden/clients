@@ -22,7 +22,6 @@ export default {
         "success",
         "warning",
         "danger",
-        "subtle",
         "dark",
         "brand",
         "teal",
@@ -94,10 +93,6 @@ export const AllVariants: Story = {
             <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
               <bit-icon-tile icon="bwi-clock" variant="warning"></bit-icon-tile>
               <span class="tw-text-sm tw-text-muted">Warning</span>
-            </div>
-            <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-              <bit-icon-tile icon="bwi-clock" variant="subtle"></bit-icon-tile>
-              <span class="tw-text-sm tw-text-muted">Subtle</span>
             </div>
             <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
               <bit-icon-tile icon="bwi-clock" variant="dark"></bit-icon-tile>

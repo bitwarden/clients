@@ -2,134 +2,37 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import {
+  DecorativeColors,
+  DecorativeEmphasis,
+  DecorativeVariant,
+  decorativeColors,
+} from "../shared/decorative-colors";
 import { BitwardenIcon } from "../shared/icon";
 
-type SemanticVariant = "primary" | "success" | "danger" | "warning" | "subtle" | "dark";
-type DecorativeVariant = "brand" | "teal" | "green" | "orange" | "red" | "purple" | "gray";
+type SemanticVariant = "primary" | "success" | "danger" | "warning" | "dark";
 
 export type IconTileVariant = SemanticVariant | DecorativeVariant;
 
-export type IconTileEmphasis = "subtle" | "bold";
+export type IconTileEmphasis = DecorativeEmphasis;
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
-/** The [background, border, foreground] Tailwind class triple for one tile appearance. */
-type TileClasses = string[];
-
-/** A variant's classes for each emphasis level. */
-type EmphasisStyles = Record<IconTileEmphasis, TileClasses>;
-
-// Decorative color families are the single source of truth for the categorical palette.
-const decorativeVariantStyles: Record<DecorativeVariant, EmphasisStyles> = {
-  brand: {
-    subtle: [
-      "tw-bg-bg-decorative-brand",
-      "tw-border-border-decorative-brand",
-      "tw-text-fg-decorative-brand",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-brand-bold",
-      "tw-border-border-decorative-brand-bold",
-      "tw-text-fg-decorative-brand-bold",
-    ],
-  },
-  teal: {
-    subtle: [
-      "tw-bg-bg-decorative-teal",
-      "tw-border-border-decorative-teal",
-      "tw-text-fg-decorative-teal",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-teal-bold",
-      "tw-border-border-decorative-teal-bold",
-      "tw-text-fg-decorative-teal-bold",
-    ],
-  },
-  green: {
-    subtle: [
-      "tw-bg-bg-decorative-green",
-      "tw-border-border-decorative-green",
-      "tw-text-fg-decorative-green",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-green-bold",
-      "tw-border-border-decorative-green-bold",
-      "tw-text-fg-decorative-green-bold",
-    ],
-  },
-  orange: {
-    subtle: [
-      "tw-bg-bg-decorative-orange",
-      "tw-border-border-decorative-orange",
-      "tw-text-fg-decorative-orange",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-orange-bold",
-      "tw-border-border-decorative-orange-bold",
-      "tw-text-fg-decorative-orange-bold",
-    ],
-  },
-  red: {
-    subtle: [
-      "tw-bg-bg-decorative-red",
-      "tw-border-border-decorative-red",
-      "tw-text-fg-decorative-red",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-red-bold",
-      "tw-border-border-decorative-red-bold",
-      "tw-text-fg-decorative-red-bold",
-    ],
-  },
-  purple: {
-    subtle: [
-      "tw-bg-bg-decorative-purple",
-      "tw-border-border-decorative-purple",
-      "tw-text-fg-decorative-purple",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-purple-bold",
-      "tw-border-border-decorative-purple-bold",
-      "tw-text-fg-decorative-purple-bold",
-    ],
-  },
-  gray: {
-    subtle: [
-      "tw-bg-bg-decorative-gray",
-      "tw-border-border-decorative-gray",
-      "tw-text-fg-decorative-gray",
-    ],
-    bold: [
-      "tw-bg-bg-decorative-gray-bold",
-      "tw-border-border-decorative-gray-bold",
-      "tw-text-fg-decorative-gray-bold",
-    ],
-  },
+// Semantic variants that render identically to a decorative family, always at subtle emphasis.
+const decorativeAliases: Partial<Record<IconTileVariant, DecorativeVariant>> = {
+  primary: "brand",
+  success: "green",
+  danger: "red",
+  warning: "orange",
 };
 
-// Semantic variants ignore emphasis — map both emphases to the same triple.
-const emphasisAgnostic = (classes: TileClasses): EmphasisStyles => ({
-  subtle: classes,
-  bold: classes,
-});
-
-const variantStyles: Record<IconTileVariant, EmphasisStyles> = {
-  // decorative families respond to emphasis
-  brand: decorativeVariantStyles.brand,
-  teal: decorativeVariantStyles.teal,
-  green: decorativeVariantStyles.green,
-  orange: decorativeVariantStyles.orange,
-  red: decorativeVariantStyles.red,
-  purple: decorativeVariantStyles.purple,
-  gray: decorativeVariantStyles.gray,
-  // overlapping semantic variants delegate to the decorative subtle triple so they render identically
-  primary: emphasisAgnostic(decorativeVariantStyles.brand.subtle),
-  success: emphasisAgnostic(decorativeVariantStyles.green.subtle),
-  danger: emphasisAgnostic(decorativeVariantStyles.red.subtle),
-  warning: emphasisAgnostic(decorativeVariantStyles.orange.subtle),
-  // no decorative equivalent — keep existing styles
-  subtle: emphasisAgnostic(["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"]),
-  dark: emphasisAgnostic(["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"]),
+// Semantic variants with no decorative equivalent; unaffected by emphasis.
+const uniqueVariantColors: Partial<Record<IconTileVariant, DecorativeColors>> = {
+  dark: {
+    background: "var(--color-bg-contrast)",
+    border: "var(--color-border-strong)",
+    text: "var(--color-fg-contrast)",
+  },
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
@@ -214,39 +117,38 @@ export class IconTileComponent {
    */
   readonly ariaLabel = input<string>();
 
-  /**
-   * When a custom `color` is provided, derive the fill, border, and foreground colors. Mirrors the
-   * avatar component's custom-color logic so icon tiles and avatars render matching colors.
-   * Returns `null` when no custom color is set, in which case the `variant`/`emphasis` classes apply.
-   */
-  protected readonly customColorStyles = computed<{
-    background: string;
-    border: string;
-    text: string;
-  } | null>(() => {
-    const color = this.color();
-    if (color == null || color.trim() === "") {
-      return null;
+  /** The background, border, and foreground colors applied to the tile as inline styles. */
+  protected readonly colorStyles = computed<DecorativeColors>(() => {
+    const custom = this.color()?.trim();
+    if (custom) {
+      // "black" or "white" — svgTextFill omits `!important` so the value is valid in a style binding.
+      const text = Utils.pickTextColorBasedOnBgColor(custom, 135, true);
+      // Dark foreground -> darken the border 15%; white foreground -> lighten the border 15%.
+      const borderLightness = text === "black" ? "calc(l - 15)" : "calc(l + 15)";
+      return {
+        background: custom,
+        border: `hsl(from ${custom} h s ${borderLightness})`,
+        text,
+      };
     }
 
-    // "black" or "white" — svgTextFill omits `!important` so the value is valid in a style binding.
-    const text = Utils.pickTextColorBasedOnBgColor(color, 135, true);
-    // Dark foreground -> darken the border 15%; white foreground -> lighten the border 15%.
-    const borderLightness = text === "black" ? "calc(l - 15)" : "calc(l + 15)";
+    const variant = this.variant();
+    const unique = uniqueVariantColors[variant];
+    if (unique) {
+      return unique;
+    }
 
-    return {
-      background: color,
-      border: `hsl(from ${color} h s ${borderLightness})`,
-      text,
-    };
+    const alias = decorativeAliases[variant];
+    if (alias) {
+      // Semantic variants ignore emphasis — always render the subtle triple.
+      return decorativeColors(alias, "subtle");
+    }
+
+    return decorativeColors(variant as DecorativeVariant, this.emphasis());
   });
 
   protected readonly containerClasses = computed(() => {
     const size = this.size();
-    // A custom color supplies bg/border/text via inline styles, so drop the variant color triple.
-    const colorClasses = this.customColorStyles()
-      ? []
-      : variantStyles[this.variant()][this.emphasis()];
 
     return [
       "tw-inline-flex",
@@ -254,7 +156,6 @@ export class IconTileComponent {
       "tw-justify-center",
       "tw-flex-shrink-0",
       "tw-border",
-      ...colorClasses,
       ...sizeStyles[size].container,
       ...borderRadius[size],
     ];
