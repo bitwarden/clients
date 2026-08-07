@@ -172,7 +172,7 @@ export class MyFoldersComponent {
 
     await lastValueFrom(
       AddEditFolderDialogComponent.open(this.dialogService, {
-        editFolderConfig: { folder },
+        editFolderConfig: { folder: { ...folder } },
         hideDelete: true,
       }).closed,
     );
