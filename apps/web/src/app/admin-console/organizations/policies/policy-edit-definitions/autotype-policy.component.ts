@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { autotypeMvpOrGaEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -27,7 +27,7 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   };
 
   display$(organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype);
+    return autotypeMvpOrGaEnabled$(configService);
   }
 }
 

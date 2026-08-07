@@ -19,6 +19,7 @@ import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { autotypeMvpOrGaEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -259,8 +260,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
     if (isWindows) {
-      this.configService
-        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+      autotypeMvpOrGaEnabled$(this.configService)
         .pipe(takeUntil(this.destroy$))
         .subscribe((enabled) => {
           this.showEnableAutotype = enabled;
