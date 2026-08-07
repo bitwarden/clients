@@ -288,22 +288,16 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
         }
 
         // Parse date of birth
-        if (!this.isNullOrWhitespace(mappedData.dateOfBirth)) {
-          const dob = this.parseFullDate(mappedData.dateOfBirth);
-          mappedData.dateOfBirth = this.formatDateString(dob);
-        }
+        const dob = this.parseFullDate(mappedData.dateOfBirth);
+        mappedData.dateOfBirth = this.formatDateString(dob);
 
         // Parse issue date
-        if (!this.isNullOrWhitespace(mappedData.issueDate)) {
-          const issueDate = this.parseFullDate(mappedData.issueDate);
-          mappedData.issueDate = this.formatDateString(issueDate);
-        }
+        const issueDate = this.parseFullDate(mappedData.issueDate);
+        mappedData.issueDate = this.formatDateString(issueDate);
 
         // Parse expiration date
-        if (!this.isNullOrWhitespace(mappedData.expirationDate)) {
-          const expirationDate = this.parseFullDate(mappedData.expirationDate);
-          mappedData.expirationDate = this.formatDateString(expirationDate);
-        }
+        const expirationDate = this.parseFullDate(mappedData.expirationDate);
+        mappedData.expirationDate = this.formatDateString(expirationDate);
 
         cipher.type = CipherType.Passport;
         cipher.passport = new PassportView();
@@ -332,24 +326,18 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
         });
 
         // Parse expiration date
-        if (!this.isNullOrWhitespace(mappedData.expirationDate)) {
-          const expirationDate = this.parseFullDate(mappedData.expirationDate);
-          mappedData.expirationDate = this.formatDateString(expirationDate);
-        }
+        const expirationDate = this.parseFullDate(mappedData.expirationDate);
+        mappedData.expirationDate = this.formatDateString(expirationDate);
 
         // Parse full name from the givenName field
-        if (!this.isNullOrWhitespace(mappedData.firstName)) {
-          const [first, middle, last] = this.getFullName(mappedData.firstName);
-          mappedData.firstName = first;
-          mappedData.middleName = middle;
-          mappedData.lastName = last;
-        }
+        const [first, middle, last] = this.getFullName(mappedData.firstName);
+        mappedData.firstName = first;
+        mappedData.middleName = middle;
+        mappedData.lastName = last;
 
         // Parse date of birth
-        if (!this.isNullOrWhitespace(mappedData.dateOfBirth)) {
-          const dob = this.parseFullDate(mappedData.dateOfBirth);
-          mappedData.dateOfBirth = this.formatDateString(dob);
-        }
+        const dob = this.parseFullDate(mappedData.dateOfBirth);
+        mappedData.dateOfBirth = this.formatDateString(dob);
 
         cipher.type = CipherType.DriversLicense;
         cipher.driversLicense = new DriversLicenseView();
@@ -369,10 +357,13 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
    * and converts it to a date. Returns undefined if any portions of the date are missing
    */
   private parseFullDate(dateString: string): Date | undefined {
+    if (this.isNullOrWhitespace(dateString)) {
+      return;
+    }
     const [monthString, dayString, yearString] = dateString.split(",");
     const month = this.getMonthNumberFromName(monthString);
     if (!month || !dayString || !yearString) {
-      return undefined;
+      return;
     }
     return new Date(Date.UTC(Number(yearString), Number(month) - 1, Number(dayString)));
   }
@@ -382,10 +373,9 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
   private getMonthNumberFromName(monthNameString: string) {
     const month = new Date(Date.parse(monthNameString.trim() + " 1, 2012")).getMonth() + 1;
     if (isNaN(month)) {
-      return undefined;
-    } else {
-      return month.toString();
+      return;
     }
+    return month.toString();
   }
 
   /**

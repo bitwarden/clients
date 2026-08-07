@@ -776,6 +776,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     ["birthplace", "birthPlace"],
     ["issue_date", "issueDate"],
     ["expiry_date", "expirationDate"],
+    ["type", "passportType"],
   ]);
 
   private fillPassport(
@@ -827,10 +828,6 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     if (useNewDedicatedTypes) {
-      // Exclude the type field since it isn't necessary
-      if (field.id === "type") {
-        return true;
-      }
       const fieldMapValue = this.passportDedicatedItemFieldMap.get(field.id);
       if (fieldMapValue && this.isNullOrWhitespace(cipher.passport[fieldMapValue])) {
         if (field.id === "birthdate" || field.id === "issue_date" || field.id === "expiry_date") {

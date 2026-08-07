@@ -607,6 +607,7 @@ describe("1Password 1Pux Importer", () => {
       expect(passport.surname).toEqual("Global");
       expect(passport.issuingCountry).toEqual("United States of America");
       expect(passport.passportNumber).toEqual("76436847");
+      expect(passport.passportType).toEqual("US Passport");
       expect(passport.nationality).toEqual("International");
       expect(passport.issuingAuthority).toEqual("Department of State");
       expect(passport.dateOfBirth).toEqual("1983-04-01");

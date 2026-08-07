@@ -264,6 +264,9 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
 
   // Dashlane dates are formatted as `YYYY-MM-DD` but the month and day omit leading zeros
   private parseDashlaneDateString(dateString: string): string | undefined {
+    if (this.isNullOrWhitespace(dateString)) {
+      return;
+    }
     const [year, month, day] = dateString.split("-");
     if (
       this.isNullOrWhitespace(year) ||

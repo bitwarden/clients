@@ -462,9 +462,10 @@ export abstract class BaseImporter {
     return this.formatDateString(date);
   }
 
-  /** Converts a Date to a string with format `YYYY-MM-DD` */
+  /** Converts a Date to a string with format `YYYY-MM-DD`. Returns
+   * `undefined` if the input Date is nullish or invalid */
   protected formatDateString(date: Date | undefined): string {
-    if (!date) {
+    if (!date || isNaN(date.getTime())) {
       return;
     }
     return [

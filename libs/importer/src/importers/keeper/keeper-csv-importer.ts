@@ -168,6 +168,9 @@ export class KeeperCsvImporter extends KeeperImporter implements Importer {
 
   // Keeper CSV dates are formatted as `MM/DD/YYYY`
   private parseKeeperCsvDateString(dateString: string): string | undefined {
+    if (this.isNullOrWhitespace(dateString)) {
+      return;
+    }
     const [month, day, year] = dateString.split("/");
     if (
       this.isNullOrWhitespace(year) ||

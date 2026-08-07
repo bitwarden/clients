@@ -275,16 +275,18 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
           const dob = new Date(field.v * 1000);
           driversLicenseView.dateOfBirth = this.formatDateString(dob);
         } else if (field.n === "expiry_date") {
-          // This field is a single number that expresses a month and year in the format YYYYMM
-          const strValue: string = field.v.toString();
-          const yearPart = strValue.slice(0, 4);
-          const monthPart = strValue.slice(4);
-          // We set the expiration date to the last of the specified year and month by getting
-          // the first of the month afterwards and subtracting a day's worth of milliseconds
-          const expirationDate = new Date(
-            Date.UTC(Number(yearPart), Number(monthPart), 1) - 24 * 60 * 60 * 1000,
-          );
-          driversLicenseView.expirationDate = this.formatDateString(expirationDate);
+          if (field.v != null) {
+            // This field is a single number that expresses a month and year in the format YYYYMM
+            const strValue: string = field.v.toString();
+            const yearPart = strValue.slice(0, 4);
+            const monthPart = strValue.slice(4);
+            // We set the expiration date to the last of the specified year and month by getting
+            // the first of the month afterwards and subtracting a day's worth of milliseconds
+            const expirationDate = new Date(
+              Date.UTC(Number(yearPart), Number(monthPart), 1) - 24 * 60 * 60 * 1000,
+            );
+            driversLicenseView.expirationDate = this.formatDateString(expirationDate);
+          }
           // If field requires no special parsing simply set the value
         } else if (fieldMapValue) {
           driversLicenseView[fieldMapValue[0]] = field[fieldMapValue[1]];
