@@ -21,8 +21,10 @@
   @if (selectionModel(); as sel) {
     <div role="cell" class="tw-flex tw-items-center tw-px-4">
       @if (sel.isSelectable(row)) {
+        <!-- `data-selection-input` is what `bit-row` keys its selected style off. -->
         <input
           type="checkbox"
+          data-selection-input
           [attr.aria-label]="'selectRow' | i18n"
           [checked]="sel.isSelected(row)"
           (change)="sel.toggle(row)"

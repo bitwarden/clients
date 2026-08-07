@@ -78,6 +78,9 @@ export class BitRowComponent {
             "tw-border-b",
             "tw-border-solid",
             "tw-border-border-base",
+            "hover:tw-bg-bg-brand-softer",
+            // Outranks the hover rule above on specificity.
+            "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
           ]),
     ].join(" "),
   );
