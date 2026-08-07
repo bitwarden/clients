@@ -29,9 +29,9 @@ export type {
   AccessRequestView,
   LeasingError,
 } from "./abstractions/access-lease";
-export { isLeasingError } from "./abstractions/access-lease";
 export { AccessRequestSdkService } from "./abstractions/access-request-sdk.service";
 export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
+export { LeasingErrorService } from "./abstractions/leasing-error.service";
 
 export {
   accessRuleToFormValue,
