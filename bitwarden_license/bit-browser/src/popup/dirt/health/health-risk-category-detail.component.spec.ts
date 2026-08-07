@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, ReplaySubject } from "rxjs";
+import { BehaviorSubject, of, ReplaySubject } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import {
@@ -25,9 +25,27 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { DialogRef, DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
+
+// eslint-disable-next-line no-console
+const originalError = console.error;
+
+// eslint-disable-next-line no-console
+console.error = (...args: unknown[]) => {
+  if (
+    typeof args[0] === "object" &&
+    (args[0] as Error).message.includes("Could not parse CSS stylesheet")
+  ) {
+    // Opening the menu's overlay container in tests causes stylesheets to be parsed, which can
+    // lead to JSDOM unable to parse CSS errors. These can be ignored safely.
+    return;
+  }
+  originalError(...args);
+};
 
 @Component({
   selector: "popup-page",
@@ -108,6 +126,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let cipherService: MockProxy<CipherService>;
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
+  let dialogService: MockProxy<DialogService>;
   let windowOpen: jest.SpyInstance;
 
   /**
@@ -165,6 +184,35 @@ describe("HealthRiskCategoryDetailComponent", () => {
     ).find((button) => button.textContent?.includes("changePassword"));
   }
 
+  /**
+   * The row's ellipsis trigger. Matched on `bitIconButton` — the menu trigger is bound as a
+   * property, so `bitMenuTriggerFor` never reaches the DOM.
+   */
+  function moreOptionsButton(index: number): HTMLButtonElement | null {
+    return rows()[index].querySelector("button[bitIconButton]");
+  }
+
+  /**
+   * The open menu panel. The menu's content is projected through an `ng-template` into a CDK
+   * overlay, so it lives outside the fixture and is only in the DOM while the menu is open.
+   */
+  function menuPanel(): HTMLElement | null {
+    return document.querySelector(".bit-menu-panel");
+  }
+
+  /** An entry in the open menu, matched on its rendered text. */
+  function menuItem(label: string): HTMLButtonElement | undefined {
+    return Array.from(menuPanel()?.querySelectorAll<HTMLButtonElement>("[bitMenuItem]") ?? []).find(
+      (button) => button.textContent?.includes(label),
+    );
+  }
+
+  /** Opens the ellipsis menu on the given row. */
+  function openMenu(index: number) {
+    moreOptionsButton(index)!.click();
+    fixture.detectChanges();
+  }
+
   /** The count rendered alongside the section header. */
   function itemCount(): string | undefined {
     return fixture.nativeElement.querySelector("bit-section-header span[slot=end]")?.textContent;
@@ -203,6 +251,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
 
+    // `onDeleteItem` only awaits `open()`, so a minimal `DialogRef`-shaped return is enough.
+    dialogService = mock<DialogService>();
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as DialogRef<unknown>);
+
     windowOpen = jest.spyOn(window, "open").mockImplementation(() => null);
 
     await TestBed.configureTestingModule({
@@ -214,6 +266,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
+        { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     })
@@ -242,6 +295,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   afterEach(() => {
     windowOpen.mockRestore();
+    // Overlays are attached to the document body, so they outlive the fixture unless removed.
+    document.querySelectorAll(".cdk-overlay-container").forEach((overlay) => overlay.remove());
   });
 
   describe("category content", () => {
@@ -437,6 +492,69 @@ describe("HealthRiskCategoryDetailComponent", () => {
         expect.objectContaining({ id: "cipher-2" }),
       );
       expect(windowOpen).toHaveBeenCalledWith("https://another.example.com/password", "_blank");
+    });
+  });
+
+  describe("ellipsis menu", () => {
+    it("renders an ellipsis menu trigger on every row", async () => {
+      ciphers$.next([buildLogin({ id: "cipher-1" }), buildLogin({ id: "cipher-2" })]);
+
+      await initComponent();
+
+      expect(moreOptionsButton(0)).not.toBeNull();
+      expect(moreOptionsButton(1)).not.toBeNull();
+      expect(moreOptionsButton(0)!.getAttribute("aria-label")).toBe(
+        "moreOptionsLabelNoPlaceholder",
+      );
+    });
+
+    it("renders the delete item entry in the ellipsis menu", async () => {
+      await initComponent();
+
+      openMenu(0);
+
+      expect(menuPanel()).not.toBeNull();
+      expect(menuItem("deleteItem")).toBeDefined();
+    });
+
+    it("opens the delete dialog when the menu entry is clicked", async () => {
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthDeleteAtRiskItemDialogComponent,
+        expect.anything(),
+      );
+    });
+
+    // The risk flags on the passed view are placeholders today, so only the item's identity and
+    // the category are asserted — the hierarchy they drive is covered in the dialog's own spec.
+    it("passes the clicked item and the current category to the dialog", async () => {
+      params$.next({ category: "weak-passwords" });
+      ciphers$.next([
+        buildLogin({ id: "cipher-1" }),
+        buildLogin({ id: "cipher-2" }),
+        buildLogin({ id: "cipher-3" }),
+      ]);
+      await initComponent();
+      openMenu(1);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthDeleteAtRiskItemDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            currentCategory: "weak-passwords",
+            item: expect.objectContaining({ cipherId: "cipher-2" }),
+          }),
+        }),
+      );
     });
   });
 
