@@ -33,9 +33,10 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AccessLeaseId, AccessRequestId, formatRemaining } from "..";
+import { AccessLeaseId, AccessRequestId } from "..";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
+import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
@@ -71,6 +72,7 @@ import { MyAccessService } from "./my-access.service";
     I18nPipe,
     DurationShortPipe,
     RelativeTimePipe,
+    RemainingTimePipe,
   ],
 })
 export class MyAccessComponent implements OnInit {
@@ -89,7 +91,7 @@ export class MyAccessComponent implements OnInit {
   /** Ids of active leases currently being ended (prevents double-click). */
   protected readonly ending = signal<Set<AccessLeaseId>>(new Set());
   /** Ticks once a second so the redemption/remaining countdowns stay live. */
-  private readonly nowMs = signal(Date.now());
+  protected readonly nowMs = signal(Date.now());
 
   protected readonly pendingRows = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
@@ -202,19 +204,6 @@ export class MyAccessComponent implements OnInit {
    */
   protected canStart(row: MyAccessRequestRow): boolean {
     return row.status === "approved" && Date.parse(row.leaseNotAfter) > this.nowMs();
-  }
-
-  /** A live "activate within X" label for an approved on-demand request. */
-  protected redemptionRemainingLabel(row: MyAccessRequestRow): string | null {
-    if (row.status !== "approved") {
-      return null;
-    }
-    return formatRemaining(Date.parse(row.leaseNotAfter) - this.nowMs());
-  }
-
-  /** A live "ends in X" label for an active lease. */
-  protected leaseRemainingLabel(lease: MyAccessLeaseRow): string {
-    return formatRemaining(Date.parse(lease.notAfter) - this.nowMs());
   }
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {

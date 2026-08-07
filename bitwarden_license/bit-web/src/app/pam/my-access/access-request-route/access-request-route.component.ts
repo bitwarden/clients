@@ -33,14 +33,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessRequestView,
-  durationLabel,
-  exactWindow,
-  formatRemaining,
-  reasonText,
-  relativeStart,
-} from "../..";
+import { AccessRequestView, durationLabel, exactWindow, reasonText, relativeStart } from "../..";
+import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { emptyResolvedNames } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
 
@@ -92,6 +86,7 @@ const DECISION_LABEL_KEYS = {
     SectionHeaderComponent,
     TooltipDirective,
     TypographyModule,
+    RemainingTimePipe,
   ],
 })
 export class AccessRequestRouteComponent implements OnInit {
@@ -129,7 +124,7 @@ export class AccessRequestRouteComponent implements OnInit {
   });
 
   /** Ticks once a second so the lease / redemption countdowns stay live. */
-  private readonly nowMs = signal(Date.now());
+  protected readonly nowMs = signal(Date.now());
 
   /** Per-action in-flight flags (prevent double-submit and drive button spinners). */
   protected readonly cancelling = signal(false);
@@ -200,24 +195,15 @@ export class AccessRequestRouteComponent implements OnInit {
 
   protected readonly leaseActive = computed(() => this.request()?.producedLeaseStatus === "active");
 
-  /** A live "ends in X" label while the produced lease is active and its window is still open. */
-  protected readonly leaseRemaining = computed(() => {
+  /**
+   * Whether to show the live "ends in X" countdown: the produced lease is active and its window
+   * is still open. The countdown itself is rendered via the `remainingTime` pipe in the template.
+   */
+  protected readonly showLeaseRemaining = computed(() => {
     const request = this.request();
-    if (request == null || !this.leaseActive()) {
-      return null;
-    }
-    const remaining = Date.parse(request.leaseNotAfter) - this.nowMs();
-    return remaining > 0 ? formatRemaining(remaining) : null;
-  });
-
-  /** A live "activate within X" label for an approved on-demand request. */
-  protected readonly redemptionRemaining = computed(() => {
-    const request = this.request();
-    if (request == null || request.status !== "approved") {
-      return null;
-    }
-    // actionable_until: today the window end is the only actionable bound the server enforces.
-    return formatRemaining(Date.parse(request.leaseNotAfter) - this.nowMs());
+    return (
+      request != null && this.leaseActive() && Date.parse(request.leaseNotAfter) > this.nowMs()
+    );
   });
 
   /** The requester can start an approved request while its window can still produce access. */
