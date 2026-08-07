@@ -35,7 +35,7 @@
     ></button>
 
     @if (showDiscountBadges()) {
-      @for (discount of cart.discounts; track discount) {
+      @for (discount of cart.discounts; track $index) {
         <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
       }
     }
@@ -82,24 +82,26 @@
           </div>
         </div>
 
-        <!-- Password Manager Seats Discount -->
-        @if (passwordManagerSeatsDiscountAmount() > 0) {
-          <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-label"
-            >
-              {{ passwordManagerSeatsDiscountLabel() }}
+        <!-- Password Manager Seats Discounts -->
+        @for (discountRow of passwordManagerSeatsDiscountRows(); track $index) {
+          @if (discountRow.amount > 0) {
+            <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
+              <div
+                bitTypography="body1"
+                class="tw-pl-4 tw-text-success-600"
+                data-testid="password-manager-seats-discount-label"
+              >
+                {{ discountRow.label }}
+              </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-success-600"
+                data-testid="password-manager-seats-discount-amount"
+              >
+                -{{ discountRow.amount | currency: "USD" : "symbol" }}
+              </div>
             </div>
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-amount"
-            >
-              -{{ passwordManagerSeatsDiscountAmount() | currency: "USD" : "symbol" }}
-            </div>
-          </div>
+          }
         }
 
         <!-- Additional Storage -->
@@ -132,6 +134,28 @@
               {{ additionalStorageTotal() | currency: "USD" : "symbol" }}
             </div>
           </div>
+
+          <!-- Additional Storage Discounts -->
+          @for (discountRow of additionalStorageDiscountRows(); track $index) {
+            @if (discountRow.amount > 0) {
+              <div class="tw-flex tw-justify-between" data-testid="additional-storage-discount">
+                <div
+                  bitTypography="body1"
+                  class="tw-pl-4 tw-text-success-600"
+                  data-testid="additional-storage-discount-label"
+                >
+                  {{ discountRow.label }}
+                </div>
+                <div
+                  bitTypography="body1"
+                  class="tw-text-success-600"
+                  data-testid="additional-storage-discount-amount"
+                >
+                  -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                </div>
+              </div>
+            }
+          }
         }
       </div>
 
@@ -173,6 +197,28 @@
             </div>
           </div>
 
+          <!-- Secrets Manager Seats Discounts -->
+          @for (discountRow of secretsManagerSeatsDiscountRows(); track $index) {
+            @if (discountRow.amount > 0) {
+              <div class="tw-flex tw-justify-between" data-testid="secrets-manager-seats-discount">
+                <div
+                  bitTypography="body1"
+                  class="tw-pl-4 tw-text-success-600"
+                  data-testid="secrets-manager-seats-discount-label"
+                >
+                  {{ discountRow.label }}
+                </div>
+                <div
+                  bitTypography="body1"
+                  class="tw-text-success-600"
+                  data-testid="secrets-manager-seats-discount-amount"
+                >
+                  -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                </div>
+              </div>
+            }
+          }
+
           <!-- Additional Service Accounts -->
           @let additionalServiceAccounts = cart.secretsManager?.additionalServiceAccounts;
           @if (additionalServiceAccounts) {
@@ -202,12 +248,37 @@
                 {{ additionalServiceAccountsTotal() | currency: "USD" : "symbol" }}
               </div>
             </div>
+
+            <!-- Additional Service Accounts Discounts -->
+            @for (discountRow of additionalServiceAccountsDiscountRows(); track $index) {
+              @if (discountRow.amount > 0) {
+                <div
+                  class="tw-flex tw-justify-between"
+                  data-testid="additional-service-accounts-discount"
+                >
+                  <div
+                    bitTypography="body1"
+                    class="tw-pl-4 tw-text-success-600"
+                    data-testid="additional-service-accounts-discount-label"
+                  >
+                    {{ discountRow.label }}
+                  </div>
+                  <div
+                    bitTypography="body1"
+                    class="tw-text-success-600"
+                    data-testid="additional-service-accounts-discount-amount"
+                  >
+                    -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                  </div>
+                </div>
+              }
+            }
           }
         </div>
       }
 
       <!-- Discounts -->
-      @for (discountItem of discountLineItems(); track discountItem.label) {
+      @for (discountItem of discountLineItems(); track $index) {
         @if (discountItem.amount > 0) {
           <div
             class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"

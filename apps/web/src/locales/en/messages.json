@@ -15866,6 +15866,9 @@
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
   },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
+  },
   "enterpriseMembership": {
     "message": "Enterprise membership"
   },
