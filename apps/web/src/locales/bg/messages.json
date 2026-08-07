@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
   },
-  "addToSharedFolder": {
-    "message": "Добавяне към споделена папка"
-  },
   "newSharedFolder": {
     "message": "Нова споделена папка"
   },
@@ -1254,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Тази споделена папка ще бъде изтрита завинаги."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "Споделената папка $NAME$ ще бъде изтрита завинаги.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Тези споделени папки ще бъдат изтрити завинаги."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "Брой споделени папки, които ще бъдат изтрити завинги: $COUNT$.",
@@ -1310,6 +1304,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Премествайки елемент в споделена папка, ще можете да го споделите сигурно с други членове свързани с този трезор."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Това действие ще изтрие завинаги всички елементи, притежавани от следните членове. Елементите в споделени папки няма да бъдат засегнати.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Това действие ще изтрие завинаги всички елементи, притежавани от $NAME$. Елементите в споделени папки няма да бъдат засегнати.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Управлявайте достъпа до организацията, всички споделени папки, членове, доклади и настройки по сигурността"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Управлявайте всички споделени папки, членове, доклади и настройки по сигурността"
+  },
+  "userDescSharedFolders": {
+    "message": "Достъп и добавяне на елементи към назначени споделени папки"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Дайте достъп на членовете до споделените папки, като ги добавите към 1 или повече групи."
+  },
+  "manageAllSharedFolders": {
+    "message": "Управление на всички споделени папки"
+  },
+  "createNewSharedFolders": {
+    "message": "Създаване на нови споделени папки"
+  },
+  "editAnySharedFolder": {
+    "message": "Редактиране на всяка споделена папка"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Изтриване на всяка споделена папка"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Не може да добавяте себе си към споделени папки."
   },
   "attachments": {
     "message": "Прикачени файлове"
@@ -1535,6 +1570,9 @@
   "item": {
     "message": "Елемент"
   },
+  "itemLower": {
+    "message": "елемент"
+  },
   "itemDetails": {
     "message": "Подробности за елемента"
   },
@@ -1691,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Копиране на информацията – $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Копиране на подробностите за $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,11 +1753,11 @@
     "message": "Няма въведена стойност",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Няма стойности за копиране"
+  "noDetailsToCopy": {
+    "message": "Няма подробности за копиране"
   },
-  "launchWebsiteName": {
-    "message": "Отваряне на уеб сайта $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2681,6 +2719,21 @@
   "copyVerificationCode": {
     "message": "Копиране на кода за потвърждаване"
   },
+  "noUsername": {
+    "message": "Няма потребителско име"
+  },
+  "noPassword": {
+    "message": "Няма парола"
+  },
+  "noVerificationCode": {
+    "message": "Няма код за потвърждаване"
+  },
+  "noNumber": {
+    "message": "Няма номер"
+  },
+  "noSecurityCode": {
+    "message": "Няма код за сигурност"
+  },
   "copyUuid": {
     "message": "Копиране на UUID"
   },
@@ -3047,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "Трезорът на организацията е напълно изчистен."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Трезорът на $ORGNAME$ е изчистен.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Vault accessed by Provider."
   },
@@ -3266,6 +3328,9 @@
   "options": {
     "message": "Настройки"
   },
+  "moreOptions": {
+    "message": "Още настройки"
+  },
   "preferences": {
     "message": "Настройки"
   },
@@ -3283,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Показване на действията за бързо копиране в трезора"
   },
   "default": {
     "message": "Стандартно"
@@ -3654,6 +3722,10 @@
   },
   "orgsReportsDesc": {
     "message": "Открийте и отстранете проблемите със защитата на профилите в организацията си като щракнете върху докладите по-долу.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Открийте и отстранете проблемите със защитата на трезора на организацията си като щракнете върху докладите по-долу.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4922,6 +4994,10 @@
   "inviteUserDescription": {
     "message": "Поканете нови потребители в организацията си като въведете е-пощите им по-долу."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Може да поканите нов потребител в трезора на организацията като попълните адреса му за електронна поща, с който е регистриран в Битуорден, по-долу. В случай, че потребителят не е регистриран, той автоматично ще получи покана и да се регистрира.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Можете да въведете до $COUNT$ е-пощи, като ги разделите със запетая.",
     "placeholders": {
@@ -5107,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "Трезорът на организацията е изнесен."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Трезорът на $ORGNAME$ е изнесен.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Настройките на организацията са редактирани."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Настройките на трезора на $ORGNAME$ са редактирани.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Запис № $ID$ е създаден.",
@@ -5303,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Елементът $ID$ е преместен в трезора на $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5687,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Достъпът на $ID$ до трезора на $ORGNAME$ е отнет.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Staged user $ID$ added.",
     "placeholders": {
@@ -5723,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Достъпът на $ID$ до трезора на $ORGNAME$ е отнет, поради несъответствие с политиката за двустепенно удостоверяване.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Достъпът до организацията е отнет от $ID$, поради несъответствие с политиката за единствена организация.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Достъпът на $ID$ до трезора на $ORGNAME$ е отнет, поради несъответствие с политиката за единствена организация.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Достъпът на $ID$ е отнет, поради отказа от прехвърляне на собствеността на трезора към $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Достъпът на $ID$ до организацията е възстановен.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Достъпът на $ID$ до трезора на $ORGNAME$ е възстановен.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Редактирани са споделените папки за елемент $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Прието прехвърляне на собствеността към организацията."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Прехвърлянето на собствеността на трезора към $ORGNAME$ е прието.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Потребител № $ID$ е поканен.",
@@ -5855,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Създаден е трезор $ID$ в $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Организация № $ID$ е добавена.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Добавен е трезор $ID$ в $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Премахнат е трезор $ID$ от $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Accessed $ID$ organization vault.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Осъществен е достъп до елемента $ID$ в трезора на $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6673,6 +6915,9 @@
   },
   "inviteLink": {
     "message": "Връзка за покана"
+  },
+  "transferAndAdd": {
+    "message": "Прехвърляне и добавяне"
   },
   "lastGenerated": {
     "message": "Последно създаване: $DATE$",
@@ -7849,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Член $ID$ прие поканата чрез връзка за покана",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Изискването за одобрение на връзките за покани от администратор е изключено",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Изискването за одобрение на връзките за покани от администратор е включено",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Член $ID$ беше потвърден чрез връзка за покана",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10671,17 +10933,29 @@
   "editGroupMembersDesc": {
     "message": "Дайте достъп на членовете до колекциите, свързани с групата."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Дайте достъп на членовете до споделените папки, свързани с групата."
+  },
   "editGroupCollectionsDesc": {
     "message": "Дайте достъп до колекциите, като ги добавите към тази група."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Дайте достъп до споделените папки, като ги добавите към тази група."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Можете да свързвате само колекции, които имате право да управлявате."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Можете да свързвате само споделени папки, които имате право да управлявате."
   },
   "selectMembers": {
     "message": "Изберете членове"
   },
   "selectCollections": {
     "message": "Изберете колекции"
+  },
+  "selectSharedFolders": {
+    "message": "Изберете споделени папки"
   },
   "role": {
     "message": "Роля"
@@ -10710,6 +10984,9 @@
   },
   "noCollectionsAdded": {
     "message": "Няма добавени колекции"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Няма добавени споделени папки"
   },
   "noMembersAdded": {
     "message": "Няма добавени членове"
@@ -11596,6 +11873,30 @@
     "message": "единствена организация",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "единствен трезор за организацията",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "изискване на еднократно удостоверяване",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": "и",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "управление на възстановяването на акаунти",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "— тези политики ще бъдат включени автоматично.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": ", политиката за",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12220,38 @@
   "collectionManagement": {
     "message": "Управление на колекциите"
   },
+  "sharedFolderManagement": {
+    "message": "Настройки на споделените папки"
+  },
   "collectionManagementDescription": {
     "message": "Настройване на поведението на колекциите за организацията"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Настройте какво да бъде поведението на споделените папки в трезора на организацията."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Научете повече относно колекциите"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Научете повече относно споделените папки"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Разрешаване на собствениците и администраторите да управляват всички колекции и елементи от административната конзола"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Разрешаване на собствениците и администраторите да управляват всички споделени папки и елементи от административната конзола"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Ограничаване на създаването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Ограничаване на създаването на споделени папки, така че да може да се извършва само от собствениците и администраторите"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Ограничаване на изтриването на споделени папки, така че да може да се извършва само от собствениците и администраторите"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощието ",
@@ -11941,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Настройката за управление на споделени папки е променена"
   },
   "passwordManagerPlanPrice": {
     "message": "Цена на плана за Управителя на пароли"
@@ -12033,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Настройката за управление на споделени папки е променена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Настройката за ограничаване на създаването на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Настройката за ограничаване на създаването на споделени папки е включена: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Настройката за ограничаване на създаването на споделени папки е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Настройката за ограничаване на изтриване на колекции е включена: $ID$.",
     "placeholders": {
@@ -12060,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриването на споделени папки е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Настройката за ограничаване на изтриване на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриването на споделени папки е изключена: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички споделени папки и елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички споделени папки и елементи е изключена: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12393,14 +12781,23 @@
   "assignToCollections": {
     "message": "Свързване с колекции"
   },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
   "assignToTheseCollections": {
     "message": "Свързване с тези колекции"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елемента."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елементите."
   },
   "selectCollectionsToAssign": {
     "message": "Изберете колекции за свързване"
@@ -12411,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Споделените папки са добавени успешно"
+  },
   "itemMovedToCollection": {
     "message": "Елементът е преместен в колекция"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Елементът е добавен към споделена папка"
   },
   "itemMovedToCollections": {
     "message": "Елементът е преместен в колекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Елементът е добавен към споделени папки"
+  },
   "itemsMovedToCollection": {
     "message": "Елементите са преместени в колекция"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Елементите са добавени към споделена папка"
+  },
   "itemsMovedToCollections": {
     "message": "Елементите са преместени в колекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Елементите са добавени към споделени папки"
   },
   "itemAssignedToCollections": {
     "message": "Елементът е добавен към колекции"
@@ -12450,6 +12862,9 @@
   },
   "items": {
     "message": "Елементи"
+  },
+  "itemsLower": {
+    "message": "елементи"
   },
   "assignedSeats": {
     "message": "Назначени места"
@@ -13215,6 +13630,9 @@
   "memberAccessReportPageDesc": {
     "message": "Направете проверка на достъпа на членовете до групи, колекции и елементи в колекциите. Изнасянето на на данните като файл CSV предоставя подробна разбивка по членове, включително информация относно правата за колекции и настройките на регистрациите."
   },
+  "memberAccessReportPageDescV2": {
+    "message": "Направете проверка на достъпа на членовете до групи, колекции и елементи в колекциите. Изнасянето на на данните като файл CSV предоставя подробна разбивка по членове, включително информация относно правата за колекции и настройките на регистрациите."
+  },
   "memberAccessReportNoCollection": {
     "message": "(Няма колекция)"
   },
@@ -13333,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избрания трезор. Вече няма да притежавате този елемент."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избрания трезор. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13763,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Потребител $ID$ напусна трезора на $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Потребителят $ID$ се премахна сам от организацията.",
     "placeholders": {
@@ -13774,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Премахнато, поради отказ от прехвърляне на собствеността към организацията."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Достъпът е отнет, поради отказа от прехвърляне на собствеността на трезора към $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "Достъпът на $ORGANIZATION$ е преустановен",
@@ -13824,6 +14276,15 @@
     "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Не можете да премахвате споделени папки с права „Само за преглед“: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14529,6 +14990,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
   },
   "billingAddress": {
     "message": "Адрес за фактуриране"
@@ -16066,6 +16530,282 @@
   },
   "copy": {
     "message": "Копиране"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Правила за достъп"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Включено"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Когато е изключено, това правило не е активно и не ограничава достъпа."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Включване на правилото"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Изключване на правилото"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Правилото за достъп е включено."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Правилото за достъп е изключено."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Правилото за достъп не е намерено."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Задайте правила, за да управлявате кой може да иска достъп до чувствителните удостоверителни данни, при какви условия и за каква продължителност."
+  },
+  "pamAccessRuleNew": {
+    "message": "Ново правило"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Ново правило за достъп"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Редактиране на правилото за достъп"
+  },
+  "pamAccessRuleName": {
+    "message": "Име"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "напр. VPN + работно време"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Обща информация"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Продължителност на достъпа"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Незадължителни условия"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Изберете колекции"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Това правило за достъп ще се прилага към всички избрани колекции."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Колекциите не могат да бъдат заредени. Опреснете страницата, за да опитате отново."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Продължителността ще бъде предварително попълнена при заявките за достъп."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Описание"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Стандартна продължителност на достъпа"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Максимална продължителност на достъпа"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Без ограничение"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Всяко одобрение се ограничава най-много до тази продължителност, независимо каква е заявката."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 минути"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 минути"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 час"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 часа"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 часа"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 часа"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 часа"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 дни"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Само един потребител може да има достъп в даден момент"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Новите заявки се поставят в опашка, докато не изтече времето на текущия достъп или той бъде прекратен."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Разрешаване на удължаванията на достъпа"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Членовете могат да удължат активния си достъп веднъж, без ново одобрение, но само до посочената по-долу максимална продължителност."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Максимална продължителност на удължаването"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Колко най-дълго може да продължава едно удължение."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Изискване на одобрение"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Ограничаване по IP адрес"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Одобряващи"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Управители на колекции"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Правилото за достъп е създадено."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Правилото за достъп е обновено."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Изтриване на правилото за достъп?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Изтриване на „$NAME$“? Даването на достъп ще бъде изключено за всички колекции, които използват това правило.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Все още няма правила за достъп"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Създайте правило, за да подсилите защитата на чувствителните колекции."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Създаване на персонализирано правило"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Започнете от шаблон"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Използване на шаблон"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Краткотраен достъп"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Автоматично одобрение • Важи 1 час • Записва се в журнала"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Краткотраен достъп"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Изискване на одобрение"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Одобрение от човек • Необходимо е 1 одобрение • Записва се в журнала"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Изискване на одобрение"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Ограничение по IP адрес"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Автоматично одобрение • Има списък от позволени IP адреси • Записва се в журнала"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Ограничен достъп по IP адрес"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Колекции"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Няма зададени"
+  },
+  "pamSearchRules": {
+    "message": "Търсене в правилата"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Прилага се към"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Условия"
+  },
+  "pamAccessWindow": {
+    "message": "Прозорец на достъп"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Последна промяна"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Автоматично одобрение"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Изисква одобрение"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Ограничение по IP адрес"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Няма правила отговарящи на търсенето."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Включване"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Изключване"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Правилата за достъп са обновени."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Правилата за достъп са изтрити."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Изтриване на правилата за достъп?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ правила за достъп ще бъдат изтрити завинаги. Това действие е необратимо.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Само заявките идващи от IP адреси в тези интервали ще бъдат разрешени."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Интервал"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "например: 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Добавяне на интервал"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Премахване на интервала"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Добавете поне един интервал."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Въведете правилен интервал."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Този интервал вече е добавен."
   },
   "paymentSuccessful": {
     "message": "Плащането е успешно"

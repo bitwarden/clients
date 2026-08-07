@@ -1251,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "This shared folder will be permanently deleted."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1263,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "These shared folders will be permanently deleted."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ shared folder(s) will be permanently deleted.",
