@@ -13,7 +13,11 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import { DialogService, PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import {
+  FeatureFlagOverrideMenuService,
+  FeatureFlagOverridesDialogComponent,
+} from "@bitwarden/dev-tools";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
@@ -62,6 +66,10 @@ export class UserLayoutComponent implements OnInit {
     () => this.coachmarkService.activeStepId() === "importData",
   );
 
+  protected readonly featureFlagOverrideMenuEnabled$ = inject(FeatureFlagOverrideMenuService)
+    .enabled$;
+  private readonly dialogService = inject(DialogService);
+
   constructor(
     private syncService: SyncService,
     private accountService: AccountService,
@@ -82,5 +90,9 @@ export class UserLayoutComponent implements OnInit {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
     await this.syncService.fullSync(false);
+  }
+
+  protected openFeatureFlagOverrides() {
+    FeatureFlagOverridesDialogComponent.open(this.dialogService);
   }
 }

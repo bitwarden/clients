@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import {
   combineLatest,
@@ -28,6 +28,10 @@ import {
   CalloutModule,
   BerryComponent,
 } from "@bitwarden/components";
+import {
+  FeatureFlagOverrideMenuService,
+  FeatureFlagOverridesDialogComponent,
+} from "@bitwarden/dev-tools";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -102,6 +106,9 @@ export class SettingsV2Component {
     switchMap((userId) => this.autoConfirmService.canManageAutoConfirm$(userId)),
   );
 
+  protected readonly featureFlagOverrideMenuEnabled$ = inject(FeatureFlagOverrideMenuService)
+    .enabled$;
+
   constructor(
     private readonly nudgesService: NudgesService,
     private readonly accountService: AccountService,
@@ -113,6 +120,10 @@ export class SettingsV2Component {
 
   protected openUpgradeDialog() {
     PremiumUpgradeDialogComponent.open(this.dialogService);
+  }
+
+  protected openFeatureFlagOverrides() {
+    FeatureFlagOverridesDialogComponent.open(this.dialogService);
   }
 
   async dismissBadge(type: NudgeType) {
