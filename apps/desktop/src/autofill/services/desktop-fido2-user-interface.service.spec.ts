@@ -386,4 +386,29 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
   });
+
+  describe("informExcludedCredential", () => {
+    it("shows the excluded credentials UI and returns without waiting for the user", async () => {
+      await session.informExcludedCredential(["cipher-1"]);
+
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
+        x: 0,
+        y: 0,
+      });
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(false);
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-excluded",
+        { "disable-redirect": null },
+      ]);
+    });
+
+    it("resets the window when the component displaying the message hides the UI", async () => {
+      await session.informExcludedCredential(["cipher-1"]);
+      await session.hideUi();
+
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+    });
+  });
 });

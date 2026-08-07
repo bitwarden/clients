@@ -356,11 +356,16 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     }
   }
 
-  private async hideUi(): Promise<void> {
   /**
    * Returns the app to the state it was in before this ceremony showed any UI,
    * leaving a window the user already had open untouched when no UI was shown.
+   *
+   * `pickCredential` and `confirmNewCredential` wait for a result and call this
+   * from their own `finally`. `informExcludedCredential` doesn't: it returns as
+   * soon as the message is on screen, so the component showing that message
+   * calls this when the user dismisses it. Safe to call more than once.
    */
+  async hideUi(): Promise<void> {
     // Always clear modal mode so the app can never get stuck in it. The main
     // process only restyles the window on the modal -> standard transition, so
     // this is inert when the ceremony never entered modal mode.
