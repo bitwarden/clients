@@ -25,6 +25,7 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
 import { NoItemsComponent } from "../../no-items/no-items.component";
@@ -172,6 +173,7 @@ type RenderItem<T> =
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
+    CheckboxModule,
     IconComponent,
     NoItemsComponent,
     SkeletonTextComponent,
