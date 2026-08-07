@@ -28,6 +28,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
 
 import {
@@ -83,6 +84,7 @@ describe("ContextMenuClickedHandler", () => {
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let triageService: MockProxy<AutofillTriageService>;
+  let webmapperDrafts: MockProxy<WebmapperDraftService>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -97,6 +99,7 @@ describe("ContextMenuClickedHandler", () => {
     eventCollectionService = mock();
     userVerificationService = mock();
     triageService = mock();
+    webmapperDrafts = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -109,6 +112,7 @@ describe("ContextMenuClickedHandler", () => {
       userVerificationService,
       accountService,
       triageService,
+      webmapperDrafts,
     );
   });
 
