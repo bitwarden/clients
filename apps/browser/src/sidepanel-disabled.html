@@ -3,6 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <title>Bitwarden</title>
+    <script>
+      // This page is the side panel default_path declared in the manifest.
+      // It should never be intentionally shown to users. On some browsers (e.g. Vivaldi)
+      // the browser may open this page automatically when the extension service worker
+      // starts. Attempt to close the window; if that fails (the browser disallows it),
+      // the page remains blank and harmless.
+      (async function () {
+        try {
+          // Try to remove the window via the chrome.windows API first (works when
+          // the browser opens the side panel as a standalone popup-type window).
+          const win = await chrome.windows.getCurrent();
+          if (win?.id != null) {
+            await chrome.windows.remove(win.id);
+            return;
+          }
+        } catch (_) {
+          // Ignore — API may not be available in this context.
+        }
+        // Fallback: window.close() works when the window was opened by script.
+        window.close();
+      })();
+    </script>
   </head>
   <body></body>
 </html>
