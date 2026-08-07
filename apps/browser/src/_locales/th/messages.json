@@ -119,6 +119,9 @@
   "vault": {
     "message": "ตู้นิรภัย"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "ตู้นิรภัยของฉัน"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "เปิดเว็บไซต์"
   },
-  "launchWebsiteName": {
-    "message": "เปิดเว็บไซต์ $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "คัดลอกรหัสยืนยัน"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "ไฟล์แนบ"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "ล้างตัวกรองหรือลองค้นหาด้วยคำอื่น"
   },
-  "copyInfoTitle": {
-    "message": "คัดลอกข้อมูล - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "ไม่มีค่าให้คัดลอก"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "มอบหมายให้คอลเลกชัน"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "คัดลอกอีเมล"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการนี้"
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการเหล่านี้"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "คุณเลือก $TOTAL_COUNT$ รายการ คุณไม่สามารถอัปเดต $READONLY_COUNT$ รายการได้เนื่องจากคุณไม่มีสิทธิ์แก้ไข",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการนี้อีกต่อไป"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการเหล่านี้อีกต่อไป",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "มอบหมายคอลเลกชันสำเร็จแล้ว"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6401,10 +6458,16 @@
     "message": "ตำแหน่งรายการ"
   },
   "fileSends": {
-    "message": "ไฟล์ Send"
+    "message": "ไฟล์ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "ข้อความ Send"
+    "message": "ข้อความ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "การดำเนินการกับบัญชี"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "แสดงการดำเนินการคัดลอกด่วนบนตู้นิรภัย"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "ค่าเริ่มต้นของระบบ"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "โปรดอัปเดตแอปพลิเคชันเดสก์ท็อปของคุณ"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden จะใช้ URI ข้อมูลเข้าสู่ระบบที่บันทึกไว้เพื่อระบุว่าควรใช้ไอคอนหรือ URL เปลี่ยนรหัสผ่านใดเพื่อปรับปรุงประสบการณ์ของคุณ ไม่มีการรวบรวมหรือบันทึกข้อมูลเมื่อคุณใช้บริการนี้"
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "คุณไม่มีสิทธิ์ดูหน้านี้ ลองเข้าสู่ระบบด้วยบัญชีอื่น"
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }
