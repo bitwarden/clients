@@ -468,6 +468,11 @@
           format -> Select “QuantumLock” as Authenticator type -> enter your password and select
           “Export” to save the XML file.
         </ng-container>
+        <ng-container *ngIf="format === 'delineacsv'">
+          Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export
+          format -> Select “QuantumLock” as Authenticator type -> enter your password and select
+          “Export” to save the CSV file.
+        </ng-container>
       </bit-callout>
       @if (showLastPassOptions) {
         <import-lastpass

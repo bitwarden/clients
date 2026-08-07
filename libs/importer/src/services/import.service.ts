@@ -97,6 +97,7 @@ import {
   PasswordXPCsvImporter,
   PasswordDepot17XmlImporter,
   DelineaXmlImporter,
+  DelineaCsvImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -466,6 +467,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasswordDepot17XmlImporter();
       case "delineaxml":
         return new DelineaXmlImporter();
+      case "delineacsv":
+        return new DelineaCsvImporter();
       default:
         return null;
     }
