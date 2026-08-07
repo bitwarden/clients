@@ -3,8 +3,14 @@ import { catchError, firstValueFrom, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import type { AccessLeaseView, AccessRequestId, AccessRequestView } from "@bitwarden/sdk-internal";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import type {
+  AccessLeaseView,
+  AccessRequestId,
+  AccessRequestView,
+  CipherAccessStateView,
+  CipherId as SdkCipherId,
+} from "@bitwarden/sdk-internal";
 
 import { AccessRequestSdkService } from "..";
 
@@ -86,6 +92,23 @@ export class AccessRequestsSdkService implements AccessRequestSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to cancel access request: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getCipherAccessState(cipherId: string): Promise<CipherAccessStateView> {
+    const id = asUuid<SdkCipherId>(cipherId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.commercial().pam().access_requests().cipher_access_state(id);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to get cipher access state: ${error}`);
           throw error;
         }),
       ),
