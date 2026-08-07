@@ -73,10 +73,6 @@ describe("HealthComponent", () => {
     return fixture.nativeElement.querySelector("health-intro button");
   }
 
-  function results(): string {
-    return fixture.nativeElement.textContent;
-  }
-
   beforeEach(async () => {
     activeAccount$ = new ReplaySubject<Account | null>(1);
     activeAccount$.next({ id: userId } as Account);
@@ -126,7 +122,6 @@ describe("HealthComponent", () => {
       await initComponent();
 
       expect(intro()).not.toBeNull();
-      expect(results()).not.toContain("RESULTS PLACEHOLDER");
     });
 
     it("replaces the intro with the results once a Health scan has been run", async () => {

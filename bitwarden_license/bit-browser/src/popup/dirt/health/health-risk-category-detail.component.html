@@ -1,0 +1,63 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ contentKeys().titleKey | i18n }}" showBackButton="true">
+    <ng-container slot="end">
+      <app-pop-out />
+      <app-current-account />
+    </ng-container>
+  </popup-header>
+  @if (items().length > 0) {
+    <p>
+      {{ contentKeys().descriptionKey | i18n }}
+    </p>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">Items</h2>
+        <span slot="end">{{ items().length }}</span>
+      </bit-section-header>
+      @for (item of items(); track item.id) {
+        <bit-item class="tw-flex tw-gap-2 tw-items-center">
+          <button bit-item-content type="button" (click)="onItemClick(item)">
+            <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+              <app-vault-icon [cipher]="item"></app-vault-icon>
+            </div>
+            <span bitTypography="body1">
+              {{ item.name }}
+            </span>
+            <div slot="secondary" class="tw-flex tw-flex-col">
+              <span bitTypography="body2" class="tw-text-muted">
+                {{ item.login.username }}
+              </span>
+            </div>
+          </button>
+          <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
+            @if (item.login.uri != null) {
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="primaryOutline"
+                  endIcon="bwi-external-link"
+                  (click)="onChangePassword(item)"
+                >
+                  {{ "changePassword" | i18n }}
+                </button>
+              </bit-item-action>
+            }
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-more-horizontal" label="Options"></button>
+            </bit-item-action>
+          </div>
+        </bit-item>
+      }
+    </bit-section>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-no-items [icon]="emptyIcon()" class="tw-text-main">
+        <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+        <ng-container slot="description">
+          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ contentKeys().emptyKey | i18n }}</p>
+        </ng-container>
+      </bit-no-items>
+    </div>
+  }
+</popup-page>

@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, effect } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
 import { map, of, switchMap } from "rxjs";
 
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
@@ -28,6 +29,7 @@ import { HealthAccessService } from "./services/health-access.service";
 export class HealthComponent {
   readonly accountService = inject(AccountService);
   readonly healthAccessService = inject(HealthAccessService);
+  readonly router = inject(Router);
 
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
@@ -71,5 +73,10 @@ export class HealthComponent {
 
     // mark state indicating the User has run a Health scan (i.e. completed the introduction CTA)
     await this.healthAccessService.setHasRunHealthScan(userId);
+  };
+
+  // TODO: REMOVE. FOR TESTING PURPOSES ONLY.
+  readonly routeToCategory = async (category: string) => {
+    await this.router.navigate(["health-risk-category-details", { category }]);
   };
 }

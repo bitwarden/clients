@@ -8,6 +8,18 @@
   @if (!hasRunHealthScan()) {
     <health-intro (onTriggerHealthScan)="handleHealthScan()" />
   } @else {
-    <div>RESULTS PLACEHOLDER</div>
+    <div>
+      <!-- TODO: REMOVE BUTTONS. FOR TEMPORARY TESTING. -->
+      <button class="tw-block" type="button" (click)="routeToCategory('exposed-passwords')">
+        Go to exposed passwords
+      </button>
+      <button class="tw-block" type="button" (click)="routeToCategory('weak-passwords')">
+        Go to weak passwords
+      </button>
+      <button class="tw-block" type="button" (click)="routeToCategory('reused-passwords')">
+        Go to reused passwords
+      </button>
+      <!-- END TODO -->
+    </div>
   }
 </popup-page>
