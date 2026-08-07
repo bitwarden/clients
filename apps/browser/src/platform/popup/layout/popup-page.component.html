@@ -5,15 +5,15 @@
     x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
+
+    Only horizontal padding lives here. Vertical padding and the separator are the projected
+    content's to apply (see `bitAboveScrollArea`), because this container can't tell whether that
+    content actually rendered anything — its children are present but frequently empty — and
+    claiming space for content that isn't there leaves a visible gap.
   -->
   <div
-    #aboveScrollArea
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
-    [ngClass]="{
-      'tw-invisible !tw-p-0 !tw-border-none': loading() || !aboveScrollAreaHasContent(),
-      'tw-border-secondary-300': scrolled(),
-      'tw-border-transparent': !scrolled(),
-    }"
+    class="tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
+    [ngClass]="{ 'tw-invisible': loading() }"
   >
     <ng-content select="[slot=above-scroll-area]"></ng-content>
   </div>
