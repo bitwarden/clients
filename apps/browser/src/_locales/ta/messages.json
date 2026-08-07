@@ -119,6 +119,9 @@
   "vault": {
     "message": "வால்ட்"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "எனது வால்ட்"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "வலைத்தளத்தைத் தொடங்கு"
   },
-  "launchWebsiteName": {
-    "message": "$ITEMNAME$ வலைத்தளத்தைத் தொடங்கு",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "சரிபார்ப்புக் குறியீட்டை நகலெடு"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "இணைப்புகள்"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "ஃபில்ட்டர்களை அகற்றுங்கள் அல்லது வேறு தேடல் சொல்லை முயற்சிக்கவும்"
   },
-  "copyInfoTitle": {
-    "message": "தகவலை நகலெடு - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "நகலெடுக்க மதிப்புகள் எதுவும் இல்லை"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "சேகரிப்புகளுக்கு ஒதுக்கு"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "மின்னஞ்சலை நகலெடு"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "இந்தச் சேகரிப்புகளை அணுகும் நிறுவன உறுப்பினர்கள் மட்டுமே இந்த உருப்படியைப் பார்க்க முடியும்."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "இந்தச் சேகரிப்புகளை அணுகும் நிறுவன உறுப்பினர்கள் மட்டுமே இந்த உருப்படிகளைப் பார்க்க முடியும்."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "நீங்கள் $TOTAL_COUNT$ உருப்படிகளைத் தேர்ந்தெடுத்துள்ளீர்கள். உங்களால் $READONLY_COUNT$ உருப்படிகளைப் புதுப்பிக்க முடியாது, ஏனெனில் உங்களிடம் திருத்துவதற்கான அனுமதிகள் இல்லை.",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 பொருள் தேர்ந்தெடுக்கப்பட்ட நிறுவனத்திற்கு நிரந்தரமாக மாற்றப்படும். இந்தப் பொருள் இனி உங்களிடம் இருக்காது."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ பொருள்கள் தேர்ந்தெடுக்கப்பட்ட நிறுவனத்திற்கு நிரந்தரமாக மாற்றப்படும். இந்தப் பொருள்கள் இனி உங்களிடம் இருக்காது.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "சேகரிப்புகள் வெற்றிகரமாக ஒதுக்கப்பட்டன"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6401,10 +6458,16 @@
     "message": "பொருளின் இருப்பிடம்"
   },
   "fileSends": {
-    "message": "கோப்பு அனுப்புகள்"
+    "message": "கோப்பு அனுப்புகள்",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "உரை அனுப்புகள்"
+    "message": "உரை அனுப்புகள்",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "கணக்கு செயல்கள்"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "சேமிப்பு பெட்டகத்தில் விரைவான நகல் செயல்களைக் காட்டு"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "சிஸ்டம் இயல்புநிலை"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "உங்கள் டெஸ்க்டாப் செயலியைப் புதுப்பிக்கவும்"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "உங்கள் அனுபவத்தை மேம்படுத்த எந்த ஐகான் அல்லது கடவுச்சொல்லை மாற்ற URL ஐப் பயன்படுத்த வேண்டும் என்பதை அடையாளம் காண பிட்வார்டன் சேமிக்கப்பட்ட உள்நுழைவு URIகளைப் பயன்படுத்தும். நீங்கள் இந்த சேவையைப் பயன்படுத்தும்போது எந்த தகவலும் சேகரிக்கப்படாது அல்லது சேமிக்கப்படாது."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "இந்த பக்கத்தைக் காண உங்களுக்கு அனுமதிகள் இல்லை. வேறு கணக்குடன் உள்நுழைய முயற்சிக்கவும்."
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }

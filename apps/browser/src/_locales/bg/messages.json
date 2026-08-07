@@ -119,6 +119,9 @@
   "vault": {
     "message": "Трезор"
   },
+  "vaults": {
+    "message": "Трезори"
+  },
   "myVault": {
     "message": "Моят трезор"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
   },
-  "launchWebsiteName": {
-    "message": "Отваряне на уеб сайта $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Копиране на кода за потвърждаване"
+  },
+  "noUsername": {
+    "message": "Няма потребителско име"
+  },
+  "noPassword": {
+    "message": "Няма парола"
+  },
+  "noVerificationCode": {
+    "message": "Няма код за потвърждаване"
+  },
+  "noNumber": {
+    "message": "Няма номер"
+  },
+  "noSecurityCode": {
+    "message": "Няма код за сигурност"
   },
   "attachments": {
     "message": "Прикачвания"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
-  "copyInfoTitle": {
-    "message": "Копиране на информацията – $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Копиране на подробностите за $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "Няма въведена стойност",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Няма стойности за копиране"
+  "noDetailsToCopy": {
+    "message": "Няма подробности за копиране"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
+  },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
+  "transferAndAdd": {
+    "message": "Прехвърляне и добавяне"
   },
   "copyEmail": {
     "message": "Копиране на е-пощата"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елемента."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елементите."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Избрали сте $TOTAL_COUNT$ елемента Не можете да промените $READONLY_COUNT$ от елементите, тъй като нямате право за редактиране.",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избрания трезор. Вече няма да притежавате този елемент."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избрания трезор. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Споделените папки са добавени успешно"
+  },
   "itemMovedToCollection": {
     "message": "Елементът е преместен в колекция"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Елементът е добавен към споделена папка"
   },
   "itemMovedToCollections": {
     "message": "Елементът е преместен в колекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Елементът е добавен към споделени папки"
+  },
   "itemsMovedToCollection": {
     "message": "Елементите са преместени в колекция"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Елементите са добавени към споделена папка"
+  },
   "itemsMovedToCollections": {
     "message": "Елементите са преместени в колекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Елементите са добавени към споделени папки"
   },
   "itemAssignedToCollections": {
     "message": "Елементът е добавен към колекции"
@@ -6401,10 +6458,16 @@
     "message": "Местоположение на елемента"
   },
   "fileSends": {
-    "message": "Файлови изпращания"
+    "message": "Файлови изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Текстови изпращания"
+    "message": "Текстови изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Изпращания на елементи",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Действия по регистрацията"
@@ -6424,7 +6487,7 @@
       }
     }
   },
-  "showQuickCopyActions": {
+  "showQuickCopyActionsInVault": {
     "message": "Показване на действията за бързо копиране в трезора"
   },
   "systemDefault": {
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Не можете да премахвате споделени папки с права „Само за преглед“: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Моля, обновете самостоятелното приложение"
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
   },
   "noPermissionsViewPage": {
     "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Здраве"
+  },
+  "scanMyVault": {
+    "message": "Сканиране на трезора"
+  },
+  "introducingHealth": {
+    "message": "Представяме: Състоянието на сигурността"
+  },
+  "healthIntroDescription": {
+    "message": "Наблюдавайте и подобрявайте състоянието на сигурността на трезора си, променяте паролите, които са слаби, преизползвани или са били разкрити."
   }
 }
