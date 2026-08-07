@@ -84,7 +84,7 @@ export type CartItem = {
   translationKey: string; // Translation key for i18n lookup
   quantity: number; // Number of items
   cost: number; // Cost per item
-  discounts?: CartDiscount[]; // Optional item-level discounts, rendered as rows beneath the line
+  discounts?: CartDiscount[]; // Optional item-level discounts, rendered as indented rows beneath the line
   hideBreakdown?: boolean; // Optional: hide cost breakdown (quantity × unit price)
 };
 
@@ -486,8 +486,8 @@ discount):
 ### With Both Cart-Level and Item-Level Discounts
 
 Show cart with both a cart-level discount and an item-level discount. The item-level discount
-renders inline under its line item, while the cart-level discount renders in the dedicated discount
-section:
+renders indented under its line item, while the cart-level discount renders in the dedicated
+discount section:
 
 <Canvas of={CartSummaryStories.PerLineAndCartWideStacked} />
 
@@ -733,8 +733,8 @@ Show cart with families plan:
 - **Dynamic Calculations**: Automatically calculates subtotals, discounts, credits, taxes, and
   totals using Angular signals and computed values
 - **Discount Support**: Displays both cart-level and item-level discounts. Cart-level discounts
-  appear in a dedicated section, while each line item's `discounts` render as rows inline under the
-  line item they apply to. Supports both percentage-based and fixed-amount discounts with green
+  appear in a dedicated section, while each line item's `discounts` render as indented rows under
+  the line item they apply to. Supports both percentage-based and fixed-amount discounts with green
   success styling
 - **Credit Support**: Shows account credit deductions with clear labeling using i18n translation
   keys

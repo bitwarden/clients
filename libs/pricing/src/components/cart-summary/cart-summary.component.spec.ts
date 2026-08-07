@@ -835,6 +835,39 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
 
+    it("should indent item-level discount labels beneath the line item they apply to", () => {
+      // Arrange — a discount on every line item so all four label variants render
+      const discount = { type: DiscountTypes.PercentOff, value: 25 };
+      const cartWithDiscountsOnAllLines: Cart = {
+        ...mockCart,
+        passwordManager: {
+          seats: { ...mockCart.passwordManager.seats, discounts: [discount] },
+          additionalStorage: {
+            ...mockCart.passwordManager.additionalStorage!,
+            discounts: [discount],
+          },
+        },
+        secretsManager: {
+          seats: { ...mockCart.secretsManager!.seats, discounts: [discount] },
+          additionalServiceAccounts: {
+            ...mockCart.secretsManager!.additionalServiceAccounts!,
+            discounts: [discount],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscountsOnAllLines);
+      fixture.detectChanges();
+
+      // Act
+      const labels = fixture.debugElement.queryAll(By.css('[data-testid$="-discount-label"]'));
+
+      // Assert
+      expect(labels).toHaveLength(4);
+      for (const label of labels) {
+        expect(label.nativeElement.classList.contains("tw-pl-4")).toBe(true);
+      }
+    });
+
     it("should not display item-level discount section when no item discount is present", () => {
       // Arrange / Act
       const discountRow = fixture.debugElement.query(
