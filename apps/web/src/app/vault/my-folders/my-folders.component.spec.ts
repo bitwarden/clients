@@ -20,7 +20,7 @@ import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
-import { buildFolderRows, MyFoldersComponent, reuseUnchangedRows } from "./my-folders.component";
+import { buildFolderRows, MyFoldersComponent } from "./my-folders.component";
 
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -78,29 +78,6 @@ describe("buildFolderRows", () => {
     const rows = buildFolderRows([folder("1", "   ")], []);
 
     expect(rows[0].displayName).toBe("—");
-  });
-});
-
-describe("reuseUnchangedRows", () => {
-  const row = (id: string, name: string, itemCount = 0) => ({
-    id,
-    name,
-    displayName: name,
-    itemCount,
-  });
-
-  it("keeps the previous instance when a row is unchanged", () => {
-    const previous = [row("1", "Banking")];
-    const result = reuseUnchangedRows(previous, [row("1", "Banking")]);
-
-    expect(result[0]).toBe(previous[0]);
-  });
-
-  it("takes the new instance when the name or count changed", () => {
-    const previous = [row("1", "Banking", 2)];
-    const next = [row("1", "Banking", 3)];
-
-    expect(reuseUnchangedRows(previous, next)[0]).toBe(next[0]);
   });
 });
 
@@ -300,6 +277,26 @@ describe("MyFoldersComponent", () => {
       });
     });
 
+    it("keeps a selected row checked after it is renamed", () => {
+      selectRow("Banking");
+      expect(checkedRows()).toEqual([true, false, false]);
+
+      folderViews$.next([folder("1", "Travel"), folder("2", "Bank"), folder("3", "Work")]);
+      fixture.detectChanges();
+
+      expect(checkedRows()).toEqual([true, false, false]);
+      expect(component["selected"]().map((row) => row.displayName)).toEqual(["Bank"]);
+    });
+
+    it("drops a selected row that disappears from the data", () => {
+      selectAll();
+
+      folderViews$.next([folder("1", "Travel")]);
+      fixture.detectChanges();
+
+      expect(component["selected"]().map((row) => row.id)).toEqual(["1"]);
+    });
+
     it("keeps rows checked when the ciphers re-emit", () => {
       selectAll();
       expect(checkedRows()).toEqual([true, true, true]);
@@ -310,12 +307,13 @@ describe("MyFoldersComponent", () => {
       expect(checkedRows()).toEqual([true, true, true]);
     });
 
-    it("clears the selection after a bulk delete", async () => {
+    it("clears the selection once the deleted folders leave the data", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       selectAll();
 
       await component["deleteSelected"]();
-
+      // Deleting updates folder state, which is what drives the selection reconciliation.
+      folderViews$.next([]);
       fixture.detectChanges();
 
       expect(component["selected"]()).toEqual([]);

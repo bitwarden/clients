@@ -1,6 +1,12 @@
 <app-header></app-header>
 
-<bit-table-v2 [tableDef]="table" [filter]="filter" [selection]="selection" [loading]="loading()">
+<bit-table-v2
+  [tableDef]="table"
+  [filter]="filter"
+  [selection]="selection"
+  [loading]="loading()"
+  [trackBy]="trackById"
+>
   <bit-table-toolbar>
     <bit-search
       id="my-folders_input_search"
