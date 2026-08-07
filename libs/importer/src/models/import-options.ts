@@ -77,8 +77,9 @@ export const regularImportOptions = [
   { id: "passwordxpcsv", name: "Password XP (csv)" },
   { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
   { id: "passworddepot17xml", name: "Password Depot 17 (xml)" },
+  { id: "delineaxml", name: "Delinea (xml)" },
+  { id: "delineacsv", name: "Delinea (csv)" },
 ] as const;
 
 export type ImportType =
-  | (typeof featuredImportOptions)[number]["id"]
-  | (typeof regularImportOptions)[number]["id"];
+  (typeof featuredImportOptions)[number]["id"] | (typeof regularImportOptions)[number]["id"];

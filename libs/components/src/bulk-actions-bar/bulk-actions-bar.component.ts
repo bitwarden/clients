@@ -31,6 +31,7 @@ import { measureWidth, revealForMeasurement } from "../overflow-list/measure";
 import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
 import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
+import { BitTableV2Component } from "../table/v2/table-v2.component";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
@@ -67,7 +68,25 @@ export class BulkActionsBarComponent {
   private readonly document = inject(DOCUMENT);
   private readonly i18nService = inject(I18nService);
 
-  readonly selectedCount = input.required<number>();
+  /**
+   * Optional ancestor table. When present, the bar reads selection state from
+   * `table.selectionModel()` and clears it on dismiss, so consumers don't need to
+   * wire `[selectedCount]` or `(clear)` explicitly. Used standalone or as a
+   * sibling, the bar falls back to the consumer-provided input.
+   */
+  private readonly table = inject(BitTableV2Component, { optional: true });
+
+  /**
+   * Number of currently-selected items. Optional: when projected into a
+   * `<bit-table-v2>` with a `[selection]` model, the bar derives this from
+   * the table automatically (see {@link effectiveCount}).
+   */
+  readonly selectedCount = input<number | undefined>(undefined);
+
+  /** Explicit input wins; otherwise infer from ancestor table; otherwise 0. */
+  protected readonly effectiveCount = computed(
+    () => this.selectedCount() ?? this.table?.selectionModel()?.count() ?? 0,
+  );
 
   private readonly clear$ = new Subject<void>();
   readonly clear = outputFromObservable(this.clear$);
@@ -92,7 +111,7 @@ export class BulkActionsBarComponent {
   // (not contentChildren) because the bar renders them itself via @for.
   private readonly primaryButtons = viewChildren(BulkActionButtonComponent);
 
-  protected readonly visible = computed(() => this.selectedCount() > 0);
+  protected readonly visible = computed(() => this.effectiveCount() > 0);
 
   /**
    * The bar's intrinsic width (in px), remeasured whenever the rendered toolbar
@@ -143,12 +162,12 @@ export class BulkActionsBarComponent {
   private readonly modifierKey = signal<"Command" | "Ctrl">(this.detectInitialModifier());
 
   protected readonly announcement = computed(() => {
-    if (this.selectedCount() === 0) {
+    if (this.effectiveCount() === 0) {
       return this.i18nService.t("selectionCleared");
     }
     return this.i18nService.t(
       "bulkActionsBarAnnouncement",
-      this.selectedCount(),
+      this.effectiveCount(),
       `${this.modifierKey()}+B`,
     );
   });
@@ -213,6 +232,7 @@ export class BulkActionsBarComponent {
   }
 
   protected onClear(): void {
+    this.table?.selectionModel()?.clear();
     this.clear$.next();
     this.restorePreviousFocus();
   }

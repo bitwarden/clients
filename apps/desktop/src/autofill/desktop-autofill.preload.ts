@@ -20,6 +20,25 @@ export const DesktopAutofillPreload = {
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
+  /**
+   * Returns the native handle of the Bitwarden app window, for native prompts
+   * that must attach themselves to a window. Resolves to null when there is no
+   * window, e.g. while the app is starting up.
+   */
+  getAppWindowHandle: (): Promise<Uint8Array | null> =>
+    ipcRenderer.invoke(AutofillIpcChannelControl.GetAppWindowHandle),
+
+  /**
+   * Signals the main process whether native credential sync is enabled. The main process only
+   * registers the native OS credential provider and starts the autofill IPC server once this is
+   * called with `true`, so the flag-gating decision stays in the renderer where the feature flag
+   * is evaluated. Resolves to whether native autofill is running in the main process.
+   */
+  setEnabled: (enabled: boolean): Promise<boolean> =>
+    ipcRenderer.invoke(AutofillIpcChannelControl.SetEnabled, enabled),
+
+  listenCancelRequest: makeListener(AutofillIpcChannelIncoming.CancelRequest),
+
   listenLockStatus: makeListener(
     AutofillIpcChannelIncoming.LockStatus,
     AutofillIpcChannelOutgoing.LockStatus,

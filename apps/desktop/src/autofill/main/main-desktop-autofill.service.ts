@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { autofill } from "@bitwarden/desktop-napi";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 import { AutofillCommandDefinition } from "../models/autofill-command";
@@ -44,6 +44,7 @@ export class DesktopAutofillMain {
   private ipcServer?: AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
+  private enabled = false;
   private completionCallbacks: Map<string, CompletionCallback<any>> = new Map();
 
   constructor(
@@ -80,7 +81,51 @@ export class DesktopAutofillMain {
     this.messageBuffer = [];
   }
 
-  async init() {
+  /**
+   * Registers the control handler that waits for the renderer to signal whether native credential
+   * sync is enabled via the {@link AutofillIpcChannelControl.SetEnabled} channel.
+   */
+  init() {
+    ipcMain.handle(
+      AutofillIpcChannelControl.SetEnabled,
+      (_event, enabled: boolean): Promise<boolean> => {
+        if (!enabled) {
+          return Promise.resolve(this.enabled);
+        }
+        return this.enable();
+      },
+    );
+
+    // Read on demand rather than sent with each request: the handle belongs to
+    // the window, not to any one request, and the window may be recreated.
+    ipcMain.handle(
+      AutofillIpcChannelControl.GetAppWindowHandle,
+      (): Uint8Array | null => this.windowMain.win?.getNativeWindowHandle() ?? null,
+    );
+  }
+
+  /**
+   * Registers the native OS credential provider and starts the autofill IPC server. Idempotent:
+   * subsequent calls are ignored while already enabled.
+   *
+   * @returns whether native autofill is running after this call.
+   */
+  private async enable(): Promise<boolean> {
+    if (this.enabled) {
+      this.logService.info("Native autofill is already enabled, ignoring enable request");
+      return true;
+    }
+
+    if (process.platform === "win32") {
+      try {
+        passkey_authenticator.register();
+      } catch (err) {
+        this.logService.error("Failed to register windows passkey plugin:", err);
+        this.enabled = false;
+        return false;
+      }
+    }
+
     ipcMain.handle(
       AutofillIpcChannelControl.RunCommand,
       <C extends AutofillCommandDefinition>(
@@ -140,11 +185,14 @@ export class DesktopAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on(AutofillIpcChannelOutgoing.Error, (event, data) => {
+    ipcMain.on(AutofillIpcChannelOutgoing.Error, (_event, data) => {
       this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
     });
+
+    this.enabled = true;
+    return true;
   }
 
   /**
@@ -154,14 +202,14 @@ export class DesktopAutofillMain {
    */
   private doWindowHandleQuery: Listener<void> = (error, clientId, sequenceNumber) => {
     if (error) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery", error);
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery", error);
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
       return;
     }
 
     const window = this.windowMain.win;
     if (!window) {
-      this.logService.error("[NativeAutofillMain]", "windowHandleQuery: No window available");
+      this.logService.error("[DesktopAutofillMain]", "windowHandleQuery: No window available");
       this.ipcServer?.completeError(clientId, sequenceNumber, "No window available");
       return;
     }
@@ -199,7 +247,7 @@ export class DesktopAutofillMain {
       request,
     ) => {
       if (error) {
-        this.logService.error("[NativeAutofillMain]", `${toRendererChannel}:`, error);
+        this.logService.error("[DesktopAutofillMain]", `${toRendererChannel}:`, error);
         this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
         return;
       }
@@ -231,7 +279,7 @@ export class DesktopAutofillMain {
         // without ipcServer being set.
         if (!this.ipcServer) {
           this.logService.error(
-            "[NativeAutofillMain]",
+            "[DesktopAutofillMain]",
             `${fromRendererChannel}: Cannot find IPC server instance to return response to autofill provider.`,
           );
           throw new Error(
@@ -239,8 +287,12 @@ export class DesktopAutofillMain {
           );
         }
 
-        this.logService.debug(fromRendererChannel, data);
         const { clientId, sequenceNumber, response } = data;
+        this.logService.debug(
+          "[DesktopAutofillMain]",
+          `${fromRendererChannel}: Received response from renderer channel`,
+          { clientId, sequenceNumber },
+        );
         completeCallback.call(this.ipcServer, clientId, sequenceNumber, response);
       });
 
@@ -266,7 +318,10 @@ export class DesktopAutofillMain {
       this.logService.error(`Error running autofill command '${command.command}':`, e);
 
       if (e instanceof Error) {
-        return { type: "error", error: e.stack ?? String(e) } as RunCommandResult<C>;
+        return {
+          type: "error",
+          error: e.stack ?? String(e),
+        } as RunCommandResult<C>;
       }
 
       return { type: "error", error: String(e) } as RunCommandResult<C>;

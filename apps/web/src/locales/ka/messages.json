@@ -1206,6 +1206,146 @@
   "myFolders": {
     "message": "My folders"
   },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "addToMyFolder": {
+    "message": "Add to my folder"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Select shared folder item"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "This shared folder is only accessible from the admin console"
+  },
+  "editSharedFolder": {
+    "message": "Edit shared folder"
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ shared folder(s) will be permanently deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
+  "deletedSharedFolders": {
+    "message": "Deleted shared folders"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
+  },
   "attachments": {
     "message": "მიმაგრებული ფაილები"
   },
@@ -1430,6 +1570,9 @@
   "item": {
     "message": "საგანი"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "Item details"
   },
@@ -1586,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1610,11 +1753,11 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "No values to copy"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1654,6 +1797,83 @@
   },
   "selectAll": {
     "message": "ყველას შერჩევა"
+  },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
   },
   "deselectAll": {
     "message": "Deselect all"
@@ -2005,6 +2225,12 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
   },
@@ -2263,6 +2489,10 @@
   "youDoNotHavePermissions": {
     "message": "You do not have permissions to this collection"
   },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
+  },
   "noCollectionsInList": {
     "message": "არაა კოლექციები ჩამოსათველად."
   },
@@ -2283,6 +2513,9 @@
   },
   "newOrganization": {
     "message": "ახალი ორგანიზაცია"
+  },
+  "newVault": {
+    "message": "New vault"
   },
   "noOrganizationsList": {
     "message": "თქვენ არ მიეკუთვნებით არცერთ ორგანიზაციებს. ორგანიზაციები გაძლევთ საშუალებას დაცულად გაუზიაროთ საგნები სხვა მომხმარებლებს."
@@ -2486,6 +2719,21 @@
   "copyVerificationCode": {
     "message": "დააკოპირე ერთჯერადი კოდი"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "copyUuid": {
     "message": "Copy UUID"
   },
@@ -2504,8 +2752,8 @@
   "confirmSecretsExport": {
     "message": "Confirm secrets export"
   },
-  "exportWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "exportSecretsWarningDesc": {
     "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
@@ -2584,8 +2832,8 @@
   "passwordProtected": {
     "message": "Password protected"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "confirmVaultImport": {
     "message": "Confirm vault import"
@@ -2682,7 +2930,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
@@ -2852,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "Purged organization vault."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Purged $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Vault accessed by Provider."
   },
@@ -2959,8 +3216,26 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
   },
   "contact": {
     "message": "Contact"
@@ -3053,6 +3328,9 @@
   "options": {
     "message": "Options"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "preferences": {
     "message": "Preferences"
   },
@@ -3070,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "Default"
@@ -3443,6 +3724,10 @@
     "message": "Identify and close security gaps in your organization's accounts by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Unsecure websites"
   },
@@ -3493,8 +3778,56 @@
   "noInactive2fa": {
     "message": "No websites were found in your vault with a missing two-step login configuration."
   },
+  "passkeyLoginReport": {
+    "message": "Passkey login"
+  },
+  "passkeyLoginReportMenuDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+  },
+  "passkeyLoginReportDesc": {
+    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
+  },
+  "passkeyLoginReportHowTheyWork": {
+    "message": "how passkeys work"
+  },
+  "passkeyLoginReportAnd": {
+    "message": "and "
+  },
+  "passkeyLoginReportHowToUse": {
+    "message": "how to use them in Bitwarden."
+  },
+  "passkeyLoginFound": {
+    "message": "Logins that support passkeys"
+  },
+  "passkeyLoginFoundReportDesc": {
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "noPasskeyLogin": {
+    "message": "No accounts were found in your vault that support passkeys without one configured."
+  },
   "instructions": {
     "message": "Instructions"
+  },
+  "passwordlessLogin": {
+    "message": "Passwordless login"
+  },
+  "multifactorAuthentication": {
+    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Exposed passwords"
@@ -3888,6 +4221,15 @@
   },
   "cancelSubscription": {
     "message": "Cancel subscription"
+  },
+  "completeCancellation": {
+    "message": "Complete cancellation"
+  },
+  "helpUsImprove": {
+    "message": "Help us improve. Why are you canceling?"
+  },
+  "additionalDetails": {
+    "message": "Additional details"
   },
   "subscriptionExpiration": {
     "message": "Subscription expiration"
@@ -4504,6 +4846,9 @@
   "defaultCollection": {
     "message": "Default collection"
   },
+  "defaultSharedFolder": {
+    "message": "Default shared folder"
+  },
   "getHelp": {
     "message": "Get help"
   },
@@ -4588,6 +4933,10 @@
   "nestCollectionUnder": {
     "message": "Nest collection under"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Access control"
   },
@@ -4606,11 +4955,23 @@
   "viewCollection": {
     "message": "View collection"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Collection info"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Are you sure you want to delete this collection?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Edit member"
@@ -4632,6 +4993,10 @@
   },
   "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
@@ -4687,6 +5052,24 @@
   },
   "owner": {
     "message": "Owner"
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Manage all aspects of your organization, including billing and subscriptions"
@@ -4800,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "Exported organization vault."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Exported $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Edited organization settings."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Edited $ORGNAME$ vault settings.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Created item $ID$.",
@@ -4930,8 +5331,8 @@
       }
     }
   },
-  "accessedTextSendV2": {
-    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+  "accessedTextSendV3": {
+    "message": "Accessed text Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4944,8 +5345,8 @@
       }
     }
   },
-  "accessedFileSendV2": {
-    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+  "accessedFileSendV3": {
+    "message": "Accessed file Send$SENDID$ created by $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -4996,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Moved item $ID$ to $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5239,6 +5653,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Edited collection $ID$.",
     "placeholders": {
@@ -5247,6 +5671,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Deleted collections"
@@ -5265,6 +5699,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Discard edits"
@@ -5350,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Staged user $ID$ added.",
     "placeholders": {
@@ -5386,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the two-factor login policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the single organization membership policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5404,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Revoked access for $ID$ for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Restored $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5449,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Edited shared folders for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Accepted transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Invited user $ID$.",
@@ -5518,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Created $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Added organization $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Added $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5536,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Removed $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Accessed $ID$ organization vault.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Accessed $ID$ in $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5578,7 +6157,7 @@
   "needsApproval": {
     "message": "Needs approval"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
@@ -6336,6 +6915,9 @@
   },
   "inviteLink": {
     "message": "Invite link"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "lastGenerated": {
     "message": "Last generated: $DATE$",
@@ -7143,6 +7725,14 @@
   "expired": {
     "message": "Expired"
   },
+  "expiringSoon": {
+    "message": "Expiring soon",
+    "description": "Badge label shown on an access token that will expire within the warning threshold."
+  },
+  "tokenActive": {
+    "message": "Active",
+    "description": "Badge label shown on an access token that is valid and not approaching expiration."
+  },
   "searchSends": {
     "message": "Search Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7504,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7981,6 +8588,15 @@
       }
     }
   },
+  "eventAdminChangedUserEmail": {
+    "message": "Updated $ID$ email address.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "firstSsoLogin": {
     "message": "$ID$ logged in using Sso for the first time",
     "placeholders": {
@@ -8394,6 +9010,9 @@
   "automaticAppLoginWithSSODesc": {
     "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
   },
+  "automaticAppLoginWithSSODescV2": {
+    "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -8680,7 +9299,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9422,7 +10041,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9432,7 +10051,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9446,7 +10065,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9456,7 +10075,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9520,6 +10139,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
@@ -9545,7 +10172,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium subscription required"
   },
   "scim": {
@@ -10306,11 +10933,20 @@
   "editGroupMembersDesc": {
     "message": "Grant members access to the group's assigned collections."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "Grant access to collections by adding them to this group."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "You can only assign collections you manage."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "Select members"
@@ -10318,11 +10954,23 @@
   "selectCollections": {
     "message": "Select collections"
   },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
+  },
   "role": {
     "message": "Role"
   },
   "removeMember": {
     "message": "Remove member"
+  },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
   },
   "collection": {
     "message": "Collection"
@@ -10330,8 +10978,15 @@
   "noCollection": {
     "message": "No collection"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "No collections added"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "No members added"
@@ -10494,6 +11149,42 @@
   },
   "memberRole": {
     "message": "Member role"
+  },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "emailNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their email address."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "This member has a master password. Contact the member to update their email address."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "The new email must match a domain claimed by your organization."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email is already in use by a member of your organization."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email is already in use. You can invite them to your organization instead."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
+  },
+  "createdDate": {
+    "message": "Created date"
   },
   "moreSettings": {
     "message": "More settings"
@@ -11182,6 +11873,30 @@
     "message": "single organization",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "single organization vault",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO required",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", and",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Account recovery administration",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "policies will turn on automatically.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "policy,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11505,17 +12220,38 @@
   "collectionManagement": {
     "message": "Collection management"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folders settings"
+  },
   "collectionManagementDescription": {
     "message": "Configure the collection behavior for the organization"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Restrict collection creation to owners and admins"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Restrict collection deletion to owners and admins"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Restrict item deletion to members with the ",
@@ -11527,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Updated collection management setting"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -11558,17 +12297,29 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
   },
   "editedCollections": {
     "message": "Edited collections"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
   "collectionEdited": {
     "message": "Collection edited"
   },
-  "editedCollection": {
-    "message": "Edited collection"
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "Server URL"
@@ -11607,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Modified shared folder management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Turned on Restrict shared folder creation setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11625,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Turned off Restrict shared folder creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Turned on Restrict collection deletion setting $ID$.",
     "placeholders": {
@@ -11634,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Turned on Restrict shared folder deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Turned off Restrict shared folder deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11670,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all shared folders and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all shared folders and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11737,20 +12551,44 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Missing Manage Collection Permissions"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Grant members access to this collection."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Administrators can access and manage collections."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
@@ -11853,41 +12691,53 @@
     "message": "Missing features or functionality",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+  "cancelSurveyMissingFeaturesHintV2": {
+    "message": "Something we needed wasn't available.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
     "message": "Too difficult to set up or manage",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+  "cancelSurveyTooComplexHintV2": {
+    "message": "Onboarding, admin, or day-to-day use was too complex.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+  "cancelSurveyNotEnoughValueLabelV2": {
+    "message": "Cost was too high",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+  "cancelSurveyNotEnoughValueHintV2": {
+    "message": "The price doesn't match what we're getting out of it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
     "message": "Not enough usage by our team",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+  "cancelSurveyNotEnoughUsageHintV2": {
+    "message": "We couldn't get people to actually use it.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
     "message": "Our needs changed",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+  "cancelSurveyNeedsChangedHintV2": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceLabel": {
+    "message": "Poor customer service",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyPoorServiceHint": {
+    "message": "We didn't get the help we needed from support or customer service.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOtherPlaceholder": {
+    "message": "Describe your reason for canceling",
+    "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
     "message": "Free for 1 year"
@@ -11931,14 +12781,23 @@
   "assignToCollections": {
     "message": "Assign to collections"
   },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
@@ -11949,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -11988,6 +12862,9 @@
   },
   "items": {
     "message": "Items"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignedSeats": {
     "message": "Assigned seats"
@@ -12468,6 +13345,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
@@ -12601,6 +13514,10 @@
   "noCollectionsSelected": {
     "message": "You have not selected any collections."
   },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "Update name"
   },
@@ -12712,6 +13629,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(No Collection)"
@@ -12831,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13151,8 +14083,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
     "message": "Include uppercase characters",
@@ -13261,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "User $ID$ left $ORGNAME$ vault",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "User $ID$ self-revoked from organization.",
     "placeholders": {
@@ -13272,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revoked for declining transfer to organization ownership."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Revoked for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "The $ORGANIZATION$ is suspended",
@@ -13322,6 +14276,15 @@
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -13771,6 +14734,10 @@
   "cannotCreateCollection": {
     "message": "Free organizations may have up to 2 collections. Upgrade to a paid plan to add more collections."
   },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
+  },
   "searchArchive": {
     "message": "Search archive"
   },
@@ -14024,6 +14991,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -14102,7 +15072,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
@@ -15560,6 +16530,282 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Access rules"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Enabled"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "When disabled, the rule is inactive and does not restrict access."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Enable rule"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Disable rule"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Access rule enabled."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Access rule disabled."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Access rule not found."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
+  },
+  "pamAccessRuleNew": {
+    "message": "New rule"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "New access rule"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Edit access rule"
+  },
+  "pamAccessRuleName": {
+    "message": "Name"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "e.g. VPN + business hours"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "General info"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Access duration"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optional conditions"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Select collections"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "This access rule will apply to all selected collections."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Couldn't load collections. Refresh the page to try again."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "This duration will be pre-filled in access requests."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Description"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Default access duration"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximum access duration"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "No cap"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutes"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutes"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hour"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hours"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hours"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 hours"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 days"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Only one user can hold an active lease at a time"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "New requests are queued until the current lease ends or is revoked."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Allow lease extensions"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximum extension length"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "The longest a single extension may run."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Require approval"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Restrict by IP address"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Approvers"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Collection managers"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Access rule created."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Delete access rule?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "No access rules yet"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Create a rule to add extra protection to sensitive collections."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Create custom rule"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in time"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Auto-approved • Expires after 1h • Audit logged"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Just-in-time access"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Approval required"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Human approval • 1 approver required • Audit logged"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Approval required"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP-restricted"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Auto-approved • IP Allowlist • Audit logged"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP-restricted access"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Collections"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Unassigned"
+  },
+  "pamSearchRules": {
+    "message": "Search rules"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Applies to"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Conditions"
+  },
+  "pamAccessWindow": {
+    "message": "Access window"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Last modified"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Auto-approved"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Requires approval"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP restricted"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "No access rules match your filters."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Enable"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Disable"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Access rules updated."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Access rules deleted."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Delete access rules?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Only requests originating from these IP ranges will be allowed."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR range"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "e.g. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Add CIDR range"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Remove CIDR range"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Add at least one CIDR range."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Enter a valid CIDR range."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "This CIDR range has already been added."
   },
   "paymentSuccessful": {
     "message": "Payment successful"

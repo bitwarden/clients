@@ -12,10 +12,7 @@ import {
   TableModule,
 } from "@bitwarden/components";
 
-import {
-  ImportRecordError,
-  ImportRecordErrorReason,
-} from "../../importers/keeper/keeper-import-error";
+import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 
 export interface PartialImportDialogData {
   errors: ImportRecordError[];

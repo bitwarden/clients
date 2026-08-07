@@ -52,6 +52,7 @@ libs/tools                                                     @bitwarden/team-t
 ## Dirt (Data Insights & Reporting) team files ##
 apps/browser/src/dirt                   @bitwarden/team-data-insights-and-reporting-dev
 apps/web/src/app/dirt                   @bitwarden/team-data-insights-and-reporting-dev
+apps/cli/src/dirt                       @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt   @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt  @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt                               @bitwarden/team-data-insights-and-reporting-dev
@@ -167,7 +168,7 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/autotype.rs  @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -240,8 +241,9 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-apps/web/src/app/pam  @bitwarden/team-pam-dev
-libs/pam              @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
+apps/web/src/app/pam                   @bitwarden/team-pam-dev
+libs/pam                               @bitwarden/team-pam-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
@@ -254,6 +256,7 @@ apps/web/src/locales/en/messages.json
 .github/workflows/retrieve-current-desktop-rollout.yml  @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop.yml         @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop-signal.yml  @bitwarden/dept-bre
+.github/workflows/publish-cli.yml                       @bitwarden/dept-bre
 
 ## Docker-related files
 **/Dockerfile          @bitwarden/team-appsec  @bitwarden/dept-bre
@@ -261,9 +264,6 @@ apps/web/src/locales/en/messages.json
 **/*.dockerignore      @bitwarden/team-appsec  @bitwarden/dept-bre
 **/docker-compose.yml  @bitwarden/team-appsec  @bitwarden/dept-bre
 **/entrypoint.sh       @bitwarden/team-appsec  @bitwarden/dept-bre
-
-# Scanning tools
-.checkmarx/  @bitwarden/team-appsec
 
 ## Overrides
 # For the time being platform owns tsconfig and jest config
@@ -280,3 +280,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.mcp.json                          @bitwarden/team-ai-sme
