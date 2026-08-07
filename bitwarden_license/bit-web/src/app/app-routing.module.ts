@@ -36,7 +36,6 @@ const routes: Routes = [
       },
     ],
   },
-  // OSS registers no "pam" route under the user layout — this is additive, commercial-only.
   {
     path: "",
     component: UserLayoutComponent,
