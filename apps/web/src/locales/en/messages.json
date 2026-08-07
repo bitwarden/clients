@@ -6061,6 +6061,15 @@
       }
     }
   },
+  "createdOrganizationVaultId": {
+    "message": "Created client vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Added organization $ID$.",
     "placeholders": {
@@ -6080,6 +6089,15 @@
       "orgname": {
         "content": "$2",
         "example": "Acme Inc"
+      }
+    }
+  },
+  "addedOrganizationVaultId": {
+    "message": "Added client vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
       }
     }
   },
@@ -6105,6 +6123,15 @@
       }
     }
   },
+  "removedOrganizationVaultId": {
+    "message": "Removed client vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Accessed $ID$ organization vault.",
     "placeholders": {
@@ -6124,6 +6151,15 @@
       "orgname": {
         "content": "$2",
         "example": "Acme Inc"
+      }
+    }
+  },
+  "accessedOrganizationVaultId": {
+    "message": "Accessed $ID$ in client vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
       }
     }
   },

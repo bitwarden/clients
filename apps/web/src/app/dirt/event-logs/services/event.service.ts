@@ -1027,8 +1027,9 @@ export class EventService {
   }
 
   // Produces the updated terminology/personalization for event types that have one; returns
-  // empty strings for anything else (including cases where an organization name was needed but
-  // couldn't be resolved), signaling getEventMessage to fall back to its own messaging.
+  // empty strings for anything else (including most cases where an organization name was needed
+  // but couldn't be resolved), signaling getEventMessage to fall back to its own messaging. A few
+  // provider-organization cases are the exception - see the comment above them.
   private getEventMessageVfo1(
     ev: EventResponse,
     options: EventOptions,
@@ -1284,6 +1285,10 @@ export class EventService {
         }
         break;
       }
+      // The linked client organization's name can become permanently unresolvable once it's
+      // unlinked from the provider (its provider-organization relationship no longer exists to
+      // look up), so unlike the other name-dependent cases above, these fall back to an
+      // ID-only *updated* message rather than reverting all the way to the legacy copy.
       case EventType.ProviderOrganization_Created: {
         const orgName = this.resolveOrgName(ev, options);
         if (orgName != null) {
@@ -1296,6 +1301,15 @@ export class EventService {
             "createdOrganizationIdWithName",
             this.getShortId(ev.providerOrganizationId),
             orgName,
+          );
+        } else {
+          msg = this.i18nService.t(
+            "createdOrganizationVaultId",
+            this.formatProviderOrganizationId(ev),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "createdOrganizationVaultId",
+            this.getShortId(ev.providerOrganizationId),
           );
         }
         break;
@@ -1313,6 +1327,15 @@ export class EventService {
             this.getShortId(ev.providerOrganizationId),
             orgName,
           );
+        } else {
+          msg = this.i18nService.t(
+            "addedOrganizationVaultId",
+            this.formatProviderOrganizationId(ev),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "addedOrganizationVaultId",
+            this.getShortId(ev.providerOrganizationId),
+          );
         }
         break;
       }
@@ -1329,6 +1352,15 @@ export class EventService {
             this.getShortId(ev.providerOrganizationId),
             orgName,
           );
+        } else {
+          msg = this.i18nService.t(
+            "removedOrganizationVaultId",
+            this.formatProviderOrganizationId(ev),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "removedOrganizationVaultId",
+            this.getShortId(ev.providerOrganizationId),
+          );
         }
         break;
       }
@@ -1344,6 +1376,15 @@ export class EventService {
             "accessedClientVaultWithName",
             this.getShortId(ev.providerOrganizationId),
             orgName,
+          );
+        } else {
+          msg = this.i18nService.t(
+            "accessedOrganizationVaultId",
+            this.formatProviderOrganizationId(ev),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "accessedOrganizationVaultId",
+            this.getShortId(ev.providerOrganizationId),
           );
         }
         break;

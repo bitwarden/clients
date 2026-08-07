@@ -295,30 +295,6 @@ describe("EventService organization name personalization (vfo1-foundation)", () 
       "revokedUserIdDeclinedTransferWithOrgName",
       { organizationUserId: "ou-1", organizationId: "org" },
     ],
-    [
-      EventType.ProviderOrganization_Created,
-      "createdOrganizationId",
-      "createdOrganizationIdWithName",
-      { providerOrganizationId: "po-1", providerId: "provider-1" },
-    ],
-    [
-      EventType.ProviderOrganization_Added,
-      "addedOrganizationId",
-      "addedOrganizationIdWithName",
-      { providerOrganizationId: "po-1", providerId: "provider-1" },
-    ],
-    [
-      EventType.ProviderOrganization_Removed,
-      "removedOrganizationId",
-      "removedOrganizationIdWithName",
-      { providerOrganizationId: "po-1", providerId: "provider-1" },
-    ],
-    [
-      EventType.ProviderOrganization_VaultAccessed,
-      "accessedClientVault",
-      "accessedClientVaultWithName",
-      { providerOrganizationId: "po-1", providerId: "provider-1" },
-    ],
   ];
 
   it.each(cases)(
@@ -372,6 +348,114 @@ describe("EventService organization name personalization (vfo1-foundation)", () 
 
       expect(info.humanReadableMessage).toContain(`${legacyKey}|`);
       expect(info.humanReadableMessage).not.toContain(nextKey);
+    },
+  );
+});
+
+describe("EventService provider-organization event terminology (vfo1-foundation)", () => {
+  // Unlike the other organization-name-dependent events above, a provider-organization's client
+  // name can become *permanently* unresolvable (e.g. once the org is unlinked, there's no longer
+  // a provider-organization relationship to look its name up from). These events therefore fall
+  // back to an ID-only *updated* message instead of fully reverting to the legacy copy.
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}|${p1 ?? ""}|${p2 ?? ""}`,
+  );
+
+  function createSut(vfo1Enabled: boolean): EventService {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(vfo1Enabled);
+
+    return new EventService(i18n, policyService, accountService, configService);
+  }
+
+  const orgName = "Acme Inc";
+  const evFields = { providerOrganizationId: "po-1", providerId: "provider-1" };
+
+  // [EventType, legacyKey, withNameKey, idOnlyFallbackKey]
+  const cases: [EventType, string, string, string][] = [
+    [
+      EventType.ProviderOrganization_Created,
+      "createdOrganizationId",
+      "createdOrganizationIdWithName",
+      "createdOrganizationVaultId",
+    ],
+    [
+      EventType.ProviderOrganization_Added,
+      "addedOrganizationId",
+      "addedOrganizationIdWithName",
+      "addedOrganizationVaultId",
+    ],
+    [
+      EventType.ProviderOrganization_Removed,
+      "removedOrganizationId",
+      "removedOrganizationIdWithName",
+      "removedOrganizationVaultId",
+    ],
+    [
+      EventType.ProviderOrganization_VaultAccessed,
+      "accessedClientVault",
+      "accessedClientVaultWithName",
+      "accessedOrganizationVaultId",
+    ],
+  ];
+
+  it.each(cases)(
+    "uses the legacy key for %s when vfo1-foundation is off, even with an org name resolver",
+    async (type, legacyKey, withNameKey, idOnlyFallbackKey) => {
+      const sut = createSut(false);
+      const options = new EventOptions();
+      options.getOrganizationName = () => orgName;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(`${legacyKey}|`);
+      expect(info.humanReadableMessage).not.toContain(withNameKey);
+      expect(info.humanReadableMessage).not.toContain(idOnlyFallbackKey);
+    },
+  );
+
+  it.each(cases)(
+    "uses the 'with name' key and interpolates the resolved organization name for %s when vfo1-foundation is on",
+    async (type, _legacyKey, withNameKey, _idOnlyFallbackKey) => {
+      const sut = createSut(true);
+      const options = new EventOptions();
+      options.getOrganizationName = () => orgName;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(withNameKey);
+      expect(info.humanReadableMessage).toContain(orgName);
+    },
+  );
+
+  it.each(cases)(
+    "uses the ID-only updated key (not the legacy key) for %s when vfo1-foundation is on but no org name resolver is provided",
+    async (type, legacyKey, _withNameKey, idOnlyFallbackKey) => {
+      const sut = createSut(true);
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse);
+
+      expect(info.humanReadableMessage).toContain(`${idOnlyFallbackKey}|`);
+      expect(info.humanReadableMessage).not.toContain(`${legacyKey}|`);
+    },
+  );
+
+  it.each(cases)(
+    "uses the ID-only updated key (not the legacy key) for %s when vfo1-foundation is on but the resolver returns undefined",
+    async (type, legacyKey, _withNameKey, idOnlyFallbackKey) => {
+      const sut = createSut(true);
+      const options = new EventOptions();
+      options.getOrganizationName = () => undefined;
+
+      const info = await sut.getEventInfo({ type, ...evFields } as EventResponse, options);
+
+      expect(info.humanReadableMessage).toContain(`${idOnlyFallbackKey}|`);
+      expect(info.humanReadableMessage).not.toContain(`${legacyKey}|`);
     },
   );
 });
