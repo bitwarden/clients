@@ -273,8 +273,21 @@ export class WindowMain {
   /// Show the window with main window styles
   show() {
     if (this.win != null) {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      if (!this.win.isVisible()) {
+        applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      }
+      // Restore maximized state on every show, not only when coming from hidden.
+      // Restoring from minimize (e.g. Dock-icon click) leaves the window already
+      // visible before show() runs, so a guarded re-maximize would be skipped.
+      // maximize() on an already-maximized window is a no-op.
+      this.restoreMaximizedState();
       this.win.show();
+    }
+  }
+
+  private restoreMaximizedState() {
+    if (this.win != null && this.windowStates[mainWindowSizeKey]?.isMaximized) {
+      this.win.maximize();
     }
   }
 
@@ -435,9 +448,7 @@ export class WindowMain {
       await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
-    if (this.windowStates[mainWindowSizeKey].isMaximized) {
-      this.win.maximize();
-    }
+    this.restoreMaximizedState();
 
     if (show) {
       this.win.show();
@@ -610,7 +621,11 @@ export class WindowMain {
       }
 
       // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
-      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
+      // A minimized window reports isMaximized() === false; skip the write so we don't clobber the
+      // real maximized state before it can be restored on the next show.
+      if (!win.isMinimized()) {
+        this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
+      }
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
 
       // Maybe store these as well?
