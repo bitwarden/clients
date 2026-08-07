@@ -429,7 +429,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "of $TOTAL$ total",
+    "message": "із $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -650,10 +650,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "Програма (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "Програма (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -669,10 +669,10 @@
     "message": "Додати вебсайт"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Додати вебсайт або програму"
   },
   "app": {
-    "message": "App"
+    "message": "Програма"
   },
   "deleteWebsite": {
     "message": "Видалити вебсайт"
@@ -742,25 +742,25 @@
     "message": "Номер паспорта"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Стать"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Копіювати стать"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Місце народження"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Національність"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Копіювати національність"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Тип паспорта"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Національний ідентифікаційний номер"
   },
   "licenseNumber": {
     "message": "Номер ліцензії"
@@ -990,7 +990,7 @@
     "message": "Зберегти"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "Зберегти та продовжити"
   },
   "cancel": {
     "message": "Скасувати"
@@ -1005,7 +1005,7 @@
     "message": "Закрити"
   },
   "done": {
-    "message": "Done"
+    "message": "Готово"
   },
   "delete": {
     "message": "Видалити"
@@ -1093,10 +1093,10 @@
     "message": "Ключ SSH"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Ліцензія"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Водійське посвідчення"
   },
   "typeLoginSubtitle": {
     "message": "Вебсайт або програма"
@@ -1117,16 +1117,16 @@
     "message": "Банківські реквізити"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Паспортні дані"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Паспорт додано"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Проїзний документ"
   },
   "folderSubtitle": {
     "message": "Організуйте свої записи"
@@ -1195,25 +1195,22 @@
     "message": "Спільні"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Спільна тека"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Спільні теки"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Моя тека"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Мої теки"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
-  },
-  "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Додати спільну теку"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Нова спільна тека"
   },
   "searchSharedFolder": {
     "message": "Search shared folder"
@@ -1222,7 +1219,7 @@
     "message": "Search My folders"
   },
   "addToMyFolder": {
-    "message": "Add to my folder"
+    "message": "Додати до моєї теки"
   },
   "sharedFolderItemSelect": {
     "message": "Select shared folder item"
@@ -1240,10 +1237,10 @@
     "message": "This shared folder is only accessible from the admin console"
   },
   "editSharedFolder": {
-    "message": "Edit shared folder"
+    "message": "Редагувати спільну теку"
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Видалити спільну теку"
   },
   "deleteSharedFoldersCount": {
     "message": "Delete $COUNT$ shared folders",
@@ -1254,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "This shared folder will be permanently deleted."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "These shared folders will be permanently deleted."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ shared folder(s) will be permanently deleted.",
@@ -1310,6 +1304,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
   },
   "attachments": {
     "message": "Вкладення"
@@ -1433,19 +1468,19 @@
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Редагування запису",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Редагування картки",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Редагування посвідчення",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Редагування нотатки",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -1457,7 +1492,7 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Редагування ліцензії",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -1501,7 +1536,7 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Перегляд ліцензії",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -1509,23 +1544,23 @@
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Перегляд запису",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Перегляд картки",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Перегляд посвідчення",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Перегляд нотатки",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Створити",
     "description": "for adding new items"
   },
   "new": {
@@ -1534,6 +1569,9 @@
   },
   "item": {
     "message": "Запис"
+  },
+  "itemLower": {
+    "message": "item"
   },
   "itemDetails": {
     "message": "Подробиці запису"
@@ -1583,7 +1621,7 @@
     "message": "Пароль скопійовано"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "пробіл",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
@@ -1621,7 +1659,7 @@
     "message": "Копіювати адресу"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Копіювати місце народження"
   },
   "copyPhone": {
     "message": "Копіювати телефон"
@@ -1639,19 +1677,19 @@
     "message": "Копіювати номер паспорта"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Копіювати національний ідентифікаційний номер"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Копіювати тип паспорта"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Копіювати ім'я"
   },
   "copyMiddleName": {
     "message": "Copy middle name"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Копіювати прізвище"
   },
   "copyLicenseNumber": {
     "message": "Копіювати номер ліцензії"
@@ -1691,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Копіювати дані - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,11 +1753,11 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Немає даних для копіювання"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "Перейти на вебсайт - $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1767,7 +1805,7 @@
     "message": "Select row"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Показано $START$ – $END$ із $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1805,10 +1843,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Очистити все"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ вибрано",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1817,16 +1855,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Попередня сторінка"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Наступна сторінка"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Перейти на сторінку"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "із $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1835,7 +1873,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Немає відповідних записів"
   },
   "deselectAll": {
     "message": "Скасувати вибір"
@@ -1844,7 +1882,7 @@
     "message": "Скасувати вибір"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Масові дії"
   },
   "bulkActionsBarAnnouncement": {
     "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
@@ -1884,7 +1922,7 @@
     "message": "Файл"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Фото"
   },
   "selectFile": {
     "message": "Оберіть файл."
@@ -2477,7 +2515,7 @@
     "message": "Нова організація"
   },
   "newVault": {
-    "message": "New vault"
+    "message": "Нове сховище"
   },
   "noOrganizationsList": {
     "message": "Ви не входите до жодної організації. Організації дають змогу безпечно обмінюватися записами з іншими користувачами."
@@ -2649,7 +2687,7 @@
     "message": "Ви дійсно хочете продовжити?"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "Видалити збірку"
   },
   "deleteCollectionsCount": {
     "message": "Delete $COUNT$ collections",
@@ -2680,6 +2718,21 @@
   },
   "copyVerificationCode": {
     "message": "Копіювати код підтвердження"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "copyUuid": {
     "message": "Копіювати UUID"
@@ -2741,10 +2794,10 @@
     "message": "Підтвердьте пароль файлу"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "Головний пароль KeePass"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Додати ключовий файл"
   },
   "keyFileUpload": {
     "message": "Key file upload"
@@ -3047,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "Сховище організації очищено."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Purged $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Провайдер отримав доступ до сховища."
   },
@@ -3146,7 +3208,7 @@
     "message": "Нічого не імпортовано."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "Буде пропущено $COUNT$ записів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3155,7 +3217,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "Буде пропущено $COUNT$ запис",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3194,22 +3256,22 @@
     "message": "Birth certificate"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Облікові дані бази даних"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Облікові дані сервера"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Ліцензія ПЗ"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Медичне страхування"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Облікові дані Wi-Fi"
   },
   "general": {
-    "message": "General"
+    "message": "Загальні"
   },
   "importEncKeyError": {
     "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
@@ -3266,6 +3328,9 @@
   "options": {
     "message": "Додатково"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "preferences": {
     "message": "Налаштування"
   },
@@ -3283,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "Типово"
@@ -3312,7 +3380,7 @@
     "message": "Новий власний домен"
   },
   "addCustomDomain": {
-    "message": "Add custom domain"
+    "message": "Новий власний домен"
   },
   "newCustomDomainDesc": {
     "message": "Введіть список доменів, розділених комами. Дозволяються лише \"основні\" домени. Не вводьте піддомени. Наприклад, вводьте \"google.com\" замість \"www.google.com\". Ви також можете ввести \"androidapp://package.name\", щоб асоціювати програму android з іншими доменами вебсайту."
@@ -3656,6 +3724,10 @@
     "message": "Визначте і закрийте прогалини в безпеці облікових записів вашої організації, натиснувши на звіти нижче.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Незахищені вебсайти"
   },
@@ -3719,10 +3791,10 @@
     "message": "how passkeys work"
   },
   "passkeyLoginReportAnd": {
-    "message": "and "
+    "message": "і "
   },
   "passkeyLoginReportHowToUse": {
-    "message": "how to use them in Bitwarden."
+    "message": "як використовувати їх у Bitwarden."
   },
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
@@ -4093,7 +4165,7 @@
     "message": "рік"
   },
   "years": {
-    "message": "years"
+    "message": "роки"
   },
   "yr": {
     "message": "рік"
@@ -4102,7 +4174,7 @@
     "message": "місяць"
   },
   "months": {
-    "message": "months"
+    "message": "місяці"
   },
   "monthAbbr": {
     "message": "міс.",
@@ -4242,7 +4314,7 @@
     "message": "Cancel subscription"
   },
   "churnOfferSuccessTitle": {
-    "message": "You're all set!"
+    "message": "Усе налаштовано!"
   },
   "churnOfferSuccessBody": {
     "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
@@ -4358,10 +4430,10 @@
     "message": "Discount applied"
   },
   "discountForOneYear": {
-    "message": "for 1 year"
+    "message": "на 1 рік"
   },
   "discountForMonths": {
-    "message": "for $COUNT$ months",
+    "message": "на $COUNT$ місяців",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4922,6 +4994,10 @@
   "inviteUserDescription": {
     "message": "Надішліть запрошення до вашої організації новим користувачам, вказавши їхні адреси електронної пошти нижче."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Вкажіть до $COUNT$ адрес електронної пошти, розділивши їх комами.",
     "placeholders": {
@@ -4978,7 +5054,7 @@
     "message": "Власник"
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Власник $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4987,7 +5063,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Сховище $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5107,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "Сховище організації експортовано."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Exported $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Налаштування організації змінено."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Edited $ORGNAME$ vault settings.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Створено запис $ID$.",
@@ -5303,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Moved item $ID$ to $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5687,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Staged user $ID$ added.",
     "placeholders": {
@@ -5723,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the two-factor login policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Відкликано доступ до організації для $ID$ через невідповідність політиці єдиної організації.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the single organization membership policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Revoked access for $ID$ for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Доступ до організації для $ID$ відновлено.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Restored $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Edited shared folders for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Схвалено передачу до власності організації."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Accepted transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Запрошено користувача $ID$.",
@@ -5855,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Created $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Додано організацію $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Added $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Removed $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Отримано доступ до сховища організації $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Accessed $ID$ in $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6674,6 +6916,9 @@
   "inviteLink": {
     "message": "Invite link"
   },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
   "lastGenerated": {
     "message": "Last generated: $DATE$",
     "placeholders": {
@@ -6821,7 +7066,7 @@
     "message": "Вибрано"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "вибрано",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
@@ -6961,25 +7206,25 @@
     "message": "Встановіть вимоги надійності головного пароля."
   },
   "enablePolicy": {
-    "message": "Enable policy"
+    "message": "Увімкнути політику"
   },
   "minCharacterLength": {
-    "message": "Minimum character length"
+    "message": "Мінімальна кількість символів"
   },
   "characterRequirements": {
-    "message": "Character requirements"
+    "message": "Вимоги до символів"
   },
   "specialCharactersPolicy": {
-    "message": "Special characters (e.g. !, @, $)"
+    "message": "Спеціальні символи (напр. !, @, $)"
   },
   "uppercasePolicy": {
-    "message": "Uppercase"
+    "message": "Верхній регістр"
   },
   "lowercasePolicy": {
-    "message": "Lowercase"
+    "message": "Нижній регістр"
   },
   "numbersPolicy": {
-    "message": "Numbers"
+    "message": "Цифри"
   },
   "passwordStrengthScore": {
     "message": "Рейтинг надійності пароля $SCORE$",
@@ -7015,10 +7260,10 @@
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Згенерований пароль"
   },
   "generatedPassphrase": {
-    "message": "Generated passphrase"
+    "message": "Згенерована парольна фраза"
   },
   "masterPasswordPolicyInEffect": {
     "message": "Політика однієї або декількох організацій зобов'язує дотримання таких вимог для головного пароля:"
@@ -7504,17 +7749,17 @@
     "message": "Завантажити вкладення"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Усунення проблем"
   },
   "troubleshootingDiagnosticReport": {
     "message": "Experiencing an issue? Download then share the diagnostic report with"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Підтримка Bitwarden",
     "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Завантажити"
   },
   "sendAccessPasswordTitle": {
     "message": "Введіть пароль для перегляду цього відправлення",
@@ -7849,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8255,7 +8517,7 @@
     "message": "Новий пароль повинен відрізнятися від поточного."
   },
   "hint": {
-    "message": "Hint"
+    "message": "Підказка"
   },
   "hintEqualsPassword": {
     "message": "Підказка повинна відрізнятися від пароля."
@@ -10029,19 +10291,19 @@
     "message": "Необхідно ввести дані."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Введіть місяць."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Введіть день."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Введіть рік."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Введіть дійсний день."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Введіть дійсний рік."
   },
   "inputEmail": {
     "message": "Введені дані не є адресою е-пошти."
@@ -10671,17 +10933,29 @@
   "editGroupMembersDesc": {
     "message": "Надати учасникам доступ до збірок, призначених групам."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "Надати доступ до збірок, додавши їх до цієї групи."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Ви можете призначити лише збірки, якими керуєте."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "Вибрати учасників"
   },
   "selectCollections": {
     "message": "Вибрати збірки"
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
   },
   "role": {
     "message": "Роль"
@@ -10710,6 +10984,9 @@
   },
   "noCollectionsAdded": {
     "message": "Не додано жодної збірки"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "Не додано жодного учасника"
@@ -11596,6 +11873,30 @@
     "message": "Політику єдиної",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "single organization vault",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO required",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", and",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Account recovery administration",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "policies will turn on automatically.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "організації,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12220,38 @@
   "collectionManagement": {
     "message": "Керування збіркою"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folders settings"
+  },
   "collectionManagementDescription": {
     "message": "Керувати налаштуваннями збірок для організації"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Дозволити власникам та адміністраторам керувати всіма збірками та записами з консолі адміністрування"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Дозволити створення збірок лише власникам та адміністраторам"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Дозволити видалення записів лише учасникам з дозволом ",
@@ -11941,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Оновлено налаштування керування збірками"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Ціна плану менеджера паролів"
@@ -12033,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Modified shared folder management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Turned on Restrict shared folder creation setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Turned off Restrict shared folder creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Turned on Restrict collection deletion setting $ID$.",
     "placeholders": {
@@ -12060,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Turned on Restrict shared folder deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Turned off Restrict shared folder deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all shared folders and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all shared folders and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12393,14 +12781,23 @@
   "assignToCollections": {
     "message": "Призначити до збірок"
   },
+  "addToSharedFolder": {
+    "message": "Додати до спільної теки"
+  },
   "assignToTheseCollections": {
     "message": "Призначити до цих збірок"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Оберіть збірки для призначення"
@@ -12411,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "Збірки успішно призначено"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -12450,6 +12862,9 @@
   },
   "items": {
     "message": "Записи"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignedSeats": {
     "message": "Призначені місця"
@@ -13215,6 +13630,9 @@
   "memberAccessReportPageDesc": {
     "message": "Аудит доступу учасника організації до груп, збірок та записів збірок. Експорт CSV надає детальну розбивку для кожного учасника, зокрема інформацію про дозволи для збірок та конфігурації облікового запису."
   },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
   "memberAccessReportNoCollection": {
     "message": "(Без збірки)"
   },
@@ -13333,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраної організації. Ви більше не будете власником цих записів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13763,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "User $ID$ left $ORGNAME$ vault",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "User $ID$ self-revoked from organization.",
     "placeholders": {
@@ -13774,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revoked for declining transfer to organization ownership."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Revoked for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "Організацію $ORGANIZATION$ призупинено",
@@ -13824,6 +14276,15 @@
     "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14529,6 +14990,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "billingAddress": {
     "message": "Платіжна адреса"
@@ -16066,6 +16530,282 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Access rules"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Enabled"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "When disabled, the rule is inactive and does not restrict access."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Enable rule"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Disable rule"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Access rule enabled."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Access rule disabled."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Access rule not found."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
+  },
+  "pamAccessRuleNew": {
+    "message": "New rule"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "New access rule"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Edit access rule"
+  },
+  "pamAccessRuleName": {
+    "message": "Name"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "e.g. VPN + business hours"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "General info"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Access duration"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optional conditions"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Select collections"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "This access rule will apply to all selected collections."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Couldn't load collections. Refresh the page to try again."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "This duration will be pre-filled in access requests."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Description"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Default access duration"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximum access duration"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "No cap"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutes"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutes"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hour"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hours"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hours"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 hours"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 days"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Only one user can hold an active lease at a time"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "New requests are queued until the current lease ends or is revoked."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Allow lease extensions"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximum extension length"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "The longest a single extension may run."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Require approval"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Restrict by IP address"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Approvers"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Collection managers"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Access rule created."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Delete access rule?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "No access rules yet"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Create a rule to add extra protection to sensitive collections."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Create custom rule"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in time"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Auto-approved • Expires after 1h • Audit logged"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Just-in-time access"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Approval required"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Human approval • 1 approver required • Audit logged"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Approval required"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP-restricted"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Auto-approved • IP Allowlist • Audit logged"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP-restricted access"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Collections"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Unassigned"
+  },
+  "pamSearchRules": {
+    "message": "Search rules"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Applies to"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Conditions"
+  },
+  "pamAccessWindow": {
+    "message": "Access window"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Last modified"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Auto-approved"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Requires approval"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP restricted"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "No access rules match your filters."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Enable"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Disable"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Access rules updated."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Access rules deleted."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Delete access rules?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Only requests originating from these IP ranges will be allowed."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR range"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "e.g. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Add CIDR range"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Remove CIDR range"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Add at least one CIDR range."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Enter a valid CIDR range."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "This CIDR range has already been added."
   },
   "paymentSuccessful": {
     "message": "Payment successful"
