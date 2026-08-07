@@ -145,8 +145,8 @@ module.exports = {
         hover: "var(--color-bg-hover)",
         "hover-contrast": "var(--color-bg-hover-contrast)",
         overlay: "var(--color-bg-overlay)",
-        nav: "var(--color-nav-bg-primary)",
-        "nav-hover": "var(--color-nav-bg-primary-hover)",
+        nav: "var(--color-nav-bg-brand)",
+        "nav-hover": "var(--color-nav-bg-brand-hover)",
       },
       hover: {
         default: "var(--color-hover-default)",
@@ -190,7 +190,8 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-fg-accent-tertiary-soft)",
         "accent-tertiary": "var(--color-fg-accent-tertiary)",
         "accent-tertiary-strong": "var(--color-fg-accent-tertiary-strong)",
-        nav: "var(--color-nav-fg-primary)",
+        nav: "var(--color-nav-fg-body)",
+        "nav-heading": "var(--color-nav-fg-heading)",
       },
       border: {
         muted: "var(--color-border-muted)",
@@ -219,8 +220,8 @@ module.exports = {
         "accent-tertiary": "var(--color-border-accent-tertiary)",
         focus: "var(--color-border-focus)",
         "focus-contrast": "var(--color-border-focus-contrast)",
-        "nav-focus": "var(--color-nav-border-primary-focus)",
-        "nav-divider": "var(--color-nav-border-primary)",
+        "nav-focus": "var(--color-nav-border-focus)",
+        "nav-divider": "var(--color-nav-border)",
       },
     },
     textColor: () => ({
@@ -290,7 +291,8 @@ module.exports = {
       "fg-accent-tertiary-soft": "var(--color-fg-accent-tertiary-soft)",
       "fg-accent-tertiary": "var(--color-fg-accent-tertiary)",
       "fg-accent-tertiary-strong": "var(--color-fg-accent-tertiary-strong)",
-      "fg-nav": "var(--color-nav-fg-primary)",
+      "fg-nav": "var(--color-nav-fg-body)",
+      "fg-nav-heading": "var(--color-nav-fg-heading)",
     }),
     borderColor: ({ theme }) => ({
       ...theme("colors"),
