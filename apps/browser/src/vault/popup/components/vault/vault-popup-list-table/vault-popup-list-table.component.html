@@ -17,6 +17,20 @@
     ></bit-search>
   </bit-table-toolbar>
 
+  <!--
+    The rows are filtered upstream by `VaultPopupListTableService`, not by the table, so the table
+    can't tell a zero-result search from an empty vault — its fallback would always read "Nothing to
+    show". Project the empty state so the search case keeps its specific copy and recovery hint.
+  -->
+  <bit-no-items slot="empty">
+    <span slot="title">{{
+      (hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n
+    }}</span>
+    @if (hasSearchText()) {
+      <span slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</span>
+    }
+  </bit-no-items>
+
   <bit-column>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">

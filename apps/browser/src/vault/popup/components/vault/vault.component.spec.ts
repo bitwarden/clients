@@ -542,7 +542,9 @@ describe("VaultComponent", () => {
       tick();
       fixture.detectChanges();
 
-      // The table renders `noMatchingItems` itself; showing both would double up.
+      // The table is stubbed here, so this only asserts the page-level block is suppressed —
+      // the copy the table renders in its place is covered in the table component's own spec.
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
       expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
 
       flush();

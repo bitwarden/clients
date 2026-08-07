@@ -24,7 +24,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
-import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
+import {
+  CompactModeService,
+  DialogService,
+  ScrollLayoutService,
+  ToastService,
+} from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
@@ -184,6 +189,86 @@ describe("VaultPopupListTableComponent", () => {
 
     fixture = TestBed.createComponent(VaultPopupListTableComponent);
     component = fixture.componentInstance;
+  });
+
+  /**
+   * The rows are filtered upstream by `VaultPopupListTableService`, so the table's own
+   * `noMatches()` heuristic (rendered rows vs. its source data) can't tell a zero-result search
+   * from an empty vault — both leave it with zero rows. The empty state is projected for that
+   * reason, so these assert the rendered copy rather than the absence of something.
+   */
+  describe("empty state", () => {
+    it("shows the search-specific copy and recovery hint when a search matches nothing", () => {
+      hasSearchText$.next(true);
+      filteredCiphers$.next([]);
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("noItemsMatchSearch");
+      expect(text).toContain("clearFiltersOrTryAnother");
+    });
+
+    it("shows the generic copy with no recovery hint when there is simply nothing to show", () => {
+      hasSearchText$.next(false);
+      filteredCiphers$.next([]);
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("nothingToShow");
+      expect(text).not.toContain("noItemsMatchSearch");
+      expect(text).not.toContain("clearFiltersOrTryAnother");
+    });
+  });
+
+  /**
+   * `popup-page` marks its own scroll region as the layout scroll host, but the table scrolls
+   * inside its virtual-scroll viewport instead — that region never overflows while the table is
+   * mounted. Consumers reading the host (scroll-position restore, the header's scrolled-state
+   * separator) would otherwise watch an element that never fires a scroll event.
+   */
+  /**
+   * `popup-page` marks its own scroll region as the layout scroll host, but the table scrolls
+   * inside its virtual-scroll viewport instead — that region never overflows while the table is
+   * mounted. Consumers reading the host (scroll-position restore, the header's scrolled-state
+   * separator) would otherwise watch an element that never fires a scroll event.
+   */
+  describe("scroll host", () => {
+    /**
+     * `afterRenderEffect` runs in the render phase, which the TestBed doesn't flush
+     * synchronously, so wait for the publish rather than assuming a fixed number of ticks.
+     */
+    async function whenScrollHostPublished(scrollLayout: ScrollLayoutService) {
+      for (let i = 0; i < 20 && scrollLayout.scrollableRef() === null; i++) {
+        fixture.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve));
+      }
+      return scrollLayout.scrollableRef();
+    }
+
+    it("publishes the table's virtual-scroll viewport while mounted", async () => {
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const scrollLayout = TestBed.inject(ScrollLayoutService);
+      const ref = await whenScrollHostPublished(scrollLayout);
+      const viewport = fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport");
+
+      expect(viewport).toBeTruthy();
+      expect(ref?.nativeElement).toBe(viewport);
+    });
+
+    it("releases the scroll host when destroyed", async () => {
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const scrollLayout = TestBed.inject(ScrollLayoutService);
+      await whenScrollHostPublished(scrollLayout);
+      expect(scrollLayout.scrollableRef()).not.toBeNull();
+
+      fixture.destroy();
+
+      expect(scrollLayout.scrollableRef()).toBeNull();
+    });
   });
 
   describe("group predicates", () => {
