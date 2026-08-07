@@ -29,6 +29,7 @@ import {
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { AboveScrollAreaDirective } from "../../../platform/popup/layout/above-scroll-area.directive";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { VaultFadeInOutSkeletonComponent } from "../../../vault/popup/components/vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
@@ -57,6 +58,7 @@ export type SendState = (typeof SendState)[keyof typeof SendState];
   imports: [
     CalloutModule,
     PopupPageComponent,
+    AboveScrollAreaDirective,
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,

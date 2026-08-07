@@ -49,6 +49,7 @@
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
       <bit-callout
+        bitAboveScrollArea
         [title]="'unlockAdvancedSecurity' | i18n"
         [icon]="null"
         (dismiss)="dismissVaultNudgeSpotlight(NudgeType.PremiumUpgrade)"
@@ -67,6 +68,7 @@
     }
     @if (vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async) {
       <bit-callout
+        bitAboveScrollArea
         [title]="'emptyVaultNudgeTitle' | i18n"
         [icon]="null"
         (dismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
@@ -85,17 +87,17 @@
     }
     @if (vaultState === VaultStateEnum.Empty) {
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        class="tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        class="tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
-        <div class="tw-mb-4">
+        <div bitAboveScrollArea>
           <bit-callout
             [title]="'hasItemsVaultNudgeTitle' | i18n"
             [icon]="null"
@@ -112,7 +114,9 @@
       <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is
            only rendered when the flag is off. -->
       @if (!vfo1Enabled()) {
-        <app-vault-header></app-vault-header>
+        <div bitAboveScrollArea>
+          <app-vault-header></app-vault-header>
+        </div>
       }
     }
   </ng-container>
