@@ -26,7 +26,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
@@ -55,7 +54,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
-  private readonly desktopAutofillService = inject(DesktopAutofillService);
   private readonly dialogService = inject(DialogService);
   private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly router = inject(Router);
@@ -144,17 +142,17 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   private buildCiphers$(): Observable<CipherView[] | null> {
-    const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
     const rpid = this.session?.rpId;
+    const userHandleBytes = this.session?.userHandle;
 
     // Emit `null` (loading/unavailable) until we have everything needed to
     // resolve matching ciphers. The template treats `null` as a distinct state
     // from an empty list so it doesn't flash the wrong branch.
-    if (!this.session || !lastRegistrationRequest || !rpid) {
+    if (!this.session || !rpid || !userHandleBytes) {
       return of(null);
     }
 
-    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(userHandleBytes));
 
     return combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),

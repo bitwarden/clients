@@ -14,7 +14,6 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
-import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
   DesktopFido2UserInterfaceService,
@@ -29,7 +28,6 @@ describe("Fido2CreateComponent", () => {
   let mockFido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
   let mockAccountService: MockProxy<AccountService>;
   let mockCipherService: MockProxy<CipherService>;
-  let mockDesktopAutofillService: MockProxy<DesktopAutofillService>;
   let mockDialogService: MockProxy<DialogService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
   let mockLogService: MockProxy<LogService>;
@@ -50,7 +48,6 @@ describe("Fido2CreateComponent", () => {
     mockFido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
     mockAccountService = mock<AccountService>();
     mockCipherService = mock<CipherService>();
-    mockDesktopAutofillService = mock<DesktopAutofillService>();
     mockDialogService = mock<DialogService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
     mockLogService = mock<LogService>();
@@ -61,14 +58,14 @@ describe("Fido2CreateComponent", () => {
     mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
     mockAccountService.activeAccount$ = activeAccountSubject;
 
-    // RP ID and the registration request are read synchronously when the
+    // RP ID and user handle are read synchronously from the session when the
     // component builds its `ciphers$` stream at construction.
     Object.defineProperty(mockSession, "rpId", {
       get: () => "example.com",
       configurable: true,
     });
-    Object.defineProperty(mockDesktopAutofillService, "lastRegistrationRequest", {
-      get: () => ({ userHandle: new Uint8Array([1, 2, 3]) }),
+    Object.defineProperty(mockSession, "userHandle", {
+      get: () => [1, 2, 3],
       configurable: true,
     });
     mockDomainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
@@ -80,7 +77,6 @@ describe("Fido2CreateComponent", () => {
         { provide: DesktopFido2UserInterfaceService, useValue: mockFido2UserInterfaceService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherService, useValue: mockCipherService },
-        { provide: DesktopAutofillService, useValue: mockDesktopAutofillService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: LogService, useValue: mockLogService },

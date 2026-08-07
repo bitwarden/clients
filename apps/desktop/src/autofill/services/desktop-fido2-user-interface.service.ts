@@ -81,6 +81,12 @@ export type NativeWindowObject = {
    * RP ID of the request.
    */
   rpId: string;
+
+  /**
+   * User handle for the credential. Absent for discoverable credential
+   * requests, which don't contain a userHandle.
+   */
+  userHandle?: number[];
 };
 
 /**
@@ -259,6 +265,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   get rpId(): string {
     return this.windowObject.rpId;
+  }
+
+  get userHandle(): number[] | undefined {
+    return this.windowObject.userHandle;
   }
 
   confirmChosenCipher(cipher?: CipherViewLike): void {
