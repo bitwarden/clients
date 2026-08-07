@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  TrackByFunction,
+  computed,
+  effect,
+  inject,
+  untracked,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, lastValueFrom, map, scan, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -68,24 +77,6 @@ export function buildFolderRows(folders: FolderView[], ciphers: CipherView[]): F
     }));
 }
 
-/**
- * Returns `next`, substituting the previous instance for any row whose content is unchanged.
- * The table's selection model tracks rows by reference.
- */
-export function reuseUnchangedRows(
-  previous: FolderTableRow[],
-  next: FolderTableRow[],
-): FolderTableRow[] {
-  const byId = new Map(previous.map((row) => [row.id, row]));
-
-  return next.map((row) => {
-    const existing = byId.get(row.id);
-    return existing?.displayName === row.displayName && existing.itemCount === row.itemCount
-      ? existing
-      : row;
-  });
-}
-
 @Component({
   templateUrl: "./my-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -127,7 +118,6 @@ export class MyFoldersComponent {
         ]),
       ),
       map(([folders, ciphers]) => buildFolderRows(folders, ciphers)),
-      scan(reuseUnchangedRows, [] as FolderTableRow[]),
     ),
   );
 
@@ -139,7 +129,31 @@ export class MyFoldersComponent {
 
   protected readonly selection: SelectionConfig<FolderTableRow> = { multiple: true };
 
+  protected readonly trackById: TrackByFunction<FolderTableRow> = (_, row) => row.id;
+
   protected readonly selected = computed(() => this.tableRef()?.selectionModel()?.selected() ?? []);
+
+  constructor() {
+    // Keep the table selection in sync with the rows. If the rows change (e.g., a folder is deleted), we need to update the selection to remove any rows that no longer exist.
+    effect(() => {
+      const rows = this.rows();
+      const model = this.tableRef()?.selectionModel();
+      if (model == null) {
+        return;
+      }
+      untracked(() => {
+        const selected = model.selected();
+        const current = selected.flatMap((row) => rows.find((r) => r.id === row.id) ?? []);
+
+        if (current.length === selected.length && current.every((row, i) => row === selected[i])) {
+          return;
+        }
+
+        model.clear();
+        model.select(...current);
+      });
+    });
+  }
 
   protected readonly filter = (row: FolderTableRow, values: { search?: string }) =>
     !values.search || row.name.toLowerCase().includes(values.search.toLowerCase());
@@ -226,9 +240,6 @@ export class MyFoldersComponent {
         message: this.i18nService.t("errorOccurred"),
       });
       return;
-    } finally {
-      // The selection model is not pruned when the row data changes.
-      this.tableRef()?.selectionModel()?.clear();
     }
 
     this.toastService.showToast({
