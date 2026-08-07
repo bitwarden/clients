@@ -55,11 +55,19 @@ export class BitTableToolbarComponent {
   /** The projected filters, matched by their shared `FILTER_PRESENTER` contract. */
   private readonly filters = contentChildren(FILTER_PRESENTER, { descendants: true });
 
+  /** Whether any filter chips are projected — false for a search-only toolbar. */
+  protected readonly hasFilters = computed(() => this.filters().length > 0);
+
   /** How many projected filters currently have a selection — the trigger's berry count. */
   readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
 
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
+
+  /** Whether a filter row renders below the search row; gates the divider between the two. */
+  protected readonly hasFilterRow = computed(() =>
+    this.isLargeScreen() ? this.hasFilters() : this.activeFilters().length > 0,
+  );
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
   protected appliedLabel(filter: FilterPresenter): string {
