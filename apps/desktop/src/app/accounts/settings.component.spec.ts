@@ -13,6 +13,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -910,6 +911,59 @@ describe("SettingsComponent", () => {
 
       // `showEnableAutotype` should be false
       expect(component.showEnableAutotype).toBe(false);
+    });
+
+    describe("flag-driven visibility on windows", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsComponent);
+        component = fixture.componentInstance;
+      });
+
+      it("shows the enable autotype control when only the MVP flag is enabled", async () => {
+        configService.getFeatureFlag$.mockImplementation(
+          (flag) => of(flag === FeatureFlag.WindowsDesktopAutotype) as any,
+        );
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(true);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).not.toBeNull();
+      });
+
+      it("shows the enable autotype control when only the GA flag is enabled", async () => {
+        configService.getFeatureFlag$.mockImplementation(
+          (flag) => of(flag === FeatureFlag.WindowsDesktopAutotypeGA) as any,
+        );
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(true);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).not.toBeNull();
+      });
+
+      it("shows the enable autotype control when both the MVP and GA flags are enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(true);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).not.toBeNull();
+      });
+
+      it("hides the enable autotype control when neither flag is enabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(false);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).toBeNull();
+      });
     });
   });
 });
