@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -40,7 +40,12 @@ describe("AddEditFolderDialogComponent", () => {
     close,
   };
 
+  let vfo1Enabled$: BehaviorSubject<boolean>;
+
   beforeEach(async () => {
+    vfo1Enabled$ = new BehaviorSubject<boolean>(false);
+    // Shared across specs; the edit variant sets it and would otherwise leak into later tests.
+    delete dialogData.editFolderConfig;
     encrypt.mockClear();
     save.mockClear();
     deleteFolder.mockClear();
@@ -71,7 +76,7 @@ describe("AddEditFolderDialogComponent", () => {
         { provide: ToastService, useValue: { showToast } },
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: DialogRef, useValue: dialogRef },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => vfo1Enabled$ } },
       ],
     })
       .overrideProvider(DialogService, { useValue: { openSimpleDialog } })
@@ -177,6 +182,32 @@ describe("AddEditFolderDialogComponent", () => {
         message: "deletedFolder",
       });
       expect(close).toHaveBeenCalledWith(AddEditFolderDialogResult.Deleted);
+    });
+  });
+
+  describe("VFO1 name rules", () => {
+    it("applies the new rules when the flag resolves after construction", async () => {
+      vfo1Enabled$.next(true);
+      fixture.detectChanges();
+
+      await component.submit();
+
+      const errors = component.folderForm.controls.name.errors ?? {};
+      // `bit-error` renders `Object.keys(errors)[0]`, so the VFO1 error has to win over the
+      // native `required` the input's attribute also registers.
+      expect(Object.keys(errors)[0]).toBe("folderNameRequired");
+      expect(errors.folderNameRequired).toEqual({ message: "enterAName" });
+      expect(encrypt).not.toHaveBeenCalled();
+    });
+
+    it("rejects a pre-filled name longer than the maximum once the flag resolves", async () => {
+      component.folderForm.controls.name.setValue("a".repeat(51));
+      vfo1Enabled$.next(true);
+      fixture.detectChanges();
+
+      await component.submit();
+
+      expect(encrypt).not.toHaveBeenCalled();
     });
   });
 });
