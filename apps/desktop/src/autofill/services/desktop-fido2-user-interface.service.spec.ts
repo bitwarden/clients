@@ -5,9 +5,12 @@ import { BehaviorSubject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { Fido2AuthenticatorErrorCode } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
@@ -19,6 +22,10 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 /** Reason produced by `AbortSignal.timeout`. */
 const timeoutReason = () => new DOMException("The operation timed out.", "TimeoutError");
 
+/** A cipher protected by a master-password reprompt. */
+const repromptCipher = (id: string) =>
+  Object.assign(new CipherView(), { id, reprompt: CipherRepromptType.Password });
+
 describe("DesktopFido2UserInterfaceSession", () => {
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
@@ -26,6 +33,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let logService: MockProxy<LogService>;
   let router: MockProxy<Router>;
   let desktopSettingsService: MockProxy<DesktopSettingsService>;
+  let passwordRepromptService: MockProxy<PasswordRepromptService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let abortController: AbortController;
@@ -52,6 +60,9 @@ describe("DesktopFido2UserInterfaceSession", () => {
     logService = mock<LogService>();
     router = mock<Router>();
     desktopSettingsService = mock<DesktopSettingsService>();
+
+    passwordRepromptService = mock<PasswordRepromptService>();
+    passwordRepromptService.enabled.mockResolvedValue(true);
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
@@ -92,6 +103,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
         appWindowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
         clientWindowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
       },
+      passwordRepromptService,
     );
   });
 
@@ -135,9 +147,58 @@ describe("DesktopFido2UserInterfaceSession", () => {
       const result = session.pickCredential(params);
       await tick();
 
-      session.confirmChosenCipher("cipher-2", true);
+      session.confirmChosenCipher(Object.assign(new CipherView(), { id: "cipher-2" }));
 
       await expect(result).resolves.toEqual({ cipherId: "cipher-2", userVerified: true });
+    });
+
+    it("reprompts for the master password when the chosen cipher requires it", async () => {
+      passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+
+      const result = session.pickCredential(params);
+      await tick();
+
+      session.confirmChosenCipher(repromptCipher("cipher-2"));
+
+      await expect(result).resolves.toEqual({ cipherId: "cipher-2", userVerified: true });
+      expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
+    });
+
+    it("reports the chosen cipher as unverified when the reprompt is dismissed", async () => {
+      passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
+
+      const result = session.pickCredential(params);
+      await tick();
+
+      session.confirmChosenCipher(repromptCipher("cipher-2"));
+
+      await expect(result).resolves.toEqual({ cipherId: "cipher-2", userVerified: false });
+    });
+
+    it("reports the chosen cipher as unverified when the account has no master password", async () => {
+      passwordRepromptService.enabled.mockResolvedValue(false);
+
+      const result = session.pickCredential(params);
+      await tick();
+
+      session.confirmChosenCipher(repromptCipher("cipher-2"));
+
+      await expect(result).resolves.toEqual({ cipherId: "cipher-2", userVerified: false });
+      expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+    });
+
+    it("refuses the ceremony when the cipher uses an unrecognized reprompt type", async () => {
+      const result = session.pickCredential(params);
+      await tick();
+
+      session.confirmChosenCipher(
+        Object.assign(new CipherView(), { id: "cipher-2", reprompt: 99 }),
+      );
+
+      await expect(result).rejects.toMatchObject({
+        errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+      });
+      expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
     });
 
     it("resolves to no cipher and logs cancellation when the request is aborted", async () => {
@@ -201,6 +262,19 @@ describe("DesktopFido2UserInterfaceSession", () => {
       session.notifyConfirmCreateCredential(false);
 
       await expect(result).resolves.toEqual({ cipherId: undefined, userVerified: false });
+    });
+
+    it("does not overwrite a reprompt-protected cipher when the reprompt is dismissed", async () => {
+      accountService.activeAccount$ = new BehaviorSubject({ id: "user-1" } as any);
+      passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
+
+      const result = session.confirmNewCredential(params);
+      await tick();
+
+      session.notifyConfirmCreateCredential(true, repromptCipher("cipher-1"));
+
+      await expect(result).resolves.toEqual({ cipherId: undefined, userVerified: false });
+      expect(cipherService.updateWithServer).not.toHaveBeenCalled();
     });
 
     it("returns no cipher and logs cancellation when the request is aborted", async () => {
