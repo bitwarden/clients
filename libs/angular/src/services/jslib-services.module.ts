@@ -266,6 +266,11 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -1849,7 +1854,15 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      ManagedSettingsService,
     ],
+  }),
+  safeProvider({
+    provide: ManagedSettingsService,
+    useClass: devFlagEnabled("managedSettingsDevSource")
+      ? DevManagedSettingsService
+      : DefaultManagedSettingsService,
+    deps: [],
   }),
   safeProvider({
     provide: SdkService,
@@ -1866,6 +1879,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       V2UpgradeTokenStateService,
+      ManagedSettingsService,
     ],
   }),
   safeProvider({

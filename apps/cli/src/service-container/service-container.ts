@@ -128,6 +128,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
+import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
@@ -670,6 +671,7 @@ export class ServiceContainer {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
+    const cliManagedSettingsService = new DefaultManagedSettingsService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -682,6 +684,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      cliManagedSettingsService,
       customUserAgent,
     );
 
@@ -718,6 +721,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      cliManagedSettingsService,
       customUserAgent,
     );
 

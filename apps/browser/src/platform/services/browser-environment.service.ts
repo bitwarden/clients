@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Region, RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
@@ -16,6 +17,7 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
     private logService: LogService,
     stateProvider: StateProvider,
     accountService: AccountService,
+    private managedSettingsService: ManagedSettingsService,
     additionalRegionConfigs: RegionConfig[] = [],
   ) {
     super(stateProvider, accountService, additionalRegionConfigs);
@@ -51,21 +53,32 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
   }
 
   getManagedEnvironment(): Promise<GroupPolicyEnvironment> {
-    return devFlagEnabled("managedEnvironment")
-      ? new Promise((resolve) => resolve(devFlagValue("managedEnvironment")))
-      : new Promise((resolve, reject) => {
-          if (chrome.storage.managed == null) {
-            return resolve(null);
-          }
+    if (devFlagEnabled("managedEnvironment")) {
+      return Promise.resolve(devFlagValue("managedEnvironment"));
+    }
 
-          chrome.storage.managed.get("environment", (result) => {
-            if (chrome.runtime.lastError) {
-              return reject(chrome.runtime.lastError);
-            }
+    const fields: (keyof GroupPolicyEnvironment)[] = [
+      "base",
+      "webVault",
+      "api",
+      "identity",
+      "icons",
+      "notifications",
+      "events",
+    ];
 
-            resolve(result.environment);
-          });
-        });
+    let managed = false;
+    const environment: GroupPolicyEnvironment = {};
+    for (const field of fields) {
+      const raw = this.managedSettingsService.get(`environment.${field}`);
+      if (raw === undefined) {
+        continue;
+      }
+      managed = true;
+      environment[field] = JSON.parse(raw) as string;
+    }
+
+    return Promise.resolve(managed ? environment : null);
   }
 
   async setUrlsToManagedEnvironment() {

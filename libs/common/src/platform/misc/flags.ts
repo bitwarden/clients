@@ -14,6 +14,7 @@ export type SharedDevFlags = {
   showRiskInsightsDebug: boolean;
   fillAssistDevTools: boolean;
   testPhishingUrls: string[];
+  managedSettingsDevSource: boolean;
 };
 
 function getFlags<T>(envFlags: string | T): T {
