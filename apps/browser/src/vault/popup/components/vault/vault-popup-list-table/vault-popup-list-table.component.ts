@@ -45,6 +45,7 @@ import {
 import { OrgIconDirective } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   VaultPopupListTableService,
@@ -63,7 +64,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   host: {
     // Forward height through to the `height="fill"` table so it can size to a bounded parent
     // (e.g. the popup-page scroll area). Without this the host collapses to 0 and no rows show.
-    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 -tw-mt-2",
   },
   imports: [
     CommonModule,
@@ -98,6 +99,16 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
+
+  /**
+   * Whether the page content is scrolled, used to reveal the toolbar's bottom border.
+   *
+   * The table supplies the popup's search bar, so the separator between it and the list belongs to
+   * the toolbar rather than to `popup-page`'s above-scroll-area, which is empty in this
+   * presentation. Optional so the table still renders outside a `popup-page` (e.g. Storybook).
+   */
+  protected readonly pageScrolled =
+    inject(PopupPageComponent, { optional: true })?.isScrolled ?? signal(false).asReadonly();
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
@@ -149,17 +160,27 @@ export class VaultPopupListTableComponent implements OnDestroy {
    * template, so it is neither in this component's view nor content from its perspective.
    */
   private readonly _publishScrollHost = afterRenderEffect(() => {
+    // The viewport only exists once the table has left its loading state and has rows to render,
+    // so these are read as dependencies — a DOM query isn't reactive, and without them the effect
+    // would run once against a table that hasn't rendered a viewport yet and never look again.
+    this.loading();
+    this.rows();
+
+    // Compare against what the service currently holds, not against what this component last
+    // published: `ScrollLayoutHostDirective` re-claims the host for `popup-page`'s own scroll
+    // region every time that region is re-created, so a guard on our own cached value would
+    // short-circuit and leave the page's non-scrolling div registered.
+    const current = this.scrollLayout.scrollableRef();
     const viewport = this.host.nativeElement.querySelector<HTMLElement>(
       "cdk-virtual-scroll-viewport",
     );
 
-    // This runs on every render pass, so publish only when the element actually changes —
-    // re-setting the signal each pass would churn every consumer that reads it.
-    if (!viewport || this.publishedScrollHost?.nativeElement === viewport) {
+    if (!viewport || current?.nativeElement === viewport) {
       return;
     }
 
-    this.displacedScrollHost ??= this.scrollLayout.scrollableRef();
+    // Remember the first host we displaced so it can be restored on teardown.
+    this.displacedScrollHost ??= current;
     this.publishedScrollHost = new ElementRef(viewport);
     this.scrollLayout.scrollableRef.set(this.publishedScrollHost);
   });

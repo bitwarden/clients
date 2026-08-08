@@ -1,3 +1,4 @@
+import { ElementRef } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
@@ -238,7 +239,11 @@ describe("VaultPopupListTableComponent", () => {
      * synchronously, so wait for the publish rather than assuming a fixed number of ticks.
      */
     async function whenScrollHostPublished(scrollLayout: ScrollLayoutService) {
-      for (let i = 0; i < 20 && scrollLayout.scrollableRef() === null; i++) {
+      const isViewport = () =>
+        scrollLayout.scrollableRef()?.nativeElement.tagName.toLowerCase() ===
+        "cdk-virtual-scroll-viewport";
+
+      for (let i = 0; i < 20 && !isViewport(); i++) {
         fixture.detectChanges();
         await new Promise((resolve) => setTimeout(resolve));
       }
@@ -255,6 +260,71 @@ describe("VaultPopupListTableComponent", () => {
 
       expect(viewport).toBeTruthy();
       expect(ref?.nativeElement).toBe(viewport);
+    });
+
+    /**
+     * `ScrollLayoutHostDirective` re-registers `popup-page`'s own scroll region whenever that
+     * region is re-created, clobbering whatever the table published. With the table mounted that
+     * region doesn't scroll, so losing the host silently disables everything that reads it — the
+     * scrolled-state separator and scroll-position restore.
+     */
+    it("re-publishes the viewport after another host claims the scroll layout", async () => {
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const scrollLayout = TestBed.inject(ScrollLayoutService);
+      const viewport = (await whenScrollHostPublished(scrollLayout))!.nativeElement;
+
+      // Stand in for the directive re-claiming the host on a re-render.
+      scrollLayout.scrollableRef.set(new ElementRef(document.createElement("div")));
+      fixture.detectChanges();
+
+      const reclaimed = await whenScrollHostPublished(scrollLayout);
+      expect(reclaimed?.nativeElement).toBe(viewport);
+    });
+
+    /**
+     * The table mounts in its loading state, where no viewport exists yet — the viewport only
+     * renders once loading finishes and there are rows. This covers the end state.
+     *
+     * It does NOT cover the reactivity that gets there: the effect reads `loading` and `rows` so
+     * it re-runs when the viewport appears, and removing those reads still passes here because
+     * TestBed re-runs `afterRenderEffect` on every change-detection pass. Verified manually in the
+     * extension instead — without them the scroll host is never published and the scrolled-state
+     * separator never appears.
+     */
+    it("publishes the viewport that exists after loading finishes", async () => {
+      loading$.next(true);
+      filteredCiphers$.next([]);
+      fixture.detectChanges();
+
+      const scrollLayout = TestBed.inject(ScrollLayoutService);
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).toBeNull();
+
+      loading$.next(false);
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const ref = await whenScrollHostPublished(scrollLayout);
+      expect(ref?.nativeElement).toBe(
+        fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport"),
+      );
+    });
+
+    /**
+     * With the flag on the table supplies the popup's search bar, so the separator between it and
+     * the list is the toolbar's bottom border — `popup-page`'s above-scroll-area is empty in this
+     * presentation and draws nothing.
+     */
+    it("reveals the toolbar's border only while the page is scrolled", () => {
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const toolbar = fixture.nativeElement.querySelector("bit-table-toolbar") as HTMLElement;
+
+      // No `popup-page` ancestor here, so the fallback keeps it unscrolled.
+      expect(toolbar.className).toContain("!tw-border-transparent");
+      expect(toolbar.className).toContain("tw-border-b");
     });
 
     it("releases the scroll host when destroyed", async () => {
