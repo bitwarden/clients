@@ -1,4 +1,5 @@
 import {
+  AUTOFILL_ATTRIBUTES,
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
@@ -9,6 +10,9 @@ import { stopwatch } from "../content/performance";
 import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
+
+// Mirrors the light-DOM observer's attributeFilter so shadow-root attribute churn can't flood the callback.
+const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 
 type ScanVerdict =
   | { branch: "shortCircuit"; foundNewRoot: false }
@@ -157,16 +161,17 @@ export class DomQueryService implements DomQueryServiceInterface {
     return { branch: "narrow", foundNewRoot: false };
   };
 
-  /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
+  /** Drops batch elements whose ancestor is also present; parentElement walk (not contains) keeps non-piercing behavior at shadow boundaries. */
   private suppressDescendantsInBatch = (elements: Element[]): Element[] => {
     if (elements.length < 2) {
       return elements;
     }
+    const batch = new Set(elements);
     const roots: Element[] = [];
     for (const candidate of elements) {
       let coveredByAnotherElement = false;
-      for (const other of elements) {
-        if (other !== candidate && other.contains(candidate)) {
+      for (let ancestor = candidate.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        if (batch.has(ancestor)) {
           coveredByAnotherElement = true;
           break;
         }
@@ -363,14 +368,11 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
-      elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
+      const fieldsInRoot = this.queryElements<T>(shadowRoot, queryString);
+      elements = elements.concat(fieldsInRoot);
 
       if (mutationObserver) {
-        mutationObserver.observe(shadowRoot, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
+        this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
       }
       this.knownShadowRoots.add(shadowRoot);
     }
@@ -388,6 +390,25 @@ export class DomQueryService implements DomQueryServiceInterface {
     // Avoid a redundant pre-check querySelector — querySelectorAll already
     // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
+  }
+
+  // Field-less roots get a shallow childList watch (not subtree) so an injected form still promotes them, without delivering tile/buffer churn.
+  private observeShadowRoot(
+    mutationObserver: MutationObserver,
+    shadowRoot: ShadowRoot,
+    hasFields: boolean,
+  ): void {
+    mutationObserver.observe(
+      shadowRoot,
+      hasFields
+        ? {
+            attributes: true,
+            attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
+            childList: true,
+            subtree: true,
+          }
+        : { childList: true },
+    );
   }
 
   // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
@@ -603,15 +624,10 @@ export class DomQueryService implements DomQueryServiceInterface {
           nodeShadowRoot = this.getShadowRoot(currentNode);
         }
         if (nodeShadowRoot) {
-          if (mutationObserver) {
-            mutationObserver.observe(nodeShadowRoot, {
-              attributes: true,
-              childList: true,
-              subtree: true,
-            });
-          }
           this.knownShadowRoots.add(nodeShadowRoot);
 
+          // Descend before measuring the field-presence delta; over-counting nested fields only over-observes.
+          const fieldsBefore = treeWalkerQueryResults.length;
           this.buildTreeWalkerNodesQueryResults(
             nodeShadowRoot,
             treeWalkerQueryResults,
@@ -619,6 +635,14 @@ export class DomQueryService implements DomQueryServiceInterface {
             ignoredTreeWalkerNodes,
             mutationObserver,
           );
+
+          if (mutationObserver) {
+            this.observeShadowRoot(
+              mutationObserver,
+              nodeShadowRoot,
+              treeWalkerQueryResults.length > fieldsBefore,
+            );
+          }
         }
       }
     } while (treeWalker.nextNode());
