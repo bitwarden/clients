@@ -31,8 +31,10 @@ import { PaddedDataPacker } from "../state/padded-data-packer";
 import { LegacyEncryptorProvider } from "./legacy-encryptor-provider";
 import { OrganizationEncryptor } from "./organization-encryptor.abstraction";
 import { OrganizationKeyEncryptor } from "./organization-key-encryptor";
+import { SubjectKeyEncryptor } from "./subject-key-encryptor.abstraction";
 import { UserEncryptor } from "./user-encryptor.abstraction";
 import { UserKeyEncryptor } from "./user-key-encryptor";
+import { UserSubjectKeyEncryptor } from "./user-subject-key-encryptor";
 
 /** Creates encryptors
  */
@@ -59,6 +61,22 @@ export class KeyServiceLegacyEncryptorProvider implements LegacyEncryptorProvide
         const encryptor = new UserKeyEncryptor(userId, this.sdkService, packer);
 
         return { userId, encryptor } satisfies UserBound<"encryptor", UserEncryptor>;
+      }),
+    );
+  }
+
+  subjectEncryptor$(frameSize: number, subjectId: string, dependencies: SingleUserDependency) {
+    const packer = new PaddedDataPacker(frameSize);
+    return dependencies.singleUserId$.pipe(
+      errorOnChange(
+        (userId) => userId,
+        (expectedUserId, actualUserId) => ({ expectedUserId, actualUserId }),
+      ),
+      map((userId) => {
+        const userEncryptor = new UserKeyEncryptor(userId, this.sdkService, packer);
+        const encryptor = new UserSubjectKeyEncryptor(userId, subjectId, userEncryptor);
+
+        return { userId, encryptor } satisfies UserBound<"encryptor", SubjectKeyEncryptor>;
       }),
     );
   }
