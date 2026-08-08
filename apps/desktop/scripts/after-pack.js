@@ -180,10 +180,9 @@ async function addElectronFuses(context) {
     // App refuses to open when enabled
     [FuseV1Options.LoadBrowserProcessSpecificV8Snapshot]: false,
 
-    // To disable this, we should stop using the file:// protocol to load the app bundle
-    // This can be done by defining a custom app:// protocol and loading the bundle from there,
-    // but then any requests to the server will be blocked by CORS policy
-    [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+    // The app bundle loads over a custom bw-desktop-file:// protocol, not file://,
+    // so file:// needs no extra privileges.
+    [FuseV1Options.GrantFileProtocolExtraPrivileges]: false,
 
     // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
     [FuseV1Options.WasmTrapHandlers]: true,
