@@ -94,6 +94,7 @@ import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.
 import {
   BuildCipherDataParams,
   CloseInlineMenuMessage,
+  FilterInlineMenuMessage,
   CurrentAddNewItemData,
   FocusedFieldData,
   InlineMenuButtonPortMessageHandlers,
@@ -151,8 +152,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuFido2Credentials: Set<string> = new Set();
   private inlineMenuPageTranslations: Record<string, string> | null = null;
   private inlineMenuPosition: InlineMenuPosition = {};
+  private inlineMenuFilterValue: string | undefined;
+  private builtInlineMenuCipherData: InlineMenuCipherData[] = [];
   private cardAndIdentityCiphers: Set<CipherView> | null = null;
   private currentInlineMenuCiphersCount: number = 0;
+  private filteredInlineMenuCiphersCount: number = 0;
   private currentAddNewItemData: CurrentAddNewItemData | null = null;
   private focusedFieldData: FocusedFieldData | null = null;
   private allFieldData: AutofillField[] = [];
@@ -191,6 +195,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
       void this.withSenderTab(sender, () => this.closeInlineMenu(sender, message)),
+    filterAutofillInlineMenu: ({ message, sender }) =>
+      void this.withSenderTab(sender, () => this.filterInlineMenu(sender, message)),
     checkAutofillInlineMenuFocused: ({ sender }) =>
       void this.withSenderTab(sender, () => this.checkInlineMenuFocused(sender)),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
@@ -503,6 +509,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.storeInlineMenuFido2Credentials$.next(tabId);
     }
 
+    // Clear any active filter so a full refresh of the ciphers starts unfiltered; the filter is
+    // only meant to live for the duration of an active typing session on the focused field.
+    this.inlineMenuFilterValue = undefined;
+
     const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
@@ -519,9 +529,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Updates the inline menu list's ciphers and sends the updated list to the inline menu list iframe.
    *
    * @param tab - The current tab
+   * @param refreshCipherData - Rebuilds the cipher data from the vault ciphers when true. When
+   * false, the previously built cipher data is reused and only the active filter is re-applied,
+   * avoiding an expensive rebuild on each keystroke while filtering.
    */
-  private async updateInlineMenuListCiphers(tab: chrome.tabs.Tab) {
-    const ciphers = await this.getInlineMenuCipherData();
+  private async updateInlineMenuListCiphers(tab: chrome.tabs.Tab, refreshCipherData = true) {
+    const ciphers = refreshCipherData
+      ? await this.getInlineMenuCipherData()
+      : this.getFilteredInlineMenuCipherData();
     this.postMessageToPort(this.inlineMenuListPort, {
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
@@ -605,35 +620,54 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Strips out unnecessary data from the ciphers and returns an array of
-   * objects that contain the cipher data needed for the inline menu list.
+   * Rebuilds the inline menu cipher data from the vault ciphers, caches the unfiltered result,
+   * and returns the data with the active filter applied. This is the expensive path and should
+   * only run when the underlying ciphers or the focused field change - not on every keystroke.
    */
   private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
+    this.builtInlineMenuCipherData = await this.buildInlineMenuCipherData();
+    this.currentInlineMenuCiphersCount = this.builtInlineMenuCipherData.length;
+    return this.getFilteredInlineMenuCipherData();
+  }
+
+  /**
+   * Strips out unnecessary data from the ciphers and returns an unfiltered array of objects that
+   * contain the cipher data needed for the inline menu list.
+   */
+  private async buildInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
     const [showFavicons, env] = await Promise.all([
       firstValueFrom(this.domainSettingsService.showFavicons$),
       firstValueFrom(this.environmentService.environment$),
     ]);
     const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
-    let inlineMenuCipherData: InlineMenuCipherData[];
-    this.showPasskeysLabelsWithinInlineMenu = false;
 
     if (this.shouldShowInlineMenuAccountCreation()) {
-      inlineMenuCipherData = await this.buildInlineMenuAccountCreationCiphers(
+      return this.buildInlineMenuAccountCreationCiphers(
         inlineMenuCiphersArray,
         true,
         iconsServerUrl,
       );
-    } else {
-      inlineMenuCipherData = await this.buildInlineMenuCiphers(
-        inlineMenuCiphersArray,
-        showFavicons,
-        iconsServerUrl,
-      );
     }
 
-    this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
-    return inlineMenuCipherData;
+    return this.buildInlineMenuCiphers(inlineMenuCiphersArray, showFavicons, iconsServerUrl);
+  }
+
+  /**
+   * Applies the active filter to the previously built cipher data, updating the filtered cipher
+   * count and the passkey labels flag to reflect what is actually shown. Does not rebuild the
+   * cipher data, so it is cheap enough to run on each keystroke while filtering.
+   */
+  private getFilteredInlineMenuCipherData(): InlineMenuCipherData[] {
+    const filteredInlineMenuCipherData = this.filterInlineMenuCipherData(
+      this.builtInlineMenuCipherData,
+    );
+    this.filteredInlineMenuCiphersCount = filteredInlineMenuCipherData.length;
+    this.showPasskeysLabelsWithinInlineMenu =
+      filteredInlineMenuCipherData.some((cipherData) => cipherData.login?.passkey != null) &&
+      filteredInlineMenuCipherData.some((cipherData) => cipherData.login?.passkey == null);
+
+    return filteredInlineMenuCipherData;
   }
 
   /**
@@ -767,12 +801,55 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (passkeyCipherData.length) {
-      this.showPasskeysLabelsWithinInlineMenu =
-        passkeyCipherData.length > 0 && inlineMenuCipherData.length > 0;
       return passkeyCipherData.concat(inlineMenuCipherData);
     }
 
     return inlineMenuCipherData;
+  }
+
+  /**
+   * Filters the provided inline menu entries by the active filter value. Matches against the
+   * user-facing fields of each cipher type (login, card, and identity) so the filter behaves as a
+   * search across whatever items the focused field can offer. Matching is case- and
+   * accent-insensitive.
+   *
+   * @param inlineMenuCipherData - Array of inline menu cipher data to filter
+   */
+  private filterInlineMenuCipherData(inlineMenuCipherData: InlineMenuCipherData[]) {
+    if (!this.inlineMenuFilterValue) {
+      return inlineMenuCipherData;
+    }
+
+    const filterValue = this.normalizeFilterValue(this.inlineMenuFilterValue);
+    return inlineMenuCipherData.filter((cipherData) => {
+      // The URI is not part of the data sent to the inline menu list, so match it against the
+      // source cipher (looked up by id) to avoid sending extra data to the list iframe.
+      const cipherUri = this.inlineMenuCiphers.get(cipherData.id)?.login?.uri;
+      return [
+        cipherData.name,
+        cipherData.login?.username,
+        cipherUri,
+        cipherData.login?.passkey?.userName,
+        cipherData.login?.passkey?.rpName,
+        cipherData.card,
+        cipherData.identity?.fullName,
+        cipherData.identity?.username,
+      ].some((value) => !!value && this.normalizeFilterValue(value).includes(filterValue));
+    });
+  }
+
+  /**
+   * Normalizes a value for filtering by lower-casing it and stripping accents/diacritics. Mirrors
+   * the vault search normalization (`normalizeSearchQuery` in search.service.ts); inlined here to
+   * avoid pulling the search service into the background bundle.
+   *
+   * @param value - The value to normalize
+   */
+  private normalizeFilterValue(value: string) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
   }
 
   /**
@@ -1676,6 +1753,26 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Filters the autofill inline menu and shows/hides the list if empty.
+   *
+   * @param sender - The sender of the port message
+   * @param filterValue - The current filter value
+   */
+  private async filterInlineMenu(
+    sender: chrome.runtime.MessageSender,
+    { filterValue }: FilterInlineMenuMessage = {},
+  ) {
+    this.inlineMenuFilterValue = filterValue;
+
+    await this.updateInlineMenuListCiphers(sender.tab, false);
+
+    await this.toggleInlineMenuHidden(
+      { isInlineMenuHidden: !this.filteredInlineMenuCiphersCount },
+      sender,
+    );
+  }
+
+  /**
    * Sends a message to the sender tab to trigger a delayed closure of the inline menu.
    * This is used to ensure that we capture click events on the inline menu in the case
    * that some on page programmatic method attempts to force focus redirection.
@@ -2065,6 +2162,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
     this.allFieldData = allFieldsRect ?? [];
     this.isFieldCurrentlyFocused = true;
+
+    // Reset the inline menu filter when focus moves so a newly focused field is
+    // not shown a list filtered by the previously focused field's value.
+    this.inlineMenuFilterValue = undefined;
 
     if (this.shouldUpdatePasswordGeneratorMenuOnFieldFocus()) {
       this.updateInlineMenuGeneratedPasswordOnFocus(sender.tab).catch((error) =>
