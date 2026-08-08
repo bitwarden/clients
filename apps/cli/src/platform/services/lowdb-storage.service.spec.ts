@@ -80,12 +80,7 @@ describe("LowdbStorageService", () => {
       expect(await sut.get("key")).toBe("value");
     });
 
-    // Flaky on lowdb v1: defaults are written via a floating
-    // lockDbFile() promise at lowdb-storage.service.ts:103, so init() may
-    // return before the write completes. Whether get("server") sees the
-    // default depends on scheduling. The v7 rewrite properly awaits this
-    // write and the test becomes deterministic.
-    it.failing("writes defaults on first init", async () => {
+    it("writes defaults on first init", async () => {
       sut = makeSut({ defaults: { server: "https://vault.bitwarden.com" } });
 
       await sut.init();
@@ -124,13 +119,7 @@ describe("LowdbStorageService", () => {
       expect(await sut.get("key")).toBe("value");
     });
 
-    // Expected to fail on lowdb v1: the current implementation uses the
-    // callback overload of fs.copyFile at lowdb-storage.service.ts:86, which
-    // returns void. Awaiting void resolves immediately, so init() proceeds
-    // before the copy has flushed and the .bak file is empty when read.
-    // The v7 rewrite will use fs.copyFileSync (or an awaited fs.promises
-    // equivalent), at which point this test should pass and be un-.failing'd.
-    it.failing("backs up the corrupt file to <dataFilePath>.bak", async () => {
+    it("backs up the corrupt file to <dataFilePath>.bak", async () => {
       const corrupt = "{ not json";
       fs.writeFileSync(dataFilePath, corrupt);
       sut = makeSut();
@@ -197,11 +186,7 @@ describe("LowdbStorageService", () => {
       expect(raw.k).toBe("on-disk");
     });
 
-    // Expected to fail on lowdb v1: the lodash-chain API interprets "a.b"
-    // as a nested path (data.a.b). The v7 rewrite uses direct property
-    // assignment (db.data[key] = value), which treats the key as a literal
-    // top-level string. Un-.failing this test once the rewrite lands.
-    it.failing("treats dotted keys as literal top-level keys", async () => {
+    it("treats dotted keys as literal top-level keys", async () => {
       await sut.save("a.b", "literal");
 
       const raw = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));

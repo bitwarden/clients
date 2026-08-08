@@ -3,8 +3,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as lowdb from "lowdb";
-import * as FileSync from "lowdb/adapters/FileSync";
+import { LowSync } from "lowdb";
+import { JSONFileSync } from "lowdb/node";
 import * as lock from "proper-lockfile";
 import { OperationOptions } from "retry";
 import { Subject } from "rxjs";
@@ -17,6 +17,8 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+type LowdbData = Record<string, unknown>;
+
 const retries: OperationOptions = {
   retries: 50,
   minTimeout: 100,
@@ -26,7 +28,7 @@ const retries: OperationOptions = {
 
 export class LowdbStorageService implements AbstractStorageService {
   protected dataFilePath: string;
-  private db: lowdb.LowdbSync<any>;
+  private db: LowSync<LowdbData>;
   private defaults: any;
   private ready = false;
   private updatesSubject = new Subject<StorageUpdate>();
@@ -49,7 +51,6 @@ export class LowdbStorageService implements AbstractStorageService {
     }
 
     this.logService.info("Initializing lowdb storage service.");
-    let adapter: lowdb.AdapterSync<any>;
     if (Utils.isNode && this.dir != null) {
       if (!fs.existsSync(this.dir)) {
         this.logService.warning(`Could not find dir, "${this.dir}"; creating it instead.`);
@@ -61,49 +62,50 @@ export class LowdbStorageService implements AbstractStorageService {
         this.logService.warning(
           `Could not find data file, "${this.dataFilePath}"; creating it instead.`,
         );
-        fs.writeFileSync(this.dataFilePath, "", { mode: 0o600 });
+        fs.writeFileSync(this.dataFilePath, "{}", { mode: 0o600 });
         fs.chmodSync(this.dataFilePath, 0o600);
         this.logService.info(`Created data file "${this.dataFilePath}" with chmod 600.`);
       } else {
-        this.logService.info(`db file "${this.dataFilePath} already exists"; using existing db`);
+        this.logService.info(`db file "${this.dataFilePath}" already exists; using existing db`);
       }
-      await this.lockDbFile(() => {
-        adapter = new FileSync(this.dataFilePath);
-      });
     }
+
+    const adapter = new JSONFileSync<LowdbData>(this.dataFilePath);
+    this.db = new LowSync<LowdbData>(adapter, {} as LowdbData);
+
     try {
-      this.logService.info("Attempting to create lowdb storage adapter.");
-      this.db = lowdb(adapter);
-      this.logService.info("Successfully created lowdb storage adapter.");
+      this.logService.info("Loading lowdb data.");
+      await this.lockDbFile(() => {
+        this.db.read();
+      });
+      this.logService.info("Successfully loaded lowdb data.");
     } catch (e) {
       if (e instanceof SyntaxError) {
-        this.logService.warning(
-          `Error creating lowdb storage adapter, "${e.message}"; emptying data file.`,
-        );
+        this.logService.warning(`Error parsing lowdb data, "${e.message}"; emptying data file.`);
         if (fs.existsSync(this.dataFilePath)) {
           const backupPath = this.dataFilePath + ".bak";
           this.logService.warning(`Writing backup of data file to ${backupPath}`);
-          await fs.copyFile(this.dataFilePath, backupPath, () => {
+          try {
+            fs.copyFileSync(this.dataFilePath, backupPath);
+          } catch (copyErr) {
             this.logService.warning(
-              `Error while creating data file backup, "${e.message}". No backup may have been created.`,
+              `Error while creating data file backup, "${(copyErr as Error).message}". No backup may have been created.`,
             );
-          });
+          }
         }
-        adapter.write({});
-        this.db = lowdb(adapter);
+        fs.writeFileSync(this.dataFilePath, "{}");
+        this.db.data = {} as LowdbData;
       } else {
-        this.logService.error(`Error creating lowdb storage adapter, "${e.message}".`);
+        this.logService.error(`Error loading lowdb data, "${(e as Error).message}".`);
         throw e;
       }
     }
 
     if (this.defaults != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.lockDbFile(() => {
+      await this.lockDbFile(() => {
         this.logService.info("Writing defaults.");
-        this.readForNoCache();
-        this.db.defaults(this.defaults).write();
+        this.db.data = { ...this.defaults, ...this.db.data };
+        this.db.write();
         this.logService.info("Successfully wrote defaults to db.");
       });
     }
@@ -119,7 +121,7 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      const val = this.db.get(key).value();
+      const val = this.db.data?.[key];
       this.logService.debug(`Successfully read ${key} from db`);
       if (val == null) {
         return null;
@@ -136,12 +138,10 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.db.set(key, obj).write();
+      this.db.data[key] = obj;
+      this.db.write();
       this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
-      return;
     });
   }
 
@@ -149,33 +149,28 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.db.unset(key).write();
+      delete this.db.data[key];
+      this.db.write();
       this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);
-      return;
     });
   }
 
-  protected async lockDbFile<T>(action: () => T): Promise<T> {
+  protected async lockDbFile<T>(action: () => Promise<T> | T): Promise<T> {
     if (this.requireLock && !Utils.isNullOrWhitespace(this.dataFilePath)) {
       this.logService.info("acquiring db file lock");
-      return await lock.lock(this.dataFilePath, { retries: retries }).then((release) => {
-        try {
-          return action();
-        } finally {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          release();
-        }
-      });
+      const release = await lock.lock(this.dataFilePath, { retries: retries });
+      try {
+        return await action();
+      } finally {
+        await release();
+      }
     } else {
-      return action();
+      return await action();
     }
   }
 
-  private readForNoCache() {
+  private readForNoCache(): void {
     if (!this.allowCache) {
       this.db.read();
     }
