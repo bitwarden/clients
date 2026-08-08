@@ -13,6 +13,7 @@ export * from "./bottom-navigation";
 export * from "./breadcrumbs";
 export * from "./bulk-actions-bar";
 export * from "./button";
+export * from "./button-group";
 export * from "./callout";
 export * from "./card";
 export * from "./checkbox";
