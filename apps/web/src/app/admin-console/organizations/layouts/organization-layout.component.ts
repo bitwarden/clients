@@ -52,6 +52,7 @@ import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-sl
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
+    PamOrgNavSlotComponent,
     Vfo1IconPipe,
     Vfo1I18nPipe,
     PamOrgNavSlotComponent,

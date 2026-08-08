@@ -70,6 +70,23 @@ export class CipherView implements View, InitializerMetadata {
   key?: EncString;
 
   /**
+   * Raw JSON-string partial-data payload (PAM gated rows). Its presence is the
+   * gating marker for UI surfaces (vault-row badge, cipher-open gate). The SDK
+   * round trip drops this field, so the encryption service re-attaches it
+   * onto the resulting view from the source Cipher.
+   */
+  partialData?: string;
+
+  /**
+   * Client-only, transient companion to `partialData`: set when this view came
+   * from a cipher served under an active PAM lease (full data, so `partialData`
+   * is absent). The SDK round trip drops it, so the encryption service re-attaches
+   * it from the source Cipher. Lets the cipher-lease banner keep rendering its
+   * lease state once a lease lands and `partialData` is gone.
+   */
+  leaseGated?: boolean;
+
+  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -98,6 +115,8 @@ export class CipherView implements View, InitializerMetadata {
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
+    this.partialData = c.partialData;
+    this.leaseGated = c.leaseGated;
   }
 
   private get item(): ItemView | undefined {
@@ -237,6 +256,9 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
+    if (obj.partialData != null) {
+      view.partialData = obj.partialData;
+    }
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;
     if (obj.creationDate) {

@@ -50,7 +50,6 @@ describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
   let overlayContainer: OverlayContainer;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [VaultCipherRowComponent],
@@ -80,7 +79,9 @@ describe("VaultCipherRowComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
         },
         {
           provide: BillingAccountProfileStateService,

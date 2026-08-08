@@ -1,0 +1,41 @@
+<bit-dialog [title]="'killSwitchDialogTitle' | i18n">
+  <ng-container bitDialogContent>
+    <p bitTypography="body2">
+      {{ "killSwitchDialogWarning" | i18n }}
+    </p>
+    <p bitTypography="body2" class="tw-font-semibold">
+      {{ "killSwitchDialogConfirmPrompt" | i18n: organizationName }}
+    </p>
+    <bit-form-field>
+      <bit-label>{{ "killSwitchDialogInputLabel" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        id="kill-switch-dialog_input_confirm-org-name"
+        [formControl]="confirmControl"
+        [placeholder]="organizationName"
+      />
+    </bit-form-field>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="danger"
+      [disabled]="!confirmMatches()"
+      (click)="confirm()"
+      id="kill-switch-dialog_button_confirm"
+    >
+      {{ "killSwitchConfirmButtonLabel" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="cancel()"
+      id="kill-switch-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

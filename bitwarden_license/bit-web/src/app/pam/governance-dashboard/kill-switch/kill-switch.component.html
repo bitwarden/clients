@@ -1,0 +1,76 @@
+@if (killSwitchEnabled()) {
+  <section
+    class="tw-rounded tw-border tw-border-solid tw-border-danger-600 tw-p-4"
+    data-testid="kill-switch-section"
+  >
+    <div class="tw-mb-3">
+      <h2 bitTypography="h3" class="tw-text-danger">{{ "killSwitchDangerZoneTitle" | i18n }}</h2>
+      <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+        {{ "killSwitchDangerZoneDescription" | i18n }}
+      </p>
+    </div>
+
+    @if (isSuccess()) {
+      <bit-callout
+        type="success"
+        [title]="'killSwitchSuccessTitle' | i18n"
+        data-testid="kill-switch-success-callout"
+      >
+        {{ "killSwitchSuccessMessage" | i18n: successCount().toString() }}
+      </bit-callout>
+    }
+
+    @if (isPartial()) {
+      <bit-callout
+        type="warning"
+        [title]="'killSwitchPartialTitle' | i18n"
+        data-testid="kill-switch-partial-callout"
+      >
+        {{
+          "killSwitchPartialMessage"
+            | i18n: partialRevokedCount().toString() : partialFailedCount().toString()
+        }}
+      </bit-callout>
+    }
+
+    @if (isFrozen()) {
+      <bit-callout type="warning" [title]="'killSwitchFrozenTitle' | i18n">
+        <p bitTypography="body2" class="tw-mb-2">{{ "killSwitchFrozenMessage" | i18n }}</p>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          [loading]="unblocking()"
+          [disabled]="unblocking()"
+          (click)="unblockNewLeases()"
+          id="kill-switch_button_unblock"
+        >
+          {{ "killSwitchUnblockButtonLabel" | i18n }}
+        </button>
+      </bit-callout>
+    }
+
+    <bit-form-control>
+      <input
+        type="checkbox"
+        bitCheckbox
+        id="kill-switch_checkbox_block-new-leases"
+        [formControl]="blockNewLeases"
+      />
+      <bit-label>{{ "killSwitchBlockNewLeasesLabel" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <button
+      type="button"
+      bitButton
+      buttonType="danger"
+      [loading]="submitting()"
+      [disabled]="submitting()"
+      (click)="openKillSwitchDialog()"
+      id="kill-switch_button_open-dialog"
+    >
+      {{ "killSwitchButtonLabel" | i18n }}
+    </button>
+  </section>
+}

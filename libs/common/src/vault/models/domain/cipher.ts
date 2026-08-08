@@ -69,6 +69,17 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
+  /** Raw JSON-string partial-data payload for PAM-gated rows; see CipherResponse. */
+  partialData?: string;
+  /**
+   * Client-only, transient marker stamped by the PAM leased-cipher fetcher on a
+   * full cipher served under an active lease. Unlike `partialData` it is never
+   * sent by the server, persisted to `CipherData`, or round-tripped through JSON —
+   * it exists only so gating surfaces (the cipher-lease banner) can tell a leased
+   * cipher is PAM-governed once it's fully decrypted and `partialData` is gone.
+   * See LeasedCipherFetcherService.
+   */
+  leaseGated?: boolean;
   data?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
@@ -97,6 +108,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
+    this.partialData = obj.partialData ?? undefined;
     this.data = obj.data;
 
     switch (this.type) {
@@ -300,6 +312,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -382,6 +395,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (obj.permissions != null) {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
+
+    domain.partialData = obj.partialData ?? undefined;
 
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;

@@ -1,0 +1,262 @@
+import {
+  AccessRequestDetailsResponse,
+  AccessRequestStatus,
+  AccessLeaseStatus,
+  Decision,
+  findHumanDecision,
+  formatRemaining,
+} from "@bitwarden/bit-pam";
+
+import { ResolvedNames } from "../access-request-name-resolver.service";
+
+/** Time-bucket a history item belongs to. */
+export type BucketKey = "active" | "future" | "past";
+
+/** Filter value for a history table: a specific bucket or "all". */
+export type HistoryFilter = BucketKey | "all";
+
+/** A single row in a flat history table — all display fields pre-computed. */
+export type FlatHistoryRow = {
+  item: AccessRequestDetailsResponse;
+  /** Cipher name resolved from local vault state, falling back to the raw id. */
+  cipherName: string;
+  /** Collection name resolved from local vault state; null when unknown. */
+  collectionName: string | null;
+  bucket: BucketKey;
+  canRevoke: boolean;
+  canCancel: boolean;
+  statusClass: string; // Tailwind colour classes for the status label
+  statusLabel: string; // i18n key
+  relTime: { key: string; value: string } | null;
+  /** Epoch ms used as the table's time sort key (resolved time, falling back to submit time). */
+  sortTimeMs: number;
+  /** i18n key for a system / access-rule decider in the "Approved by" column; null when a human decided. */
+  approverLabelKey: string | null;
+  /** The human decider's display name (name → email → id) for the "Approved by" column; null otherwise. */
+  approverName: string | null;
+  /** The deciding approver's comment, if any. */
+  approverComment: string | null;
+};
+
+/**
+ * Resolve who decided a request for the audit log's "Approved by" column. A system / access-rule
+ * decision (no human approver) yields an i18n key; a human decision yields the approver's display
+ * name, falling back to email then the raw id so the cell is never blank. A still-pending row yields
+ * neither. Mirrors the My Requests resolver. Exported for tests.
+ */
+export function resolveApprover(
+  status: AccessRequestStatus,
+  human: Decision | undefined,
+): Pick<FlatHistoryRow, "approverLabelKey" | "approverName"> {
+  // The "Approved by" column names a human decider; a still-pending request shows neither, and an
+  // automatic (access-rule) decision — or no human decision at all — shows the access-rule label.
+  if (status === AccessRequestStatus.Pending) {
+    return { approverLabelKey: null, approverName: null };
+  }
+  if (human == null) {
+    return { approverLabelKey: "pamResolverAccessRule", approverName: null };
+  }
+  return {
+    approverLabelKey: null,
+    approverName: human.name || human.email || human.id,
+  };
+}
+
+/** An approved request that has not produced a lease yet: the requester may still start it. */
+export function isAwaitingStart(item: AccessRequestDetailsResponse): boolean {
+  return item.status === AccessRequestStatus.Approved && item.producedLeaseId == null;
+}
+
+export function historyStatusClassFor(bucket: BucketKey, status: string): string {
+  if (bucket === "active") {
+    return "tw-text-success-700";
+  }
+  if (bucket === "future") {
+    return "tw-text-primary-600";
+  }
+  if (status === AccessRequestStatus.Denied) {
+    return "tw-text-danger-700";
+  }
+  return "tw-text-muted";
+}
+
+export function historyStatusLabelFor(
+  bucket: BucketKey,
+  item: AccessRequestDetailsResponse,
+): string {
+  if (bucket === "active") {
+    return "pamInboxHistoryGroupActive";
+  }
+  if (bucket === "future") {
+    // An approved-but-not-started request grants nothing yet — say so instead of "Upcoming",
+    // which is reserved for a minted lease whose window hasn't opened.
+    return isAwaitingStart(item)
+      ? "pamInboxHistoryStatusAwaitingStart"
+      : "pamInboxHistoryGroupFuture";
+  }
+  // A produced lease that has reached Past has ended; label it by the lease outcome, not the request
+  // status (which stays "activated" forever and reads as "Active"). The holder cancelling and an
+  // operator revoking are distinct end states; anything else has lapsed — including a lease the
+  // server still reports "active" (v1 has no autonomous expiry) — so show Expired.
+  if (item.producedLeaseId != null) {
+    if (item.producedLeaseStatus === AccessLeaseStatus.Cancelled) {
+      return "pamInboxHistoryStatusCancelled";
+    }
+    if (item.producedLeaseStatus === AccessLeaseStatus.Revoked) {
+      return "pamInboxHistoryStatusRevoked";
+    }
+    return "pamInboxHistoryStatusExpired";
+  }
+  switch (item.status) {
+    case AccessRequestStatus.Approved:
+      return "pamInboxHistoryStatusApproved";
+    case AccessRequestStatus.Denied:
+      return "pamInboxHistoryStatusDenied";
+    case AccessRequestStatus.Expired:
+      return "pamInboxHistoryStatusExpired";
+    default:
+      return "pamInboxHistoryStatusCancelled";
+  }
+}
+
+export function historyRelTimeFor(
+  item: AccessRequestDetailsResponse,
+  bucket: BucketKey,
+  now: Date,
+): { key: string; value: string } | null {
+  if (bucket === "future") {
+    const notBeforeMs = item.leaseNotBefore ? Date.parse(item.leaseNotBefore) : null;
+    if (notBeforeMs != null && notBeforeMs > now.getTime()) {
+      return {
+        key: "pamInboxHistoryStartsIn",
+        value: formatRemaining(notBeforeMs - now.getTime()),
+      };
+    }
+    // Awaiting start inside an already-open window: show how long the approval stays startable.
+    if (isAwaitingStart(item) && item.leaseNotAfter) {
+      const startable = formatRemaining(Date.parse(item.leaseNotAfter) - now.getTime());
+      if (startable === "0s") {
+        return null;
+      }
+      return { key: "pamInboxHistoryStartableFor", value: startable };
+    }
+    return null;
+  }
+  if (bucket === "active" && item.leaseNotAfter) {
+    const remaining = formatRemaining(Date.parse(item.leaseNotAfter) - now.getTime());
+    if (remaining === "0s") {
+      return null;
+    }
+    return { key: "pamInboxHistoryTimeRemaining", value: remaining };
+  }
+  return null;
+}
+
+export type HistoryGroup = {
+  bucket: BucketKey;
+  items: AccessRequestDetailsResponse[];
+};
+
+export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): HistoryGroup[] {
+  const nowMs = now.getTime();
+  const future: AccessRequestDetailsResponse[] = [];
+  const active: AccessRequestDetailsResponse[] = [];
+  const past: AccessRequestDetailsResponse[] = [];
+
+  for (const item of items) {
+    const notBefore = item.leaseNotBefore ? Date.parse(item.leaseNotBefore) : null;
+    const notAfter = item.leaseNotAfter ? Date.parse(item.leaseNotAfter) : null;
+
+    // A minted lease is real access only while its status is still "active": a revoked or expired
+    // lease drops to Past regardless of its window, so the inbox never offers Revoke on a lease that
+    // has already ended (the request itself stays "activated" forever). Check each bound
+    // independently: a lease that starts immediately has notBefore=null but is still active if
+    // notAfter is in the future. A lease whose window has fully lapsed also drops to Past — its
+    // access can no longer be used, so Revoke would be a no-op (the real lapse-to-expired transition
+    // is a server concern; v1 has no autonomous expiry yet).
+    if (
+      (item.status === AccessRequestStatus.Activated || item.producedLeaseId != null) &&
+      item.producedLeaseStatus === AccessLeaseStatus.Active
+    ) {
+      if (notBefore != null && notBefore > nowMs) {
+        future.push(item);
+        continue;
+      }
+      if (notAfter != null && notAfter >= nowMs) {
+        active.push(item);
+        continue;
+      }
+    } else if (
+      item.status === AccessRequestStatus.Approved &&
+      (notAfter == null || notAfter >= nowMs)
+    ) {
+      // Approved but not started: the requester can still mint the lease, so the grant belongs
+      // with Upcoming — never Active. Once the window lapses unstarted it falls through to Past.
+      future.push(item);
+      continue;
+    }
+    past.push(item);
+  }
+
+  return (
+    [
+      { bucket: "active", items: active },
+      { bucket: "future", items: future },
+      { bucket: "past", items: past },
+    ] satisfies HistoryGroup[]
+  ).filter((g) => g.items.length > 0);
+}
+
+/**
+ * Flatten history items (active → upcoming → past) into pre-computed display rows.
+ *
+ * `canActOn` gates the per-row Revoke / Cancel-approval affordances: the audit log can see
+ * history the viewer can't act on (their own resolved requests alongside the managed-collection
+ * decisions), so actions are offered only where the predicate allows. Defaults to "every row",
+ * matching the approver decision history where every row is the viewer's to manage.
+ */
+export function flattenHistory(
+  items: AccessRequestDetailsResponse[],
+  now: Date,
+  names: ResolvedNames,
+  canActOn: (item: AccessRequestDetailsResponse) => boolean = () => true,
+): FlatHistoryRow[] {
+  const nowMs = now.getTime();
+  return groupHistory(items, now).flatMap(({ bucket, items: bucketItems }) =>
+    bucketItems.map((item): FlatHistoryRow => {
+      const actionable = canActOn(item);
+      const human = findHumanDecision(item.decisions);
+      return {
+        item,
+        cipherName: names.cipherNameById.get(item.cipherId) ?? item.cipherId,
+        collectionName: names.collectionNameById.get(item.collectionId) ?? null,
+        bucket,
+        canRevoke:
+          actionable &&
+          (bucket === "active" || bucket === "future") &&
+          item.producedLeaseId != null &&
+          item.producedLeaseStatus === AccessLeaseStatus.Active,
+        // An approved request that has not minted a lease and whose window can still produce access
+        // can be retracted by the approver (cancel the approval). A window-passed approval can no
+        // longer be started, so — like a lapsed lease — it is offered no action and sits in history.
+        canCancel:
+          actionable &&
+          isAwaitingStart(item) &&
+          (item.leaseNotAfter == null || Date.parse(item.leaseNotAfter) >= nowMs),
+        statusClass: historyStatusClassFor(bucket, item.status),
+        statusLabel: historyStatusLabelFor(bucket, item),
+        relTime: historyRelTimeFor(item, bucket, now),
+        sortTimeMs: resolvedOrSubmittedMs(item),
+        approverComment: human?.comment ?? null,
+        ...resolveApprover(item.status, human),
+      };
+    }),
+  );
+}
+
+/** Epoch ms a history item is ordered by: its resolution time, falling back to its submit time. */
+export function resolvedOrSubmittedMs(
+  item: Pick<AccessRequestDetailsResponse, "resolvedAt" | "submittedAt">,
+): number {
+  return Date.parse(item.resolvedAt ?? item.submittedAt);
+}
