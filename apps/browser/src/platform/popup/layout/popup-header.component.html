@@ -26,6 +26,9 @@
         {{ pageTitle }}
       </h1>
       <ng-content></ng-content>
+      @if (isBeta) {
+        <bit-badge variant="warning" size="small">{{ "beta" | i18n }}</bit-badge>
+      }
     </div>
     <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
       <ng-content select="[slot=end]"></ng-content>
