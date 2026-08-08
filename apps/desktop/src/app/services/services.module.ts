@@ -149,6 +149,7 @@ import {
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
   Vfo1TerminologyService,
+  PasswordRepromptService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -448,6 +449,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       DesktopSettingsService,
+      PasswordRepromptService,
     ],
   }),
   safeProvider({
