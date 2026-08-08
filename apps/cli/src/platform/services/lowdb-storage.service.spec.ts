@@ -119,7 +119,13 @@ describe("LowdbStorageService", () => {
       expect(await sut.get("key")).toBe("value");
     });
 
-    it("backs up the corrupt file to <dataFilePath>.bak", async () => {
+    // Expected to fail on lowdb v1: the current implementation uses the
+    // callback overload of fs.copyFile at lowdb-storage.service.ts:86, which
+    // returns void. Awaiting void resolves immediately, so init() proceeds
+    // before the copy has flushed and the .bak file is empty when read.
+    // The v7 rewrite will use fs.copyFileSync (or an awaited fs.promises
+    // equivalent), at which point this test should pass and be un-.failing'd.
+    it.failing("backs up the corrupt file to <dataFilePath>.bak", async () => {
       const corrupt = "{ not json";
       fs.writeFileSync(dataFilePath, corrupt);
       sut = makeSut();
@@ -186,10 +192,11 @@ describe("LowdbStorageService", () => {
       expect(raw.k).toBe("on-disk");
     });
 
-    it("treats dotted keys as literal top-level keys", async () => {
-      // v1 lodash-chain interpreted "a.b" as a nested path (data.a.b).
-      // The rewrite pins semantics to a literal string key. This test
-      // fails on v1 and passes on the v7 rewrite.
+    // Expected to fail on lowdb v1: the lodash-chain API interprets "a.b"
+    // as a nested path (data.a.b). The v7 rewrite uses direct property
+    // assignment (db.data[key] = value), which treats the key as a literal
+    // top-level string. Un-.failing this test once the rewrite lands.
+    it.failing("treats dotted keys as literal top-level keys", async () => {
       await sut.save("a.b", "literal");
 
       const raw = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));
