@@ -91,12 +91,10 @@ if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
     Exit 1
 }
 
-if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
-    Write-Error "The `cargo-xwin` tool is required to cross-compile Windows native code."
-    Write-Error "You can install with cargo:"
-    Write-Error "  cargo install --version 0.23.0 --locked cargo-xwin"
-    Exit 1
-}
+# No cargo-xwin precheck here: `npm run build-native` (below) installs it at the
+# version pinned in desktop_native/Cargo.toml under [workspace.metadata.bin].
+# Checking for it up front would both fail before that install could run, and
+# duplicate the pinned version number into this file.
 
 try {
 
