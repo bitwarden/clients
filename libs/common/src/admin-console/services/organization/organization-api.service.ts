@@ -89,9 +89,13 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
   }
 
   async getAutoEnrollStatus(identifier: string): Promise<OrganizationAutoEnrollStatusResponse> {
+    // The identifier is an admin-chosen SSO identifier that may contain reserved URL characters
+    // (e.g. "/"). It must be passed as a query parameter, not a path segment: the path is run
+    // through Utils.normalizePath which decodes %2F back to "/", so a path-encoded identifier
+    // would re-split the path and 404. The query string is sent verbatim. See ticket #870106.
     const r = await this.apiService.send(
       "GET",
-      "/organizations/" + identifier + "/auto-enroll-status",
+      "/organizations/auto-enroll-status?identifier=" + encodeURIComponent(identifier),
       null,
       true,
       true,
