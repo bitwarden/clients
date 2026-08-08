@@ -341,13 +341,13 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("*1234");
       });
 
-      it("falls back to the view's subTitle when both accountType and accountNumber are missing", () => {
+      it("falls back to empty string when both accountType and accountNumber are missing", () => {
         const bankAccount = new BankAccountView();
         bankAccount.bankName = "Bank of America";
 
         const cipher = createBankAccountCipher(bankAccount);
 
-        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("Bank of America");
+        expect(CipherViewLikeUtils.subtitle(cipher, i18nService)).toBe("");
       });
 
       it("falls back to the view's subTitle when i18nService is not provided", () => {
@@ -362,15 +362,13 @@ describe("CipherViewLikeUtils", () => {
         expect(i18nService.t).not.toHaveBeenCalled();
       });
 
-      it("falls back to the SDK-provided subtitle for a CipherListView bank account without inline data", () => {
+      it("falls back to the empty subtitle for a CipherListView bank account without inline data", () => {
         const cipherListView = {
           type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
           subtitle: "SDK-provided fallback",
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
-          "SDK-provided fallback",
-        );
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe("");
       });
 
       it("computes a translated subtitle from the inline data of a CipherListView bank account", () => {
