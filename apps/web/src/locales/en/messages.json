@@ -1251,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "This shared folder will be permanently deleted."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1263,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "These shared folders will be permanently deleted."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ shared folder(s) will be permanently deleted.",
@@ -1732,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1756,11 +1753,11 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "No values to copy"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2725,6 +2722,21 @@
   "copyVerificationCode": {
     "message": "Copy verification code"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "copyUuid": {
     "message": "Copy UUID"
   },
@@ -3303,6 +3315,79 @@
   "noFileChosen": {
     "message": "No file chosen"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "or copy/paste the import file contents"
   },
@@ -3514,8 +3599,14 @@
   "importDelineaInstructions": {
     "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
   },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "options": {
     "message": "Options"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "preferences": {
     "message": "Preferences"
@@ -3534,6 +3625,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "Default"
@@ -4422,6 +4516,15 @@
   },
   "pendingCancellation": {
     "message": "Pending cancellation"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "The subscription has been marked for cancellation at the end of the current billing period."
@@ -12906,6 +13009,36 @@
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Poor customer service",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -15169,6 +15302,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "billingAddress": {
     "message": "Billing address"

@@ -386,4 +386,9 @@ export const Importers: ImportersMetadata = deepFreeze({
     loaders: [Loader.file],
     instructionKey: "importDelineaInstructions",
   },
+  delineacsv: {
+    type: "delineacsv",
+    loaders: [Loader.file],
+    instructionKey: "importDelineaCsvInstructions",
+  },
 });

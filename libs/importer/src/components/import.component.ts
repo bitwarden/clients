@@ -64,6 +64,7 @@ import {
   CalloutModule,
   CardComponent,
   DialogService,
+  FileUploadComponent,
   FormFieldModule,
   IconButtonModule,
   RadioButtonModule,
@@ -120,6 +121,7 @@ import { ImportLastPassComponent } from "./lastpass";
     IconButtonModule,
     SelectModule,
     CalloutModule,
+    FileUploadComponent,
     ReactiveFormsModule,
     ImportChromeComponent,
     ImportLastPassComponent,
@@ -155,8 +157,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
-  fileSelected: File;
-  keyFileSelected: File | null = null;
   showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
@@ -235,7 +235,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     targetSelector: [null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
-    file: [],
+    file: [null as File | null],
+    keyFile: [null as File | null],
     kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
@@ -737,8 +738,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       case CredentialKind.passwordWithKeyFile: {
         // KDBX collects the master password and optional key file inline in the main dialog.
-        const keyFile = this.keyFileSelected
-          ? new Uint8Array(await this.keyFileSelected.arrayBuffer())
+        const selectedKeyFile = this.formGroup.controls.keyFile.value;
+        const keyFile = selectedKeyFile
+          ? new Uint8Array(await selectedKeyFile.arrayBuffer())
           : null;
         return {
           kind: "passwordWithKeyFile",
@@ -752,8 +754,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async getSelectedFileBytes(): Promise<Uint8Array | null> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const file = fileEl?.files?.[0] ?? this.fileSelected;
+    const file = this.formGroup.controls.file.value;
     if (file == null) {
       return null;
     }
@@ -814,16 +815,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
-  setKeyFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.keyFileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
   addKeyFile() {
     this.showKeyFile = true;
   }
@@ -848,7 +839,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       passwordControl.clearValidators();
       passwordControl.setValue("");
-      this.keyFileSelected = null;
+      this.formGroup.controls.keyFile.setValue(null);
       this.showKeyFile = false;
     }
     passwordControl.updateValueAndValidity();
@@ -945,13 +936,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async setImportContents(): Promise<string> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl?.files;
+    const selectedFile = this.formGroup.controls.file.value;
     let fileContents = this.formGroup.controls.fileContents.value;
 
-    if (files != null && files.length > 0) {
+    if (selectedFile != null) {
       try {
-        const content = await this.getFileContents(files[0]);
+        const content = await this.getFileContents(selectedFile);
         if (content != null) {
           fileContents = content;
         }
