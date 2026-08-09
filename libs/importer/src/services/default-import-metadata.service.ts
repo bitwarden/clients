@@ -36,8 +36,11 @@ export class DefaultImportMetadataService implements ImportMetadataServiceAbstra
         }
 
         const capabilities: ImporterMetadata = { type, loaders };
-        if (type in this.importers) {
-          capabilities.instructions = this.importers[type]?.instructions;
+        const entry = this.importers[type];
+        if (entry) {
+          capabilities.instructionKey = entry.instructionKey;
+          capabilities.instructionLink = entry.instructionLink;
+          capabilities.sourceName = entry.sourceName;
         }
 
         this.logger.debug({ importType: type, capabilities }, "capabilities updated");

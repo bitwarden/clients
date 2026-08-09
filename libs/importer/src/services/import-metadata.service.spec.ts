@@ -5,7 +5,7 @@ import { ClientType } from "@bitwarden/client-type";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
-import { ImporterMetadata, ImportersMetadata, Instructions, Loader } from "../metadata";
+import { ImporterMetadata, ImportersMetadata, Loader } from "../metadata";
 import { ImportType } from "../models";
 
 import { DefaultImportMetadataService } from "./default-import-metadata.service";
@@ -50,17 +50,14 @@ describe("ImportMetadataService", () => {
         chromecsv: {
           type: "chromecsv",
           loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
         },
         bravecsv: {
           type: "bravecsv",
           loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
         },
         edgecsv: {
           type: "edgecsv",
           loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
         },
       } as ImportersMetadata;
     });
@@ -80,7 +77,6 @@ describe("ImportMetadataService", () => {
       expect(result).toEqual({
         type: testType,
         loaders: expect.any(Array),
-        instructions: Instructions.chromium,
       });
       expect(result.type).toBe(testType);
     });

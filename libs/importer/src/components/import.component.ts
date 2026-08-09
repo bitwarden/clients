@@ -79,7 +79,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { Importer } from "../importers/importer";
 import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
 import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
-import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
+import { ImporterMetadata, DataLoader, Loader } from "../metadata";
 import {
   CredentialKind,
   ImportOption,
@@ -277,12 +277,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
-
-  /** emits `true` when the chromium instruction block should be visible. */
-  protected readonly showChromiumInstructions$ = this.importer$.pipe(
-    map((importer) => importer?.instructions === Instructions.chromium),
-  );
+  /** metadata for the selected `format`, including its help-text instructions. */
+  protected readonly importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
 
   /** emits `true` when direct browser import is available. */
   // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
