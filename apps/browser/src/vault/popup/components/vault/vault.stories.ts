@@ -717,9 +717,12 @@ export const WithHasItemsNudge: Story = buildStory({
  * policy flows through the component's own (real) service, which also gates on
  * `PM31948_OrgUserNotificationBanner`.
  *
- * That flag lives in the addon's `ConfigService` and defaults to off, so this story overrides the
- * modes map to keep it enabled in BOTH `vfo1-foundation` snapshots — `featureFlagModes` replaces the
- * whole enabled-flag set per mode, so the banner flag has to be listed explicitly in each.
+ * That second flag defaults to off, and `featureFlagModes` replaces the whole enabled-flag set per
+ * mode, so it has to be listed explicitly in each entry of a hand-written modes map.
+ *
+ * Deliberately no story-level `globals`: pinning them would make the Feature Flags panel inert for
+ * this story (its checkboxes are controlled by the same globals, so a toggle would immediately snap
+ * back). To see the banner locally, tick `pm-31948-org-user-notification-banner` in that panel.
  */
 export const WithNotifications: Story = {
   ...buildStory({ showOrgNotification: true }),
@@ -734,6 +737,4 @@ export const WithNotifications: Story = {
       },
     },
   },
-  // Keeps the banner visible outside Chromatic too (the modes map only applies to snapshots).
-  globals: enabledFlags(FeatureFlag.PM31948_OrgUserNotificationBanner),
 };
