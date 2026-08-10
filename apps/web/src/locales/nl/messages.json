@@ -1252,7 +1252,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "De gedeelde map $NAME$ zal permanent worden verwijderd. De items in de map zullen niet worden verwijderd.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1261,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Deze gedeelde mappen worden permanent verwijderd. De items in de mappen worden niet verwijderd."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ gedeelde mappen worden definitief verwijderd.",
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Geen bestand gekozen"
   },
+  "noFileSelected": {
+    "message": "Geen bestand gekozen"
+  },
+  "fileChosen": {
+    "message": "Bestand gekozen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Bestand toegevoegd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ bestanden toegevoegd: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Bestand verwijderd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 bestand geüpload"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ bestanden geüpload",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Geüploade bestanden"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klik om te uploaden of sleep en zet neer"
+  },
+  "chooseFiles": {
+    "message": "Bestanden kiezen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. bestandsgrootte: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "of kopieer en plak de inhoud van het importbestand"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "In afwachting van opzegging"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Het abonnement is gemarkeerd voor opzegging aan het einde van de huidige betalingsperiode."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Slechte klantenservice",
