@@ -40,7 +40,7 @@ describe("PamUserNavSlotComponent", () => {
         {
           provide: I18nService,
           useValue: new I18nMockService({
-            pamMyAccess: "My access",
+            pamAccessRequestsTitle: "Access requests",
           }),
         },
       ],
