@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 
 import { BannerModule, FileUploadComponent } from "@bitwarden/components";
 import { DiscountBadgeComponent } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -31,6 +32,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     FileUploadComponent,
     HeaderModule,
     SharedModule,
+    Vfo1I18nPipe,
   ],
   declarations: [
     BillingHistoryComponent,

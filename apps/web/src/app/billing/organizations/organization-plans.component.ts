@@ -57,6 +57,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -103,6 +104,7 @@ const Allowed2020PlansForLegacyProviders = [
     EnterBillingAddressComponent,
     IconComponent,
     CartSummaryComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {

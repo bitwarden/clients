@@ -23,7 +23,10 @@
         {{ "alreadyHaveSubscriptionQuestion" | i18n }}
       </p>
       <p class="tw-text-sm tw-text-muted tw-mb-0.5">
-        {{ "alreadyHaveSubscriptionSelfHostedMessage" | i18n }}
+        {{
+          "alreadyHaveSubscriptionSelfHostedMessage"
+            | vfo1I18n: "alreadyHaveSubscriptionSelfHostedMessageV2"
+        }}
       </p>
       <a
         bitLink
@@ -63,7 +66,7 @@
             text: ('upgradeToFamilies' | i18n),
             icon: { type: 'bwi-external-link', position: 'after' },
           }"
-          [features]="familiesFeatures"
+          [features]="familiesFeatures()"
           (buttonClick)="onFamiliesUpgradeClick()"
         >
           <h3 slot="title" bitTypography="h3" class="tw-m-0">{{ "families" | i18n }}</h3>

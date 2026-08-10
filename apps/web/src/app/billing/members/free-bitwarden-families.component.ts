@@ -21,6 +21,7 @@ import {
   DialogService,
   IconButtonModule,
   MenuModule,
+  NoItemsModule,
   TableModule,
   ToastService,
   TypographyModule,
@@ -29,6 +30,7 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -46,10 +48,12 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
     I18nPipe,
     IconButtonModule,
     MenuModule,
+    NoItemsModule,
     TableModule,
     TypographyModule,
     IconComponent,
     IconModule,
+    Vfo1I18nPipe,
   ],
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
