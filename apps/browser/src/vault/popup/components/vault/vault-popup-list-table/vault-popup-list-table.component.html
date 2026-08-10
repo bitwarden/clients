@@ -1,11 +1,14 @@
 <!--
   The host is pulled out to the popup's full width (negative margins on the host) so the toolbar's
   bottom border spans edge to edge. Only that border should bleed, so the inset is put back on the
-  content: every row and group header (`[role=row]`) and the projected empty state. The values
-  track `popup-page`'s scroll-region padding, which halves in compact mode.
+  content: every row and group header (`[role=row]`) and the projected empty state.
+
+  Those insets are fixed at `3` while the host's margins track compact density, so they are 4px
+  wide in compact mode. Left as-is deliberately: `table/v2` has no compact support at all, and that
+  belongs in the component library rather than being patched from here.
 -->
 <bit-table-v2
-  class="[&_[role=row]]:tw-mx-3 bit-compact:[&_[role=row]]:tw-mx-2"
+  class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
   presentation="list"
   height="fill"
@@ -17,13 +20,9 @@
     The toolbar holds this presentation's search bar, so its bottom edge is the boundary the list
     scrolls under — `popup-page`'s above-scroll-area is empty here. Mirrors that separator's
     behavior: hidden at rest, revealed once the list is scrolled.
-
-    `bit-table-toolbar` pads with a flat `tw-p-3` and declares no compact variant, so its spacing is
-    overridden here to track the popup's density the way the rows do. Targets the toolbar's single
-    padded child rather than the host, whose padding is not what spaces the contents.
   -->
   <bit-table-toolbar
-    class="tw-transition-colors tw-duration-200 bit-compact:[&>div]:tw-p-2 bit-compact:[&>div]:tw-gap-1.5"
+    class="tw-transition-colors tw-duration-200"
     [class.!tw-border-transparent]="!pageScrolled()"
   >
     <bit-search
@@ -41,7 +40,7 @@
     can't tell a zero-result search from an empty vault — its fallback would always read "Nothing to
     show". Project the empty state so the search case keeps its specific copy and recovery hint.
   -->
-  <bit-no-items slot="empty" class="tw-mx-3 bit-compact:tw-mx-2">
+  <bit-no-items slot="empty" class="tw-mx-3">
     <span slot="title">{{
       (hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n
     }}</span>
