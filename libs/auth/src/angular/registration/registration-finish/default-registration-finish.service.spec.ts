@@ -219,6 +219,7 @@ describe("DefaultRegistrationFinishService", () => {
   describe("finishRegistration() - SDK flow", () => {
     let email: string;
     let emailVerificationToken: string;
+    let salesAssistedToken: string;
     let salt: MasterPasswordSalt;
     let passwordInputResult: PasswordInputResult;
 
@@ -237,6 +238,7 @@ describe("DefaultRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
       salt = "test@email.com" as MasterPasswordSalt;
 
       passwordInputResult = {
@@ -328,6 +330,7 @@ describe("DefaultRegistrationFinishService", () => {
         emergencyAccessId,
         providerInviteToken,
         providerUserId,
+        salesAssistedToken,
       );
 
       expect(postKeysForUserPasswordRegistration).toHaveBeenCalledWith(
@@ -337,6 +340,7 @@ describe("DefaultRegistrationFinishService", () => {
           master_password: passwordInputResult.newPassword,
           master_password_hint: passwordInputResult.newPasswordHint,
           email_verification_token: emailVerificationToken,
+          sales_assisted_token: undefined,
           organization_user_id: undefined,
           org_invite_token: undefined,
           org_sponsored_free_family_plan_token: undefined,
