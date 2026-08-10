@@ -9,7 +9,11 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService, EncryptService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  EncryptService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -30,7 +34,6 @@ import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.serv
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";

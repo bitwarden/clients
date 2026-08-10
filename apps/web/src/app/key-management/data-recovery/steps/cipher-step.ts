@@ -1,11 +1,10 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType, EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptionType, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { LogRecorder } from "../log-recorder";
 

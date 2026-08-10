@@ -9,6 +9,7 @@ import {
   EncryptService,
   KeyGenerationService,
   LegacyCompatKeyService,
+  SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
 import {
@@ -24,7 +25,6 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";

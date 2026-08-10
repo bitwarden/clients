@@ -6,7 +6,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
@@ -15,7 +14,12 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CsprngArray,
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";

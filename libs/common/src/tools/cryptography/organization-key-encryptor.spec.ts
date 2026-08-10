@@ -1,10 +1,9 @@
 import { mock } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { EncString } from "../../key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "../../types/guid";
 import { OrgKey } from "../../types/key";
 import { DataPacker } from "../state/data-packer.abstraction";

@@ -18,6 +18,7 @@ import {
   KdfType,
   LegacyCompatKeyService,
   PBKDF2KdfConfig,
+  SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -35,7 +36,6 @@ import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";

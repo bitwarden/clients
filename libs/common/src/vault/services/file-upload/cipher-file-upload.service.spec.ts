@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
@@ -11,7 +11,6 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { FileUploadService } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherSdkService } from "../../abstractions/cipher-sdk.service";
 import { CipherType } from "../../enums/cipher-type";

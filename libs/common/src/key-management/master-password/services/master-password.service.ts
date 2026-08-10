@@ -3,7 +3,12 @@
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService, KdfConfig, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  KdfConfig,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -13,7 +18,6 @@ import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.en
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,

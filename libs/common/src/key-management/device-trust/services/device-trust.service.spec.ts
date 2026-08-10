@@ -18,6 +18,7 @@ import {
   CsprngArray,
   EncryptionType,
   EncryptService,
+  SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
@@ -40,7 +41,6 @@ import { AbstractStorageService } from "../../../platform/abstractions/storage.s
 import { StorageLocation } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";

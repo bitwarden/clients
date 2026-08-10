@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { Decryptable } from "@bitwarden/legacy-crypto";
+import { Decryptable, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -9,7 +9,6 @@ import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import {
   CipherRepromptType,

@@ -1,9 +1,9 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import {
   SignedSecurityState,
+  SymmetricCryptoKey,
   UnsignedPublicKey,
   VerifyingKey,
   WrappedPrivateKey,

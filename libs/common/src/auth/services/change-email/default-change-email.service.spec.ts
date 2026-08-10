@@ -12,6 +12,7 @@ import {
   DEFAULT_KDF_CONFIG,
   KdfConfig,
   LegacyCompatKeyService,
+  SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -24,7 +25,6 @@ import {
   MasterPasswordUnlockData,
 } from "../../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 

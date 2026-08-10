@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -20,7 +20,6 @@ import {
 } from "../../../../spec/utils";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { MockProxy } from "../../../platform/spec/mock-deep";
 import { UserId } from "../../../types/guid";

@@ -33,7 +33,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
@@ -52,6 +51,7 @@ import {
   CryptoFunctionService,
   EncryptService,
   SignedPublicKey,
+  SymmetricCryptoKey,
   WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
