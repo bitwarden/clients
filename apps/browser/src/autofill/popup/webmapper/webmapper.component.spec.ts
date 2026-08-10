@@ -18,7 +18,7 @@ const HOST = "example.com";
 const PATH = "/login";
 
 function fieldEntry(selector: string) {
-  return { selector, warnings: [], alternates: [] as string[] };
+  return { selector, warnings: [] as string[], alternates: [] as string[] };
 }
 
 describe("WebmapperComponent", () => {
@@ -33,7 +33,7 @@ describe("WebmapperComponent", () => {
   const mockTab = { id: 42, url: "https://example.com/login" } as chrome.tabs.Tab;
 
   /** Finds the listener the component registered for a given chrome event. */
-  function listenerFor(event: unknown): (msg: any) => void {
+  function listenerFor(event: unknown): (...args: any[]) => void {
     const call = (BrowserApi.addListener as jest.Mock).mock.calls.find((c) => c[0] === event);
     return call?.[1];
   }
