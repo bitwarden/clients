@@ -275,8 +275,8 @@ export class WindowMain {
     if (this.win != null) {
       if (!this.win.isVisible()) {
         applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
-        this.restoreMaximizedState();
       }
+      this.restoreMaximizedState();
       this.win.show();
     }
   }
