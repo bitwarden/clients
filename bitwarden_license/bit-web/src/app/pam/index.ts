@@ -16,7 +16,8 @@ export {
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
 
 export type {
-  AccessDeciderKind,
+  AccessApprover,
+  AccessDecider,
   AccessDecisionVerdict,
   AccessLeaseExtensionRequest,
   AccessLeaseId,
@@ -51,7 +52,7 @@ export {
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
-export { findHumanDecision } from "./helpers/find-human-decision";
+export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
