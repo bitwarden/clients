@@ -14,7 +14,14 @@
   </popup-header>
 
   @if (vaultState === VaultStateEnum.Empty) {
-    <vault-fade-in-out>
+    <!--
+      The host needs a definite height for the centering below to resolve. Its default is
+      `display: inline`, which works against a block scroll region but not when `fillContent`
+      makes that region a flex column: the host blockifies into a flex item whose main size is
+      content-derived, so a percentage height on its child would compute to `auto` and the
+      graphic would pin to the top.
+    -->
+    <vault-fade-in-out class="tw-block tw-h-full">
       <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
         <bit-no-items [icon]="vaultIcon">
           <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
