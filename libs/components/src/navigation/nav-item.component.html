@@ -174,7 +174,7 @@
     <div
       [title]="text()"
       class="tw-py-0 tw-flex tw-items-center tw-h-full"
-      [class.tw-gap-2]="hasStartIconTile()"
+      [class.tw-gap-1]="hasStartIconTile()"
       [class.tw-text-center]="!open"
       [class.tw-justify-center]="!open"
       [class.tw-font-normal]="!showActiveStyles()"
@@ -182,7 +182,7 @@
     >
       <!-- Leading icon tile: inside the interactive element and, when collapsed, the sole rail glyph -->
       <ng-container *ngTemplateOutlet="iconTileSlot"></ng-container>
-      @if ((icon() || treeDepth() > 1) && (open || !hasStartIconTile())) {
+      @if ((icon() || treeDepth() > 1) && !hasStartIconTile()) {
         <div class="tw-size-6 tw-flex tw-items-center tw-justify-center">
           @if (icon()) {
             <bit-icon

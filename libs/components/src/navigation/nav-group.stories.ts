@@ -280,12 +280,12 @@ export const WithStartSlot: StoryObj<NavGroupComponent> = {
     template: /*html*/ `
       <bit-side-nav>
         <bit-nav-group text="With Icon Tile" [route]="['a']">
-          <bit-icon-tile class="tw-me-2" icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
           <bit-nav-item text="Child A" route="aa"></bit-nav-item>
           <bit-nav-item text="Child B" route="ab"></bit-nav-item>
         </bit-nav-group>
         <bit-nav-group text="Alongside an icon" [route]="['b']" icon="bwi-filter">
-          <bit-icon-tile class="tw-me-2" icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
           <bit-nav-item text="Child A" route="ba"></bit-nav-item>
           <bit-nav-item text="Child B" route="bb"></bit-nav-item>
         </bit-nav-group>

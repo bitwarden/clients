@@ -4,7 +4,12 @@
 }
 
 <ng-template #defaultContent>
-  <div [attr.id]="contentId" [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')" role="group">
+  <div
+    [attr.id]="contentId"
+    [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
+    role="group"
+    class="tw-flex tw-flex-col tw-gap-0.5"
+  >
     <ng-content></ng-content>
   </div>
 </ng-template>
@@ -76,7 +81,7 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       } @else {
         <!-- Magic number needed for visual consistency -->
-        <div class="tw-ps-[19px] tw-py-0.5">
+        <div class="tw-ps-[19px] tw-pt-1">
           <div
             class="tw-flex tw-flex-col tw-gap-0.5 tw-ps-3"
             [class.tw-items-center]="!sideNavOpen()"
