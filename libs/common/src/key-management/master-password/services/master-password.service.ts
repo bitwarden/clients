@@ -4,6 +4,8 @@ import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs"
 
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -23,7 +25,6 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";

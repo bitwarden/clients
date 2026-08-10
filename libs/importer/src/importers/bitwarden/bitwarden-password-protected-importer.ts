@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,6 +13,8 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KeyGenerationService } from "@bitwarden/legacy-crypto";
 import {
   BitwardenJsonExport,
   BitwardenPasswordProtectedFileFormat,

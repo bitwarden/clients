@@ -3,6 +3,8 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
@@ -22,7 +24,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncString } from "../../crypto/models/enc-string";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";

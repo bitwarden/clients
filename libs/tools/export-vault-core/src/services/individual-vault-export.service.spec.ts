@@ -3,7 +3,6 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -40,6 +39,8 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
