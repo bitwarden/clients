@@ -126,8 +126,16 @@
   -->
   <ng-content select="bit-table-toolbar"></ng-content>
 
+  <!--
+    Every row draws a bottom divider, including the last, which would stack with
+    the container's own bottom border. Pulling the body up a pixel lets the
+    container's border — the one that draws the rounded outline — own that edge.
+    Positional variants (`last:`) can't do this: under virtualization the last
+    rendered row is wherever the viewport happens to be scrolled.
+  -->
   <div
     role="table"
+    class="-tw-mb-px"
     [class.tw-flex]="isFill()"
     [class.tw-min-h-0]="isFill()"
     [class.tw-flex-1]="isFill()"

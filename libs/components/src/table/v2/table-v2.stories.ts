@@ -763,7 +763,7 @@ export const EmptyCells: Story = {
   render: () => ({
     props: { table: sparseTable },
     template: `
-      <bit-table-v2 [tableDef]="table" cellPlaceholder="Not set">
+      <bit-table-v2 [tableDef]="table">
         <bit-column>
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">
@@ -773,7 +773,7 @@ export const EmptyCells: Story = {
         </bit-column>
         <bit-column>
           <bit-header-cell>Other</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.other; let row" placeholder="">{{ row.other }}</bit-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,

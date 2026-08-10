@@ -73,7 +73,9 @@ export class BitRowComponent {
             "hover:tw-bg-hover-default",
           ]
         : [
-            "tw-min-h-14",
+            // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
+            // below it, breaking the offsets the scroll strategy positions rows at.
+            ...(this.fixedHeight() != null ? [] : ["tw-min-h-14"]),
             "tw-border-0",
             "tw-border-b",
             "tw-border-solid",
