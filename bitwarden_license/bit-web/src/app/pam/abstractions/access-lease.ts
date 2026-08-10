@@ -1,5 +1,6 @@
 export type {
-  AccessDeciderKind,
+  AccessApprover,
+  AccessDecider,
   AccessDecisionVerdict,
   AccessLeaseExtensionRequest,
   AccessLeaseId,
