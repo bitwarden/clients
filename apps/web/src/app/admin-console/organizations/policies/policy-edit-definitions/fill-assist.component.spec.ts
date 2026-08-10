@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -12,6 +12,10 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -85,9 +89,19 @@ describe.each`
   let component: FillAssistPolicyComponent;
   let fixture: ComponentFixture<FillAssistPolicyComponent>;
   let accountService: FakeAccountService;
+  let environmentSubject: BehaviorSubject<Environment>;
+
+  function makeEnvironment(isCloud: boolean): Environment {
+    const env = mock<Environment>();
+    env.isCloud.mockReturnValue(isCloud);
+    return env;
+  }
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(USER_ID);
+    environmentSubject = new BehaviorSubject<Environment>(makeEnvironment(true));
+    const environmentService = mock<EnvironmentService>();
+    (environmentService as any).environment$ = environmentSubject;
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -97,6 +111,7 @@ describe.each`
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
         { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
+        { provide: EnvironmentService, useValue: environmentService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -166,5 +181,22 @@ describe.each`
     component.data?.patchValue({ rulesUrl: "" });
 
     await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrl");
+  });
+
+  describe("isCloud$", () => {
+    it("emits true for cloud environments", async () => {
+      // Default in beforeEach is cloud
+      const isCloud = await firstValueFrom((component as any).isCloud$);
+
+      expect(isCloud).toBe(true);
+    });
+
+    it("emits false for self-hosted environments", async () => {
+      environmentSubject.next(makeEnvironment(false));
+
+      const isCloud = await firstValueFrom((component as any).isCloud$);
+
+      expect(isCloud).toBe(false);
+    });
   });
 });

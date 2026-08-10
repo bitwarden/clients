@@ -18,6 +18,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -30,7 +31,7 @@ import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 
 const ORG_ID = "test-org-id";
 
-export type PolicyDialogStoryArgs = { enabled: boolean };
+export type PolicyDialogStoryArgs = { enabled: boolean; isCloud?: boolean };
 
 /** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
 export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
@@ -182,6 +183,16 @@ function buildPolicyDialogMeta(
                   }),
                 ),
               putPolicy: () => Promise.resolve(),
+            },
+          },
+          {
+            // Only FillAssistPolicy's component injects this today. Providing it
+            // unconditionally is harmless for every other policy. Default to cloud so
+            // policies that gate UI on isCloud() render their full form in the story
+            // unless a story explicitly sets `isCloud: false`.
+            provide: EnvironmentService,
+            useValue: {
+              environment$: of({ isCloud: () => args.isCloud ?? true }),
             },
           },
         ],

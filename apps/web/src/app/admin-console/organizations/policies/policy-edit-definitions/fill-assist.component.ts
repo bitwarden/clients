@@ -1,3 +1,4 @@
+import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
   AbstractControl,
@@ -8,7 +9,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -16,6 +17,7 @@ import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/reques
 import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
@@ -72,6 +74,7 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "fill-assist.component.html",
   imports: [
+    AsyncPipe,
     ReactiveFormsModule,
     CheckboxModule,
     FormFieldModule,
@@ -83,6 +86,13 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
 export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
+  private readonly environmentService = inject(EnvironmentService);
+
+  // Self-hosted deployments configure the rules feed via their server config,
+  // not per-org — so the URL field is hidden and only the enable toggle is shown.
+  protected readonly isCloud$: Observable<boolean> = this.environmentService.environment$.pipe(
+    map((env) => env.isCloud()),
+  );
 
   constructor() {
     super();
@@ -117,6 +127,7 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "fill-assist-v2.component.html",
   imports: [
+    AsyncPipe,
     ReactiveFormsModule,
     CheckboxModule,
     FormFieldModule,
