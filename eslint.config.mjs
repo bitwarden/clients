@@ -16,10 +16,9 @@ import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
 /// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
-/// SDK. Two kinds of file may import it, and both sets only ever shrink: the re-export shims left
-/// behind at the pre-move paths, allowlisted at the bottom of this config via `allowLegacyCrypto`,
-/// and the call sites still waiting on an SDK replacement, which opt out inline with
-/// `// eslint-disable-next-line no-restricted-imports`.
+/// SDK. The call sites still waiting on an SDK replacement opt out inline with
+/// `// eslint-disable-next-line no-restricted-imports`; that set only ever shrinks. The package's
+/// own files are exempt via the `allowLegacyCrypto` argument to `buildNoRestrictedImports`.
 const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
   group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
   message:
@@ -679,22 +678,6 @@ export default tseslint.config(
         false,
         true,
       ),
-    },
-  },
-
-  /// The re-export shims left behind when the crypto primitives moved to @bitwarden/legacy-crypto.
-  /// These are the only files permitted to import that package. Delete an entry here whenever its
-  /// shim is deleted; never add one.
-  {
-    files: [
-      "libs/common/src/key-management/crypto/**/*.ts",
-      "libs/common/src/key-management/types.ts",
-      "libs/common/src/platform/models/domain/enc-array-buffer.ts",
-      "libs/common/src/platform/models/domain/symmetric-crypto-key.ts",
-      "libs/common/src/types/csprng.ts",
-    ],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES, false, true),
     },
   },
 
