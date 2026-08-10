@@ -200,8 +200,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -389,8 +387,10 @@ import {
 import {
   DefaultKeyGenerationService,
   DefaultLegacyCompatKeyService,
+  EncryptServiceImplementation,
   KeyGenerationService,
   LegacyCompatKeyService,
+  WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import {
   DefaultOrganizationInviteLinkApiService,

@@ -87,7 +87,6 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -206,6 +205,7 @@ import {
 import {
   DefaultKeyGenerationService,
   DefaultLegacyCompatKeyService as LegacyCompatKeyService,
+  EncryptServiceImplementation,
   KeyGenerationService,
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
