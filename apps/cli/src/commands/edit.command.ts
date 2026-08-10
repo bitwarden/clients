@@ -124,23 +124,33 @@ export class EditCommand {
     // web/browser/desktop clients disable those fields for editing). If those redacted `null`s
     // are round-tripped back through `bw edit`, preserve the real, already-decrypted values
     // instead of letting them be overwritten and lost. See PM-16160/PM-33526.
+    //
+    // Hidden field values are restored by matching on field name rather than array position,
+    // since the request's `fields` array can freely add, remove, or reorder entries relative to
+    // the original cipher (the CLI has no UI to prevent this, unlike the other clients).
+    //
+    // Only fall back to the original value when the request's value is missing/`null` (i.e. the
+    // redacted sentinel). An explicit non-null value in the request is a deliberate update (e.g.
+    // rotating a password via automation) and must still be applied.
     const canViewPassword = cipherView.viewPassword;
     const originalLoginPassword = cipherView.login?.password;
     const originalLoginTotp = cipherView.login?.totp;
-    const originalHiddenFieldValues = (cipherView.fields ?? []).map((f) =>
-      f.type === FieldType.Hidden ? f.value : undefined,
+    const originalHiddenFieldValuesByName = new Map(
+      (cipherView.fields ?? [])
+        .filter((f) => f.type === FieldType.Hidden)
+        .map((f) => [f.name, f.value]),
     );
 
     cipherView = CipherExport.toView(req, cipherView);
 
     if (!canViewPassword) {
       if (cipherView.login != null) {
-        cipherView.login.password = originalLoginPassword;
-        cipherView.login.totp = originalLoginTotp;
+        cipherView.login.password ??= originalLoginPassword;
+        cipherView.login.totp ??= originalLoginTotp;
       }
-      cipherView.fields?.forEach((field, i) => {
-        if (field.type === FieldType.Hidden && originalHiddenFieldValues[i] !== undefined) {
-          field.value = originalHiddenFieldValues[i];
+      cipherView.fields?.forEach((field) => {
+        if (field.type === FieldType.Hidden && originalHiddenFieldValuesByName.has(field.name)) {
+          field.value ??= originalHiddenFieldValuesByName.get(field.name);
         }
       });
     }

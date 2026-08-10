@@ -195,6 +195,140 @@ describe("EditCommand", () => {
       expect(savedView.fields[0].value).toBe("real-hidden-value");
       expect(savedView.fields[1].value).toBe("visible-value");
     });
+
+    it("preserves hidden field values by name when fields are reordered in the request", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.login = Object.assign(new LoginView(), {});
+      cipherView.fields = [
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "a", value: "real-a" }),
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "b", value: "real-b" }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      // Request reorders the fields (b before a) relative to the original cipher.
+      const redactedReq: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        login: {},
+        fields: [
+          { type: FieldType.Hidden, name: "b", value: null },
+          { type: FieldType.Hidden, name: "a", value: null },
+        ],
+      };
+      const encodedRedactedReq = Buffer.from(JSON.stringify(redactedReq)).toString("base64");
+
+      const result = await command.run("item", cipherId, encodedRedactedReq, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      const savedByName = new Map(savedView.fields.map((f) => [f.name, f.value]));
+      expect(savedByName.get("a")).toBe("real-a");
+      expect(savedByName.get("b")).toBe("real-b");
+    });
+
+    it("preserves hidden field values by name when a field is removed from the request", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.login = Object.assign(new LoginView(), {});
+      cipherView.fields = [
+        Object.assign(new FieldView(), {
+          type: FieldType.Text,
+          name: "note",
+          value: "visible-value",
+        }),
+        Object.assign(new FieldView(), {
+          type: FieldType.Hidden,
+          name: "secret",
+          value: "real-hidden-value",
+        }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      // Request drops the leading "note" field, shifting "secret" from index 1 to index 0.
+      const redactedReq: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        login: {},
+        fields: [{ type: FieldType.Hidden, name: "secret", value: null }],
+      };
+      const encodedRedactedReq = Buffer.from(JSON.stringify(redactedReq)).toString("base64");
+
+      const result = await command.run("item", cipherId, encodedRedactedReq, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(savedView.fields[0].value).toBe("real-hidden-value");
+    });
+
+    it("applies explicit new password, totp, and hidden field values from a hide-passwords user", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.login = Object.assign(new LoginView(), {
+        password: "real-password",
+        totp: "real-totp",
+      });
+      cipherView.fields = [
+        Object.assign(new FieldView(), {
+          type: FieldType.Hidden,
+          name: "secret",
+          value: "real-hidden-value",
+        }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      // A user without permission to view the password/hidden fields can still supply explicit
+      // new values (e.g. via automation rotating a credential); these must not be discarded in
+      // favor of the original values.
+      const req: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        login: { password: "new-password", totp: "new-totp" },
+        fields: [{ type: FieldType.Hidden, name: "secret", value: "new-hidden-value" }],
+      };
+      const encodedReq = Buffer.from(JSON.stringify(req)).toString("base64");
+
+      const result = await command.run("item", cipherId, encodedReq, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(savedView.login.password).toBe("new-password");
+      expect(savedView.login.totp).toBe("new-totp");
+      expect(savedView.fields[0].value).toBe("new-hidden-value");
+    });
   });
 
   describe("editOrganizationCollection", () => {
