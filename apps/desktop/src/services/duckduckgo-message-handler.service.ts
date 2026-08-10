@@ -4,10 +4,8 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
-import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { DuckDuckGoEncstring } from "@bitwarden/common/key-management/crypto/dangerous/dangerous_duckduckgo_crypto";
 import {
   EncryptedString,
   EncString,
@@ -19,7 +17,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType } from "@bitwarden/legacy-crypto";
+import {
+  DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
+  DuckDuckGoEncstring,
+  EncryptionType,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
