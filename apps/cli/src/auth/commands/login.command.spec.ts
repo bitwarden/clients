@@ -32,10 +32,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 

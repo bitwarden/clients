@@ -13,7 +13,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptionType } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -36,7 +36,6 @@ import { StorageLocation } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../../types/csprng";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";

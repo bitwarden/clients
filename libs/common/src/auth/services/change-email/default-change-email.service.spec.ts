@@ -12,7 +12,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { CsprngArray, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { FakeMasterPasswordService } from "../../../key-management/master-password/services/fake-master-password.service";
@@ -25,7 +25,6 @@ import {
 } from "../../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../../types/csprng";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 

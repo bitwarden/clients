@@ -23,7 +23,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
 import {
@@ -34,7 +33,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptionType } from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 

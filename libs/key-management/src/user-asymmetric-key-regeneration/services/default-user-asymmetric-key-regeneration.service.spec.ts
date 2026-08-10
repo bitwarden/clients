@@ -11,13 +11,12 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { CsprngArray, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";

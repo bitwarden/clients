@@ -36,9 +36,10 @@ import {
   FakeStateProvider,
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray } from "@bitwarden/legacy-crypto";
 
 import { DefaultKeyService } from "./key.service";
 

@@ -9,9 +9,10 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray } from "@bitwarden/legacy-crypto";
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
 
