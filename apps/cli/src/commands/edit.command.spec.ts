@@ -329,6 +329,44 @@ describe("EditCommand", () => {
       expect(savedView.login.totp).toBe("new-totp");
       expect(savedView.fields[0].value).toBe("new-hidden-value");
     });
+
+    it("preserves each hidden field's own value in order when multiple fields share a name", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.viewPassword = false;
+      cipherView.fields = [
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "dup", value: "first" }),
+        Object.assign(new FieldView(), { type: FieldType.Hidden, name: "dup", value: "second" }),
+      ];
+
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockImplementation(async (view: any) => view);
+
+      const req: any = {
+        type: CipherType.Login,
+        name: "Renamed item",
+        fields: [
+          { type: FieldType.Hidden, name: "dup", value: null },
+          { type: FieldType.Hidden, name: "dup", value: null },
+        ],
+      };
+      const encodedReq = Buffer.from(JSON.stringify(req)).toString("base64");
+
+      const result = await command.run("item", cipherId, encodedReq, {});
+
+      expect(result.success).toBe(true);
+      const savedView = cipherService.updateWithServer.mock.calls[0][0] as CipherView;
+      expect(savedView.fields[0].value).toBe("first");
+      expect(savedView.fields[1].value).toBe("second");
+    });
   });
 
   describe("editOrganizationCollection", () => {
