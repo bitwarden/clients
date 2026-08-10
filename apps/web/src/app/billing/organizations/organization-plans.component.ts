@@ -56,6 +56,8 @@ import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
@@ -520,6 +522,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
@@ -1028,7 +1031,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           .orgKeys$(userId!)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId() as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey!);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey!);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString as string);
     }
 

@@ -11,6 +11,8 @@ import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeGlobalStateProvider } from "../../../../../spec";
@@ -41,6 +43,7 @@ describe("DefaultOrganizationInviteService", () => {
   let apiService: MockProxy<ApiService>;
   let logoutService: MockProxy<LogoutService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -56,6 +59,7 @@ describe("DefaultOrganizationInviteService", () => {
     apiService = mock();
     logoutService = mock();
     keyService = mock();
+    legacyCompatKeyService = mock();
     encryptService = mock();
     policyApiService = mock();
     policyService = mock();
@@ -71,6 +75,7 @@ describe("DefaultOrganizationInviteService", () => {
       apiService,
       logoutService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       policyApiService,
       policyService,
@@ -129,11 +134,11 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("initializes an organization when given an invite where initOrganization is true", async () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
-      keyService.makeOrgKey.mockResolvedValue([
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "string" } as EncString,
         mockOrgKey,
       ]);
-      keyService.makeKeyPair.mockResolvedValue([
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
@@ -144,8 +149,8 @@ describe("DefaultOrganizationInviteService", () => {
 
       expect(result).toBe(true);
       expect(organizationUserApiService.postOrganizationUserAcceptInit).toHaveBeenCalled();
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
+      expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(apiService.refreshIdentityToken).toHaveBeenCalled();
       expect(organizationUserApiService.postOrganizationUserAccept).not.toHaveBeenCalled();
       expect(logoutService.logout).not.toHaveBeenCalled();
@@ -154,11 +159,11 @@ describe("DefaultOrganizationInviteService", () => {
     });
 
     it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
-      keyService.makeOrgKey.mockResolvedValue([
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "string" } as EncString,
         "orgPrivateKey" as unknown as OrgKey,
       ]);
-      keyService.makeKeyPair.mockResolvedValue([
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
@@ -176,11 +181,11 @@ describe("DefaultOrganizationInviteService", () => {
     });
 
     it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
-      keyService.makeOrgKey.mockResolvedValue([
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "string" } as EncString,
         "orgPrivateKey" as unknown as OrgKey,
       ]);
-      keyService.makeKeyPair.mockResolvedValue([
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "orgPublicKey",
         { encryptedString: "string" } as EncString,
       ]);
@@ -351,11 +356,11 @@ describe("DefaultOrganizationInviteService", () => {
 
       beforeEach(() => {
         invite = createOrgInvite({ initOrganization: true });
-        keyService.makeOrgKey.mockResolvedValue([
+        legacyCompatKeyService.makeOrgKey.mockResolvedValue([
           { encryptedString: "string" } as EncString,
           mockOrgKey,
         ]);
-        keyService.makeKeyPair.mockResolvedValue([
+        legacyCompatKeyService.makeKeyPair.mockResolvedValue([
           "orgPublicKey",
           { encryptedString: "string" } as EncString,
         ]);
@@ -363,7 +368,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
 
       it("throws when the encrypted org key has a null encryptedString", async () => {
-        keyService.makeOrgKey.mockResolvedValue([
+        legacyCompatKeyService.makeOrgKey.mockResolvedValue([
           { encryptedString: null } as unknown as EncString,
           mockOrgKey,
         ]);
@@ -375,7 +380,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
 
       it("throws when the encrypted org private key has a null encryptedString", async () => {
-        keyService.makeKeyPair.mockResolvedValue([
+        legacyCompatKeyService.makeKeyPair.mockResolvedValue([
           "orgPublicKey",
           { encryptedString: null } as unknown as EncString,
         ]);

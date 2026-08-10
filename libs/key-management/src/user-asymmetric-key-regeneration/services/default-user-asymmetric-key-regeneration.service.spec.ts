@@ -16,6 +16,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";
@@ -43,6 +45,7 @@ function setupUserKeyValidation(
   keyService: MockProxy<KeyService>,
   encryptService: MockProxy<EncryptService>,
 ) {
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const cipher = new Cipher();
   cipher.id = "id";
   cipher.edit = true;
@@ -56,7 +59,11 @@ function setupUserKeyValidation(
     new SymmetricCryptoKey(makeStaticByteArray(64)),
   );
   encryptService.decryptString.mockResolvedValue("mockDecryptedString");
-  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  (window as any).bitwardenContainerService = new ContainerService(
+    keyService,
+    encryptService,
+    legacyCompatKeyService,
+  );
 }
 
 describe("regenerateIfNeeded", () => {

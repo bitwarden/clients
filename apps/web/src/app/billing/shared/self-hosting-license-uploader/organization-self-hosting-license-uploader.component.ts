@@ -18,7 +18,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-hosting-license-uploader/abstract-self-hosting-license-uploader.component";
 
@@ -49,7 +50,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     protected readonly tokenService: TokenService,
     private readonly apiService: ApiService,
     private readonly encryptService: EncryptService,
-    private readonly keyService: KeyService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly syncService: SyncService,
     private readonly accountService: AccountService,
@@ -61,7 +62,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   protected async submit(): Promise<void> {
     await super.submit();
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const orgKey = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
+    const orgKey = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
     const key = orgKey[0].encryptedString;
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
@@ -69,7 +70,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
       orgKey[1],
     );
     const collectionCt = collection.encryptedString;
-    const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
+    const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgKey[1]);
 
     const fd = new FormData();
     fd.append("license", this.formValue.file);

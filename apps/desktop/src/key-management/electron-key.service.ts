@@ -22,31 +22,23 @@ import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.servic
 // TODO Remove this class once biometric client key half storage is moved https://bitwarden.atlassian.net/browse/PM-22342
 export class ElectronKeyService extends DefaultKeyService {
   constructor(
-    masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    keyGenerationService: KeyGenerationService,
     cryptoFunctionService: CryptoFunctionService,
     encryptService: EncryptService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
     stateService: StateService,
-    accountService: AccountService,
     stateProvider: StateProvider,
     private biometricStateService: BiometricStateService,
-    kdfConfigService: KdfConfigService,
     private biometricService: DesktopBiometricsService,
     accountCryptographicStateService: AccountCryptographicStateService,
   ) {
     super(
-      masterPasswordService,
-      keyGenerationService,
       cryptoFunctionService,
       encryptService,
       platformUtilsService,
       logService,
       stateService,
-      accountService,
       stateProvider,
-      kdfConfigService,
       accountCryptographicStateService,
     );
   }

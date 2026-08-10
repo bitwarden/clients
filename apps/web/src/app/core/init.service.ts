@@ -23,6 +23,8 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { UserId } from "@bitwarden/common/types/guid";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { VersionService } from "../platform/version.service";
 
@@ -49,6 +51,7 @@ export class InitService {
     @Inject(DOCUMENT) private document: Document,
     private configService: ConfigService,
     private sharedUnlockFollowerService: SharedUnlockFollowerService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {}
 
   init() {
@@ -81,7 +84,11 @@ export class InitService {
       }
       this.taskService.listenForTaskNotifications();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.legacyCompatKeyService,
+      );
       containerService.attachToGlobal(this.win);
     };
   }
