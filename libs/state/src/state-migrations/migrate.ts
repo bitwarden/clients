@@ -81,11 +81,12 @@ import { ConsolidateTrayToRunInBackground } from "./migrations/80-consolidate-tr
 import { EnableDesktopSharingIfBiometricsEnabled } from "./migrations/81-enable-desktop-sharing-if-biometrics-enabled";
 import { RemoveBrowserIntegrationEnabled } from "./migrations/82-remove-browser-integration-enabled";
 import { MoveWebAuthnPrfOptionsToCryptoState } from "./migrations/83-move-webauthn-prf-options-to-crypto-state";
+import { RenameOrganizationInviteToDirect } from "./migrations/84-rename-organization-invite-to-direct";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 83;
+export const CURRENT_VERSION = 84;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -170,7 +171,8 @@ export function createMigrationBuilder() {
     .with(ConsolidateTrayToRunInBackground, 79, 80)
     .with(EnableDesktopSharingIfBiometricsEnabled, 80, 81)
     .with(RemoveBrowserIntegrationEnabled, 81, 82)
-    .with(MoveWebAuthnPrfOptionsToCryptoState, 82, CURRENT_VERSION);
+    .with(MoveWebAuthnPrfOptionsToCryptoState, 82, 83)
+    .with(RenameOrganizationInviteToDirect, 83, CURRENT_VERSION);
 }
 
 export async function currentVersion(
