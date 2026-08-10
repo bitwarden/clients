@@ -25,6 +25,7 @@ import {
   buildMyAccessRequestRows,
   extensionsByLeaseId,
   toLeaseRow,
+  toRequestRow,
 } from "./my-access-row";
 
 /**
@@ -35,9 +36,9 @@ import {
  * pam `CLAUDE.md`): the page loads once on open and after every mutation reconciles itself, either
  * via an optimistic local patch (cancel/endLease) or an explicit reload (activate).
  *
- * Provided at the route level so each visit gets its own instance. View concerns (toasts, confirm
- * dialogs, the live countdown clock, action gating) stay in {@link MyAccessComponent}; this
- * service just owns state and the SDK round-trips.
+ * Provided on the "Access requests" shell route so each visit gets one instance shared across its
+ * tabs. View concerns (toasts, confirm dialogs, the live countdown clock, action gating) stay in
+ * the tab components; this service just owns state and the SDK round-trips.
  */
 @Injectable()
 export class MyAccessService {
@@ -79,12 +80,32 @@ export class MyAccessService {
 
   /**
    * Requests the requester can still act on: still pending a decision, or approved and awaiting
-   * activation.
+   * activation. Extension requests are surfaced separately (see {@link extensionRows$}), so
+   * {@link rows$} — which already folds them away — never mixes them in here.
    */
   readonly pendingRows$: Observable<MyAccessRequestRow[]> = this.rows$.pipe(
     map((rows) =>
       rows
         .filter((r) => r.status === "pending" || r.status === "approved")
+        .slice(0, MY_ACCESS_PAGE_LIMIT),
+    ),
+  );
+
+  /**
+   * Still-open extension requests (an extension is its own request pointing at a parent lease via
+   * `extensionOfLeaseId`; on approval it extends that lease in place rather than minting a new
+   * one). {@link rows$} folds these onto the originating grant, so they're rebuilt directly from
+   * the raw requests here to list them on their own. Terminal extensions (applied, denied, or
+   * cancelled) drop off — an applied one already shows as the "Extended" badge on its grant.
+   */
+  readonly extensionRows$: Observable<MyAccessRequestRow[]> = combineLatest([
+    this._requests$,
+    this._names$,
+  ]).pipe(
+    map(([requests, names]) =>
+      requests
+        .filter((r) => r.extensionOfLeaseId != null && r.status === "pending")
+        .map((r) => toRequestRow(r, names))
         .slice(0, MY_ACCESS_PAGE_LIMIT),
     ),
   );
