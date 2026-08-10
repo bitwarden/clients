@@ -40,7 +40,11 @@
     can't tell a zero-result search from an empty vault — its fallback would always read "Nothing to
     show". Project the empty state so the search case keeps its specific copy and recovery hint.
   -->
-  <bit-no-items slot="empty" class="tw-mx-3">
+  <!-- `bit-table-v2` renders its empty slot top-aligned; centered here to match the page-level
+       empty states (`my-auto` rather than a height, since the slot is a flex item). The negative
+       top margin cancels `bit-no-items`' own unconditional `tw-pt-6`, which would otherwise push
+       the content below the centered box. -->
+  <bit-no-items slot="empty" class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0">
     <span slot="title">{{
       (hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n
     }}</span>
