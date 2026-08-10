@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { BannerModule } from "@bitwarden/components";
+import { BannerModule, FileUploadComponent } from "@bitwarden/components";
 import { DiscountBadgeComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
@@ -25,12 +25,13 @@ import { UpdateLicenseComponent } from "./update-license.component";
 
 @NgModule({
   imports: [
-    SharedModule,
-    HeaderModule,
     BannerModule,
-    EnterPaymentMethodComponent,
-    EnterBillingAddressComponent,
     DiscountBadgeComponent,
+    EnterBillingAddressComponent,
+    EnterPaymentMethodComponent,
+    FileUploadComponent,
+    HeaderModule,
+    SharedModule,
     Vfo1I18nPipe,
   ],
   declarations: [
