@@ -24,7 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
   EmergencyAccessTrustComponent,
@@ -33,6 +33,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptionType,
+  KdfConfig,
   LegacyCompatKeyService,
   SignedPublicKey,
   SignedSecurityState,

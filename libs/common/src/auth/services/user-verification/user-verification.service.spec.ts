@@ -9,10 +9,12 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 import {
   BiometricsService,
   BiometricsStatus,
-  KdfConfig,
   KeyService,
   KdfConfigService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { MasterPasswordUnlockService } from "../../../key-management/master-password/abstractions/master-password-unlock.service";

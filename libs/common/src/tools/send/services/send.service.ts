@@ -4,9 +4,9 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, KeyGenerationService, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";

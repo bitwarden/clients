@@ -6,15 +6,15 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
   KdfConfig,
-  PBKDF2KdfConfig,
-  KeyService,
   KdfType,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import {
   BitwardenJsonExport,
   BitwardenPasswordProtectedFileFormat,

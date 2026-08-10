@@ -25,15 +25,16 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  CsprngArray,
   DEFAULT_KDF_CONFIG,
+  EncryptionType,
   KdfConfig,
   KdfType,
-  KeyService,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { CsprngArray, EncryptionType } from "@bitwarden/legacy-crypto";
+} from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 

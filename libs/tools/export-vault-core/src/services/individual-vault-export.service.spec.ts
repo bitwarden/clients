@@ -32,15 +32,14 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
   KdfType,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {

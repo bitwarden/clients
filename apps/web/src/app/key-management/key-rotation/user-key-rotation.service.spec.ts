@@ -35,13 +35,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  KeyService,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfConfig,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
   EmergencyAccessTrustComponent,
@@ -49,6 +43,9 @@ import {
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import {
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
   SignedPublicKey,
   SignedSecurityState,
   UnsignedPublicKey,

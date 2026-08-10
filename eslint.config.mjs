@@ -697,19 +697,6 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES, false, true),
     },
   },
-  {
-    files: [
-      "libs/key-management/src/enums/kdf-type.enum.ts",
-      "libs/key-management/src/models/kdf-config.ts",
-    ],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(
-        KEY_MANAGEMENT_FORBIDDEN_PACKAGES,
-        false,
-        true,
-      ),
-    },
-  },
 
   // Within a package, import sibling code via relative paths rather than the package's own
   // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.

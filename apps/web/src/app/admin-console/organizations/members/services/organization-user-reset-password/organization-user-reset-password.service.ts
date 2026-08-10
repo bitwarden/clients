@@ -21,14 +21,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import {
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  UserKeyRotationKeyRecoveryProvider,
-  KeyService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { UserKeyRotationKeyRecoveryProvider, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 

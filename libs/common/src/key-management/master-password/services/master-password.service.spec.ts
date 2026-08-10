@@ -2,9 +2,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {

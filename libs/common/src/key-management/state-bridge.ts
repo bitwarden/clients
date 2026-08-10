@@ -2,7 +2,7 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { fromSdkKdfConfig } from "@bitwarden/key-management";
+import { fromSdkKdfConfig } from "@bitwarden/legacy-crypto";
 import {
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,

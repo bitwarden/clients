@@ -6,9 +6,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { KdfConfig, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { BitwardenCsvExportType, BitwardenPasswordProtectedFileFormat } from "../types";

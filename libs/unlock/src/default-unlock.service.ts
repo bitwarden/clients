@@ -22,9 +22,10 @@ import { MasterKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
-  KdfConfig,
   KdfConfigService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import {
   EncString,

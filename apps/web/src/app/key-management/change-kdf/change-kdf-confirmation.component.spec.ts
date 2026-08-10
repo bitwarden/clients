@@ -18,7 +18,8 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { KdfType, PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../shared";
 

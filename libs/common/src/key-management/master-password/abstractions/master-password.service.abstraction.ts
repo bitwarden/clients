@@ -1,7 +1,7 @@
 import { firstValueFrom, Observable } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { assertNonNullish } from "../../../auth/utils";
