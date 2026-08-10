@@ -21,9 +21,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { TableDataSource, NoItemsModule, ToastService, IconModule } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
