@@ -6,7 +6,7 @@ import { FillAssistPolicy } from "./fill-assist.component";
 
 export default {
   ...policyDrawerMeta(new FillAssistPolicy()),
-  title: "Admin Console/Organizations/Policies/Fill Assist",
+  title: "Admin Console/Organizations/Policies/Activate Fill Assist",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

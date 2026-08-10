@@ -10,7 +10,7 @@ import { FillAssistPolicy } from "./fill-assist.component";
  */
 export default {
   ...policyModalMeta(new FillAssistPolicy()),
-  title: "Admin Console/Organizations/Policies/Fill Assist/Modal (flag off)",
+  title: "Admin Console/Organizations/Policies/Activate Fill Assist/Modal (flag off)",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;
