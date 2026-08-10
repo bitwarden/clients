@@ -17060,6 +17060,42 @@
   "pamMyAccess": {
     "message": "My access"
   },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Approve, monitor, and audit time-limited access to your credentials."
+  },
+  "pamTabApprovals": {
+    "message": "Approvals"
+  },
+  "pamTabMyRequests": {
+    "message": "My requests"
+  },
+  "pamTabHistory": {
+    "message": "History"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Extension requests"
+  },
+  "pamMyRequestsGroupCheckedOut": {
+    "message": "Currently checked out"
+  },
+  "pamMyRequestsExtensionsEmpty": {
+    "message": "No extension requests"
+  },
+  "pamApprovalsUnavailableTitle": {
+    "message": "Approvals aren't available yet"
+  },
+  "pamApprovalsUnavailableDescription": {
+    "message": "Reviewing and approving other members' access requests is coming soon."
+  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
