@@ -125,17 +125,16 @@ export class BulkActionsBarComponent {
 
   /**
    * Width of the bar's non-overflow shell (count display + clear button + bar
-   * padding + bar gaps), measured once at compact state. Subtracted from
-   * `wrapperWidth` to derive the overflow list's container width.
+   * padding and gaps), only ever measured at compact density.
    */
   private readonly reservedShellWidth = signal(0);
 
   /**
    * Available width for the primary-actions row, fed to the `OverflowListDirective`.
-   * Pointing the directive at the wrapper-derived width avoids a feedback loop:
-   * if it observed its own host, hiding an item would shrink the host and
-   * trigger more overflow. Returns `null` until measurements land — keeps the
-   * directive in its "all displayed" default for the brief pre-measure window.
+   * Deriving it from the wrapper rather than letting the directive observe its own
+   * host avoids a feedback loop, where hiding an item shrinks the host and
+   * overflows another. `null` until measured, keeping the directive at its
+   * all-displayed default.
    */
   protected readonly overflowContainerWidth = computed<number | null>(() => {
     const wrapperW = this.wrapperWidth();
@@ -147,12 +146,10 @@ export class BulkActionsBarComponent {
   });
 
   /**
-   * True when the wrapper is narrower than the bar's intrinsic width.
-   *
-   * Defaults to `true` so the OverflowListDirective measures items at their
-   * compact widths on the first pass — those cached widths drive packing once
-   * the bar is in compact mode. `measureIntrinsicWidth` flips this off when
-   * the wrapper is wide enough to fit the full-label bar.
+   * True when the wrapper is narrower than the bar's intrinsic width. Defaults
+   * to `true` so the first measurement pass captures compact widths and the
+   * compact shell; `measureIntrinsicWidth` flips it off when the wrapper fits
+   * the full-label bar.
    */
   readonly compact = signal(true);
 
@@ -199,6 +196,19 @@ export class BulkActionsBarComponent {
         return;
       }
       afterNextRender(() => this.measureIntrinsicWidth(), { injector });
+    });
+
+    // `compact` swaps label visibility and button padding, so item widths change
+    // with it, but the directive only remeasures on item-set changes. Without
+    // this, widths cached while wide would drive packing once we narrow.
+    // Same `ready()` gate as above.
+    effect(() => {
+      this.compact();
+      const list = this.overflowList();
+      if (!list.ready()) {
+        return;
+      }
+      list.remeasure();
     });
 
     // FocusKeyManager captures button references at construction. Rebuild it
@@ -251,10 +261,8 @@ export class BulkActionsBarComponent {
       const observer = new ResizeObserver(() => {
         const width = wrapperEl.clientWidth;
         this.wrapperWidth.set(width);
-        // Don't touch `compact` until `measureIntrinsicWidth` has produced a
-        // real threshold — otherwise we'd flip to non-compact while items are
-        // still rendering compact, and the overflow directive would cache the
-        // wrong widths during that window.
+        // Wait for a real threshold from `measureIntrinsicWidth`; flipping early
+        // would have the directive cache widths at the wrong density.
         if (this.initialBarWidth() === 0) {
           return;
         }
@@ -277,25 +285,21 @@ export class BulkActionsBarComponent {
     const primaries = this.primaryButtons();
     const labeledButtons = primaries.filter((btn) => btn !== trigger);
 
-    // Items hidden by the overflow directive (attribute + inline display)
-    // report zero from `getBoundingClientRect`. Reveal them for both passes
-    // and restore on the way out; the directive re-applies the right hidden
-    // states on the next reactive pass.
+    // Hidden items report zero width, so reveal them for both passes. The
+    // directive re-applies the right hidden states on its next reactive pass.
     const restorePrimaries = primaries.map((btn) =>
       revealForMeasurement(btn.elementRef.nativeElement),
     );
 
-    // Pass 1: compact shell width. With items revealed and the bar in its
-    // natural (compact) state, the overflow host's content is `items_total`,
-    // so `bar - host` isolates the shell (count + clear + bar padding + gaps).
-    // Must run before Pass 2, which inflates the bar.
+    // Pass 1: shell width. With items revealed, the overflow host's content is
+    // the full item row, so `bar - host` isolates the shell. Must precede
+    // Pass 2, which inflates the bar.
     const shellWidth = overflowEl ? measureWidth(barEl) - measureWidth(overflowEl) : 0;
 
-    // Pass 2: full bar width. Force labels visible and pin `min-width:
-    // max-content` so a constrained flex parent can't compress the bar below
-    // its full content. Mutate → measure → restore is synchronous, so the
-    // browser never paints the expanded state. The additional-actions
-    // trigger stays icon-only by design.
+    // Pass 2: full bar width. `min-width: max-content` stops a constrained flex
+    // parent from compressing the bar below its content. Mutate → measure →
+    // restore is synchronous, so the expanded state never paints. The
+    // additional-actions trigger stays icon-only by design.
     const previousMinWidth = barEl.style.minWidth;
     barEl.style.minWidth = "max-content";
     labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
@@ -310,7 +314,10 @@ export class BulkActionsBarComponent {
       return;
     }
     this.initialBarWidth.set(barWidth);
-    if (shellWidth > 0) {
+    // Only a compact reading is usable — a non-compact shell (clear button
+    // showing its label) would inflate the reserve. The first run always
+    // qualifies: `compact` starts true and is only flipped below.
+    if (shellWidth > 0 && this.compact()) {
       this.reservedShellWidth.set(shellWidth);
     }
     this.compact.set(wrapperEl.clientWidth < barWidth + COMPACT_THRESHOLD_BUFFER_PX);

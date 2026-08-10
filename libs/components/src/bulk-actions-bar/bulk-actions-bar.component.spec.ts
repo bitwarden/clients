@@ -349,6 +349,102 @@ describe("BulkActionsBarComponent", () => {
       fixture.detectChanges();
       expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(true);
     });
+
+    it("remeasures the overflow list when compact flips", () => {
+      // Item widths are density-dependent (labels and padding both change with
+      // `compact`), but the directive only remeasures when the item set
+      // changes. Without this the bar packs against widths captured at the
+      // wrong density and overflows actions while it still has room.
+      const list = host.bar()["overflowList"]();
+      expect(list.ready()).toBe(true);
+
+      const remeasure = jest.spyOn(list, "remeasure");
+
+      host.bar().compact.set(false);
+      fixture.detectChanges();
+      expect(remeasure).toHaveBeenCalledTimes(1);
+
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      expect(remeasure).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not remeasure before the directive's first pass has landed", () => {
+      // The directive's first measurement resolves during setup, so wind
+      // `ready` back to reproduce the pre-measure window.
+      const list = host.bar()["overflowList"]();
+      list.ready.set(false);
+      fixture.detectChanges();
+
+      const remeasure = jest.spyOn(list, "remeasure");
+      host.bar().compact.set(false);
+      fixture.detectChanges();
+
+      // Gated on `ready` so a consumer-driven remeasure can't race the
+      // directive's own first measurement.
+      expect(remeasure).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("reserved shell width", () => {
+    // JSDOM reports zero for every geometry read, so `measureIntrinsicWidth`
+    // normally early-returns. Stub the bar and overflow host with widths that
+    // track label visibility — the shell (count display + clear button + bar
+    // padding) is wider once labels are showing.
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+    const COMPACT_SHELL = 100;
+    const FULL_SHELL = 180;
+    const ITEMS = 200;
+    let labelsHidden: boolean;
+
+    beforeEach(() => {
+      labelsHidden = true;
+      Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+        let width = 0;
+        if (this.getAttribute("role") === "toolbar") {
+          width = (labelsHidden ? COMPACT_SHELL : FULL_SHELL) + ITEMS;
+        } else if (this.hasAttribute("bitOverflowList")) {
+          width = ITEMS;
+        }
+        return {
+          width,
+          height: 0,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      };
+
+      host.count.set(2);
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    it("ignores a shell reading taken while the bar is not compact", () => {
+      const bar = host.bar();
+
+      // First pass runs at the default compact state and records the shell.
+      bar["measureIntrinsicWidth"]();
+      expect(bar["reservedShellWidth"]()).toBe(COMPACT_SHELL);
+
+      // A later pass — triggered by the action set changing on a wide viewport
+      // — reads a non-compact shell. Storing it would inflate the reserve and
+      // shrink the overflow container, overflowing actions prematurely once
+      // the viewport narrows again.
+      bar.compact.set(false);
+      labelsHidden = false;
+      fixture.detectChanges();
+
+      bar["measureIntrinsicWidth"]();
+      expect(bar["reservedShellWidth"]()).toBe(COMPACT_SHELL);
+    });
   });
 });
 

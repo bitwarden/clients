@@ -50,6 +50,7 @@ import { PackedItems, pack } from "./pack";
 })
 export class OverflowListDirective {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   // descendants: true — items live inside @for blocks, not as direct children.
@@ -80,6 +81,8 @@ export class OverflowListDirective {
   private readonly observedContainerWidth = signal(0);
   private readonly itemWidths = signal<readonly number[]>([]);
   private readonly triggerWidth = signal(0);
+  /** The item instances that produced the current `itemWidths`; drives cache invalidation. */
+  private measuredItems: readonly OverflowItemDirective[] = [];
   private readonly resolvedContainerWidth = computed(
     () => this.containerWidth() ?? this.observedContainerWidth(),
   );
@@ -100,8 +103,10 @@ export class OverflowListDirective {
     const widths = this.itemWidths();
     const containerWidth = this.resolvedContainerWidth();
 
-    // Nothing to pack, widths not cached yet, or container not measured.
-    if (count === 0 || widths.length < count || containerWidth <= 0) {
+    // Nothing to pack, container not measured, or a stale cache after the item
+    // set changed. Any length mismatch falls back to the full set, so packing
+    // never indexes past the current items.
+    if (count === 0 || widths.length !== count || containerWidth <= 0) {
       return { displayed: indices(count), overflow: [] };
     }
 
@@ -137,8 +142,6 @@ export class OverflowListDirective {
   readonly ready = signal(false);
 
   constructor() {
-    const injector = inject(Injector);
-
     const ro = new ResizeObserver((entries) =>
       this.observedContainerWidth.set(entries[0].contentBoxSize[0].inlineSize),
     );
@@ -149,16 +152,19 @@ export class OverflowListDirective {
       this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
-    // Cached widths must keep pace when the item count changes (observable-
-    // driven consumers can grow or shrink the set). A new set may interleave
-    // fresh and old items, so reusing prior widths by identity isn't reliable
-    // — just remeasure from scratch.
+    // Remeasure whenever the item set changes. Compared by instance identity
+    // rather than count, so a same-length swap is caught too. A new set may
+    // interleave fresh and old items, so reusing prior widths per-item isn't
+    // reliable; remeasure from scratch.
     effect(() => {
-      const count = this.items().length;
-      if (count === 0 || count === this.itemWidths().length) {
+      const items = this.items();
+      if (items.length === 0 || sameItems(items, this.measuredItems)) {
         return;
       }
-      afterNextRender(() => this.measureItems(), { injector });
+      // Drop stale widths on this tick so `packed` falls back to all-displayed
+      // instead of packing against measurements of a set we no longer have.
+      this.itemWidths.set([]);
+      this.remeasure();
     });
 
     // Apply the pack decision to the DOM. Trigger updates are gated on
@@ -183,6 +189,18 @@ export class OverflowListDirective {
     });
   }
 
+  /**
+   * Re-cache item widths. Call when something outside the directive changes how
+   * the same items render (density, label visibility, font size) — the directive
+   * only remeasures on its own when the item set changes.
+   *
+   * Keeps the existing widths until the new measurement lands; clearing them
+   * would flash all-displayed and overflow the row mid-resize.
+   */
+  remeasure(): void {
+    afterNextRender(() => this.measureItems(), { injector: this.injector });
+  }
+
   private measureItems(): void {
     // document.fonts is missing in JSDOM — fall back to an already-resolved promise.
     const fontsReady = document.fonts?.ready ?? Promise.resolve();
@@ -197,6 +215,9 @@ export class OverflowListDirective {
         : null;
 
       this.itemWidths.set(items.map((item) => measureWidth(item.elementRef.nativeElement)));
+      // Record what was actually measured, so the invalidation effect
+      // self-corrects if the items changed again while this pass was pending.
+      this.measuredItems = items;
       if (trigger) {
         this.triggerWidth.set(measureWidth(trigger.elementRef.nativeElement));
       }
@@ -211,6 +232,14 @@ export class OverflowListDirective {
 
 function indices(count: number): readonly number[] {
   return Array.from({ length: count }, (_, i) => i);
+}
+
+/** True when both arrays hold the same item instances in the same order. */
+function sameItems(
+  a: readonly OverflowItemDirective[],
+  b: readonly OverflowItemDirective[],
+): boolean {
+  return a.length === b.length && a.every((item, i) => item === b[i]);
 }
 
 /**
