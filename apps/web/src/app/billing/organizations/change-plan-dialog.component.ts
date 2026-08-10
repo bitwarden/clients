@@ -44,6 +44,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
@@ -235,6 +236,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private apiService: ApiService,
     private i18nService: I18nService,
+    private keyService: KeyService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private syncService: SyncService,
@@ -895,7 +897,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
       const orgShareKey = await firstValueFrom(
-        this.legacyCompatKeyService
+        this.keyService
           .orgKeys$(userId)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
       );

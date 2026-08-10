@@ -552,7 +552,7 @@ export class ServiceContainer {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -775,6 +775,7 @@ export class ServiceContainer {
       this.accountService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
       this.logService,
@@ -810,6 +811,7 @@ export class ServiceContainer {
       this.appIdService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
@@ -896,6 +898,7 @@ export class ServiceContainer {
       this.unlockService,
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
+      this.legacyCompatKeyService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -932,6 +935,7 @@ export class ServiceContainer {
 
     this.cipherService = new CipherService(
       this.keyService,
+      this.legacyCompatKeyService,
       this.domainSettingsService,
       this.apiService,
       this.i18nService,

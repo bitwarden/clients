@@ -824,7 +824,7 @@ export default class MainBackground {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -982,6 +982,7 @@ export default class MainBackground {
       this.accountService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
       this.logService,
@@ -1066,6 +1067,7 @@ export default class MainBackground {
       this.appIdService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
@@ -1146,6 +1148,7 @@ export default class MainBackground {
 
     this.cipherService = new CipherService(
       this.keyService,
+      this.legacyCompatKeyService,
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
@@ -1565,6 +1568,7 @@ export default class MainBackground {
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.cryptoFunctionService,
       this.messagingService,

@@ -4,7 +4,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -39,29 +38,18 @@ import {
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
-import {
-  UserKey,
-  MasterKey,
-  UserPublicKey,
-  OrgKey,
-  ProviderKey,
-} from "@bitwarden/common/types/key";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 
-import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { DefaultKeyService } from "./key.service";
-import { KdfConfig } from "./models/kdf-config";
 
 describe("keyService", () => {
   let keyService: DefaultKeyService;
 
-  const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
-  const kdfConfigService = mock<KdfConfigService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   let stateProvider: FakeStateProvider;
 
@@ -829,5 +817,4 @@ describe("keyService", () => {
       expect(result).toBeNull();
     });
   });
-
 });

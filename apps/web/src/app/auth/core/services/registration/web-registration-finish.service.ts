@@ -17,7 +17,8 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserMasterPasswordRegistrationRequest } from "@bitwarden/sdk-internal";
 
 export class WebRegistrationFinishService
@@ -25,7 +26,7 @@ export class WebRegistrationFinishService
   implements RegistrationFinishService
 {
   constructor(
-    protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected accountApiService: AccountApiService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected configService: ConfigService,
@@ -33,7 +34,13 @@ export class WebRegistrationFinishService
     private organizationInviteService: OrganizationInviteService,
     private policyService: PolicyService,
   ) {
-    super(keyService, accountApiService, masterPasswordService, configService, sdkService);
+    super(
+      legacyCompatKeyService,
+      accountApiService,
+      masterPasswordService,
+      configService,
+      sdkService,
+    );
   }
 
   override async getOrgNameFromOrgInvite(): Promise<string | null> {

@@ -305,7 +305,7 @@ const safeProviders: SafeProvider[] = [
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
     deps: [
-      KeyServiceAbstraction,
+      LegacyCompatKeyService,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
       ConfigService,
@@ -561,6 +561,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       ApiService,
       KeyServiceAbstraction,
+      LegacyCompatKeyService,
     ],
   }),
 ];
