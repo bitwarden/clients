@@ -5,6 +5,7 @@ import {
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
+  SymmetricKey,
 } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
@@ -426,7 +427,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: this.revisionDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
-      key: this.key?.toBase64() ?? undefined,
+      key: (this.key?.toBase64() ?? undefined) as SymmetricKey | undefined,
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
