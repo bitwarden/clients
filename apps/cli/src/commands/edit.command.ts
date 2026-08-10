@@ -123,11 +123,8 @@ export class EditCommand {
     // hidden field values from `bw get`/`bw list` (they're redacted to `null`, matching how the
     // web/browser/desktop clients disable those fields for editing). If those redacted `null`s
     // are round-tripped back through `bw edit`, preserve the real, already-decrypted values
-    // instead of letting them be overwritten and lost. See PM-16160/PM-33526.
-    //
-    // Only fall back to the original value when the request's value is missing/`null` (i.e. the
-    // redacted sentinel). An explicit non-null value in the request is a deliberate update (e.g.
-    // rotating a password via automation) and must still be applied.
+    // instead of letting them be overwritten and lost. A non-null value is a deliberate write
+    // and is left alone. See PM-16160/PM-33526.
     const canViewPassword = cipherView.viewPassword;
     const originalLoginPassword = cipherView.login?.password;
     const originalLoginTotp = cipherView.login?.totp;
