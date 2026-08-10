@@ -35,9 +35,10 @@
 </div>
 
 <div
-  class="tw-flex tw-gap-2 tw-items-center"
+  class="tw-flex tw-items-center"
   [class]="endSlotPaddingClass()"
   #endSlot
+  data-bit-item-end-slot
   [hidden]="!endSlotHasChildren()"
 >
   <ng-content select="[slot=end]"></ng-content>

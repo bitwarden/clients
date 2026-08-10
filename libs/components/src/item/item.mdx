@@ -111,6 +111,26 @@ Actions are commonly icon buttons or badge buttons.
 </bit-item>
 ```
 
+### End Slot Spacing
+
+Spacing in the `"end"` slot is applied automatically based on the type of each child, so consumers
+should not add their own margins or wrapper padding to tune it.
+
+| Content               | Spacing on either side |
+| --------------------- | ---------------------- |
+| Plain text            | 8px                    |
+| Link                  | 8px                    |
+| Badge / chip          | 4px                    |
+| Icon button           | 0px                    |
+| Anything unrecognized | 8px                    |
+
+The space between two neighbors is the larger of their two values, not the sum — a badge beside
+plain text gets 8px, while a badge beside an icon button gets 4px. Content wrapped in
+`<bit-item-action>` is measured by what it contains, so a wrapped icon button is still treated as an
+icon button.
+
+<Canvas of={stories.EndSlotSpacing} />
+
 ## Text Overflow Behavior
 
 The default behavior for long text is to truncate it. However, you have the option of changing it to

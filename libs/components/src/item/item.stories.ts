@@ -18,6 +18,7 @@ import { BadgeModule } from "../badge";
 import { ChipActionComponent } from "../chips/chip-action";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
+import { LinkModule } from "../link";
 import { TypographyModule } from "../typography";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
@@ -43,6 +44,7 @@ export default {
         ItemContentComponent,
         ScrollingModule,
         LayoutComponent,
+        LinkModule,
         RouterTestingModule,
       ],
       providers: [
@@ -471,31 +473,68 @@ export const VirtualScrolling: Story = {
   }),
 };
 
-export const WithoutBorderRadius: Story = {
+export const EndSlotSpacing: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-layout>
-      <bit-item>
-        <button type="button" bit-item-content>
-          <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-          Foo
-          <span slot="secondary">Bar</span>
-        </button>
-
-        <ng-container slot="end">
-          <bit-item-action>
-            <button type="button" bit-chip-action variant="primary" label="Fill"></button>
-          </bit-item-action>
-          <bit-item-action>
-            <button type="button" bitIconButton="bwi-clone" label="Clone"></button>
-          </bit-item-action>
-          <bit-item-action>
-            <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
-          </bit-item-action>
-        </ng-container>
-      </bit-item>
-    </bit-layout>
+      <bit-item-group>
+        <bit-item>
+          <bit-item-content>Every content type at once</bit-item-content>
+          <ng-container slot="end">
+            <span>Updated today</span>
+            <a bitLink href="#">Manage</a>
+            <span bitBadge variant="secondary">Shared</span>
+            <bit-item-action>
+              <button type="button" bit-chip-action variant="primary" label="Fill"></button>
+            </bit-item-action>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
+            </bit-item-action>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
+            </bit-item-action>
+          </ng-container>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>Text, badge, then two icon buttons</bit-item-content>
+          <ng-container slot="end">
+            <span>Updated today</span>
+            <span bitBadge variant="secondary">Shared</span>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
+            </bit-item-action>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
+            </bit-item-action>
+          </ng-container>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>Two plain text nodes</bit-item-content>
+          <ng-container slot="end">
+            <span>Foo</span>
+            <span>Bar</span>
+          </ng-container>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>Link next to an icon button</bit-item-content>
+          <ng-container slot="end">
+            <a bitLink href="#">Manage</a>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
+            </bit-item-action>
+          </ng-container>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>Chip next to two badges</bit-item-content>
+          <ng-container slot="end">
+            <bit-item-action>
+              <button type="button" bit-chip-action variant="primary" label="Fill"></button>
+            </bit-item-action>
+            <span bitBadge variant="secondary">One</span>
+            <span bitBadge variant="secondary">Two</span>
+          </ng-container>
+        </bit-item>
+      </bit-item-group>
     `,
   }),
 };

@@ -1,0 +1,71 @@
+/**
+ * End slot spacing is content-type driven: plain text and links sit 8px from their neighbours,
+ * badges and chips 4px, and icon buttons flush at 0px. The gap between two adjacent children is
+ * the larger of the two values rather than their sum, so each child publishes its own gutter and
+ * the shared rule below resolves the pair with `max()`.
+ *
+ * Children are matched by component selector because the slot projects arbitrary consumer markup.
+ * `bit-item-action` and app-level components (e.g. `app-premium-badge`) wrap their control in an
+ * extra element, so every tier also matches the one-level-deep `:has(> ...)` form.
+ *
+ * These rules live in a global stylesheet rather than in the templates because `max()` over two
+ * custom properties cannot be expressed as a Tailwind utility, and because the selectors need to
+ * reach content projected in from outside the component.
+ */
+
+[data-bit-item-end-slot] > * {
+  /* Plain text, links, and anything unrecognized. */
+  --bit-end-slot-gutter: 0.5rem;
+
+  margin-inline-start: max(var(--bit-end-slot-gutter), var(--bit-end-slot-prev-gutter, 0px));
+}
+
+/* Badges and chips. */
+[data-bit-item-end-slot] > bit-badge,
+[data-bit-item-end-slot] > [bitBadge],
+[data-bit-item-end-slot] > bit-chip,
+[data-bit-item-end-slot] > [bit-chip-action],
+[data-bit-item-end-slot] > *:has(> bit-badge, > [bitBadge], > bit-chip, > [bit-chip-action]) {
+  --bit-end-slot-gutter: 0.25rem;
+}
+
+/* Icon buttons sit flush against their neighbours. */
+[data-bit-item-end-slot] > button[bitIconButton],
+[data-bit-item-end-slot] > *:has(> button[bitIconButton]) {
+  --bit-end-slot-gutter: 0px;
+}
+
+/**
+ * Publish each child's gutter to its next sibling so the shared rule above can take the max of the
+ * pair. Specificity orders these: the tier selectors all out-rank the bare `> * + *` default, and
+ * the badge and icon button tiers are mutually exclusive.
+ */
+[data-bit-item-end-slot] > * + * {
+  --bit-end-slot-prev-gutter: 0.5rem;
+}
+
+[data-bit-item-end-slot] > bit-badge + *,
+[data-bit-item-end-slot] > [bitBadge] + *,
+[data-bit-item-end-slot] > bit-chip + *,
+[data-bit-item-end-slot] > [bit-chip-action] + *,
+[data-bit-item-end-slot] > *:has(> bit-badge, > [bitBadge], > bit-chip, > [bit-chip-action]) + * {
+  --bit-end-slot-prev-gutter: 0.25rem;
+}
+
+[data-bit-item-end-slot] > button[bitIconButton] + *,
+[data-bit-item-end-slot] > *:has(> button[bitIconButton]) + * {
+  --bit-end-slot-prev-gutter: 0px;
+}
+
+/**
+ * The leading edge is owned by the parent flex `gap`. The trailing edge stacks on the slot's own
+ * `pe-*`, which stays dynamic in the template: it tightens to `tw-pe-2` when the last child is (or
+ * wraps) an icon button, whose gutter is 0.
+ */
+[data-bit-item-end-slot] > *:first-child {
+  margin-inline-start: 0;
+}
+
+[data-bit-item-end-slot] > *:last-child {
+  margin-inline-end: var(--bit-end-slot-gutter);
+}
