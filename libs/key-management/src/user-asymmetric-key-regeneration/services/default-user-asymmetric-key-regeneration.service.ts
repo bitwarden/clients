@@ -51,13 +51,13 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
+        map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
 
           using ref = sdk.take();
-          return ref.value
+          return await ref.value
             .user_crypto_management()
             .should_regenerate_public_key_encryption_key_pair();
         }),
@@ -73,13 +73,13 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
 
     const regenerated = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
+        map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
 
           using ref = sdk.take();
-          return ref.value
+          return await ref.value
             .user_crypto_management()
             .regenerate_public_key_encryption_key_pair_if_needed();
         }),
