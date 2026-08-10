@@ -178,6 +178,11 @@ import {
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -379,7 +384,7 @@ import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -391,6 +396,7 @@ import { BrowserTaskSchedulerService } from "../platform/services/abstractions/b
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
@@ -548,6 +554,8 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  managedSettingsService: ManagedSettingsService;
+  managedConfigReader: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -741,10 +749,14 @@ export default class MainBackground {
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
+    this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
+      ? new DevManagedSettingsService()
+      : new DefaultManagedSettingsService();
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
       this.stateProvider,
       this.accountService,
+      this.managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
@@ -928,6 +940,10 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+    this.managedConfigReader = new BrowserManagedConfigReader(
+      this.managedSettingsService,
+      this.logService,
+    );
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -940,6 +956,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -950,6 +967,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.managedSettingsService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
@@ -1791,6 +1809,9 @@ export default class MainBackground {
     this.containerService.attachToGlobal(self);
 
     await this.sdkLoadService.loadAndInit();
+    // Acquire administrator-managed configuration as early as possible so a forced region or
+    // self-host URL is available before login.
+    await this.managedConfigReader.start();
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 

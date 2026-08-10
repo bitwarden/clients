@@ -129,6 +129,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -294,7 +295,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BrowserEnvironmentService,
     useClass: BrowserEnvironmentService,
-    deps: [LogService, StateProvider, AccountServiceAbstraction, ENV_ADDITIONAL_REGIONS],
+    deps: [
+      LogService,
+      StateProvider,
+      AccountServiceAbstraction,
+      ManagedSettingsService,
+      ENV_ADDITIONAL_REGIONS,
+    ],
   }),
   safeProvider({
     provide: I18nServiceAbstraction,

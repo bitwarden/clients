@@ -656,6 +656,27 @@ export class BrowserApi {
   }
 
   /**
+   * Reads all entries from the administrator-controlled `chrome.storage.managed` area, or resolves
+   * to `null` when the area is unavailable. This area is read-only and populated by a device's
+   * Unified Endpoint Management (UEM/MDM) channel.
+   */
+  static getManagedStorage(): Promise<Record<string, unknown> | null> {
+    return new Promise((resolve, reject) => {
+      if (chrome.storage.managed == null) {
+        return resolve(null);
+      }
+
+      chrome.storage.managed.get(null, (result) => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+
+        resolve(result);
+      });
+    });
+  }
+
+  /**
    * Adds a callback to the given chrome event in a cross-browser platform manner.
    *
    * **Important:** All event listeners in the browser extension popup context must
