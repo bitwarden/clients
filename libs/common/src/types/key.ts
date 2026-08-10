@@ -1,6 +1,8 @@
 import { Opaque } from "type-fest";
 
-import { UnsignedPublicKey } from "../key-management/types";
+// eslint-disable-next-line no-restricted-imports
+import { UnsignedPublicKey } from "@bitwarden/legacy-crypto";
+
 import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 
 // symmetric keys

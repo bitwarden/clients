@@ -27,7 +27,6 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -50,6 +49,8 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/legacy-crypto";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {

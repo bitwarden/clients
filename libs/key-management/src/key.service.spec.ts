@@ -12,7 +12,6 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
-import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,7 +38,7 @@ import {
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "@bitwarden/legacy-crypto";
+import { CsprngArray, UnsignedPublicKey } from "@bitwarden/legacy-crypto";
 
 import { DefaultKeyService } from "./key.service";
 

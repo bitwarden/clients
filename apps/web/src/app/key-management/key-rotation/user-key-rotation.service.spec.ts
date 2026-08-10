@@ -16,14 +16,6 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import {
-  SignedPublicKey,
-  SignedSecurityState,
-  UnsignedPublicKey,
-  VerifyingKey,
-  WrappedPrivateKey,
-  WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,6 +47,15 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  SignedPublicKey,
+  SignedSecurityState,
+  UnsignedPublicKey,
+  VerifyingKey,
+  WrappedPrivateKey,
+  WrappedSigningKey,
+} from "@bitwarden/legacy-crypto";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 

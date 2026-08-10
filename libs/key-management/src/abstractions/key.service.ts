@@ -7,7 +7,6 @@ import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -17,6 +16,8 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/legacy-crypto";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {

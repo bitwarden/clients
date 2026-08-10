@@ -1,7 +1,8 @@
-import { WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { UserKey } from "@bitwarden/common/types/key";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+// eslint-disable-next-line no-restricted-imports
+import { WrappedPrivateKey } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";
