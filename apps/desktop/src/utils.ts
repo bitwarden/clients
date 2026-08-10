@@ -84,6 +84,20 @@ export function allowBrowserintegrationOverride() {
 }
 
 /**
+ * Reads the `EXPERIMENTAL_CLOSE_RENDERER` env var. When set to `true`, the browser window is
+ * destroyed whenever the app is hidden to the tray, killing the renderer process and releasing its
+ * memory. The window is recreated when the app is brought back to the foreground. Merely
+ * minimizing the window does not tear it down; it stays in the taskbar and restores instantly.
+ *
+ * This is experimental: anything that depends on a live renderer while the app is in the
+ * background (in-memory session state, IPC pushed from main, native messaging) does not survive
+ * the teardown. These will be ported before this can be default enabled.
+ */
+export function experimentalCloseRenderer(): boolean {
+  return process.env.EXPERIMENTAL_CLOSE_RENDERER === "true";
+}
+
+/**
  * Sanitize user agent so external resources used by the app can't built data on our users.
  */
 export function cleanUserAgent(userAgent: string): string {

@@ -21,6 +21,7 @@ import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import {
   cleanUserAgent,
+  experimentalCloseRenderer,
   isDev,
   isLinux,
   isMac,
@@ -58,6 +59,13 @@ export class WindowMain {
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
   private enableRendererProcessForceCrashReload = true;
+  /**
+   * Set while the window has been torn down by {@link closeRenderer} rather than by the user
+   * quitting, so `window-all-closed` knows to keep the main process alive.
+   */
+  private rendererClosedWhileIdle = false;
+  /** Set around hides that are part of a flow which keeps using the window afterwards. */
+  private suppressRendererClose = false;
   session: Electron.Session;
 
   readonly defaultWidth = 950;
@@ -143,7 +151,10 @@ export class WindowMain {
             // Reset the window state to the main window state
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
             // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+            // The modal flow keeps driving this window afterwards, so keep the renderer alive.
+            this.suppressRendererClose = true;
             this.win.hide();
+            this.suppressRendererClose = false;
           } else if (newValue.isModalModeActive) {
             // Apply the popup modal styles
             this.logService.info("Applying popup modal styles", newValue.modalPosition);
@@ -243,6 +254,12 @@ export class WindowMain {
 
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
+          // In experimental renderer-closing mode the window is destroyed while the app sits in
+          // the background, so having no windows left is not a signal to quit.
+          if (this.rendererClosedWhileIdle && !this.isQuitting) {
+            return;
+          }
+
           // On OS X it is common for applications and their menu bar
           // to stay active until the user quits explicitly with Cmd + Q
           if (!isMac() || this.isQuitting || isMacAppStore()) {
@@ -276,6 +293,59 @@ export class WindowMain {
       applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
       this.win.show();
     }
+  }
+
+  /**
+   * Queues a renderer teardown for a window that has just been hidden to the tray. No-op unless
+   * {@link experimentalCloseRenderer} is enabled.
+   */
+  private scheduleRendererClose() {
+    if (!experimentalCloseRenderer() || this.suppressRendererClose) {
+      return;
+    }
+
+    if (this.win == null || this.win.isDestroyed() || this.isQuitting || this.isReloading) {
+      return;
+    }
+
+    setImmediate(() => {
+      void this.closeRenderer().catch((e) => this.logService.error("Error closing renderer", e));
+    });
+  }
+
+  /**
+   * Destroys the window, and with it the renderer process, after persisting the window state that
+   * the regular close path would have saved.
+   */
+  private async closeRenderer() {
+    if (this.win == null || this.win.isDestroyed() || this.isQuitting) {
+      return;
+    }
+
+    // The window was shown again while the teardown was queued.
+    if (this.win.isVisible()) {
+      return;
+    }
+
+    if (
+      await firstValueFrom(this.desktopSettingsService.modalMode$).then((m) => m.isModalModeActive)
+    ) {
+      return;
+    }
+
+    this.logService.info("Closing renderer process while in the background");
+
+    // `destroy()` does not emit "close", so persist the state the close handler would have saved.
+    // Zoom is only read on close, so carry it over explicitly.
+    this.windowStates[mainWindowSizeKey].zoomFactor = this.win.webContents.zoomFactor;
+    await this.updateWindowState(mainWindowSizeKey, this.win);
+
+    if (this.win == null || this.win.isDestroyed()) {
+      return;
+    }
+
+    this.rendererClosedWhileIdle = true;
+    this.win.destroy();
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
@@ -388,6 +458,7 @@ export class WindowMain {
       this.defaultHeight,
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
+    this.rendererClosedWhileIdle = false;
 
     // Create the browser window.
     this.win = new BrowserWindow({
@@ -501,6 +572,13 @@ export class WindowMain {
     this.win.on("move", () => {
       this.windowStateChangeHandler(mainWindowSizeKey, this.win);
     });
+
+    // Experimental: tear the window down once the app is hidden to the tray, so the renderer
+    // process is killed instead of lingering. It is recreated on the way back to the foreground.
+    // Deliberately not wired to "minimize": a minimized window still lives in the taskbar/dock and
+    // is expected to restore instantly.
+    this.win.on("hide", () => this.scheduleRendererClose());
+
     this.win.on("focus", () => {
       this.win.webContents.send("messagingService", {
         command: "windowIsFocused",

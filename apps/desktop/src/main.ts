@@ -70,7 +70,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
-import { isMacAppStore } from "./utils";
+import { experimentalCloseRenderer, isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -141,6 +141,12 @@ export class Main {
     }
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
+
+    if (experimentalCloseRenderer()) {
+      this.logService.warning(
+        "WARNING: The experimental renderer closing mode does not yet work with all features properly.",
+      );
+    }
 
     const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
     const cachedBackend = new CachedBackend(electronStoreBackend);
@@ -236,7 +242,7 @@ export class Main {
       this.desktopSettingsService,
       this.shell,
       (arg) => this.processDeepLink(arg),
-      (win) => this.trayMain.setupWindowListeners(win),
+      (win) => this.onWindowCreated(win),
       () => this.trayMain.restoreFromTray(),
     );
 
@@ -441,14 +447,6 @@ export class Main {
           this.processDeepLink([url]);
         });
 
-        // Handle window visibility events
-        this.windowMain.win.on("hide", () => {
-          this.messagingService.send("windowHidden");
-        });
-        this.windowMain.win.on("minimize", () => {
-          this.messagingService.send("windowHidden");
-        });
-
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
       },
@@ -456,6 +454,22 @@ export class Main {
         this.logService.error("Error while running migrations:", e);
       },
     );
+  }
+
+  /**
+   * Wires up listeners that belong to a specific window instance. Runs for every window, since the
+   * window can be recreated during a session (macOS red button, experimental renderer closing).
+   */
+  private onWindowCreated(win: Electron.BrowserWindow): void {
+    this.trayMain.setupWindowListeners(win);
+
+    // Handle window visibility events
+    win.on("hide", () => {
+      this.messagingService.send("windowHidden");
+    });
+    win.on("minimize", () => {
+      this.messagingService.send("windowHidden");
+    });
   }
 
   private processDeepLink(argv: string[]): void {
