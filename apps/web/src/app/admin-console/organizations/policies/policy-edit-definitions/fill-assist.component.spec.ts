@@ -30,6 +30,9 @@ import {
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
 const DEFAULT_URL = "https://github.com/bitwarden/map-the-web/releases/latest/download";
+// Host+path form of the default, matching what appears in the form input
+// (the `https://` is rendered as an uneditable `bitPrefix` in the template).
+const DEFAULT_URL_HOST_PATH = "github.com/bitwarden/map-the-web/releases/latest/download";
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -120,11 +123,13 @@ describe.each`
     component = fixture.componentInstance;
   });
 
-  it("defaults rulesUrl to the Bitwarden default", () => {
-    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL);
+  it("defaults rulesUrl to the host+path of the Bitwarden default", () => {
+    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
   });
 
-  it("loads rulesUrl from policy data on init", () => {
+  it("strips the https:// prefix when loading rulesUrl from policy data on init", () => {
+    // Stored data is a canonical full URL; the form shows just the host+path
+    // because the template renders `https://` as an uneditable `bitPrefix`.
     const customUrl = "https://github.com/acme-org/map-the-web/releases/latest/download";
     fixture.componentRef.setInput(
       "policyResponse",
@@ -133,7 +138,9 @@ describe.each`
 
     component.ngOnInit();
 
-    expect(component.data?.value?.rulesUrl).toBe(customUrl);
+    expect(component.data?.value?.rulesUrl).toBe(
+      "github.com/acme-org/map-the-web/releases/latest/download",
+    );
   });
 
   it("keeps the default rulesUrl when policy data is null", () => {
@@ -141,7 +148,7 @@ describe.each`
 
     component.ngOnInit();
 
-    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL);
+    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
   });
 
   it("marks the form invalid when rulesUrl is empty", () => {
@@ -156,24 +163,76 @@ describe.each`
     expect(component.data?.invalid).toBe(true);
   });
 
-  it("accepts a valid https URL", () => {
-    component.data?.patchValue({ rulesUrl: "https://example.com/rules" });
+  it("accepts a valid host+path value", () => {
+    component.data?.patchValue({ rulesUrl: "example.com/rules" });
 
     expect(component.data?.valid).toBe(true);
   });
 
-  it.each([
-    ["http://example.com/rules"],
-    ["javascript:alert(1)"],
-    ["file:///etc/passwd"],
-    ["ftp://example.com/rules"],
-  ])("rejects non-https URL scheme: %s", (url) => {
-    component.data?.patchValue({ rulesUrl: url });
+  describe("protocol handling on user input", () => {
+    it("silently strips a pasted https:// prefix", () => {
+      component.data?.patchValue({ rulesUrl: "https://example.com/rules" });
 
-    expect(component.data?.invalid).toBe(true);
-    expect(component.data?.get("rulesUrl")?.errors).toEqual({
-      url: { message: "invalidFillAssistRulesUrl" },
+      expect(component.data?.value?.rulesUrl).toBe("example.com/rules");
+      expect(component.data?.valid).toBe(true);
     });
+
+    it("strips a pasted https:// prefix case-insensitively", () => {
+      component.data?.patchValue({ rulesUrl: "HTTPS://example.com/rules" });
+
+      expect(component.data?.value?.rulesUrl).toBe("example.com/rules");
+      expect(component.data?.valid).toBe(true);
+    });
+
+    it.each([
+      ["http://example.com/rules"],
+      ["ftp://example.com/rules"],
+      ["javascript:alert(1)"],
+      ["mailto:x@y.com"],
+      // Single-slash form: WHATWG URL parser would leniently accept
+      // "https://http:/example.com" as a hostname `http` with empty port,
+      // so this must be caught explicitly.
+      ["http:/example.com/rules"],
+      // No-slash form: also a scheme attempt.
+      ["http:example.com/rules"],
+    ])("rejects a pasted non-https protocol: %s", (url) => {
+      component.data?.patchValue({ rulesUrl: url });
+
+      expect(component.data?.invalid).toBe(true);
+      expect(component.data?.get("rulesUrl")?.errors).toEqual({
+        url: { message: "invalidFillAssistRulesUrl" },
+      });
+    });
+
+    it.each([
+      // Colon in path/query/fragment — legit URL constructs, must not be flagged
+      // as scheme attempts by the validator.
+      ["example.com/git:/main"],
+      ["example.com/segment:/other"],
+      ["example.com/foo?x=:/bar"],
+      ["example.com/foo#:/bar"],
+    ])("accepts colon+slash inside path/query/fragment: %s", (url) => {
+      component.data?.patchValue({ rulesUrl: url });
+
+      expect(component.data?.valid).toBe(true);
+    });
+  });
+
+  it("prepends https:// when building the save request", async () => {
+    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    component.data?.patchValue({ rulesUrl: "acme.example.com/rules" });
+
+    const request = await component.buildRequest();
+
+    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+  });
+
+  it("saves the default URL as a canonical full URL when unchanged", async () => {
+    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+
+    const request = await component.buildRequest();
+
+    expect(request.policy.data?.rulesUrl).toBe(DEFAULT_URL);
   });
 
   it("throws when saving without a rulesUrl", async () => {

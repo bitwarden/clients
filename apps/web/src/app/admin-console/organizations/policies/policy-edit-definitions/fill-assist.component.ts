@@ -1,5 +1,6 @@
 import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -32,16 +33,44 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
-function httpsUrlValidator(errorMessage: string): ValidatorFn {
+/** Uneditable protocol prefix rendered ahead of the URL input via `bitPrefix`. */
+const HTTPS_PREFIX = "https://";
+
+/** Case-insensitive match for a leading `https://`. */
+const HTTPS_PREFIX_PATTERN = /^https:\/\//i;
+
+/** Strip our known protocol prefix so stored URLs round-trip cleanly into the input. */
+function stripHttpsPrefix(value: string): string {
+  return value.replace(HTTPS_PREFIX_PATTERN, "");
+}
+
+/**
+ * Matches a scheme attempt at the start of the input (per RFC 3986 scheme syntax, minus `.`
+ * — we intentionally exclude `.` so this does not false-positive on hostnames like
+ * `example.com:`). Matches `http:`, `ftp:`, `javascript:`, `mailto:`, `xmpp+im:`, etc.
+ * The one theoretical false positive is URL-embedded credentials like `user:pass@…` —
+ * effectively never used for static file hosting URLs.
+ */
+const SCHEME_ATTEMPT = /^[a-z][a-z0-9+-]*:/i;
+
+/**
+ * Validates the input's host/path portion. The protocol is fixed to `https:` by the
+ * `bitPrefix` in the template, and pasted `https://` is stripped as the user types, so any
+ * remaining scheme attempt here means the user pasted an unsupported protocol
+ * (`http`, `ftp`, etc.) — including the single-slash form `http:/foo` that the WHATWG URL
+ * parser would otherwise accept as an empty-port hostname.
+ */
+function hostPathValidator(errorMessage: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value) {
+    const value: string = control.value;
+    if (!value) {
       return null;
     }
+    if (SCHEME_ATTEMPT.test(value)) {
+      return { url: { message: errorMessage } };
+    }
     try {
-      const parsed = new URL(control.value);
-      if (parsed.protocol !== "https:") {
-        return { url: { message: errorMessage } };
-      }
+      new URL(HTTPS_PREFIX + value);
       return null;
     } catch {
       return { url: { message: errorMessage } };
@@ -97,15 +126,45 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   constructor() {
     super();
 
-    this.data = this.formBuilder.group({
-      rulesUrl: new FormControl<string>(DEFAULT_FILL_ASSIST_RULES_URL, {
-        validators: [
-          Validators.required,
-          httpsUrlValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
-        ],
-        nonNullable: true,
-      }),
+    const rulesUrl = new FormControl<string>(stripHttpsPrefix(DEFAULT_FILL_ASSIST_RULES_URL), {
+      validators: [
+        Validators.required,
+        hostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
+      ],
+      nonNullable: true,
     });
+
+    // Silently strip a pasted or typed `https://` so it aligns with the uneditable
+    // `bitPrefix` shown ahead of the input. Non-https protocols (`http`, `ftp`, etc.)
+    // are intentionally left alone here so the validator can surface a clear error.
+    rulesUrl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (value && HTTPS_PREFIX_PATTERN.test(value)) {
+        rulesUrl.setValue(stripHttpsPrefix(value), { emitEvent: false });
+      }
+    });
+
+    this.data = this.formBuilder.group({ rulesUrl });
+  }
+
+  // The `bitPrefix` in the template renders `https://` as an uneditable segment, so
+  // the form value is the host+path only. Strip on load and prepend on save so the
+  // stored policy data remains a canonical full URL.
+  protected override loadData() {
+    const data = this.policyResponse()?.data ?? {};
+    const rulesUrl =
+      typeof data.rulesUrl === "string" ? stripHttpsPrefix(data.rulesUrl) : data.rulesUrl;
+    this.data?.patchValue({ ...data, rulesUrl });
+  }
+
+  protected override buildRequestData() {
+    const data = this.data?.getRawValue();
+    if (data == null) {
+      return null;
+    }
+    return {
+      ...data,
+      rulesUrl: data.rulesUrl ? HTTPS_PREFIX + data.rulesUrl : data.rulesUrl,
+    };
   }
 
   override async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
