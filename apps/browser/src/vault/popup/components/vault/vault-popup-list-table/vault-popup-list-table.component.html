@@ -1,12 +1,3 @@
-<!--
-  The host is pulled out to the popup's full width (negative margins on the host) so the toolbar's
-  bottom border spans edge to edge. Only that border should bleed, so the inset is put back on the
-  content: every row and group header (`[role=row]`) and the projected empty state.
-
-  Those insets are fixed at `3` while the host's margins track compact density, so they are 4px
-  wide in compact mode. Left as-is deliberately: `table/v2` has no compact support at all, and that
-  belongs in the component library rather than being patched from here.
--->
 <bit-table-v2
   class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
@@ -16,11 +7,6 @@
   [loading]="loading()"
   [trackBy]="trackRow"
 >
-  <!--
-    The toolbar holds this presentation's search bar, so its bottom edge is the boundary the list
-    scrolls under — `popup-page`'s above-scroll-area is empty here. Mirrors that separator's
-    behavior: hidden at rest, revealed once the list is scrolled.
-  -->
   <bit-table-toolbar
     class="tw-transition-colors tw-duration-200"
     [class.!tw-border-transparent]="!pageScrolled()"
@@ -34,16 +20,7 @@
       appAutofocus
     ></bit-search>
   </bit-table-toolbar>
-
-  <!--
-    The rows are filtered upstream by `VaultPopupListTableService`, not by the table, so the table
-    can't tell a zero-result search from an empty vault — its fallback would always read "Nothing to
-    show". Project the empty state so the search case keeps its specific copy and recovery hint.
-  -->
-  <!-- `bit-table-v2` renders its empty slot top-aligned; centered here to match the page-level
-       empty states (`my-auto` rather than a height, since the slot is a flex item). The negative
-       top margin cancels `bit-no-items`' own unconditional `tw-pt-6`, which would otherwise push
-       the content below the centered box. -->
+  <!-- Zeroes `bit-no-items`' built-in top padding, which would offset the centering. -->
   <bit-no-items slot="empty" class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0">
     <span slot="title">{{
       (hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n

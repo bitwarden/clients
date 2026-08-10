@@ -152,28 +152,20 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private displacedScrollHost: ElementRef<HTMLElement> | null = null;
 
   /**
-   * Hands the table's virtual-scroll viewport to {@link ScrollLayoutService} while this component
-   * is mounted, and restores the previous host on teardown.
+   * Publishes the table's virtual-scroll viewport as the layout scroll host while mounted, so
+   * scroll-position restore and the scrolled-state separator track the element that actually
+   * scrolls — `popup-page`'s own region doesn't once the table fills it.
    *
-   * `popup-page` marks its own scroll region as the layout's scroll host, but with the table
-   * mounted that region no longer overflows — the viewport scrolls instead. Consumers that read
-   * the host (scroll-position restore when returning from an item, the header's scrolled-state
-   * separator) would otherwise be watching an element that never fires a scroll event.
-   *
-   * The viewport is found by DOM query rather than `viewChild`: it lives in `bit-table-v2`'s own
-   * template, so it is neither in this component's view nor content from its perspective.
+   * Queried from the DOM because the viewport belongs to `bit-table-v2`'s template, so it is
+   * neither this component's view nor its content.
    */
   private readonly _publishScrollHost = afterRenderEffect(() => {
-    // The viewport only exists once the table has left its loading state and has rows to render,
-    // so these are read as dependencies — a DOM query isn't reactive, and without them the effect
-    // would run once against a table that hasn't rendered a viewport yet and never look again.
+    // Read as dependencies — the query below isn't reactive, and the viewport only exists once
+    // these settle. Removing them stops the effect from ever finding it.
     this.loading();
     this.rows();
 
-    // Compare against what the service currently holds, not against what this component last
-    // published: `ScrollLayoutHostDirective` re-claims the host for `popup-page`'s own scroll
-    // region every time that region is re-created, so a guard on our own cached value would
-    // short-circuit and leave the page's non-scrolling div registered.
+    // Compared against the service's value, not our own: the host gets re-claimed elsewhere.
     const current = this.scrollLayout.scrollableRef();
     const viewport = this.host.nativeElement.querySelector<HTMLElement>(
       "cdk-virtual-scroll-viewport",
@@ -183,14 +175,13 @@ export class VaultPopupListTableComponent implements OnDestroy {
       return;
     }
 
-    // Remember the first host we displaced so it can be restored on teardown.
     this.displacedScrollHost ??= current;
     this.publishedScrollHost = new ElementRef(viewport);
     this.scrollLayout.scrollableRef.set(this.publishedScrollHost);
   });
 
   ngOnDestroy() {
-    // Only yield the host back if nothing else has claimed it in the meantime.
+    // Only yield the host back if nothing else has claimed it since.
     if (this.scrollLayout.scrollableRef() === this.publishedScrollHost) {
       this.scrollLayout.scrollableRef.set(this.displacedScrollHost);
     }
