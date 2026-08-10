@@ -116,6 +116,54 @@
   "myFolders": {
     "message": "Saját mappák"
   },
+  "addSharedFolder": {
+    "message": "Megosztott mappa hozzadása"
+  },
+  "newSharedFolder": {
+    "message": "Új megosztott mappa"
+  },
+  "searchSharedFolder": {
+    "message": "Megosztott mappa keresése"
+  },
+  "searchMyFolder": {
+    "message": "Saját mappák keresése"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Megosztott mappa megtekintése - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Megosztott mappa törlése"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ megosztott mappa törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Ezek a megosztott mappa véglegesen törlésre kerül. A mappában lévő elemek nem törlődnek."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Ezek a megosztott mappák véglegesen törlésre kerülnek. A mappákban lévő elemek nem törlődnek."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "A kiválasztott elemek és megosztott mappák végleges törlésre kerülnek."
+  },
+  "sharedFolderDeleted": {
+    "message": "A megosztott mappa törlésre került."
+  },
+  "sharedFoldersDeleted": {
+    "message": "A megosztott mappák törlésre kerültek."
+  },
   "share": {
     "message": "Megosztás"
   },
@@ -470,6 +518,15 @@
   },
   "launch": {
     "message": "Megnyitás"
+  },
+  "launchWebsiteForName": {
+    "message": "$ITEMNAME$ webhely elindítása",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Érték másolása",
@@ -877,6 +934,60 @@
   },
   "owner": {
     "message": "Tulajdonos"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Megosztott mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Gyűjtemény $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Saját mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Tulajdonos $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Széf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Mező hozzáadása"
@@ -1904,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
+  },
+  "copyNoteTitle": {
+    "message": "Jegyzet másolása - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Nincsenek másolandó adatok."
+  },
   "runInBackground": {
     "message": "Bitwarden futtatásban tartása a háttérben"
   },
@@ -1999,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Ellenőrző kód másolása"
+  },
+  "noUsername": {
+    "message": "Nincs felhasználónév"
+  },
+  "noPassword": {
+    "message": "Nincs jelszó"
+  },
+  "noVerificationCode": {
+    "message": "Nincs ellenőrző kód"
+  },
+  "noNumber": {
+    "message": "Nincs szám"
+  },
+  "noSecurityCode": {
+    "message": "Nincs biztonsági kód"
+  },
+  "copyDetailsTitle": {
+    "message": "Adatok másolása: $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Felhasználónév másolása"
@@ -2149,6 +2301,92 @@
   },
   "selectAll": {
     "message": "Összes kijelölése"
+  },
+  "selectAllRows": {
+    "message": "Összes sor kiválasztása"
+  },
+  "selectRow": {
+    "message": "Sor kiválasztása"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$ / $TOTAL$ megjelenítése",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Sorok száma oldalanként"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ sor oldalanként",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ elem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Összes"
+  },
+  "clearAll": {
+    "message": "Összes törlése"
+  },
+  "done": {
+    "message": "Kész"
+  },
+  "filter": {
+    "message": "Szűrő"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ lett kiválasztva.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Előző oldal"
+  },
+  "nextPage": {
+    "message": "Következő oldal"
+  },
+  "goToPage": {
+    "message": "Ugrás oldalra:"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nincsenek egyező elemek."
   },
   "selected": {
     "message": "Kiválasztva"
@@ -2392,9 +2630,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "A “Fájl jelszó” és a “Fájl jelszó megerősítés“ nem egyezik."
-  },
-  "done": {
-    "message": "Kész"
   },
   "warning": {
     "message": "FIGYELEM",
@@ -3305,6 +3540,9 @@
   "options": {
     "message": "Opciók"
   },
+  "moreOptions": {
+    "message": "További opciók"
+  },
   "sessionTimeout": {
     "message": "A munkamenet lejárt. Lépjünk vissza és próbáljunk újra bejelentkezni."
   },
@@ -3615,6 +3853,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "Webhely előtag hozzáadása",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ha engedélyezve van, az aktuális webhely tartománya a generált email cím előtagjaként kerül felhasználásra.",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
     "message": "Kiszolglónév",
@@ -4220,8 +4466,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ elem kimarad.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "A következő elemeket nem sikerült olvasni és nem szerepelnek az importálásban:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Ezt az SSH kulcsot nem sikerült importálni."
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nem támogatott elemtípus."
+  },
+  "importSkipReasonGeneric": {
+    "message": "Ezt az elemet nem sikerült importálni."
+  },
+  "identifier": {
+    "message": "Azonosító"
   },
   "contact": {
     "message": "Kapcsolat"
@@ -4695,6 +4962,12 @@
   "removePasskey": {
     "message": "Azonosító kulcs eltávolítás"
   },
+  "deletePasskey": {
+    "message": "Belépőkulcs törlése"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Ez a belépőkulcs véglegesen törlődik a bejelentkezési elemből. Ezt nem lehet visszavonni."
+  },
   "passkeyRemoved": {
     "message": "Az azonosító  kucs eltávolításra került."
   },
@@ -4968,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Áthelyezés"
   },
@@ -5066,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
+  },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
+  },
+  "itemLower": {
+    "message": "elem"
+  },
+  "itemsLower": {
+    "message": "elem"
   },
   "assignToTheseCollections": {
     "message": "Hozzárendelés ezen gyűjteményekhez"
@@ -5075,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "noCollectionsAssigned": {
     "message": "Nem lettek gyűjtemények hozzárendelve."
@@ -5136,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elemek tulajdonosa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "A gyűjtemények sikeresen hozzárendelésre kerültek."
   },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
   "itemMovedToCollection": {
     "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
   },
   "itemMovedToCollections": {
     "message": "Az elem átkerült a gyűjteményekhez:"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
   "itemsMovedToCollection": {
     "message": "Az elemek átkerültek a gyűjteményhez:"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
   "itemsMovedToCollections": {
     "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
   },
   "itemAssignedToCollections": {
     "message": "Az elem hozzárendelésre került a gyűjteményekhez."

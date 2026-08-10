@@ -20,6 +20,7 @@ export {
 } from "./models/kdf-config";
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
+export { KDF_CONFIG } from "@bitwarden/common/key-management/state-definitions";
 export { KdfType } from "./enums/kdf-type.enum";
 
 export * from "./user-asymmetric-key-regeneration";

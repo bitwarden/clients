@@ -119,6 +119,9 @@
   "vault": {
     "message": "Széf"
   },
+  "vaults": {
+    "message": "Széfek"
+  },
   "myVault": {
     "message": "Saját széf"
   },
@@ -709,7 +712,7 @@
   "launchWebsite": {
     "message": "Webhely indítása"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "$ITEMNAME$ webhely elindítása",
     "placeholders": {
       "itemname": {
@@ -1367,16 +1370,16 @@
   "additionalOptions": {
     "message": "Kiegészítő opciók"
   },
-  "enableFillAssist": {
-    "message": "Kitöltési segédlet használata"
+  "fillAssistActiveNotice": {
+    "message": "Az automatikus kitöltés a Kitöltési segédet használja ezen az oldalon."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Kitöltési segéd bekapcsolása"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "A kitöltési segédl a webhely specifikus szabályok használatával javítja az automatikus kitöltési pontosságot a támogatott webhelyeken. A funkció használatakor nincs adat gyűjtés vagy mentés."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "A kitöltési segédről"
   },
   "enableContextMenuItem": {
@@ -1496,6 +1499,12 @@
   "myFolders": {
     "message": "Saját mappák"
   },
+  "addSharedFolder": {
+    "message": "Megosztott mappa hozzadása"
+  },
+  "newSharedFolder": {
+    "message": "Új megosztott mappa"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
   },
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Ellenőrző kód másolása"
+  },
+  "noUsername": {
+    "message": "Nincs felhasználónév"
+  },
+  "noPassword": {
+    "message": "Nincs jelszó"
+  },
+  "noVerificationCode": {
+    "message": "Nincs ellenőrző kód"
+  },
+  "noNumber": {
+    "message": "Nincs szám"
+  },
+  "noSecurityCode": {
+    "message": "Nincs biztonsági kód"
   },
   "attachments": {
     "message": "Mellékletek"
@@ -2594,6 +2618,92 @@
     "message": "Kiürítés",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Összes sor kiválasztása"
+  },
+  "selectRow": {
+    "message": "Sor kiválasztása"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$ / $TOTAL$ megjelenítése",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Sorok száma oldalanként"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ sor oldalanként",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ elem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Összes"
+  },
+  "clearAll": {
+    "message": "Összes törlése"
+  },
+  "done": {
+    "message": "Kész"
+  },
+  "filter": {
+    "message": "Szűrő"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ lett kiválasztva.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Előző oldal"
+  },
+  "nextPage": {
+    "message": "Következő oldal"
+  },
+  "goToPage": {
+    "message": "Ugrás oldalra:"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nincsenek egyező elemek."
+  },
   "selected": {
     "message": "Kiválasztva"
   },
@@ -3185,6 +3295,10 @@
   },
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
+  },
+  "atRisk": {
+    "message": "veszélyben",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ egy jelszó megváltoztatását kéri, mert az kockázatos.",
@@ -4028,6 +4142,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Webhely előtag hozzáadása",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ha engedélyezve van, az aktuális webhely tartománya a generált email cím előtagjaként kerül felhasználásra.",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Kiszolglónév",
     "description": "Part of a URL."
@@ -4799,8 +4921,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ elem kimarad.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "A következő elemeket nem sikerült olvasni és nem szerepelnek az importálásban:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Ezt az SSH kulcsot nem sikerült importálni."
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nem támogatott elemtípus."
+  },
+  "importSkipReasonGeneric": {
+    "message": "Ezt az elemet nem sikerült importálni."
+  },
+  "identifier": {
+    "message": "Azonosító"
   },
   "contact": {
     "message": "Kapcsolat"
@@ -5466,6 +5609,12 @@
   "removePasskey": {
     "message": "Jelszó eltávolítása"
   },
+  "deletePasskey": {
+    "message": "Belépőkulcs törlése"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Ez a belépőkulcs véglegesen törlődik a bejelentkezési elemből. Ezt nem lehet visszavonni."
+  },
   "passkeyRemoved": {
     "message": "A jelszó eltávolításra került."
   },
@@ -5487,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
-  "copyInfoTitle": {
-    "message": "Infó másolása - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Adatok másolása: $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5745,17 @@
     "message": "Nincs megadva érték.",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Nincsenek másolandó értékek."
+  "noDetailsToCopy": {
+    "message": "Nincsenek másolandó adatok."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményhez"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
   },
   "copyEmail": {
     "message": "Email cím másolása"
@@ -5744,6 +5899,60 @@
   },
   "owner": {
     "message": "Tulajdonos"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Megosztott mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Gyűjtemény $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Saját mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Tulajdonos $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Széf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Saját magam",
@@ -6015,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ elemeket jelölt ki. Nem frissítheti a $READONLY_COUNT$ részét, mert nem rendelkezik szerkesztési jogosultsággal.",
@@ -6122,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen áthelyezésre kerül a szervezethez. Többé nem Önhöz fog tartozni az elem."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ elemek véglegesen áthelyezésre kerülnek a kiválasztott szervezethez. Többé nem Önhöz fognak tartozni az elemek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Sikerült a gyűjteményhez való hozzárendelés"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
   "itemMovedToCollection": {
     "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
   },
   "itemMovedToCollections": {
     "message": "Az elem átkerült a gyűjteményekhez:"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
   "itemsMovedToCollection": {
     "message": "Az elemek átkerültek a gyűjteményhez:"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
   "itemsMovedToCollections": {
     "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
   },
   "itemAssignedToCollections": {
     "message": "Az elem hozzárendelésre került a gyűjteményekhez."
@@ -6216,10 +6458,16 @@
     "message": "Elem helyek"
   },
   "fileSends": {
-    "message": "Fájl küldés"
+    "message": "Fájl küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Szöveg küldés"
+    "message": "Szöveg küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Fiókműveletek"
@@ -6239,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Gyors másolási műveletek megjelenítése a Széfen"
+  "showQuickCopyActionsInVault": {
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
   "systemDefault": {
     "message": "Rendszer alapértelmezett"
@@ -6554,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Frissítsük az asztali alkalmazást."
   },
@@ -6735,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
@@ -7034,6 +7294,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Ha engedélyezve van, a feloldási állapot megosztásra kerül a Bitwarden web széffel."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "A megosztott feloldás nem érhető el, mert azt választottuk, hogy nem emlékszünk erre az eszközre. A beállítás engedélyezéséhez próbáljunk meg újra bejelentkezni."
+  },
   "newPermissionNeeded": {
     "message": "Új jogosultság szükséges"
   },
@@ -7240,5 +7503,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Egészség"
+  },
+  "scanMyVault": {
+    "message": "Saját széf átvizsgálás"
+  },
+  "introducingHealth": {
+    "message": "Egészség bemutatás"
+  },
+  "healthIntroDescription": {
+    "message": "Figyeljük és javítsuk a széf állapotát a kitett, gyenge és újrafelhasznált jelszavak javításával."
   }
 }
