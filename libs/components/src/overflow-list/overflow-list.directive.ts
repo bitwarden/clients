@@ -125,9 +125,12 @@ export class OverflowListDirective {
 
     // Trigger reservation consumes the whole container. `pack` treats a
     // non-positive container as "not measured" and returns all displayed,
-    // so short-circuit to "everything overflows" here.
+    // so decide here instead. A pinned item still has to stay visible.
     if (available <= 0) {
-      return { displayed: [], overflow: indices(count) };
+      const pin = this.pinIndex();
+      return pin === null
+        ? { displayed: [], overflow: indices(count) }
+        : { displayed: [pin], overflow: indices(count).filter((i) => i !== pin) };
     }
 
     return pack(widths, available, gap, this.pinIndex());

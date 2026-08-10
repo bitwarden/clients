@@ -25,10 +25,17 @@ interface Item {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div bitOverflowList [gap]="8" [containerWidth]="containerWidth()">
-      @for (item of items(); track item.id) {
-        <button bitOverflowItem type="button" [attr.data-width]="item.width">{{ item.id }}</button>
+      @for (item of items(); track item.id; let i = $index) {
+        <button
+          bitOverflowItem
+          type="button"
+          [pinned]="pinnedIndex() === i"
+          [attr.data-width]="item.width"
+        >
+          {{ item.id }}
+        </button>
       }
-      <button bitOverflowTrigger type="button" data-width="0">More</button>
+      <button bitOverflowTrigger type="button" [attr.data-width]="triggerWidth()">More</button>
     </div>
   `,
 })
@@ -39,6 +46,8 @@ class HostComponent {
     { id: "c", width: 100 },
   ]);
   readonly containerWidth = signal<number | null>(null);
+  readonly pinnedIndex = signal<number | null>(null);
+  readonly triggerWidth = signal(0);
   readonly list = viewChild.required(OverflowListDirective);
 }
 
@@ -176,6 +185,37 @@ describe("OverflowListDirective", () => {
       // Unlike the item-set-change path, `remeasure` must not clear the cache
       // up front — flashing all-displayed mid-resize would overflow the row.
       expect(list().overflow()).toEqual(before);
+    }));
+  });
+
+  describe("trigger reserve consumes the container", () => {
+    const itemEls = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("button[bitOverflowItem]"));
+
+    beforeEach(() => {
+      // Reserving the trigger (60) plus the gap (8) leaves nothing of the
+      // 60px container for the items themselves.
+      host.triggerWidth.set(60);
+      host.containerWidth.set(60);
+    });
+
+    it("overflows every item when nothing is pinned", fakeAsync(() => {
+      settle();
+
+      expect(list().displayed()).toEqual([]);
+      expect(list().overflow()).toEqual([0, 1, 2]);
+    }));
+
+    it("keeps the pinned item displayed", fakeAsync(() => {
+      host.pinnedIndex.set(1);
+      settle();
+
+      // The pin is the one guarantee `pack` makes unconditionally; the
+      // no-room short-circuit must not sidestep it, or consumers that pin the
+      // selected item (tabs) render an empty row.
+      expect(list().displayed()).toEqual([1]);
+      expect(list().overflow()).toEqual([0, 2]);
+      expect(itemEls()[1].hidden).toBe(false);
     }));
   });
 });
