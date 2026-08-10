@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, combineLatest, of, startWith } from "rxjs";
 import { Constructor } from "type-fest";
@@ -24,7 +24,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -65,10 +64,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly discardGuardEnabled = signal(false);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
   private readonly guardArmed = signal(false);
-  private readonly useDrawer = toSignal(
-    inject(ConfigService).getFeatureFlag$(FeatureFlag.PolicyDrawers),
-    { initialValue: false },
-  );
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -159,7 +154,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       });
 
     // For modals, only the beforeunload guard is needed — closePredicate is drawer-only.
-    if (!this.useDrawer() || !this.dialogRef.isDrawer) {
+    if (!this.dialogRef.isDrawer) {
       return;
     }
 

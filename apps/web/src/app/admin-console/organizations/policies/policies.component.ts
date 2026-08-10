@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -20,7 +20,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -107,11 +106,6 @@ export class PoliciesComponent {
       }),
     );
 
-  protected readonly useDrawer = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
-    { initialValue: false },
-  );
-
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>
       combineLatest(
@@ -188,7 +182,7 @@ export class PoliciesComponent {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    const drawerOpener = this.useDrawer() ? dialogComponent.openDrawer : undefined;
+    const drawerOpener = dialogComponent.openDrawer;
 
     if (drawerOpener) {
       const triggerEl =

@@ -4,7 +4,7 @@ import {
   BehaviorSubject,
   concatMap,
   firstValueFrom,
-  map,
+  of,
   Subject,
   takeUntil,
   withLatestFrom,
@@ -12,7 +12,6 @@ import {
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   MaximumSessionTimeoutPolicyData,
   SessionTimeoutAction,
@@ -39,8 +38,8 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   priority = 70;
   component = SessionTimeoutPolicyComponent;
 
-  display$(_organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v: boolean) => !v));
+  display$(_organization: Organization, _configService: ConfigService) {
+    return of(false);
   }
 }
 

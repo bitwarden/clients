@@ -101,8 +101,6 @@ export abstract class BasePolicyEditDefinition {
    * Optional drawer-specific configuration for this policy.
    * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
    * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
-   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
-   * {@link PoliciesComponent} — there is no per-policy flag.
    */
   v2?: {
     /** Component to render inside the drawer instead of {@link component}. */

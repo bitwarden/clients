@@ -107,6 +107,9 @@ describe("PoliciesComponent", () => {
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
     jest.spyOn(PolicyEditDialogComponent, "open").mockReturnValue({ close: jest.fn() } as any);
+    jest
+      .spyOn(PolicyEditDialogComponent, "openDrawer")
+      .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
     await TestBed.configureTestingModule({
       imports: [PoliciesComponent],
@@ -411,7 +414,7 @@ describe("PoliciesComponent", () => {
         data: null,
       };
 
-      let dialogOpenSpy: jest.SpyInstance;
+      let dialogOpenDrawerSpy: jest.SpyInstance;
 
       beforeEach(async () => {
         queryParamsSubject.next({ policyId: mockPolicyId });
@@ -423,9 +426,9 @@ describe("PoliciesComponent", () => {
           ),
         );
 
-        dialogOpenSpy = jest
-          .spyOn(PolicyEditDialogComponent, "open")
-          .mockReturnValue({ close: jest.fn() } as any);
+        dialogOpenDrawerSpy = jest
+          .spyOn(PolicyEditDialogComponent, "openDrawer")
+          .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule({
@@ -457,8 +460,8 @@ describe("PoliciesComponent", () => {
       });
 
       it("should open policy dialog when policyId is in query params", () => {
-        expect(dialogOpenSpy).toHaveBeenCalled();
-        const callArgs = dialogOpenSpy.mock.calls[0][1];
+        expect(dialogOpenDrawerSpy).toHaveBeenCalled();
+        const callArgs = dialogOpenDrawerSpy.mock.calls[0][1];
         expect(callArgs.data?.policy.type).toBe(mockPolicy.type);
         expect(callArgs.data?.organization).toBe(mockOrg);
       });
@@ -499,7 +502,7 @@ describe("PoliciesComponent", () => {
   });
 
   describe("edit", () => {
-    it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
+    it("should call dialogComponent.openDrawer with correct parameters when no custom dialog is specified", async () => {
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
@@ -512,12 +515,12 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
+      const openDrawerSpy = jest.spyOn(PolicyEditDialogComponent, "openDrawer");
 
       await component.edit(mockPolicy, mockOrg);
 
-      expect(openSpy).toHaveBeenCalled();
-      const callArgs = openSpy.mock.calls[0];
+      expect(openDrawerSpy).toHaveBeenCalled();
+      const callArgs = openDrawerSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
@@ -572,12 +575,12 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
+      const openDrawerSpy = jest.spyOn(PolicyEditDialogComponent, "openDrawer");
 
       await component.edit(mockPolicy, customOrg);
 
-      expect(openSpy).toHaveBeenCalled();
-      const callArgs = openSpy.mock.calls[0];
+      expect(openDrawerSpy).toHaveBeenCalled();
+      const callArgs = openDrawerSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
@@ -586,13 +589,7 @@ describe("PoliciesComponent", () => {
       });
     });
 
-    it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      fixture = TestBed.createComponent(PoliciesComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
+    it("should open drawer when openDrawer is present on the dialog component", async () => {
       const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {
         open: jest.fn(),
@@ -626,12 +623,6 @@ describe("PoliciesComponent", () => {
     });
 
     it("clears the drawer ref once it closes, so canDeactivate doesn't re-close a stale ref", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      fixture = TestBed.createComponent(PoliciesComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
       // Simulate the real DrawerRef behavior: calling close() on an already-closed ref
       // short-circuits to `{ closed: false }`. If the component failed to clear its
       // `drawerRef` signal after the drawer closed, canDeactivate() would call this again

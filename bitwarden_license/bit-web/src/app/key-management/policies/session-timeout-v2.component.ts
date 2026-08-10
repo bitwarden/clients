@@ -17,15 +17,12 @@ import {
 } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   MaximumSessionTimeoutPolicyData,
   SessionTimeoutAction,
   SessionTimeoutType,
 } from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CalloutComponent,
@@ -53,10 +50,6 @@ export class SessionTimeoutPolicyV2 extends BasePolicyEditDefinition {
   component = SessionTimeoutPolicyV2Component;
   showDescription = false;
   showEnabledBadge = true;
-
-  display$(_organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);
-  }
 }
 
 const DEFAULT_HOURS = 8;
