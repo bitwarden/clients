@@ -9,9 +9,13 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CheckboxModule, LinkModule, TableModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
-import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden/vault";
+import { CheckboxModule, IconModule, LinkModule, TableModule } from "@bitwarden/components";
+import {
+  GetOrgNameFromIdPipe,
+  OrganizationNameBadgeComponent,
+  Vfo1I18nPipe,
+  Vfo1IconPipe,
+} from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -22,11 +26,13 @@ import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden
     TableModule,
     LinkModule,
     NgClass,
-    I18nPipe,
     RouterLink,
     OrganizationNameBadgeComponent,
     GetOrgNameFromIdPipe,
     CheckboxModule,
+    IconModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
 })
 export class VaultCollectionRowComponent {

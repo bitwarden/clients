@@ -52,6 +52,7 @@ libs/tools                                                     @bitwarden/team-t
 ## Dirt (Data Insights & Reporting) team files ##
 apps/browser/src/dirt                   @bitwarden/team-data-insights-and-reporting-dev
 apps/web/src/app/dirt                   @bitwarden/team-data-insights-and-reporting-dev
+apps/cli/src/dirt                       @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt   @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt  @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt                               @bitwarden/team-data-insights-and-reporting-dev
@@ -167,7 +168,7 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/autotype.rs  @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -226,6 +227,7 @@ apps/cli/src/key-management                       @bitwarden/team-key-management
 bitwarden_license/bit-web/src/app/key-management  @bitwarden/team-key-management-dev
 libs/key-management                               @bitwarden/team-key-management-dev
 libs/key-management-ui                            @bitwarden/team-key-management-dev
+libs/legacy-crypto                                @bitwarden/team-key-management-dev
 libs/user-crypto-management                       @bitwarden/team-key-management-dev
 libs/common/src/key-management                    @bitwarden/team-key-management-dev
 libs/unlock                                       @bitwarden/team-key-management-dev
@@ -240,8 +242,9 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-apps/web/src/app/pam  @bitwarden/team-pam-dev
-libs/pam              @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
+apps/web/src/app/pam                   @bitwarden/team-pam-dev
+libs/pam                               @bitwarden/team-pam-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
@@ -262,9 +265,6 @@ apps/web/src/locales/en/messages.json
 **/*.dockerignore      @bitwarden/team-appsec  @bitwarden/dept-bre
 **/docker-compose.yml  @bitwarden/team-appsec  @bitwarden/dept-bre
 **/entrypoint.sh       @bitwarden/team-appsec  @bitwarden/dept-bre
-
-# Scanning tools
-.checkmarx/  @bitwarden/team-appsec
 
 ## Overrides
 # For the time being platform owns tsconfig and jest config

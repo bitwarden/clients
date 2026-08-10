@@ -133,8 +133,6 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   SharedUnlockLeaderService,
@@ -341,6 +339,7 @@ import {
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
+import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
@@ -454,6 +453,7 @@ export default class MainBackground {
   totpService: TotpServiceAbstraction;
   autofillLifecycleService: AutofillLifecycleService;
   autofillService: AutofillServiceAbstraction;
+  autofillOrchestrator: AutofillOrchestrator;
   containerService: ContainerService;
   auditService: AuditServiceAbstraction;
   authService: AuthServiceAbstraction;
@@ -556,7 +556,6 @@ export default class MainBackground {
   cipherEncryptionService: CipherEncryptionService;
   collectionEncryptionService: CollectionEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
-  private securityStateService: SecurityStateService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -762,10 +761,6 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(
-      this.accountCryptographicStateService,
-    );
-
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
@@ -967,7 +962,6 @@ export default class MainBackground {
       this.encryptService,
       this.i18nService,
       this.stateProvider,
-      this.configService,
       this.collectionEncryptionService,
     );
 
@@ -1239,11 +1233,8 @@ export default class MainBackground {
       this.tokenService,
       this.authService,
       this.stateProvider,
-      this.securityStateService,
-      this.kdfConfigService,
-      this.accountCryptographicStateService,
-      this.v2UpgradeTokenStateService,
       this.configService,
+      this.sdkService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1277,7 +1268,6 @@ export default class MainBackground {
     );
     this.autofillLifecycleService = new DefaultAutofillLifecycleService(
       this.authService,
-      this.autofillSettingsService,
       this.logService,
     );
     this.autofillService = new AutofillService(
@@ -1296,6 +1286,15 @@ export default class MainBackground {
       messageListener,
       this.animationControlService,
       this.autofillLifecycleService,
+    );
+    this.autofillOrchestrator = new AutofillOrchestrator(
+      this.autofillLifecycleService,
+      this.autofillService,
+      this.autofillSettingsService,
+      this.accountService,
+      this.platformUtilsService,
+      () => this.updateOverlayCiphers(),
+      this.logService,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1545,6 +1544,7 @@ export default class MainBackground {
       this.browserInitialInstallService,
       this.autofillLifecycleService,
       this.defaultPasswordManagerPromptStateAccessor,
+      this.autofillOrchestrator,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1823,6 +1823,7 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
+    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();

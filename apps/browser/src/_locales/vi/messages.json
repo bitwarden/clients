@@ -119,6 +119,9 @@
   "vault": {
     "message": "Kho lưu trữ"
   },
+  "vaults": {
+    "message": "Kho"
+  },
   "myVault": {
     "message": "Kho lưu trữ của tôi"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Mở trang web"
   },
-  "launchWebsiteName": {
-    "message": "Khởi chạy trang web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,17 +1370,17 @@
   "additionalOptions": {
     "message": "Tùy chọn bổ sung"
   },
-  "enableFillAssist": {
-    "message": "Sử dụng hỗ trợ điền"
+  "fillAssistActiveNotice": {
+    "message": "Tự động điền đang sử dụng Hỗ trợ điền trên trang này.\n"
   },
-  "turnOnFillAssist": {
-    "message": "Bật hỗ trợ điền"
+  "activateFillAssist": {
+    "message": "Bật Hỗ trợ điền"
   },
-  "enableFillAssistDescription": {
-    "message": "Hỗ trợ điền giúp cải thiện độ chính xác của tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng của trang web. Không có dữ liệu nào được thu thập hoặc lưu lại khi bạn sử dụng tính năng này."
+  "activateFillAssistDescription": {
+    "message": "Hỗ trợ điền cải thiện độ chính xác tự động điền trên các trang web được hỗ trợ bằng cách sử dụng các quy tắc riêng cho từng trang. Không có dữ liệu nào bị thu thập hoặc lưu trữ khi bạn sử dụng tính năng này."
   },
-  "aboutFillAssist": {
-    "message": "Giới thiệu về hỗ trợ điền"
+  "aboutFillAssistLabel": {
+    "message": "Giới thiệu về Hỗ trợ điền"
   },
   "enableContextMenuItem": {
     "message": "Hiển thị tuỳ chọn menu ngữ cảnh"
@@ -1496,6 +1499,12 @@
   "myFolders": {
     "message": "Thư mục của tôi"
   },
+  "addSharedFolder": {
+    "message": "Thêm thư mục chia sẻ"
+  },
+  "newSharedFolder": {
+    "message": "Thư mục chia sẻ mới"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden cho Doanh Nghiệp cho phép bạn chia sẻ các mục trong kho mật khẩu với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com."
   },
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Sao chép mã xác thực"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "Tệp đính kèm"
@@ -2594,6 +2618,92 @@
     "message": "Xoá",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Chọn tất cả các hàng"
+  },
+  "selectRow": {
+    "message": "Chọn hàng"
+  },
+  "showingItemRange": {
+    "message": "Đang hiển thị $START$ - $END$ trong tổng số $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Số hàng trên mỗi trang"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ hàng trên mỗi trang",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ mục",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Tất cả"
+  },
+  "clearAll": {
+    "message": "Xoá tất cả"
+  },
+  "done": {
+    "message": "Xong"
+  },
+  "filter": {
+    "message": "Bộ lọc"
+  },
+  "filtersSelected": {
+    "message": "Đã chọn $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Trang trước"
+  },
+  "nextPage": {
+    "message": "Trang tiếp theo"
+  },
+  "goToPage": {
+    "message": "Đi đến trang"
+  },
+  "ofPageCount": {
+    "message": "của $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Không có mục nào phù hợp"
+  },
   "selected": {
     "message": "Đã chọn"
   },
@@ -3185,6 +3295,10 @@
   },
   "atRiskPasswords": {
     "message": "Mật khẩu có rủi ro cao"
+  },
+  "atRisk": {
+    "message": "có rủi ro",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ yêu cầu bạn thay đổi mật khẩu vì mật khẩu hiện tại đang gặp rủi ro.",
@@ -4028,6 +4142,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Thêm tiền tố trang web",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Khi bật, tên miền của trang web hiện tại sẽ được dùng làm tiền tố cho địa chỉ email được tạo",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Tên máy chủ",
     "description": "Part of a URL."
@@ -4799,8 +4921,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ mục sẽ bị bỏ qua",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Không thể đọc các mục sau đây và chúng sẽ không được bao gồm trong dữ liệu nhập của bạn:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Không thể nhập khóa SSH này"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Loại mục không được hỗ trợ"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Không thể nhập mục này"
+  },
+  "identifier": {
+    "message": "Định danh"
   },
   "contact": {
     "message": "Danh bạ"
@@ -5466,6 +5609,12 @@
   "removePasskey": {
     "message": "Xóa mã khoá"
   },
+  "deletePasskey": {
+    "message": "Xóa mã khóa"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Mã khóa này sẽ bị xóa vĩnh viễn khỏi mục đăng nhập của bạn. Hành động này không thể hoàn tác."
+  },
   "passkeyRemoved": {
     "message": "Đã xóa mã khoá"
   },
@@ -5487,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Xóa bộ lọc hoặc thử từ khóa tìm kiếm khác"
   },
-  "copyInfoTitle": {
-    "message": "Sao chép thông tin - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5745,17 @@
     "message": "Chưa nhập giá trị",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Không có giá trị để sao chép"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "Sao chép email"
@@ -5744,6 +5899,60 @@
   },
   "owner": {
     "message": "Chủ sở hữu"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Thư mục chia sẻ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Bộ sưu tập $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Thư mục của tôi $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Thư mục $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Chủ sở hữu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kho lưu trữ $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Bạn",
@@ -6015,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Bạn đã chọn $TOTAL_COUNT$ mục. Bạn không thể cập nhật $READONLY_COUNT$ mục vì bạn không có quyền chỉnh sửa.",
@@ -6122,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -6216,10 +6458,16 @@
     "message": "Vị trí mục"
   },
   "fileSends": {
-    "message": "Gửi tệp"
+    "message": "Gửi tệp",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Gửi văn bản"
+    "message": "Gửi văn bản",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Mục Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Thao tác trên tài khoản"
@@ -6239,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Hiển thị các hành động sao chép nhanh trên Kho"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "Mặc định hệ thống"
@@ -6554,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Vui lòng cập nhật ứng dụng trên máy tính của bạn"
   },
@@ -6735,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
@@ -7020,7 +7280,7 @@
     "message": "Xác minh người dùng thất bại."
   },
   "sharedUnlock": {
-    "message": "Cùng mở khóa"
+    "message": "Chia sẻ trạng thái mở khóa"
   },
   "sharedUnlockWithDesktop": {
     "message": "Chia sẻ trạng thái mở khóa với ứng dụng máy tính"
@@ -7034,11 +7294,14 @@
   "sharedUnlockWithWebDescription": {
     "message": "Khi được bật, trạng thái mở khóa sẽ được chia sẻ với các kho lưu trữ web Bitwarden."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Chia sẻ trạng thái mở khóa không khả dụng vì bạn đã chọn không lưu thiết bị này. Để bật cài đặt này, hãy thử đăng nhập lại."
+  },
   "newPermissionNeeded": {
     "message": "Cần có quyền mới"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "Để sử dụng tính năng cùng mở khóa, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
+    "message": "Để sử dụng tính năng chia sẻ trạng thái mở khóa, Bitwarden cần có quyền giao tiếp với ứng dụng máy tính. Khi bạn tiếp tục, trình duyệt của bạn sẽ yêu cầu bạn phê duyệt việc đó."
   },
   "sharedUnlockDesktopPermissionWarning": {
     "message": "Bitwarden sẽ khóa và tải lại. Sau khi bạn phê duyệt, tiện ích mở rộng sẽ tải lại và sẽ khóa kho lưu trữ của bạn."
@@ -7240,5 +7503,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Sức khoẻ"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }

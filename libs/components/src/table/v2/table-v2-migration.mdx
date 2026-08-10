@@ -1,6 +1,6 @@
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Component Library/Table V2/Migrating from V1" />
+<Meta title="Component Library/Table V2 (Beta)/Migrating from V1" />
 
 # Migrating from `bit-table` to `bit-table-v2`
 
@@ -9,8 +9,8 @@ in the template (`*ngFor` / `rows$ | async`); `bit-table-v2` declares one `<bit-
 — each pairing a `<bit-header-cell>` with a `*bitCellDef` cell template — and iterates the data
 itself.
 
-For the full v2 API, see the [Table V2 docs](?path=/docs/component-library-table-v2--docs). This
-page covers only the v1 → v2 mapping.
+For the full v2 API, see the [Table V2 docs](?path=/docs/component-library-table-v2-beta--docs).
+This page covers only the v1 → v2 mapping.
 
 ## Pick the mode
 
@@ -290,6 +290,26 @@ protected readonly table = defineTable<User, "actions">(this.users);
 ```
 
 Every column needs a `<bit-header-cell>`, even an empty one — screen readers rely on it.
+
+## Forms
+
+Re-key controls from a positional `FormArray` index to a `FormRecord` keyed by row id.
+
+**v1**
+
+```html
+<tr bitRow [formGroupName]="i">
+  <td bitCell><input bitInput formControlName="email" /></td>
+</tr>
+```
+
+**v2**
+
+```html
+<bit-cell *bitCellDef="table.columns.email; let row">
+  <input bitInput [formControlName]="row.id" />
+</bit-cell>
+```
 
 ## Manual mode
 

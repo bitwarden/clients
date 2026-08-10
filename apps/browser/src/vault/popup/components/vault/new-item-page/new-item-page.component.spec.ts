@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -22,6 +23,7 @@ import {
   AddEditFolderDialogComponent,
   AddItemGridComponent,
   AddItemGridResult,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -64,6 +66,10 @@ describe("NewItemPageComponent", () => {
         {
           provide: AccountService,
           useValue: mockAccountServiceWith("user-1" as UserId),
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: signal(false) },
         },
       ],
     }).compileComponents();

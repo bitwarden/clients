@@ -80,7 +80,13 @@ export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
+/**
+ * Shared disk (session on web) storage for both organization-invite variants (direct and open).
+ */
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
+export const OPEN_ORG_INVITE_DISK_LOCAL = new StateDefinition("openOrgInvite", "disk", {
+  web: "disk-local",
+});
 export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
   "vaultTimeoutSettings",
   "disk",
@@ -116,6 +122,16 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
+  web: "disk-local",
+});
 
 // Platform
 
@@ -212,7 +228,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
@@ -247,13 +265,6 @@ export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
 );
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
-export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
-  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",
