@@ -35,6 +35,7 @@ export enum FeatureFlag {
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
+  LitInlineMenuComponents = "lit-inline-menu-components",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -51,6 +52,7 @@ export enum FeatureFlag {
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
   DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
+  PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -76,7 +78,6 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
-  SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -103,6 +104,7 @@ export enum FeatureFlag {
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
+  PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
   PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
   PM29968_FillAfterSave = "pm-29968-fill-after-save",
@@ -159,6 +161,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
+  [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
@@ -172,7 +175,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
-  [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
@@ -198,6 +200,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
+  [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
   [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
   [FeatureFlag.PM29968_FillAfterSave]: FALSE,
@@ -225,6 +228,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
+  [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

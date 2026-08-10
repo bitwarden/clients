@@ -1209,9 +1209,6 @@
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
   },
-  "addToSharedFolder": {
-    "message": "Thêm vào thư mục chia sẻ"
-  },
   "newSharedFolder": {
     "message": "Thư mục chia sẻ mới"
   },
@@ -1254,11 +1251,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "Thư mục chia sẻ $NAME$ sẽ bị xóa vĩnh viễn.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1260,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ thư mục chia sẻ sẽ bị xóa vĩnh viễn.",
@@ -1310,6 +1304,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Bằng cách di chuyển một mục vào thư mục chia sẻ, bạn có thể chia sẻ mục đó một cách an toàn với các thành viên khác trong kho lưu trữ."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Thao tác này sẽ xóa vĩnh viễn tất cả các mục thuộc sở hữu của các thành viên sau. Các mục trong thư mục chia sẻ sẽ không bị ảnh hưởng.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Thao tác này sẽ xóa vĩnh viễn tất cả các mục thuộc sở hữu của $NAME$. Các mục trong thư mục chia sẻ sẽ không bị ảnh hưởng.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Quản lý quyền truy cập tổ chức, tất cả các thư mục chia sẻ, thành viên, báo cáo và cài đặt bảo mật"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Quản lý tất cả các thư mục chia sẻ, thành viên, báo cáo và cài đặt bảo mật"
+  },
+  "userDescSharedFolders": {
+    "message": "Truy cập và thêm mục vào các thư mục chia sẻ được phân công"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Cấp quyền truy cập cho thành viên vào các thư mục chia sẻ bằng cách thêm họ vào 1 hoặc nhiều nhóm."
+  },
+  "manageAllSharedFolders": {
+    "message": "Quản lý tất cả thư mục chia sẻ"
+  },
+  "createNewSharedFolders": {
+    "message": "Tạo các thư mục chia sẻ mới"
+  },
+  "editAnySharedFolder": {
+    "message": "Chỉnh sửa bất kỳ thư mục chia sẻ nào"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Xóa bất kỳ thư mục chia sẻ nào"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Bạn không thể tự thêm chính mình vào các thư mục chia sẻ."
   },
   "attachments": {
     "message": "Đính kèm"
@@ -1535,6 +1570,9 @@
   "item": {
     "message": "Mục"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "Chi tiết mục"
   },
@@ -1691,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Sao chép thông tin - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,11 +1753,11 @@
     "message": "Chưa nhập giá trị",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Không có giá trị để sao chép"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "Khởi chạy trang web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2681,6 +2719,21 @@
   "copyVerificationCode": {
     "message": "Sao chép mã xác thực"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "copyUuid": {
     "message": "Sao chép UUID"
   },
@@ -3047,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "Đã xóa kho tổ chức."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Đã xóa sạch kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Kho lưu trữ được truy cập bởi Nhà cung cấp."
   },
@@ -3266,6 +3328,9 @@
   "options": {
     "message": "Tùy chọn"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
   "preferences": {
     "message": "Tùy chỉnh"
   },
@@ -3283,6 +3348,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "Mặc định"
@@ -3656,6 +3724,10 @@
     "message": "Xác định và khắc phục các lỗ hổng bảo mật trong tài khoản của tổ chức bằng cách nhấp vào các báo cáo bên dưới.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Xác định và khắc phục các lỗ hổng bảo mật trong kho lưu trữ tổ chức của bạn bằng cách nhấp vào các báo cáo bên dưới.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Trang web không an toàn"
   },
@@ -3719,7 +3791,7 @@
     "message": "cách mã khóa hoạt động"
   },
   "passkeyLoginReportAnd": {
-    "message": "và"
+    "message": "và "
   },
   "passkeyLoginReportHowToUse": {
     "message": "cách sử dụng mã khóa trong Bitwarden."
@@ -3728,7 +3800,7 @@
     "message": "Thông tin đăng nhập hỗ trợ mã khóa"
   },
   "passkeyLoginFoundReportDesc": {
-    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
+    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3737,7 +3809,7 @@
     }
   },
   "passkeyLoginFoundReportDescPlural": {
-    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong các kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
+    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong các kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4922,6 +4994,10 @@
   "inviteUserDescription": {
     "message": "Mời người dùng mới tham gia tổ chức của bạn bằng cách nhập địa chỉ email của họ bên dưới."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Mời người dùng mới vào kho lưu trữ tổ chức của bạn bằng cách nhập địa chỉ email tài khoản Bitwarden của họ bên dưới. Nếu họ chưa có tài khoản Bitwarden, họ sẽ được yêu cầu tạo tài khoản mới.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Nhập tối đa $COUNT$ email bằng cách phân tách bằng dấu phẩy.",
     "placeholders": {
@@ -5107,8 +5183,26 @@
   "exportedOrganizationVault": {
     "message": "Đã xuất dữ liệu kho tổ chức."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Đã xuất kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Đã chỉnh sửa cài đặt tổ chức."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Đã chỉnh sửa các cài đặt kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Đã tạo mục $ID$.",
@@ -5303,6 +5397,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Đã di chuyển mục $ID$ sang kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5687,6 +5794,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Đã thêm người dùng staged $ID$.",
     "placeholders": {
@@ -5723,12 +5843,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$ do không tuân thủ chính sách đăng nhập xác thực hai yếu tố.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Đã thu hồi quyền truy cập tổ chức của $ID$ vì không tuân thủ chính sách một tổ chức duy nhất.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$ do không tuân thủ chính sách chỉ tham gia một tổ chức.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +5887,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập của $ID$ do từ chối chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Đã khôi phục quyền truy cập tổ chức của $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Đã khôi phục quyền truy cập kho lưu trữ $ORGNAME$ cho $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +5958,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Đã chỉnh sửa các thư mục chia sẻ cho mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Đã chấp nhận chuyển quyền sở hữu cho tổ chức."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Đã chấp nhận chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Đã mời người dùng $ID$.",
@@ -5855,12 +6045,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Đã tạo $ID$ trong kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Đã thêm tổ chức $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Đã thêm $ID$ vào kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6089,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Đã xóa $ID$ khỏi kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Đã truy cập kho lưu trữ của tổ chức $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Đã truy cập $ID$ trong kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6673,6 +6915,9 @@
   },
   "inviteLink": {
     "message": "Liên kết mời"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "lastGenerated": {
     "message": "Tạo lần cuối: $DATE$",
@@ -7849,6 +8094,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Thành viên $ID$ đã chấp nhận lời mời thông qua liên kết mời",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Tính năng yêu cầu quản trị viên phê duyệt đối với liên kết mời đã bị tắt",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Tính năng yêu cầu quản trị viên phê duyệt đối với liên kết mời đã được bật",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Thành viên $ID$ đã được xác nhận thông qua liên kết mời",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10671,17 +10933,29 @@
   "editGroupMembersDesc": {
     "message": "Cấp quyền cho thành viên truy cập vào các bộ sưu tập được gán cho nhóm."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Cấp cho các thành viên quyền truy cập vào các thư mục chia sẻ được phân công của nhóm."
+  },
   "editGroupCollectionsDesc": {
     "message": "Cấp quyền truy cập vào bộ sưu tập bằng cách thêm chúng vào nhóm này."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Cấp quyền truy cập vào các thư mục chia sẻ bằng cách thêm chúng vào nhóm này."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Bạn chỉ có thể gán các bộ sưu tập mà bạn quản lý."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Bạn chỉ có thể phân công các thư mục chia sẻ mà bạn quản lý."
   },
   "selectMembers": {
     "message": "Chọn thành viên"
   },
   "selectCollections": {
     "message": "Chọn bộ sưu tập"
+  },
+  "selectSharedFolders": {
+    "message": "Chọn thư mục chia sẻ"
   },
   "role": {
     "message": "Role"
@@ -10710,6 +10984,9 @@
   },
   "noCollectionsAdded": {
     "message": "Chưa thêm bộ sưu tập nào"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Chưa có thư mục chia sẻ nào được thêm"
   },
   "noMembersAdded": {
     "message": "Chưa thêm thành viên nào"
@@ -11596,6 +11873,30 @@
     "message": "tổ chức đơn lẻ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "kho lưu trữ tổ chức duy nhất",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "Yêu cầu SSO",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", và",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Quản lý khôi phục tài khoản",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "các chính sách sẽ tự động được bật.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "chính sách,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12220,38 @@
   "collectionManagement": {
     "message": "Quản lý bộ sưu tập"
   },
+  "sharedFolderManagement": {
+    "message": "Cài đặt thư mục chia sẻ"
+  },
   "collectionManagementDescription": {
     "message": "Cấu hình hành vi bộ sưu tập cho tổ chức"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Định cấu hình cách hoạt động của các thư mục chia sẻ trong kho lưu trữ của tổ chức."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Tìm hiểu thêm về các bộ sưu tập"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Tìm hiểu thêm về các thư mục chia sẻ"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục từ Bảng điều khiển quản trị"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và các mục từ Bảng điều khiển quản trị"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Hạn chế tạo bộ sưu tập cho chủ sở hữu và quản trị viên"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Giới hạn quyền tạo thư mục chia sẻ chỉ cho chủ sở hữu và quản trị viên"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Hạn chế xóa bộ sưu tập cho chủ sở hữu và quản trị viên"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Giới hạn quyền xóa thư mục chia sẻ chỉ cho chủ sở hữu và quản trị viên"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Hạn chế xóa mục cho thành viên có ",
@@ -11941,6 +12263,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Đã cập nhật cài đặt quản lý bộ sưu tập"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Đã cập nhật cài đặt quản lý thư mục chia sẻ"
   },
   "passwordManagerPlanPrice": {
     "message": "Giá gói Trình quản lý Mật khẩu"
@@ -12033,8 +12358,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Đã thay đổi cài đặt quản lý thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Đã bật cài đặt Hạn chế tạo bộ sưu tập $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Đã bật cài đặt Hạn chế tạo thư mục chia sẻ $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12394,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Đã tắt cài đặt Hạn chế tạo thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Đã bật cài đặt Hạn chế xóa bộ sưu tập $ID$.",
     "placeholders": {
@@ -12060,8 +12412,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Đã bật cài đặt Hạn chế xóa thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Đã tắt cài đặt Hạn chế xóa bộ sưu tập $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Đã tắt cài đặt Hạn chế xóa thư mục chia sẻ $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12466,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Đã bật cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Đã tắt cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Đã tắt cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và mục $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12393,14 +12781,23 @@
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
+  "addToSharedFolder": {
+    "message": "Thêm vào thư mục chia sẻ"
+  },
   "assignToTheseCollections": {
     "message": "Gán vào các bộ sưu tập này"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Chọn bộ sưu tập để gán"
@@ -12411,17 +12808,32 @@
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -12450,6 +12862,9 @@
   },
   "items": {
     "message": "Mục"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignedSeats": {
     "message": "Ghế đã gán"
@@ -13215,6 +13630,9 @@
   "memberAccessReportPageDesc": {
     "message": "Kiểm tra quyền truy cập của thành viên tổ chức trên các nhóm, bộ sưu tập và mục trong bộ sưu tập. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền của bộ sưu tập và cấu hình tài khoản."
   },
+  "memberAccessReportPageDescV2": {
+    "message": "Kiểm tra quyền truy cập của thành viên trên các nhóm, bộ sưu tập và các mục trong bộ sưu tập. Tệp xuất CSV cung cấp bản phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền bộ sưu tập và cấu hình tài khoản."
+  },
   "memberAccessReportNoCollection": {
     "message": "(Không có Bố sưu tập)"
   },
@@ -13333,8 +13751,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13763,6 +14193,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Người dùng $ID$ đã rời khỏi kho lưu trữ $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Người dùng $ID$ đã tự thu hồi quyền khỏi tổ chức.",
     "placeholders": {
@@ -13774,6 +14217,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Bị thu hồi quyền vì từ chối chuyển sang quyền sở hữu của tổ chức."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Đã thu hồi do từ chối chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "Tổ chức $ORGANIZATION$ bị tạm ngưng",
@@ -13824,6 +14276,15 @@
     "message": "Bạn không thể xóa các bộ sưu tập chỉ có quyền Xem: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14529,6 +14990,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
@@ -15506,7 +15970,7 @@
     "message": "Khác"
   },
   "newBankAccountNudgeTitle": {
-    "message": "Lưu trữ an toàn thông tin ngân hàng của bạn."
+    "message": "Lưu trữ an toàn thông tin ngân hàng của bạn"
   },
   "newBankAccountNudgeBody": {
     "message": "Lưu thông tin tài khoản ngân hàng của bạn để truy cập dễ dàng và bảo mật trên tất cả các thiết bị của bạn."
@@ -16066,6 +16530,282 @@
   },
   "copy": {
     "message": "Sao chép"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Quy tắc truy cập"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Đã bật"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Khi bị tắt, quy tắc sẽ không hoạt động và không hạn chế quyền truy cập."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Bật quy tắc"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Tắt quy tắc"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Đã bật quy tắc truy cập."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Đã tắt quy tắc truy cập."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Không tìm thấy quy tắc truy cập."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Thiết lập các quy tắc để kiểm soát ai có thể yêu cầu truy cập vào thông tin xác thực nhạy cảm, trong điều kiện nào và trong bao lâu."
+  },
+  "pamAccessRuleNew": {
+    "message": "Quy tắc mới"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Quy tắc truy cập mới"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Chỉnh sửa quy tắc truy cập"
+  },
+  "pamAccessRuleName": {
+    "message": "Tên"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "Ví dụ: VPN + giờ làm việc"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Thông tin chung"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Thời lượng truy cập"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Điều kiện tùy chọn"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Chọn bộ sưu tập"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Quy tắc truy cập này sẽ áp dụng cho tất cả các bộ sưu tập được chọn."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Không thể tải các bộ sưu tập. Hãy làm mới trang để thử lại."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Thời lượng này sẽ được điền sẵn trong các yêu cầu truy cập."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Mô tả"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Thời lượng truy cập mặc định"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Thời lượng truy cập tối đa"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Không giới hạn"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Mọi thời hạn cấp quyền đều bị giới hạn ở mức tối đa này, bất kể người dùng yêu cầu bao lâu."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 phút"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 phút"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 giờ"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 giờ"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 giờ"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 giờ"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 giờ"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 ngày"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Tại một thời điểm chỉ có một người dùng có thể giữ quyền truy cập tạm thời đang hoạt động"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Các yêu cầu mới sẽ được đưa vào hàng đợi cho đến khi lượt truy cập hiện tại kết thúc hoặc bị thu hồi."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Cho phép gia hạn thời gian truy cập"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Thành viên có thể gia hạn thời hạn cấp quyền đang hoạt động một lần mà không cần phê duyệt mới, lên đến mức thời gian tối đa dưới đây."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Thời gian gia hạn tối đa"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Thời gian tối đa cho một lần gia hạn."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Hạn chế theo địa chỉ IP"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Người phê duyệt"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Quản lý bộ sưu tập"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Đã tạo quy tắc truy cập."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Đã cập nhật quy tắc truy cập."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Xóa quy tắc truy cập?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Xóa \"$NAME$\"? Bất kỳ bộ sưu tập nào sử dụng quy tắc này sẽ bị tắt tính năng cấp quyền truy cập tạm thời.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Chưa có quy tắc truy cập nào"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Tạo quy tắc để bổ sung thêm lớp bảo vệ cho các bộ sưu tập nhạy cảm."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Tạo quy tắc tùy chỉnh"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Bắt đầu từ một mẫu"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Sử dụng mẫu"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in time"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Tự động phê duyệt • Hết hạn sau 1 giờ • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Truy cập kịp thời (Just-in-time)"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Con người phê duyệt • Yêu cầu 1 người phê duyệt • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Hạn chế theo IP"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Tự động phê duyệt • Danh sách IP cho phép • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Truy cập hạn chế theo IP"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Bộ sưu tập"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Chưa được phân công"
+  },
+  "pamSearchRules": {
+    "message": "Tìm kiếm quy tắc"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Áp dụng cho"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Điều kiện"
+  },
+  "pamAccessWindow": {
+    "message": "Khung thời gian truy cập"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Sửa đổi lần cuối"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Tự động phê duyệt"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Hạn chế IP"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Không có quy tắc truy cập nào khớp với bộ lọc của bạn."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Bật"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Tắt"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Đã cập nhật các quy tắc truy cập."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Đã xóa các quy tắc truy cập."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Xóa các quy tắc truy cập?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ quy tắc truy cập sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Chỉ các yêu cầu bắt nguồn từ các dải IP này mới được cho phép."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Dải CIDR"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "Ví dụ: 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Thêm dải CIDR"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Xóa dải CIDR"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Thêm ít nhất một dải CIDR."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Nhập một dải CIDR hợp lệ."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Dải CIDR này đã được thêm vào rồi."
   },
   "paymentSuccessful": {
     "message": "Thanh toán thành công"

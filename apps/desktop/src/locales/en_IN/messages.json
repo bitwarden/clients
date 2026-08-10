@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "New shared folder"
   },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "Share"
   },
@@ -476,6 +518,15 @@
   },
   "launch": {
     "message": "Launch"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Copy value",
@@ -1964,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
   },
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Copy verification code"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Copy username"
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Options"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
@@ -5146,6 +5241,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
   },
@@ -5244,8 +5348,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
@@ -5253,8 +5372,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organisation members with access to these collections will be able to see the item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organisation members with access to these collections will be able to see the items."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
     "message": "No collections have been assigned"
@@ -5314,8 +5439,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organisation. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organisation. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5476,32 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
