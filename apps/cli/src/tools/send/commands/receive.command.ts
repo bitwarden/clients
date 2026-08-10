@@ -20,7 +20,6 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
 } from "@bitwarden/common/auth/send-access";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -32,7 +31,11 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  EncArrayBuffer,
+  LegacyCompatKeyService,
+} from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";

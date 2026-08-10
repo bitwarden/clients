@@ -4,7 +4,6 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -18,6 +17,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import {
+  CryptoFunctionService,
   DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
   DuckDuckGoEncstring,
   EncryptionType,

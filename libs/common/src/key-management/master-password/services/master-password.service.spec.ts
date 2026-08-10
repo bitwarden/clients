@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  CryptoFunctionService,
   KdfConfig,
   KeyGenerationService,
   PBKDF2KdfConfig,
@@ -27,7 +28,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncString } from "../../crypto/models/enc-string";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import {

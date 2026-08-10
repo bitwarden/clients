@@ -4,7 +4,6 @@ import { firstValueFrom, Observable } from "rxjs";
 import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -32,6 +31,7 @@ import {
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import {
+  CryptoFunctionService,
   EncryptionType,
   KdfConfig,
   LegacyCompatKeyService,
