@@ -91,6 +91,8 @@
     "package:bit:qa:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-QA.zip",
     "package:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome-beta.zip",
     "package:bit:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-beta.zip",
+    "package:qa:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome-beta-QA.zip",
+    "package:bit:qa:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-beta-QA.zip",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",

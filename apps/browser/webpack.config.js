@@ -11,7 +11,8 @@ module.exports = (webpackConfig, context) => {
     if (process.env.NODE_ENV == null) {
       process.env.NODE_ENV = mode;
     }
-    const ENV = (process.env.ENV = process.env.NODE_ENV);
+    // Set ENV to NODE_ENV for configurations that do not explicitly override it
+    process.env.ENV = process.env.NODE_ENV;
 
     // Set environment variables from Nx context
     if (context.options.env) {
@@ -19,6 +20,7 @@ module.exports = (webpackConfig, context) => {
         process.env[key] = context.options.env[key];
       });
     }
+    const ENV = process.env.ENV;
 
     return buildConfig({
       configName: "OSS",

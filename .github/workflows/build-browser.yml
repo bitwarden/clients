@@ -265,7 +265,7 @@ jobs:
             archive_name: "dist-chrome"
             artifact_name: "dist-chrome-MV3-beta"
             artifact_name_dev: "dev-chrome-MV3-beta"
-            archive_name_dev: "dev-chrome-beta.zip"
+            archive_name_dev: "dev-chrome-beta"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge"
