@@ -37,10 +37,6 @@ on:
         description: "Custom SDK branch"
         required: false
         type: string
-      testflight_distribute:
-        description: "Force distribute to TestFlight regardless of branch (useful for QA testing on feature branches)"
-        type: boolean
-        default: true
 
 defaults:
   run:
