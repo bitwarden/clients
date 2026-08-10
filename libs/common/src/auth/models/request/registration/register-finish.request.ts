@@ -21,10 +21,13 @@ export class RegisterFinishRequest {
     public providerInviteToken?: string,
     public providerUserId?: string,
 
-    // Org Invite data (only applies on web)
+    public salesAssistedToken?: string,
+
+    // Direct Org Invite data (only applies on web)
     public organizationUserId?: string,
     public orgInviteToken?: string,
 
-    public salesAssistedToken?: string,
+    // Open-org-invite data (only applies on web).
+    public openOrgInvite?: { organizationId: string; code: string },
   ) {}
 }

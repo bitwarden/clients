@@ -18,10 +18,13 @@ import {
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
-import { UserMasterPasswordRegistrationRequest } from "@bitwarden/sdk-internal";
+import {
+  OrganizationId as SdkOrganizationId,
+  UserMasterPasswordRegistrationRequest,
+} from "@bitwarden/sdk-internal";
 
 export class WebRegistrationFinishService
   extends DefaultRegistrationFinishService
@@ -111,17 +114,24 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: org user id and token are included here for validation and two factor
+    // purposes.
+    // Open invites: (organizationId, code) are included so the server can identify
+    // the joining org and bypass domain restrictions / enforce its master-password policies
+    // during registration. The open invite itself is accepted via a separate flow after login
+    // (deepLinkGuard replays link, authedHandler fires accept).
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organization_user_id = this.toOptionalSdkOrganizationId(
         orgInvite.organizationUserId,
       );
       registerRequest.org_invite_token = orgInvite.token;
+    } else if (orgInvite?.kind === OrgInviteKind.Open) {
+      registerRequest.open_org_invite = {
+        organization_id: asUuid<SdkOrganizationId>(orgInvite.organizationId),
+        code: orgInvite.inviteLinkCode,
+      };
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.org_sponsored_free_family_plan_token = orgSponsoredFreeFamilyPlanToken;
@@ -190,15 +200,22 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: org user id and token are included here for validation and two factor
+    // purposes.
+    // Open invites: (organizationId, code) are included so the server can identify
+    // the joining org and bypass domain restrictions / enforce its master-password policies
+    // during registration. The open invite itself is accepted via a separate flow after login
+    // (deepLinkGuard replays link, authedHandler fires accept).
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
+    } else if (orgInvite?.kind === OrgInviteKind.Open) {
+      registerRequest.openOrgInvite = {
+        organizationId: orgInvite.organizationId,
+        code: orgInvite.inviteLinkCode,
+      };
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.orgSponsoredFreeFamilyPlanToken = orgSponsoredFreeFamilyPlanToken;
