@@ -1,0 +1,24 @@
+@switch (viewState()) {
+  @case (AcceptOrgOpenInviteViewState.Loading) {
+    <div class="tw-flex tw-justify-center tw-py-8">
+      <bit-spinner variant="primary" [title]="'loading' | i18n"></bit-spinner>
+    </div>
+  }
+  @case (AcceptOrgOpenInviteViewState.Error) {
+    <p data-testid="accept-org-open-invite-error-message">
+      {{ errorBody() }}
+    </p>
+    @if (errorButton(); as button) {
+      <button
+        bitButton
+        type="button"
+        buttonType="primary"
+        block
+        (click)="onButtonClick()"
+        data-testid="accept-org-open-invite-error-button"
+      >
+        {{ button.labelI18nKey | i18n }}
+      </button>
+    }
+  }
+}

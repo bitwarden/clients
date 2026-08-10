@@ -1,13 +1,34 @@
 import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../../../platform/state";
-import { OrganizationInvite } from "../../models/organization-invite";
+import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
+import { OpenOrganizationInvite } from "../../models/open-organization-invite";
 
-// We're storing the organization invite for 2 reasons:
-// 1. If the org requires a MP policy check, we need to keep track that the user has already been redirected when they return.
-// 2. The MP policy check happens on login/register flows, we need to store the token to retrieve the policies then.
-export const ORGANIZATION_INVITE = new KeyDefinition<OrganizationInvite | null>(
+/**
+ * Persisted direct organization invite (admin targeted a specific user by email).
+ * Stored across login/register/MP-policy detours and consumed at accept time.
+ *
+ * The storage string was renamed from `"organizationInvite"` to
+ * `"directOrganizationInvite"` to be symmetric with the open-org-invite key. Existing
+ * on-disk data is moved by migration 84
+ * (`state-migrations/migrations/84-rename-organization-invite-to-direct.ts`).
+ */
+export const DIRECT_ORGANIZATION_INVITE = new KeyDefinition<DirectOrganizationInvite | null>(
   ORGANIZATION_INVITE_DISK,
-  "organizationInvite",
+  "directOrganizationInvite",
   {
-    deserializer: (invite) => (invite ? OrganizationInvite.fromJSON(invite) : null),
+    deserializer: (invite) => (invite ? DirectOrganizationInvite.fromJSON(invite) : null),
+  },
+);
+
+/**
+ * Persisted open organization invite (admin published a reusable link anyone can use).
+ * Stored from the open-org-invite landing page through the post-auth accept call.
+ *
+ * Greenfield key — no migration needed because no prior data exists under this name.
+ */
+export const OPEN_ORGANIZATION_INVITE = new KeyDefinition<OpenOrganizationInvite | null>(
+  ORGANIZATION_INVITE_DISK,
+  "openOrganizationInvite",
+  {
+    deserializer: (invite) => (invite ? OpenOrganizationInvite.fromJSON(invite) : null),
   },
 );

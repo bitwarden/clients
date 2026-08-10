@@ -8,7 +8,8 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
-  OrganizationInvite,
+  DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -17,7 +18,6 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-manageme
 import {
   MasterPasswordUnlockData,
   MasterPasswordSalt,
-  MasterPasswordAuthenticationData,
   MasterPasswordAuthenticationHash,
   MasterKeyWrappedUserKey,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
@@ -39,6 +39,16 @@ describe("WebRegistrationFinishService", () => {
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
+
+  // Reassigned inside sdkVariant.setupMocks; declared here so tests can read from it.
+  let postKeysForUserPasswordRegistration: jest.Mock;
+
+  // Reassigned inside legacyVariant.setupMocks. The legacy-only test uses these to
+  // assert argument identity through the key-derivation pipeline (makeUserKey is
+  // called with the value returned by makeMasterKey; makeKeyPair with the value
+  // returned by makeUserKey).
+  let legacyMasterKey: MasterKey;
+  let legacyUserKey: UserKey;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -67,10 +77,10 @@ describe("WebRegistrationFinishService", () => {
   });
 
   describe("getOrgNameFromOrgInvite()", () => {
-    let orgInvite: OrganizationInvite | null;
+    let directOrgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite({
+      directOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -91,20 +101,35 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns the organization name from the organization invite when it exists", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
 
       const result = await service.getOrgNameFromOrgInvite();
 
-      expect(result).toEqual(orgInvite!.organizationName);
+      expect(result).toEqual(directOrgInvite!.organizationName);
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
+    });
+
+    it("returns the organization name when a stashed open org invite is active", async () => {
+      const openOrgInvite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
+
+      const result = await service.getOrgNameFromOrgInvite();
+
+      expect(result).toEqual("openOrgName");
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
   });
 
   describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
-    let orgInvite: OrganizationInvite | null;
+    let directOrgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite({
+      directOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -125,21 +150,23 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the policies are undefined", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
       organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
+        directOrgInvite,
+      );
     });
 
     it("returns the master password policy options from the organization invite when it exists", async () => {
       const masterPasswordPolicies = [new Policy()];
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
       organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
@@ -147,142 +174,251 @@ describe("WebRegistrationFinishService", () => {
 
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
+        directOrgInvite,
+      );
+    });
+
+    it("returns policy options when a stashed open org invite is active", async () => {
+      const openOrgInvite = new OpenOrganizationInvite({
+        organizationId: "organizationId",
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      const masterPasswordPolicies = [new Policy()];
+      const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
+
+      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
+
+      expect(result).toEqual(masterPasswordPolicyOptions);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(openOrgInvite);
     });
   });
 
-  describe("finishRegistration()", () => {
-    let email: string;
-    let emailVerificationToken: string;
-    let salesAssistedToken: string;
-    let masterKey: MasterKey;
-    let passwordInputResult: PasswordInputResult;
-    let userKey: UserKey;
-    let userKeyEncString: EncString;
-    let userKeyPair: [string, EncString];
+  // ============================================================================
+  // finishRegistration() — shared across the legacy and SDK flows.
+  //
+  // The service picks a path via the
+  // `EnableAccountEncryptionV2UserPasswordRegistration` feature flag:
+  //   - legacy (flag off): derives keys client-side, POSTs a camelCased
+  //     RegisterFinishRequest via accountApiService.registerFinish.
+  //   - SDK (flag on): delegates to post_keys_for_user_password_registration
+  //     with a snake_cased request.
+  //
+  // Behavior is functionally identical from the caller's perspective; the two
+  // flows only differ in transport + field-name casing. Shared behavior is
+  // exercised once via describe.each; flow-specific safeguards (key derivation,
+  // SDK availability, UUID validation) live in their own describes below.
+  // ============================================================================
 
-    let orgInvite: OrganizationInvite;
-    let orgSponsoredFreeFamilyPlanToken: string;
-    let acceptEmergencyAccessInviteToken: string;
-    let emergencyAccessId: string;
-    let providerInviteToken: string;
-    let providerUserId: string;
+  interface FlowVariant {
+    label: string;
+    setupMocks: () => void;
+    // Request shape differs between flows (RegisterFinishRequest for legacy,
+    // UserMasterPasswordRegistrationRequest for SDK). Tests read fields by name
+    // via the `fields` map, so an untyped index accessor is intentional here.
+    getRequest: () => any;
+    expectTransportNotCalled: () => void;
+    directOrgInvite: DirectOrganizationInvite;
+    emergencyAccessId: string;
+    providerUserId: string;
+    // Field names on the outbound request (camelCase on legacy, snake_case on SDK).
+    fields: {
+      orgInviteToken: string;
+      orgUserId: string;
+      orgSponsoredFreeFamilyPlanToken: string;
+      acceptEmergencyAccessInviteToken: string;
+      acceptEmergencyAccessId: string;
+      providerInviteToken: string;
+      providerUserId: string;
+      salesAssistedToken: string;
+      emailVerificationToken: string;
+    };
+  }
 
-    let salt: MasterPasswordSalt;
-    let masterPasswordAuthentication: MasterPasswordAuthenticationData;
-    let masterPasswordUnlock: MasterPasswordUnlockData;
+  const legacyVariant: FlowVariant = {
+    label: "legacy flow",
+    setupMocks: () => {
+      legacyMasterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
+      legacyUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      const userKeyEncString = new EncString("userKeyEncrypted");
+      const userKeyPair: [string, EncString] = ["publicKey", new EncString("privateKey")];
+      const salt = "salt" as MasterPasswordSalt;
 
-    beforeEach(() => {
-      email = "test@email.com";
-      emailVerificationToken = "emailVerificationToken";
-      salesAssistedToken = "salesAssistedToken";
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-      salt = "salt" as MasterPasswordSalt;
-
-      passwordInputResult = {
-        newPassword: "newPassword",
-        kdfConfig: DEFAULT_KDF_CONFIG,
-        newPasswordHint: "newPasswordHint",
-        salt: salt,
-      };
-
-      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      userKeyEncString = new EncString("userKeyEncrypted");
-      userKeyPair = ["publicKey", new EncString("privateKey")];
-
-      orgInvite = new OrganizationInvite({
-        organizationId: "organizationId",
-        organizationUserId: "organizationUserId",
-        token: "orgInviteToken",
-        email: "email",
-        organizationName: "organizationName",
-        initOrganization: false,
-        orgUserHasExistingUser: false,
-      });
-
-      orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
-      acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";
-      emergencyAccessId = "emergencyAccessId";
-      providerInviteToken = "providerInviteToken";
-      providerUserId = "providerUserId";
-
-      keyService.makeMasterKey.mockResolvedValue(masterKey);
-      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      keyService.makeMasterKey.mockResolvedValue(legacyMasterKey);
+      keyService.makeUserKey.mockResolvedValue([legacyUserKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+      configService.getFeatureFlag.mockResolvedValue(false);
 
-      masterPasswordAuthentication = {
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
         salt,
         kdf: DEFAULT_KDF_CONFIG,
         masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
+      });
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
+        new MasterPasswordUnlockData(
+          salt,
+          DEFAULT_KDF_CONFIG,
+          "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+        ),
+      );
+    },
+    getRequest: () => accountApiService.registerFinish.mock.calls[0][0] as RegisterFinishRequest,
+    expectTransportNotCalled: () => {
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    },
+    directOrgInvite: new DirectOrganizationInvite({
+      organizationId: "organizationId",
+      organizationUserId: "organizationUserId",
+      token: "orgInviteToken",
+      email: "email",
+      organizationName: "organizationName",
+      initOrganization: false,
+      orgUserHasExistingUser: false,
+    }),
+    emergencyAccessId: "emergencyAccessId",
+    providerUserId: "providerUserId",
+    fields: {
+      orgInviteToken: "orgInviteToken",
+      orgUserId: "organizationUserId",
+      orgSponsoredFreeFamilyPlanToken: "orgSponsoredFreeFamilyPlanToken",
+      acceptEmergencyAccessInviteToken: "acceptEmergencyAccessInviteToken",
+      acceptEmergencyAccessId: "acceptEmergencyAccessId",
+      providerInviteToken: "providerInviteToken",
+      providerUserId: "providerUserId",
+      salesAssistedToken: "salesAssistedToken",
+      emailVerificationToken: "emailVerificationToken",
+    },
+  };
+
+  const sdkVariant: FlowVariant = {
+    label: "SDK flow",
+    setupMocks: () => {
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
+      );
+
+      postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
+      const registrationClient = {
+        post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
       };
-      masterPasswordUnlock = new MasterPasswordUnlockData(
-        salt,
-        DEFAULT_KDF_CONFIG,
-        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
-      );
-      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
-        masterPasswordAuthentication,
-      );
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
+      const authClient = { registration: jest.fn().mockReturnValue(registrationClient) };
+      const sdkClient = { auth: jest.fn().mockReturnValue(authClient) };
+      sdkService.client$ = of(sdkClient as any);
+    },
+    getRequest: () => postKeysForUserPasswordRegistration.mock.calls[0][0],
+    expectTransportNotCalled: () => {
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    },
+    // The SDK request converts ids via asUuid, so fixtures must be valid UUIDs here.
+    directOrgInvite: new DirectOrganizationInvite({
+      organizationId: "organizationId",
+      organizationUserId: "00000000-0000-0000-0000-000000000003",
+      token: "orgInviteToken",
+      email: "email",
+      organizationName: "organizationName",
+      initOrganization: false,
+      orgUserHasExistingUser: false,
+    }),
+    emergencyAccessId: "00000000-0000-0000-0000-000000000001",
+    providerUserId: "00000000-0000-0000-0000-000000000002",
+    fields: {
+      orgInviteToken: "org_invite_token",
+      orgUserId: "organization_user_id",
+      orgSponsoredFreeFamilyPlanToken: "org_sponsored_free_family_plan_token",
+      acceptEmergencyAccessInviteToken: "accept_emergency_access_invite_token",
+      acceptEmergencyAccessId: "accept_emergency_access_id",
+      providerInviteToken: "provider_invite_token",
+      providerUserId: "provider_user_id",
+      salesAssistedToken: "sales_assisted_token",
+      emailVerificationToken: "email_verification_token",
+    },
+  };
+
+  describe.each([legacyVariant, sdkVariant])("finishRegistration() - $label", (variant) => {
+    const email = "test@email.com";
+    const emailVerificationToken = "emailVerificationToken";
+    const orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
+    const acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";
+    const providerInviteToken = "providerInviteToken";
+    const salesAssistedToken = "salesAssistedToken";
+    const passwordInputResult: PasswordInputResult = {
+      newPassword: "newPassword",
+      kdfConfig: DEFAULT_KDF_CONFIG,
+      newPasswordHint: "newPasswordHint",
+      salt: "salt" as MasterPasswordSalt,
+    };
+
+    beforeEach(() => {
+      variant.setupMocks();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
     });
 
-    it("throws an error if the user key cannot be created", async () => {
-      keyService.makeUserKey.mockResolvedValue([null, null]);
-
-      await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
-        "User key could not be created",
-      );
-    });
-
-    it("derives the master key and registers the user", async () => {
+    it("submits a register request carrying the email verification token", async () => {
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-      // Verify master key is derived internally
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.newPassword,
-        passwordInputResult.salt,
-        passwordInputResult.kdfConfig,
-      );
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Unique to this flow: emailVerificationToken is populated
-      expect(registerCall.emailVerificationToken).toEqual(emailVerificationToken);
-
-      expect(registerCall).toMatchSnapshot();
+      const request = variant.getRequest();
+      expect(request[variant.fields.emailVerificationToken]).toEqual(emailVerificationToken);
     });
 
-    it("it registers the user with org invite when given an org invite", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+    it("populates direct-invite fields on the request when a direct org invite is stashed", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(variant.directOrgInvite);
 
       await service.finishRegistration(email, passwordInputResult);
 
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Unique to this flow: org invite fields are populated
-      expect(registerCall.orgInviteToken).toEqual(orgInvite.token);
-      expect(registerCall.organizationUserId).toEqual(orgInvite.organizationUserId);
-
-      expect(registerCall).toMatchSnapshot();
+      const request = variant.getRequest();
+      expect(request[variant.fields.orgInviteToken]).toEqual(variant.directOrgInvite.token);
+      expect(request[variant.fields.orgUserId]).toEqual(variant.directOrgInvite.organizationUserId);
+      expect(request).toMatchSnapshot();
     });
 
-    it("registers the user when given an org sponsored free family plan token", async () => {
+    it("does not populate direct-invite fields when a stashed open org invite is active", async () => {
+      // Open invites don't carry direct-invite fields. The kind-guarded write path
+      // must skip the direct-invite branch and leave the register request clean.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const request = variant.getRequest();
+      expect(request[variant.fields.orgInviteToken]).toBeUndefined();
+      expect(request[variant.fields.orgUserId]).toBeUndefined();
+    });
+
+    it("does not throw the mutual-exclusion error when emailVerificationToken is present alongside a stashed open org invite", async () => {
+      // Sealed-open-org-invite crossing invariant: registration-finish arrives with
+      // BOTH the verification token (from the email link) AND an open invite in
+      // state (unsealed from the blob). Open invites don't set any direct-invite /
+      // family / emergency / provider / sales-assisted token, so the guard must
+      // let this through.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "organizationId",
+          inviteLinkCode: "link-code",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
+
+      await expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).resolves.not.toThrow();
+      expect(variant.getRequest()).toBeDefined();
+    });
+
+    it("forwards the org-sponsored free family plan token", async () => {
       await service.finishRegistration(
         email,
         passwordInputResult,
@@ -290,50 +426,32 @@ describe("WebRegistrationFinishService", () => {
         orgSponsoredFreeFamilyPlanToken,
       );
 
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Unique to this flow: org sponsored free family plan token is populated
-      expect(registerCall.orgSponsoredFreeFamilyPlanToken).toEqual(orgSponsoredFreeFamilyPlanToken);
-
-      expect(registerCall).toMatchSnapshot();
+      const request = variant.getRequest();
+      expect(request[variant.fields.orgSponsoredFreeFamilyPlanToken]).toEqual(
+        orgSponsoredFreeFamilyPlanToken,
+      );
+      expect(request).toMatchSnapshot();
     });
 
-    it("registers the user when given an emergency access invite token", async () => {
+    it("forwards the emergency-access fields when both invite token and access id are provided", async () => {
       await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
         undefined,
         acceptEmergencyAccessInviteToken,
-        emergencyAccessId,
+        variant.emergencyAccessId,
       );
 
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Unique to this flow: emergency access fields are populated
-      expect(registerCall.acceptEmergencyAccessInviteToken).toEqual(
+      const request = variant.getRequest();
+      expect(request[variant.fields.acceptEmergencyAccessInviteToken]).toEqual(
         acceptEmergencyAccessInviteToken,
       );
-      expect(registerCall.acceptEmergencyAccessId).toEqual(emergencyAccessId);
-
-      expect(registerCall).toMatchSnapshot();
+      expect(request[variant.fields.acceptEmergencyAccessId]).toEqual(variant.emergencyAccessId);
+      expect(request).toMatchSnapshot();
     });
 
-    it("registers the user when given a provider invite token", async () => {
+    it("forwards the provider-invite fields when both token and user id are provided", async () => {
       await service.finishRegistration(
         email,
         passwordInputResult,
@@ -342,26 +460,16 @@ describe("WebRegistrationFinishService", () => {
         undefined,
         undefined,
         providerInviteToken,
-        providerUserId,
+        variant.providerUserId,
       );
 
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Unique to this flow: provider invite fields are populated
-      expect(registerCall.providerInviteToken).toEqual(providerInviteToken);
-      expect(registerCall.providerUserId).toEqual(providerUserId);
-
-      expect(registerCall).toMatchSnapshot();
+      const request = variant.getRequest();
+      expect(request[variant.fields.providerInviteToken]).toEqual(providerInviteToken);
+      expect(request[variant.fields.providerUserId]).toEqual(variant.providerUserId);
+      expect(request).toMatchSnapshot();
     });
 
-    it("forwards salesAssistedToken to the register request", async () => {
+    it("forwards the sales-assisted token", async () => {
       await service.finishRegistration(
         email,
         passwordInputResult,
@@ -374,240 +482,216 @@ describe("WebRegistrationFinishService", () => {
         salesAssistedToken,
       );
 
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall.salesAssistedToken).toBe(salesAssistedToken);
+      const request = variant.getRequest();
+      expect(request[variant.fields.salesAssistedToken]).toEqual(salesAssistedToken);
     });
 
-    it("throws an error if given an email verification token and organization invite token", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+    describe("rejects emailVerificationToken alongside an alternative invite/acceptance token", () => {
+      it.each([
+        {
+          alternative: "direct org invite token",
+          setup: (v: FlowVariant) =>
+            organizationInviteService.getOrganizationInvite.mockResolvedValue(v.directOrgInvite),
+          extraArgs: () => [] as unknown[],
+        },
+        {
+          alternative: "org-sponsored free family plan token",
+          setup: () => undefined,
+          extraArgs: () => [orgSponsoredFreeFamilyPlanToken] as unknown[],
+        },
+        {
+          alternative: "emergency-access invite token",
+          setup: () => undefined,
+          extraArgs: (v: FlowVariant) =>
+            [undefined, acceptEmergencyAccessInviteToken, v.emergencyAccessId] as unknown[],
+        },
+        {
+          alternative: "provider invite token",
+          setup: () => undefined,
+          extraArgs: (v: FlowVariant) =>
+            [undefined, undefined, undefined, providerInviteToken, v.providerUserId] as unknown[],
+        },
+        {
+          alternative: "sales-assisted token",
+          setup: () => undefined,
+          extraArgs: () =>
+            [
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              salesAssistedToken,
+            ] as unknown[],
+        },
+      ])(
+        "throws and does not submit the request when $alternative is also present",
+        async ({ setup, extraArgs }) => {
+          setup(variant);
+          const extras = extraArgs(variant);
 
-      await expect(
-        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+          await expect(
+            service.finishRegistration(
+              email,
+              passwordInputResult,
+              emailVerificationToken,
+              ...(extras as [
+                string | undefined,
+                string | undefined,
+                string | undefined,
+                string | undefined,
+                string | undefined,
+                string | undefined,
+              ]),
+            ),
+          ).rejects.toThrow(
+            "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+          );
+          variant.expectTransportNotCalled();
+        },
       );
-
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
     });
 
-    it("throws an error if given an email verification token and an org sponsored free family plan token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          orgSponsoredFreeFamilyPlanToken,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+    describe("does not set a paired token/id pair when only half is provided", () => {
+      it.each([
+        {
+          missingHalf: "the emergency-access invite token (id provided alone)",
+          extraArgs: (v: FlowVariant) =>
+            [undefined, undefined, undefined, v.emergencyAccessId] as unknown[],
+          tokenField: (v: FlowVariant) => v.fields.acceptEmergencyAccessInviteToken,
+          idField: (v: FlowVariant) => v.fields.acceptEmergencyAccessId,
+        },
+        {
+          missingHalf: "the emergency-access id (token provided alone)",
+          extraArgs: () =>
+            [undefined, undefined, acceptEmergencyAccessInviteToken, undefined] as unknown[],
+          tokenField: (v: FlowVariant) => v.fields.acceptEmergencyAccessInviteToken,
+          idField: (v: FlowVariant) => v.fields.acceptEmergencyAccessId,
+        },
+        {
+          missingHalf: "the provider user id (token provided alone)",
+          extraArgs: () =>
+            [
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              providerInviteToken,
+              undefined,
+            ] as unknown[],
+          tokenField: (v: FlowVariant) => v.fields.providerInviteToken,
+          idField: (v: FlowVariant) => v.fields.providerUserId,
+        },
+        {
+          missingHalf: "the provider invite token (user id provided alone)",
+          extraArgs: (v: FlowVariant) =>
+            [undefined, undefined, undefined, undefined, undefined, v.providerUserId] as unknown[],
+          tokenField: (v: FlowVariant) => v.fields.providerInviteToken,
+          idField: (v: FlowVariant) => v.fields.providerUserId,
+        },
+      ])(
+        "leaves both fields unset when $missingHalf",
+        async ({ extraArgs, tokenField, idField }) => {
+          const extras = extraArgs(variant);
+
+          await service.finishRegistration(
+            email,
+            passwordInputResult,
+            ...(extras as [
+              string | undefined,
+              string | undefined,
+              string | undefined,
+              string | undefined,
+              string | undefined,
+              string | undefined,
+            ]),
+          );
+
+          const request = variant.getRequest();
+          expect(request[tokenField(variant)]).toBeUndefined();
+          expect(request[idField(variant)]).toBeUndefined();
+        },
       );
-
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and accept emergency access invite token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          acceptEmergencyAccessInviteToken,
-          emergencyAccessId,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and provider invite token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          undefined,
-          providerInviteToken,
-          providerUserId,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and a sales assisted token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          salesAssistedToken,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-    });
-
-    it("does not set emergency access fields when only the token is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        acceptEmergencyAccessInviteToken,
-        undefined,
-      );
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall.acceptEmergencyAccessInviteToken).toBeUndefined();
-      expect(registerCall.acceptEmergencyAccessId).toBeUndefined();
-    });
-
-    it("does not set emergency access fields when only the access id is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        emergencyAccessId,
-      );
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall.acceptEmergencyAccessInviteToken).toBeUndefined();
-      expect(registerCall.acceptEmergencyAccessId).toBeUndefined();
-    });
-
-    it("does not set provider invite fields when only the token is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        providerInviteToken,
-        undefined,
-      );
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall.providerInviteToken).toBeUndefined();
-      expect(registerCall.providerUserId).toBeUndefined();
-    });
-
-    it("does not set provider invite fields when only the user id is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        providerUserId,
-      );
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall.providerInviteToken).toBeUndefined();
-      expect(registerCall.providerUserId).toBeUndefined();
     });
   });
 
-  // SDK-based registration flow. This block is fully self-contained so it can stand alone once the
-  // legacy registration flow above is removed.
-  describe("finishRegistration() - SDK flow", () => {
-    let email: string;
-    let emailVerificationToken: string;
-    let salesAssistedToken: string;
-    let salt: MasterPasswordSalt;
-    let passwordInputResult: PasswordInputResult;
+  // ============================================================================
+  // finishRegistration() — flow-specific safeguards.
+  // ============================================================================
 
-    let orgInvite: OrganizationInvite;
-    let orgSponsoredFreeFamilyPlanToken: string;
-    let acceptEmergencyAccessInviteToken: string;
-    let emergencyAccessId: string;
-    let providerInviteToken: string;
-    let providerUserId: string;
-
-    let postKeysForUserPasswordRegistration: jest.Mock;
-    let registrationClient: { post_keys_for_user_password_registration: jest.Mock };
-    let authClient: { registration: jest.Mock };
-    let sdkClient: { auth: jest.Mock };
+  describe("finishRegistration() — legacy flow only", () => {
+    const email = "test@email.com";
+    const emailVerificationToken = "emailVerificationToken";
+    const passwordInputResult: PasswordInputResult = {
+      newPassword: "newPassword",
+      kdfConfig: DEFAULT_KDF_CONFIG,
+      newPasswordHint: "newPasswordHint",
+      salt: "salt" as MasterPasswordSalt,
+    };
 
     beforeEach(() => {
-      email = "test@email.com";
-      emailVerificationToken = "emailVerificationToken";
-      salesAssistedToken = "salesAssistedToken";
-      salt = "salt" as MasterPasswordSalt;
-
-      passwordInputResult = {
-        newPassword: "newPassword",
-        kdfConfig: DEFAULT_KDF_CONFIG,
-        newPasswordHint: "newPasswordHint",
-        salt: salt,
-      };
-
-      orgInvite = new OrganizationInvite({
-        organizationId: "organizationId",
-        organizationUserId: "00000000-0000-0000-0000-000000000003", // The SDK request converts these ids via asUuid, so they must be valid UUIDs.
-        token: "orgInviteToken",
-        email: "email",
-        organizationName: "organizationName",
-        initOrganization: false,
-        orgUserHasExistingUser: false,
-      });
-
-      orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
-      acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";
-      emergencyAccessId = "00000000-0000-0000-0000-000000000001";
-      providerInviteToken = "providerInviteToken";
-      providerUserId = "00000000-0000-0000-0000-000000000002";
-
+      legacyVariant.setupMocks();
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
-      configService.getFeatureFlag.mockImplementation((flag) =>
-        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
-      );
-
-      postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
-      registrationClient = {
-        post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
-      };
-      authClient = { registration: jest.fn().mockReturnValue(registrationClient) };
-      sdkClient = { auth: jest.fn().mockReturnValue(authClient) };
-
-      sdkService.client$ = of(sdkClient as any);
     });
 
-    it("throws an error if the SDK client is not available", async () => {
+    it("throws when the user key cannot be created", async () => {
+      keyService.makeUserKey.mockResolvedValue([
+        null as unknown as UserKey,
+        null as unknown as EncString,
+      ]);
+
+      await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
+        "User key could not be created",
+      );
+    });
+
+    it("derives the master key + user key + key pair and posts a RegisterFinishRequest", async () => {
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+
+      // Verifies the key-derivation pipeline wiring: each step consumes the output
+      // of the previous one (masterKey → makeUserKey → userKey → makeKeyPair).
+      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+        passwordInputResult.newPassword,
+        passwordInputResult.salt,
+        passwordInputResult.kdfConfig,
+      );
+      expect(keyService.makeUserKey).toHaveBeenCalledWith(legacyMasterKey);
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(legacyUserKey);
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+      expect(registerCall.masterPasswordAuthentication).toBeDefined();
+      expect(registerCall.masterPasswordUnlock).toBeDefined();
+      expect(registerCall).toMatchSnapshot();
+    });
+  });
+
+  describe("finishRegistration() — SDK flow only", () => {
+    const email = "test@email.com";
+    const emailVerificationToken = "emailVerificationToken";
+    const passwordInputResult: PasswordInputResult = {
+      newPassword: "newPassword",
+      kdfConfig: DEFAULT_KDF_CONFIG,
+      newPasswordHint: "newPasswordHint",
+      salt: "salt" as MasterPasswordSalt,
+    };
+
+    beforeEach(() => {
+      sdkVariant.setupMocks();
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+    });
+
+    it("throws when the SDK client is not available", async () => {
       sdkService.client$ = of(null as any);
 
       await expect(
         service.finishRegistration(email, passwordInputResult, emailVerificationToken),
       ).rejects.toThrow("SDK not available");
-
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     });
 
-    it("posts the user password registration keys via the SDK and does not use the legacy flow", async () => {
+    it("delegates to the SDK's post_keys_for_user_password_registration and does not exercise the legacy path", async () => {
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
@@ -620,109 +704,15 @@ describe("WebRegistrationFinishService", () => {
           email_verification_token: emailVerificationToken,
         }),
       );
-
-      // The legacy (non-SDK) flow must not be exercised.
       expect(keyService.makeMasterKey).not.toHaveBeenCalled();
       expect(keyService.makeUserKey).not.toHaveBeenCalled();
       expect(keyService.makeKeyPair).not.toHaveBeenCalled();
       expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-
       expect(sdkRequest).toMatchSnapshot();
     });
 
-    it("registers the user with org invite when given an org invite", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-
-      await service.finishRegistration(email, passwordInputResult);
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-
-      // Unique to this flow: org invite fields are populated
-      expect(sdkRequest.org_invite_token).toEqual(orgInvite.token);
-      expect(sdkRequest.organization_user_id).toEqual(orgInvite.organizationUserId);
-
-      expect(sdkRequest).toMatchSnapshot();
-    });
-
-    it("registers the user when given an org sponsored free family plan token", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        orgSponsoredFreeFamilyPlanToken,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-
-      // Unique to this flow: org sponsored free family plan token is populated
-      expect(sdkRequest.org_sponsored_free_family_plan_token).toEqual(
-        orgSponsoredFreeFamilyPlanToken,
-      );
-
-      expect(sdkRequest).toMatchSnapshot();
-    });
-
-    it("registers the user when given an emergency access invite token", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        acceptEmergencyAccessInviteToken,
-        emergencyAccessId,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-
-      // Unique to this flow: emergency access fields are populated
-      expect(sdkRequest.accept_emergency_access_invite_token).toEqual(
-        acceptEmergencyAccessInviteToken,
-      );
-      expect(sdkRequest.accept_emergency_access_id).toEqual(emergencyAccessId);
-
-      expect(sdkRequest).toMatchSnapshot();
-    });
-
-    it("registers the user when given a provider invite token", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        providerInviteToken,
-        providerUserId,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-
-      // Unique to this flow: provider invite fields are populated
-      expect(sdkRequest.provider_invite_token).toEqual(providerInviteToken);
-      expect(sdkRequest.provider_user_id).toEqual(providerUserId);
-
-      expect(sdkRequest).toMatchSnapshot();
-    });
-
-    it("forwards salesAssistedToken to the SDK register request", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        salesAssistedToken,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-      expect(sdkRequest.sales_assisted_token).toBe(salesAssistedToken);
-    });
-
-    it("throws if the provided organization id is not a valid UUID", async () => {
-      const badOrgInvite = new OrganizationInvite({
+    it("throws when the org invite's organizationUserId is not a valid UUID", async () => {
+      const badOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "not-a-uuid",
         token: "orgInviteToken",
@@ -734,26 +724,24 @@ describe("WebRegistrationFinishService", () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(badOrgInvite);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow();
-
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     });
 
-    it("throws if the provided emergency access id is not a valid UUID", async () => {
+    it("throws when the emergency access id is not a valid UUID", async () => {
       await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
           undefined,
           undefined,
-          acceptEmergencyAccessInviteToken,
+          "acceptEmergencyAccessInviteToken",
           "not-a-uuid",
         ),
       ).rejects.toThrow();
-
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     });
 
-    it("throws if the provided provider user id is not a valid UUID", async () => {
+    it("throws when the provider user id is not a valid UUID", async () => {
       await expect(
         service.finishRegistration(
           email,
@@ -762,159 +750,11 @@ describe("WebRegistrationFinishService", () => {
           undefined,
           undefined,
           undefined,
-          providerInviteToken,
+          "providerInviteToken",
           "not-a-uuid",
         ),
       ).rejects.toThrow();
-
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws if given an email verification token and organization invite token", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-
-      await expect(
-        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws if given an email verification token and an org sponsored free family plan token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          orgSponsoredFreeFamilyPlanToken,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and accept emergency access invite token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          acceptEmergencyAccessInviteToken,
-          emergencyAccessId,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and provider invite token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          undefined,
-          providerInviteToken,
-          providerUserId,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws an error if given an email verification token and a sales assisted token", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          salesAssistedToken,
-        ),
-      ).rejects.toThrow(
-        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
-      );
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("does not set emergency access fields when only the token is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        acceptEmergencyAccessInviteToken,
-        undefined,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-      expect(sdkRequest.accept_emergency_access_invite_token).toBeUndefined();
-      expect(sdkRequest.accept_emergency_access_id).toBeUndefined();
-    });
-
-    it("does not set emergency access fields when only the access id is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        emergencyAccessId,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-      expect(sdkRequest.accept_emergency_access_invite_token).toBeUndefined();
-      expect(sdkRequest.accept_emergency_access_id).toBeUndefined();
-    });
-
-    it("does not set provider invite fields when only the token is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        providerInviteToken,
-        undefined,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-      expect(sdkRequest.provider_invite_token).toBeUndefined();
-      expect(sdkRequest.provider_user_id).toBeUndefined();
-    });
-
-    it("does not set provider invite fields when only the user id is provided", async () => {
-      await service.finishRegistration(
-        email,
-        passwordInputResult,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        providerUserId,
-      );
-
-      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
-      expect(sdkRequest.provider_invite_token).toBeUndefined();
-      expect(sdkRequest.provider_user_id).toBeUndefined();
     });
 
     it("propagates SDK errors", async () => {

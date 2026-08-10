@@ -5,6 +5,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
@@ -49,6 +50,7 @@ export class InitService {
     @Inject(DOCUMENT) private document: Document,
     private configService: ConfigService,
     private sharedUnlockFollowerService: SharedUnlockFollowerService,
+    private organizationInviteService: OrganizationInviteService,
   ) {}
 
   init() {
@@ -80,6 +82,17 @@ export class InitService {
         await this.sharedUnlockFollowerService.start();
       }
       this.taskService.listenForTaskNotifications();
+
+      // Opportunistic sweep of any sealed open-org-invite secrets whose TTL has expired
+      // (defense-in-depth for abandoned registration-crossing flows). Runs unconditionally
+      // once per boot so seeded entries still get cleaned up
+      // The sweep is a cheap no-op when the state is empty. Wrapped so a
+      // sweep failure does not block app startup.
+      try {
+        await this.organizationInviteService.clearExpiredSealedOpenOrgInviteSecrets();
+      } catch {
+        // Non-fatal: entries linger until the next boot's sweep.
+      }
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
