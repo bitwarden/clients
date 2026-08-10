@@ -125,32 +125,42 @@ export class EditCommand {
     // are round-tripped back through `bw edit`, preserve the real, already-decrypted values
     // instead of letting them be overwritten and lost. See PM-16160/PM-33526.
     //
-    // Hidden field values are restored by matching on field name rather than array position,
-    // since the request's `fields` array can freely add, remove, or reorder entries relative to
-    // the original cipher (the CLI has no UI to prevent this, unlike the other clients).
-    //
     // Only fall back to the original value when the request's value is missing/`null` (i.e. the
     // redacted sentinel). An explicit non-null value in the request is a deliberate update (e.g.
     // rotating a password via automation) and must still be applied.
     const canViewPassword = cipherView.viewPassword;
     const originalLoginPassword = cipherView.login?.password;
     const originalLoginTotp = cipherView.login?.totp;
-    const originalHiddenFieldValuesByName = new Map(
-      (cipherView.fields ?? [])
-        .filter((f) => f.type === FieldType.Hidden)
-        .map((f) => [f.name, f.value]),
-    );
+    // Values are keyed by field name rather than position so that adding, removing, or
+    // reordering fields in the request can't shift a value onto the wrong field. Fields
+    // sharing a name keep their original relative order.
+    const originalHiddenFieldValues = new Map<string, string[]>();
+    for (const field of cipherView.fields ?? []) {
+      if (field.type === FieldType.Hidden) {
+        const values = originalHiddenFieldValues.get(field.name) ?? [];
+        values.push(field.value);
+        originalHiddenFieldValues.set(field.name, values);
+      }
+    }
 
     cipherView = CipherExport.toView(req, cipherView);
 
     if (!canViewPassword) {
       if (cipherView.login != null) {
-        cipherView.login.password ??= originalLoginPassword;
-        cipherView.login.totp ??= originalLoginTotp;
+        if (cipherView.login.password == null) {
+          cipherView.login.password = originalLoginPassword;
+        }
+        if (cipherView.login.totp == null) {
+          cipherView.login.totp = originalLoginTotp;
+        }
       }
       cipherView.fields?.forEach((field) => {
-        if (field.type === FieldType.Hidden && originalHiddenFieldValuesByName.has(field.name)) {
-          field.value ??= originalHiddenFieldValuesByName.get(field.name);
+        if (field.type !== FieldType.Hidden || field.value != null) {
+          return;
+        }
+        const values = originalHiddenFieldValues.get(field.name);
+        if (values?.length > 0) {
+          field.value = values.shift();
         }
       });
     }
