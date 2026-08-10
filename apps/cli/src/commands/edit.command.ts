@@ -215,18 +215,36 @@ export class EditCommand {
     req: OrganizationCollectionRequest,
     options: Options,
   ) {
-    if (options.organizationId == null || options.organizationId === "") {
-      return Response.badRequest("`organizationid` option is required.");
-    }
     if (!Utils.isGuid(id)) {
       return Response.badRequest("`" + id + "` is not a GUID.");
     }
-    if (!Utils.isGuid(options.organizationId)) {
-      return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
+    // The organization id can come from either the `organizationid` option (e.g. a CLI flag, or a
+    // query string parameter when using `bw serve`) or the request body's `organizationId` property.
+    // If both are provided, they must agree; otherwise whichever one was provided is used.
+    const organizationId = Utils.isNullOrWhitespace(options.organizationId)
+      ? req?.organizationId
+      : options.organizationId;
+    if (Utils.isNullOrWhitespace(organizationId)) {
+      return Response.badRequest(
+        "An organization id is required, either via the `--organizationid` option " +
+          "(or `organizationId` query parameter when using `bw serve`), " +
+          "or the request's `organizationId` property.",
+      );
     }
-    if (options.organizationId !== req.organizationId) {
-      return Response.badRequest("`organizationid` option does not match request object.");
+    if (!Utils.isGuid(organizationId)) {
+      return Response.badRequest("`" + organizationId + "` is not a GUID.");
     }
+    if (
+      !Utils.isNullOrWhitespace(options.organizationId) &&
+      !Utils.isNullOrWhitespace(req.organizationId) &&
+      options.organizationId !== req.organizationId
+    ) {
+      return Response.badRequest(
+        "The `--organizationid` option (or `organizationId` query parameter) does not match " +
+          "the request's `organizationId` property.",
+      );
+    }
+    req.organizationId = organizationId as OrganizationId;
     if (req.name == null || req.name.trim() === "") {
       return Response.badRequest("Collection name is required.");
     }
@@ -235,7 +253,7 @@ export class EditCommand {
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+          map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null),
         ),
       );
       if (orgKey == null) {
