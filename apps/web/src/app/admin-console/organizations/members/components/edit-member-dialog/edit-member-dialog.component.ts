@@ -178,6 +178,8 @@ export class EditMemberDialogComponent {
       new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
       email_already_in_use: "emailErrorAlreadyInUse",
       email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      email_taken_by_organization_member: "emailErrorAlreadyInUse",
+      email_taken_outside_organization: "emailErrorClaimedByOrg",
       member_has_master_password: "emailErrorHasMasterPassword",
       email_change_failed: "emailErrorChangeFailed",
     },

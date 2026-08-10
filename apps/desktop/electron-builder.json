@@ -290,7 +290,8 @@
         }
       },
       {
-        "personal-files": {
+        "dot-native-messaging": {
+          "interface": "personal-files",
           "read": [],
           "write": [
             "$HOME/.config/chromium/NativeMessagingHosts",

@@ -116,6 +116,11 @@ export class SendAddEditDialogComponent {
         edit: "editItemHeaderFileSendV2",
         add: "newItemHeaderFileSendV2",
       },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
+      },
     };
     return translation[this.config.sendType][sendAction];
   });

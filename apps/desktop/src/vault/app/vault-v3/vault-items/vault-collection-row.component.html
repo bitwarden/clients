@@ -27,7 +27,9 @@
       type="button"
       class="tw-flex tw-text-start tw-leading-snug tw-truncate"
       linkType="secondary"
-      title="{{ 'viewCollectionWithName' | i18n: collection().name }}"
+      title="{{
+        'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection().name
+      }}"
       [routerLink]="[]"
       [queryParams]="{ collectionId: collection().id }"
       queryParamsHandling="merge"
