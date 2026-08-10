@@ -208,7 +208,8 @@ import {
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { DefaultLegacyCompatKeyService as LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
+// eslint-disable-next-line no-restricted-imports
+import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
