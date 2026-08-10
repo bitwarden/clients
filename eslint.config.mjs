@@ -712,12 +712,6 @@ export default tseslint.config(
       ),
     },
   },
-  {
-    files: ["libs/node/src/services/node-crypto-function.service.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES, false, true),
-    },
-  },
 
   // Within a package, import sibling code via relative paths rather than the package's own
   // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.

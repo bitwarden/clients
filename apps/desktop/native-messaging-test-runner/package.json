@@ -15,7 +15,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@bitwarden/common": "file:../../../libs/common",
-    "@bitwarden/node": "file:../../../libs/node",
+    "@bitwarden/legacy-crypto": "file:../../../libs/legacy-crypto",
     "@bitwarden/storage-core": "file:../../../libs/storage-core",
     "@bitwarden/logging": "dist/libs/logging/src",
     "module-alias": "2.3.4",
@@ -28,7 +28,8 @@
   },
   "_moduleAliases": {
     "@bitwarden/common": "dist/libs/common/src",
-    "@bitwarden/node/services/node-crypto-function.service": "dist/libs/node/src/services/node-crypto-function.service",
+    "@bitwarden/legacy-crypto": "dist/libs/legacy-crypto/src",
+    "@bitwarden/legacy-crypto/node": "dist/libs/legacy-crypto/src/node",
     "@bitwarden/storage-core": "dist/libs/storage-core/src",
     "@bitwarden/logging": "dist/libs/logging/src",
     "@bitwarden/client-type": "dist/libs/client-type/src",
