@@ -53,6 +53,7 @@ libs/tools                                                     @bitwarden/team-t
 apps/browser/src/dirt                   @bitwarden/team-data-insights-and-reporting-dev
 apps/web/src/app/dirt                   @bitwarden/team-data-insights-and-reporting-dev
 apps/cli/src/dirt                       @bitwarden/team-data-insights-and-reporting-dev
+bitwarden_license/bit-browser/src/popup/dirt  @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt   @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt  @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt                               @bitwarden/team-data-insights-and-reporting-dev
