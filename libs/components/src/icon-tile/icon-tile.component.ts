@@ -95,7 +95,7 @@ export class IconTileComponent {
       "tw-justify-center",
       "tw-flex-shrink-0",
       "tw-border",
-      ...variantStyles[variant],
+      ...(variantStyles[variant] ?? []),
       ...sizeStyles[size].container,
       ...borderRadius[size],
     ];
