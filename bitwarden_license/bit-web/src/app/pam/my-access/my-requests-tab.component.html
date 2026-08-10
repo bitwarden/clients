@@ -1,0 +1,271 @@
+<!-- Toolbar: free-text search + collection filter -->
+<div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+  <bit-search
+    class="tw-grow"
+    [placeholder]="'pamAccessRequestsSearchPlaceholder' | i18n"
+    [formControl]="searchControl"
+  ></bit-search>
+  <bit-chip-filter
+    [placeholderText]="'pamCollectionFilter' | i18n"
+    placeholderIcon="bwi-collection-shared"
+    [options]="collectionOptions()"
+    [formControl]="collectionControl"
+  ></bit-chip-filter>
+</div>
+
+<bit-accordion-group>
+  <!-- Pending -->
+  <bit-accordion [title]="'pamMyRequestsPendingSection' | i18n" [open]="true">
+    <span slot="end" bitBadge variant="secondary">{{ pendingRows().length }}</span>
+
+    @if (pendingRows().length === 0) {
+      <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
+        {{ "pamMyRequestsPendingEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="pendingDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+            <th bitCell bitSortable="submittedAt" default="desc">
+              {{ "pamColumnSubmitted" | i18n }}
+            </th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let row of rows$ | async"
+            [attr.data-testid]="'my-access-pending-' + row.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <a [routerLink]="['/pam/requests', row.id]">{{
+                    row.cipherName ?? row.cipherId
+                  }}</a>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              @if (startsNow(row)) {
+                {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
+              } @else {
+                {{ row.leaseNotBefore | date: "short" }} &ndash;
+                {{ row.leaseNotAfter | date: "short" }}
+              }
+            </td>
+            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell>
+              <div class="tw-flex tw-items-start tw-gap-2">
+                @if (canStart(row)) {
+                  <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="primary"
+                      size="small"
+                      [loading]="isStarting(row.id)"
+                      [disabled]="isStarting(row.id)"
+                      (click)="activate(row)"
+                      [attr.data-testid]="'my-access-pending-start-' + row.id"
+                    >
+                      {{ "pamStartLeaseButton" | i18n }}
+                    </button>
+                    <span class="tw-text-xs tw-text-muted">
+                      {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
+                    </span>
+                  </div>
+                }
+                @if (canCancel(row)) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="isCancelling(row.id)"
+                    (click)="cancel(row)"
+                    [attr.data-testid]="'my-access-pending-cancel-' + row.id"
+                  >
+                    {{ "cancel" | i18n }}
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-accordion>
+
+  <!-- Extension requests -->
+  <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
+    <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
+
+    @if (extensionRows().length === 0) {
+      <p
+        bitTypography="body2"
+        class="tw-mb-0 tw-text-muted"
+        data-testid="my-access-extensions-empty"
+      >
+        {{ "pamMyRequestsExtensionsEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="extensionDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+            <th bitCell bitSortable="submittedAt" default="desc">
+              {{ "pamColumnSubmitted" | i18n }}
+            </th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let row of rows$ | async"
+            [attr.data-testid]="'my-access-extension-' + row.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <a [routerLink]="['/pam/requests', row.id]">{{
+                    row.cipherName ?? row.cipherId
+                  }}</a>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              {{ row.leaseNotBefore | date: "short" }} &ndash;
+              {{ row.leaseNotAfter | date: "short" }}
+            </td>
+            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell>
+              @if (canCancel(row)) {
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  size="small"
+                  [disabled]="isCancelling(row.id)"
+                  (click)="cancel(row)"
+                  [attr.data-testid]="'my-access-extension-cancel-' + row.id"
+                >
+                  {{ "cancel" | i18n }}
+                </button>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-accordion>
+
+  <!-- Currently checked out (active leases) -->
+  <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n">
+    <span slot="end" bitBadge variant="secondary">{{ leases().length }}</span>
+
+    @if (leases().length === 0) {
+      <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-leases-empty">
+        {{ "pamMyLeasesActiveEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="leasesDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
+            <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnRemaining" | i18n }}</th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let lease of rows$ | async"
+            [attr.data-testid]="'my-access-lease-' + lease.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(lease.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <a [routerLink]="['/pam/requests', lease.requestId]">{{
+                    lease.cipherName ?? lease.cipherId
+                  }}</a>
+                  @if (lease.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: lease.collectionName }}
+                    </div>
+                  }
+                  @if (lease.extendedUntil) {
+                    <span
+                      bitBadge
+                      variant="secondary"
+                      class="tw-mt-1 tw-inline-block"
+                      [attr.data-testid]="'my-access-lease-extended-' + lease.id"
+                    >
+                      {{
+                        "pamExtendedBadge"
+                          | i18n
+                            : (lease.extendedBySeconds | durationShort)
+                            : (lease.extendedUntil | date: "short")
+                      }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
+            </td>
+            <td bitCell>
+              <span bitBadge variant="success">{{ lease.notAfter | remainingTime: nowMs() }}</span>
+            </td>
+            <td bitCell>
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [loading]="isEnding(lease.id)"
+                [disabled]="isEnding(lease.id)"
+                (click)="endLease(lease)"
+                [attr.data-testid]="'my-access-end-' + lease.id"
+              >
+                {{ "pamEndLeaseButton" | i18n }}
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-accordion>
+</bit-accordion-group>
