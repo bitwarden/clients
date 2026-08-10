@@ -33,7 +33,14 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { AccessRequestView, durationLabel, exactWindow, reasonText, relativeStart } from "../..";
+import {
+  AccessRequestView,
+  durationLabel,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "../..";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { emptyResolvedNames } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
@@ -170,6 +177,7 @@ export class AccessRequestRouteComponent implements OnInit {
       return [];
     }
     return request.decisions.map((decision) => {
+      const approver = humanApprover(decision);
       const denied = decision.verdict === "deny";
       // A Deny recorded against a request that did not end Denied is the lease ending, not a
       // denial: the revoke / self-end path stores its reason as a Deny decision.
@@ -178,13 +186,15 @@ export class AccessRequestRouteComponent implements OnInit {
         ? "approved"
         : !leaseEnd
           ? "denied"
-          : decision.id === request.requesterId
+          : approver?.id === request.requesterId
             ? "endedByHolder"
             : "revoked";
       return {
-        automatic: decision.deciderKind === "automatic",
+        automatic: decision.decider === "automatic",
         who:
-          decision.name || decision.email || (decision.id == null ? "" : uuidAsString(decision.id)),
+          approver?.name ||
+          approver?.email ||
+          (approver?.id == null ? "" : uuidAsString(approver.id)),
         outcome,
         labelKey: DECISION_LABEL_KEYS[outcome],
         comment: decision.comment,
@@ -254,8 +264,8 @@ export class AccessRequestRouteComponent implements OnInit {
       });
   }
 
-  protected cipherFor(cipherIdValue: string): CipherView | undefined {
-    return this.cipherById().get(cipherIdValue);
+  protected cipherFor(cipherIdValue: AccessRequestView["cipherId"]): CipherView | undefined {
+    return this.cipherById().get(uuidAsString(cipherIdValue));
   }
 
   protected async cancel(): Promise<void> {

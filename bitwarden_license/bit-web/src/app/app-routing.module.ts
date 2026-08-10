@@ -45,7 +45,9 @@ const routes: Routes = [
         path: "pam",
         canActivate: [canAccessFeature(FeatureFlag.Pam)],
         loadChildren: () =>
-          import("./pam/my-access/my-access-routing.module").then((m) => m.MyAccessRoutingModule),
+          import("./pam/my-access/access-requests-routing.module").then(
+            (m) => m.AccessRequestsRoutingModule,
+          ),
       },
     ],
   },

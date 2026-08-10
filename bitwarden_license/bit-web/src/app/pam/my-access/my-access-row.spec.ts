@@ -43,16 +43,16 @@ function request(id: string, overrides: Record<string, unknown> = {}): AccessReq
   } as unknown as AccessRequestView;
 }
 
+// Overrides use the flat `deciderKind`/`id`/`name`/`email` shorthand and are folded into the SDK's
+// nested `decider: "automatic" | { human }` shape here, so the call sites stay terse.
 function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
+  const { deciderKind, id, name, email, ...rest } = overrides;
   return {
-    deciderKind: "automatic",
-    id: undefined,
-    name: undefined,
-    email: undefined,
+    decider: deciderKind === "human" ? { human: { id, name, email } } : "automatic",
     comment: undefined,
     verdict: "approve",
     decidedAt: "2024-01-01T00:15:00.000Z",
-    ...overrides,
+    ...rest,
   } as unknown as AccessRequestDecisionView;
 }
 
