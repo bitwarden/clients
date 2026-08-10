@@ -20,7 +20,6 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -34,6 +33,8 @@ import {
   KdfType,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 

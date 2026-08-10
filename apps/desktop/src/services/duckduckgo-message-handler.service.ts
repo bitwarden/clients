@@ -15,10 +15,11 @@ import {
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";

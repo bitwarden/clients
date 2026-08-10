@@ -18,7 +18,6 @@ import {
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -31,6 +30,8 @@ import {
   KdfType,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";

@@ -1,8 +1,9 @@
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { DialogService } from "@bitwarden/components";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { LogRecorder } from "../log-recorder";

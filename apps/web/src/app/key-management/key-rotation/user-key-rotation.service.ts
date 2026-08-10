@@ -23,7 +23,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -39,7 +38,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptionType, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 

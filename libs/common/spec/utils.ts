@@ -6,9 +6,8 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptionType, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
-import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
 import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 

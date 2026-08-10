@@ -12,6 +12,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -31,7 +33,6 @@ import { PlatformUtilsService } from "../../../platform/abstractions/platform-ut
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
-import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
 import { Utils } from "../../../platform/misc/utils";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
