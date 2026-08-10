@@ -396,12 +396,9 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("populates open-org-invite fields and skips direct-invite fields when a stashed open org invite is active", async () => {
-      // Open invites don't carry direct-invite fields — those are for pending
-      // per-user invitations. Server uses (organizationId, code) at register-finish
-      // to find the org so it can bypass domain restrictions and enforce org
-      // master-password policies during registration. The actual invite is accepted
-      // separately after login (deepLinkGuard replays /join/{code}?key={key},
-      // authedHandler fires accept).
+      // Open invites carry the invite link reference (not the per-user credentials of a
+      // direct invite). The kind-guarded write path must set the open-invite fields and
+      // leave direct-invite fields untouched.
       const openOrgInvite = new OpenOrganizationInvite({
         // The SDK request converts organization_id via asUuid, so the fixture must
         // be a valid UUID.

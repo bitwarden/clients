@@ -269,7 +269,7 @@ RegisterFinishRequest {
     "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
     "salt": "salt",
   },
-  "openOrgInvite": {
+  "openOrgInvite": OpenOrgInviteRequest {
     "code": "00000000-0000-0000-0000-000000000011",
     "organizationId": "00000000-0000-0000-0000-000000000010",
   },

@@ -10,6 +10,7 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   OrganizationInviteService,
@@ -114,12 +115,11 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Direct invites: org user id and token are included here for validation and two factor
-    // purposes.
-    // Open invites: (organizationId, code) are included so the server can identify
-    // the joining org and bypass domain restrictions / enforce its master-password policies
-    // during registration. The open invite itself is accepted via a separate flow after login
-    // (deepLinkGuard replays link, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organization_user_id = this.toOptionalSdkOrganizationId(
@@ -200,21 +200,20 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Direct invites: org user id and token are included here for validation and two factor
-    // purposes.
-    // Open invites: (organizationId, code) are included so the server can identify
-    // the joining org and bypass domain restrictions / enforce its master-password policies
-    // during registration. The open invite itself is accepted via a separate flow after login
-    // (deepLinkGuard replays link, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
     } else if (orgInvite?.kind === OrgInviteKind.Open) {
-      registerRequest.openOrgInvite = {
-        organizationId: orgInvite.organizationId,
-        code: orgInvite.inviteLinkCode,
-      };
+      registerRequest.openOrgInvite = new OpenOrgInviteRequest(
+        orgInvite.organizationId,
+        orgInvite.inviteLinkCode,
+      );
     }
 
     if (orgSponsoredFreeFamilyPlanToken) {
