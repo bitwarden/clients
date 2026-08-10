@@ -18,7 +18,13 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { CheckboxModule, FormFieldModule, SwitchComponent } from "@bitwarden/components";
+import {
+  CheckboxModule,
+  FormFieldModule,
+  LinkModule,
+  SwitchComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
@@ -48,8 +54,12 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
+  // Each component renders its own description paragraph so the "Learn more"
+  // link can be inlined; suppress the framework's plain-text rendering.
+  showDescription = false;
   v2 = {
     component: FillAssistPolicyV2Component,
+    showDescription: false,
   };
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
@@ -61,7 +71,14 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   selector: "fill-assist-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "fill-assist.component.html",
-  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
+  imports: [
+    ReactiveFormsModule,
+    CheckboxModule,
+    FormFieldModule,
+    LinkModule,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -99,6 +116,14 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   selector: "fill-assist-v2-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "fill-assist-v2.component.html",
-  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, SwitchComponent, I18nPipe],
+  imports: [
+    ReactiveFormsModule,
+    CheckboxModule,
+    FormFieldModule,
+    LinkModule,
+    SwitchComponent,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class FillAssistPolicyV2Component extends FillAssistPolicyComponent {}

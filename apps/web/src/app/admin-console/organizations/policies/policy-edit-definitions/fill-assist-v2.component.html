@@ -1,3 +1,16 @@
+<p bitTypography="body1">
+  {{ "fillAssistPolicyDesc" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/help/fill-assist/"
+    target="_blank"
+    rel="noreferrer"
+    endIcon="bwi-external-link"
+  >
+    {{ "learnMore" | i18n }}
+  </a>
+</p>
+
 <bit-form-control>
   <bit-switch [formControl]="enabled" id="fill-assist-policy_input_enabled"></bit-switch>
   <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
