@@ -23,6 +23,7 @@ import { TableDataSource, NoItemsModule, ToastService, IconModule } from "@bitwa
 import { KeyService } from "@bitwarden/key-management";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -39,6 +40,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
       deps: [
         OrganizationAuthRequestApiService,
         KeyService,
+        LegacyCompatKeyService,
         EncryptService,
         OrganizationUserApiService,
         AccountService,
