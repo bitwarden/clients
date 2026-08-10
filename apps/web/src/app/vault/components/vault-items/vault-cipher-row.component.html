@@ -111,11 +111,9 @@
   }
   <bit-menu #corruptedCipherOptions>
     @if (canDeleteCipher) {
-      <button bitMenuItem (click)="deleteCipher()" type="button">
-        <span class="tw-text-danger">
-          <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-          {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
-        </span>
+      <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+        {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
       </button>
     }
   </bit-menu>
@@ -132,11 +130,14 @@
               type="button"
               (click)="openUri(launchUri)"
               data-testid="launch-website"
-              [label]="'launchWebsiteName' | i18n: cipher.name"
+              [label]="'launchWebsiteForName' | i18n: cipher.name"
             ></button>
           }
 
-          <vault-item-copy-actions [cipher]="cipher"></vault-item-copy-actions>
+          <vault-item-copy-actions
+            [cipher]="cipher"
+            [showQuickCopyActions]="showQuickCopyActions()"
+          ></vault-item-copy-actions>
         </div>
       }
 
@@ -147,7 +148,7 @@
         bitIconButton="bwi-ellipsis-v"
         type="button"
         appStopProp
-        label="{{ 'options' | i18n }}"
+        label="{{ 'moreOptions' | i18n }}"
       ></button>
       <bit-menu #cipherOptions>
         @if (!(showCopyAndLaunchActions$ | async)) {
@@ -212,6 +213,10 @@
           }
 
           @if (isBankAccountCipher) {
+            <button type="button" bitMenuItem appCopyField="nameOnAccount" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyNameOnAccount" | i18n }}
+            </button>
             <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
               {{ "copyAccountNumber" | i18n }}
@@ -219,6 +224,10 @@
             <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
               {{ "copyRoutingNumber" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="branchNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyBranchNumber" | i18n }}
             </button>
             <button type="button" bitMenuItem appCopyField="pin" [cipher]="cipher">
               <bit-icon name="bwi-clone" />
@@ -228,27 +237,48 @@
               <bit-icon name="bwi-clone" />
               {{ "copyIban" | i18n }}
             </button>
+            <button type="button" bitMenuItem appCopyField="swiftCode" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copySwiftCode" | i18n }}
+            </button>
           }
 
           @if (isPassportCipher) {
+            <button type="button" bitMenuItem appCopyField="givenName" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyFirstName" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="surname" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyLastName" | i18n }}
+            </button>
             <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyPassportNumber" | i18n }}
             </button>
+            <button
+              type="button"
+              bitMenuItem
+              appCopyField="nationalIdentificationNumber"
+              [cipher]="cipher"
+            >
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyNationalIdentificationNumber" | i18n }}
+            </button>
           }
 
           @if (isDriversLicenseCipher) {
-            <button type="button" bitMenuItem appCopyField="firstName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="firstNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyFirstName" | i18n }}
             </button>
 
-            <button type="button" bitMenuItem appCopyField="middleName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="middleNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyMiddleName" | i18n }}
             </button>
 
-            <button type="button" bitMenuItem appCopyField="lastName" [cipher]="cipher">
+            <button type="button" bitMenuItem appCopyField="lastNameLicense" [cipher]="cipher">
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copyLastName" | i18n }}
             </button>
@@ -289,8 +319,8 @@
         }
         @if (showAssignToCollections) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
-            <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-            {{ "assignToCollections" | i18n }}
+            <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+            {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </button>
         }
         @if (showEventLogs) {
@@ -332,11 +362,9 @@
           </button>
         }
         @if (canDeleteCipher) {
-          <button bitMenuItem (click)="deleteCipher()" type="button">
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-              {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
-            </span>
+          <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
+            <bit-icon fixedWidth name="bwi-trash" slot="start" />
+            {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
           </button>
         }
       </bit-menu>

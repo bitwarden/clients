@@ -19,6 +19,18 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
+import {
+  DEFAULT_TIME_PERIOD,
+  TimePeriod,
+} from "../../activity/period-selector/period-selector.types";
+import {
+  TrendWidgetData,
+  TrendWidgetViewType,
+} from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
+import { RiskOverTimeService } from "../../services/risk-over-time.service";
+import { emptyTrendData } from "../testing/story-fixtures";
+
 import { ActivityTabComponent } from "./activity-tab.component";
 import {
   NewApplicationsDialogResultType,
@@ -36,6 +48,33 @@ type MockAccessIntelligenceDataService = {
   initializeForOrganization$: jest.Mock;
 };
 
+const mockCoachmarkService = {
+  activeStepId: jest.fn(),
+  currentStepNumber: jest.fn(),
+  totalSteps: jest.fn(),
+  isRunning: jest.fn(),
+  requiredTabIndex: jest.fn(),
+  tourCompleted$: jest.fn(),
+  startTour: jest.fn(),
+  goToNextStep: jest.fn(),
+  goToPreviousStep: jest.fn(),
+  skipTour: jest.fn(),
+  completeTour: jest.fn(),
+  getStepConfig: jest.fn(),
+  getStepTitle: jest.fn(),
+  getStepDescription: jest.fn(),
+  getStepLearnMoreUrl: jest.fn(),
+};
+
+type MockRiskOverTimeService = {
+  riskOverTimeData$: BehaviorSubject<TrendWidgetData>;
+  isLoading$: BehaviorSubject<boolean>;
+  error$: BehaviorSubject<string | null>;
+  initialize: jest.Mock;
+  setTimeframe: jest.Mock;
+  setDataView: jest.Mock;
+};
+
 describe("ActivityTabComponent", () => {
   let component: ActivityTabComponent;
   let fixture: ComponentFixture<ActivityTabComponent>;
@@ -43,6 +82,7 @@ describe("ActivityTabComponent", () => {
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
+  let mockRiskOverTimeService: MockRiskOverTimeService;
 
   /**
    * Helper to access protected/private members for testing.
@@ -63,7 +103,7 @@ describe("ActivityTabComponent", () => {
     };
 
     mockDrawerStateService = {
-      openDrawer: jest.fn(),
+      toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
     } as any;
 
@@ -75,6 +115,15 @@ describe("ActivityTabComponent", () => {
       t: jest.fn((key: string, ...args: any[]) => key),
     } as any;
 
+    mockRiskOverTimeService = {
+      riskOverTimeData$: new BehaviorSubject<TrendWidgetData>(emptyTrendData),
+      isLoading$: new BehaviorSubject<boolean>(false),
+      error$: new BehaviorSubject<string | null>(null),
+      initialize: jest.fn(),
+      setTimeframe: jest.fn(),
+      setDataView: jest.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ActivityTabComponent],
       providers: [
@@ -82,9 +131,19 @@ describe("ActivityTabComponent", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
+        { provide: RiskOverTimeService, useValue: mockRiskOverTimeService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
-    }).compileComponents();
+    })
+      // Replace the template with a no-op so detectChanges() can flush the
+      // trend-chart effect without instantiating child components whose deps
+      // (TrendWidget's ThemeStateService, security-tasks service for the
+      // password-change widget) are not wired into these unit tests.
+      .overrideComponent(ActivityTabComponent, {
+        set: { template: "" },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ActivityTabComponent);
     component = fixture.componentInstance;
@@ -310,36 +369,22 @@ describe("ActivityTabComponent", () => {
       openSpy.mockRestore();
     });
 
-    it("should call onViewAtRiskMembers - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskMembers - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskMembers();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskMembers,
         "activityTabAtRiskMembers",
       );
     });
 
-    it("should call onViewAtRiskApplications - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskApplications - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskApplications();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskApps,
         "activityTabAtRiskApplications",
       );
-    });
-  });
-
-  // ==================== Local State ====================
-
-  describe("Local State", () => {
-    it("should update extendPasswordChangeWidget signal", () => {
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
-
-      testAccess(component).setExtendPasswordWidget(true);
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(true);
-
-      testAccess(component).setExtendPasswordWidget(false);
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
     });
   });
 
@@ -445,6 +490,63 @@ describe("ActivityTabComponent", () => {
       fixture.componentRef.setInput("organizationId", newOrgId);
 
       expect(component.organizationId()).toBe(newOrgId);
+    });
+  });
+
+  // ==================== Trend Chart ====================
+
+  describe("Trend Chart", () => {
+    it("should initialize the trend chart service on init", () => {
+      fixture.detectChanges();
+
+      expect(mockRiskOverTimeService.initialize).toHaveBeenCalledTimes(1);
+      expect(mockRiskOverTimeService.initialize).toHaveBeenCalledWith(
+        orgId,
+        DEFAULT_TIME_PERIOD,
+        TrendWidgetViewType.Applications,
+      );
+    });
+
+    it("should re-initialize when the organization id changes", () => {
+      fixture.detectChanges();
+
+      const newOrgId = "org-456" as OrganizationId;
+      fixture.componentRef.setInput("organizationId", newOrgId);
+      fixture.detectChanges();
+
+      expect(mockRiskOverTimeService.initialize).toHaveBeenCalledTimes(2);
+      expect(mockRiskOverTimeService.initialize).toHaveBeenLastCalledWith(
+        newOrgId,
+        DEFAULT_TIME_PERIOD,
+        TrendWidgetViewType.Applications,
+      );
+    });
+
+    it("should expose riskOverTimeData/loading/error signals from the service", () => {
+      const trendData: TrendWidgetData = {
+        timeframe: TimePeriod.Past3Months,
+        dataView: TrendWidgetViewType.Members,
+        dataPoints: [{ timestamp: "2026-01-01", atRisk: 2, total: 10 }],
+      };
+      mockRiskOverTimeService.riskOverTimeData$.next(trendData);
+      mockRiskOverTimeService.isLoading$.next(true);
+      mockRiskOverTimeService.error$.next("network error");
+
+      expect(testAccess(component).riskOverTimeData()).toEqual(trendData);
+      expect(testAccess(component).isRiskOverTimeLoading()).toBe(true);
+      expect(testAccess(component).riskOverTimeError()).toBe("network error");
+    });
+
+    it("should forward timespan changes to the service", () => {
+      testAccess(component).onTimespanChanged(TimePeriod.PastYear);
+
+      expect(mockRiskOverTimeService.setTimeframe).toHaveBeenCalledWith(TimePeriod.PastYear);
+    });
+
+    it("should forward view changes to the service", () => {
+      testAccess(component).onViewChanged(TrendWidgetViewType.Members);
+
+      expect(mockRiskOverTimeService.setDataView).toHaveBeenCalledWith(TrendWidgetViewType.Members);
     });
   });
 });

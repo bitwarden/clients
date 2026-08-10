@@ -5,17 +5,21 @@ import { Component, inject, signal, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonComponent,
   ButtonModule,
+  CalloutComponent,
   DialogService,
   IconButtonModule,
   SearchModule,
@@ -29,6 +33,8 @@ import {
   SendFormGenerationService,
   SendFormMode,
   SendFormModule,
+  SendFormService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -88,6 +94,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     SendFormModule,
     AsyncActionsModule,
+    CalloutComponent,
   ],
 })
 export class SendAddEditComponent {
@@ -110,6 +117,12 @@ export class SendAddEditComponent {
   private readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
 
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -119,6 +132,8 @@ export class SendAddEditComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private router: Router,
+    private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.subscribeToParams();
   }
@@ -209,9 +224,47 @@ export class SendAddEditComponent {
       )
       .subscribe((config) => {
         this.config = config;
+        void this.setSendDisabledConfig();
         this.editing.set(config.mode === "add");
         this.headerText = this.getHeaderText(config.mode, config.sendType);
       });
+  }
+
+  async setSendDisabledConfig() {
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      // We can make a copy of a disabled Send only if two conditions are met
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
+      // 2. The Send is a Text Send (we can't attach existing files to new Sends)
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          // This branch violates condition 1 so we never allow copying
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        // This branch meets condition 1, so all we need to check is condition 2
+        const showMakeCopyButton = this.config.originalSend?.type === SendType.Text;
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: showMakeCopyButton
+            ? "sendDisabledNonCompliantBannerMessage"
+            : "sendWillAutomaticallyExpire",
+          showMakeCopyButton,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    } else {
+      this.disabledSendConfig.set(null);
+    }
   }
 
   /**
@@ -238,6 +291,11 @@ export class SendAddEditComponent {
         edit: "editItemHeaderFileSendV2",
         add: "newItemHeaderFileSendV2",
       },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
+      },
     };
     return this.i18nService.t(translation[type][sendAction]);
   }
@@ -262,5 +320,35 @@ export class SendAddEditComponent {
     } else {
       await this.onCancelClick();
     }
+  }
+
+  protected async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
+      },
+    };
+    await this.setSendDisabledConfig();
+    this.editSend();
   }
 }

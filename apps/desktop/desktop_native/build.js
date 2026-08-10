@@ -48,7 +48,7 @@ function buildNapiModule(target, release = true) {
 
 /**
  * Build a Rust binary with Cargo.
- * 
+ *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
  * binary is copied to the `dist` folder.
  * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
@@ -89,6 +89,14 @@ function buildProxyBin(target, release = true) {
     cargoBuild("desktop_proxy", target, release)
 }
 
+function buildWindowsPluginBin(target, release = true) {
+    // This is for windows, but we use effectivePlatform so we can
+    // cross-compile to Windows from other hosts.
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("windows_plugin_authenticator", target, release)
+    }
+}
+
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
     if (effectivePlatform(target) == "win32") {
@@ -111,7 +119,7 @@ function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
     // Install cargo-xwin for cross-platform builds targeting Windows
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
+        runCommand("cargo", ["install", "--version", "0.23.0", "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
@@ -126,10 +134,19 @@ function effectivePlatform(target) {
     return process.platform
 }
 
+// Commands spawned by `runCommand` inherit `process.env`, so variables set here are picked up by
+// every build tool we invoke, as well as the tools those spawn in turn (`napi` -> `cargo-xwin` -> `cargo`).
+if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+    // In order to compile the ring crate, we need to force cargo-xwin to use the clang
+    // compiler rather than clang-cl.
+    process.env["XWIN_CROSS_COMPILER"] = "clang";
+}
+
 if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildWindowsPluginBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
@@ -140,6 +157,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
     return;
@@ -159,6 +177,7 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
 });

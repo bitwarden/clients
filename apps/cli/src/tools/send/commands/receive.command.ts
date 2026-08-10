@@ -88,9 +88,16 @@ export class SendReceiveCommand extends DownloadCommand {
   private async getApiUrl(url: URL) {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
-    if (url.origin === "https://send.bitwarden.com") {
-      return "https://api.bitwarden.com";
-    } else if (url.origin === urls.api) {
+
+    // Check if the URL origin matches any known region's send domain
+    const matchingRegion = this.environmentService
+      .availableRegions()
+      .find((r) => r.urls.send != null && r.urls.send === url.origin);
+    if (matchingRegion != null) {
+      return matchingRegion.urls.api;
+    }
+
+    if (url.origin === urls.api) {
       return url.origin;
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
       return urls.api;
@@ -334,7 +341,7 @@ export class SendReceiveCommand extends DownloadCommand {
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccessV2(accessToken, apiUrl);
+      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.keyService.makeSendKey(keyArray);
@@ -350,7 +357,7 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+          const downloadData = await this.sendApiService.getSendFileDownloadData(
             decryptedView,
             accessToken,
             apiUrl,

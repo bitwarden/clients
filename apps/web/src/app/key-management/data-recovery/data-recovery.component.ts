@@ -6,6 +6,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/cor
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
@@ -60,6 +61,7 @@ export class DataRecoveryComponent {
   private cipherEncryptService = inject(CipherEncryptionService);
   private dialogService = inject(DialogService);
   private privateKeyRegenerationService = inject(UserAsymmetricKeysRegenerationService);
+  private encryptService = inject(EncryptService);
   private logService = inject(LogService);
   private fileDownloadService = inject(FileDownloadService);
 
@@ -69,7 +71,12 @@ export class DataRecoveryComponent {
     new SyncStep(this.apiService),
     new PrivateKeyStep(this.privateKeyRegenerationService, this.dialogService),
     new FolderStep(this.folderApiService, this.dialogService),
-    new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
+    new CipherStep(
+      this.apiService,
+      this.cipherEncryptService,
+      this.dialogService,
+      this.encryptService,
+    ),
   ];
   private workingData: RecoveryWorkingData | null = null;
 

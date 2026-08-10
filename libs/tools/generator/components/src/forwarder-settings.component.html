@@ -25,6 +25,13 @@
       ></button>
     </bit-form-field>
   }
+  @if (displayPrefix) {
+    <bit-form-control>
+      <input bitCheckbox type="checkbox" formControlName="prefix" (change)="save('prefix')" />
+      <bit-label>{{ "forwarderWebsitePrefix" | i18n }}</bit-label>
+      <bit-hint>{{ "forwarderWebsitePrefixHint" | i18n }}</bit-hint>
+    </bit-form-control>
+  }
   @if (displayBaseUrl) {
     <bit-form-field disableMargin>
       <bit-label>{{ "selfHostBaseUrl" | i18n }}</bit-label>

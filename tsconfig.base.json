@@ -8,6 +8,7 @@
     "module": "ES2020",
     "lib": ["es5", "es6", "es7", "dom", "ES2021", "ESNext.Disposable"],
     "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
@@ -46,6 +47,9 @@
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
+      "@bitwarden/legacy-crypto": ["./libs/legacy-crypto/src/index.ts"],
+      "@bitwarden/legacy-crypto/node": ["./libs/legacy-crypto/src/node/index.ts"],
+      "@bitwarden/legacy-crypto/*": ["./libs/legacy-crypto/src/*"],
       "@bitwarden/logging": ["./libs/logging/src"],
       "@bitwarden/logging-angular": ["./libs/logging-angular/src/index.ts"],
       "@bitwarden/messaging": ["./libs/messaging/src/index.ts"],
@@ -70,9 +74,11 @@
       "@bitwarden/user-core": ["./libs/user-core/src/index.ts"],
       "@bitwarden/user-crypto-management": ["./libs/user-crypto-management/src/index.ts"],
       "@bitwarden/vault": ["./libs/vault/src"],
-      "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
-      "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
+      "@bitwarden/vault-export-core": ["./libs/tools/export-vault-core/src"],
+      "@bitwarden/vault-export-ui": ["./libs/tools/export-vault-ui/src"],
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
+      "@bitwarden/pam": ["./libs/pam/src/index.ts"],
+      "@bitwarden/storybook": ["./libs/storybook/src/index.ts"]
     },
     "plugins": [
       {

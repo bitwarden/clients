@@ -26,6 +26,27 @@ describe("DefaultNewPolicyService", () => {
     service = new DefaultNewPolicyService(stateProvider);
   });
 
+  it("policies$ maps the stored state into Policy objects", async () => {
+    const policies = [
+      policyData("1", "org1", PolicyType.MaximumVaultTimeout, true),
+      policyData("2", "org1", PolicyType.DisableSend, true),
+    ];
+    singleUserState.nextState(arrayToRecord(policies));
+
+    const result = await firstValueFrom(service.policies$(userId));
+
+    expect(result).toHaveLength(2);
+    expect(result.map((p) => p.id)).toEqual(["1", "2"]);
+  });
+
+  it("policies$ emits an empty array when there is no state", async () => {
+    singleUserState.nextState(null);
+
+    const result = await firstValueFrom(service.policies$(userId));
+
+    expect(result).toEqual([]);
+  });
+
   it("upsert adds a policy to the existing state", async () => {
     singleUserState.nextState(
       arrayToRecord([policyData("1", "org1", PolicyType.MaximumVaultTimeout, true)]),

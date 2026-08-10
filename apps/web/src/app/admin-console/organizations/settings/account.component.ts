@@ -32,6 +32,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
@@ -95,6 +96,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
@@ -211,7 +213,11 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("updatedCollectionManagement"),
+      message: this.i18nService.t(
+        this.vfo1TerminologyService.enabled()
+          ? "updatedSharedFolderManagement"
+          : "updatedCollectionManagement",
+      ),
     });
   };
 

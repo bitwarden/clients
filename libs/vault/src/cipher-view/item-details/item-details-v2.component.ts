@@ -4,23 +4,18 @@ import { CommonModule } from "@angular/common";
 import { Component, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
-import { fromEvent, map, of, startWith } from "rxjs";
+import { fromEvent, map, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ClientType } from "@bitwarden/client-type";
 import {
   CollectionView,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
-  BadgeModule,
   CardComponent,
   FormFieldModule,
   LinkComponent,
@@ -28,6 +23,8 @@ import {
 } from "@bitwarden/components";
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
+import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -42,10 +39,13 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     OrgIconDirective,
     FormFieldModule,
     LinkComponent,
-    BadgeModule,
+    Vfo1I18nPipe,
   ],
 })
 export class ItemDetailsV2Component {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
+
   readonly hideOwner = input<boolean>(false);
   readonly cipher = input.required<CipherView>();
   readonly organization = input<Organization | undefined>();
@@ -93,22 +93,6 @@ export class ItemDetailsV2Component {
     }
   });
 
-  private readonly platformUtilsService = inject(PlatformUtilsService);
-
-  private readonly configService = inject(ConfigService);
-
-  private readonly desktopMilestone3Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3) ?? of(false),
-  );
-
-  protected readonly showArchiveBadge = computed(() => {
-    return (
-      this.cipher().isArchived &&
-      this.platformUtilsService.getClientType() === ClientType.Desktop &&
-      !this.desktopMilestone3Enabled()
-    );
-  });
-
   constructor(private i18nService: I18nService) {}
 
   toggleShowMore() {
@@ -117,20 +101,23 @@ export class ItemDetailsV2Component {
 
   getAriaLabel(item: Organization | CollectionView | FolderView): string {
     if (item instanceof Organization) {
-      return this.i18nService.t("owner") + item.name;
+      const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      return this.i18nService.t("collection") + item.name;
+      const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder") + item.name;
+      const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
+      return this.i18nService.t(key, item.name);
     }
     return "";
   }
 
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return item.type === CollectionTypes.DefaultUserCollection
-        ? "bwi-user"
-        : "bwi-collection-shared";
+      return this.vfo1TerminologyService.iconClass(
+        item.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+      );
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }
@@ -139,9 +126,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t("collection");
+      return this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder");
+      return this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
     }
     return "";
   }

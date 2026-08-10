@@ -454,6 +454,51 @@ describe("BrowserPopupUtils", () => {
     });
   });
 
+  describe("closeCurrentPopupOrPopout", () => {
+    const win = {} as Window;
+
+    it("closes the browser action popup when the view is a popup", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+
+    it("removes the current window when the view is a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow").mockResolvedValue({ id: 42 } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "removeWindow").mockResolvedValue();
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.removeWindow).toHaveBeenCalledWith(42);
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the view is neither a popup nor a popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "closePopup").mockImplementation();
+      jest.spyOn(BrowserApi, "getWindow");
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+      expect(BrowserApi.getWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
+    });
+  });
+
   describe("waitForAllPopupsClose", () => {
     beforeEach(() => {
       jest.useFakeTimers();
@@ -464,17 +509,17 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve immediately if no popups are open", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(false);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(false);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
       jest.advanceTimersByTime(100);
 
       await expect(promise).resolves.toBeUndefined();
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(1);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(1);
     });
 
     it("should resolve after timeout if popup never closes when using custom timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose(500);
 
@@ -485,7 +530,7 @@ describe("BrowserPopupUtils", () => {
     });
 
     it("should resolve after timeout if popup never closes when using default timeout", async () => {
-      jest.spyOn(BrowserApi, "isPopupOpen").mockResolvedValue(true);
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockResolvedValue(true);
 
       const promise = BrowserPopupUtils.waitForAllPopupsClose();
 
@@ -497,7 +542,7 @@ describe("BrowserPopupUtils", () => {
 
     it("should stop polling after popup closes before timeout", async () => {
       let callCount = 0;
-      jest.spyOn(BrowserApi, "isPopupOpen").mockImplementation(async () => {
+      jest.spyOn(BrowserApi, "isAnyPopupOrPopoutOpen").mockImplementation(async () => {
         callCount++;
         return callCount <= 2;
       });
@@ -512,7 +557,7 @@ describe("BrowserPopupUtils", () => {
       // Advance further to ensure no more calls are made
       jest.advanceTimersByTime(1000);
 
-      expect(BrowserApi.isPopupOpen).toHaveBeenCalledTimes(3);
+      expect(BrowserApi.isAnyPopupOrPopoutOpen).toHaveBeenCalledTimes(3);
     });
   });
 

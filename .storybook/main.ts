@@ -10,6 +10,8 @@ const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
   stories: [
+    "../libs/storybook/src/**/*.mdx",
+    "../libs/storybook/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/auth/src/**/*.mdx",
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
@@ -30,6 +32,8 @@ const config: StorybookConfig = {
     "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../bitwarden_license/bit-browser/src/**/*.mdx",
+    "../bitwarden_license/bit-browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/angular/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [

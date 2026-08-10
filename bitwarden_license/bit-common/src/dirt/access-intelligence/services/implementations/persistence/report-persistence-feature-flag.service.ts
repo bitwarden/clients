@@ -1,4 +1,4 @@
-import { Observable, switchMap } from "rxjs";
+import { first, Observable, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -23,41 +23,34 @@ export class ReportPersistenceFeatureFlagService extends ReportPersistenceServic
   loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage)
-      .pipe(
-        switchMap((useFileStorage) =>
-          useFileStorage
-            ? this.filePersistenceService.loadLastReport$(organizationId)
-            : this.defaultPersistenceService.loadLastReport$(organizationId),
-        ),
-      );
+    // Unlike the save methods, loads are not gated on the file-storage flag: the flag governs
+    // write format only. FileReportPersistenceService handles both the file-download path and an
+    // inline fallback, so it reads back reports in either format regardless of the flag's value.
+    return this.filePersistenceService.loadLastReport$(organizationId);
   }
 
   saveApplicationMetadata$(view: AccessReportView): Observable<void> {
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage)
-      .pipe(
-        switchMap((useFileStorage) =>
-          useFileStorage
-            ? this.filePersistenceService.saveApplicationMetadata$(view)
-            : this.defaultPersistenceService.saveApplicationMetadata$(view),
-        ),
-      );
+    return this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage).pipe(
+      first(),
+      switchMap((useFileStorage) =>
+        useFileStorage
+          ? this.filePersistenceService.saveApplicationMetadata$(view)
+          : this.defaultPersistenceService.saveApplicationMetadata$(view),
+      ),
+    );
   }
 
   saveReport$(
     view: AccessReportView,
     organizationId: OrganizationId,
   ): Observable<{ id: OrganizationReportId; contentEncryptionKey: EncString }> {
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage)
-      .pipe(
-        switchMap((useFileStorage) =>
-          useFileStorage
-            ? this.filePersistenceService.saveReport$(view, organizationId)
-            : this.defaultPersistenceService.saveReport$(view, organizationId),
-        ),
-      );
+    return this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage).pipe(
+      first(),
+      switchMap((useFileStorage) =>
+        useFileStorage
+          ? this.filePersistenceService.saveReport$(view, organizationId)
+          : this.defaultPersistenceService.saveReport$(view, organizationId),
+      ),
+    );
   }
 }

@@ -5,6 +5,7 @@ import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
+import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -50,7 +51,10 @@ import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/brows
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  InternalPolicyService,
+  PolicyService,
+} from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
@@ -62,6 +66,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
   AutofillSettingsService,
@@ -93,6 +98,10 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import {
+  SharedUnlockSettingsService,
+  DefaultSharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -166,6 +175,7 @@ import {
   WebAuthnPrfUnlockService,
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
+  KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
@@ -179,15 +189,18 @@ import { AccountSwitcherService } from "../../auth/popup/account-switching/servi
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
+import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/popup/login/extension-login-via-webauthn-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
 import { ExtensionDeviceManagementComponentService } from "../../auth/services/extension-device-management-component.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
+import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
+import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
@@ -370,7 +383,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: ForegroundBrowserBiometricsService,
-    deps: [],
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: SyncService,
@@ -419,6 +432,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: AutofillLifecycleService,
+    useClass: NoopAutofillLifecycleService,
+    deps: [LogService],
+  }),
+  safeProvider({
     provide: AutofillService,
     deps: [
       CipherService,
@@ -432,10 +450,10 @@ const safeProviders: SafeProvider[] = [
       ScriptInjectorService,
       AccountServiceAbstraction,
       AuthService,
-      ConfigService,
       UserNotificationSettingsServiceAbstraction,
       MessageListener,
       AnimationControlService,
+      AutofillLifecycleService,
     ],
   }),
   safeProvider({
@@ -538,6 +556,11 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: PhishingDetectionSettingsServiceAbstraction,
     useClass: PhishingDetectionSettingsService,
     deps: [
@@ -605,6 +628,9 @@ const safeProviders: SafeProvider[] = [
       BiometricStateService,
       BrowserRouterService,
       WebAuthnPrfUnlockService,
+      SharedUnlockSettingsService,
+      ConfigService,
+      MessageListener,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
@@ -659,7 +685,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
@@ -710,6 +736,11 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: LoginViaWebAuthnComponentService,
+    useClass: ExtensionLoginViaWebAuthnComponentService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LockService,
     useClass: ForegroundLockService,
     deps: [MessageSender, MessageListener],
@@ -753,7 +784,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
-    deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+    deps: [
+      DialogService,
+      ToastService,
+      PlatformUtilsService,
+      I18nServiceAbstraction,
+      ConfigService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: ChangePasswordService,
@@ -763,6 +801,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
       WINDOW,
     ],
   }),
@@ -814,7 +854,7 @@ const safeProviders: SafeProvider[] = [
 ];
 
 @NgModule({
-  imports: [JslibServicesModule, GeneratorServicesModule],
+  imports: [JslibServicesModule, KeyManagementUiModule, GeneratorServicesModule],
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,

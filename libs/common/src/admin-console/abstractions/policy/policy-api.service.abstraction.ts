@@ -17,6 +17,11 @@ export abstract class PolicyApiServiceAbstraction {
     organizationUserId: string,
   ) => Promise<Policy[] | undefined>;
 
+  abstract getPoliciesByInviteLinkCode: (
+    organizationId: string,
+    code: string,
+  ) => Promise<Policy[] | undefined>;
+
   abstract getMasterPasswordPolicyOptsForOrgUser: (
     orgId: string,
   ) => Promise<MasterPasswordPolicyOptions | null>;

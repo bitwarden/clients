@@ -5,8 +5,10 @@ import { map } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CoachmarkStep, CoachmarkStepId, COACHMARK_STEPS } from "./coachmark-step";
 
@@ -52,6 +54,8 @@ export class CoachmarkService {
     private stateProvider: StateProvider,
     private i18nService: I18nService,
     private router: Router,
+    private configService: ConfigService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   /**
@@ -66,7 +70,14 @@ export class CoachmarkService {
    */
   getStepTitle(stepId: CoachmarkStepId): string {
     const step = this.getStepConfig(stepId);
-    return step ? this.i18nService.t(step.titleKey) : "";
+    if (!step) {
+      return "";
+    }
+    const key =
+      this.vfo1TerminologyService.enabled() && step.titleKeyVfo1
+        ? step.titleKeyVfo1
+        : step.titleKey;
+    return this.i18nService.t(key);
   }
 
   /**
@@ -74,7 +85,14 @@ export class CoachmarkService {
    */
   getStepDescription(stepId: CoachmarkStepId): string {
     const step = this.getStepConfig(stepId);
-    return step ? this.i18nService.t(step.descriptionKey) : "";
+    if (!step) {
+      return "";
+    }
+    const key =
+      this.vfo1TerminologyService.enabled() && step.descriptionKeyVfo1
+        ? step.descriptionKeyVfo1
+        : step.descriptionKey;
+    return this.i18nService.t(key);
   }
 
   /**
@@ -99,6 +117,11 @@ export class CoachmarkService {
    */
   async startTour(): Promise<void> {
     if (this.isRunning()) {
+      return;
+    }
+
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
       return;
     }
 

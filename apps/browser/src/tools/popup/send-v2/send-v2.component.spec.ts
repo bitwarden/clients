@@ -9,6 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -100,8 +101,16 @@ describe("SendV2Component", () => {
             }),
           },
         },
-        { provide: AuthService, useValue: mock<AuthService>() },
-        { provide: AvatarService, useValue: mock<AvatarService>() },
+        {
+          provide: AuthService,
+          useValue: mock<AuthService>({
+            activeAccountStatus$: of(AuthenticationStatus.Unlocked),
+          }),
+        },
+        {
+          provide: AvatarService,
+          useValue: mock<AvatarService>({ avatarColor$: of(null) }),
+        },
         {
           provide: BillingAccountProfileStateService,
           useValue: { hasPremiumFromAnySource$: of(false) },
@@ -118,7 +127,13 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
-        { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        {
+          provide: SendPolicyService,
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+          },
+        },
       ],
     }).compileComponents();
 

@@ -46,6 +46,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { GroupApiService, GroupDetailsView } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -58,7 +59,8 @@ import {
   PermissionMode,
 } from "../../../shared/components/access-selector";
 import { MemberActionsService } from "../../services";
-import { MemberDialogResult } from "../member-dialog/member-dialog.component";
+import { MemberDialogResult } from "../member-dialog/member-dialog.types";
+import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.component";
 import { commaSeparatedEmails } from "../member-dialog/validators/comma-separated-emails.validator";
 import {
   getEmailBatchLimit,
@@ -95,12 +97,14 @@ export interface InviteMembersDialogParams {
     FormFieldModule,
     I18nPipe,
     LinkModule,
+    NestedCheckboxComponent,
     NgTemplateOutlet,
     RadioButtonModule,
     ReactiveFormsModule,
     SelectModule,
     TabsModule,
     IconModule,
+    Vfo1I18nPipe,
   ],
 })
 export class InviteMembersDialogComponent {

@@ -1,10 +1,15 @@
-<div class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden">
+<div
+  class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
+  attr.aria-hidden="{{ showingModal }}"
+>
   <div class="tw-pt-6 tw-px-6">
+    <vault-organization-user-notifications></vault-organization-user-notifications>
     <app-header>
       <vault-new-cipher-menu
-        [canCreateCipher]="true"
+        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
         [canCreateFolder]="true"
         [canCreateSshKey]="true"
+        [disabled]="!((canCreateCipher$ | async) ?? true)"
         (cipherAdded)="addCipher($event)"
         (folderAdded)="addFolder()"
         (onAddItemDialog)="openAddItemDialog()"
@@ -15,7 +20,7 @@
     class="tw-mb-4 tw-px-6"
     [ngModel]="currentSearchText$ | async"
     (ngModelChange)="filterSearchText($event)"
-    [placeholder]="searchPlaceholderText"
+    [placeholder]="searchPlaceholderText()"
     appAutofocus
   />
   <app-vault-list
@@ -26,10 +31,9 @@
     [allOrganizations]="allOrganizations"
     [disabled]="refreshing"
     [showOwner]="true"
-    [showPremiumFeatures]="userHasPremium()"
     [userCanArchive]="userCanArchive$ | async"
     [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-    [placeholderText]="searchPlaceholderText"
+    [placeholderText]="searchPlaceholderText()"
     [isEmpty]="isEmpty && !performingInitialLoad"
     [showAddCipherBtn]="showAddCipherBtn$ | async"
     [emptyStateItem]="emptyState$ | async"
@@ -39,4 +43,7 @@
     (onAddFolder)="addFolder()"
     (onAddItemDialog)="openAddItemDialog()"
   />
+  @if (vaultBatchBarFeatureFlag()) {
+    <bit-vault-batch-action />
+  }
 </div>

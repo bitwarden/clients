@@ -2,7 +2,36 @@ import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelli
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { TimePeriod } from "../../activity/period-selector/period-selector.types";
+import {
+  TrendWidgetData,
+  TrendWidgetViewType,
+} from "../../activity/trend-widget/trend-widget.component";
 import { DrawerMemberData } from "../models/drawer-content-data.types";
+
+/**
+ * Empty trend-chart dataset.
+ */
+export const emptyTrendData: TrendWidgetData = {
+  timeframe: TimePeriod.PastMonth,
+  dataView: TrendWidgetViewType.Applications,
+  dataPoints: [],
+};
+
+/**
+ * Populated trend-chart dataset with deterministic timestamps for stories.
+ */
+export const populatedTrendData: TrendWidgetData = {
+  timeframe: TimePeriod.PastMonth,
+  dataView: TrendWidgetViewType.Applications,
+  dataPoints: [
+    { timestamp: "2026-05-01", atRisk: 3, total: 12 },
+    { timestamp: "2026-05-08", atRisk: 4, total: 14 },
+    { timestamp: "2026-05-15", atRisk: 2, total: 15 },
+    { timestamp: "2026-05-22", atRisk: 5, total: 17 },
+    { timestamp: "2026-05-29", atRisk: 3, total: 18 },
+  ],
+};
 
 /**
  * Creates a mock cipher for Storybook stories
@@ -56,7 +85,6 @@ export function createSampleApplications(count: number = 7): ApplicationHealthVi
  * @param count - Number of members to create (defaults to 5)
  */
 export function createSampleMembers(count: number = 5): DrawerMemberData[] {
-  const names = ["Alice Smith", "Bob Johnson", "Charlie Davis", "Diana Wilson", "Eve Martinez"];
   const emails = [
     "alice@example.com",
     "bob@example.com",
@@ -66,11 +94,9 @@ export function createSampleMembers(count: number = 5): DrawerMemberData[] {
   ];
   const atRiskCounts = [15, 8, 12, 5, 20];
 
-  return Array.from({ length: Math.min(count, names.length) }, (_, i) => ({
+  return Array.from({ length: Math.min(count, emails.length) }, (_, i) => ({
     email: emails[i],
-    userName: names[i],
-    userGuid: `user-${i + 1}`,
-    atRiskPasswordCount: atRiskCounts[i],
+    atRiskApplicationCount: atRiskCounts[i],
   }));
 }
 
@@ -94,9 +120,7 @@ export function createMockCiphersWithIcons(): CipherView[] {
 export function createLargeDataset(count: number): DrawerMemberData[] {
   return Array.from({ length: count }, (_, i) => ({
     email: `user${i}@example.com`,
-    userName: `User ${i}`,
-    userGuid: `user-${i}`,
     // Use deterministic pattern instead of random: cycles through 1-25
-    atRiskPasswordCount: (i % 25) + 1,
+    atRiskApplicationCount: (i % 25) + 1,
   }));
 }

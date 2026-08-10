@@ -38,6 +38,9 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
+  web: "disk-local",
+});
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -113,6 +116,16 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
+  web: "disk-local",
+});
 
 // Platform
 
@@ -209,7 +222,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
@@ -228,20 +243,22 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_BROWSER_DEFAULT_PASSWORD_MANAGER_PROMPT = new StateDefinition(
+  "vaultBrowserDefaultPasswordManagerPrompt",
+  "disk",
+);
 export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
   "vaultAutofillSimplifiedIcon",
   "disk",
 );
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
+  "vaultOrgUserNotification",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
-export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
-  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",
@@ -258,3 +275,4 @@ export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
+export const SHARED_UNLOCK_SETTINGS_DISK = new StateDefinition("sharedUnlockSettings", "disk");

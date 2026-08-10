@@ -5,10 +5,11 @@ import {
   applicationConfig,
   componentWrapperDecorator,
 } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -92,6 +93,7 @@ export default {
             getShowFavicon: () => true,
           } as Partial<DomainSettingsService>,
         },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
       ],
     }),
   ],

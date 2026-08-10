@@ -51,7 +51,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building Manifest Version ${manifestVersion} app - ${params.configName} version`);
 
-  const envConfig = configurator.load(ENV);
+  const envConfig = configurator.load(ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const moduleRules = [
@@ -137,6 +137,9 @@ module.exports.buildConfig = function buildConfig(params) {
         ENV: JSON.stringify(ENV),
         BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(
           process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS === "true",
+        ),
+        BW_DETECT_SYNC_BOUNDARIES: JSON.stringify(
+          process.env.BW_DETECT_SYNC_BOUNDARIES === "true" || ENV === "development",
         ),
       },
     }),
@@ -268,7 +271,7 @@ module.exports.buildConfig = function buildConfig(params) {
         __dirname,
         "src/platform/ipc/content/ipc-content-script.ts",
       ),
-      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bar.ts"),
+      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bootstrap-bar.ts"),
       "overlay/menu-button": path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",

@@ -1,1 +1,10 @@
-<ng-content></ng-content>
+@if (displayMode() === "dropdown") {
+  <bit-toggle-dropdown
+    [items]="dropdownItems()"
+    [value]="selected()"
+    [label]="label()"
+    (valueChange)="onInputInteraction($event)"
+  ></bit-toggle-dropdown>
+} @else {
+  <ng-content></ng-content>
+}
