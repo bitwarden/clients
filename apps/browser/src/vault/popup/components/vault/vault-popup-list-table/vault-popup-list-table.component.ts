@@ -64,7 +64,14 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   host: {
     // Forward height through to the `height="fill"` table so it can size to a bounded parent
     // (e.g. the popup-page scroll area). Without this the host collapses to 0 and no rows show.
-    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 -tw-mt-2",
+    //
+    // The negative margins cancel `popup-page`'s scroll-region padding so the toolbar's bottom
+    // border reaches the popup edges. That padding halves in compact mode (`tw-py-3`/`tw-px-3` →
+    // `2`), so these have to track it: a fixed `-3` overshoots by 4px per side when compact, and
+    // since the region computes `overflow-x: auto`, the overshoot becomes a stray horizontal
+    // scrollbar rather than just bleeding.
+    class:
+      "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 bit-compact:-tw-mx-2 -tw-mt-3 bit-compact:-tw-mt-2",
   },
   imports: [
     CommonModule,

@@ -227,12 +227,6 @@ describe("VaultPopupListTableComponent", () => {
    * mounted. Consumers reading the host (scroll-position restore, the header's scrolled-state
    * separator) would otherwise watch an element that never fires a scroll event.
    */
-  /**
-   * `popup-page` marks its own scroll region as the layout scroll host, but the table scrolls
-   * inside its virtual-scroll viewport instead — that region never overflows while the table is
-   * mounted. Consumers reading the host (scroll-position restore, the header's scrolled-state
-   * separator) would otherwise watch an element that never fires a scroll event.
-   */
   describe("scroll host", () => {
     /**
      * `afterRenderEffect` runs in the render phase, which the TestBed doesn't flush
