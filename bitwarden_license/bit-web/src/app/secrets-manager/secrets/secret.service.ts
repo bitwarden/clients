@@ -6,14 +6,15 @@ import { Subject, firstValueFrom, switchMap, map, filter } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import {
-  DECRYPT_ERROR,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  DECRYPT_ERROR,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";

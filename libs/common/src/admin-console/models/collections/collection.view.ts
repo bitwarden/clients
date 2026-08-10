@@ -1,10 +1,9 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId } from "../../../types/guid";

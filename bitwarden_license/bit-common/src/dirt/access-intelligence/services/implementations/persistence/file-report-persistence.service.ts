@@ -12,7 +12,6 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   FileUploadApiMethods,
@@ -21,7 +20,7 @@ import {
 import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import {

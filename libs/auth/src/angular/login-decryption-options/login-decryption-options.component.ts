@@ -35,7 +35,6 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
@@ -66,7 +65,7 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString, LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   PureCrypto,
   OrganizationId as SdkOrganizationId,

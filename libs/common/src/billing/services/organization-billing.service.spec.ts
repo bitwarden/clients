@@ -4,6 +4,7 @@ import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
+  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
@@ -14,7 +15,6 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { SyncService } from "../../platform/sync";

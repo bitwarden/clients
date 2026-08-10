@@ -2,12 +2,12 @@
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
 import {
   EncryptionType,
   EncryptService,
+  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";

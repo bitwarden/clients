@@ -5,7 +5,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -17,7 +17,6 @@ import {
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";

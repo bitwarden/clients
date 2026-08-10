@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UploadOptions } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";

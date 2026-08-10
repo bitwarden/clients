@@ -4,7 +4,7 @@ import { of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, EncString, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { makeEncString } from "../../../../spec";
@@ -13,7 +13,6 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,

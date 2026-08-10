@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -12,6 +11,7 @@ import {
   EncArrayBuffer,
   EncryptionType,
   EncryptService,
+  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";

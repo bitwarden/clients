@@ -4,10 +4,14 @@ import { mock, MockProxy } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { makeStaticByteArray, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 

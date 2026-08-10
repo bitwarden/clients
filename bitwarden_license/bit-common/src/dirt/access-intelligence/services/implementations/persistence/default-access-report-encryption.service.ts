@@ -1,6 +1,5 @@
 import { Observable, catchError, forkJoin, from, map, switchMap, take } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -8,6 +7,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   EncArrayBuffer,
   EncryptService,
+  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";

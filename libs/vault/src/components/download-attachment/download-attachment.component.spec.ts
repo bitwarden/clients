@@ -4,7 +4,6 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -17,7 +16,7 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncryptService } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncArrayBuffer, EncryptService } from "@bitwarden/legacy-crypto";
 
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 

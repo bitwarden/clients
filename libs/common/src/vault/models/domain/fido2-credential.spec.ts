@@ -1,8 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType } from "@bitwarden/legacy-crypto";
+import { EncryptionType, EncString } from "@bitwarden/legacy-crypto";
 
 import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";

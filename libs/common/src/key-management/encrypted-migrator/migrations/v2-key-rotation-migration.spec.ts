@@ -4,7 +4,7 @@ import { of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
@@ -17,7 +17,6 @@ import { UserKey } from "../../../types/key";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { AttachmentView } from "../../../vault/models/view/attachment.view";
 import { CipherView } from "../../../vault/models/view/cipher.view";
-import { EncString } from "../../crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 
 import { V2KeyRotationMigration } from "./v2-key-rotation-migration";

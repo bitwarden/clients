@@ -18,7 +18,6 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
@@ -28,7 +27,12 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { DEFAULT_KDF_CONFIG, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  DEFAULT_KDF_CONFIG,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";

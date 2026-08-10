@@ -1,8 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { PrfKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 
 declare const tag: unique symbol;
 

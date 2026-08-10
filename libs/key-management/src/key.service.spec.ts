@@ -4,10 +4,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import {
-  EncString,
-  EncryptedString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
@@ -38,7 +34,9 @@ import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 import {
   CryptoFunctionService,
   CsprngArray,
+  EncryptedString,
   EncryptService,
+  EncString,
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";

@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -9,6 +8,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   Argon2KdfConfig,
   EncryptService,
+  EncString,
   KdfConfig,
   KdfType,
   KeyGenerationService,

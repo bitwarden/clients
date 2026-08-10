@@ -4,7 +4,6 @@ import { firstValueFrom, Observable } from "rxjs";
 import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -32,6 +31,7 @@ import {
   CryptoFunctionService,
   EncryptionType,
   EncryptService,
+  EncString,
   KdfConfig,
   LegacyCompatKeyService,
   SignedPublicKey,

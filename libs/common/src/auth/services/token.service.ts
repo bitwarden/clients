@@ -7,10 +7,14 @@ import { Opaque } from "type-fest";
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,

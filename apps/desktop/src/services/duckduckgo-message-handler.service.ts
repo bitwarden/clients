@@ -4,10 +4,6 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -18,8 +14,10 @@ import {
   CryptoFunctionService,
   DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
   DuckDuckGoEncstring,
+  EncryptedString,
   EncryptionType,
   EncryptService,
+  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";

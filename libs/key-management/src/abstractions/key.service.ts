@@ -3,10 +3,6 @@ import { Observable } from "rxjs";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -17,7 +13,12 @@ import {
   UserPublicKey,
 } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/legacy-crypto";
+import {
+  EncryptedString,
+  EncString,
+  SignedPublicKey,
+  WrappedSigningKey,
+} from "@bitwarden/legacy-crypto";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {

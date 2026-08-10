@@ -5,7 +5,6 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -29,6 +28,7 @@ import {
   DEFAULT_KDF_CONFIG,
   EncryptionType,
   EncryptService,
+  EncString,
   KdfType,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";

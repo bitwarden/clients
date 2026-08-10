@@ -12,6 +12,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   CryptoFunctionService,
   EncryptService,
+  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -37,7 +38,6 @@ import { StorageOptions } from "../../../platform/models/domain/storage-options"
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 

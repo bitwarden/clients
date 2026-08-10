@@ -1,10 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
   FileUploadApiMethods,

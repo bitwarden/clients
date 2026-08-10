@@ -5,6 +5,8 @@ import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs"
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
+  EncryptedString,
+  EncString,
   KdfConfig,
   KeyGenerationService,
   SymmetricCryptoKey,
@@ -27,7 +29,6 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";

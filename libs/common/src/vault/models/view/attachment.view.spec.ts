@@ -1,9 +1,8 @@
 // eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
 import { mockFromJson } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 
 import { AttachmentView } from "./attachment.view";
 

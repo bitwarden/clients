@@ -9,13 +9,13 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   EncArrayBuffer,
   EncryptService,
+  EncString,
   KeyGenerationService,
   PBKDF2KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";

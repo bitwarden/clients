@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import {
   Argon2KdfConfig,
   CryptoFunctionService,
+  EncString,
   KdfConfig,
   KeyGenerationService,
   PBKDF2KdfConfig,
@@ -28,7 +29,6 @@ import { Utils } from "../../../platform/misc/utils";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import {
   MasterKeyWrappedUserKey,

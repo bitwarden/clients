@@ -15,12 +15,11 @@ import {
   zip,
 } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import {
   PasswordHealthReportApplicationsRequest,

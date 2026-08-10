@@ -20,10 +20,6 @@ import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/mod
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import {
-  EncString,
-  EncryptedString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -49,7 +45,9 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
+  EncryptedString,
   EncryptService,
+  EncString,
   SignedPublicKey,
   SymmetricCryptoKey,
   WrappedSigningKey,

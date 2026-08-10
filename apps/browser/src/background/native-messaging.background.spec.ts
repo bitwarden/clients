@@ -2,7 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -12,6 +11,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import {
   CryptoFunctionService,
   EncryptService,
+  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";

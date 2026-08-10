@@ -2,7 +2,7 @@ import { MockProxy } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
 import {
@@ -11,7 +11,6 @@ import {
   mockEnc,
   mockFromJson,
 } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginUriData } from "../data/login-uri.data";

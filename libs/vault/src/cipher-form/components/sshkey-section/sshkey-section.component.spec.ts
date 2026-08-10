@@ -19,6 +19,9 @@ import { SshKeySectionComponent } from "./sshkey-section.component";
 jest.mock("@bitwarden/sdk-internal", () => {
   return {
     generate_ssh_key: jest.fn(),
+    // SdkLoadService reads LogLevel.Info in a static initializer, so the stub has to
+    // carry it or merely loading that module throws.
+    LogLevel: { Trace: 0, Debug: 1, Info: 2, Warn: 3, Error: 4 },
   };
 });
 

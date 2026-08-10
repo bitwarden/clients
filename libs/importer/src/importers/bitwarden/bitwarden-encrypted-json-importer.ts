@@ -4,7 +4,6 @@ import { filter, firstValueFrom } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
@@ -16,7 +15,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 import {
   BitwardenEncryptedIndividualJsonExport,

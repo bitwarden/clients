@@ -7,6 +7,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
+  EncString,
   KeyGenerationService,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
@@ -20,7 +21,6 @@ import {
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";

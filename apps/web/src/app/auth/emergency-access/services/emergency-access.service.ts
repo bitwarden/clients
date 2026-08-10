@@ -4,10 +4,6 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -26,7 +22,9 @@ import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-m
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncryptedString,
   EncryptService,
+  EncString,
   KdfConfig,
   KdfType,
   LegacyCompatKeyService,

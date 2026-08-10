@@ -1,9 +1,8 @@
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { Utils } from "../../misc/utils";
 

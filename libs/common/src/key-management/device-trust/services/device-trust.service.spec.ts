@@ -18,6 +18,7 @@ import {
   CsprngArray,
   EncryptionType,
   EncryptService,
+  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -43,7 +44,6 @@ import { Utils } from "../../../platform/misc/utils";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 
 import {
   SHOULD_TRUST_DEVICE,

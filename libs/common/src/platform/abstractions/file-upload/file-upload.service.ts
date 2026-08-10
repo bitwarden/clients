@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { FileUploadType } from "../../enums";
 
 export abstract class FileUploadService {

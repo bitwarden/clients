@@ -6,7 +6,6 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -18,6 +17,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
+  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";

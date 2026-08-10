@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
 
