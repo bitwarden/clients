@@ -1,12 +1,5 @@
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
-
-import { InitializerMetadata } from "./initializer-metadata.interface";
-
 /**
- * An object that contains EncStrings and knows how to decrypt them. This is usually a domain object with the
- * corresponding view object as the type argument.
- * @example Cipher implements Decryptable<CipherView>
+ * @deprecated Moved to `@bitwarden/legacy-crypto`. These primitives are being retired in favour of
+ * the SDK — do not add new callers. Contact the Key Management team.
  */
-export interface Decryptable<TDecrypted extends InitializerMetadata> extends InitializerMetadata {
-  decrypt: (key: SymmetricCryptoKey) => Promise<TDecrypted>;
-}
+export type { Decryptable } from "@bitwarden/legacy-crypto/interfaces/decryptable.interface";

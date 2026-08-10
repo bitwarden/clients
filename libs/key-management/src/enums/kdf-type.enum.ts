@@ -1,6 +1,5 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum KdfType {
-  PBKDF2_SHA256 = 0,
-  Argon2id = 1,
-}
+/**
+ * @deprecated Moved to `@bitwarden/legacy-crypto`. These primitives are being retired in favour of
+ * the SDK — do not add new callers. Contact the Key Management team.
+ */
+export { KdfType } from "@bitwarden/legacy-crypto/enums/kdf-type.enum";

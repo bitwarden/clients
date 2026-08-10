@@ -1,4 +1,4 @@
-import { EncryptionType } from "../../../platform/enums";
+import { EncryptionType } from "../enums/encryption-type.enum";
 
 import { EncString } from "./enc-string";
 

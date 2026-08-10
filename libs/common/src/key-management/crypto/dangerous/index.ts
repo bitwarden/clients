@@ -1,8 +1,9 @@
-// Provides legacy / compatibility crypto that should not be used by anything other than the external
-// integration.
-
-export { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "./dangerous_duckduckgo_crypto";
+/**
+ * @deprecated Moved to `@bitwarden/legacy-crypto`. These primitives are being retired in favour of
+ * the SDK — do not add new callers. Contact the Key Management team.
+ */
 export {
-  DANGEROUS_aesEcbDecryptLastpassImport,
   DANGEROUS_aesCbcDecryptLastpassImport,
-} from "./dangerous_lastpass_crypto";
+  DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
+  DANGEROUS_aesEcbDecryptLastpassImport,
+} from "@bitwarden/legacy-crypto/dangerous";
