@@ -47,8 +47,8 @@ import { TableDef } from "./table-def";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
-/** Grid track width for the internal selection (checkbox) column. */
-const SELECTION_COLUMN_WIDTH = "40px";
+/** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
+const SELECTION_COLUMN_WIDTH = "56px";
 
 /**
  * Fixed heights (px) of group headers when virtualized. The scroll strategy needs
