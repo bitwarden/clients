@@ -15,6 +15,58 @@ import jest from "eslint-plugin-jest";
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
+/// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
+/// SDK. Nothing may import it except the re-export shims left behind at the pre-move paths, which
+/// keep existing callers working. Those shims are allowlisted at the bottom of this config via
+/// `allowLegacyCrypto`; that list only ever shrinks.
+const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
+  group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
+  message:
+    "@bitwarden/legacy-crypto holds crypto primitives that are being retired in favour of the SDK. " +
+    "Do not add new imports — implement the operation in the SDK and contact the Key Management team.",
+};
+
+// Common is at the base level - should not import from other libs except shared
+const COMMON_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/auth",
+  "@bitwarden/billing",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/node",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
+
+// Key management can depend on common, node, angular, components, eslint, platform, ui
+const KEY_MANAGEMENT_FORBIDDEN_PACKAGES = [
+  "@bitwarden/auth",
+  "@bitwarden/admin-console",
+  "@bitwarden/billing",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/tools",
+  "@bitwarden/vault",
+];
+
+// Node can depend on common, shared, auth
+const NODE_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
+
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
   {
@@ -398,22 +450,7 @@ export default tseslint.config(
   {
     files: ["libs/common/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Common is at the base level - should not import from other libs except shared
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/auth",
-        "@bitwarden/billing",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/node",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -457,16 +494,7 @@ export default tseslint.config(
   {
     files: ["libs/key-management/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Key management can depend on common, node, angular, components, eslint, platform, ui
-        "@bitwarden/auth",
-        "@bitwarden/admin-console",
-        "@bitwarden/billing",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/tools",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(KEY_MANAGEMENT_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -625,18 +653,68 @@ export default tseslint.config(
   {
     files: ["libs/node/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Node can depend on common, shared, auth
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES),
+    },
+  },
+  {
+    files: ["libs/legacy-crypto/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(
+        [
+          // Legacy crypto can only depend on common, logging, key-management
+          "@bitwarden/admin-console",
+          "@bitwarden/angular",
+          "@bitwarden/auth",
+          "@bitwarden/billing",
+          "@bitwarden/components",
+          "@bitwarden/importer",
+          "@bitwarden/key-management-ui",
+          "@bitwarden/node",
+          "@bitwarden/platform",
+          "@bitwarden/tools",
+          "@bitwarden/ui",
+          "@bitwarden/vault",
+        ],
+        false,
+        true,
+      ),
+    },
+  },
+
+  /// The re-export shims left behind when the crypto primitives moved to @bitwarden/legacy-crypto.
+  /// These are the only files permitted to import that package. Delete an entry here whenever its
+  /// shim is deleted; never add one.
+  {
+    files: [
+      "libs/common/src/key-management/crypto/**/*.ts",
+      "libs/common/src/key-management/types.ts",
+      "libs/common/src/platform/enums/encryption-type.enum.ts",
+      "libs/common/src/platform/interfaces/decryptable.interface.ts",
+      "libs/common/src/platform/models/domain/enc-array-buffer.ts",
+      "libs/common/src/platform/models/domain/symmetric-crypto-key.ts",
+      "libs/common/src/types/csprng.ts",
+    ],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES, false, true),
+    },
+  },
+  {
+    files: [
+      "libs/key-management/src/enums/kdf-type.enum.ts",
+      "libs/key-management/src/models/kdf-config.ts",
+    ],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(
+        KEY_MANAGEMENT_FORBIDDEN_PACKAGES,
+        false,
+        true,
+      ),
+    },
+  },
+  {
+    files: ["libs/node/src/services/node-crypto-function.service.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES, false, true),
     },
   },
 
@@ -745,9 +823,15 @@ export default tseslint.config(
 /**
  * // Helper function for building no-restricted-imports rule
  * @param {string[]} additionalForbiddenPatterns
+ * @param {boolean} skipPlatform
+ * @param {boolean} allowLegacyCrypto Only the re-export shims listed above may set this.
  * @returns {any}
  */
-function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform = false) {
+function buildNoRestrictedImports(
+  additionalForbiddenPatterns = [],
+  skipPlatform = false,
+  allowLegacyCrypto = false,
+) {
   return [
     "error",
     {
@@ -757,10 +841,16 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
           message: "Use @bitwarden/sdk-internal instead.",
         },
       ],
+      // Object form rather than plain strings so the legacy-crypto group can carry its own message.
+      // ESLint requires every entry in `patterns` to be the same shape.
       patterns: [
-        ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
-        "**/src/**/*", // Prevent relative imports across libs.
-      ].concat(additionalForbiddenPatterns),
+        ...(skipPlatform
+          ? []
+          : [{ group: ["**/platform/**/internal", "**/platform/messaging/**"] }]),
+        { group: ["**/src/**/*"], message: "Prevent relative imports across libs." },
+        ...(additionalForbiddenPatterns.length > 0 ? [{ group: additionalForbiddenPatterns }] : []),
+        ...(allowLegacyCrypto ? [] : [LEGACY_CRYPTO_RESTRICTED_PATTERN]),
+      ],
     },
   ];
 }

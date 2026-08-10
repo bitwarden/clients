@@ -1,15 +1,13 @@
 import { mock } from "jest-mock-extended";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
-import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
-import { EncryptionType } from "../../../platform/enums";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { EncryptionType } from "../enums/encryption-type.enum";
+import { PBKDF2KdfConfig, Argon2KdfConfig } from "../models/kdf-config";
+import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
+import { CsprngArray } from "../types/csprng";
 
 import { DefaultKeyGenerationService } from "./default-key-generation.service";
 
