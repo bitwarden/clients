@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
+  "noFileSelected": {
+    "message": "Heç bir fayl seçilməyib"
+  },
+  "fileChosen": {
+    "message": "Fayl seçildi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fayl əlavə olundu: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fayl əlavə olundu: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fayl silindi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fayl yükləndi"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fayl yükləndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Yüklənən fayllar"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Yükləmək üçün kliklə və ya sürükləyib burax"
+  },
+  "chooseFiles": {
+    "message": "Faylları seç"
+  },
+  "maxFileSizeParam": {
+    "message": "Maksimum fayl ölçüsü: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "və ya daxilə köçürmə faylının məzmununu kopyalayın/yapışdırın"
   },

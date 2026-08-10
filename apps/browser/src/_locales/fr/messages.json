@@ -713,7 +713,7 @@
     "message": "Ouvrir le site web"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Lancer le site web de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1561,19 +1561,19 @@
     "message": "Copier le code de vérification"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Aucun nom d'utilisateur"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Aucun mot de passe"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Aucun code de vérification"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Aucun numéro"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Aucun code de sécurité"
   },
   "attachments": {
     "message": "Pièces jointes"
@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "Aucun fichier choisi"
   },
+  "noFileSelected": {
+    "message": "Aucun fichier sélectionné"
+  },
+  "fileChosen": {
+    "message": "Fichier choisi : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fichier ajouté : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fichiers ajoutés : $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fichier supprimé : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fichier téléversé"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fichiers téléversés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Fichiers téléversés"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Cliquez pour téléverser ou glissez-déposez"
+  },
+  "chooseFiles": {
+    "message": "Choisir les fichiers"
+  },
+  "maxFileSizeParam": {
+    "message": "Taille maximale du fichier : $SIZE$ Mo",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou copiez/collez les contenus du fichier d'importation"
   },
@@ -5637,7 +5710,7 @@
     "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Copier les informations de $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5746,7 +5819,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Aucune information à copier"
   },
   "assignToCollections": {
     "message": "Assigner aux collections"
@@ -6488,7 +6561,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Afficher les actions de copie rapide dans le coffre"
   },
   "systemDefault": {
     "message": "Par défaut"
@@ -6994,7 +7067,7 @@
     "message": "Bitwarden utilisera les URI de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Ajoutez 3 boutons de copie rapide à côté des éléments pour copier votre nom d'utilisateur, votre mot de passe ou votre code de vérification dans le presse-papiers."
   },
   "noPermissionsViewPage": {
     "message": "Vous n'avez pas les autorisations pour consulter cette page. Essayez de vous connecter avec un autre compte."

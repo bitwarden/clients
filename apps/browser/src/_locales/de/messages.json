@@ -713,7 +713,7 @@
     "message": "Website öffnen"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Website aus $ITEMNAME$ öffnen",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1567,13 +1567,13 @@
     "message": "Kein Passwort"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Kein Verifizierungscode"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Keine Nummer"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Kein Sicherheitscode"
   },
   "attachments": {
     "message": "Anhänge"
@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
   },
+  "noFileSelected": {
+    "message": "Keine Datei ausgewählt"
+  },
+  "fileChosen": {
+    "message": "Datei ausgewählt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Datei hinzugefügt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ Dateien hinzugefügt: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Datei entfernt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 Datei hochgeladen"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ Dateien hochgeladen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Hochgeladene Dateien"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Zum Hochladen klicken oder per Drag & Drop hier ablegen"
+  },
+  "chooseFiles": {
+    "message": "Dateien auswählen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. Dateigröße: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "oder kopiere und füge den Inhalt der Import-Datei hier ein"
   },
@@ -5637,7 +5710,7 @@
     "message": "Entferne die Filter oder versuche einen anderen Suchbegriff"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Details aus $ITEMNAME$ kopieren",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5752,7 +5825,7 @@
     "message": "Sammlungen zuweisen"
   },
   "addToSharedFolder": {
-    "message": "Zu einem freigegebenen Ordner hinzufügen"
+    "message": "Zu einem geteilten Ordner hinzufügen"
   },
   "transferAndAdd": {
     "message": "Übertragen und hinzufügen"
@@ -6225,13 +6298,13 @@
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Nur Organisationsmitglieder mit Zugriff auf die freigegebenen Ordner können diesen Eintrag sehen"
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese geteilten Ordner können den Eintrag sehen."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Nur Organisationsmitglieder mit Zugriff auf die freigegebenen Ordner können diese Einträge sehen"
+    "message": "Nur Organisationsmitglieder mit Zugriff auf die geteilten Ordner können diese Einträge sehen."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Du hast $TOTAL_COUNT$ Einträge ausgewählt. Du kannst $READONLY_COUNT$ der Einträge nicht aktualisieren, da du keine Bearbeitungsrechte hast.",
@@ -6338,7 +6411,7 @@
     "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 Eintrag wird dauerhaft an den ausgewählten Tresor übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
@@ -6350,7 +6423,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an den ausgewählten Tresor übertragen. Du wirst diese Einträge nicht mehr besitzen.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6384,31 +6457,31 @@
     "message": "Sammlungen erfolgreich zugewiesen"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Erfolgreich freigegebene Ordner hinzugefügt"
+    "message": "Geteilte Ordner erfolgreich hinzugefügt"
   },
   "itemMovedToCollection": {
     "message": "Eintrag in Sammlung verschoben"
   },
   "itemAddedToSharedFolder": {
-    "message": "Eintrag zu freigegebenem Ordner hinzugefügt"
+    "message": "Eintrag zu geteiltem Ordner hinzugefügt"
   },
   "itemMovedToCollections": {
     "message": "Eintrag in Sammlungen verschoben"
   },
   "itemAddedToSharedFolders": {
-    "message": "Eintrag zu freigegebenen Ordnern hinzugefügt"
+    "message": "Eintrag zu geteilten Ordnern hinzugefügt"
   },
   "itemsMovedToCollection": {
     "message": "Einträge in Sammlung verschoben"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Einträge zu freigegebenem Ordner hinzugefügt"
+    "message": "Einträge zu geteiltem Ordner hinzugefügt"
   },
   "itemsMovedToCollections": {
     "message": "Einträge in Sammlungen verschoben"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Einträge zu freigegebenen Ordnern hinzugefügt"
+    "message": "Einträge zu geteilten Ordnern hinzugefügt"
   },
   "itemAssignedToCollections": {
     "message": "Zu Sammlungen zugewiesener Eintrag"
@@ -6466,7 +6539,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "itemSends": {
-    "message": "Item Sends",
+    "message": "Eintrag-Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
@@ -6488,7 +6561,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
   "systemDefault": {
     "message": "Systemstandard"
@@ -6803,7 +6876,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "Geteilte Ordner mit Leseberechtigung können nicht gelöscht werden: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -6994,7 +7067,7 @@
     "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu erkennen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Neben Einträgen 3 Schnellkopier-Buttons hinzufügen, um deinen Benutzernamen, Passwort oder Verifizierungscode in die Zwischenablage zu kopieren."
   },
   "noPermissionsViewPage": {
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche, dich mit einem anderen Konto anzumelden."
@@ -7511,9 +7584,9 @@
     "message": "Meinen Tresor durchsuchen"
   },
   "introducingHealth": {
-    "message": "Introducing Health"
+    "message": "Einführung für Gesundheit"
   },
   "healthIntroDescription": {
-    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+    "message": "Überwache und verbessere den Gesundheitszustand deines Passwort-Tresors, indem du Passwörter änderst, die kompromittiert, schwach oder wiederholt verwendet werden."
   }
 }
