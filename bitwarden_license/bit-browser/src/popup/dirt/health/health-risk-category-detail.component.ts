@@ -112,7 +112,7 @@ export class HealthRiskCategoryDetailComponent {
   // TODO: REMOVE - FOR TESTING ONLY
   readonly accountService = inject(AccountService);
   readonly cipherService = inject(CipherService);
-  readonly items = toSignal<CipherView[]>(
+  readonly items = toSignal(
     this.accountService.activeAccount$.pipe(
       filter((account) => account != null),
       switchMap((account) =>
@@ -120,5 +120,6 @@ export class HealthRiskCategoryDetailComponent {
       ),
       take(5),
     ),
+    { initialValue: [] },
   );
 }

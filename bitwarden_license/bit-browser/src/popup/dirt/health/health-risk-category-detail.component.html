@@ -5,7 +5,7 @@
       <app-current-account />
     </ng-container>
   </popup-header>
-  @if (items().length > 0) {
+  @if (items()?.length > 0) {
     <p>
       {{ contentKeys().descriptionKey | i18n }}
     </p>
