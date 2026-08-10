@@ -4,7 +4,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncString,
   EncryptedString,
@@ -37,7 +36,12 @@ import {
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService, CsprngArray, UnsignedPublicKey } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  CsprngArray,
+  EncryptService,
+  UnsignedPublicKey,
+} from "@bitwarden/legacy-crypto";
 
 import { DefaultKeyService } from "./key.service";
 

@@ -2,7 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { OrganizationId } from "../../types/guid";
 import { OrgKey } from "../../types/key";

@@ -87,7 +87,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -178,6 +177,7 @@ import {
 import {
   CryptoFunctionService,
   DefaultLegacyCompatKeyService,
+  EncryptService,
   KeyGenerationService,
   LegacyCompatKeyService,
   WebCryptoFunctionService,

@@ -20,7 +20,6 @@ import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/mod
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncString,
   EncryptedString,
@@ -51,6 +50,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
+  EncryptService,
   SignedPublicKey,
   WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";

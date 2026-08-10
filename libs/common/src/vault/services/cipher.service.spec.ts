@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwErro
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -16,7 +16,6 @@ import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag, FeatureFlagValueType } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";

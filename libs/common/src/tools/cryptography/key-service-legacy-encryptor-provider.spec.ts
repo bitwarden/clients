@@ -5,9 +5,8 @@ import { BehaviorSubject, Subject } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "../../types/guid";

@@ -10,7 +10,6 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
@@ -23,7 +22,13 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { UserKeyRotationKeyRecoveryProvider, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import {
+  Argon2KdfConfig,
+  EncryptService,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 

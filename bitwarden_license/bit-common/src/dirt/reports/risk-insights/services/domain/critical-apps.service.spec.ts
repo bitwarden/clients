@@ -3,14 +3,13 @@ import { randomUUID } from "crypto";
 import { mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
 
 import {
   PasswordHealthReportApplicationsRequest,

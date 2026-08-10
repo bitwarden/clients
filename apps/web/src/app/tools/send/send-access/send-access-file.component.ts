@@ -5,7 +5,6 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -14,7 +13,7 @@ import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-ac
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncryptService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 

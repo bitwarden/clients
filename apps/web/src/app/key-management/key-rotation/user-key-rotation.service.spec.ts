@@ -6,7 +6,6 @@ import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
@@ -43,6 +42,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
+  EncryptService,
   KdfConfig,
   KdfType,
   PBKDF2KdfConfig,

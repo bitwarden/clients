@@ -198,7 +198,6 @@ import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -387,6 +386,7 @@ import {
   CryptoFunctionService as CryptoFunctionServiceAbstraction,
   DefaultKeyGenerationService,
   DefaultLegacyCompatKeyService,
+  EncryptService,
   EncryptServiceImplementation,
   KeyGenerationService,
   LegacyCompatKeyService,

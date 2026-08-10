@@ -12,7 +12,7 @@ import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeGlobalStateProvider } from "../../../../../spec";
@@ -26,7 +26,6 @@ import { Policy } from "../../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../../admin-console/models/domain/reset-password-policy-options";
 import { OrganizationKeysResponse } from "../../../../admin-console/models/response/organization-keys.response";
 import { FeatureFlag } from "../../../../enums/feature-flag.enum";
-import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";

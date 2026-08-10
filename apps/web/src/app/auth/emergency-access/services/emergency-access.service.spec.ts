@@ -5,7 +5,6 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -30,6 +29,7 @@ import {
   Argon2KdfConfig,
   DEFAULT_KDF_CONFIG,
   EncryptionType,
+  EncryptService,
   KdfType,
 } from "@bitwarden/legacy-crypto";
 

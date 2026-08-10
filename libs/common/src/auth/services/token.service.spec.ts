@@ -7,11 +7,10 @@ import { firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,

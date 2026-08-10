@@ -4,7 +4,6 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -13,7 +12,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
+import { CryptoFunctionService, EncryptService } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "../key-management/biometrics/desktop.biometrics.service";

@@ -5,7 +5,11 @@ import { firstValueFrom, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  KeyGenerationService,
+  LegacyCompatKeyService,
+} from "@bitwarden/legacy-crypto";
 
 import {
   FakeAccountService,
@@ -15,7 +19,6 @@ import {
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";

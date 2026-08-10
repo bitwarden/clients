@@ -7,7 +7,6 @@ import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/sa
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,7 +25,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { StateProvider } from "@bitwarden/state";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 

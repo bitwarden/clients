@@ -3,7 +3,6 @@ import { of, throwError } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,7 +15,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 // eslint-disable-next-line no-restricted-imports
-import { CsprngArray, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";

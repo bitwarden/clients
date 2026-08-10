@@ -10,7 +10,6 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -24,7 +23,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
 import {
   BitwardenCsvOrgExportType,

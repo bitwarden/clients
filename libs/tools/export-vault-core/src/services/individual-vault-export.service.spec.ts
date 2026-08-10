@@ -3,7 +3,6 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
@@ -36,6 +35,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
+  EncryptService,
   KdfType,
   KeyGenerationService,
   PBKDF2KdfConfig,
