@@ -23,15 +23,16 @@ import { SendView } from "../view/send.view";
 import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
-const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
+// SendType.Item (2) has no SDK equivalent yet — cast to allow the partial mapping.
+const SEND_TYPE_TO_SDK = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
-};
+} as Record<SendType, SdkSendType>;
 
-const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
+const SEND_TYPE_FROM_SDK = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
-};
+} as Record<SdkSendType, SendType>;
 
 const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
   [AuthType.Email]: SdkAuthType.Email,

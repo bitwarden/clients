@@ -39,6 +39,9 @@
             [accessToken]="accessToken()"
           ></app-send-access-file>
         }
+        @case (sendType.Item) {
+          <app-send-access-item [send]="send()"></app-send-access-item>
+        }
       }
       @if (expirationDate()) {
         @let formattedExpirationTime = expirationDate() | date: "shortTime";

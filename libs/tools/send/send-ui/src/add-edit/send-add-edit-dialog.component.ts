@@ -105,7 +105,7 @@ export class SendAddEditDialogComponent {
     } else if (this.config.mode === "edit" || this.config.mode === "partial-edit") {
       sendAction = "edit";
     }
-    const translation = {
+    const translation: Partial<Record<SendType, { view: string; edit: string; add: string }>> = {
       [SendType.Text]: {
         view: "viewTextSendHeader",
         edit: "editItemHeaderTextSendV2",
@@ -117,7 +117,7 @@ export class SendAddEditDialogComponent {
         add: "newItemHeaderFileSendV2",
       },
     };
-    return translation[this.config.sendType][sendAction];
+    return translation[this.config.sendType]?.[sendAction] ?? "";
   });
 
   /** The configuration for the Send form. */
