@@ -1,5 +1,6 @@
 import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -144,6 +145,19 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
         ],
         nonNullable: true,
       }),
+    });
+
+    // Mirror the policy's enabled/disabled state to the URL field.
+    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((isEnabled) => {
+      const control = this.data?.controls.rulesUrl;
+      if (!control) {
+        return;
+      }
+      if (isEnabled) {
+        control.enable({ emitEvent: false });
+      } else {
+        control.disable({ emitEvent: false });
+      }
     });
   }
 

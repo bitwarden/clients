@@ -169,6 +169,28 @@ describe.each`
     expect(component.data?.valid).toBe(true);
   });
 
+  describe("rulesUrl enabled state mirrors the policy toggle", () => {
+    it("disables the rulesUrl field when the policy is disabled", () => {
+      component.enabled.setValue(false);
+
+      expect(component.data?.controls.rulesUrl.disabled).toBe(true);
+    });
+
+    it("enables the rulesUrl field when the policy is enabled", () => {
+      component.enabled.setValue(true);
+
+      expect(component.data?.controls.rulesUrl.enabled).toBe(true);
+    });
+
+    it("preserves the rulesUrl value across disable/enable transitions", () => {
+      component.data?.patchValue({ rulesUrl: "example.com/rules" });
+      component.enabled.setValue(false);
+      component.enabled.setValue(true);
+
+      expect(component.data?.controls.rulesUrl.value).toBe("example.com/rules");
+    });
+  });
+
   describe("protocol handling on user input", () => {
     it("strips https:// prefix on blur", () => {
       component.data?.patchValue({ rulesUrl: "https://example.com/rules" });
