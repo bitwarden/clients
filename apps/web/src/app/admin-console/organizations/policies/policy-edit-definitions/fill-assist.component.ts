@@ -1,6 +1,5 @@
 import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -36,8 +35,12 @@ import { PolicyCategory } from "../pipes/policy-category";
 /** Uneditable protocol prefix rendered ahead of the URL input via `bitPrefix`. */
 const HTTPS_PREFIX = "https://";
 
-/** Case-insensitive match for a leading `https://`. */
-const HTTPS_PREFIX_PATTERN = /^https:\/\//i;
+/**
+ * Case-insensitive match for a leading `https://`, including in-progress forms
+ * (`https:`, `https:/`). Matching partial forms lets the validator treat mid-typing
+ * input as a growing prefix rather than a scheme attempt.
+ */
+const HTTPS_PREFIX_PATTERN = /^https:\/?\/?/i;
 
 /** Strip our known protocol prefix so stored URLs round-trip cleanly into the input. */
 function stripHttpsPrefix(value: string): string {
@@ -54,17 +57,24 @@ function stripHttpsPrefix(value: string): string {
 const SCHEME_ATTEMPT = /^[a-z][a-z0-9+-]*:/i;
 
 /**
- * Validates the input's host/path portion. The protocol is fixed to `https:` by the
- * `bitPrefix` in the template, and pasted `https://` is stripped as the user types, so any
- * remaining scheme attempt here means the user pasted an unsupported protocol
- * (`http`, `ftp`, etc.) — including the single-slash form `http:/foo` that the WHATWG URL
+ * Validates the input's host/path portion. Any leading `https://` (or in-progress
+ * forms `https:`, `https:/`) is stripped here first so the validator's view matches
+ * what the blur handler will leave in the input.
+ *
+ * Any remaining scheme attempt after that strip is an unsupported protocol (`http`,
+ * `ftp`, etc.) — including the single-slash `http:/foo` form that the WHATWG URL
  * parser would otherwise accept as an empty-port hostname.
  */
 function hostPathValidator(errorMessage: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const value: string = control.value;
-    if (!value) {
+    const raw: string = control.value;
+    if (!raw) {
       return null;
+    }
+    const value = stripHttpsPrefix(raw);
+    if (!value) {
+      // Nothing but a partial `https://` prefix — treat as incomplete input.
+      return { url: { message: errorMessage } };
     }
     if (SCHEME_ATTEMPT.test(value)) {
       return { url: { message: errorMessage } };
@@ -126,24 +136,28 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   constructor() {
     super();
 
-    const rulesUrl = new FormControl<string>(stripHttpsPrefix(DEFAULT_FILL_ASSIST_RULES_URL), {
-      validators: [
-        Validators.required,
-        hostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
-      ],
-      nonNullable: true,
+    this.data = this.formBuilder.group({
+      rulesUrl: new FormControl<string>(stripHttpsPrefix(DEFAULT_FILL_ASSIST_RULES_URL), {
+        validators: [
+          Validators.required,
+          hostPathValidator(this.i18nService.t("invalidFillAssistRulesUrl")),
+        ],
+        nonNullable: true,
+      }),
     });
+  }
 
-    // Silently strip a pasted or typed `https://` so it aligns with the uneditable
-    // `bitPrefix` shown ahead of the input. Non-https protocols (`http`, `ftp`, etc.)
-    // are intentionally left alone here so the validator can surface a clear error.
-    rulesUrl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      if (value && HTTPS_PREFIX_PATTERN.test(value)) {
-        rulesUrl.setValue(stripHttpsPrefix(value), { emitEvent: false });
-      }
-    });
-
-    this.data = this.formBuilder.group({ rulesUrl });
+  /**
+   * Strip a leading `https://` prefix so the input aligns with the uneditable
+   * prefix shown ahead of it. Bound to blur rather than every keystroke so the
+   * cleanup doesn't move the caret mid-typing.
+   */
+  protected onRulesUrlBlur(): void {
+    const control = this.data?.controls.rulesUrl;
+    const value = control?.value;
+    if (typeof value === "string" && HTTPS_PREFIX_PATTERN.test(value)) {
+      control!.setValue(stripHttpsPrefix(value));
+    }
   }
 
   // The `bitPrefix` in the template renders `https://` as an uneditable segment, so

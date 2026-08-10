@@ -170,17 +170,31 @@ describe.each`
   });
 
   describe("protocol handling on user input", () => {
-    it("silently strips a pasted https:// prefix", () => {
+    it("strips https:// prefix on blur", () => {
       component.data?.patchValue({ rulesUrl: "https://example.com/rules" });
+      (component as any).onRulesUrlBlur();
 
       expect(component.data?.value?.rulesUrl).toBe("example.com/rules");
       expect(component.data?.valid).toBe(true);
     });
 
-    it("strips a pasted https:// prefix case-insensitively", () => {
+    it("strips https:// prefix on blur (case-insensitive)", () => {
       component.data?.patchValue({ rulesUrl: "HTTPS://example.com/rules" });
+      (component as any).onRulesUrlBlur();
 
       expect(component.data?.value?.rulesUrl).toBe("example.com/rules");
+      expect(component.data?.valid).toBe(true);
+    });
+
+    it.each([
+      ["https:example.com/rules"], // colon only
+      ["https:/example.com/rules"], // single slash
+      ["https://example.com/rules"], // complete
+    ])("keeps the form valid while an https:// prefix is being typed: %s", (mid) => {
+      // Save must stay enabled through the whole `https://` typing window —
+      // a `https:` fragment mid-prefix must not read as a scheme attempt.
+      component.data?.patchValue({ rulesUrl: mid });
+
       expect(component.data?.valid).toBe(true);
     });
 
@@ -195,7 +209,7 @@ describe.each`
       ["http:/example.com/rules"],
       // No-slash form: also a scheme attempt.
       ["http:example.com/rules"],
-    ])("rejects a pasted non-https protocol: %s", (url) => {
+    ])("rejects non-https protocol: %s", (url) => {
       component.data?.patchValue({ rulesUrl: url });
 
       expect(component.data?.invalid).toBe(true);

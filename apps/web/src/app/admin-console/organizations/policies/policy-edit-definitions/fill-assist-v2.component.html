@@ -26,6 +26,7 @@
         type="text"
         formControlName="rulesUrl"
         id="fill-assist-policy_input_rules-url"
+        (blur)="onRulesUrlBlur()"
       />
       <bit-hint>{{ "fillAssistRulesUrlHint" | i18n }}</bit-hint>
     </bit-form-field>
