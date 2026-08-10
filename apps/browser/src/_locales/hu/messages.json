@@ -119,6 +119,9 @@
   "vault": {
     "message": "Széf"
   },
+  "vaults": {
+    "message": "Széfek"
+  },
   "myVault": {
     "message": "Saját széf"
   },
@@ -709,7 +712,7 @@
   "launchWebsite": {
     "message": "Webhely indítása"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "$ITEMNAME$ webhely elindítása",
     "placeholders": {
       "itemname": {
@@ -1556,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Ellenőrző kód másolása"
+  },
+  "noUsername": {
+    "message": "Nincs felhasználónév"
+  },
+  "noPassword": {
+    "message": "Nincs jelszó"
+  },
+  "noVerificationCode": {
+    "message": "Nincs ellenőrző kód"
+  },
+  "noNumber": {
+    "message": "Nincs szám"
+  },
+  "noSecurityCode": {
+    "message": "Nincs biztonsági kód"
   },
   "attachments": {
     "message": "Mellékletek"
@@ -5618,8 +5636,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
-  "copyInfoTitle": {
-    "message": "Infó másolása - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Adatok másolása: $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5745,17 @@
     "message": "Nincs megadva érték.",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Nincsenek másolandó értékek."
+  "noDetailsToCopy": {
+    "message": "Nincsenek másolandó adatok."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményhez"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
   },
   "copyEmail": {
     "message": "Email cím másolása"
@@ -6200,8 +6224,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ elemeket jelölt ki. Nem frissítheti a $READONLY_COUNT$ részét, mert nem rendelkezik szerkesztési jogosultsággal.",
@@ -6307,8 +6337,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen áthelyezésre kerül a szervezethez. Többé nem Önhöz fog tartozni az elem."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ elemek véglegesen áthelyezésre kerülnek a kiválasztott szervezethez. Többé nem Önhöz fognak tartozni az elemek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6383,32 @@
   "successfullyAssignedCollections": {
     "message": "Sikerült a gyűjteményhez való hozzárendelés"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
   "itemMovedToCollection": {
     "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
   },
   "itemMovedToCollections": {
     "message": "Az elem átkerült a gyűjteményekhez:"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
   "itemsMovedToCollection": {
     "message": "Az elemek átkerültek a gyűjteményhez:"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
   "itemsMovedToCollections": {
     "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
   },
   "itemAssignedToCollections": {
     "message": "Az elem hozzárendelésre került a gyűjteményekhez."
@@ -6401,10 +6458,16 @@
     "message": "Elem helyek"
   },
   "fileSends": {
-    "message": "Fájl küldés"
+    "message": "Fájl küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Szöveg küldés"
+    "message": "Szöveg küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Fiókműveletek"
@@ -6424,8 +6487,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Gyors másolási műveletek megjelenítése a Széfen"
+  "showQuickCopyActionsInVault": {
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
   "systemDefault": {
     "message": "Rendszer alapértelmezett"
@@ -6739,6 +6802,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Frissítsük az asztali alkalmazást."
   },
@@ -6920,6 +6992,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
@@ -7431,5 +7506,14 @@
   },
   "health": {
     "message": "Egészség"
+  },
+  "scanMyVault": {
+    "message": "Saját széf átvizsgálás"
+  },
+  "introducingHealth": {
+    "message": "Egészség bemutatás"
+  },
+  "healthIntroDescription": {
+    "message": "Figyeljük és javítsuk a széf állapotát a kitett, gyenge és újrafelhasznált jelszavak javításával."
   }
 }

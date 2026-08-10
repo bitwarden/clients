@@ -41,7 +41,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
-import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
+import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -104,7 +104,7 @@ export class Main {
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
-  mainDesktopAutotypeService: MainDesktopAutotypeService;
+  mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
 
@@ -349,13 +349,13 @@ export class Main {
     this.desktopAutofillMain = new DesktopAutofillMain(this.logService, this.windowMain);
     void this.desktopAutofillMain.init();
 
-    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+    this.mainDesktopAutotypeMvpService = new MainDesktopAutotypeMvpService(
       this.logService,
       this.windowMain,
     );
 
     app.on("will-quit", () => {
-      this.mainDesktopAutotypeService.dispose();
+      this.mainDesktopAutotypeMvpService.dispose();
       this.storageService.dispose();
     });
   }

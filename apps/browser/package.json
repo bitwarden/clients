@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2026.7.0",
+  "version": "2026.8.0",
   "scripts": {
     "build": "npm run build:chrome",
     "build:bit": "npm run build:bit:chrome",
@@ -57,10 +57,10 @@
     "dist:qa:chrome": "npm run build:qa:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
     "dist:bit:chrome": "npm run build:bit:prod:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
     "dist:bit:qa:chrome": "npm run build:bit:qa:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
-    "dist:beta:chrome": "npm run build:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
-    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
-    "dist:qa:beta:chrome": "npm run build:qa:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
-    "dist:bit:qa:beta:chrome": "npm run build:bit:qa:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
+    "dist:beta:chrome": "npm run build:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
+    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
+    "dist:qa:beta:chrome": "npm run build:qa:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome-QA.zip",
+    "dist:bit:qa:beta:chrome": "npm run build:bit:qa:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome-QA.zip",
     "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.sh dist-edge.zip",
     "dist:qa:edge": "npm run build:qa:edge && mkdir -p dist && ./scripts/compress.sh dist-edge-QA.zip",
     "dist:bit:edge": "npm run build:bit:prod:edge && mkdir -p dist && ./scripts/compress.sh bit-dist-edge.zip",
@@ -89,10 +89,13 @@
     "package:qa:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome-QA.zip",
     "package:bit:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome.zip",
     "package:bit:qa:dev:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-QA.zip",
+    "package:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh dev-chrome-beta.zip",
+    "package:bit:dev:beta:chrome": "npm run update:dev:chrome && ./scripts/compress.sh bit-dev-chrome-beta.zip",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
-    "update:dev:chrome": "./scripts/update-manifest-dev.sh"
+    "update:dev:chrome": "./scripts/update-manifest-dev.sh",
+    "update:beta:chrome": "./scripts/update-manifest-beta.sh"
   }
 }
