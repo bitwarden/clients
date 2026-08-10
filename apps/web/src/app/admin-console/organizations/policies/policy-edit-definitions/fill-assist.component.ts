@@ -43,7 +43,13 @@ const HTTPS_PREFIX = "https://";
  */
 const HTTPS_PREFIX_PATTERN = /^https:\/?\/?/i;
 
-/** Strip our known protocol prefix so stored URLs round-trip cleanly into the input. */
+/**
+ * Strip the `https://` prefix if it is present in the URL. The template uses
+ * `bitPrefix` to render an uneditable `https://` before the URL input, so the
+ * form value omits the protocol to avoid showing it twice. `buildRequestData`
+ * prepends `https://` back on save so stored values always use the https
+ * protocol.
+ */
 function stripHttpsPrefix(value: string): string {
   return value.replace(HTTPS_PREFIX_PATTERN, "");
 }
@@ -174,9 +180,6 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     }
   }
 
-  // The `bitPrefix` in the template renders `https://` as an uneditable segment, so
-  // the form value is the host+path only. Strip on load and prepend on save so the
-  // stored policy data remains a canonical full URL.
   protected override loadData() {
     const data = this.policyResponse()?.data ?? {};
     const rulesUrl =
@@ -184,6 +187,7 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     this.data?.patchValue({ ...data, rulesUrl });
   }
 
+  // Prepend `https://` back so the stored policy data is a canonical full URL.
   protected override buildRequestData() {
     const data = this.data?.getRawValue();
     if (data == null) {
