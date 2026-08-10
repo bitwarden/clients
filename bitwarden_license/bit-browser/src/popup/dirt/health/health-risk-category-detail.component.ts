@@ -10,6 +10,7 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -52,6 +53,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly route = inject(ActivatedRoute);
   readonly changeLoginPasswordService = inject(ChangeLoginPasswordService);
   readonly passwordRepromptService = inject(PasswordRepromptService);
+  readonly platformUtilsService = inject(PlatformUtilsService);
 
   readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
   readonly contentKeys = computed<{
@@ -93,7 +95,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly onChangePassword = async (item: CipherView) => {
     const changePasswordUrl = await this.changeLoginPasswordService.getChangePasswordUrl(item);
     if (changePasswordUrl != null) {
-      window.open(changePasswordUrl, "_blank");
+      this.platformUtilsService.launchUri(changePasswordUrl);
     }
   };
 

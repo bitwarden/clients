@@ -18,6 +18,7 @@ import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/p
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
@@ -108,7 +109,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let cipherService: MockProxy<CipherService>;
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
-  let windowOpen: jest.SpyInstance;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
 
   /**
    * `login.uri` is a getter over `login.uris`, so fixtures have to be real views — an object
@@ -203,7 +204,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
 
-    windowOpen = jest.spyOn(window, "open").mockImplementation(() => null);
+    platformUtilsService = mock<PlatformUtilsService>();
+    platformUtilsService.launchUri.mockImplementation(() => {});
 
     await TestBed.configureTestingModule({
       imports: [HealthRiskCategoryDetailComponent],
@@ -215,6 +217,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
     })
       .overrideComponent(HealthRiskCategoryDetailComponent, {
@@ -238,10 +241,6 @@ describe("HealthRiskCategoryDetailComponent", () => {
         },
       })
       .compileComponents();
-  });
-
-  afterEach(() => {
-    windowOpen.mockRestore();
   });
 
   describe("category content", () => {
@@ -420,7 +419,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(changePasswordButton(0)).toBeUndefined();
     });
 
-    it("opens the change password URL for the clicked item in a new window", async () => {
+    it("opens the change password URL for the clicked item using platform utils service", async () => {
       ciphers$.next([
         buildLogin({ id: "cipher-1", uris: ["https://example.com"] }),
         buildLogin({ id: "cipher-2", uris: ["https://another.example.com"] }),
@@ -436,7 +435,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(
         expect.objectContaining({ id: "cipher-2" }),
       );
-      expect(windowOpen).toHaveBeenCalledWith("https://another.example.com/password", "_blank");
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
+        "https://another.example.com/password",
+      );
     });
   });
 
