@@ -446,6 +446,95 @@ describe("BulkActionsBarComponent", () => {
       expect(bar["reservedShellWidth"]()).toBe(COMPACT_SHELL);
     });
   });
+
+  describe("roving tabindex when an action overflows", () => {
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+
+    beforeEach(async () => {
+      // Only the overflow items report a width. The toolbar keeps reading 0,
+      // so `measureIntrinsicWidth` early-returns and can't overwrite the
+      // shell reserve the tests set below.
+      Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+        const width = this.hasAttribute("bitOverflowItem") ? 100 : 0;
+        return {
+          width,
+          height: 0,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      };
+
+      host.count.set(2);
+      fixture.detectChanges();
+      host.bar()["overflowList"]().remeasure();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    /** Narrow the container until the second primary action packs into the menu. */
+    const overflowSecondAction = () => {
+      const bar = host.bar();
+      // 208 - 100 = 108 available: the first action (100) fits, the second
+      // (100 + 8 gap) does not.
+      bar["wrapperWidth"].set(208);
+      bar["reservedShellWidth"].set(100);
+      fixture.detectChanges();
+
+      expect(bar["overflowList"]().overflow()).toEqual([1]);
+    };
+
+    const arrowRight = (from: HTMLElement) => {
+      from.focus();
+      from.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", keyCode: 39, bubbles: true }),
+      );
+      fixture.detectChanges();
+    };
+
+    it("moves the roving tabindex off a button that packs into the menu", () => {
+      arrowRight(closeBtn());
+      arrowRight(primaryButtons()[0]);
+      expect(primaryButtons()[1].getAttribute("tabindex")).toBe("0");
+
+      overflowSecondAction();
+
+      // Without this the only `tabindex="0"` in the toolbar is on a
+      // `display: none` button, so the whole bar drops out of the tab order.
+      expect(primaryButtons()[1].getAttribute("tabindex")).toBe("-1");
+      expect(closeBtn().getAttribute("tabindex")).toBe("0");
+    });
+
+    it("keeps focus in the toolbar when the focused button packs into the menu", () => {
+      arrowRight(closeBtn());
+      arrowRight(primaryButtons()[0]);
+      expect(document.activeElement).toBe(primaryButtons()[1]);
+
+      overflowSecondAction();
+
+      expect(document.activeElement).toBe(closeBtn());
+    });
+
+    it("leaves the roving tabindex alone when the active button still fits", () => {
+      arrowRight(closeBtn());
+      expect(primaryButtons()[0].getAttribute("tabindex")).toBe("0");
+
+      overflowSecondAction();
+
+      // Only the second action overflowed — nothing should be reset, and
+      // focus must not be pulled away from where the user left it.
+      expect(primaryButtons()[0].getAttribute("tabindex")).toBe("0");
+      expect(document.activeElement).toBe(primaryButtons()[0]);
+    });
+  });
 });
 
 @Component({

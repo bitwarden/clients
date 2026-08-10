@@ -181,6 +181,8 @@ export class BulkActionsBarComponent {
   private readonly keyManager = signal<FocusKeyManager<BulkActionButtonComponent> | undefined>(
     undefined,
   );
+  /** The items backing the current `keyManager`, in the order it navigates them. */
+  private readonly managedItems = signal<BulkActionButtonComponent[]>([]);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -230,6 +232,7 @@ export class BulkActionsBarComponent {
         .withHomeAndEnd()
         .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden !== false);
       this.keyManager.set(manager);
+      this.managedItems.set(items);
       manager.updateActiveItem(0);
       this.applyRovingTabIndex(0, items);
 
@@ -238,6 +241,41 @@ export class BulkActionsBarComponent {
         .subscribe((idx) => this.applyRovingTabIndex(idx, items));
 
       onCleanup(() => manager.destroy());
+    });
+
+    // Packing hides buttons without rebuilding the manager, so a roving
+    // tabindex left on one drops the toolbar out of the tab order.
+    effect(() => {
+      const list = this.overflowList();
+      const packedAway = new Set(
+        list.overflow().map((i) => list.items()[i]?.elementRef.nativeElement),
+      );
+      const manager = this.keyManager();
+      const items = this.managedItems();
+      const activeEl = items[manager?.activeItemIndex ?? -1]?.elementRef.nativeElement;
+
+      if (manager == null || activeEl == null || !packedAway.has(activeEl)) {
+        return;
+      }
+
+      // `updateActiveItem` bypasses `skipPredicate`, so pick a target that is
+      // actually focusable rather than assuming the close button.
+      const next = items.findIndex(
+        (item) =>
+          !packedAway.has(item.elementRef.nativeElement) &&
+          !item.elementRef.nativeElement.hidden &&
+          !item.disabled,
+      );
+      if (next === -1) {
+        return;
+      }
+
+      const hadFocus = activeEl === this.document.activeElement;
+      manager.updateActiveItem(next);
+      this.applyRovingTabIndex(next, items);
+      if (hadFocus) {
+        items[next].focus();
+      }
     });
   }
 
