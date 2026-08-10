@@ -294,18 +294,33 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private readonly scrollLayout = inject(ScrollLayoutService);
 
+  /**
+   * Binds scroll-position tracking to whichever element currently owns scrolling.
+   *
+   * Re-binds on every host change rather than latching the first one. The table presentation
+   * publishes its own virtual-scroll viewport as the scroll host, and it does so *after* loading
+   * settles — so a one-shot subscription would latch `popup-page`'s scroll region, which never
+   * overflows once the table fills it, and record nothing. The table also destroys and re-creates
+   * that viewport when it crosses its empty state (a search matching nothing, then cleared), which
+   * would otherwise leave the service listening on a detached node.
+   *
+   * `stop()` without `reset` keeps the stored position, so re-binding preserves it.
+   */
   private readonly _scrollPositionEffect = effect((onCleanup) => {
     const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
       .pipe(
         filter(([ref, _filters, loading]) => !!ref && !loading),
-        take(1),
+        distinctUntilChanged(([prevRef], [ref]) => prevRef === ref),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([ref]) => {
         this.vaultScrollPositionService.start(ref!.nativeElement);
       });
 
-    onCleanup(() => sub.unsubscribe());
+    onCleanup(() => {
+      sub.unsubscribe();
+      this.vaultScrollPositionService.stop();
+    });
   });
 
   async ngOnInit() {
