@@ -8,11 +8,10 @@ import {
   FileUploadService,
 } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "@bitwarden/common/platform/enums";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncryptionType } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import {
