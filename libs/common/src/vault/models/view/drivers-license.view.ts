@@ -51,7 +51,26 @@ export class DriversLicenseView extends ItemView implements SdkDriversLicenseVie
     return view;
   }
 
+  /**
+   * Converts the DriversLicenseView to an SDK DriversLicenseView.
+   *
+   * Empty strings are normalized to `undefined` so that cleared fields are not encrypted and
+   * stored as empty values. The SDK derives `copyableFields` from the presence of each property,
+   * so a stored empty string would advertise a copy action for a field that has no value.
+   */
   toSdkDriversLicenseView(): SdkDriversLicenseView {
-    return this;
+    return {
+      firstName: this.firstName || undefined,
+      middleName: this.middleName || undefined,
+      lastName: this.lastName || undefined,
+      dateOfBirth: this.dateOfBirth || undefined,
+      licenseNumber: this.licenseNumber || undefined,
+      issuingCountry: this.issuingCountry || undefined,
+      issuingState: this.issuingState || undefined,
+      issueDate: this.issueDate || undefined,
+      expirationDate: this.expirationDate || undefined,
+      issuingAuthority: this.issuingAuthority || undefined,
+      licenseClass: this.licenseClass || undefined,
+    };
   }
 }

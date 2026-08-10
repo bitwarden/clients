@@ -165,9 +165,19 @@ export class CardView extends ItemView implements SdkCardView {
 
   /**
    * Converts the CardView to an SDK CardView.
-   * The view implements the SdkView so we can safely return `this`
+   *
+   * Empty strings are normalized to `undefined` so that cleared fields are not encrypted and
+   * stored as empty values. The SDK derives `copyableFields` from the presence of each property,
+   * so a stored empty string would advertise a copy action for a field that has no value.
    */
   toSdkCardView(): SdkCardView {
-    return this;
+    return {
+      cardholderName: this.cardholderName || undefined,
+      brand: this.brand || undefined,
+      number: this.number || undefined,
+      expMonth: this.expMonth || undefined,
+      expYear: this.expYear || undefined,
+      code: this.code || undefined,
+    };
   }
 }

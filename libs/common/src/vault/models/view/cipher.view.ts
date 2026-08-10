@@ -410,7 +410,7 @@ export class CipherView implements View, InitializerMetadata {
       collectionIds: this.collectionIds ? this.collectionIds.map((i) => asUuid(i)) : [],
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
-      notes: this.notes,
+      notes: this.notes || undefined,
       favorite: this.favorite ?? false,
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
@@ -439,7 +439,7 @@ export class CipherView implements View, InitializerMetadata {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
-      notes: this.notes,
+      notes: this.notes || undefined,
       favorite: this.favorite ?? false,
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
@@ -534,7 +534,9 @@ export class CipherView implements View, InitializerMetadata {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
-      notes: this.notes,
+      // Normalized so cleared notes are not stored as an encrypted empty string, which the SDK
+      // would report as a copyable `SecureNotes` field.
+      notes: this.notes || undefined,
       type: this.type ?? CipherType.Login,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
