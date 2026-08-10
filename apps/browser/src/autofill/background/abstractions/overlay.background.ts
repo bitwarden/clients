@@ -253,6 +253,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   openAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   getInlineMenuCardsVisibility: () => void;
   getInlineMenuIdentitiesVisibility: () => void;
+  getInlineMenuSshKeysVisibility: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;

@@ -136,10 +136,10 @@ describe("AutofillInlineMenuButton", () => {
       expect(autofillInlineMenuButton["authStatus"]).toBe(AuthenticationStatus.Unlocked);
     });
 
-    it("updates the page color scheme meta tag", async () => {
+    it("does not adopt the host page color scheme so the button canvas stays transparent", async () => {
       const colorSchemeMetaTag = globalThis.document.createElement("meta");
       colorSchemeMetaTag.setAttribute("name", "color-scheme");
-      colorSchemeMetaTag.setAttribute("content", "light");
+      colorSchemeMetaTag.setAttribute("content", "normal");
       globalThis.document.head.append(colorSchemeMetaTag);
 
       postWindowMessage({
@@ -149,7 +149,7 @@ describe("AutofillInlineMenuButton", () => {
       });
       await flushPromises();
 
-      expect(colorSchemeMetaTag.getAttribute("content")).toBe("dark");
+      expect(colorSchemeMetaTag.getAttribute("content")).toBe("normal");
     });
   });
 });

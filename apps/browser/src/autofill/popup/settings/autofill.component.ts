@@ -156,6 +156,7 @@ export class AutofillComponent implements OnInit {
   enableInlineMenuOnIconSelect: boolean = false;
   showInlineMenuIdentities: boolean = true;
   showInlineMenuCards: boolean = true;
+  showInlineMenuSshKeys: boolean = true;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -252,6 +253,10 @@ export class AutofillComponent implements OnInit {
 
     this.showInlineMenuCards = await firstValueFrom(
       this.autofillSettingsService.showInlineMenuCards$,
+    );
+
+    this.showInlineMenuSshKeys = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuSshKeys$,
     );
 
     this.enableInlineMenuOnIconSelect =
@@ -644,6 +649,10 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateShowInlineMenuSshKeys() {
+    await this.autofillSettingsService.setShowInlineMenuSshKeys(this.showInlineMenuSshKeys);
   }
 
   getMatchHints() {

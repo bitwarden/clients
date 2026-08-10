@@ -847,7 +847,7 @@ describe("ViewComponent", () => {
       expect(result).toBe(false);
     }));
 
-    it("returns false for SshKey type", fakeAsync(() => {
+    it("returns true for SshKey type", fakeAsync(() => {
       autofillAllowed$.next(true);
 
       // Recreate component to pick up the signal values
@@ -866,7 +866,7 @@ describe("ViewComponent", () => {
 
       const result = component.showAutofillButton();
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     }));
 
     it("returns false when cipher is archived", fakeAsync(() => {

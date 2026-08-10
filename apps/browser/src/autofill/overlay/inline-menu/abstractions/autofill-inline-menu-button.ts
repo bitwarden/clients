@@ -26,9 +26,4 @@ export type AutofillInlineMenuButtonWindowMessageHandlers = {
   }: {
     message: UpdateAuthStatusMessage;
   }) => void;
-  updateAutofillInlineMenuColorScheme: ({
-    message,
-  }: {
-    message: AutofillInlineMenuButtonMessage;
-  }) => void;
 };
