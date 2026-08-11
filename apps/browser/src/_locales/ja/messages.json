@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "ファイルが選択されていません"
   },
+  "noFileSelected": {
+    "message": "ファイルが選択されていません"
+  },
+  "fileChosen": {
+    "message": "選択したファイル: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "ファイルを追加しました: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ファイルを追加しました: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "ファイルを削除しました: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1ファイルをアップロードしました"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ファイルをアップロードしました",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "アップロード済みのファイル"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "ドラッグ&ドロップするかクリックしてアップロード"
+  },
+  "chooseFiles": {
+    "message": "ファイルを選択"
+  },
+  "maxFileSizeParam": {
+    "message": "最大ファイルサイズ: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "またはインポートするファイルの中身をコピーして貼り付け"
   },

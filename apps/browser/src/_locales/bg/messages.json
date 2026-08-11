@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "Не е избран файл"
   },
+  "noFileSelected": {
+    "message": "Няма избрани файлове"
+  },
+  "fileChosen": {
+    "message": "Избран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Добавен файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ файла са добавени: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Премахната файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл е качен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файла са качени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Качени файлове"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Щракнете за качване, или влачете и пуснете тук"
+  },
+  "chooseFiles": {
+    "message": "Изберете файлове"
+  },
+  "maxFileSizeParam": {
+    "message": "Максимален размер на файл: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или поставете съдържанието му"
   },

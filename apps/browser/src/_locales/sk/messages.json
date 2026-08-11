@@ -5020,6 +5020,79 @@
   "noFileChosen": {
     "message": "Nebol vybratý žiadny súbor"
   },
+  "noFileSelected": {
+    "message": "Nie je vybraný žiadny súbor"
+  },
+  "fileChosen": {
+    "message": "Vybraný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Pridaný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Pridané súbory ($COUNT$): $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Súbor bol odstránený: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Bol nahraný 1 súbor"
+  },
+  "filesUploaded": {
+    "message": "Počet nahraných súborov: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané súbory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nahrajte kliknutím alebo pretiahnutím"
+  },
+  "chooseFiles": {
+    "message": "Vybrať súbory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. veľkosť súboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "alebo kopírujte/vložte obsah súboru"
   },
