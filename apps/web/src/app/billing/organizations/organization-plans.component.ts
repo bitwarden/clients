@@ -59,6 +59,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -105,6 +106,7 @@ const Allowed2020PlansForLegacyProviders = [
     EnterBillingAddressComponent,
     IconComponent,
     CartSummaryComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {

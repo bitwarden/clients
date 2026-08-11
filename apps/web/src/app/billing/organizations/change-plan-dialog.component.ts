@@ -47,6 +47,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -116,6 +117,7 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
@@ -250,6 +252,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -366,10 +369,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    return this.i18nService.t(
-      "upgradeFreeOrganization",
-      this.resolvePlanName(this.dialogParams.productTierType),
-    );
+    return this.vfo1TerminologyService.enabled()
+      ? this.i18nService.t("upgradeYourPlan")
+      : this.i18nService.t(
+          "upgradeFreeOrganization",
+          this.resolvePlanName(this.dialogParams.productTierType),
+        );
   }
 
   async setInitialPlanSelection() {
