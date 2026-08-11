@@ -15,6 +15,7 @@ pub mod autostart;
 pub mod clipboard;
 pub mod error;
 pub mod ipc;
+pub mod managed_settings;
 pub mod password;
 #[allow(missing_docs)]
 pub mod powermonitor;

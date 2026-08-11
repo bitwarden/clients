@@ -370,6 +370,13 @@ export declare namespace logging {
   }
 }
 
+export declare namespace managed_settings {
+  /** The host's managed-settings container value, or `None` when the host declares none. */
+  export function read(): Promise<string | null>
+  /** Invokes `callback` whenever the host's managed configuration changes. */
+  export function watch(callback: ((err: Error | null, ) => any)): Promise<void>
+}
+
 export declare namespace passkey_authenticator {
   export function register(): void
 }

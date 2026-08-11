@@ -19,6 +19,11 @@ import {
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -56,9 +61,12 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { devFlagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { managedSettingsSourceFor } from "./platform/main/managed-settings";
+import { ManagedSettingsMain } from "./platform/main/managed-settings/managed-settings.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -107,6 +115,8 @@ export class Main {
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  managedSettingsService: ManagedSettingsService;
+  managedSettingsMain: ManagedSettingsMain;
 
   constructor() {
     // Set paths for portable builds
@@ -239,6 +249,24 @@ export class Main {
       (win) => this.trayMain.setupWindowListeners(win),
       () => this.trayMain.restoreFromTray(),
     );
+
+    this.managedSettingsService = devFlagEnabled("managedSettingsDevSource")
+      ? new DevManagedSettingsService()
+      : new DefaultManagedSettingsService();
+
+    // Only the production service has a host to read from. The dev service is fed by pushExplicit.
+    if (!devFlagEnabled("managedSettingsDevSource")) {
+      this.managedSettingsMain = new ManagedSettingsMain(
+        managedSettingsSourceFor(process.platform, this.logService),
+        this.managedSettingsService,
+        this.windowMain,
+        this.logService,
+      );
+      // Not awaited: the first read is asynchronous on every platform. The renderer's
+      // managedSettings.current pull at startup and the managedSettings.updated push together
+      // cover a profile that resolves after the window opens.
+      void this.managedSettingsMain.init();
+    }
 
     this.biometricsService = new MainBiometricsService(
       this.i18nService,

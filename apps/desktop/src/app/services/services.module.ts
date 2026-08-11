@@ -104,6 +104,10 @@ import { StateService as StateServiceAbstraction } from "@bitwarden/common/platf
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import {
+  ManagedSettingsService,
+  DevManagedSettingsService,
+} from "@bitwarden/common/platform/managed-settings";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -165,7 +169,8 @@ import { RendererBiometricsService } from "../../key-management/biometrics/rende
 import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
-import { flagEnabled } from "../../platform/flags";
+import { devFlagEnabled, flagEnabled } from "../../platform/flags";
+import { DesktopManagedSettingsService } from "../../platform/services/desktop-managed-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import {
@@ -397,6 +402,15 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopSettingsService,
     deps: [StateProvider],
+  }),
+  // JslibServicesModule does not yet register ManagedSettingsService (that lands with PM-27720),
+  // so this is desktop's own registration rather than an override.
+  safeProvider({
+    provide: ManagedSettingsService,
+    useClass: devFlagEnabled("managedSettingsDevSource")
+      ? DevManagedSettingsService
+      : DesktopManagedSettingsService,
+    deps: [],
   }),
   safeProvider({
     provide: SharedUnlockSettingsService,

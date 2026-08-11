@@ -1535,6 +1535,7 @@ dependencies = [
  "widestring",
  "win_webauthn",
  "windows 0.62.2",
+ "windows-registry",
  "zbus",
  "zeroizing-alloc",
 ]

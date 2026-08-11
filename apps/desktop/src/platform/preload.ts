@@ -4,6 +4,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
+import type { ManagementProfile } from "@bitwarden/common/platform/managed-settings";
 
 import {
   EncryptedMessageResponse,
@@ -55,6 +56,19 @@ const clipboard = {
 const powermonitor = {
   isLockMonitorAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
+};
+
+// Acquisition happens in the main process, which owns the only access to the host's Unified
+// Endpoint Management channel. This subspace exposes a pull and a subscription and no writer, so
+// the renderer has no way to author a management profile.
+const managedSettings = {
+  current: (): Promise<ManagementProfile | undefined> =>
+    ipcRenderer.invoke("managedSettings.current"),
+  onUpdated: (callback: (profile: ManagementProfile | undefined) => void) => {
+    ipcRenderer.on("managedSettings.updated", (_event, profile: ManagementProfile | undefined) =>
+      callback(profile),
+    );
+  },
 };
 
 const nativeMessaging = {
@@ -183,6 +197,7 @@ export default {
   passwords,
   clipboard,
   powermonitor,
+  managedSettings,
   nativeMessaging,
   crypto,
   ephemeralStore,
