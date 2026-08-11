@@ -3425,9 +3425,6 @@
       }
     }
   },
-  "noSharedFolder": {
-    "message": "No shared folder"
-  },
   "filterByName": {
     "message": "Filter by $NAME$",
     "placeholders": {
