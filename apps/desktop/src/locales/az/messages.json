@@ -123,13 +123,13 @@
     "message": "Yeni paylaşılan qovluq"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Paylaşılan qovluqda axtar"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Qovluqlarımda axtar"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "$NAME$ - paylaşılan qovluğa bax",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +138,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Paylaşılan qovluğu sil"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "$COUNT$ paylaşılan qovluğu sil",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +150,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Bu paylaşılan qovluq həmişəlik silinəcək. Qovluqdakı elementlər silinməyəcək."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Bu paylaşılan qovluqlar həmişəlik silinəcək. Qovluqlardakı elementlər silinməyəcək."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Seçilmiş elementlər və paylaşılan qovluqlar həmişəlik silinəcək."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Paylaşılan qovluq silindi"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Paylaşılan qovluqlar silindi"
   },
   "share": {
     "message": "Paylaş"
@@ -520,7 +520,7 @@
     "message": "Başlat"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "$ITEMNAME$ veb saytını başlat",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2016,10 +2016,10 @@
     "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Notu kopyala - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2029,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Kopyalanacaq detal yoxdur"
   },
   "runInBackground": {
     "message": "Bitwarden-i arxaplanda çalışan halda saxla"
@@ -2128,22 +2128,22 @@
     "message": "Doğrulama kodunu kopyala"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "İstifadəçi adı yoxdur"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Parol yoxdur"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Doğrulama kodu yoxdur"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Nömrə yoxdur"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Təhlükəsizlik kodu yoxdur"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "$ITEMNAME$ detallarını kopyala",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3541,7 @@
     "message": "Seçimlər"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Daha çox seçim"
   },
   "sessionTimeout": {
     "message": "Seansınızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
@@ -4568,6 +4568,79 @@
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
+  "noFileSelected": {
+    "message": "Heç bir fayl seçilməyib"
+  },
+  "fileChosen": {
+    "message": "Fayl seçildi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fayl əlavə olundu: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fayl əlavə olundu: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fayl silindi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fayl yükləndi"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fayl yükləndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Yüklənən fayllar"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Yükləmək üçün kliklə və ya sürükləyib burax"
+  },
+  "chooseFiles": {
+    "message": "Faylları seç"
+  },
+  "maxFileSizeParam": {
+    "message": "Maksimum fayl ölçüsü: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "və ya daxilə köçürmə faylının məzmununu kopyalayın/yapışdırın"
   },
@@ -5349,7 +5422,7 @@
     "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "İstifadəçi adınızı, parolunuzu və ya doğrulama kodunuzu lövhəyə kopyalamaq üçün elementlərin yanına 3 cəld kopyalama düyməsi əlavə edin."
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
