@@ -396,7 +396,7 @@ the email-verification round-trip.
 1. Unauthed user hits `/join/:orgId/:code?key=<key>` → `unauthedHandler`
    fetches status, stashes the open invite, routes to `/signup`.
 2. On registration-start, `RegistrationStartComponent.submit` calls its
-   private `sealOpenOrgInviteIfPresent(email)` (gated on
+   private `buildOpenOrgInviteRequestIfPresent(email)` (gated on
    `FeatureFlag.GenerateInviteLink`), which delegates to
    `OrganizationInviteService.sealOpenOrgInvite`. If a stashed open invite
    exists, the SDK seals `{ organizationId, inviteLinkCode, inviteKey }`
@@ -404,8 +404,8 @@ the email-verification round-trip.
    stores the paired high-entropy secret keyed by email in the
    sealed-secret record (see [Open-invite state and sealed-secret
    record](#open-invite-state-and-sealed-secret-record)). The sealed
-   blob is attached to the verification-email request as
-   `sealedOpenOrgInviteData`.
+   blob is attached to the verification-email request nested inside
+   `openOrgInvite: { organizationId, code, sealedOpenOrgInviteData }`.
 3. Server sends verification email; the link back to the client carries
    the sealed blob as a query param.
 4. User clicks verification link → `RegistrationFinishComponent`:

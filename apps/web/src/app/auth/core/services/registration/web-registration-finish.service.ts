@@ -10,19 +10,24 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   OrganizationInviteService,
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { UserMasterPasswordRegistrationRequest } from "@bitwarden/sdk-internal";
+import {
+  OrganizationId as SdkOrganizationId,
+  UserMasterPasswordRegistrationRequest,
+} from "@bitwarden/sdk-internal";
 
 export class WebRegistrationFinishService
   extends DefaultRegistrationFinishService
@@ -118,17 +123,29 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organization_user_id = this.toOptionalSdkOrganizationId(
         orgInvite.organizationUserId,
       );
       registerRequest.org_invite_token = orgInvite.token;
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
+      registerRequest.open_org_invite = {
+        organization_id: asUuid<SdkOrganizationId>(orgInvite.organizationId),
+        code: orgInvite.inviteLinkCode,
+      };
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.org_sponsored_free_family_plan_token = orgSponsoredFreeFamilyPlanToken;
@@ -197,15 +214,27 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
+      registerRequest.openOrgInvite = new OpenOrgInviteRequest(
+        orgInvite.organizationId,
+        orgInvite.inviteLinkCode,
+      );
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.orgSponsoredFreeFamilyPlanToken = orgSponsoredFreeFamilyPlanToken;
