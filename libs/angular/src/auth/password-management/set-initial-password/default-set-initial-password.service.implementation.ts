@@ -98,7 +98,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userType not found. Could not set password.");
     }
 
-    const newMasterKey = await this.keyService.makeMasterKey(newPassword, salt, kdfConfig);
+    const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+      newPassword,
+      salt,
+      kdfConfig,
+    );
 
     const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
       newMasterKey,

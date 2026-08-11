@@ -178,7 +178,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       // Mock other function data
       newMasterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
-      keyService.makeMasterKey.mockResolvedValue(newMasterKey);
+      legacyCompatKeyService.makeMasterKey.mockResolvedValue(newMasterKey);
 
       existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey");
       existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
