@@ -242,6 +242,34 @@ describe("form list", () => {
     expect(d.activeFormIndex).toBe(0);
   });
 
+  it("removeForm keeps the selected form selected when an earlier form is removed", () => {
+    const d = emptyDraft("example.com", "/login");
+    addForm(d);
+    addForm(d);
+    setCategory(d, 0, "login");
+    setCategory(d, 1, "signup");
+    setCategory(d, 2, "search");
+    setActiveForm(d, 1);
+
+    removeForm(d, 0);
+
+    expect(d.forms.length).toBe(2);
+    expect(d.forms[d.activeFormIndex].category).toBe("signup");
+  });
+
+  it("removeForm selects the following form when the selected form is removed", () => {
+    const d = emptyDraft("example.com", "/login");
+    addForm(d);
+    setCategory(d, 0, "login");
+    setCategory(d, 1, "signup");
+    setActiveForm(d, 0);
+
+    removeForm(d, 0);
+
+    expect(d.forms.length).toBe(1);
+    expect(d.forms[d.activeFormIndex].category).toBe("signup");
+  });
+
   it("setActiveForm only accepts valid indices", () => {
     const d = emptyDraft("example.com", "/login");
     addForm(d);

@@ -254,6 +254,11 @@ export function addForm(draft: WebmapperDraft): void {
 
 export function removeForm(draft: WebmapperDraft, formIndex: number): void {
   draft.forms.splice(formIndex, 1);
+  // Removing an earlier form renumbers the rest, so follow the selected form to
+  // its new index rather than leaving the index pointing at its neighbour.
+  if (formIndex < draft.activeFormIndex) {
+    draft.activeFormIndex--;
+  }
   if (draft.forms.length === 0) {
     draft.forms.push(emptyForm());
   }
