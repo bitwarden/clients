@@ -99,7 +99,7 @@ export type Cart = {
     additionalServiceAccounts?: CartItem; // Optional service accounts
   };
   cadence: "annually" | "monthly"; // Billing period for entire cart
-  discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the discount section
+  discounts?: CartDiscount[]; // Optional cart-level discounts, rendered in the grouped summary block (Subtotal → discounts → Estimated tax)
   credit?: Credit; // Optional account credit
   estimatedTax: number; // Tax amount
   total?: number; // Optional authoritative total; when absent the component computes it
@@ -486,8 +486,10 @@ discount):
 ### With Both Cart-Level and Item-Level Discounts
 
 Show cart with both a cart-level discount and an item-level discount. The item-level discount
-renders indented under its line item, while the cart-level discount renders in the dedicated
-discount section:
+renders indented under its line item, while the cart-level discount renders in a grouped summary
+block between two dividers: Subtotal → cart-level discount(s) → Estimated tax, followed by the
+Total. The Subtotal row (extended prices before any discounts) appears only when a cart-level
+discount is present:
 
 <Canvas of={CartSummaryStories.PerLineAndCartWideStacked} />
 

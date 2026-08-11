@@ -226,6 +226,15 @@ export class CartSummaryComponent {
   );
 
   /**
+   * Whether any cart-level discount row will render. The Subtotal row and the grouped
+   * summary layout (subtotal → discounts → tax between dividers) appear only in this case;
+   * without cart-level discounts the summary keeps its original per-row dividers.
+   */
+  readonly hasCartDiscounts = computed<boolean>(() =>
+    this.discountLineItems().some((item) => item.amount > 0),
+  );
+
+  /**
    * Calculates the credit amount from the cart credit
    */
   readonly creditAmount = computed<number>(() => {

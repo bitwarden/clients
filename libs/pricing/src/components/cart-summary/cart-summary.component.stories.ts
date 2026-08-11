@@ -43,6 +43,8 @@ export default {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":
@@ -588,6 +590,57 @@ export const PerLineAndCartWideStacked: Story = {
         {
           type: DiscountTypes.PercentOff,
           value: 10,
+        },
+      ],
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const CartLevelDiscountSummaryBlock: Story = {
+  name: "With Cart-Level Discount Summary Block (Design Mockup)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The approved design-review layout for carts mixing item-level and cart-level " +
+          "discounts: item-level discounts render indented beneath their line, while the " +
+          "cart-level discount renders in a grouped summary block — divider, Subtotal, " +
+          "discount, Estimated tax, divider, Total. The Subtotal row appears only when a " +
+          "cart-level discount is present. Labels here are server-supplied (`label` " +
+          "pass-through) with authoritative `amount`s.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+              amount: 62.5,
+              label: "Team plan discount (25% off members)",
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+          amount: 27.0,
+          label: "Promo: SAVE10 (10% off subtotal)",
         },
       ],
       estimatedTax: 8.55,

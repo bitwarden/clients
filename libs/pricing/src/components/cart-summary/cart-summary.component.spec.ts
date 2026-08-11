@@ -77,6 +77,8 @@ describe("CartSummaryComponent", () => {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":
@@ -421,6 +423,72 @@ describe("CartSummaryComponent", () => {
 
       // Assert
       expect(discountSection).toBeFalsy();
+    });
+
+    it("should not display the subtotal row when no cart-level discounts are present", () => {
+      // Arrange / Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+
+      // Assert
+      expect(subtotalSection).toBeFalsy();
+    });
+
+    it("should not display the subtotal row when only item-level discounts are present", () => {
+      // Arrange
+      const cartWithLineDiscount: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithLineDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+
+      // Assert
+      expect(subtotalSection).toBeFalsy();
+    });
+
+    it("should display the subtotal row when a cart-level discount is present", () => {
+      // Arrange
+      const cartWithDiscount: Cart = {
+        ...mockCart,
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 20,
+          },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cartWithDiscount);
+      fixture.detectChanges();
+
+      // Act
+      const subtotalSection = fixture.debugElement.query(
+        By.css('[data-testid="subtotal-section"]'),
+      );
+      const subtotalAmount = fixture.debugElement.query(By.css('[data-testid="subtotal-amount"]'));
+
+      // Assert
+      expect(subtotalSection).toBeTruthy();
+      expect(subtotalSection.nativeElement.textContent).toContain("Subtotal");
+      // Subtotal = 250 + 20 + 90 + 12 = 372 (extended prices before any discounts)
+      expect(subtotalAmount.nativeElement.textContent).toContain("$372.00");
     });
 
     it("should display percent-off discount correctly", () => {
@@ -1249,6 +1317,8 @@ describe("CartSummaryComponent - Custom Header Template", () => {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":

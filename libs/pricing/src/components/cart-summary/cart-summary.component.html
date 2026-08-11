@@ -277,13 +277,26 @@
         </div>
       }
 
+      <!-- Subtotal (rendered only when cart-level discounts are present) -->
+      @if (hasCartDiscounts()) {
+        <div
+          id="subtotal-section"
+          class="tw-flex tw-justify-between tw-pt-2"
+          data-testid="subtotal-section"
+        >
+          <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+            {{ "subtotal" | i18n }}
+          </h3>
+          <div bitTypography="body1" class="tw-text-muted" data-testid="subtotal-amount">
+            {{ subtotal() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+      }
+
       <!-- Discounts -->
       @for (discountItem of discountLineItems(); track $index) {
         @if (discountItem.amount > 0) {
-          <div
-            class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
-            data-testid="discount-section"
-          >
+          <div class="tw-flex tw-justify-between" data-testid="discount-section">
             <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
             <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
               -{{ discountItem.amount | currency: "USD" : "symbol" }}
@@ -296,7 +309,10 @@
       @if (creditAmount() > 0) {
         <div
           id="credit-section"
-          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+          class="tw-flex tw-justify-between"
+          [class.tw-border-b]="!hasCartDiscounts()"
+          [class.tw-border-secondary-100]="!hasCartDiscounts()"
+          [class.tw-py-2]="!hasCartDiscounts()"
           data-testid="credit-section"
         >
           <div bitTypography="body1" class="tw-text-muted tw-font-normal">
@@ -315,7 +331,8 @@
       <!-- Estimated Tax -->
       <div
         id="estimated-tax-section"
-        class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pt-2 tw-pb-0.5"
+        class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pb-0.5"
+        [class.tw-pt-2]="!hasCartDiscounts()"
       >
         <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
           {{ "estimatedTax" | i18n }}
