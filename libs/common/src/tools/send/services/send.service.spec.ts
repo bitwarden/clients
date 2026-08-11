@@ -4,6 +4,8 @@ import { firstValueFrom, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import {
   FakeAccountService,
@@ -46,6 +48,7 @@ import {
 
 describe("SendService", () => {
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
@@ -70,7 +73,11 @@ describe("SendService", () => {
       get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
     });
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
@@ -601,7 +608,7 @@ describe("SendService", () => {
       sendView.expirationDate = null;
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.makeSendKey.mockResolvedValue(mockCryptoKey);
+      legacyCompatKeyService.makeSendKey.mockResolvedValue(mockCryptoKey);
       encryptService.encryptBytes.mockResolvedValue({ encryptedString: "encryptedKey" } as any);
       encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
     });

@@ -24,6 +24,8 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -66,6 +68,7 @@ export class InitService {
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
     private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
@@ -112,7 +115,11 @@ export class InitService {
       this.versionService.init();
       this.updateRestartService.init();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.legacyCompatKeyService,
+      );
       containerService.attachToGlobal(this.win);
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
