@@ -1,10 +1,12 @@
 import { mock } from "jest-mock-extended";
+import { nothing, render } from "lit";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
+import { InlineMenuPrompt } from "../../../../content/components/inline-menu";
 import {
   createAutofillOverlayCipherDataMock,
   createInitAutofillInlineMenuListMessageMock,
@@ -13,6 +15,13 @@ import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils
 import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
+
+jest.mock("lit", () => ({ render: jest.fn(), nothing: Symbol("nothing") }));
+jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
+jest.mock("../../../../content/components/inline-menu", () => ({
+  InlineMenuPrompt: jest.fn(() => "prompt"),
+}));
+jest.mock("../../../../content/components/icons", () => ({ Lock: jest.fn() }));
 
 describe("AutofillInlineMenuList", () => {
   const generatedPassword = "generatedPassword!1";
@@ -89,6 +98,138 @@ describe("AutofillInlineMenuList", () => {
       await flushPromises();
 
       expect(autofillInlineMenuList["useLitComponents"]).toBe(false);
+    });
+
+    describe("Lit prompt rendering when useLitComponents is enabled", () => {
+      it("renders the Lit locked prompt", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            dataTestId: "inline-menu-locked-state",
+            actionDataTestId: "inline-menu-unlock-button",
+          }),
+        );
+        expect(render).toHaveBeenCalledWith(
+          "prompt",
+          autofillInlineMenuList["inlineMenuListContainer"],
+        );
+      });
+
+      it("allows the user to unlock the vault from the Lit locked prompt", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleAction } = (InlineMenuPrompt as jest.Mock).mock.calls[0][0];
+        handleAction(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "unlockVault", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+
+      it("renders the Lit save-login prompt", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+            showSaveLoginMenu: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            dataTestId: "inline-menu-save-login",
+            actionDataTestId: "inline-menu-save-login-button",
+            handleKeyUp: expect.any(Function),
+          }),
+        );
+        expect(render).toHaveBeenCalledWith(
+          "prompt",
+          autofillInlineMenuList["inlineMenuListContainer"],
+        );
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(".save-login"),
+        ).toBeNull();
+      });
+
+      it("refocuses the Lit save-login button on ArrowDown", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+            showSaveLoginMenu: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleKeyUp } = (InlineMenuPrompt as jest.Mock).mock.calls[0][0];
+        const target = document.createElement("button");
+        const focusSpy = jest.spyOn(target, "focus");
+        const event = new KeyboardEvent("keyup", { code: "ArrowDown" });
+        Object.defineProperty(event, "target", { value: target });
+
+        handleKeyUp(event);
+
+        expect(focusSpy).toHaveBeenCalled();
+      });
+
+      it("clears Lit's cached ChildPart via Lit's render API instead of wiping innerHTML directly", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+        jest.mocked(render).mockClear();
+
+        const container = autofillInlineMenuList["inlineMenuListContainer"];
+
+        autofillInlineMenuList["resetInlineMenuContainer"]();
+
+        expect(render).toHaveBeenCalledWith(nothing, container);
+      });
+
+      it("keeps the legacy locked DOM when useLitComponents is false", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            ciphers: [],
+            portKey,
+            useLitComponents: false,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).not.toHaveBeenCalled();
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button"),
+        ).not.toBeNull();
+      });
     });
 
     describe("the locked inline menu for an unauthenticated user", () => {
