@@ -5803,19 +5803,15 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+  "copyField": {
+    "message": "Copy $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
-    }
+    }      
   },
   "noValueEntered": {
     "message": "No value entered",
