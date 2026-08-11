@@ -7699,5 +7699,21 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Scanning your vault",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Checking your passwords for exposure, weakness, and reuse. This may take a moment.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "healthScanFailed": {
+    "message": "Scan unavailable",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "We couldn't check your passwords right now. Reopen Health to try again.",
+    "description": "Explains that the vault health scan failed and how the user can retry."
   }
 }
