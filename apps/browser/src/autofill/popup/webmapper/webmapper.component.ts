@@ -224,6 +224,17 @@ export class WebmapperComponent implements OnInit, OnDestroy {
     return { formIndex, slot, selectorIndex };
   }
 
+  /**
+   * Slug identifying one selector entry, so the controls repeated for it can carry
+   * unique DOM ids. Field and action keys are camelCase identifiers, so the result
+   * is always id-safe.
+   */
+  addressId(address: SelectorAddress): string {
+    const slot =
+      address.slot.kind === "container" ? "container" : `${address.slot.kind}-${address.slot.key}`;
+    return `${address.formIndex}-${slot}-${address.selectorIndex}`;
+  }
+
   isEditing(address: SelectorAddress): boolean {
     const e = this.editing();
     return (

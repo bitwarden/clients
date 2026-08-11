@@ -1,16 +1,25 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { WebmapperDraftService } from "../../services/webmapper-draft.service";
-import { addSelector, emptyDraft, setCategory, WebmapperDraft } from "../../webmapper/draft";
+import {
+  addForm,
+  addSelector,
+  emptyDraft,
+  setActiveForm,
+  setCategory,
+  WebmapperDraft,
+} from "../../webmapper/draft";
 
 import { WebmapperComponent } from "./webmapper.component";
 
@@ -406,6 +415,202 @@ describe("WebmapperComponent", () => {
       component.url.set(null);
       await component.clearDraft();
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    });
+  });
+});
+
+// The suite above stubs the template out, so no template binding is exercised there.
+// This one renders the real template.
+describe("WebmapperComponent template", () => {
+  let component: WebmapperComponent;
+  let fixture: ComponentFixture<WebmapperComponent>;
+  let draftService: MockProxy<WebmapperDraftService>;
+  let draft$: BehaviorSubject<WebmapperDraft>;
+
+  const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+  /** Renders the component against a stored draft. */
+  async function render(stored: WebmapperDraft): Promise<void> {
+    draft$.next(stored);
+    await component.ngOnInit();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+  }
+
+  function byId<T extends HTMLElement>(id: string): T {
+    return fixture.debugElement.query(By.css(`#${id}`))?.nativeElement as T;
+  }
+
+  /** The draft the component last handed to the service for persistence. */
+  function persisted(): WebmapperDraft {
+    return draftService.setDraft.mock.calls.at(-1)![0];
+  }
+
+  beforeEach(async () => {
+    draft$ = new BehaviorSubject<WebmapperDraft>(emptyDraft(HOST, PATH));
+    draftService = mock<WebmapperDraftService>();
+    draftService.draft$.mockReturnValue(draft$.asObservable());
+    draftService.setDraft.mockResolvedValue(undefined);
+
+    global.chrome = {
+      tabs: {
+        onActivated: { addListener: jest.fn(), removeListener: jest.fn() },
+        onUpdated: { addListener: jest.fn(), removeListener: jest.fn() },
+      },
+      runtime: {
+        onMessage: { addListener: jest.fn(), removeListener: jest.fn() },
+        sendMessage: jest.fn(),
+      },
+    } as any;
+
+    jest
+      .spyOn(BrowserApi, "getCurrentTab")
+      .mockResolvedValue({ id: 42, url: "https://example.com/login" } as chrome.tabs.Tab);
+    jest.spyOn(BrowserApi, "addListener").mockImplementation(() => {});
+    jest.spyOn(BrowserApi, "removeListener").mockImplementation(() => {});
+    jest.spyOn(BrowserPopupUtils, "inSidePanel").mockReturnValue(false);
+
+    await TestBed.configureTestingModule({
+      imports: [WebmapperComponent],
+      providers: [
+        provideNoopAnimations(),
+        { provide: WebmapperDraftService, useValue: draftService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: I18nService, useValue: { t: jest.fn((key: string) => key) } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      .overrideProvider(DialogService, { useValue: mock<DialogService>() })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(WebmapperComponent);
+    component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe("category dropdown", () => {
+    it("shows the stored category when reopened on a draft that already has one", async () => {
+      const stored = emptyDraft(HOST, PATH);
+      setCategory(stored, 0, "account-login");
+
+      await render(stored);
+
+      const select = byId<HTMLSelectElement>("webmapper_select_category-0");
+      expect(select.value).toBe("account-login");
+      expect(select.selectedOptions[0].textContent.trim()).toBe("account-login");
+    });
+
+    it("shows the placeholder when the stored draft has no category", async () => {
+      await render(emptyDraft(HOST, PATH));
+
+      expect(byId<HTMLSelectElement>("webmapper_select_category-0").value).toBe("");
+    });
+
+    it("persists a category picked from the dropdown", async () => {
+      await render(emptyDraft(HOST, PATH));
+
+      const select = byId<HTMLSelectElement>("webmapper_select_category-0");
+      select.value = "identity";
+      select.dispatchEvent(new Event("change"));
+      await flush();
+
+      expect(persisted().forms[0].category).toBe("identity");
+    });
+  });
+
+  describe("form list", () => {
+    /** Two forms, the second active, each holding one field selector. */
+    function twoForms(): WebmapperDraft {
+      const draft = emptyDraft(HOST, PATH);
+      addSelector(draft, component.fieldsSlot("username"), fieldEntry("#u0"));
+      addForm(draft);
+      setActiveForm(draft, 1);
+      addSelector(draft, component.fieldsSlot("password"), fieldEntry("#p1"));
+      return draft;
+    }
+
+    it("checks the radio of the active form only", async () => {
+      await render(twoForms());
+
+      expect(byId<HTMLInputElement>("webmapper_input_active-form-0").checked).toBe(false);
+      expect(byId<HTMLInputElement>("webmapper_input_active-form-1").checked).toBe(true);
+    });
+
+    it("badges a draft marked irrelevant", async () => {
+      const stored = emptyDraft(HOST, PATH);
+      stored.irrelevant = true;
+
+      await render(stored);
+
+      expect(fixture.nativeElement.textContent).toContain("irrelevant");
+    });
+
+    it("lists the validation issues blocking export", async () => {
+      const stored = emptyDraft(HOST, PATH);
+      // Field selectors with no category is the canonical pre-export failure.
+      addSelector(stored, component.fieldsSlot("username"), fieldEntry("#u"));
+
+      await render(stored);
+
+      const issues = component.issues();
+      expect(issues.length).toBeGreaterThan(0);
+      for (const issue of issues) {
+        expect(fixture.nativeElement.textContent).toContain(issue);
+      }
+    });
+
+    it("gives every repeated control a unique id", async () => {
+      await render(twoForms());
+
+      const ids = Array.from(fixture.nativeElement.querySelectorAll("[id]")).map(
+        (el) => (el as HTMLElement).id,
+      );
+
+      expect(ids.length).toBeGreaterThan(0);
+      expect(ids).toHaveLength(new Set(ids).size);
+    });
+  });
+
+  describe("selector entries", () => {
+    it("renders the selector and switches to edit mode", async () => {
+      const stored = emptyDraft(HOST, PATH);
+      addSelector(stored, component.fieldsSlot("username"), fieldEntry("#user"));
+
+      await render(stored);
+      expect(fixture.nativeElement.textContent).toContain("#user");
+
+      byId("webmapper_button_edit-selector-0-fields-username-0").click();
+      fixture.detectChanges();
+
+      const input = byId<HTMLInputElement>("webmapper_input_edit-selector-0-fields-username-0");
+      expect(input.value).toBe("#user");
+    });
+
+    it("disables editing for a sequence selector", async () => {
+      const stored = emptyDraft(HOST, PATH);
+      addSelector(stored, component.fieldsSlot("username"), {
+        selector: ["#step1", "#step2"],
+        warnings: [],
+        alternates: [],
+      });
+
+      await render(stored);
+
+      // bitIconButton marks disabled with aria-disabled rather than the native
+      // attribute, so the button stays focusable; a document-level capture
+      // listener is what actually swallows the click.
+      const edit = byId<HTMLButtonElement>("webmapper_button_edit-selector-0-fields-username-0");
+      expect(edit.getAttribute("aria-disabled")).toBe("true");
+
+      edit.click();
+      fixture.detectChanges();
+
+      expect(component.editing()).toBeNull();
     });
   });
 });

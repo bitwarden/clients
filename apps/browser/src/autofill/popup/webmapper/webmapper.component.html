@@ -26,6 +26,7 @@
       <div class="tw-mb-2 tw-flex tw-items-center tw-gap-2">
         <label class="tw-flex tw-flex-1 tw-items-center tw-gap-1">
           <input
+            [id]="'webmapper_input_active-form-' + i"
             type="radio"
             name="webmapper-active-form"
             [checked]="i === d.activeFormIndex"
@@ -33,17 +34,30 @@
           />
           Form {{ i }}
         </label>
+        <!--
+          Bind selectedness per-option, not [value] on the <select>. Angular writes the
+          select's bindings before @for creates the options, so a [value] write finds no
+          matching option and is silently dropped.
+        -->
         <select
+          [id]="'webmapper_select_category-' + i"
           class="tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-1 tw-text-sm"
-          [value]="form.category ?? ''"
           (change)="setCategory(i, $any($event.target).value)"
         >
-          <option value="">— category —</option>
+          <option value="" [selected]="!form.category">— category —</option>
           @for (cat of categories; track cat) {
-            <option [value]="cat">{{ cat }}</option>
+            <option [value]="cat" [selected]="cat === form.category">{{ cat }}</option>
           }
         </select>
-        <button type="button" bitButton size="small" (click)="removeForm(i)">Remove</button>
+        <button
+          [id]="'webmapper_button_remove-form-' + i"
+          type="button"
+          bitButton
+          size="small"
+          (click)="removeForm(i)"
+        >
+          Remove
+        </button>
       </div>
 
       <!-- Container -->
@@ -53,7 +67,13 @@
           <p class="tw-mb-1 tw-font-semibold">Pick which element is the form container:</p>
           @for (cand of form.pendingContainer; track $index) {
             <div class="tw-mb-1 tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-              <button type="button" bitButton size="small" (click)="pickContainer(i, $index)">
+              <button
+                [id]="'webmapper_button_use-container-' + i + '-' + $index"
+                type="button"
+                bitButton
+                size="small"
+                (click)="pickContainer(i, $index)"
+              >
                 Use
               </button>
               <span class="tw-text-xs tw-text-muted"
@@ -65,7 +85,15 @@
               }
             </div>
           }
-          <button type="button" bitButton size="small" (click)="cancelContainer(i)">Cancel</button>
+          <button
+            [id]="'webmapper_button_cancel-container-' + i"
+            type="button"
+            bitButton
+            size="small"
+            (click)="cancelContainer(i)"
+          >
+            Cancel
+          </button>
         </div>
       } @else if (form.container?.length) {
         @for (entry of form.container; track $index) {
@@ -136,6 +164,7 @@
     <bit-section>
       <h2 bitTypography="h6">Export</h2>
       <textarea
+        id="webmapper_textarea_export"
         class="tw-w-full tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-2 tw-font-mono tw-text-xs"
         rows="12"
         readonly
@@ -186,6 +215,7 @@
     <div class="tw-flex tw-items-center tw-gap-1">
       @if (isEditing(address)) {
         <input
+          [id]="'webmapper_input_edit-selector-' + addressId(address)"
           class="tw-flex-1 tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-1 tw-font-mono tw-text-xs"
           [value]="editValue()"
           (input)="editValue.set($any($event.target).value)"
@@ -193,6 +223,7 @@
           (keyup.escape)="cancelEdit()"
         />
         <button
+          [id]="'webmapper_button_save-selector-' + addressId(address)"
           type="button"
           bitIconButton="bwi-check"
           size="small"
@@ -200,6 +231,7 @@
           (click)="saveEdit()"
         ></button>
         <button
+          [id]="'webmapper_button_cancel-edit-' + addressId(address)"
           type="button"
           bitIconButton="bwi-close"
           size="small"
@@ -209,6 +241,7 @@
       } @else {
         <code class="tw-flex-1 tw-break-all">{{ selectorText(entry.selector) }}</code>
         <button
+          [id]="'webmapper_button_edit-selector-' + addressId(address)"
           type="button"
           bitIconButton="bwi-pencil"
           size="small"
@@ -217,6 +250,7 @@
           (click)="startEdit(address, entry.selector)"
         ></button>
         <button
+          [id]="'webmapper_button_remove-selector-' + addressId(address)"
           type="button"
           bitIconButton="bwi-trash"
           size="small"
@@ -239,7 +273,13 @@
         </div>
         @for (alt of entry.alternates; track $index) {
           <div class="tw-flex tw-items-center tw-gap-1">
-            <button type="button" bitButton size="small" (click)="swapAlternate(address, $index)">
+            <button
+              [id]="'webmapper_button_use-alternate-' + addressId(address) + '-' + $index"
+              type="button"
+              bitButton
+              size="small"
+              (click)="swapAlternate(address, $index)"
+            >
               Use
             </button>
             <code class="tw-flex-1 tw-break-all">{{ selectorText(alt) }}</code>
