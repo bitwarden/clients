@@ -1023,6 +1023,7 @@ describe("OverlayBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
+        CipherType.SshKey,
       ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
@@ -1065,6 +1066,7 @@ describe("OverlayBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
         CipherType.Card,
         CipherType.Identity,
+        CipherType.SshKey,
       ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
@@ -1792,6 +1794,23 @@ describe("OverlayBackground", () => {
               expirationDate: "12/25",
               cvv: "123",
             },
+          },
+          sender,
+        );
+        jest.advanceTimersByTime(100);
+        await flushPromises();
+
+        expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
+      });
+
+      it("creates a blank SSH key cipher without captured page data", async () => {
+        overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.SshKey;
+
+        sendMockExtensionMessage(
+          {
+            command: "autofillOverlayAddNewVaultItem",
+            addNewCipherType: CipherType.SshKey,
           },
           sender,
         );
@@ -3352,10 +3371,10 @@ describe("OverlayBackground", () => {
           left: "1271px",
         });
         expect(buttonPosition).toEqual({
-          width: "34px",
-          height: "34px",
-          top: "317px",
-          left: "1271px",
+          width: "23px",
+          height: "23px",
+          top: "311px",
+          left: "1289px",
         });
       });
       it("sets button and menu width and position when multi-input totp field is focused", async () => {
@@ -3436,10 +3455,10 @@ describe("OverlayBackground", () => {
           left: "1042px",
         });
         expect(buttonPosition).toEqual({
-          width: "34px",
-          height: "34px",
-          top: "292px",
-          left: "2187px",
+          width: "23px",
+          height: "23px",
+          top: "286px",
+          left: "2204px",
         });
       });
     });

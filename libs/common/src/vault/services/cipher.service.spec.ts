@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwErro
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -96,6 +98,7 @@ let accountService: FakeAccountService;
 
 describe("Cipher Service", () => {
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const domainSettingsService = mock<DomainSettingsService>();
   const apiService = mock<ApiService>();
@@ -133,7 +136,11 @@ describe("Cipher Service", () => {
       resolvedOptions: jest.fn().mockReturnValue({}),
     } as any;
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
@@ -159,6 +166,7 @@ describe("Cipher Service", () => {
 
     cipherService = new CipherService(
       keyService,
+      legacyCompatKeyService,
       domainSettingsService,
       apiService,
       i18nService,
@@ -188,7 +196,7 @@ describe("Cipher Service", () => {
       keyService.getOrgKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
       );
-      keyService.makeDataEncKey.mockReturnValue(
+      legacyCompatKeyService.makeDataEncKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32))),
       );
 
@@ -207,7 +215,7 @@ describe("Cipher Service", () => {
       const testCipher = new Cipher(cipherData);
       const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
 
-      keyService.makeDataEncKey.mockReturnValue(
+      legacyCompatKeyService.makeDataEncKey.mockReturnValue(
         Promise.resolve([
           new SymmetricCryptoKey(new Uint8Array(32)),
           new EncString("encrypted-key"),
@@ -233,7 +241,7 @@ describe("Cipher Service", () => {
       const fileData = new Uint8Array(10);
       const testCipher = new Cipher(cipherData);
 
-      keyService.makeDataEncKey.mockResolvedValue([
+      legacyCompatKeyService.makeDataEncKey.mockResolvedValue([
         new SymmetricCryptoKey(new Uint8Array(32)),
         new EncString("2.encryptedKey"),
       ] as any);
@@ -278,7 +286,7 @@ describe("Cipher Service", () => {
       const fileData = new Uint8Array(10);
       const testCipher = new Cipher(cipherData);
 
-      keyService.makeDataEncKey.mockResolvedValue([
+      legacyCompatKeyService.makeDataEncKey.mockResolvedValue([
         new SymmetricCryptoKey(new Uint8Array(32)),
         new EncString("2.encryptedKey"),
       ] as any);
