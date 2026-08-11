@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Hiển thị thẻ dưới dạng gợi ý"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Hiện gợi ý khi nhấp vào biểu tượng"
   },
