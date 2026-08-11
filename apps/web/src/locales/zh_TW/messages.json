@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "組織名稱"
   },
+  "vaultName": {
+    "message": "Vault name"
+  },
   "accountOwnedBusiness": {
     "message": "此帳戶為企業所有。"
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limited to $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "新增並與最多 $COUNT$ 位使用者共用",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "建立無限個集合"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Create unlimited shared folders"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ 加密檔案儲存空間。",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Unable to join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "The invite link is no longer valid."
+  },
+  "returnToLogin": {
+    "message": "Return to login"
+  },
+  "returnToRegistration": {
+    "message": "Return to registration"
+  },
   "joinOrganizationDesc": {
     "message": "您已被邀請加入以上組織。若想接受邀請，您需要登入或建立新的 Bitwarden 帳戶。"
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "You are already a member of this organization."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "You cannot join this organization because you are already the admin of a free organization."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "You have been revoked from this organization. Contact your admin to regain access."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider users may not join using this invitation link."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "You must set up two-step login in order to join this organization."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "You must verify your email address before joining an organization."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Your invitation could not be accepted because there is not an available seat."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
+  "goToLogin": {
+    "message": "Go to login"
+  },
+  "goToVault": {
+    "message": "Go to vault"
   },
   "rememberEmail": {
     "message": "記住電子郵件地址"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "受贊助家庭"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "沒有受贊助家庭"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "受贊助的非成員 Families 方案將顯示於此"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "您組織的成員符合免費 Bitwarden 家庭方案資格。您可以為非 Bitwarden 組織成員的員工贊助免費 Bitwarden 家庭方案。贊助非成員需要您組織中有可用的座位。"
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "當您移除有效的贊助後，該座位將在受贊助組織的續訂日期後於您的組織中可用。"
@@ -9393,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "您與家庭成員可使用免費的 Bitwarden 家庭方案。就算不在上班時間，也可以使用您的私人電子郵件來兌換此方案，以保障您的資料安全。"
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "立即兌換您的免費 Bitwarden 家庭方案，即使不在上班時間也能夠保障您的資料安全。"
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "Bitwarden 家庭方案內容包含"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "The Bitwarden Families plan includes"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 位使用者的付費方案存取權限"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "家庭成員的共享集合"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Shared folders for family members"
   },
   "memberFamilies": {
     "message": "成員家庭"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "不限集合數量"
   },
+  "unlimitedSharedFolders": {
+    "message": "Unlimited shared folders"
+  },
   "secureDataSharing": {
     "message": "安全的資料分享"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "不限家庭集合數量"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Unlimited family shared folders"
+  },
   "familiesSharedStorage": {
     "message": "重要家庭資訊的共享儲存空間"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "最多 $COUNT$ 個集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Up to $COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "請在您的 Bitwarden 雲端帳號中開啟訂閱頁面並下載授權檔案，接著返回此畫面並於下方上傳。"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "查看所有方案"

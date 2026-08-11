@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Име на организация"
   },
+  "vaultName": {
+    "message": "Име на трезора"
+  },
   "accountOwnedBusiness": {
     "message": "Този абонамент е на организация."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Ограничено до $COUNT$ споделени папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Добавяне и споделяне с до $COUNT$ потребители",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Неограничен брой колекции"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Създавайте неограничен брой споделени папки"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ място за съхранение на шифрирани данни",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Не може да се присъедините към $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Връзката за покана е с изтекла давност."
+  },
+  "returnToLogin": {
+    "message": "Обратно към вписването"
+  },
+  "returnToRegistration": {
+    "message": "Обратно към регистрирането"
+  },
   "joinOrganizationDesc": {
     "message": "Поканени сте да се присъедините към посочената по-горе организация. За да приемете, ще трябва да се впишете в абонамента си към Битуорден. Ако нямате такъв, ще трябва да създадете безплатен абонамент и след това да се впишете в него."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Поканата не може да бъде приета. Помолете администратора на организацията да ви прати нова връзка."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Поканата не може да бъде приета"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Вече сте член на тази организация."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Е-пощите с домейн $DOMAIN$ не са разрешени в тази организация.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Не можете да се присъедините към тази организация, тъй като вече сте администратор на безплатна организация."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Вашият достъп до тази организация беше отнет. Свържете се с администратора, ако искате да възстановите достъпа си."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Потребителите от доставчик не могат да се присъединяват чрез тази връзка за покана."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Нещо се обърка. Презаредете страницата, за да опитате отново."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Организация, в която членувате в момента, не позволява на членовете си да бъдат в повече от една организация."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Организацията, в която се опитвате да се присъедините, не позволява на членовете си да бъдат в повече от една организация."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Трябва да настроите двустепенно удостоверяване, за да можете да се присъедините към тази организация."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Трябва да потвърдите адреса на е-пощата си, преди да можете да се присъедините към организация."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Нещо се обърка. Презаредете страницата, за да опитате отново."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Вашата покана не може да бъде приета, тъй като няма свободни места."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Нещо се обърка. Презаредете страницата, за да опитате отново."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Този домейн не се приема от организацията. Опитайте с друг адрес на е-поща."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Поканата не може да бъде приета"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Поканата за организацията не може да бъде дешифрирана. Опитайте отново да започнете и завършите процеса по регистрация със същия браузър."
+  },
+  "goToLogin": {
+    "message": "Към вписването"
+  },
+  "goToVault": {
+    "message": "Към трезора"
   },
   "rememberEmail": {
     "message": "Припомняне на електронната поща"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Заявки от нечленуващи"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Няма спонсорирани семейни планове"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Все още няма заявки"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Спонсорираните семейни планове за не-членове ще се показват тук"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Няма заявки от нечленуващи за спонсориран Семеен план."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Членовете на организацията Ви могат да се възползват от безплатен семеен план за Битуорден. Можете да спонсорирате безплатния семеен план и за служителите, които не са членове на организацията Ви в Битуорден. Спонсорирането на не-членове изисква свободно място в организацията Ви."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Вашите членове могат да се възползват от спонсориран Семеен план. Можете да спонсорирате Семеен план за служителите си, които не са членове на Вашата организация в Битуорден, но това ще изисква да има свободни места в организацията."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
@@ -9393,10 +9504,16 @@
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Вие и Вашето семейство може да се възползвате от спонсориран Семеен план, който няма да Ви струва нищо. Заявете този план с личната си е-поща, за да запазите данните си на сигурно място и отделно от своя служебен акаунт в Битуорден."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Семейният план на Битуорден включва"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Семейният план на Битуорден включва"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9404,6 +9521,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Споделени колекции за членове на семейството"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Споделени папки за членове на семейството"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Неограничен брой колекции"
   },
+  "unlimitedSharedFolders": {
+    "message": "Неограничен брой споделени папки"
+  },
   "secureDataSharing": {
     "message": "Сигурно споделяне на данни"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Неограничен брой колекции за семейства"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Неограничен брой семейни споделени папки"
+  },
   "familiesSharedStorage": {
     "message": "Споделено пространство за важните семейни данни"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "До $COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Не повече от $COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Отворете страницата за абонаменти в облачния си акаунт за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Отворете страницата за абонаменти в акаунта си за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
   },
   "viewAllPlans": {
     "message": "Преглед на всички планове"

@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Название организации"
   },
+  "vaultName": {
+    "message": "Название хранилища"
+  },
   "accountOwnedBusiness": {
     "message": "Этот аккаунт принадлежит компании."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Ограничено до $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Добавление и совместное использование с $COUNT$ пользователями",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Создание неограниченных коллекций"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Создать неограниченное количество общих папок"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ зашифрованного хранилища файлов",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Не удается присоединиться к $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Сылка-приглашение больше не действует."
+  },
+  "returnToLogin": {
+    "message": "Вернуться к авторизации"
+  },
+  "returnToRegistration": {
+    "message": "Вернуться к регистрации"
+  },
   "joinOrganizationDesc": {
     "message": "Вас пригласили присоединиться к организации, указанной выше. Чтобы принять приглашение, вам необходимо войти или создать новую учетную запись Bitwarden."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Невозможно принять приглашение. Попросите администратора организации отправить ссылку-приглашение."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Не удается принять приглашение"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Вы уже являетесь членом этой организации."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "В этой организации не разрешены email, содержащие $DOMAIN$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Вы не можете присоединиться к этой организации, поскольку вы уже являетесь администратором бесплатной организации."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Вы были исключены из этой организации. Обратитесь к администратору, чтобы восстановить доступ."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Пользователи провайдера не могут присоединиться, используя эту ссылку-приглашение."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Организация, членом которой вы уже являетесь, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Организация, к которой вы пытаетесь присоединиться, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Чтобы присоединиться к этой организации, необходимо настроить двухэтапную аутентификацию."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Перед тем как присоединиться к организации, необходимо подтвердить свой адрес email."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Ваше приглашение не может быть принято, так как свободных мест нет."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Этот домен не поддерживается данной организацией. Попробуйте использовать другой адрес email."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Не удалось принять приглашение"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Не удалось расшифровать приглашение организации. Попробуйте еще раз, используя тот же браузер, чтобы начать и завершить процесс регистрации."
+  },
+  "goToLogin": {
+    "message": "Перейти ко входу"
+  },
+  "goToVault": {
+    "message": "Перейти в хранилище"
   },
   "rememberEmail": {
     "message": "Запомнить email"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Спонсируемые семьи"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Здесь будут показаны планы семей, не являющихся спонсорскими"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Когда вы прекращаете активное спонсорство, место в вашей организации будет доступно после даты продления спонсируемой организации."
@@ -9393,10 +9504,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Вам и вашей семье доступен бесплатный план Bitwarden Families. Используйте свой личный адрес электронной почты, чтобы защитить данные даже тогда, когда вы не на работе."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Воспользуйтесь бесплатным планом Bitwarden Families сегодня, чтобы обеспечить безопасность ваших данных, даже когда вы не на работе."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "План Bitwarden Families включает"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "План Bitwarden Families включает"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9404,6 +9521,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Общие коллекции для членов семьи"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Общие папки для членов семьи"
   },
   "memberFamilies": {
     "message": "Члены семей"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Неограниченное количество коллекций"
   },
+  "unlimitedSharedFolders": {
+    "message": "Неограниченное количество общих папок"
+  },
   "secureDataSharing": {
     "message": "Защищенный обмен данными"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Неограниченные семейные коллекции"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Неограниченное число общих семейных папок"
+  },
   "familiesSharedStorage": {
     "message": "Общее хранилище для важной семейной информации"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "До $COUNT$ коллекций",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "До $COUNT$ общих папок",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Откройте страницу подписки в своем аккаунте Bitwarden cloud и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Откройте страницу подписки в своем аккаунте Bitwarden и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
   },
   "viewAllPlans": {
     "message": "Посмотреть все планы"

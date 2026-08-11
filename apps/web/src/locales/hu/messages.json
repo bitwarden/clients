@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Szervezet neve"
   },
+  "vaultName": {
+    "message": "Széf név"
+  },
   "accountOwnedBusiness": {
     "message": "Ez a fiók egy vállalkozás tulajdonában van."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "$COUNT$ megosztott mappára korlátozva",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Hozzáadás és megosztás legfeljebb $COUNT$ felhasználóval",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Korlátlan gyűjtemény létrehozása"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Korlátlan számú megosztott mappa létrehozása"
   },
   "gbEncryptedFileStorage": {
     "message": "1 GB titkosított fájl tárhely.",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Nem lehet csatlakozni $ORGANIZATIONNAME$ szervezethez.",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "A meghívó hivatkozás már nem érvényes."
+  },
+  "returnToLogin": {
+    "message": "Vissza a bejelentkezéshez"
+  },
+  "returnToRegistration": {
+    "message": "Vissza a regisztrációhoz"
+  },
   "joinOrganizationDesc": {
     "message": "Meghívást érkezett a fenti szervezethez csatlakozáshoz.  A meghívás elfogadásához be kell jelentkezni vagy új Bitwarden fiókot kell létrehozni."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "A meghívás nem fogadható el. Kérjük fel a szervezet adminisztrátorát új meghívó hivatkozás küldésére."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "A meghívót nem lehet elfogadni."
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Már tagja vaygunk ennek a szervezetnek."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "$DOMAIN$ tartománynak megfelelő email címek nem engedélyezettek ebben a szervezetben.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Nem csatlakozhatunk ehhez a szervezethez, mert már egy ingyenes szervezet adminisztrátora vagyunk."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Visszahívásra kerültünk ettől a szervezettől. Lépjünk kapcsolatba az adminisztrátorral, hogy visszaszerezzük a hozzáférést."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "A szolgáltató felhasználói nem csatlakozhatnak ezzel a meghívó hivatkozással."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Valamilyen hiba történt. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Egy szervezet, amelynek már tagja vagyunk, csak egy szervezethez engedi tartozni a tagjait."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Az a szervezet, amelyhez csatlakozni próbálunk, csak egy szervezethez engedi tartozni a tagjait."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "A szervezethez csatlakozáshoz kétlépcsős bejelentkezést kell beállítani."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "A szervezethez csatlakozás előtt ellenőrizni kell email címet."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Valamilyen hiba történt. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "A meghívást nem sikerült elfogadni, mert nincs szabad hely."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Valamilyen hiba történt. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Ezt a tartoményt ez a szervezet nem fogadja el. Próbáljunk ki egy másik email címet."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "A meghívót nem lehet elfogadni."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Nem sikerült visszafejteni a szervezet meghívóját. Próbáljuk meg újra ugyanazt a böngészőt használni a regisztrációs folyamat elindításához és befejezéséhez."
+  },
+  "goToLogin": {
+    "message": "Ugrás a bejelentkezéshez"
+  },
+  "goToVault": {
+    "message": "Ugrás a széfhez"
   },
   "rememberEmail": {
     "message": "E-mail megjegyzése"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Szponzorált családok"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Nem-tagi beváltások"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Nincsenek szponzorált családok."
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Még nincsenek beváltások."
   },
   "noSponsoredFamiliesDetails": {
     "message": "A szponzorált, nem-tag családok csomagjai itt jelennek meg."
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Még egyetlen nem-tag sem váltotta be a Sszponzorált Családi csomagot."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "A szervezet tagjai jogosultak a Free Bitwarden Families programra. Ingyenes Bitwarden Családokat szponzorálhatunk olyan alkalmazottak számára, akik nem tagjai Bitwarden szervezetének. A nem-tag szponzorálásához a szervezeten belül rendelkezésre álló hely szükséges."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "A tagok jogosultak a Szponzorált családok csomag beváltására. Szponzorálhatunk egy Családok csomagot olyan alkalmazottak számára, akik nem tagjai a Bitwarden szervezetnek, de ehhez szabad helyekre van szükség a szervezetünkön belül."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Amikor eltávolítunk egy aktív szponzorációt, a szponzorált szervezet megújítási dátuma után elérhető lesz egy hely a szervezeten belül."
@@ -9393,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "A felhasználó és családja jogosult az ingyenes Bitwarden családok programra. Váltsuk ezt be személyes email címmel, hogy az adatok biztonságban legyenek még akkor is, amikor éppen nem dolgozunk."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Mi és családunk jogosult a Szponzorált Családok csomagra, további költségek nélkül. Váltsuk be ezt a csomagot személyes emailünkkel, hogy adataink biztonságban legyenek és elkülönüljenek a Bitwarden munkahelyi fiókjától."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Váltsuk be ingyenes Bitwarden családoknak előfizetést még ma, hogy az adatok biztonságban legyenek, még akkor is, amikor éppen nem dolgozunk."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "A Bitwarden családoknak csomag tartalmazza:"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "A Bitwarden Családok csomag tartalmazza:"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémium hozzáférés legfeljebb 6 felhasználónak"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Megosztott gyűjtemények a családi tagoknak"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Megosztott mappák a családi tagoknak"
   },
   "memberFamilies": {
     "message": "Tag családok"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Korlátlan gyűjtemény"
   },
+  "unlimitedSharedFolders": {
+    "message": "Korlátlan megosztott mappa"
+  },
   "secureDataSharing": {
     "message": "Biztonságos adatmegosztás"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Korlátlan családi gyűjtemény"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Korlátlan családi megosztott mappa"
+  },
   "familiesSharedStorage": {
     "message": "Megosztott tárhely a fontos családi információkhoz"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Legfeljebb $COUNT$ gyűjtemény",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Legfeljebb $COUNT$ megosztott mappa",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Nyissuk meg az előfizetési oldalt Bitwarden felhőfiókjában és töltsük le licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel lentebb."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Nyissuk meg az előfizetési oldalt Bitwarden fiókban és töltsük le a licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel lentebb."
   },
   "viewAllPlans": {
     "message": "Összes csomag megtekintése"

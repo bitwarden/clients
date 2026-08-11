@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Nome da organização"
   },
+  "vaultName": {
+    "message": "Nome do cofre"
+  },
   "accountOwnedBusiness": {
     "message": "Esta conta é propriedade de uma empresa."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limitado a $COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Adicione e partilhe com um máximo de $COUNT$ utilizadores",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Criar coleções ilimitadas"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Criar pastas partilhadas ilimitadas"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ de armazenamento de ficheiros encriptados",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Não foi possível aderir a $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "O link de convite já não é válido."
+  },
+  "returnToLogin": {
+    "message": "Voltar ao início de sessão"
+  },
+  "returnToRegistration": {
+    "message": "Voltar ao registo"
+  },
   "joinOrganizationDesc": {
     "message": "Foi convidado a juntar-se à organização listada acima. Para aceitar o convite, é necessário iniciar sessão ou criar uma nova conta Bitwarden."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Não foi possível aceitar o convite. Peça a um administrador da organização para enviar um novo link de convite."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Já é membro desta organização."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Os endereços de e-mail com o domínio $DOMAIN$ não são permitidos nesta organização.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Não pode aderir a esta organização porque já é administrador de uma organização gratuita."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "O seu acesso a esta organização foi revogado. Contacte o seu administrador para recuperar o acesso."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Os utilizadores de fornecedores não podem aderir através deste link de convite."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Uma organização da qual já é membro só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "A organização à qual está a tentar aderir só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Tem de configurar a verificação de dois passos para aderir a esta organização."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Tem de verificar o seu endereço de e-mail antes de aderir a uma organização."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Não foi possível aceitar o seu convite porque não há lugares disponíveis."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Este domínio não é aceite por esta organização. Tente utilizar um endereço de e-mail diferente."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Não foi possível desencriptar o convite da organização. Tente novamente utilizando o mesmo navegador para iniciar e concluir o processo de registo."
+  },
+  "goToLogin": {
+    "message": "Ir para o início de sessão"
+  },
+  "goToVault": {
+    "message": "Ir para o cofre"
   },
   "rememberEmail": {
     "message": "Memorizar e-mail"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Planos familiares patrocinados"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Resgates por não membros"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Sem planos familiares patrocinados"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Ainda não há resgates"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Os planos familiares patrocinados para não membros serão apresentados aqui"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Nenhum não membro resgatou o Plano Familiar Patrocinado."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Os seus membros são elegíveis para resgatar um Plano Familiar Patrocinado. Pode patrocinar um plano Familiar para funcionários que não sejam membros da sua organização Bitwarden, mas isso requer lugares disponíveis na sua organização."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Quando remover um patrocínio ativo, ficará disponível um lugar na sua organização após a data de renovação da organização patrocinada."
@@ -9393,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "O utilizador e a sua família são elegíveis para o plano Familiar gratuito Bitwarden. Resgate com o seu e-mail pessoal para manter os seus dados seguros mesmo quando não estiver no trabalho."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "É elegível, juntamente com a sua família, para um Plano Familiar Patrocinado sem custos adicionais. Resgate este plano com o seu e-mail pessoal para manter os seus dados seguros e separados da sua conta Bitwarden profissional."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Resgate hoje mesmo o seu plano Familiar gratuito Bitwarden para manter os seus dados seguros mesmo quando não está no trabalho."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "O plano Bitwarden Familiar inclui"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "O plano Familiar Bitwarden inclui"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acesso Premium para um máximo de 6 utilizadores"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Coleções partilhadas para membros familiares"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Pastas partilhadas para membros da família"
   },
   "memberFamilies": {
     "message": "Membros do plano familiar"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Coleções ilimitadas"
   },
+  "unlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas"
+  },
   "secureDataSharing": {
     "message": "Partilha segura de dados"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Coleções familiares ilimitadas"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas para a família"
+  },
   "familiesSharedStorage": {
     "message": "Armazenamento partilhado para informações importantes da família"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Até $COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Até $COUNT$ pastas partilhadas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Abra a página de subscrição da sua conta Bitwarden na cloud e transfira o ficheiro de licença. Depois, regresse a este ecrã e carregue-o abaixo."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Abra a página da subscrição na sua conta Bitwarden e transfira o ficheiro de licença. Em seguida, volte a este ecrã e carregue-o abaixo."
   },
   "viewAllPlans": {
     "message": "Ver todos os planos"

@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Nom de l'organisation"
   },
+  "vaultName": {
+    "message": "Nom du coffre"
+  },
   "accountOwnedBusiness": {
     "message": "Ce compte est détenu par une entreprise."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limité à $COUNT$ dossiers partagés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Ajoutez et partagez avec jusqu'à $COUNT$ utilisateurs",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Créez un nombre illimité de collections"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Créer un nombre illimité de dossiers partagés"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ de stockage de fichiers chiffrés",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Incapable de rejoindre $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Le lien d'invitation n'est plus valide."
+  },
+  "returnToLogin": {
+    "message": "Retour à la connexion"
+  },
+  "returnToRegistration": {
+    "message": "Retourner à l'inscription"
+  },
   "joinOrganizationDesc": {
     "message": "Vous avez été invité à rejoindre l'organisation ci-dessus. Pour accepter l'invitation, vous devez vous connecter ou créer un nouveau compte Bitwarden."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Incapable d'accepter l'invitation. Demandez à un administrateur de l'organisation d'envoyer un nouveau lien d'invitation."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Incapable d'accepter l'invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Vous êtes déjà membre de cette organisation."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Les courriels respondants à $DOMAIN$ ne sont pas autorisés dans cette organisation.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Vous ne pouvez pas rejoindre cette organisation car vous êtes déjà l'administrateur d'une organisation gratuite."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Vous avez été révoqué de cette organisation. Contactez votre administrateur pour restaurer votre accès."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Les utilisateurs du fournisseur ne peuvent pas se joindre en utilisant ce lien d'invitation."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Une erreur est survenue, veuillez recharger la page pour réessayer."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Une organisation dont vous êtes déjà membre permet seulement à ses membres d'appartenir à une seule organisation."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "L'organisation que vous essayez de rejoindre permet seulement à ses membres d'appartenir à une seule organisation."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Vous devez configurer une connexion à deux facteurs pour rejoindre cette organisation."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Vous devez vérifier votre adresse courriel avant de rejoindre une organisation."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Une erreur est survenue, veuillez recharger la page pour réessayer."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Votre invitation n'a pas pu être acceptée car il n'y a pas de place disponible."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Un problème est survenu. Veuillez recharger la page pour réessayer."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Ce domaine n'est pas accepté par cette organisation. Essayez une autre adresse courriel."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Incapable d'accepter l'invitation"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Incapable de déchiffrer l'invitation de l'organisation. Réessayez en utilisant le même navigateur pour démarrer et terminer le processus d'inscription."
+  },
+  "goToLogin": {
+    "message": "Aller à la connexion"
+  },
+  "goToVault": {
+    "message": "Aller au coffre"
   },
   "rememberEmail": {
     "message": "Se souvenir du courriel"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Familles parrainées"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Réclamations par des non-membres"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Aucune famille parrainée"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Encore aucune réclamation"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Aucun non-membre n’a réclamé le Forfait Familles Parrainé."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite une licence disponible au sein de votre organisation."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Vos membres sont admissibles à réclamer un Forfait Familles Parrainé. Vous pouvez parrainer un forfait Familles pour les employés qui ne sont pas membres de votre organisation Bitwarden, mais cela nécessitera des sièges disponibles au sein de votre organisation."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Lorsque vous supprimez un parrainage actif, une licence au sein de votre organisation sera disponible après la date de renouvellement de l'organisation parrainée."
@@ -9393,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "Vous et votre famille êtes éligibles à Bitwarden Familles gratuitement. Réclamez-le avec votre courriel personnel pour sécuriser vos données, même lorsque vous n'êtes pas au travail."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Vous et votre famille êtes admissibles à un Forfait Familles Parrainé sans frais additionnels. Réclamez ce plan avec votre courriel personnel pour garder vos données sécurisées et séparées de votre compte de travail Bitwarden."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Obtenez votre abonnement Bitwarden Familles gratuit aujourd'hui pour garder vos données en sécurité même lorsque vous n'êtes pas au travail."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "L'abonnement Bitwarden Familles inclut"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "Le forfait Familles de Bitwarden inclut"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Accès Premium jusqu'à 6 utilisateurs"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Collections partagées pour les membres de la famille"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Dossiers partagés pour les membres de la famille"
   },
   "memberFamilies": {
     "message": "Familles de membre"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Collections illimitées"
   },
+  "unlimitedSharedFolders": {
+    "message": "Dossiers partagés illimités"
+  },
   "secureDataSharing": {
     "message": "Partage sécurisé de données"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Collections familiales illimitées"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Dossiers partagés au sein de la famille illimités"
+  },
   "familiesSharedStorage": {
     "message": "Stockage partagé pour les informations importantes de la famille"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Jusqu'à $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Jusqu'à $COUNT$ dossiers partagés",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Ouvrez la page d'abonnement sur votre compte cloud Bitwarden et téléchargez votre fichier de licence. Puis revenez à cet écran et téléversez-le ci-dessous."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Ouvrez la page d'abonnement sur votre compte Bitwarden et téléchargez votre fichier de licence. Puis retournez à cet écran et téléversez-le ci-dessous."
   },
   "viewAllPlans": {
     "message": "Afficher tous les forfaits"

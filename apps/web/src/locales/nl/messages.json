@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "Organisatienaam"
   },
+  "vaultName": {
+    "message": "Kluisnaam"
+  },
   "accountOwnedBusiness": {
     "message": "Dit account is eigendom van een bedrijf."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Beperkt tot $COUNT$ gedeelde mappen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Toevoegen en delen met maximaal $COUNT$ gebruikers",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Oneindig veel verzamelingen aanmaken"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Onbeperkte gedeelde mappen aanmaken"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ versleutelde bestandsopslag",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Kan niet toetreden tot $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "De uitnodigingslink is niet meer geldig"
+  },
+  "returnToLogin": {
+    "message": "Terug naar inloggen"
+  },
+  "returnToRegistration": {
+    "message": "Terug naar registratie"
+  },
   "joinOrganizationDesc": {
     "message": "Je bent uitgenodigd om lid te worden van bovenstaande organisatie. Om de uitnodiging te accepteren, moet je inloggen of een nieuw Bitwarden-account aanmaken."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Kan de uitnodiging niet accepteren. Vraag een organisatiebeheerder om een nieuwe uitnodigingslink te verzenden."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Kan uitnodiging niet accepteren"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Je bent al lid van deze organisatie."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "E-mailberichten die overeenkomen met $DOMAIN$ zijn niet toegestaan in deze organisatie.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Je kunt niet deelnemen aan deze organisatie omdat je al de beheerder van een gratis organisatie bent."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Je rechten voor deze organisatie zijn ingetrokken. Neem contact op met je beheerder om toegang te krijgen."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider-gebruikers kunnen geen lid worden via deze uitnodigingslink."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Een organisatie je al lid van bent, staat haar leden slechts toe tot één organisatie te behoren."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "De organisatie waar je je probeert aan te sluiten laat haar leden slechts tot één organisatie behoren."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Je moet tweestapsaanmelding instellen om lid te worden van deze organisatie."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Je moet je e-mailadres verifiëren voordat je lid kunt worden van een organisatie."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Je uitnodiging kon niet worden geaccepteerd omdat er geen plaats beschikbaar is."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Dit domein is niet geaccepteerd door deze organisatie. Probeer een ander e-mailadres."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Kon uitnodiging niet accepteren"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Kon de organisatie-uitnodiging niet decoderen. Probeer het opnieuw met dezelfde browser om het aanmeldingsproces te starten en af te ronden."
+  },
+  "goToLogin": {
+    "message": "Ga naar inloggen"
+  },
+  "goToVault": {
+    "message": "Ga naar kluis"
   },
   "rememberEmail": {
     "message": "Mijn e-mailadres onthouden"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gesponsorde families"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Verzilveringen van niet-leden"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Geen gesponsorde families"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Nog geen verzilveringen"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Geen niet-leden hebben het gesponsorde Familie-abonnement verzilverd."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Leden van je organisatie komen in aanmerking voor gratis Bitwarden Familie. Je kunt de gratis Bitwarden Familie sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie. Het sponsoren van een niet-lid vereist een beschikbare zitplaats binnen je organisatie."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Je leden komen in aanmerking om een gesponsord familie-abonnement te verzilveren. Je kunt een familie-abonnement sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie, maar dit vereist wel beschikbare zetels binnen je organisatie."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Als je een actieve sponsoring verwijdert, komt er een plaats binnen je organisatie beschikbaar na de verlengingsdatum van de gesponsorde organisatie."
@@ -9393,10 +9504,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Jij en je familie komen in aanmerking voor een kosteloos gesponsord Families-abonnement. Verzilver dit abonnement met je persoonlijke e-mailadres om je gegevens veilig en gescheiden van je Bitwarden-werkaccount te houden."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Verzilver je gratis Bitwarden Families vandaag om je gegevens veilig te houden, zelfs wanneer je niet aan het werk bent."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Bitwarden Families omvat"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Bitwarden Families omvat"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9404,6 +9521,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Gedeelde collecties voor familieleden"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Gedeelde mappen voor familieleden"
   },
   "memberFamilies": {
     "message": "Lid-families"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Onbeperkte collecties"
   },
+  "unlimitedSharedFolders": {
+    "message": "Onbeperkte gedeelde mappen"
+  },
   "secureDataSharing": {
     "message": "Beveiligd gegevens delen"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Onbeperkte familiecollecties"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Onbeperkte familie gedeelde mappen"
+  },
   "familiesSharedStorage": {
     "message": "Gedeelde opslag voor belangrijke familie-informatie"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Tot $COUNT$ collectie(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Tot $COUNT$ gedeelde mappen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open de abonnementspagina op je Bitwarden-cloudaccount en download je licentiebestand. Ga daarna terug naar dit scherm en upload het hieronder."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open de abonnementspagina op je Bitwarden-account en download je licentiebestand. Ga daarna terug naar dit scherm en upload het hieronder."
   },
   "viewAllPlans": {
     "message": "Alle abonnementen bekijken"
