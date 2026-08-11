@@ -3510,6 +3510,10 @@
   "restrictedItemTypePolicyDescV2": {
     "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
@@ -7691,14 +7695,26 @@
   "singleOrg": {
     "message": "Single organization"
   },
+  "singleOrgVfo1": {
+    "message": "Single organization membership",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "Restrict members from joining other organizations."
   },
   "singleOrgPolicyDesc": {
     "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
   },
+  "singleOrgPolicyDescVfo1": {
+    "message": "Restrict members from joining other shared or organization vaults.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Your current organization has a policy that does not allow you to join more than one organization. Please contact your organization admins or sign up from a different Bitwarden account."
@@ -7726,6 +7742,10 @@
   },
   "requireSsoPolicyReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "You must enable the single organization vault policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSsoPolicyReqError": {
     "message": "Single organization policy not set up."
@@ -8113,8 +8133,16 @@
   "centralizeDataOwnership": {
     "message": "Centralize organization ownership"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Centralized organization ownership",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipDescVfo1": {
+    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
@@ -8153,8 +8181,16 @@
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Give all users a dedicated “My Items” space for managing their own logins."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "Prompt users to move their vault items to the organization"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Prompt users to move their My vault items to the organization",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
@@ -8221,6 +8257,10 @@
     "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Potential security risk. "
   },
@@ -8234,11 +8274,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Single organization policy required. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Single organization vault policy required. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "All members must only belong to this organization to activate this automation."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "All members must only belong to this organization vault to activate this automation.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Single organization policy will extend to all roles. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Single organization vault policy will extend to all roles. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "No emergency access. "
@@ -8826,6 +8878,10 @@
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
   },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "You must enable the single organization vault policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
+  },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Allow admins to help members regain access to their accounts when they're enrolled in "
   },
@@ -9326,6 +9382,10 @@
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
+  },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "vaultExportDisabled": {
     "message": "Vault export removed"
@@ -15658,6 +15718,10 @@
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."

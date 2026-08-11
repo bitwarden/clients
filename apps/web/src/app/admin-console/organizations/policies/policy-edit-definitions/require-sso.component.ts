@@ -23,6 +23,7 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
     name: "requireSsoPolicyTitle",
     description: "requireSsoPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",
+    prerequisiteKeyVfo1: "requireSsoPolicyReqV2Vfo1",
   };
 
   display$(organization: Organization, configService: ConfigService) {

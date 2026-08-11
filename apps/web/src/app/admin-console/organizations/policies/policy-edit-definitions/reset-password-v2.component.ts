@@ -12,6 +12,7 @@ import {
   SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
@@ -27,6 +28,7 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
     ReactiveFormsModule,
     SwitchComponent,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

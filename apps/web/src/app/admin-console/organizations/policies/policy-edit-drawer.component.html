@@ -3,7 +3,7 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="policy.v2?.name ?? policy.name | i18n"
+  [title]="titleKeys[0] | vfo1I18n: titleKeys[1]"
   subtitle=""
 >
   <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogHeaderEnd>{{
@@ -13,21 +13,23 @@
     @if (loading()) {
       <bit-spinner></bit-spinner>
     } @else {
-      @if (policy.v2?.prerequisiteKey) {
+      @let prereqKeys = prerequisiteKeys;
+      @let warnKeys = warningKeys;
+      @if (prereqKeys) {
         <bit-callout type="info" [title]="'prerequisite' | i18n">
-          {{ policy.v2.prerequisiteKey | i18n }}
-          @if (policy.v2.prerequisiteLinkHref && policy.v2.prerequisiteLinkTextKey) {
-            <a bitLink [href]="policy.v2.prerequisiteLinkHref" target="_blank" rel="noreferrer">
-              {{ policy.v2.prerequisiteLinkTextKey | i18n }}
+          {{ prereqKeys[0] | vfo1I18n: prereqKeys[1] }}
+          @if (policy.v2?.prerequisiteLinkHref && policy.v2?.prerequisiteLinkTextKey) {
+            <a bitLink [href]="policy.v2?.prerequisiteLinkHref" target="_blank" rel="noreferrer">
+              {{ policy.v2?.prerequisiteLinkTextKey | i18n }}
             </a>
           }
         </bit-callout>
       }
-      @if (policy.warningKey) {
-        <bit-callout type="warning">{{ policy.warningKey | i18n }}</bit-callout>
+      @if (warnKeys) {
+        <bit-callout type="warning">{{ warnKeys[0] | vfo1I18n: warnKeys[1] }}</bit-callout>
       }
       @if (policy.v2?.showDescription ?? policy.showDescription) {
-        <p bitTypography="body1">{{ policy.v2?.description ?? policy.description | i18n }}</p>
+        <p bitTypography="body1">{{ descriptionKeys[0] | vfo1I18n: descriptionKeys[1] }}</p>
       }
       <ng-template #policyForm></ng-template>
     }

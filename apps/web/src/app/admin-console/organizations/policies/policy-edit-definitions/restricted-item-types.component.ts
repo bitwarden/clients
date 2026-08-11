@@ -20,6 +20,7 @@ export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "restrictedItemTypePolicyDescV2",
+    descriptionVfo1: "restrictedItemTypePolicyDescVfo1",
   };
 }
 

@@ -33,6 +33,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 
@@ -42,7 +43,7 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
 @Component({
   selector: "app-policy-edit-drawer",
   templateUrl: "policy-edit-drawer.component.html",
-  imports: [SharedModule, SpinnerComponent],
+  imports: [SharedModule, SpinnerComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyEditDrawerComponent implements AfterViewInit {
@@ -79,6 +80,47 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the drawer title, honoring the same v2-then-base fallback
+   * used for the legacy key.
+   */
+  get titleKeys(): [string, string] {
+    const legacy = this.policy.v2?.name ?? this.policy.name;
+    const next = this.policy.v2?.nameVfo1 ?? this.policy.nameVfo1 ?? legacy;
+    return [legacy, next];
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the drawer body description. See {@link titleKeys}.
+   */
+  get descriptionKeys(): [string, string] {
+    const legacy = this.policy.v2?.description ?? this.policy.description;
+    const next = this.policy.v2?.descriptionVfo1 ?? this.policy.descriptionVfo1 ?? legacy;
+    return [legacy, next];
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the prerequisite callout, if one is configured.
+   */
+  get prerequisiteKeys(): [string, string] | undefined {
+    const legacy = this.policy.v2?.prerequisiteKey;
+    if (!legacy) {
+      return undefined;
+    }
+    return [legacy, this.policy.v2?.prerequisiteKeyVfo1 ?? legacy];
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the warning callout, if one is configured.
+   */
+  get warningKeys(): [string, string] | undefined {
+    const legacy = this.policy.warningKey;
+    if (!legacy) {
+      return undefined;
+    }
+    return [legacy, this.policy.warningKeyVfo1 ?? legacy];
   }
 
   private isFormDirty(): boolean {

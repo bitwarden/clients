@@ -10,7 +10,9 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class SingleOrgPolicy extends BasePolicyEditDefinition {
   name = "singleOrg";
+  nameVfo1 = "singleOrgVfo1";
   description = "singleOrgPolicyDesc";
+  descriptionVfo1 = "singleOrgPolicyDescVfo1";
   type = PolicyType.SingleOrg;
   category = PolicyCategory.DataControl;
   priority = 10;
@@ -18,6 +20,7 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "singleOrgPolicyDescV2",
+    descriptionVfo1: "singleOrgPolicyDescV2Vfo1",
   };
 }
 

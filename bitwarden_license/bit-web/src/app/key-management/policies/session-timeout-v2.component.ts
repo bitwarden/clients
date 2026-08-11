@@ -36,6 +36,7 @@ import {
   SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   BasePolicyEditComponent,
   BasePolicyEditDefinition,
@@ -73,6 +74,7 @@ const DEFAULT_MINUTES = 0;
     SelectModule,
     SwitchComponent,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

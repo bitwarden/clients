@@ -31,6 +31,7 @@ import {
   SectionHeaderComponent,
 } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -42,7 +43,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule, Vfo1I18nPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -111,6 +112,26 @@ export class PoliciesComponent {
     this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
     { initialValue: false },
   );
+
+  /**
+   * Returns the [legacy, VFO1] i18n key pair for a policy's list name, honoring the same v1/v2
+   * fallback used for the legacy key. The VFO1 key prefers a dedicated top-level override (for
+   * list-specific copy) before falling back to the drawer's override, then the legacy key.
+   */
+  protected nameKeys(p: BasePolicyEditDefinition): [string, string] {
+    const legacy = (this.useDrawer() && p.v2?.name) || p.name;
+    const next = p.nameVfo1 ?? (this.useDrawer() && p.v2?.nameVfo1) ?? legacy;
+    return [legacy, next];
+  }
+
+  /**
+   * Returns the [legacy, VFO1] i18n key pair for a policy's list description. See {@link nameKeys}.
+   */
+  protected descriptionKeys(p: BasePolicyEditDefinition): [string, string] {
+    const legacy = (this.useDrawer() && p.v2?.description) || p.description;
+    const next = p.descriptionVfo1 ?? (this.useDrawer() && p.v2?.descriptionVfo1) ?? legacy;
+    return [legacy, next];
+  }
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>

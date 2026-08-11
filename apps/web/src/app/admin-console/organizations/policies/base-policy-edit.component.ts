@@ -49,10 +49,22 @@ export abstract class BasePolicyEditDefinition {
    */
   abstract name: string;
   /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name}, shown in the
+   * policies list (and as a fallback for {@link v2.nameVfo1}) when
+   * {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link name} when not set.
+   */
+  nameVfo1?: string;
+  /**
    * i18n string for the policy description.
    * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description}, shown in
+   * the policies list (and as a fallback for {@link v2.descriptionVfo1}) when
+   * {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link description} when not set.
+   */
+  descriptionVfo1?: string;
 
   /**
    * The PolicyType enum that this policy represents.
@@ -96,6 +108,11 @@ export abstract class BasePolicyEditDefinition {
    * above the policy form.
    */
   warningKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link warningKey}. Falls back
+   * to {@link warningKey} when not set.
+   */
+  warningKeyVfo1?: string;
 
   /**
    * Optional drawer-specific configuration for this policy.
@@ -109,8 +126,18 @@ export abstract class BasePolicyEditDefinition {
     component: Constructor<BasePolicyEditComponent>;
     /** Drawer-only title. Falls back to {@link name} when not set. */
     name?: string;
+    /**
+     * Optional i18n key for the VFO1 "vault terminology" variant of {@link name} (drawer title).
+     * Falls back to {@link nameVfo1}, then {@link name}, when not set.
+     */
+    nameVfo1?: string;
     /** Drawer-only description. Falls back to {@link description} when not set. */
     description?: string;
+    /**
+     * Optional i18n key for the VFO1 "vault terminology" variant of {@link description} (drawer
+     * body). Falls back to {@link descriptionVfo1}, then {@link description}, when not set.
+     */
+    descriptionVfo1?: string;
     /**
      * When set, overrides {@link showDescription} for the drawer only.
      * Set to false when the v2 component renders its own description (e.g. with an inline link).
@@ -118,6 +145,11 @@ export abstract class BasePolicyEditDefinition {
     showDescription?: boolean;
     /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
     prerequisiteKey?: string;
+    /**
+     * Optional i18n key for the VFO1 "vault terminology" variant of {@link prerequisiteKey}.
+     * Falls back to {@link prerequisiteKey} when not set.
+     */
+    prerequisiteKeyVfo1?: string;
     /** URL for an optional "learn more" link inside the prerequisite callout. */
     prerequisiteLinkHref?: string;
     /** i18n key for the text of {@link prerequisiteLinkHref}. */

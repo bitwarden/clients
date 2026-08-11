@@ -19,6 +19,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SwitchComponent } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -203,7 +204,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
 @Component({
   selector: "auto-confirm-policy-v2-edit",
   templateUrl: "auto-confirm-policy-v2.component.html",
-  imports: [SharedModule, SwitchComponent],
+  imports: [SharedModule, SwitchComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditV2Component extends AutoConfirmPolicyEditComponent {

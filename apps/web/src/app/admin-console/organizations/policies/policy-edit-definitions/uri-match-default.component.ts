@@ -26,6 +26,7 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
     component: UriMatchDefaultPolicyV2Component,
     description: "uriMatchDetectionPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",
+    prerequisiteKeyVfo1: "requireSsoPolicyReqV2Vfo1",
   };
 }
 @Component({

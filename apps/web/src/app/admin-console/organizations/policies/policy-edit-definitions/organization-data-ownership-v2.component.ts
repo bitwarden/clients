@@ -13,6 +13,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SwitchComponent } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -28,7 +29,7 @@ type OrganizationDataOwnershipPolicyData = {
 @Component({
   selector: "organization-data-ownership-policy-v2-edit",
   templateUrl: "organization-data-ownership-v2.component.html",
-  imports: [SharedModule, SwitchComponent],
+  imports: [SharedModule, SwitchComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationDataOwnershipPolicyV2Component
