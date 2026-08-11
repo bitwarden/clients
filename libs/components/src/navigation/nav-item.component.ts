@@ -26,6 +26,10 @@ import { SideNavService } from "./side-nav.service";
 export const FVW_RING_CLASSES =
   "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-border-nav-focus tw-bg-bg-nav-hover";
 
+/** Version 1 keeps the inset ring; the outset ring above is a version 2 design change. */
+export const FVW_RING_CLASSES_V1 =
+  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover";
+
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
   abstract setOpen(open: boolean): void;
@@ -157,9 +161,12 @@ export class NavItemComponent extends NavBaseComponent {
    * styles, so the entire component can have an outline.
    */
   protected readonly focusVisibleWithin = signal(false);
-  protected readonly fvwStyles = computed(() =>
-    this.focusVisibleWithin() ? FVW_RING_CLASSES : "",
-  );
+  protected readonly fvwStyles = computed(() => {
+    if (!this.focusVisibleWithin()) {
+      return "";
+    }
+    return this.sideNavService.version() === "2" ? FVW_RING_CLASSES : FVW_RING_CLASSES_V1;
+  });
 
   protected onFocusIn(target: EventTarget) {
     this.focusVisibleWithin.set((target as HTMLElement).matches("[data-fvw]:focus-visible"));
