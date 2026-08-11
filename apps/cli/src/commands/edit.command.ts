@@ -20,6 +20,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { FieldType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -117,7 +118,49 @@ export class EditCommand {
     if (cipherView.isDeleted) {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
+
+    // Users without permission to view passwords never receive the real login password/TOTP or
+    // hidden field values from `bw get`/`bw list` (they're redacted to `null`, matching how the
+    // web/browser/desktop clients disable those fields for editing). If those redacted `null`s
+    // are round-tripped back through `bw edit`, preserve the real, already-decrypted values
+    // instead of letting them be overwritten and lost. A non-null value is a deliberate write
+    // and is left alone. See PM-16160/PM-33526.
+    const canViewPassword = cipherView.viewPassword;
+    const originalLoginPassword = cipherView.login?.password;
+    const originalLoginTotp = cipherView.login?.totp;
+    // Values are keyed by field name rather than position so that adding, removing, or
+    // reordering fields in the request can't shift a value onto the wrong field. Fields
+    // sharing a name keep their original relative order.
+    const originalHiddenFieldValues = new Map<string, string[]>();
+    for (const field of cipherView.fields ?? []) {
+      if (field.type === FieldType.Hidden) {
+        const values = originalHiddenFieldValues.get(field.name) ?? [];
+        values.push(field.value);
+        originalHiddenFieldValues.set(field.name, values);
+      }
+    }
+
     cipherView = CipherExport.toView(req, cipherView);
+
+    if (!canViewPassword) {
+      if (cipherView.login != null) {
+        if (cipherView.login.password == null) {
+          cipherView.login.password = originalLoginPassword;
+        }
+        if (cipherView.login.totp == null) {
+          cipherView.login.totp = originalLoginTotp;
+        }
+      }
+      cipherView.fields?.forEach((field) => {
+        if (field.type !== FieldType.Hidden || field.value != null) {
+          return;
+        }
+        const values = originalHiddenFieldValues.get(field.name);
+        if (values?.length > 0) {
+          field.value = values.shift();
+        }
+      });
+    }
 
     // When a user is editing an archived cipher and does not have premium, automatically unarchive it
     if (cipherView.isArchived && !hasPremium) {
