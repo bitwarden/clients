@@ -12,10 +12,13 @@ import {
 } from "../clients/invoice-preview.client";
 
 /**
- * The only entry point flag-ON screens use for cart previews. Each method bakes the flow context
- * for its surface, so components never pass one and cannot pick the wrong copy for their screen.
+ * Fetches server-calculated invoice previews and adapts them into render-ready {@link Cart}s
+ * that bind directly to `<billing-cart-summary>`.
  *
- * Returns a render-ready `Cart` that binds straight to `<billing-cart-summary>`.
+ * When the preview-driven cart feature flag (PM-36631) is on, checkout screens call this service
+ * instead of deriving cart contents locally. Each method serves exactly one checkout flow and
+ * supplies that flow's `InvoicePreviewFlowContext` internally, so components never pass a flow
+ * context and cannot pick the wrong translation copy for their screen.
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewService {

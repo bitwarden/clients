@@ -8,6 +8,7 @@ import {
   OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
   PremiumOrgUpgradePreviewRequest,
+  PremiumPurchasePreviewRequest,
 } from "./invoice-preview.client";
 
 describe("InvoicePreviewClient", () => {
@@ -24,12 +25,6 @@ describe("InvoicePreviewClient", () => {
     AmountDue: 10,
   };
 
-  const organizationPurchase: OrganizationPurchasePreviewRequest = {
-    planTier: "teams",
-    cadence: "monthly",
-    passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
-  };
-
   beforeEach(() => {
     mockReset(mockApiService);
     mockApiService.send.mockResolvedValue(invoicePreviewJson);
@@ -43,7 +38,7 @@ describe("InvoicePreviewClient", () => {
 
   describe("route constants", () => {
     it("should POST premium purchase previews to the premium invoice preview route", async () => {
-      const request = { additionalStorage: 2 };
+      const request: PremiumPurchasePreviewRequest = { additionalStorage: 2 };
 
       await sut.previewPremiumPurchase(request);
 
@@ -71,6 +66,12 @@ describe("InvoicePreviewClient", () => {
     });
 
     it("should POST organization purchase previews to the shared organizations route", async () => {
+      const organizationPurchase: OrganizationPurchasePreviewRequest = {
+        planTier: "teams",
+        cadence: "monthly",
+        passwordManager: { seats: 5, additionalStorage: 0, sponsored: false },
+      };
+
       await sut.previewOrganizationPurchase(organizationPurchase);
 
       expect(mockApiService.send).toHaveBeenCalledWith(
