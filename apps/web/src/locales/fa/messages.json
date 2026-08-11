@@ -990,7 +990,7 @@
     "message": "ذخیره"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "ذخیره کن و ادامه بده"
   },
   "cancel": {
     "message": "انصراف"
@@ -1195,37 +1195,37 @@
     "message": "اشتراک گذاری شد"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "پوشه مشترک"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "پوشه‌های مشترک"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "پوشه من"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "پوشه‌های من"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "افزودن پوشه‌ی مشترک"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "پوشه‌ی مشترک جدید"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "جستجوی پوشه‌ی مشترک"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "جستجوی پوشه‌های من"
   },
   "addToMyFolder": {
-    "message": "Add to my folder"
+    "message": "افزودن به پوشه‌ی من"
   },
   "sharedFolderItemSelect": {
-    "message": "Select shared folder item"
+    "message": "مورد پوشه مشترک را انتخاب کنید"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "مشاهده پوشه‌ی مشترک - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1234,16 +1234,16 @@
     }
   },
   "sharedFolderAdminConsoleManaged": {
-    "message": "This shared folder is only accessible from the admin console"
+    "message": "این پوشه مشترک فقط از طریق کنسول مدیریت قابل دسترسی است"
   },
   "editSharedFolder": {
-    "message": "Edit shared folder"
+    "message": "ویرایش پوشه‌ی مشترک"
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "حذف پوشه‌ی مشترک"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "حذف $COUNT$ پوشه‌ی مشترک",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "هیچ پرونده‌ای انتخاب نشده"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "یا محتویات پرونده‌ی درون ریزی را کپی/پیست کنید"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "در انتظار لغو"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "اشتراک برای لغو در پایان دوره‌ی صورتحساب فعلی علامت‌گذاری شده است."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Poor customer service",
