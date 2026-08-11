@@ -14,7 +14,8 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { Response } from "../../../models/response";
 
@@ -23,7 +24,7 @@ import { SendReceiveCommand } from "./receive.command";
 describe("SendReceiveCommand", () => {
   let command: SendReceiveCommand;
 
-  const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const encryptService = mock<EncryptService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const platformUtilsService = mock<PlatformUtilsService>();
@@ -49,12 +50,12 @@ describe("SendReceiveCommand", () => {
 
     platformUtilsService.isDev.mockReturnValue(false);
 
-    keyService.makeSendKey.mockResolvedValue({} as any);
+    legacyCompatKeyService.makeSendKey.mockResolvedValue({} as any);
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
     command = new SendReceiveCommand(
-      keyService,
+      legacyCompatKeyService,
       encryptService,
       cryptoFunctionService,
       platformUtilsService,

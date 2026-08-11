@@ -16,6 +16,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
@@ -27,6 +29,7 @@ describe("AuthRequestService", () => {
   let masterPasswordService: FakeMasterPasswordService;
   const appIdService = mock<AppIdService>();
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
   const authRequestApiService = mock<DefaultAuthRequestApiService>();
@@ -44,6 +47,7 @@ describe("AuthRequestService", () => {
       appIdService,
       masterPasswordService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       apiService,
       stateProvider,

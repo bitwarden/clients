@@ -3,7 +3,9 @@ import { of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { Argon2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -23,7 +25,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
   let sut: DefaultMasterPasswordUnlockService;
 
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
-  let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let logService: MockProxy<LogService>;
 
   const mockMasterPassword = "testExample";
@@ -42,10 +44,14 @@ describe("DefaultMasterPasswordUnlockService", () => {
 
   beforeEach(() => {
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
-    keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     logService = mock<LogService>();
 
-    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService, logService);
+    sut = new DefaultMasterPasswordUnlockService(
+      masterPasswordService,
+      legacyCompatKeyService,
+      logService,
+    );
 
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of(mockMasterPasswordUnlockData),
@@ -53,8 +59,8 @@ describe("DefaultMasterPasswordUnlockService", () => {
     masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockResolvedValue(mockUserKey);
 
     // Legacy state mocking
-    keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-    keyService.hashMasterKey.mockResolvedValue(mockKeyHash);
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+    legacyCompatKeyService.hashMasterKey.mockResolvedValue(mockKeyHash);
   });
 
   afterEach(() => {
@@ -117,7 +123,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData,
       );
 
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
         mockMasterPassword,
         mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
@@ -126,7 +132,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
     });
 
     it("throws an error if masterKey construction fails", async () => {
-      keyService.makeMasterKey.mockResolvedValue(null as unknown as MasterKey);
+      legacyCompatKeyService.makeMasterKey.mockResolvedValue(null as unknown as MasterKey);
 
       await expect(sut.unlockWithMasterPassword(mockMasterPassword, mockUserId)).rejects.toThrow(
         "Master key could not be created to set legacy master password state.",
@@ -138,12 +144,12 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData,
       );
 
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
         mockMasterPassword,
         mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
       );
-      expect(keyService.hashMasterKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.hashMasterKey).not.toHaveBeenCalled();
       expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
     });
   });

@@ -19,7 +19,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
@@ -36,7 +37,7 @@ export class MemberActionsService {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
-  private keyService = inject(KeyService);
+  private legacyCompatKeyService = inject(LegacyCompatKeyService);
   private logService = inject(LogService);
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
@@ -307,7 +308,10 @@ export class MemberActionsService {
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
       if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
-        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
+        const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+          user.userId,
+          publicKey,
+        );
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
 
         const confirmed = UserConfirmComponent.open(this.dialogService, {

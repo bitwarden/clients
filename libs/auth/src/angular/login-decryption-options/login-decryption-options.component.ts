@@ -35,15 +35,18 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -63,7 +66,13 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  PureCrypto,
+  OrganizationId as SdkOrganizationId,
+  UserId as SdkUserId,
+} from "@bitwarden/sdk-internal";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
@@ -125,6 +134,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
+    private logService: LogService,
     private loginDecryptionOptionsService: LoginDecryptionOptionsService,
     private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
@@ -391,7 +402,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
           userId,
         );
       } else {
-        const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
+        const { publicKey, privateKey } = await this.initAccount(this.activeAccountId);
         const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
         await this.apiService.postAccountKeys(keysRequest);
         await this.passwordResetEnrollmentService.enroll(this.newUserOrgId);
@@ -419,6 +430,52 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       this.validationService.showError(err);
     }
   };
+
+  /**
+   * Initialize all necessary crypto keys needed for a new account.
+   * Warning! This completely replaces any existing keys!
+   *
+   * Moved here verbatim from `KeyService.initAccount`, which had this component as its only caller.
+   * It is reached only from the non-SDK branch of {@link createUser}, so it will be removed as part
+   * of the v2 rollout (when the PM27279_V2RegistrationTdeJit flag is unwound) along with that
+   * branch. Do not add callers.
+   *
+   * @throws An error if the user already has a user key.
+   */
+  private async initAccount(userId: UserId): Promise<{
+    publicKey: string;
+    privateKey: EncString;
+  }> {
+    // Verify user key doesn't exist
+    const existingUserKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    if (existingUserKey != null) {
+      this.logService.error("Tried to initialize account with existing user key.");
+      throw new Error("Cannot initialize account, keys already exist.");
+    }
+
+    await SdkLoadService.Ready;
+    const userKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key()) as UserKey;
+    const [publicKey, privateKey] = await this.legacyCompatKeyService.makeKeyPair(userKey);
+    if (privateKey.encryptedString == null) {
+      throw new Error("Failed to create valid private key.");
+    }
+
+    await this.keyService.setUserKey(userKey, userId);
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: privateKey.encryptedString,
+        },
+      },
+      userId,
+    );
+
+    return {
+      publicKey,
+      privateKey,
+    };
+  }
 
   private async handleCreateUserSuccessNavigation() {
     if (this.clientType === ClientType.Browser) {

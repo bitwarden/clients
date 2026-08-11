@@ -15,6 +15,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   SubscriberBillingClient,
@@ -43,6 +45,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: LegacyCompatKeyService, useValue: mock<LegacyCompatKeyService>() },
         { provide: Router, useValue: mock<Router>() },
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: PolicyService, useValue: mock<PolicyService>() },

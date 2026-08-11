@@ -32,7 +32,8 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";
@@ -44,7 +45,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private decKey: SymmetricCryptoKey;
 
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private platformUtilsService: PlatformUtilsService,
@@ -344,7 +345,7 @@ export class SendReceiveCommand extends DownloadCommand {
       const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
+      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decryptedView = await sendAccess.decrypt(this.decKey);
 
       if (options.obj != null) {

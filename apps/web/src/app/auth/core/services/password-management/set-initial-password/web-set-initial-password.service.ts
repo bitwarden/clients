@@ -18,6 +18,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 export class WebSetInitialPasswordService
@@ -30,6 +32,7 @@ export class WebSetInitialPasswordService
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -46,6 +49,7 @@ export class WebSetInitialPasswordService
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,

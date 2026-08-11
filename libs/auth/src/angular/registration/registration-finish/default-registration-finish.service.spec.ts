@@ -17,7 +17,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -26,21 +28,21 @@ import { DefaultRegistrationFinishService } from "./default-registration-finish.
 describe("DefaultRegistrationFinishService", () => {
   let service: DefaultRegistrationFinishService;
 
-  let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let accountApiService: MockProxy<AccountApiService>;
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     accountApiService = mock<AccountApiService>();
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
     configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
 
     service = new DefaultRegistrationFinishService(
-      keyService,
+      legacyCompatKeyService,
       accountApiService,
       masterPasswordService,
       configService,
@@ -99,7 +101,7 @@ describe("DefaultRegistrationFinishService", () => {
       userKeyEncString = new EncString("userKeyEncrypted");
       userKeyPair = ["publicKey", new EncString("privateKey")];
 
-      keyService.makeMasterKey.mockResolvedValue(masterKey);
+      legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
 
       masterPasswordAuthentication = {
         salt,
@@ -150,7 +152,7 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("throws an error if the user key cannot be created", async () => {
-      keyService.makeUserKey.mockResolvedValue([null, null] as any);
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([null, null] as any);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
@@ -158,19 +160,19 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("derives the master key and registers the user", async () => {
-      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
         passwordInputResult.newPassword,
         passwordInputResult.salt,
         passwordInputResult.kdfConfig,
       );
-      expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
@@ -194,8 +196,8 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("does not invoke the SDK flow when the feature flag is off", async () => {
-      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
 
       const postKeysForUserPasswordRegistration: jest.Mock = jest.fn().mockResolvedValue(undefined);
       const registrationClient: { post_keys_for_user_password_registration: jest.Mock } = {
@@ -314,9 +316,9 @@ describe("DefaultRegistrationFinishService", () => {
       );
 
       // The legacy (non-SDK) flow must not be exercised.
-      expect(keyService.makeMasterKey).not.toHaveBeenCalled();
-      expect(keyService.makeUserKey).not.toHaveBeenCalled();
-      expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeUserKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
       expect(accountApiService.registerFinish).not.toHaveBeenCalled();
     });
 

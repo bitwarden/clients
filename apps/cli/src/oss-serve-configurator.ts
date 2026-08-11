@@ -62,6 +62,7 @@ export class OssServeConfigurator {
       this.serviceContainer.totpService,
       this.serviceContainer.auditService,
       this.serviceContainer.keyService,
+      this.serviceContainer.legacyCompatKeyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,

@@ -10,6 +10,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -49,6 +51,7 @@ describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
 
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const apiService = mock<ApiService>();
   const tokenService = mock<TokenService>();
   const logService = mock<LogService>();
@@ -92,6 +95,7 @@ describe("KeyConnectorService", () => {
       accountService,
       masterPasswordService,
       keyService,
+      legacyCompatKeyService,
       apiService,
       tokenService,
       logService,
@@ -666,9 +670,9 @@ describe("KeyConnectorService", () => {
         });
         jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
         jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(passwordKey);
-        keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
-        keyService.makeKeyPair.mockResolvedValue(mockKeyPair);
+        legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
+        legacyCompatKeyService.makeKeyPair.mockResolvedValue(mockKeyPair);
         tokenService.getEmail.mockResolvedValue(mockEmail);
         configService.getFeatureFlag$.mockReturnValue(of(false));
       });
@@ -698,7 +702,7 @@ describe("KeyConnectorService", () => {
           await keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId);
 
           expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
-          expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             passwordKey.keyB64,
             mockEmail,
             expectedKdfConfig,
@@ -707,13 +711,13 @@ describe("KeyConnectorService", () => {
             mockMasterKey,
             mockUserId,
           );
-          expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+          expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
           expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
           expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
             mockMakeUserKeyResult[1],
             mockUserId,
           );
-          expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+          expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
           expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
             keyConnectorUrl,
             new KeyConnectorUserKeyRequest(
@@ -748,7 +752,7 @@ describe("KeyConnectorService", () => {
         ).rejects.toThrow(new Error("Key Connector error"));
 
         expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
-        expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
           passwordKey.keyB64,
           mockEmail,
           new PBKDF2KdfConfig(600_000),
@@ -757,13 +761,13 @@ describe("KeyConnectorService", () => {
           mockMasterKey,
           mockUserId,
         );
-        expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+        expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
         expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
           mockMakeUserKeyResult[1],
           mockUserId,
         );
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
         expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
           keyConnectorUrl,
           new KeyConnectorUserKeyRequest(
@@ -789,7 +793,7 @@ describe("KeyConnectorService", () => {
 
         // Verify that no key generation or API calls were made
         expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
-        expect(keyService.makeMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
         expect(apiService.postUserKeyToKeyConnector).not.toHaveBeenCalled();
         expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
       });

@@ -14,6 +14,8 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
@@ -57,6 +59,9 @@ const mockAccountService = {
 
 const mockKeyService = {
   orgKeys$: () => of({ "org-1": {} }),
+};
+
+const mockLegacyCompatKeyService = {
   getFingerprint: () => Promise.resolve(["apple", "mango", "orange", "lemon", "grape"]),
 };
 
@@ -93,6 +98,7 @@ export default {
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },
+        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
         { provide: EncryptService, useValue: mockEncryptService },
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: OrganizationUserService, useValue: mockOrganizationUserService },

@@ -17,6 +17,8 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 
@@ -25,6 +27,7 @@ import { DefaultCollectionService } from "./default-collection.service";
 
 describe("DefaultCollectionService", () => {
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let stateProvider: FakeStateProvider;
@@ -40,6 +43,7 @@ describe("DefaultCollectionService", () => {
     userId = Utils.newGuid() as UserId;
 
     keyService = mock();
+    legacyCompatKeyService = mock();
     encryptService = mock();
     i18nService = mock();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
@@ -55,7 +59,11 @@ describe("DefaultCollectionService", () => {
         Promise.resolve(encString.data.replace("ENC_", "DEC_")),
       );
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     // Arrange i18nService so that sorting algorithm doesn't throw
     i18nService.collator = null;

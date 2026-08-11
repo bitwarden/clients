@@ -32,6 +32,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
@@ -89,6 +91,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private accountService: AccountService,
     private organizationService: OrganizationService,
@@ -185,7 +188,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           map((orgKeys) => orgKeys[this.organizationId as OrganizationId] ?? null),
         ),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 

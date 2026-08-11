@@ -31,6 +31,8 @@ import {
   KdfType,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -50,6 +52,7 @@ describe("EmergencyAccessService", () => {
   let emergencyAccessApiService: MockProxy<EmergencyAccessApiService>;
   let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
@@ -64,6 +67,7 @@ describe("EmergencyAccessService", () => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
@@ -73,6 +77,7 @@ describe("EmergencyAccessService", () => {
       emergencyAccessApiService,
       apiService,
       keyService,
+      legacyCompatKeyService,
       encryptService,
       cipherService,
       logService,

@@ -21,6 +21,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
@@ -66,6 +68,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     private policyService: PolicyService,
     private passwordPreloginService: PasswordPreloginService,
     private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -91,7 +94,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
+    const serverMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
+      masterPassword,
+      data.masterKey,
+    );
 
     data.tokenRequest = new PasswordTokenRequest(
       email,
@@ -132,7 +138,11 @@ export class PasswordLoginStrategy extends LoginStrategy {
   ): Promise<MasterKey> {
     // if we have prefetched prelogin data, use it
     if (preFetchedPreloginData) {
-      return this.keyService.makeMasterKey(masterPassword, email, preFetchedPreloginData.kdfConfig);
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        email,
+        preFetchedPreloginData.kdfConfig,
+      );
     }
 
     // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
@@ -142,7 +152,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       throw new Error("KDF config is required");
     }
 
-    return this.keyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
+    return this.legacyCompatKeyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
   }
 
   private async evaluateMasterPasswordIfRequired(

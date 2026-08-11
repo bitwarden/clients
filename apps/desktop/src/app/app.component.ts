@@ -69,6 +69,8 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
@@ -155,6 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logService: LogService,
     private messagingService: MessagingService,
     private notificationsService: ServerNotificationsService,
@@ -323,7 +326,10 @@ export class AppComponent implements OnInit, OnDestroy {
                   " fingerprint can't be displayed.",
               );
             } else {
-              const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+              const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+                activeUserId,
+                publicKey,
+              );
               const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
                 fingerprint,
               });

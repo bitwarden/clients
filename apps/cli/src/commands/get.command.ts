@@ -41,6 +41,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
@@ -65,6 +67,7 @@ export class GetCommand extends DownloadCommand {
     private totpService: TotpService,
     private auditService: AuditService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private searchService: SearchService,
     protected apiService: ApiService,
@@ -651,12 +654,12 @@ export class GetCommand extends DownloadCommand {
       if (publicKey == null) {
         return Response.error("No public key available for the active user.");
       }
-      fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+      fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.keyService.getFingerprint(id, pubKey);
+        fingerprint = await this.legacyCompatKeyService.getFingerprint(id, pubKey);
       } catch {
         // empty - handled by the null check below
       }

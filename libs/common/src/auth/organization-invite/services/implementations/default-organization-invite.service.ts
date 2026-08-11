@@ -13,6 +13,8 @@ import { LogoutService } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 // @bitwarden/organization-invite-link imports back from @bitwarden/common (BaseResponse,
 // ApiService, etc.), so this is a circular dependency in the static import graph. It
 // resolves at runtime because both libraries reach each other only through abstractions
@@ -99,6 +101,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly apiService: ApiService,
     private readonly logoutService: LogoutService,
     private readonly keyService: KeyService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly encryptService: EncryptService,
     private readonly policyApiService: PolicyApiServiceAbstraction,
     private readonly policyService: PolicyService,
@@ -641,8 +644,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
-    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
-    const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
+    const [encryptedOrgKey, orgKey] = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(userId);
+    const [orgPublicKey, encryptedOrgPrivateKey] =
+      await this.legacyCompatKeyService.makeKeyPair(orgKey);
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),

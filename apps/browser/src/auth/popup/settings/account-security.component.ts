@@ -58,6 +58,8 @@ import {
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import {
   NativeMessagingPermissionDialogComponent,
@@ -155,6 +157,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
@@ -542,7 +545,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+    const fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,

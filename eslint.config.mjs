@@ -16,9 +16,10 @@ import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
 /// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
-/// SDK. Nothing may import it except the re-export shims left behind at the pre-move paths, which
-/// keep existing callers working. Those shims are allowlisted at the bottom of this config via
-/// `allowLegacyCrypto`; that list only ever shrinks.
+/// SDK. Two kinds of file may import it, and both sets only ever shrink: the re-export shims left
+/// behind at the pre-move paths, allowlisted at the bottom of this config via `allowLegacyCrypto`,
+/// and the call sites still waiting on an SDK replacement, which opt out inline with
+/// `// eslint-disable-next-line no-restricted-imports`.
 const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
   group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
   message:

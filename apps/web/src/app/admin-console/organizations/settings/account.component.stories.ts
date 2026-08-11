@@ -16,6 +16,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ItemModule, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
@@ -70,6 +72,11 @@ const mockPlatformUtilsService = { isSelfHost: () => false };
 
 const mockKeyService = {
   orgKeys$: () => of({}),
+};
+
+// `AccountComponent` uses `makeKeyPair`; the nested `AccountFingerprintComponent` uses
+// `getFingerprint`. Both moved off `KeyService` onto `LegacyCompatKeyService`.
+const mockLegacyCompatKeyService = {
   makeKeyPair: () => Promise.resolve(["publicKey", { encryptedString: "encryptedPrivateKey" }]),
   getFingerprint: () => Promise.resolve(["acme", "fingerprint", "words", "here"]),
 };
@@ -118,6 +125,7 @@ export default {
         { provide: Router, useValue: mockRouter },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: KeyService, useValue: mockKeyService },
+        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },

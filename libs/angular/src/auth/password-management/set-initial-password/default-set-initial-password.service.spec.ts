@@ -52,6 +52,8 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   AuthClient,
   BitwardenClient,
@@ -76,6 +78,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -95,6 +98,7 @@ describe("DefaultSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -113,6 +117,7 @@ describe("DefaultSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -222,10 +227,12 @@ describe("DefaultSetInitialPasswordService", () => {
       // Mock makeMasterKeyEncryptedUserKey() values
       if (config.userHasUserKey) {
         keyService.userKey$.mockReturnValue(of(userKey));
-        keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
+        legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue(
+          masterKeyEncryptedUserKey,
+        );
       } else {
         keyService.userKey$.mockReturnValue(of(null));
-        keyService.makeUserKey.mockResolvedValue(masterKeyEncryptedUserKey);
+        legacyCompatKeyService.makeUserKey.mockResolvedValue(masterKeyEncryptedUserKey);
       }
 
       // Mock keyPair values
@@ -237,7 +244,7 @@ describe("DefaultSetInitialPasswordService", () => {
         } else {
           keyService.userPrivateKey$.mockReturnValue(of(null));
           keyService.userPublicKey$.mockReturnValue(of(null));
-          keyService.makeKeyPair.mockResolvedValue(keyPair);
+          legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
         }
       }
 
@@ -317,7 +324,7 @@ describe("DefaultSetInitialPasswordService", () => {
             existingUserPrivateKey,
             masterKeyEncryptedUserKey[0],
           );
-          expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+          expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
         });
       });
 
@@ -586,7 +593,7 @@ describe("DefaultSetInitialPasswordService", () => {
         expect(keyService.userPrivateKey$).not.toHaveBeenCalled();
         expect(keyService.userPublicKey$).not.toHaveBeenCalled();
         expect(encryptService.wrapDecapsulationKey).not.toHaveBeenCalled();
-        expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
       });
 
       describe("given the user has a userKey", () => {
