@@ -22,6 +22,7 @@ import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CartSummaryComponent } from "@bitwarden/pricing";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { AccountBillingClient } from "../../../clients/account-billing.client";
 import { PreviewInvoiceClient } from "../../../clients/preview-invoice.client";
@@ -214,6 +215,10 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         {
           provide: SyncService,
           useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { enabled: () => false, iconClass: (icon: string) => icon },
         },
       ],
     })

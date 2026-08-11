@@ -98,7 +98,6 @@ jobs:
     name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write
       id-token: write
       packages: write
     needs: setup
@@ -425,23 +424,6 @@ jobs:
           done
           cosign sign --yes "${images[@]}"
           echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
-
-      - name: Scan Docker image
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        id: container-scan
-        uses: anchore/scan-action@0d444ed77d83ee2ba7f5ced0d90d640a1281d762 # v7.3.0
-        with:
-          image: ${{ steps.image-name.outputs.name }}
-          fail-build: false
-          output-format: sarif
-
-      - name: Upload Grype results to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: github/codeql-action/upload-sarif@573acd9552f33577783abde4acb66a1058e762e5 # codeql-bundle-v2.23.1
-        with:
-          sarif_file: ${{ steps.container-scan.outputs.sarif }}
-          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
-          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
       - name: Log out of Docker
         run: |

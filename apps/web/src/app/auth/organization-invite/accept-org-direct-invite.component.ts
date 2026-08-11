@@ -1,11 +1,11 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
-  OrganizationInvite,
+  DirectOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -13,32 +13,27 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { IconModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-org-direct-invite.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconModule, I18nPipe],
 })
 export class AcceptOrgDirectInviteComponent implements OnInit {
-  loading = true;
+  private readonly router = inject(Router);
+  private readonly i18nService = inject(I18nService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly acceptFlowService = inject(AcceptFlowService);
+  private readonly organizationInviteService = inject(OrganizationInviteService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
 
   private readonly failedMessage = "inviteAcceptFailed";
 
-  constructor(
-    private router: Router,
-    private i18nService: I18nService,
-    private route: ActivatedRoute,
-    private acceptFlowService: AcceptFlowService,
-    private organizationInviteService: OrganizationInviteService,
-    private accountService: AccountService,
-    private toastService: ToastService,
-  ) {}
-
   async ngOnInit() {
     const qParams = await firstValueFrom(this.route.queryParams);
-    await this.acceptFlowService.run<OrganizationInvite>(qParams, {
+    await this.acceptFlowService.run<DirectOrganizationInvite>(qParams, {
       failedMessage: this.failedMessage,
-      parse: (p) => OrganizationInvite.fromUrlParams(p ?? {}),
+      parse: (p) => DirectOrganizationInvite.fromUrlParams(p ?? {}),
       authedHandler: (invite) => this.authedHandler(invite),
       unauthedHandler: (invite) => this.unauthedHandler(invite),
       getErrorMessage: (apiError) => this.getErrorMessage(apiError),
@@ -47,12 +42,11 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
       // the stash would let its policies bleed into the voluntary change-password component.
       onError: () => this.organizationInviteService.clearOrganizationInvite(),
     });
-    this.loading = false;
   }
 
-  private async authedHandler(invite: OrganizationInvite): Promise<void> {
+  private async authedHandler(invite: DirectOrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.organizationInviteService.validateAndAcceptInvite(
+    const success = await this.organizationInviteService.validateAndAcceptDirectOrgInvite(
       invite,
       activeUserId,
       this.router.url,
@@ -73,7 +67,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
     await this.router.navigate(["/"]);
   }
 
-  private async unauthedHandler(invite: OrganizationInvite): Promise<void> {
+  private async unauthedHandler(invite: DirectOrganizationInvite): Promise<void> {
     await this.organizationInviteService.setOrganizationInvite(invite);
     await this.navigateInviteAcceptance(invite);
   }
@@ -112,7 +106,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
    * In certain scenarios, we want to accelerate the user through the accept org invite process
    * For example, if the user has a BW account already, we want them to be taken to login instead of creation.
    */
-  private async navigateInviteAcceptance(invite: OrganizationInvite): Promise<void> {
+  private async navigateInviteAcceptance(invite: DirectOrganizationInvite): Promise<void> {
     // if user exists, send user to login
     if (invite.orgUserHasExistingUser) {
       await this.router.navigate(["/login"], {
