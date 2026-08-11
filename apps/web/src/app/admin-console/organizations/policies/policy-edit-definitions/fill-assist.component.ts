@@ -153,16 +153,19 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
       }),
     });
 
-    // Mirror the policy's enabled/disabled state to the URL field.
+    // Mirror the policy's enabled/disabled state to the URL field. Let enable/disable
+    // emit their events so the parent form's `statusChanges` re-publishes — otherwise
+    // a cached `INVALID` from an earlier bad URL would leave Save stuck disabled after
+    // toggling the policy off.
     this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((isEnabled) => {
       const control = this.data?.controls.rulesUrl;
       if (!control) {
         return;
       }
       if (isEnabled) {
-        control.enable({ emitEvent: false });
+        control.enable();
       } else {
-        control.disable({ emitEvent: false });
+        control.disable();
       }
     });
   }
