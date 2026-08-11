@@ -184,10 +184,20 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   }
 
   protected override loadData() {
-    const data = this.policyResponse()?.data ?? {};
-    const rulesUrl =
-      typeof data.rulesUrl === "string" ? stripHttpsPrefix(data.rulesUrl) : data.rulesUrl;
-    this.data?.patchValue({ ...data, rulesUrl });
+    const data = this.policyResponse()?.data;
+    if (!data) {
+      return;
+    }
+    // Only override rulesUrl in the patch if we have a string to strip.
+    // Otherwise `patchValue({ rulesUrl: undefined })` would blank out the
+    // constructor default for policies stored with no rulesUrl.
+    const patch: { [key: string]: unknown } = { ...data };
+    if (typeof data.rulesUrl === "string") {
+      patch.rulesUrl = stripHttpsPrefix(data.rulesUrl);
+    } else {
+      delete patch.rulesUrl;
+    }
+    this.data?.patchValue(patch);
   }
 
   // Prepend `https://` back so the stored policy data is a canonical full URL.

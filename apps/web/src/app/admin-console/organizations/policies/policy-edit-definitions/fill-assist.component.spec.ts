@@ -151,6 +151,17 @@ describe.each`
     expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
   });
 
+  it("keeps the default rulesUrl when policy data has no rulesUrl field", () => {
+    // The server returns `{}` (not `null`) for a policy that has never been
+    // configured, so the base class DOES call loadData. The override must not
+    // clear the form's constructor default when there's nothing to strip.
+    fixture.componentRef.setInput("policyResponse", makePolicyResponse(false, {}));
+
+    component.ngOnInit();
+
+    expect(component.data?.value?.rulesUrl).toBe(DEFAULT_URL_HOST_PATH);
+  });
+
   it("marks the form invalid when rulesUrl is empty", () => {
     component.data?.patchValue({ rulesUrl: "" });
 
