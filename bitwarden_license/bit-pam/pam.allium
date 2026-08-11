@@ -14,9 +14,12 @@
 --   - AccessLease lifecycle (active, expired, revoked) and extension
 --   - Org-wide kill switch
 --   - Governance dashboard (read model)
+--   - Vault export as a permission-level bypass of leasing
 --
 -- Excludes:
 --   - Vault encryption / cipher decryption (handled by the existing vault stack)
+--   - The vault-export stack itself (scope resolution, file generation,
+--     encryption) — the spec models only PAM's non-interference with it
 --   - Authentication / session management (auth stack)
 --   - Email rendering and delivery (PM-37279 — implementation detail; the
 --     spec models the *trigger*, not the template)
@@ -359,6 +362,11 @@ config {
 -- client cannot bypass an access rule. The CipherOpened / CipherOpenNeedsRequest
 -- / CipherOpenAwaitingActivation outcomes below are the server's decision, not a
 -- client-only branch.
+--
+-- Opening a cipher is not the only way its secret reaches a member. A vault
+-- EXPORT releases gated ciphers in full with no lease at all, gated instead by
+-- an org-wide export permission that overrides leasing outright. Everything in
+-- this section describes the OPEN path only — see VaultExportBypassesLeasing.
 
 rule CipherOpenWithActiveLease {
     when: OpenCipher(caller, target_cipher)
@@ -484,6 +492,44 @@ rule CipherOpenPassthrough {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
     ensures: CipherOpened(caller, target_cipher, null)
+}
+
+-- ----------------------------------------------------------------------------
+-- Vault export: a permission-level bypass of leasing
+-- ----------------------------------------------------------------------------
+
+-- Exporting a vault does NOT require a lease. Leasing gates the cipher-OPEN
+-- path (the section above); it has no say over export, which is governed by its
+-- own org-wide export permission and overrides PAM outright. A member holding
+-- that permission exports gated ciphers in full — no AccessRequest, no
+-- AccessLease, no approver in the loop — even where every one of their
+-- collection paths to a cipher carries an enabled AccessRule.
+--
+-- This is a second deliberate bypass, on a different AXIS from the union/OR one.
+-- RuleBypassableCiphers is a per-path escape: one ungated collection undoes one
+-- rule for the members who reach the cipher that way. This is a per-caller
+-- escape: one permission undoes every rule in the org, for every cipher in the
+-- caller's export scope, in a single action. Granting the export permission
+-- should therefore be read as granting standing, lease-free access to every
+-- gated credential in that scope.
+--
+-- PAM neither narrows nor widens what an export contains. The scope is whatever
+-- the export stack already resolves for this caller (ExportedCiphers); PAM's
+-- only statement is that gating subtracts nothing from it. The export stack
+-- itself — scope resolution, file generation, encryption — is out of scope here
+-- (see the Excludes block), so no PAM surface provides this trigger: it arrives
+-- from the existing vault-export path.
+
+rule VaultExportBypassesLeasing {
+    when: ExportOrganizationVault(caller, organization)
+    requires: CanExportOrganizationVault(caller, organization)
+    -- Every cipher in the export's scope is released in full with no lease
+    -- authorizing it — the same outcome as an ungated open
+    -- (CipherOpenPassthrough), reached by permission rather than by an ungated
+    -- path. Gated or not, leased or not, the export withholds nothing.
+    ensures:
+        for c in ExportedCiphers(caller, organization):
+            CipherOpened(caller, c, null)
 }
 
 -- ----------------------------------------------------------------------------
@@ -1099,7 +1145,25 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- gating logic). Drives an admin warning that the rule is bypassable. Empty when
 -- the rule's collections share no ciphers with ungated collections. Computed
 -- server-side (it must scan ciphers and their collection membership).
+--
+-- This is the PER-PATH bypass. The org-wide export permission is a separate,
+-- per-caller one that no rule-level warning captures — see
+-- VaultExportBypassesLeasing.
 deferred RuleBypassableCiphers    -- see: server-side rule evaluation
+
+-- `CanExportOrganizationVault(member, organization)`: whether the member holds the
+-- org-wide vault-export permission. Owned by the existing organization permission
+-- model, not by PAM — PAM only reads it. Holding it overrides leasing outright
+-- (VaultExportBypassesLeasing): it is not an AccessRule condition, no rule can
+-- narrow it, and no lease, request or approval stands between the holder and a
+-- gated credential in their export scope.
+deferred CanExportOrganizationVault    -- see: organization export permission (accessImportExport)
+
+-- `ExportedCiphers(member, organization)`: the ciphers an export by this member
+-- covers, as resolved by the existing export stack. PAM neither computes nor
+-- filters it; the predicate is named here only so VaultExportBypassesLeasing can
+-- state that gating subtracts nothing from it.
+deferred ExportedCiphers    -- see: vault export stack (outside PAM)
 
 -- `ForecastDecision(member, cipher, rule)`: a side-effect-free dry run of the
 -- evaluation rules for a prospective request — what submitting now WOULD yield,
@@ -1565,6 +1629,10 @@ open question "When an AccessRule is hard-deleted while an associated AccessLeas
 open question "AccessRequest.rule is pinned as an FK to AccessRule (RuleId), yet a rule is hard-deleted and the delete clears only the collection links, not the request pins — so deleting a rule that still has pinned requests fails on the AccessRequest→AccessRule foreign key (ON DELETE NO ACTION). Known issue, deferred: should the delete null the pins first (requests survive ungoverned, and the audit already snapshots the rule name), or should deleting a rule that has request history be blocked?"
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
+
+open question "Does a vault export that carries PAM-gated credentials emit a PAM audit event? An export is a bulk, lease-free release of exactly the credentials the trail exists to account for, yet nothing in PAM writes it today (pam-audit's CredentialAccessed is itself deferred), and the organization event log records only that an export happened — never which gated ciphers it carried. Undecided: emit a PAM event per export (or per gated cipher within it), or leave export accounting to the org event log."
+
+open question "Does an org-wide kill switch or LeasingFreeze stop vault export? A freeze blocks STARTING leases, and an export mints none, so on the current reading export keeps working while the org is otherwise locked down — a hole in what an admin may well read as a total shutdown. Undecided: leave the two axes independent (export overrides leasing, freeze included), or have a freeze withhold gated ciphers from export too."
 
 -- RESOLVED — cumulative extension duration: repeated extensions may push a lease
 -- past max_lease_duration, deliberately. The control on cumulative lease life is
