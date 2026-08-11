@@ -18,6 +18,7 @@ import { ResetPasswordPolicyV2Component } from "./reset-password-v2.component";
 export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
   description = "accountRecoveryPolicyDescV2";
+  descriptionVfo1 = "accountRecoveryPolicyDescVfo1";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
   priority = 20;

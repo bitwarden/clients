@@ -13,6 +13,10 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
+  // Figma shows this row unchanged in the policies list under VFO1 - only the drawer body
+  // (v2.descriptionVfo1) changes. Pinning this to the same key as `description` prevents the
+  // list from leaking the drawer's `v2.descriptionVfo1` text when PolicyDrawers is also on.
+  descriptionVfo1 = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
   category = PolicyCategory.VaultManagement;
   priority = 50;

@@ -21,7 +21,12 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "activateAutofillPolicy";
+  // Figma shows this row's title unchanged ("Activate autofill") in the list under VFO1, even
+  // though the drawer title (v2.name = "enableAutofillOnPageLoad") otherwise leaks into the list
+  // when PolicyDrawers is also on. Pinning to the same key as `name` prevents that leak.
+  nameVfo1 = "activateAutofillPolicy";
   description = "activateAutofillPolicyDescription";
+  descriptionVfo1 = "activateAutofillPolicyDescriptionVfo1";
   type = PolicyType.ActivateAutofill;
   category = PolicyCategory.VaultManagement;
   priority = 40;

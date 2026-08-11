@@ -34,6 +34,7 @@ import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-conf
 export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
+  descriptionVfo1 = "sessionTimeoutPolicyDescriptionVfo1";
   type = PolicyType.MaximumVaultTimeout;
   category = PolicyCategory.Authentication;
   priority = 70;

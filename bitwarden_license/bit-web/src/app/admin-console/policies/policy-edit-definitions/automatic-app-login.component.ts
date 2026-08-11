@@ -16,6 +16,9 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   name = "automaticAppLoginWithSSO";
   description = "automaticAppLoginWithSSODesc";
+  // Pins the exact Figma list text, overriding the v2 fallback that otherwise leaks into the
+  // list when PolicyDrawers is also on.
+  descriptionVfo1 = "automaticAppLoginWithSSODescListVfo1";
   type = PolicyType.AutomaticAppLogIn;
   category = PolicyCategory.VaultManagement;
   priority = 30;

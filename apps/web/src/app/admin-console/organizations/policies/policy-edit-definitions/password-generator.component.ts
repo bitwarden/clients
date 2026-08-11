@@ -18,6 +18,7 @@ import { PasswordGeneratorPolicyV2Component } from "./password-generator-v2.comp
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
+  descriptionVfo1 = "passwordGeneratorPolicyDescVfo1";
   type = PolicyType.PasswordGenerator;
   category = PolicyCategory.VaultManagement;
   priority = 10;

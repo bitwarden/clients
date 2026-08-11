@@ -7447,6 +7447,10 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
+  "passwordGeneratorPolicyDescVfo1": {
+    "message": "Set requirements for password generator.",
+    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  },
   "generatedPassword": {
     "message": "Generated password"
   },
@@ -7724,6 +7728,14 @@
   },
   "requireSso": {
     "message": "Require single sign-on authentication"
+  },
+  "requireSsoVfo1": {
+    "message": "Require SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListVfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDesc": {
     "message": "Require members to log in with the Enterprise single sign-on method."
@@ -8236,6 +8248,10 @@
     "message": "New users invited to the organization will be automatically confirmed when an admin’s device is unlocked.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "How to turn on automatic user confirmation"
   },
@@ -8458,6 +8474,10 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
+  },
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Set the default URI match detection for all items created by members.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
@@ -8872,6 +8892,10 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
+  "accountRecoveryPolicyDescVfo1": {
+    "message": "Allow admins to reset master passwords for members.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
@@ -9253,6 +9277,10 @@
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identity provider host"
   },
@@ -9267,6 +9295,10 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
+  },
+  "sessionTimeoutPolicyDescriptionVfo1": {
+    "message": "Set a maximum vault timeout for members.",
+    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
     "message": "Maximum allowed timeout"
@@ -9387,6 +9419,10 @@
     "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Do not allow members to export their vault data.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
+  },
   "vaultExportDisabled": {
     "message": "Vault export removed"
   },
@@ -9401,6 +9437,10 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
+  },
+  "activateAutofillPolicyDescriptionVfo1": {
+    "message": "Automatically fill logins on websites and apps.",
+    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
@@ -14555,11 +14595,19 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "Remove sponsored Families plan"
   },
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Remove Sponsored Family Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Do not allow members to redeem a Families plan through this organization."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Do not allow members to redeem a Families plan sponsored by your organization."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Remove the option for members to redeem a free Families plan.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -15715,6 +15763,10 @@
   },
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
+  },
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Prevent account creation from claimed domains.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."

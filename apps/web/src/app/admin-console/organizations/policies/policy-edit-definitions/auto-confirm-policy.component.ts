@@ -33,6 +33,7 @@ import {
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
+  descriptionVfo1 = "autoConfirmDescriptionVfo1";
   type = PolicyType.AutomaticUserConfirmation;
   category = PolicyCategory.VaultManagement;
   priority = 90;

@@ -13,7 +13,11 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSso";
+  nameVfo1 = "requireSsoVfo1";
   description = "requireSsoPolicyDesc";
+  // Pins the exact Figma list text, overriding the v2 fallback (`requireSsoPolicyDescV2`) that
+  // otherwise leaks into the list when PolicyDrawers is also on.
+  descriptionVfo1 = "requireSsoPolicyDescListVfo1";
   type = PolicyType.RequireSso;
   category = PolicyCategory.Authentication;
   priority = 30;

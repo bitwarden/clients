@@ -12,6 +12,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefinition {
   name = "blockClaimedDomainAccountCreation";
   description = "blockClaimedDomainAccountCreationDesc";
+  descriptionVfo1 = "blockClaimedDomainAccountCreationDescVfo1";
   type = PolicyType.BlockClaimedDomainAccountCreation;
   category = PolicyCategory.Authentication;
   priority = 60;

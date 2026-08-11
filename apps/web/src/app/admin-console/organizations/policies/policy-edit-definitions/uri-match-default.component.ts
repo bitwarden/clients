@@ -18,6 +18,7 @@ import { PolicyCategory } from "../pipes/policy-category";
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
   description = "uriMatchDetectionPolicyDesc";
+  descriptionVfo1 = "uriMatchDetectionPolicyDescVfo1";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
   priority = 20;
