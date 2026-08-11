@@ -246,11 +246,13 @@ describe("HealthOverviewComponent", () => {
     expect(counts.reduce((a, b) => a + b, 0)).toBe(10);
   });
 
-  it("ignores a replayed null cipher emission instead of reporting a healthy vault", async () => {
-    // cipherViews$ is shareReplay-cached and emits null when the decrypted
-    // ciphers are cleared, so a fresh subscriber can receive null FIRST. Taking
-    // it would scan an empty vault and, because take(1) completes, strand the
-    // user on a permanent "healthy" reading.
+  it("does not scan the replayed null from cipherViews$, which would report a permanently healthy vault", async () => {
+    // This is what filterOutNullish() in the report pipeline is for, so this
+    // test fails if it is ever removed as redundant. cipherViews$ is
+    // shareReplay-cached with refCount: false and emits null when the
+    // decrypted ciphers are cleared, so a fresh subscriber can receive null
+    // FIRST. Scanning it reports an empty vault and, because take(1) then
+    // completes, the user is stranded on a permanent "healthy" reading.
     const ciphers$ = new BehaviorSubject<CipherView[] | null>(null);
     cipherService.cipherViews$.mockReturnValue(ciphers$ as never);
     reportService.buildVaultHealthReport$.mockReturnValue(

@@ -101,30 +101,16 @@ export class HealthOverviewComponent {
 
   /**
    * The latest scan's result, or null while it is still running or after it
-   * failed.
+   * failed. `take(1)` scans once per Health tab open rather than on every
+   * vault change, since each scan does a breach lookup.
    *
-   * Read through a single `toSignal`, so there is exactly one subscription no
-   * matter how many times the template reads it. Keep it that way: splitting
-   * this into multiple `toSignal` calls would open one subscription each and
-   * repeat the breach lookup.
-   *
-   * TODO(PM-39223): the scan trigger, its progress view, and its failure state
-   * move to the Health tab's scan story. Until then this runs the scan once per
-   * Health tab open — the agreed cadence, with no caching and no manual rescan
-   * — and takes only the first cipher emission so an expensive breach lookup is
-   * not re-run on every vault change.
+   * TODO(PM-39223): add the scan trigger, loading and failure state.
    */
   private readonly report = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         this.cipherService.cipherViews$(userId).pipe(
-          // cipherViews$ is cached with shareReplay and emits null when the
-          // decrypted ciphers are cleared (lock, logout, vault clear). Because
-          // the buffer is kept with refCount: false, a later subscriber can
-          // receive that null as its FIRST emission. Taking it would scan an
-          // empty vault and, since take(1) then completes, leave a permanent
-          // "Your vault is healthy" on a vault that was never actually read.
           filterOutNullish(),
           take(1),
           switchMap((ciphers) =>
