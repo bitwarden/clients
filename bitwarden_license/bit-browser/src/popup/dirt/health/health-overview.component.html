@@ -1,0 +1,38 @@
+@if (hasReport()) {
+  <bit-card class="tw-mx-4 tw-my-3 tw-flex tw-flex-col tw-items-center">
+    <dirt-at-risk-gauge [value]="atRiskCount()" [total]="totalCount()" />
+
+    <h2
+      bitTypography="body1"
+      class="tw-mb-0 tw-mt-2 tw-text-center tw-font-semibold tw-text-fg-heading"
+    >
+      {{ (isAtRisk() ? "yourVaultRiskIsHigh" : "yourVaultIsHealthy") | i18n }}
+    </h2>
+
+    <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
+      {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
+    </span>
+  </bit-card>
+
+  <bit-section-header class="tw-mx-4">
+    <h2 bitTypography="h6">{{ "risksIdentified" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-item-group>
+    @for (row of categoryRows(); track row.category) {
+      <bit-item>
+        <dirt-risk-category-nav-item
+          [labelKeyNone]="row.labelKeyNone"
+          [labelKeySingular]="row.labelKeySingular"
+          [labelKeyPlural]="row.labelKeyPlural"
+          [descriptionKey]="row.descriptionKey"
+          [descriptionKeyNone]="row.descriptionKeyNone"
+          [count]="row.count"
+          [icon]="row.icon"
+          [variant]="row.variant"
+          [route]="row.route"
+        />
+      </bit-item>
+    }
+  </bit-item-group>
+}
