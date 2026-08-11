@@ -229,10 +229,19 @@ jobs:
         with:
           persist-credentials: false
 
+      # Resolved from desktop_native/rust-toolchain.toml, the single source of
+      # truth, so a Renovate bump can't leave a stale literal here. Assigned before
+      # echoing so a failure in the reader fails the step; see lint.yml.
+      - name: Resolve Rust toolchain
+        id: toolchain
+        run: |
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+
       - name: Install rust
         uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: 1.96.0
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
           components: llvm-tools
 
       - name: Cache cargo registry
@@ -240,12 +249,15 @@ jobs:
         with:
           workspaces: "apps/desktop/desktop_native -> target"
 
-      - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --version 0.6.16
+      - name: Install cargo-run-bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
+
+      - name: Check cargo-binstall is not configured
+        run: node scripts/check-no-binstall.mjs
 
       - name: Generate coverage
         working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
+        run: cargo bin cargo-llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
 
       - name: Upload test coverage
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
