@@ -11,6 +11,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BitwardenIcon,
+  CardComponent,
   IconTileVariant,
   ItemModule,
   SectionHeaderComponent,
@@ -86,6 +87,7 @@ const RISK_CATEGORY_ROWS: readonly {
   imports: [
     AtRiskGaugeComponent,
     RiskCategoryItemComponent,
+    CardComponent,
     ItemModule,
     SectionHeaderComponent,
     TypographyModule,
