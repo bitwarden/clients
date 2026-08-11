@@ -31,11 +31,11 @@ import { getUserId } from "../../../auth/services/account.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { MaximumSessionTimeoutPolicyData, SessionTimeoutTypeService } from "../../session-timeout";
 import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
-} from "../../pin/pin.state";
-import { MaximumSessionTimeoutPolicyData, SessionTimeoutTypeService } from "../../session-timeout";
+} from "../../state-definitions";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import {
