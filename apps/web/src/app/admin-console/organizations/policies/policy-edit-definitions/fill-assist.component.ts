@@ -204,7 +204,10 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
 
   override async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
     const request = await super.buildRequest(orgKey);
-    if (!request.policy.data?.rulesUrl) {
+    // Only require a URL when the policy is being enabled — a policy that's off
+    // is allowed to persist without one (the client-side reader falls through
+    // to server config or the hardcoded default in that case).
+    if (request.policy.enabled && !request.policy.data?.rulesUrl) {
       throw new Error(this.i18nService.t("invalidFillAssistRulesUrl"));
     }
 

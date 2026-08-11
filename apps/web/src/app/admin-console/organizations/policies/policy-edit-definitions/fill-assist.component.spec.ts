@@ -271,11 +271,23 @@ describe.each`
     expect(request.policy.data?.rulesUrl).toBe(DEFAULT_URL);
   });
 
-  it("throws when saving without a rulesUrl", async () => {
+  it("throws when saving an enabled policy without a rulesUrl", async () => {
     fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    component.enabled.setValue(true);
     component.data?.patchValue({ rulesUrl: "" });
 
     await expect(component.buildRequest()).rejects.toThrow("invalidFillAssistRulesUrl");
+  });
+
+  it("does not throw when saving a disabled policy without a rulesUrl", async () => {
+    // The URL is meaningful only while the policy is enabled. If the admin
+    // clears the URL and then toggles the policy off, the save must succeed —
+    // the input is greyed out at that point so there is no way to fix it.
+    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    component.enabled.setValue(false);
+    component.data?.patchValue({ rulesUrl: "" });
+
+    await expect(component.buildRequest()).resolves.toBeDefined();
   });
 
   describe("isCloud$", () => {
