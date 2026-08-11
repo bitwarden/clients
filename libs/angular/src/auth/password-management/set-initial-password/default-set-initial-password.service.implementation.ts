@@ -38,6 +38,8 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 
 import {
@@ -56,6 +58,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -141,7 +144,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         ];
       } else {
         // New key pair
-        keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
+        keyPair = await this.legacyCompatKeyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
       }
 
       if (keyPair == null) {
@@ -445,9 +448,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
-      masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
+      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
     } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.encryptUserKeyWithMasterKey(
         masterKey,
         userKey,
       );

@@ -31,6 +31,8 @@ import {
   KdfType,
   UserKeyRotationKeyRecoveryProvider,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -60,6 +62,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
@@ -198,7 +201,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
+          (await this.legacyCompatKeyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
