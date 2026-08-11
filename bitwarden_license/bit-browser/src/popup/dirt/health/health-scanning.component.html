@@ -1,0 +1,14 @@
+<div
+  class="tw-m-4 tw-flex tw-flex-col tw-items-center tw-gap-3 tw-p-4 tw-text-center"
+  role="status"
+>
+  <!-- Omitting ariaLabel makes bit-icon mark itself aria-hidden, so the heading
+       carries the announcement rather than the spinner. -->
+  <bit-icon name="bwi-spinner" class="bwi-2x bwi-spin tw-text-fg-brand" />
+
+  <h2 bitTypography="h3">{{ "scanningYourVault" | i18n }}</h2>
+
+  <p bitTypography="body2" class="tw-mb-0 tw-text-fg-body-subtle">
+    {{ "scanningYourVaultDescription" | i18n }}
+  </p>
+</div>
