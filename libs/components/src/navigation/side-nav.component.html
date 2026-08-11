@@ -37,6 +37,7 @@
         <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
           <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
             <div
+              data-testid="side-nav-header"
               class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
               [class.tw-pt-3]="!isOverlay"
               [class.tw-flex-col]="!sideNavService.open()"
@@ -64,6 +65,7 @@
               <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
             </div>
             <div
+              data-testid="side-nav-body"
               class="tw-flex tw-flex-col tw-gap-2 tw-p-3 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
             >
               <ng-container *ngTemplateOutlet="navContent"></ng-container>

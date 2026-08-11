@@ -129,6 +129,20 @@ describe("side-nav v1 content projection", () => {
     expect(nav?.contains(logo)).toBe(true);
   });
 
+  it("projects the bit-nav-logo into the header row in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const logo = fixture.nativeElement.querySelector("bit-nav-logo");
+    expect(logo).not.toBeNull();
+
+    const header = fixture.nativeElement.querySelector("[data-testid='side-nav-header']");
+    const body = fixture.nativeElement.querySelector("[data-testid='side-nav-body']");
+    expect(header?.contains(logo)).toBe(true);
+    expect(body?.contains(logo)).toBe(false);
+  });
+
   // Regression: nav-item declared a separate `<ng-content select="[slot=end]">` in each version
   // branch, so projected [slot=end] content bound to the v1 instance and rendered empty in v2.
   it("projects nav-item [slot=end] trailing content in v2", () => {
@@ -302,5 +316,119 @@ describe("side-nav v1 content projection", () => {
 
     expect(fixture.componentInstance.endActionClicked).toBe(true);
     expect(toolsGroup.componentInstance.open()).toBe(true);
+  });
+});
+
+// Mirrors the app-level wrappers (`apps/web/src/app/layouts/web-side-nav.component.html`,
+// `apps/desktop/src/app/layout/desktop-side-nav.component.html`): no app declares
+// `<bit-nav-logo>` directly inside `<bit-side-nav>`, it always arrives re-projected.
+@Component({
+  selector: "app-test-side-nav",
+  imports: [NavigationModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-side-nav>
+      <ng-content select="bit-nav-logo" ngProjectAs="bit-nav-logo"></ng-content>
+      <ng-content></ng-content>
+    </bit-side-nav>
+  `,
+})
+class WrapperComponent {}
+
+@Component({
+  imports: [NavigationModule, WrapperComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-test-side-nav>
+      <bit-nav-logo [openIcon]="logo" route="." label="Home"></bit-nav-logo>
+      <bit-nav-item text="Child A" route="a"></bit-nav-item>
+    </app-test-side-nav>
+  `,
+})
+class WrapperHostComponent {
+  logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
+}
+
+// Regression: Angular matches the `<ng-content>` node itself against the inner component's
+// selectors, not the nodes flowing through it. A wrapper forwarding with a bare `<ng-content>`
+// drops the logo into `bit-side-nav`'s wildcard slot — which v2 renders in the nav body, not the
+// header row. The wrapper must forward the named slot with `ngProjectAs`.
+describe("side-nav content projection through a wrapper component", () => {
+  let fixture: ComponentFixture<WrapperHostComponent>;
+  let sideNavService: SideNavService;
+  let vfo1Enabled: BehaviorSubject<boolean>;
+
+  beforeEach(async () => {
+    vfo1Enabled = new BehaviorSubject<boolean>(false);
+
+    await TestBed.configureTestingModule({
+      imports: [WrapperHostComponent, RouterModule.forRoot([])],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              sideNavigation: "Side navigation",
+              toggleSideNavigation: "Toggle side navigation",
+              resizeSideNavigation: "Resize side navigation",
+              toggleCollapse: "Toggle collapse",
+              submenu: "submenu",
+            }),
+        },
+        { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: () => vfo1Enabled.asObservable(),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(WrapperHostComponent);
+    sideNavService = TestBed.inject(SideNavService);
+  });
+
+  it("projects a re-projected bit-nav-logo into the header row in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const logo = fixture.nativeElement.querySelector("bit-nav-logo");
+    expect(logo).not.toBeNull();
+
+    const header = fixture.nativeElement.querySelector("[data-testid='side-nav-header']");
+    const body = fixture.nativeElement.querySelector("[data-testid='side-nav-body']");
+    expect(header?.contains(logo)).toBe(true);
+    expect(body?.contains(logo)).toBe(false);
+  });
+
+  it("keeps wildcard-slot content out of the header row in v2", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const body = fixture.nativeElement.querySelector("[data-testid='side-nav-body']");
+    const header = fixture.nativeElement.querySelector("[data-testid='side-nav-header']");
+    expect(body?.textContent as string).toContain("Child A");
+    expect(header?.textContent as string).not.toContain("Child A");
+  });
+
+  it("projects a re-projected bit-nav-logo inside the nav in v1", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const logo = fixture.nativeElement.querySelector("bit-nav-logo");
+    expect(logo).not.toBeNull();
+    const nav = fixture.nativeElement.querySelector("nav#bit-side-nav");
+    expect(nav?.contains(logo)).toBe(true);
+  });
+
+  it("does not duplicate the re-projected logo across slots", () => {
+    vfo1Enabled.next(true);
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll("bit-nav-logo").length).toBe(1);
   });
 });
