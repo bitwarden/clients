@@ -33,6 +33,7 @@ import {
   addForm,
   cancelPendingContainer,
   editSelectorAt,
+  isDraftPristine,
   pickContainerCandidate,
   removeForm,
   removeSelectorAt,
@@ -308,6 +309,15 @@ export class WebmapperComponent implements OnInit, OnDestroy {
   async copyJsonc() {
     const draft = this.draft();
     if (!draft) {
+      return;
+    }
+    // Guard the host-wide-null trap (see isDraftPristine).
+    if (isDraftPristine(draft)) {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: "Nothing captured yet — capture a field before exporting.",
+      });
       return;
     }
     const issues = validateDraft(draft);

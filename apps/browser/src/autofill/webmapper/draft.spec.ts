@@ -7,6 +7,7 @@ import {
   emptyDraft,
   emptyForm,
   fieldSelectorsForActive,
+  isDraftPristine,
   pickContainerCandidate,
   removeForm,
   removeSelectorAt,
@@ -320,6 +321,24 @@ describe("validateDraft", () => {
     const d = emptyDraft("example.com", "/login");
     toggleIrrelevant(d);
     expect(validateDraft(d)).toEqual([]);
+  });
+});
+
+describe("isDraftPristine", () => {
+  it("is true for a freshly-created draft", () => {
+    expect(isDraftPristine(emptyDraft("example.com", "/login"))).toBe(true);
+  });
+
+  it("is false once any content is captured", () => {
+    const d = emptyDraft("example.com", "/login");
+    addSelector(d, fieldSlot("username"), captured("input#x"));
+    expect(isDraftPristine(d)).toBe(false);
+  });
+
+  it("is false for an intentionally-irrelevant draft (it maps the page to null)", () => {
+    const d = emptyDraft("example.com", "/login");
+    toggleIrrelevant(d);
+    expect(isDraftPristine(d)).toBe(false);
   });
 });
 

@@ -327,7 +327,10 @@ describe("WebmapperComponent", () => {
 
   describe("copyJsonc", () => {
     it("copies the JSONC and toasts success for a valid draft", async () => {
-      component.draft.set(emptyDraft(HOST, PATH));
+      const draft = emptyDraft(HOST, PATH);
+      setCategory(draft, 0, "login");
+      addSelector(draft, component.fieldsSlot("username"), fieldEntry("#u"));
+      component.draft.set(draft);
 
       await component.copyJsonc();
 
@@ -337,6 +340,21 @@ describe("WebmapperComponent", () => {
       expect(component.exportText()).toContain(HOST);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("blocks export of an untouched (pristine) draft to avoid a spurious host-wide null", async () => {
+      component.draft.set(emptyDraft(HOST, PATH));
+
+      await component.copyJsonc();
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(component.exportText()).toBeNull();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "error",
+          message: expect.stringContaining("Nothing captured"),
+        }),
       );
     });
 

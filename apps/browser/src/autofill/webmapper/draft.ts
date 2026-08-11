@@ -283,6 +283,15 @@ function isFormPristine(form: WebmapperForm): boolean {
   );
 }
 
+/**
+ * Nothing captured and not marked irrelevant — exporting it would serialize a
+ * host-wide `null`, indistinguishable from marking the whole host irrelevant.
+ * An irrelevant draft is not pristine: it maps to `null` on purpose and exports.
+ */
+export function isDraftPristine(draft: WebmapperDraft): boolean {
+  return !draft.irrelevant && draft.forms.every(isFormPristine);
+}
+
 // The reasons a form isn't ready to export, in display order; empty means ready.
 // The single source both validateDraft (as messages) and serializeForm (as a
 // skip) read from, so the "needs a category and a field" rule can't drift apart.
