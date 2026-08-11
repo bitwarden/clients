@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { nothing, render } from "lit";
+import { render } from "lit";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -16,7 +16,7 @@ import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
-jest.mock("lit", () => ({ render: jest.fn(), nothing: Symbol("nothing") }));
+jest.mock("lit", () => ({ render: jest.fn() }));
 jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../../../../content/components/inline-menu", () => ({
   InlineMenuPrompt: jest.fn(() => "prompt"),
@@ -118,9 +118,9 @@ describe("AutofillInlineMenuList", () => {
             actionDataTestId: "inline-menu-unlock-button",
           }),
         );
-        expect(render).toHaveBeenCalledWith(
-          "prompt",
-          autofillInlineMenuList["inlineMenuListContainer"],
+        const [, promptHost] = jest.mocked(render).mock.calls[0];
+        expect(promptHost).toBe(
+          autofillInlineMenuList["inlineMenuListContainer"].firstElementChild,
         );
       });
 
@@ -163,10 +163,6 @@ describe("AutofillInlineMenuList", () => {
             handleKeyUp: expect.any(Function),
           }),
         );
-        expect(render).toHaveBeenCalledWith(
-          "prompt",
-          autofillInlineMenuList["inlineMenuListContainer"],
-        );
         expect(
           autofillInlineMenuList["inlineMenuListContainer"].querySelector(".save-login"),
         ).toBeNull();
@@ -195,23 +191,28 @@ describe("AutofillInlineMenuList", () => {
         expect(focusSpy).toHaveBeenCalled();
       });
 
-      it("clears Lit's cached ChildPart via Lit's render API instead of wiping innerHTML directly", async () => {
+      it("clears imperative DOM on reset when Lit components are enabled", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
-            authStatus: AuthenticationStatus.Locked,
-            ciphers: [],
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [createAutofillOverlayCipherDataMock(1)],
             portKey,
             useLitComponents: true,
           }),
         );
         await flushPromises();
-        jest.mocked(render).mockClear();
 
         const container = autofillInlineMenuList["inlineMenuListContainer"];
+        expect(container.querySelectorAll("ul").length).toBe(1);
 
-        autofillInlineMenuList["resetInlineMenuContainer"]();
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [createAutofillOverlayCipherDataMock(2)],
+          token: "test-token",
+        });
+        await flushPromises();
 
-        expect(render).toHaveBeenCalledWith(nothing, container);
+        expect(container.querySelectorAll("ul").length).toBe(1);
       });
 
       it("keeps the legacy locked DOM when useLitComponents is false", async () => {

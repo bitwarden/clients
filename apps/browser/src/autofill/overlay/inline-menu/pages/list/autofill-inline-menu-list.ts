@@ -1,7 +1,7 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
-import { nothing, render } from "lit";
+import { render } from "lit";
 import { FocusableElement } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -249,7 +249,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   private renderLitPrompt(props: Omit<InlineMenuPromptProps, "theme">) {
-    render(InlineMenuPrompt({ ...props, theme: this.theme }), this.inlineMenuListContainer);
+    const promptHost = globalThis.document.createElement("div");
+    this.inlineMenuListContainer.appendChild(promptHost);
+    render(InlineMenuPrompt({ ...props, theme: this.theme }), promptHost);
     this.syncEmotionStylesIntoShadowDom();
   }
 
@@ -634,11 +636,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private resetInlineMenuContainer() {
     if (this.inlineMenuListContainer) {
-      if (this.useLitComponents) {
-        render(nothing, this.inlineMenuListContainer);
-      } else {
-        this.inlineMenuListContainer.innerHTML = "";
-      }
+      this.inlineMenuListContainer.innerHTML = "";
       this.inlineMenuListContainer.classList.remove(
         "inline-menu-list-container--with-new-item-button",
       );
