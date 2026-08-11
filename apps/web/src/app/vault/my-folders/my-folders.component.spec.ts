@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, map, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -20,6 +20,7 @@ import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
+import * as deleteFolderDialog from "./delete-folder-dialog/delete-folder-dialog.component";
 import { buildFolderRows, MyFoldersComponent } from "./my-folders.component";
 
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -93,6 +94,7 @@ describe("MyFoldersComponent", () => {
 
   let fixture: ComponentFixture<MyFoldersComponent>;
   let component: MyFoldersComponent;
+  let openDeleteDialog: jest.SpyInstance;
 
   /** Selects by folder name — the table owns the checkboxes, so they carry no per-row id. */
   const selectRow = (name: string) => {
@@ -134,6 +136,9 @@ describe("MyFoldersComponent", () => {
       folderViews$.pipe(map((folders) => folders.find((f) => f.id === id))),
     );
     folderApiService.delete.mockResolvedValue(undefined);
+    openDeleteDialog = jest
+      .spyOn(deleteFolderDialog, "openDeleteFolderDialog")
+      .mockReturnValue({ closed: of(true) } as never);
     folderApiService.deleteMany.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
@@ -198,17 +203,9 @@ describe("MyFoldersComponent", () => {
 
   describe("delete", () => {
     it("confirms with the folder name, deletes and shows the deleted toast", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
       await clickRowAction("2", "delete");
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "deleteFolder" },
-        content: { key: "deleteFolderDescription", placeholders: ["Banking"] },
-        acceptButtonText: { key: "delete" },
-        cancelButtonText: { key: "cancel" },
-        type: "danger",
-      });
+      expect(openDeleteDialog).toHaveBeenCalledWith(dialogService, { folderName: "Banking" });
       expect(folderApiService.delete).toHaveBeenCalledWith("2", userId);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -217,7 +214,7 @@ describe("MyFoldersComponent", () => {
     });
 
     it("does not delete when the confirmation is cancelled", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
+      openDeleteDialog.mockReturnValue({ closed: of(false) } as never);
 
       await clickRowAction("2", "delete");
 
@@ -226,7 +223,6 @@ describe("MyFoldersComponent", () => {
     });
 
     it("shows an error toast when a delete fails", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       folderApiService.delete.mockRejectedValue(new Error("boom"));
 
       await clickRowAction("2", "delete");
@@ -240,18 +236,11 @@ describe("MyFoldersComponent", () => {
 
   describe("bulk delete", () => {
     it("confirms with the pluralised copy, deletes each folder and shows the plural toast", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       selectAll();
 
       await component["deleteSelected"]();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "deleteFoldersCount", placeholders: [3] },
-        content: { key: "deleteFoldersDescription" },
-        acceptButtonText: { key: "delete" },
-        cancelButtonText: { key: "cancel" },
-        type: "danger",
-      });
+      expect(openDeleteDialog).toHaveBeenCalledWith(dialogService, { count: 3 });
       expect(folderApiService.deleteMany).toHaveBeenCalledWith(["1", "2", "3"], userId);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -260,17 +249,11 @@ describe("MyFoldersComponent", () => {
     });
 
     it("uses the single-folder copy and toast when only one row is selected", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       selectRow("Banking");
 
       await component["deleteSelected"]();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "deleteFolder" },
-          content: { key: "deleteFolderDescription", placeholders: ["Banking"] },
-        }),
-      );
+      expect(openDeleteDialog).toHaveBeenCalledWith(dialogService, { folderName: "Banking" });
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "deletedFolder",
@@ -308,7 +291,6 @@ describe("MyFoldersComponent", () => {
     });
 
     it("clears the selection once the deleted folders leave the data", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       selectAll();
 
       await component["deleteSelected"]();
