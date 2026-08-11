@@ -24,6 +24,8 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -53,6 +55,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private appIdService: AppIdService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
@@ -182,7 +185,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
-    return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+    return (await this.legacyCompatKeyService.getFingerprint(email.toLowerCase(), publicKey)).join(
+      "-",
+    );
   }
 
   emitAdminLoginApproved(): void {

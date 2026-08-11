@@ -28,15 +28,22 @@ import { SignedSecurityState } from "@bitwarden/common/key-management/types";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { AnonLayoutWrapperDataService, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { LoginDecryptionOptionsComponent } from "./login-decryption-options.component";
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
@@ -52,6 +59,8 @@ describe("LoginDecryptionOptionsComponent", () => {
   let formBuilder: FormBuilder;
   let i18nService: MockProxy<I18nService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
+  let logService: MockProxy<LogService>;
   let loginDecryptionOptionsService: MockProxy<LoginDecryptionOptionsService>;
   let messagingService: MockProxy<MessagingService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -84,6 +93,8 @@ describe("LoginDecryptionOptionsComponent", () => {
     formBuilder = new FormBuilder();
     i18nService = mock<I18nService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
+    logService = mock<LogService>();
     loginDecryptionOptionsService = mock<LoginDecryptionOptionsService>();
     messagingService = mock<MessagingService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -101,6 +112,12 @@ describe("LoginDecryptionOptionsComponent", () => {
     accountCryptographicStateService = mock();
     authService = mock<AuthService>();
     sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
+
+    // The component's inlined initAccount awaits SdkLoadService.Ready, which never resolves under test.
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
 
     // Setup default mocks
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
@@ -130,6 +147,8 @@ describe("LoginDecryptionOptionsComponent", () => {
       formBuilder,
       i18nService,
       keyService,
+      legacyCompatKeyService,
+      logService,
       loginDecryptionOptionsService,
       messagingService,
       organizationApiService,
@@ -383,11 +402,12 @@ describe("LoginDecryptionOptionsComponent", () => {
       const mockPrivateKey = {
         encryptedString: "mock-encrypted-private-key",
       } as any;
+      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
 
-      keyService.initAccount.mockResolvedValue({
-        publicKey: mockPublicKey,
-        privateKey: mockPrivateKey,
-      } as any);
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(mockUserKey);
+      keyService.userKey$.mockReturnValue(of(null));
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([mockPublicKey, mockPrivateKey]);
 
       apiService.postAccountKeys.mockResolvedValue(undefined);
       passwordResetEnrollmentService.enroll.mockResolvedValue(undefined);
@@ -402,7 +422,12 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
-      expect(keyService.initAccount).toHaveBeenCalledWith(mockUserId);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockUserKey);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        { V1: { private_key: mockPrivateKey.encryptedString } },
+        mockUserId,
+      );
       expect(apiService.postAccountKeys).toHaveBeenCalledWith(
         expect.objectContaining({
           publicKey: mockPublicKey,
@@ -422,6 +447,45 @@ describe("LoginDecryptionOptionsComponent", () => {
       // Verify navigation
       expect(loginDecryptionOptionsService.handleCreateUserSuccess).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+    });
+
+    // These two cover the account-init guards in the component's private `initAccount`, which was
+    // inlined from KeyService and is removed with the v2 rollout along with the legacy branch.
+    it("does not initialize the account when the user already has a user key", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey<UserKey>(64)));
+
+      await component["createUser"]();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Tried to initialize account with existing user key.",
+      );
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(apiService.postAccountKeys).not.toHaveBeenCalled();
+      expect(validationService.showError).toHaveBeenCalledWith(
+        new Error("Cannot initialize account, keys already exist."),
+      );
+    });
+
+    it("does not set the user key when the generated private key is invalid", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      keyService.userKey$.mockReturnValue(of(null));
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest
+        .spyOn(SymmetricCryptoKey, "fromSdk")
+        .mockReturnValue(makeSymmetricCryptoKey<UserKey>(64));
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
+        "mock-public-key",
+        { encryptedString: null } as any,
+      ]);
+
+      await component["createUser"]();
+
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(apiService.postAccountKeys).not.toHaveBeenCalled();
+      expect(validationService.showError).toHaveBeenCalledWith(
+        new Error("Failed to create valid private key."),
+      );
     });
   });
 

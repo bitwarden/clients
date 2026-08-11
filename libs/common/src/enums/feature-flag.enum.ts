@@ -33,6 +33,7 @@ export enum FeatureFlag {
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
+  LitInlineMenuComponents = "lit-inline-menu-components",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -49,6 +50,7 @@ export enum FeatureFlag {
   PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
   DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
+  PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -155,6 +157,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
+  [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
@@ -221,6 +224,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
+  [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

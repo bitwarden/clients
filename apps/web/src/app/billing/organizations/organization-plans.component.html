@@ -103,13 +103,22 @@
                         <li>{{ "addShareUnlimitedUsers" | i18n }}</li>
                       }
                       @if (pm.maxCollections) {
-                        <li>{{ "limitedCollections" | i18n: pm.maxCollections }}</li>
+                        <li>
+                          {{
+                            "limitedCollections"
+                              | vfo1I18n: "limitedSharedFolders" : pm.maxCollections
+                          }}
+                        </li>
                       }
                       @if (pm.maxAdditionalSeats) {
                         <li>{{ "addShareLimitedUsers" | i18n: pm.maxAdditionalSeats }}</li>
                       }
                       @if (!pm.maxCollections) {
-                        <li>{{ "createUnlimitedCollections" | i18n }}</li>
+                        <li>
+                          {{
+                            "createUnlimitedCollections" | vfo1I18n: "createUnlimitedSharedFolders"
+                          }}
+                        </li>
                       }
                       @if (pm.baseStorageGb) {
                         <li>{{ "gbEncryptedFileStorage" | i18n: pm.baseStorageGb + " GB" }}</li>

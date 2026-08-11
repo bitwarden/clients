@@ -11,7 +11,9 @@ export default {
     ];
   },
   "apps/desktop/desktop_native/**/Cargo.toml": () => [
-    "node scripts/run-cargo-tool.mjs sort --workspace --check",
-    "node scripts/run-cargo-tool.mjs +nightly udeps --workspace --all-features --all-targets",
+    // cargo-sort and cargo-udeps are pinned in [workspace.metadata.bin] and run
+    // via cargo-run-bin (`cargo bin <tool>`); see scripts/lint-rust.mjs.
+    "node scripts/run-cargo-tool.mjs bin cargo-sort --workspace --check",
+    "node scripts/run-cargo-tool.mjs +nightly bin cargo-udeps --workspace --all-features --all-targets",
   ],
 };
