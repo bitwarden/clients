@@ -76,9 +76,4 @@ export class HealthComponent {
     // mark state indicating the User has run a Health scan (i.e. completed the introduction CTA)
     await this.healthAccessService.setHasRunHealthScan(userId);
   };
-
-  // TODO: REMOVE. FOR TESTING PURPOSES ONLY.
-  readonly routeToCategory = async (category: string) => {
-    await this.router.navigate(["health-risk-category-details", { category }]);
-  };
 }
