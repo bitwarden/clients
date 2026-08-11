@@ -14,6 +14,7 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthComponent } from "./health.component";
 import { HealthAccessService } from "./services/health-access.service";
 
@@ -47,6 +48,18 @@ class MockPopOutComponent {}
 })
 class MockCurrentAccountComponent {}
 
+/**
+ * Stands in for the real overview, which injects the vault-health report
+ * service, the cipher service, and the log service. The shell only needs to
+ * know that it renders.
+ */
+@Component({
+  selector: "dirt-health-overview",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthOverviewComponent {}
+
 describe("HealthComponent", () => {
   const userId = Utils.newGuid() as UserId;
 
@@ -73,8 +86,9 @@ describe("HealthComponent", () => {
     return fixture.nativeElement.querySelector("health-intro button");
   }
 
-  function results(): string {
-    return fixture.nativeElement.textContent;
+  /** The Health Overview, rendered once the User has run a Health scan. */
+  function overview(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("dirt-health-overview");
   }
 
   beforeEach(async () => {
@@ -107,6 +121,7 @@ describe("HealthComponent", () => {
             PopupHeaderComponent,
             PopOutComponent,
             CurrentAccountComponent,
+            HealthOverviewComponent,
           ],
         },
         add: {
@@ -115,6 +130,7 @@ describe("HealthComponent", () => {
             MockPopupHeaderComponent,
             MockPopOutComponent,
             MockCurrentAccountComponent,
+            MockHealthOverviewComponent,
           ],
         },
       })
@@ -126,7 +142,7 @@ describe("HealthComponent", () => {
       await initComponent();
 
       expect(intro()).not.toBeNull();
-      expect(results()).not.toContain("RESULTS PLACEHOLDER");
+      expect(overview()).toBeNull();
     });
 
     it("replaces the intro with the results once a Health scan has been run", async () => {
@@ -137,6 +153,7 @@ describe("HealthComponent", () => {
       fixture.detectChanges();
 
       expect(intro()).toBeNull();
+      expect(overview()).not.toBeNull();
     });
   });
 

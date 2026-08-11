@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HealthIntroComponent } from "./health-intro.component";
+import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthAccessService } from "./services/health-access.service";
 
 @Component({
@@ -23,6 +24,7 @@ import { HealthAccessService } from "./services/health-access.service";
     CurrentAccountComponent,
     I18nPipe,
     HealthIntroComponent,
+    HealthOverviewComponent,
   ],
 })
 export class HealthComponent {
