@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Не е избран файл"
   },
+  "noFileSelected": {
+    "message": "Няма избрани файлове"
+  },
+  "fileChosen": {
+    "message": "Избран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Добавен файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ файла са добавени: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Премахната файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл е качен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файла са качени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Качени файлове"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Щракнете за качване, или влачете и пуснете тук"
+  },
+  "chooseFiles": {
+    "message": "Изберете файлове"
+  },
+  "maxFileSizeParam": {
+    "message": "Максимален размер на файл: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или поставете съдържанието му"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "Предстоящо прекратяване на абонамента"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Превключвате се към годишни плащания на $DATE$. Планът и показаната цена отразяват предстоящия годишен абонамент.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Прекратяването на абонамента след края на последно платения период е обявено."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Реорганизация, сливане, промяна в приоритетите или просто вече не ни трябва управител на пароли.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Превключете към годишни плащания и спестете $SAVINGS$ на година",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Текуща цена (месечни плащания)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Цена при годишни плащания",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Показаните цени са без приложени данъци. Превключването влиза в сила при следващата дата на подновяване.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Превключете към годишни плащания",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Вашият абонамент ще бъде превключен към годишни плащания при следващата дата на подновяване.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Лоша грижа за клиентите",

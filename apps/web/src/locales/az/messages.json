@@ -1252,7 +1252,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "$NAME$ adlı paylaşılan qovluq həmişəlik silinəcək. Qovluqdakı elementlər silinməyəcək.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1261,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Bu paylaşılan qovluqlar həmişəlik silinəcək. Qovluqlardakı elementlər silinməyəcək."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ paylaşılan qovluq həmişəlik silinəcək.",
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
+  "noFileSelected": {
+    "message": "Heç bir fayl seçilməyib"
+  },
+  "fileChosen": {
+    "message": "Fayl seçildi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fayl əlavə olundu: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fayl əlavə olundu: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fayl silindi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fayl yükləndi"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fayl yükləndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Yüklənən fayllar"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Yükləmək üçün kliklə və ya sürükləyib burax"
+  },
+  "chooseFiles": {
+    "message": "Faylları seç"
+  },
+  "maxFileSizeParam": {
+    "message": "Maksimum fayl ölçüsü: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "və ya idxal faylının məzmununu kopyalayın/yapışdırın"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "Ləğvi gözlənilir"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "$DATE$ tarixində illik fakturaya keçid edirsiniz. Göstərilən plan və qiymət, yaxınlaşan illik abunəliyinizi əks etdirir.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Abunəlik, hazırkı faktura dövrünün sonunda ləğv edilməsi üçün işarələndi."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Yenidən təşkilatlanma, əldə etmə, prioritetlərdə dəyişiklik və ya artıq parol menecerinə ehtiyacımız yoxdur.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "İllik plana keç və hər ilə görə $SAVINGS$ qənaət et",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Hazırkı qiymət (aylıq plan)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "İllik plan qiyməti",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Göstərilən qiymətlərə vergi daxil deyil. Keçid növbəti yeniləmə tarixinizdə qüvvəyə minir.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "İllik plana keç",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Abunəlik növbəti yenilənmə tarixinizdə illik plana dəyişdiriləcək.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Müştəri xidməti zəif işləyir",

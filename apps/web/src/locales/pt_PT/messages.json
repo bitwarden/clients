@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
+  "noFileSelected": {
+    "message": "Nenhum ficheiro selecionado"
+  },
+  "fileChosen": {
+    "message": "Ficheiro escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Ficheiro adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ficheiros adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Ficheiro removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 ficheiro carregado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ ficheiros carregados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Ficheiros carregados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para carregar ou arraste e largue"
+  },
+  "chooseFiles": {
+    "message": "Escolher ficheiros"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do ficheiro: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "Cancelamento pendente"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Vai mudar para a faturação anual em $DATE$. O plano e o preço apresentados correspondem à sua próxima subscrição anual.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "A subscrição foi marcada para cancelamento no final do período de faturação atual."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganização, aquisição, mudança de prioridades ou deixámos de precisar de um gestor de palavras-passe.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Mude para a faturação anual e poupe $SAVINGS$ por ano",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Custo atual (faturação mensal)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Custo da faturação anual",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Os preços apresentados não incluem os impostos aplicáveis. A mudança entra em vigor na próxima data de renovação.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Mudar para a faturação anual",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "A sua subscrição passará para a faturação anual na próxima data de renovação.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Mau apoio ao cliente",

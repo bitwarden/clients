@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Aucun fichier choisi"
   },
+  "noFileSelected": {
+    "message": "Aucun fichier sélectionné"
+  },
+  "fileChosen": {
+    "message": "Fichier choisi : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fichier ajouté : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fichiers ajoutés : $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fichier supprimé : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fichier téléversé"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fichiers téléversés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Fichiers téléversés"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Cliquez pour téléverser ou glissez-déposez"
+  },
+  "chooseFiles": {
+    "message": "Choisir les fichiers"
+  },
+  "maxFileSizeParam": {
+    "message": "Taille maximale du fichier : $SIZE$ Mo",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou copiez/collez le contenu du fichier à importer"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "Annulation en attente"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Vous passez à la facturation annuelle le $DATE$. Le forfait et les prix affichés reflètent votre abonnement annuel à venir.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "L’abonnement a été marqué pour être annulé à la fin de la période de facturation actuelle."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorganisation, acquisition, changement de priorités, ou nous n'avons plus besoin d'un gestionnaire de mots de passe.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Passez à la facturation annuelle et économisez $SAVINGS$ par an",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Coût actuel (facturation mensuelle)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Coût de facturation annuel",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Les prix affichés sont avant les taxes applicables. Le changement prend effet à votre prochaine date de renouvellement.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Passer à la facturation annuelle",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Votre abonnement passera à la facturation annuelle à votre prochaine date de renouvellement.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Service à la clientèle pauvre",

@@ -1730,7 +1730,7 @@
     }
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "$ITEMNAME$ bilgilerini kopyala",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1754,10 +1754,10 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Kopyalanacak bilgi yok"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "$ITEMNAME$ sitesini aç",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2720,19 +2720,19 @@
     "message": "Doğrulama kodunu kopyala"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Kullanıcı adı yok"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Parola yok"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Doğrulama kodu yok"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Numara yok"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Güvenlik kodu yok"
   },
   "copyUuid": {
     "message": "UUID'yi kopyala"
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Dosya seçilmedi"
   },
+  "noFileSelected": {
+    "message": "Dosya seçilmedi"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Dosyaları seçin"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "veya içe aktarma dosyasının içeriğini kopyalayıp yapıştırın"
   },
@@ -3329,7 +3402,7 @@
     "message": "Seçenekler"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Diğer seçenekler"
   },
   "preferences": {
     "message": "Tercihler"
@@ -3350,7 +3423,7 @@
     "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Kasada hızlı kopyalama komutlarını göster"
   },
   "default": {
     "message": "Varsayılan"
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "İptal bekleniyor"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Aboneliğiniz geçerli fatura dönemi sonunda iptal edilmek üzere işaretlendi."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Poor customer service",

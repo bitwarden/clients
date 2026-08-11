@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Nincs kiválasztott fájl."
   },
+  "noFileSelected": {
+    "message": "Nincs kiválasztott fájl."
+  },
+  "fileChosen": {
+    "message": "Kiválasztott fájl: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "A fájl hozzáadásra került: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fájl hozzáadásra került: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "A fájl eltávolításra: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fájl lett feltöltve."
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fájl lett feltöltve.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Feltöltött fájlok"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Kattintás a feltöltéshez vagy vonszolás ide"
+  },
+  "chooseFiles": {
+    "message": "Fájlok kiválasztása"
+  },
+  "maxFileSizeParam": {
+    "message": "Maximális fájlméret: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "vagy vágólapon vigyük be fájl tartalmat"
   },
@@ -4239,6 +4312,15 @@
   },
   "pendingCancellation": {
     "message": "Függő törlés"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Váltás éves számlázásra $DATE$ napon. A megjelenített csomag és ár a közelgő éves előfizetést tükrözi.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Az előfizetés törlésre lett kijelölve az aktuális számlázási időszak végéig."
@@ -12726,6 +12808,36 @@
   "cancelSurveyNeedsChangedHintV2": {
     "message": "Újraszervezés, beszerzés, prioritásváltás vagy már nincs szükség jelszókezelőre.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "switchToAnnualAndSave": {
+    "message": "Váltás éves számlázásra és $SAVINGS$ megtakarítás évente",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Aktuális költség (havi számlázás)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Éves számlázási költség",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "A feltüntetett árak a vonatkozó adók előtt értendők. A váltás a következő megújítási időpontban lép hatályba.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Váltás éves számlázásra",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Az előfizetés a következő megújítási időpontban éves számlázásra vált.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
   },
   "cancelSurveyPoorServiceLabel": {
     "message": "Gyenge ügyfélszolgálat.",
