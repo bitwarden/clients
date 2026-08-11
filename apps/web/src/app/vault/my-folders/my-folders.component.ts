@@ -43,6 +43,8 @@ import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
+import { openDeleteFolderDialog } from "./delete-folder-dialog/delete-folder-dialog.component";
+
 export type FolderTableRow = {
   id: string;
   name: string;
@@ -158,11 +160,11 @@ export class MyFoldersComponent {
   protected readonly filter = (row: FolderTableRow, values: { search?: string }) =>
     !values.search || row.name.toLowerCase().includes(values.search.toLowerCase());
 
-  protected readonly addFolder = async (): Promise<void> => {
+  protected async addFolder(): Promise<void> {
     await lastValueFrom(AddEditFolderDialogComponent.open(this.dialogService).closed);
-  };
+  }
 
-  protected readonly editFolder = async (row: FolderTableRow): Promise<void> => {
+  protected async editFolder(row: FolderTableRow): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folder = await firstValueFrom(this.folderService.getDecrypted$(row.id, userId));
 
@@ -176,23 +178,19 @@ export class MyFoldersComponent {
         hideDelete: true,
       }).closed,
     );
-  };
+  }
 
-  protected readonly deleteFolder = async (row: FolderTableRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteFolder" },
-      content: { key: "deleteFolderDescription", placeholders: [row.displayName] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
-    });
+  protected async deleteFolder(row: FolderTableRow): Promise<void> {
+    const confirmed = await lastValueFrom(
+      openDeleteFolderDialog(this.dialogService, { folderName: row.displayName }).closed,
+    );
 
     if (!confirmed) {
       return;
     }
 
     await this.deleteFolders([row.id], "deletedFolder");
-  };
+  }
 
   protected readonly deleteSelected = async (): Promise<void> => {
     const selected = this.selected();
@@ -206,13 +204,9 @@ export class MyFoldersComponent {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteFoldersCount", placeholders: [selected.length] },
-      content: { key: "deleteFoldersDescription" },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
-    });
+    const confirmed = await lastValueFrom(
+      openDeleteFolderDialog(this.dialogService, { count: selected.length }).closed,
+    );
 
     if (!confirmed) {
       return;
