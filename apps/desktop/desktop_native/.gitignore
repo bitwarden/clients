@@ -1,4 +1,6 @@
 target
+# cargo-run-bin per-tool build cache
+.bin
 index.node
 **/node_modules
 **/.DS_Store
