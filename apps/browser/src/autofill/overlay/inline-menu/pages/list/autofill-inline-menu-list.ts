@@ -261,7 +261,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       .forEach((styleEl) => styleEl.remove());
 
     globalThis.document.head.querySelectorAll("style[data-emotion]").forEach((styleEl) => {
-      const clone = styleEl.cloneNode(true) as HTMLStyleElement;
+      const source = styleEl as HTMLStyleElement;
+      const clone = source.cloneNode(true) as HTMLStyleElement;
+      if (!clone.textContent) {
+        clone.textContent = Array.from(source.sheet?.cssRules ?? [])
+          .map((rule) => rule.cssText)
+          .join("");
+      }
       clone.setAttribute("data-lit-inline-menu-emotion", "true");
       this.shadowDom.append(clone);
     });
