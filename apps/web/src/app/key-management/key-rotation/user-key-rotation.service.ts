@@ -38,6 +38,8 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
@@ -88,6 +90,7 @@ export class UserKeyRotationService {
     private resetPasswordService: OrganizationUserResetPasswordService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private syncService: SyncService,
     private webauthnLoginAdminService: WebauthnLoginAdminService,
@@ -602,12 +605,12 @@ export class UserKeyRotationService {
     masterKeyKdfConfig: KdfConfig,
     masterKeySalt: string,
   ): Promise<string> {
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(masterPassword, masterKey);
+    return this.legacyCompatKeyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**
