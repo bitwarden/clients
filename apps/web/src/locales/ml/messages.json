@@ -4691,6 +4691,9 @@
   "organizationName": {
     "message": "സംഘടനയുടെ പേര്"
   },
+  "vaultName": {
+    "message": "Vault name"
+  },
   "accountOwnedBusiness": {
     "message": "ഈ അക്കൗണ്ട് ഒരു ബിസിനസ്സിന്റെ ഉടമസ്ഥതയിലാണ്."
   },
@@ -4807,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limited to $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Add and share with up to $COUNT$ users",
     "placeholders": {
@@ -4821,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Create unlimited Collections"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Create unlimited shared folders"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ encrypted file storage",
@@ -6523,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Unable to join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "The invite link is no longer valid."
+  },
+  "returnToLogin": {
+    "message": "Return to login"
+  },
+  "returnToRegistration": {
+    "message": "Return to registration"
+  },
   "joinOrganizationDesc": {
     "message": "You've been invited to join the organization listed above. To accept the invitation, you need to log in or create a new Bitwarden account."
   },
@@ -6549,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "You are already a member of this organization."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "You cannot join this organization because you are already the admin of a free organization."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "You have been revoked from this organization. Contact your admin to regain access."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider users may not join using this invitation link."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "You must set up two-step login in order to join this organization."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "You must verify your email address before joining an organization."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Your invitation could not be accepted because there is not an available seat."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
+  "goToLogin": {
+    "message": "Go to login"
+  },
+  "goToVault": {
+    "message": "Go to vault"
   },
   "rememberEmail": {
     "message": "ഇമെയിൽ ഓർക്കണം"
@@ -9378,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponsored families"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
@@ -9393,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "The Bitwarden for Families plan includes"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "The Bitwarden Families plan includes"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Shared collections for family members"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Shared folders for family members"
   },
   "memberFamilies": {
     "message": "Member families"
@@ -14125,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Unlimited collections"
   },
+  "unlimitedSharedFolders": {
+    "message": "Unlimited shared folders"
+  },
   "secureDataSharing": {
     "message": "Secure data sharing"
   },
@@ -15359,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Unlimited family collections"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Unlimited family shared folders"
+  },
   "familiesSharedStorage": {
     "message": "Shared storage for important family info"
   },
@@ -15373,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Up to $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Up to $COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15790,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "View all plans"
