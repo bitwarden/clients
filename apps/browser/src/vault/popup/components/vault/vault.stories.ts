@@ -53,13 +53,12 @@ import {
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
 import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
-import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
@@ -414,7 +413,7 @@ const buildProviders = (args: StoryArgs) => {
         updateSectionOpenStoredState: () => Promise.resolve(),
       },
     },
-    { provide: VaultPopupCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
+    { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
     { provide: CompactModeService, useValue: { enabled$: of(false) } },
     { provide: VaultSettingsService, useValue: { clickItemsToAutofillVaultView$: of(true) } },
     {
