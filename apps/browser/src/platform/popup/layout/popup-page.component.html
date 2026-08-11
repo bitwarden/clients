@@ -14,7 +14,7 @@
     `slot="above-scroll-area"` and get the right result.
   -->
   <div
-    class="tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] [&>*:not(:empty)]:tw-block [&>*:not(:empty)]:tw-border-0 [&>*:not(:empty)]:tw-border-b [&>*:not(:empty)]:tw-border-solid [&>*:not(:empty)]:tw-py-3 bit-compact:[&>*:not(:empty)]:tw-py-2 [&>*:not(:empty)]:tw-transition-colors [&>*:not(:empty)]:tw-duration-200"
+    class="tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] [&>*:not(:empty)]:tw-block [&>*:not(:empty)]:tw-border-0 [&>*:not(:empty)]:tw-border-b [&>*:not(:empty):has(~*:not(:empty))]:tw-border-b-0 [&>*:not(:empty)]:tw-border-solid [&>*:not(:empty)]:tw-py-3 bit-compact:[&>*:not(:empty)]:tw-py-2 [&>*:not(:empty)]:tw-transition-colors [&>*:not(:empty)]:tw-duration-200"
     [ngClass]="{
       'tw-invisible': loading(),
       '[&>*:not(:empty)]:tw-border-secondary-300': scrolled(),
