@@ -24,7 +24,7 @@ import { SideNavService } from "./side-nav.service";
  * variant to trigger — without duplicating (and drifting from) the class list.
  */
 export const FVW_RING_CLASSES =
-  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover";
+  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-border-nav-focus tw-bg-bg-nav-hover";
 
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
