@@ -14,11 +14,15 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { withLatestReady } from "@bitwarden/common/tools/rx";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -30,6 +34,7 @@ import {
   AutofillService,
   AutoFillOptions,
   AutoFillResult,
+  DID_NOT_AUTOFILL,
   PageDetail,
 } from "../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
@@ -78,19 +83,51 @@ export const LIVE_TAB_SEED_RETRY_DELAY_MS = 250;
  */
 export const COLLECT_SETTLE_MS = 50;
 
-/** Outcome of a fill dispatched by {@link AutofillOrchestrator.autofillTabWithCipher}. */
-export interface TabFillResult {
-  /** Whether a fill actually ran; `false` when the tab produced no page details to fill. */
-  filled: boolean;
-  /** A TOTP for the caller to copy to the clipboard, or `null`. */
-  totp: string | null;
+/**
+ * How recently a cipher must have been launched for a page-load fill to prefer it over the
+ * last-used cipher for the URL.
+ */
+export const LOGIN_LAST_LAUNCHED_WINDOW_MS = 30000;
+
+/**
+ * A concrete fill boiled down from a request: the chosen cipher, the rotation key its fillable
+ * cipher cycles under (the tab URL for logins, the cipher-type cache key for card/identity), and
+ * the {@link AutoFillOptions} flags the service fill needs.
+ */
+interface PlannedFill {
+  cipher: CipherView;
+  cycleKey: string;
+  options: Partial<AutoFillOptions>;
 }
 
 /**
- * The single owner of runtime-message-driven autofill dispatch.
+ * The {@link AutoFillOptions} flags a caller-supplied fill applies unless the
+ * caller overrides them.
+ */
+const CALLER_FILL_DEFAULTS = Object.freeze({
+  fillNewPassword: true,
+  allowTotpAutofill: true,
+});
+
+/**
+ * Opt-out key for {@link AutofillOrchestrator.commit}'s foreground verification. It is a symbol
+ * private to this module, so no code outside this file can build the options object that turns the
+ * check off. This prohibits logic outside the orchestrator from circumventing the type system to
+ * invoke a commit without active tab support. The most an external caller can do
+ * is omit the key, which fails safe by requiring the active tab.
+ */
+const requireActiveTab = Symbol("requireActiveTab");
+
+/** {@link AutofillOrchestrator.commit} overrides, keyed by the module-private {@link requireActiveTab}.
  *
- * See `autofill.design.md` for more information. Per-tab
- * groups end when the tab is removed, so the grouping does not leak.
+ * DANGER: {@link requireActiveTab} exists only to support extension-initiated fills. NEVER disable this
+ * flag from a code path initiated outside of the extension.
+ */
+type CommitOverrides = { [requireActiveTab]?: boolean };
+
+/**
+ * The single owner of fill execution: it reduces every fill request to one concrete instruction for
+ * the autofill service and upholds the fill invariants. See `orchestrator.design.md` for details.
  */
 export class AutofillOrchestrator {
   /** Serialized-core input; public methods and the page-load subscription feed it. */
@@ -99,11 +136,14 @@ export class AutofillOrchestrator {
   constructor(
     private lifecycleService: AutofillLifecycleService,
     private autofillService: AutofillService,
+    private cipherService: CipherService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private updateOverlayCiphers: () => Promise<void>,
     private logService: LogService,
+    /** Injected wall-clock source (epoch ms), overridable so time-dependent selection is testable. */
+    private now: () => number = () => Date.now(),
   ) {}
 
   /**
@@ -185,12 +225,12 @@ export class AutofillOrchestrator {
   }
 
   /**
-   * Collects a tab's page details. This is a one-shot collect, not part of the
-   * serialized fill pipe.
+   * Collects a tab's page details for an external, one-shot caller (triage, the popup collect) —
+   * not part of the serialized fill pipe, which uses the private {@link read} instead.
    *
-   * Because a tab's frames answer independently, this waits `COLLECT_SETTLE_MS` for
-   * their responses to accumulate. A frame-scoped collect needs no such settle —
-   * its first and only response is already complete.
+   * Always waits `COLLECT_SETTLE_MS` for a tab's independently-answering frames to accumulate,
+   * frame-scoped or not; the extra settle on a single-frame collect is harmless latency the fill
+   * pipe's {@link read} avoids.
    *
    * Resolves once the collection settles, or with an empty array when the tab does
    * not respond.
@@ -209,14 +249,17 @@ export class AutofillOrchestrator {
   /**
    * Collects autofill-triage analysis for a tab from the same single owner. Unlike
    * {@link collectPageDetails} this is a direct one-shot request/response (its own
-   * message round-trip), not part of the serialized fill pipe. Resolves with `null`
+   * message round-trip), not part of the serialized fill pipe. Resolves with `undefined`
    * when the tab has no receiver or does not respond.
    *
    * @param tabId The tab to analyze
    * @param frameId When set, analyze only this frame
    */
-  collectAutofillTriage(tabId: number, frameId?: number): Promise<AutofillTriageResponse | null> {
-    return new Promise<AutofillTriageResponse | null>((resolve) => {
+  collectAutofillTriage(
+    tabId: number,
+    frameId?: number,
+  ): Promise<AutofillTriageResponse | undefined> {
+    return new Promise<AutofillTriageResponse | undefined>((resolve) => {
       BrowserApi.sendTabsMessage<AutofillTriageResponse>(
         tabId,
         { command: "collectAutofillTriage" },
@@ -224,10 +267,10 @@ export class AutofillOrchestrator {
         (response) => {
           // A tab with no autofill receiver rejects via lastError; treat it as "no analysis".
           if (chrome.runtime.lastError) {
-            resolve(null);
+            resolve(undefined);
             return;
           }
-          resolve(response ?? null);
+          resolve(response ?? undefined);
         },
       );
     });
@@ -238,38 +281,58 @@ export class AutofillOrchestrator {
    * externally-initiated fills (inline menu, generated password, etc) that bring
    * their own cipher.
    *
+   * This method skips page detail collection. Use {@link autofillTabWithCipher} if a
+   * collection hasn't completed before this operation.
+   *
    * Reports whether a fill ran and the TOTP to copy.
    */
-  fillCipher(options: AutoFillOptions): Promise<AutoFillResult> {
-    // FIXME (PM-39579): once the tab-lifecycle gate lands, route these through the gated dispatch (or
-    // assert the active tab) so the fill is gated on the target tab's state here.
-    return this.autofillService.doAutoFill(options);
+  async fillCipher(options: AutoFillOptions): Promise<AutoFillResult> {
+    return this.commit(options);
   }
 
   /**
-   * Collects a tab's page details and fills the given cipher into it — the shared "fill a chosen
-   * cipher into this tab" sequence used by the context menu and the popup round-trip, so the
-   * collect→fill glue lives here rather than in each caller. Carries the same FIXME (PM-39579)
-   * gating caveat as {@link fillCipher}. Reports whether a fill ran and the TOTP to copy.
+   * Collects a tab's page details and fills the given cipher into it.
+   *
+   * Reports whether a fill ran and the TOTP to copy; a tab with no page details to
+   * fill reports no fill.
    */
   async autofillTabWithCipher(
     tab: chrome.tabs.Tab,
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
-  ): Promise<TabFillResult> {
+  ): Promise<AutoFillResult> {
     const pageDetails = await this.collectPageDetails(tab);
     if (pageDetails.length === 0) {
-      return { filled: false, totp: null };
+      return DID_NOT_AUTOFILL;
     }
-    const result = await this.fillCipher({
-      tab,
-      cipher,
-      pageDetails,
-      fillNewPassword: true,
-      allowTotpAutofill: true,
-      ...options,
-    });
-    return { filled: true, totp: result.didAutofill ? (result.totp ?? null) : null };
+    const fill = { tab, cipher, pageDetails, ...CALLER_FILL_DEFAULTS, ...options };
+    return this.fillCipher(fill);
+  }
+
+  /**
+   * Collects a tab's page details and fills the given cipher into it, omitting active tab validation.
+   *
+   * DANGER: a fill from this method can land on a tab the user is not looking at. It must NEVER be
+   * reachable from a message a content script can place. Call it only after confirming the sender is an
+   * extension page.
+   *
+   * Reports whether a fill ran and the TOTP to copy; a tab with no page details to
+   * fill reports no fill.
+   */
+  async unsafeAutofillTabWithCipher(
+    tab: chrome.tabs.Tab,
+    cipher: CipherView,
+    options?: Partial<AutoFillOptions>,
+  ): Promise<AutoFillResult> {
+    const pageDetails = await this.collectPageDetails(tab);
+    if (pageDetails.length === 0) {
+      return DID_NOT_AUTOFILL;
+    }
+
+    // FIXME (PM-39579): gate these on the target tab's lifecycle state once that gate lands. Only "warm"
+    // tabs should allow unsafe fills.
+    const fill = { tab, cipher, pageDetails, ...CALLER_FILL_DEFAULTS, ...options };
+    return this.commit(fill, { [requireActiveTab]: false });
   }
 
   /**
@@ -282,13 +345,32 @@ export class AutofillOrchestrator {
    * @param frameId The frame that reported the auto-submit opportunity
    */
   async autoSubmitLoginOnTab(tab: chrome.tabs.Tab, frameId?: number): Promise<void> {
-    // FIXME (PM-39579): once the tab-lifecycle gate lands, gate this collect+fill on the target
-    // tab's state (or route it through the gated dispatch) so the fill-and-submit is state-gated.
-    const pageDetails = await this.collectPageDetails(tab, frameId);
+    const activeUserId = await this.activeUserId();
+    if (activeUserId == null || !tab.url) {
+      return;
+    }
+    const pageDetails = await this.read(tab, frameId);
     if (pageDetails.length === 0) {
       return;
     }
-    await this.autofillService.doAutoFillOnTab(pageDetails, tab, true, true);
+
+    const cipher = await this.selectLogin(tab.url, activeUserId, true);
+    if (cipher == null || (await this.resolveReprompt(cipher, tab, true, tab.url))) {
+      return;
+    }
+
+    const result = await this.commit({
+      tab,
+      cipher,
+      pageDetails,
+      fillNewPassword: true,
+      allowUntrustedIframe: true,
+      allowTotpAutofill: true,
+      autoSubmitLogin: true,
+    });
+    if (result.didAutofill) {
+      this.cycleFillableCipher(tab.url);
+    }
   }
 
   private enqueueUserInitiated(
@@ -303,8 +385,8 @@ export class AutofillOrchestrator {
       return;
     }
     // A user-initiated fill is tab-scoped: it fills the active tab across all frames in one pass,
-    // so it carries no frame id and serializes per tab (see `autofill.design.md`). It deliberately
-    // does not share a per-frame lane with page-load fills; each path guards origin independently.
+    // so it carries no frame id and serializes per tab (see `orchestrator.design.md`, "Fills do not
+    // race"). It deliberately does not share a per-frame lane with page-load fills.
     this.fillRequest$.next(
       kind === "command"
         ? { kind, tab, tabId, frameId: undefined }
@@ -313,74 +395,239 @@ export class AutofillOrchestrator {
   }
 
   /**
-   * Runs one fill to completion. Errors are logged, never rethrown, so a single
-   * failed fill cannot terminate the serialized stream.
+   * Runs one request to completion as read → select → commit. Errors are logged, never rethrown,
+   * so a single failed fill cannot terminate the serialized stream.
+   *
+   * The three request kinds share this skeleton and differ only in the read scope, the cipher
+   * selection, and the post-commit effects — the consolidation this owner exists to provide.
    */
   private async dispatch(request: FillRequest): Promise<void> {
     try {
-      switch (request.kind) {
-        case "pageLoad": {
-          // Re-resolve the target tab live and confirm the reported frame has not navigated;
-          // abandon otherwise (see autofill.design.md, "Fill targeting").
-          const liveTab = await this.resolveFreshTarget(request);
-          if (liveTab == null) {
-            return;
-          }
+      const target =
+        request.kind === "pageLoad" ? await this.resolveFreshTarget(request) : request.tab;
+      if (target == null) {
+        return;
+      }
+      const pageDetails = await this.read(target, request.frameId);
+      if (!this.hasFillableDetails(request, pageDetails)) {
+        return;
+      }
 
-          // FIXME (PM-39579): the tab gate replaces this. Until then, keep filling only the active
-          // tab, since resolving the target by id would otherwise fill a background tab.
-          const activeTab = await BrowserApi.getTabFromCurrentWindow();
-          if (activeTab?.id !== request.tabId) {
-            return;
-          }
+      const plan = await this.selectFill(request, target);
+      if (plan == null) {
+        return;
+      }
+      const fromCommand = request.kind !== "pageLoad";
+      if (await this.resolveReprompt(plan.cipher, target, fromCommand, plan.cycleKey)) {
+        return;
+      }
 
-          // Collect and fill inside the serialized step so this frame's collect→fill is atomic.
-          // This collect is frame-scoped (the reporting frame), so its first emission is already
-          // complete — no settle is needed, unlike the tab-wide `collectPageDetails` below.
-          const pageDetails = await firstValueFrom(
-            this.autofillService.collectPageDetailsFromTab$(liveTab, request.frameId),
-          );
-          await this.recordActiveAccountActivity();
+      const result = await this.commit({
+        tab: target,
+        cipher: plan.cipher,
+        pageDetails,
+        ...plan.options,
+      });
 
-          // The cipher is read before data collection, while the content script gates the fill on
-          // the URL captured during the collect. Guard against a same-document navigation between
-          // those reads from filling a cipher chosen for the old URL to the new page.
-          let totp: string | undefined;
-          const details = pageDetails[0]?.details;
-          if (details?.url === request.frameUrl && details?.fields?.length) {
-            const result = await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false);
-            if (result.didAutofill) {
-              totp = result.totp;
-            }
-          }
-          this.copyTotp(totp);
-          await this.updateOverlayCiphers();
-          break;
-        }
-        case "command": {
-          // Collect inside the serialized step so this tab's collect→fill is atomic.
-          const pageDetails = await this.collectPageDetails(request.tab);
-          if (pageDetails.length === 0) {
-            return;
-          }
-          await this.recordActiveAccountActivity();
-          const result = await this.autofillService.doAutoFillActiveTab(pageDetails, true);
-          this.copyTotp(result.didAutofill ? result.totp : undefined);
-          await this.updateOverlayCiphers();
-          break;
-        }
-        case "cipherType": {
-          const pageDetails = await this.collectPageDetails(request.tab);
-          if (pageDetails.length === 0) {
-            return;
-          }
-          await this.autofillService.doAutoFillActiveTab(pageDetails, true, request.cipherType);
-          break;
-        }
+      // A commanded fill cycles the rotation so its next invocation offers the next cipher;
+      // a page-load fill uses last-used/last-launched selection and leaves the rotation alone.
+      if (fromCommand && result.didAutofill) {
+        this.cycleFillableCipher(plan.cycleKey);
+      }
+
+      // Login fills copy the TOTP and refresh the overlay ciphers when a fill occurred.
+      if (result.didAutofill && (request.kind === "pageLoad" || request.kind === "command")) {
+        this.copyTotp(result.totp);
+        await this.updateOverlayCiphers();
       }
     } catch (error) {
       this.logService.error(error);
     }
+  }
+
+  /**
+   * The read operation: collects a target's page details for a fill.
+   *
+   * A tab-wide collect (no `frameId`) waits `COLLECT_SETTLE_MS` for the tab's frames to answer
+   * independently and accumulate into one settled result. A frame-scoped collect gets exactly one
+   * response, already complete, so it needs no settle.
+   */
+  private read(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
+    const details$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId);
+    return firstValueFrom(
+      frameId == null ? details$.pipe(debounceTime(COLLECT_SETTLE_MS), take(1)) : details$,
+    );
+  }
+
+  /**
+   * Whether a read produced details worth filling. A page-load fill additionally requires the
+   * reported frame to still show the URL its cipher was chosen for: the cipher is chosen against
+   * the URL captured during the collect, so a same-document navigation between reads must not fill
+   * a cipher meant for the old page.
+   */
+  private hasFillableDetails(request: FillRequest, pageDetails: PageDetail[]): boolean {
+    // FIXME (PM-39579): for a tab-wide collect (command / card / identity) this inspects only the
+    // first frame to answer — the collect accumulates responses in message-arrival order, not sorted
+    // by frame. A fillable form in a sub-frame can be missed when an empty frame replies first.
+    const details = pageDetails[0]?.details;
+    if (request.kind === "pageLoad") {
+      return details?.url === request.frameUrl && !!details?.fields?.length;
+    }
+    return !!details?.fields?.length;
+  }
+
+  /**
+   * The select operation: boils a request down to a concrete {@link PlannedFill}, or `undefined`
+   * when no cipher applies. Login selection (page load, command, and the defensive cipher-type=login
+   * case) reads by URL; card/identity selection reads the next cipher of that type.
+   */
+  private async selectFill(
+    request: FillRequest,
+    target: chrome.tabs.Tab,
+  ): Promise<PlannedFill | undefined> {
+    const activeUserId = await this.activeUserId();
+    if (activeUserId == null || !target.url) {
+      return undefined;
+    }
+    const fromCommand = request.kind !== "pageLoad";
+
+    if (request.kind === "cipherType" && request.cipherType !== CipherType.Login) {
+      const selection = await this.selectCipherTypeCipher(activeUserId, request.cipherType);
+      if (selection == null) {
+        return undefined;
+      }
+      return {
+        cipher: selection.cipher,
+        cycleKey: selection.cacheKey,
+        options: {
+          skipLastUsed: false,
+          skipUsernameOnlyFill: false,
+          onlyEmptyFields: false,
+          fillNewPassword: false,
+          allowUntrustedIframe: true,
+          allowTotpAutofill: false,
+        },
+      };
+    }
+
+    const cipher = await this.selectLogin(target.url, activeUserId, fromCommand);
+    if (cipher == null) {
+      return undefined;
+    }
+    return {
+      cipher,
+      cycleKey: target.url,
+      options: {
+        skipLastUsed: !fromCommand,
+        skipUsernameOnlyFill: !fromCommand,
+        onlyEmptyFields: !fromCommand,
+        fillNewPassword: fromCommand,
+        allowUntrustedIframe: fromCommand,
+        allowTotpAutofill: fromCommand,
+      },
+    };
+  }
+
+  /**
+   * Selects the login cipher for a URL. A command-initiated fill takes the next cipher in the
+   * URL's rotation; a page-load fill prefers a cipher launched within the last
+   * {@link LOGIN_LAST_LAUNCHED_WINDOW_MS}, else the last one used for the URL.
+   */
+  private async selectLogin(
+    tabUrl: string,
+    activeUserId: UserId,
+    fromCommand: boolean,
+  ): Promise<CipherView | undefined> {
+    if (fromCommand) {
+      return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
+    }
+    const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+      tabUrl,
+      activeUserId,
+      true,
+    );
+    const lastLaunched = lastLaunchedCipher?.localData?.lastLaunched;
+    if (
+      lastLaunchedCipher &&
+      lastLaunched &&
+      this.now() - lastLaunched.valueOf() < LOGIN_LAST_LAUNCHED_WINDOW_MS
+    ) {
+      return lastLaunchedCipher;
+    }
+    return (await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, true)) ?? undefined;
+  }
+
+  /** Selects the next card or identity cipher and the cache key its rotation index advances under. */
+  private async selectCipherTypeCipher(
+    activeUserId: UserId,
+    cipherType: CipherType,
+  ): Promise<{ cipher: CipherView; cacheKey: string } | undefined> {
+    const cacheKey = cipherType === CipherType.Card ? "cardCiphers" : "identityCiphers";
+    const cipher =
+      cipherType === CipherType.Card
+        ? await this.cipherService.getNextCardCipher(activeUserId)
+        : await this.cipherService.getNextIdentityCipher(activeUserId);
+    return cipher ? { cipher, cacheKey } : undefined;
+  }
+
+  /**
+   * Resolves password reprompt for a selected cipher. Returns `true` to abandon the fill: a
+   * page-load fill never surfaces a reprompt popout (a reprompt-protected cipher is simply not
+   * filled); a command-strength fill surfaces the master-password popout and abandons this fill,
+   * cycling past the reprompt-protected cipher so the next command offers the next one.
+   */
+  private async resolveReprompt(
+    cipher: CipherView,
+    target: chrome.tabs.Tab,
+    fromCommand: boolean,
+    cycleKey: string,
+  ): Promise<boolean> {
+    if (cipher.reprompt === CipherRepromptType.Password && !fromCommand) {
+      return true;
+    }
+    if (await this.autofillService.isPasswordRepromptRequired(cipher, target)) {
+      if (fromCommand) {
+        this.cycleFillableCipher(cycleKey);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * The commit operation: the single point where a concrete fill is sent to the service. It verifies
+   * the target is the foreground tab, dispatches the fill, and books account activity only once a
+   * credential is actually placed.
+   */
+  private async commit(
+    options: AutoFillOptions,
+    overrides: CommitOverrides = {},
+  ): Promise<AutoFillResult> {
+    // Fail safe: absent or any value other than an explicit `false` keeps the verification on.
+    if (overrides[requireActiveTab] !== false) {
+      const activeTab = await BrowserApi.getTabFromCurrentWindow();
+      if (activeTab?.id !== options.tab.id) {
+        return DID_NOT_AUTOFILL;
+      }
+    }
+    const result = await this.autofillService.doAutoFill(options);
+    if (result.didAutofill) {
+      await this.recordActiveAccountActivity();
+    }
+    return result;
+  }
+
+  /**
+   * Advances the rotation cursor for a URL (or card/identity cache key) so the *next* fill for it
+   * offers the next matching cipher. `updateLastUsedIndexForUrl` is that cursor — a way to cycle
+   * through the ciphers that fit a page across repeated fills — not a record that a cipher was used.
+   */
+  private cycleFillableCipher(key: string): void {
+    this.cipherService.updateLastUsedIndexForUrl(key);
+  }
+
+  private activeUserId(): Promise<UserId | undefined> {
+    return firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
   }
 
   /**
@@ -416,7 +663,7 @@ export class AutofillOrchestrator {
     if (activeUserId == null) {
       return;
     }
-    await this.accountService.setAccountActivity(activeUserId, new Date());
+    await this.accountService.setAccountActivity(activeUserId, new Date(this.now()));
   }
 
   private copyTotp(totp: string | undefined) {

@@ -2,7 +2,6 @@ import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
@@ -37,6 +36,9 @@ export type AutoFillResult =
       /** The TOTP code to copy after a successful login fill; absent when the fill produced no TOTP. */
       totp?: string;
     };
+
+/** The shared "no fill happened" outcome. Frozen so every no-fill path returns one instance. */
+export const DID_NOT_AUTOFILL: AutoFillResult = Object.freeze({ didAutofill: false });
 
 export interface AutoFillOptions {
   cipher: CipherView;
@@ -112,21 +114,14 @@ export abstract class AutofillService {
   ) => Promise<void>;
   /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
-  /** Non-null asserted. */
+  /**
+   * Fills a concrete cipher into the instructed tab/frame(s) and reports the
+   * outcome. Cipher selection and active-tab verification are the caller's concern.
+   *
+   * If you're calling this method, you're probably doing it wrong. Use the
+   * {@link AutofillOrchestrator} to request an autofill!
+   */
   doAutoFill!: (options: AutoFillOptions) => Promise<AutoFillResult>;
-  /** Non-null asserted. */
-  doAutoFillOnTab!: (
-    pageDetails: PageDetail[],
-    tab: chrome.tabs.Tab,
-    fromCommand: boolean,
-    autoSubmitLogin?: boolean,
-  ) => Promise<AutoFillResult>;
-  /** Non-null asserted. */
-  doAutoFillActiveTab!: (
-    pageDetails: PageDetail[],
-    fromCommand: boolean,
-    cipherType?: CipherType,
-  ) => Promise<AutoFillResult>;
   /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
   /** Non-null asserted. */

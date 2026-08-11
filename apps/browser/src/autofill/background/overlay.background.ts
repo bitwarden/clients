@@ -1423,9 +1423,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const tab = sender.tab;
     const tabId = tab.id;
-    // Route the collect through the orchestrator — the sole sender of the collect that
-    // precedes a fill (see PREWORK / autofill.design.md). Awaiting it lets the frames'
-    // responses settle into `pageDetailsForTab` (via `storePageDetails`) before the read.
+    // awaiting `collectPageDetails` lets the frames' responses settle into `pageDetailsForTab`
+    // (via `storePageDetails`) before the read.
     await this.autofillOrchestrator.collectPageDetails(tab, this.focusedFieldData?.frameId);
 
     const pageDetailsForTab = this.pageDetailsForTab[tabId];

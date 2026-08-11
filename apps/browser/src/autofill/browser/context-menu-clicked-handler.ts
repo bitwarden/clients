@@ -60,7 +60,7 @@ export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promis
 export type CollectAutofillTriageAction = (
   tabId: number,
   frameId?: number,
-) => Promise<AutofillTriageResponse | null>;
+) => Promise<AutofillTriageResponse | undefined>;
 
 export class ContextMenuClickedHandler {
   private _triageResult: AutofillTriagePageResult | undefined;

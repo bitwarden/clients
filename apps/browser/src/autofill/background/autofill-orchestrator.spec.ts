@@ -5,7 +5,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
@@ -36,6 +39,7 @@ describe("AutofillOrchestrator", () => {
   let autofillOrchestrator: AutofillOrchestrator;
   let lifecycleService: MockProxy<AutofillLifecycleService>;
   let autofillService: MockProxy<AutofillService>;
+  let cipherService: MockProxy<CipherService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
@@ -51,6 +55,18 @@ describe("AutofillOrchestrator", () => {
   // createChromeTabMock's default url; the live tab and reported frame url share it by default so
   // the fill-time match succeeds unless a test overrides one side.
   const DEFAULT_URL = "https://jest-testing-website.com";
+
+  // Builds a cipher of an explicit type — every callsite names the type it is exercising (login,
+  // card, or identity). The type is applied last so an `overrides` object can never contradict it.
+  const makeCipher = (type: CipherType, overrides: Partial<CipherView> = {}): CipherView =>
+    ({
+      id: "c1",
+      reprompt: CipherRepromptType.None,
+      login: {},
+      localData: undefined,
+      ...overrides,
+      type,
+    }) as unknown as CipherView;
 
   const pageDetail = (tabId: number | undefined, frameId: number): PageDetail => {
     const tab = createChromeTabMock({ id: tabId });
@@ -88,15 +104,32 @@ describe("AutofillOrchestrator", () => {
     return { promise, resolve };
   };
 
-  // Every abandon path bails before the collect→fill step, so none of the fill's work or side
-  // effects run. Asserting collect was not called is the load-bearing signal for a security fix:
-  // it proves the guard fired, not that a downstream short-circuit happened to skip the fill.
+  // A request dropped before the read runs nothing at all: no collect, no fill, no activity, no
+  // overlay refresh. Asserting the collect never ran distinguishes a pre-read drop from a downstream
+  // short-circuit that skips only the fill. Covers every pre-read abandon — a rejected
+  // `resolveFreshTarget`, a live-tab-gate drop, a missing tab id, or autofill-on-page-load being off.
   const expectAbandoned = () => {
     expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-    expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+    expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     expect(accountService.setAccountActivity).not.toHaveBeenCalled();
     expect(updateOverlayCiphers).not.toHaveBeenCalled();
   };
+
+  // A fixed clock (epoch ms) so last-launched-window selection is deterministic; overridable.
+  const NOW = 1_700_000_000_000;
+
+  const construct = (now: () => number = () => NOW) =>
+    new AutofillOrchestrator(
+      lifecycleService,
+      autofillService,
+      cipherService,
+      autofillSettingsService,
+      accountService,
+      platformUtilsService,
+      updateOverlayCiphers,
+      logService,
+      now,
+    );
 
   beforeEach(() => {
     pageTransitionResolved$ = new Subject<PageTransitionResolved>();
@@ -121,8 +154,14 @@ describe("AutofillOrchestrator", () => {
 
     autofillService = mock<AutofillService>();
     autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
-    autofillService.doAutoFillActiveTab.mockResolvedValue({ didAutofill: false });
-    autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: false });
+    autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
+    autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+    cipherService = mock<CipherService>();
+    cipherService.getLastLaunchedForUrl.mockResolvedValue(undefined as unknown as CipherView);
+    cipherService.getLastUsedForUrl.mockResolvedValue(makeCipher(CipherType.Login));
+    cipherService.getNextCipherForUrl.mockResolvedValue(makeCipher(CipherType.Login));
+    cipherService.getNextCardCipher.mockResolvedValue(makeCipher(CipherType.Card));
+    cipherService.getNextIdentityCipher.mockResolvedValue(makeCipher(CipherType.Identity));
 
     // Page-load fills re-resolve the target tab by id and require its URL to still match the
     // transition. By default the live tab matches (same id, same default url) and is the active
@@ -148,15 +187,7 @@ describe("AutofillOrchestrator", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     updateOverlayCiphers = jest.fn().mockResolvedValue(undefined);
 
-    autofillOrchestrator = new AutofillOrchestrator(
-      lifecycleService,
-      autofillService,
-      autofillSettingsService,
-      accountService,
-      platformUtilsService,
-      updateOverlayCiphers,
-      logService,
-    );
+    autofillOrchestrator = construct();
     autofillOrchestrator.init();
   });
 
@@ -165,8 +196,9 @@ describe("AutofillOrchestrator", () => {
   afterEach(() => jest.clearAllMocks());
 
   describe("page-load fills", () => {
-    it("resolves the target by id, validates the frame url, collects the reported frame, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
-      // The top frame's live url (the tab's) matches the reported frame url, so the fill proceeds.
+    it("properly sequences target resolution, validation, data collection, activity reporting, autofill operations, and UI updates", async () => {
+      // A fill that places a credential and copies a TOTP exercises every stage, so their relative
+      // order can be asserted end to end. What each stage is called *with* is covered separately.
       const url = "https://login.example.com/session";
       const pd = createPageDetailMock({
         frameId: 0,
@@ -174,8 +206,44 @@ describe("AutofillOrchestrator", () => {
         details: createAutofillPageDetailsMock({ url }),
       });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(makeCipher(CipherType.Login));
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
-      autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: true, totp: "999999" });
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      // Target resolution → data collection → autofill → activity → TOTP copy → overlay refresh.
+      expect((BrowserApi.getTab as jest.Mock).mock.invocationCallOrder[0]).toBeLessThan(
+        autofillService.collectPageDetailsFromTab$.mock.invocationCallOrder[0],
+      );
+      expect(autofillService.collectPageDetailsFromTab$.mock.invocationCallOrder[0]).toBeLessThan(
+        autofillService.doAutoFill.mock.invocationCallOrder[0],
+      );
+      expect(autofillService.doAutoFill.mock.invocationCallOrder[0]).toBeLessThan(
+        accountService.setAccountActivity.mock.invocationCallOrder[0],
+      );
+      expect(accountService.setAccountActivity.mock.invocationCallOrder[0]).toBeLessThan(
+        platformUtilsService.copyToClipboard.mock.invocationCallOrder[0],
+      );
+      expect(platformUtilsService.copyToClipboard.mock.invocationCallOrder[0]).toBeLessThan(
+        updateOverlayCiphers.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("passes the resolved target, selected cipher, and page-load options to each fill stage", async () => {
+      // The top frame's live url (the tab's) matches the reported frame url, so the fill proceeds.
+      const url = "https://login.example.com/session";
+      const pd = createPageDetailMock({
+        frameId: 0,
+        tab: createChromeTabMock({ id: 1, url }),
+        details: createAutofillPageDetailsMock({ url }),
+      });
+      const cipher = makeCipher(CipherType.Login);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(cipher);
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
 
       emitPageTransition(pd);
       await flushPromises();
@@ -186,38 +254,98 @@ describe("AutofillOrchestrator", () => {
         expect.objectContaining({ id: 1, url }),
         0,
       );
+      // Selection is by url; a page-load prefers last-used (no recent last-launched by default).
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(url, "user-1", true);
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      // fromCommand is false for page-load fills; the fill targets the live tab and never falls
-      // back to the active-tab path.
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(
-        [pd],
-        expect.objectContaining({ id: 1, url }),
-        false,
+      // The fill targets the live tab with the page-load option shape (non-command).
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tab: expect.objectContaining({ id: 1, url }),
+          cipher,
+          pageDetails: [pd],
+          skipLastUsed: true,
+          fillNewPassword: false,
+          allowTotpAutofill: false,
+        }),
       );
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("999999");
       expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      // A page-load fill uses last-used/last-launched selection, so it does not cycle the rotation.
+      expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    });
 
-      // The order is behavior-preserving and load-bearing: collect before fill
-      // (atomic per frame), account activity before the fill, and TOTP copy then
-      // overlay refresh after it.
-      expect(autofillService.collectPageDetailsFromTab$.mock.invocationCallOrder[0]).toBeLessThan(
-        accountService.setAccountActivity.mock.invocationCallOrder[0],
-      );
-      expect(accountService.setAccountActivity.mock.invocationCallOrder[0]).toBeLessThan(
-        autofillService.doAutoFillOnTab.mock.invocationCallOrder[0],
-      );
-      expect(autofillService.doAutoFillOnTab.mock.invocationCallOrder[0]).toBeLessThan(
-        platformUtilsService.copyToClipboard.mock.invocationCallOrder[0],
-      );
-      expect(platformUtilsService.copyToClipboard.mock.invocationCallOrder[0]).toBeLessThan(
-        updateOverlayCiphers.mock.invocationCallOrder[0],
+    it("prefers a cipher launched within the last-launched window over the last-used cipher", async () => {
+      const pd = pageDetail(1, 0);
+      const launched = makeCipher(CipherType.Login, {
+        id: "launched",
+        localData: { lastLaunched: NOW },
+      });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastLaunchedForUrl.mockResolvedValue(launched);
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", true);
+      expect(cipherService.getLastUsedForUrl).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ cipher: launched }),
       );
     });
 
-    it("validates a sub-frame against its live frame url and scopes the collect to it", async () => {
-      // A sub-frame's url is not the tab's, so it is validated via getFrameDetails; a non-zero
-      // frameId also guards the collect against scoping to a hardcoded 0.
+    it("falls back to the last-used cipher when the last-launched one is stale", async () => {
+      const pd = pageDetail(1, 0);
+      const stale = makeCipher(CipherType.Login, {
+        id: "stale",
+        localData: { lastLaunched: NOW - 60000 },
+      });
+      const lastUsed = makeCipher(CipherType.Login, { id: "last-used" });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastLaunchedForUrl.mockResolvedValue(stale);
+      cipherService.getLastUsedForUrl.mockResolvedValue(lastUsed);
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ cipher: lastUsed }),
+      );
+    });
+
+    it("does not fill when no cipher matches the url", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(undefined as unknown as CipherView);
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
+    });
+
+    it("abandons a reprompt-protected cipher on page load without surfacing a prompt", async () => {
+      // A page-load fill (non-command) never opens a reprompt popout: a reprompt-protected cipher
+      // is simply not filled, and the reprompt check is never reached.
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(
+        makeCipher(CipherType.Login, { reprompt: CipherRepromptType.Password }),
+      );
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+    });
+
+    it("security: validates a sub-frame against its live frame url and scopes the collect to it", async () => {
+      // Security bound (correct-origin): a credential reaches only the origin it was chosen for. A
+      // sub-frame's url is not the tab's, so it is re-resolved live via getFrameDetails and the fill
+      // proceeds only if the frame still shows the reported url. A non-zero frameId also guards the
+      // collect against scoping to a hardcoded 0.
       const frameUrl = "https://idp.example.com/sso";
       // A sub-frame's collected url is the frame's own url, not the tab's.
       const pd = createPageDetailMock({
@@ -238,10 +366,13 @@ describe("AutofillOrchestrator", () => {
         expect.objectContaining({ id: 1 }),
         3,
       );
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenCalled();
     });
 
-    it("abandons the fill when the reported sub-frame has navigated", async () => {
+    it("security: abandons the fill when the reported sub-frame navigated in the resolve→fill gap", async () => {
+      // Security bound (correct-origin): the frame navigated between reporting the opportunity and
+      // the fill, so its live url no longer matches the one its cipher was chosen for. Filling the
+      // stale cipher would hand a credential to the wrong origin, so the fill is abandoned.
       const pd = pageDetail(1, 3);
       jest
         .spyOn(BrowserApi, "getFrameDetails")
@@ -255,7 +386,7 @@ describe("AutofillOrchestrator", () => {
       expectAbandoned();
     });
 
-    it("abandons the fill when the reported sub-frame no longer resolves", async () => {
+    it("security: abandons the fill when the reported sub-frame no longer resolves", async () => {
       const pd = pageDetail(1, 3);
       jest
         .spyOn(BrowserApi, "getFrameDetails")
@@ -267,7 +398,7 @@ describe("AutofillOrchestrator", () => {
       expectAbandoned();
     });
 
-    it("abandons the fill when resolving the reported sub-frame rejects", async () => {
+    it("security: abandons the fill when resolving the reported sub-frame rejects", async () => {
       const pd = pageDetail(1, 3);
       jest.spyOn(BrowserApi, "getFrameDetails").mockRejectedValue(new Error("no frame"));
 
@@ -277,24 +408,23 @@ describe("AutofillOrchestrator", () => {
       expectAbandoned();
     });
 
-    it("records activity and refreshes the overlay but does not fill when the frame has no fields", async () => {
-      // An empty collection short-circuits before doAutoFillOnTab,
-      // while the surrounding side effects still run.
+    it("does not fill, record activity, or refresh the overlay when the frame reports no page details", async () => {
+      // An empty collection is not a fillable read, so the request abandons before the commit: no
+      // fill is attempted, so no activity is booked and the overlay is not refreshed.
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
-      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
     });
 
     it("does not fill when the reported frame is fresh but has zero fields", async () => {
       // Isolates the fields guard from the freshness check: the url matches (frame is fresh), but
-      // the collected detail has no fields, so doAutoFillOnTab must still be skipped
-      // while the side effects run.
+      // the collected detail has no fields, so the request abandons before the commit.
       const tab = createChromeTabMock({ id: 1 });
       const pd = createPageDetailMock({
         frameId: 0,
@@ -306,10 +436,10 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pd);
       await flushPromises();
 
-      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
-      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
     });
 
     it("abandons the fill when the tab id no longer resolves", async () => {
@@ -332,7 +462,9 @@ describe("AutofillOrchestrator", () => {
       expect(logService.error).not.toHaveBeenCalled();
     });
 
-    it("abandons the fill when the resolved tab has navigated", async () => {
+    it("security: abandons the fill when the resolved top-frame tab has navigated", async () => {
+      // Security bound (correct-origin): the top frame's live url is the tab's, and it no longer
+      // matches the reported url, so the cipher chosen for the old page is not filled into the new one.
       jest
         .spyOn(BrowserApi, "getTab")
         .mockResolvedValue(createChromeTabMock({ id: 1, url: "https://elsewhere.example" }));
@@ -343,16 +475,29 @@ describe("AutofillOrchestrator", () => {
       expectAbandoned();
     });
 
-    // FIXME (PM-39579): remove with the temporary active-tab guard once the tab gate lands.
-    it("abandons the page-load fill when the tab is not the active tab", async () => {
+    it("security: refuses a page-load fill onto a tab that is not the foreground tab", async () => {
+      // Security bound (foreground-only): a credential fills only the tab the user is working in. The
+      // active-tab check lives in `commit` as defense-in-depth against a tab-switch race — the
+      // opportunity resolved and the page was read, but the user moved to another tab before the
+      // commit. The guard stays in `commit` regardless of upstream gating precisely to catch this
+      // race, and drops the dispatch.
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       jest
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 2 }));
 
-      emitPageTransition(pageDetail(1, 0));
+      emitPageTransition(pd);
       await flushPromises();
 
-      expectAbandoned();
+      // The read ran (the guard, not an earlier bail, is what stopped this) but the credential was
+      // never dispatched to the non-foreground tab. No activity is booked either: a fill blocked for
+      // being on the wrong tab must not keep the vault unlocked — that no-activity outcome is
+      // intrinsic to the foreground bound, since the guard short-circuits before `doAutoFill` even
+      // runs (a distinct path from a fill that dispatches and matches nothing).
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
     });
 
     it("skips the fill entirely when autofill-on-page-load is disabled", async () => {
@@ -361,30 +506,29 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(BrowserApi.getTab).not.toHaveBeenCalled();
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
-      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expectAbandoned();
     });
 
-    it("does not copy to the clipboard when the fill returns no TOTP", async () => {
+    it("does not copy or refresh the overlay when the fill matched nothing", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFillOnTab.mockResolvedValue({ didAutofill: false });
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: false });
 
       emitPageTransition(pd);
       await flushPromises();
 
+      // Account activity, the overlay refresh, and the TOTP copy are all follow-ons of a fill that
+      // used a credential; when the fill matched nothing (`didAutofill: false`) none of them run.
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
-      // The overlay refresh is part of the page-load side effects and runs regardless.
-      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
     });
 
-    it("abandons the fill when the frame navigates between validation and collection", async () => {
-      // resolveFreshTarget passes (the live tab still shows the reported url), but the collected
-      // details carry a different url: a same-document navigation landed in the gap between the
-      // pre-collect validation and the collect. The cipher would have been chosen for the reported
-      // url, so the fill is abandoned rather than applied to the page now loaded.
+    it("security: abandons the fill when the frame navigates between validation and collection", async () => {
+      // Security bound (correct-origin): resolveFreshTarget passes (the live tab still shows the
+      // reported url), but the collected details carry a different url — a same-document navigation
+      // landed in the gap between the pre-collect validation and the collect. The cipher would have
+      // been chosen for the reported url, so the fill is abandoned before any commit-side effect runs.
       const pd = createPageDetailMock({
         frameId: 0,
         tab: createChromeTabMock({ id: 1 }),
@@ -395,19 +539,20 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pd, DEFAULT_URL);
       await flushPromises();
 
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
-      // The abandon mirrors the empty-collection path: activity and overlay refresh still run.
-      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
     });
   });
 
   describe("user-initiated fills", () => {
     it("collects the tab and fills from a keyboard command with the full side effects", async () => {
       const pd = pageDetail(1, 0);
+      const cipher = makeCipher(CipherType.Login);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFillActiveTab.mockResolvedValue({ didAutofill: true, totp: "111111" });
+      cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "111111" });
 
       autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
@@ -415,26 +560,87 @@ describe("AutofillOrchestrator", () => {
       // The orchestrator owns the collect: it asks for every frame (no frame id) rather than
       // being handed a pre-collected page detail.
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, undefined);
+      // A command selects the next cipher in the url's rotation and fills with command options.
+      expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledWith([pd], true);
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tab: pd.tab,
+          cipher,
+          pageDetails: [pd],
+          fillNewPassword: true,
+          allowTotpAutofill: true,
+        }),
+      );
+      // A successful command advances the url's last-used index once for the tab.
+      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(DEFAULT_URL);
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("111111");
       expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
     });
 
+    it("cycles past the reprompt cipher and abandons the fill when a command surfaces a reprompt", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
+      await flushPromises();
+
+      // A command cycles past the reprompt-protected cipher so the next command offers the next one;
+      // the fill itself is abandoned (no fill dispatched, no activity booked).
+      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(DEFAULT_URL);
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    });
+
+    it("security: refuses a command fill once its tab is no longer the foreground tab", async () => {
+      // Security bound (foreground-only): a credential fills only the tab the user is working in.
+      // Switching tabs after issuing a command must not fill the tab the user switched to. The
+      // active-tab check in `commit` is defense-in-depth against that tab-switch race and stays there;
+      // it drops the dispatch even though the command was raised for a real tab.
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
+      await flushPromises();
+
+      // The read ran but the credential was never dispatched. A fill blocked for being on the wrong
+      // tab must neither keep the vault unlocked (no activity) nor advance the rotation — both are
+      // intrinsic to the foreground bound, since the guard short-circuits before `doAutoFill` runs.
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    });
+
     it.each([
-      ["card", CipherType.Card],
-      ["identity", CipherType.Identity],
+      ["card", CipherType.Card, "cardCiphers", "getNextCardCipher"],
+      ["identity", CipherType.Identity, "identityCiphers", "getNextIdentityCipher"],
     ] as const)(
       "collects the tab and fills a %s with no page-load/keyboard side effects",
-      async (_label, cipherType) => {
+      async (_label, cipherType, cacheKey, selector) => {
         const pd = pageDetail(1, 0);
+        const cipher = makeCipher(cipherType);
         autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+        // The row names the selection method for its type, so the case's cipher is wired without a
+        // branch on cipherType.
+        cipherService[selector].mockResolvedValue(cipher);
+        autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
 
         autofillOrchestrator.autofillActiveTabForCipherType(pd.tab, cipherType);
         await flushPromises();
 
-        expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledWith([pd], true, cipherType);
-        expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+        expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+          expect.objectContaining({ tab: pd.tab, cipher, pageDetails: [pd] }),
+        );
+        // A card/identity fill advances its own rotation key, not the tab url.
+        expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(cacheKey);
+        // A fill is account activity regardless of kind, so it is booked here too.
+        expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
+        // The login-only follow-ons (TOTP copy, overlay refresh) do not run for card/identity.
         expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
         expect(updateOverlayCiphers).not.toHaveBeenCalled();
       },
@@ -446,7 +652,7 @@ describe("AutofillOrchestrator", () => {
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
     });
 
@@ -454,35 +660,37 @@ describe("AutofillOrchestrator", () => {
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(undefined, 0).tab);
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expectAbandoned();
     });
   });
 
   describe("serialization and tab-removal teardown", () => {
-    it("serializes keyboard commands for the same tab and abandons a queued fill when the tab is removed", async () => {
+    it("security: serializes keyboard commands for the same tab and abandons a queued fill when the tab is removed", async () => {
+      // Security bound (fills do not race): same-tab commands run one at a time so two fills of the
+      // same scope cannot interleave into a double fill, and a fill queued behind an in-flight one is
+      // abandoned rather than dispatched after its tab is gone.
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       const inFlight = deferred();
-      autofillService.doAutoFillActiveTab.mockReturnValueOnce(inFlight.promise);
+      autofillService.doAutoFill.mockReturnValueOnce(inFlight.promise);
 
       // First command starts and blocks on the in-flight promise.
       autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
 
       // A command carries no frame id, so a second command for the same tab queues behind the
       // first rather than racing it.
       autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
 
       // The tab is removed while the first is in flight: the queued second is abandoned.
       removeTab(1);
       inFlight.resolve({ didAutofill: false });
       await flushPromises();
 
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
     });
 
     it("runs page-load fills for different frames of the same tab concurrently", async () => {
@@ -491,7 +699,7 @@ describe("AutofillOrchestrator", () => {
       );
       const first = deferred();
       const second = deferred();
-      autofillService.doAutoFillOnTab
+      autofillService.doAutoFill
         .mockReturnValueOnce(first.promise)
         .mockReturnValueOnce(second.promise);
 
@@ -500,7 +708,7 @@ describe("AutofillOrchestrator", () => {
       await flushPromises();
 
       // Neither has resolved, yet both are in flight — different frames do not serialize.
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(2);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(2);
 
       first.resolve({ didAutofill: false });
       second.resolve({ didAutofill: false });
@@ -508,7 +716,11 @@ describe("AutofillOrchestrator", () => {
     });
   });
 
-  describe("live-tab gate", () => {
+  describe("security: live-tab gate", () => {
+    // The live-tab gate is a security control: it keeps a request naming a non-open tab id — a stale
+    // or forged id — from opening a per-tab serialization group that nothing would later retire, and
+    // never fails open.
+
     it("drops a page-load fill whose tab id is not an open tab", async () => {
       // No tab is open, so the reported transition's tab id is not live: the request is dropped
       // before it can open a per-tab serialization group that nothing would later retire.
@@ -528,8 +740,7 @@ describe("AutofillOrchestrator", () => {
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expectAbandoned();
     });
 
     it("dispatches a fill whose tab id is an open tab", async () => {
@@ -540,7 +751,7 @@ describe("AutofillOrchestrator", () => {
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
 
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
     });
 
     it("dispatches a page-load fill whose tab id is an open tab", async () => {
@@ -553,26 +764,21 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pd);
       await flushPromises();
 
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
     });
 
     it("re-seeds and recovers when a later seed attempt succeeds", async () => {
       jest.useFakeTimers();
-      // The first subscription errors (seed fails); the retry's re-subscription succeeds.
+      // The dispatch pipe subscribes to `liveTabs$` at `init()`, so a failing seed stream must be substituted before
+      // init. The beforeEach orchestrator has already seeded from the default (healthy) set and cannot be made to
+      // fail after the fact.
       let attempt = 0;
+      // The first subscription errors (seed fails); the retry's re-subscription succeeds.
       const flakyLiveTabs$ = defer(() =>
         attempt++ === 0 ? throwError(() => new Error("transient")) : of(new Set([1])),
       );
       (lifecycleService as any).liveTabs$ = flakyLiveTabs$;
-      const orchestrator = new AutofillOrchestrator(
-        lifecycleService,
-        autofillService,
-        autofillSettingsService,
-        accountService,
-        platformUtilsService,
-        updateOverlayCiphers,
-        logService,
-      );
+      const orchestrator = construct();
       orchestrator.init();
 
       // Advancing past the retry delay re-seeds, and this attempt succeeds.
@@ -584,29 +790,23 @@ describe("AutofillOrchestrator", () => {
       orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await jest.advanceTimersByTimeAsync(0);
 
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
       expect(logService.error).not.toHaveBeenCalled();
       jest.useRealTimers();
     });
 
     it("re-seeds up to the retry limit, then fails closed (logged)", async () => {
       jest.useFakeTimers();
-      // The seed never succeeds; the pipe resets a bounded number of times, then gives up.
+      // Constructs its own orchestrator for the same reason as the recovery test: a seed that always
+      // fails must be wired before `init()` subscribes to `liveTabs$`.
       let subscriptions = 0;
+      // The seed never succeeds; the pipe resets a bounded number of times, then gives up.
       const alwaysErrors$ = defer(() => {
         subscriptions++;
         return throwError(() => new Error("seed failed"));
       });
       (lifecycleService as any).liveTabs$ = alwaysErrors$;
-      const orchestrator = new AutofillOrchestrator(
-        lifecycleService,
-        autofillService,
-        autofillSettingsService,
-        accountService,
-        platformUtilsService,
-        updateOverlayCiphers,
-        logService,
-      );
+      const orchestrator = construct();
       orchestrator.init();
 
       await jest.advanceTimersByTimeAsync(LIVE_TAB_SEED_RETRY_DELAY_MS * LIVE_TAB_SEED_MAX_RETRIES);
@@ -621,35 +821,27 @@ describe("AutofillOrchestrator", () => {
       // Fail closed: a fill after the pipe gives up is not dispatched (never gates open).
       orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await jest.advanceTimersByTimeAsync(0);
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       jest.useRealTimers();
     });
 
     it("holds a fill until the live-tab set becomes available, then dispatches it", async () => {
-      // `withLatestReady`: a fill arriving before the startup seed resolves waits for the
-      // authoritative set instead of slipping through ungated or being dropped.
+      // Constructs its own orchestrator so the seed source is a stream that has not yet emitted at
+      // `init()` time; the beforeEach orchestrator already seeded from a set that emitted immediately.
       const pendingLiveTabs$ = new Subject<ReadonlySet<number>>();
       (lifecycleService as any).liveTabs$ = pendingLiveTabs$;
-      const orchestrator = new AutofillOrchestrator(
-        lifecycleService,
-        autofillService,
-        autofillSettingsService,
-        accountService,
-        platformUtilsService,
-        updateOverlayCiphers,
-        logService,
-      );
+      const orchestrator = construct();
       orchestrator.init();
 
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
       orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
       // Not dispatched yet — the live-tab set has not emitted.
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
 
       pendingLiveTabs$.next(new Set([1]));
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
     });
 
     it("drops a forged-id request without disturbing a later live-tab fill", async () => {
@@ -660,18 +852,18 @@ describe("AutofillOrchestrator", () => {
 
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(999, 0).tab);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
 
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("resilience", () => {
     it("logs and survives a failing fill so later fills still dispatch", async () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
-      autofillService.doAutoFillActiveTab.mockRejectedValueOnce(new Error("boom"));
+      autofillService.doAutoFill.mockRejectedValueOnce(new Error("boom"));
 
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
@@ -680,7 +872,7 @@ describe("AutofillOrchestrator", () => {
 
       autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0).tab);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(2);
+      expect(autofillService.doAutoFill).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -716,7 +908,7 @@ describe("AutofillOrchestrator", () => {
       expect(result).toBe(triage);
     });
 
-    it("collectAutofillTriage resolves null when the tab has no receiver", async () => {
+    it("collectAutofillTriage resolves undefined when the tab has no receiver", async () => {
       (chrome.runtime as any).lastError = { message: "Could not establish connection" };
       jest
         .spyOn(BrowserApi, "sendTabsMessage")
@@ -725,13 +917,51 @@ describe("AutofillOrchestrator", () => {
 
       const result = await autofillOrchestrator.collectAutofillTriage(1);
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
       (chrome.runtime as any).lastError = undefined;
     });
   });
 
+  describe("fillCipher", () => {
+    it("fills a caller-supplied cipher into the foreground tab and returns the outcome", async () => {
+      const tab = createChromeTabMock({ id: 1 });
+      const pd = pageDetail(1, 0);
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
+
+      const result = await autofillOrchestrator.fillCipher({
+        tab,
+        cipher: makeCipher(CipherType.Login),
+        pageDetails: [pd],
+      });
+
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ tab, pageDetails: [pd] }),
+      );
+      expect(result).toEqual({ didAutofill: true, totp: "999999" });
+    });
+
+    it("security: refuses a caller-supplied fill onto a tab that is not the foreground tab", async () => {
+      // The inline menu fills the content-script tab that requested it. Unlike `autofillTabWithCipher`,
+      // this entry does not opt out of the foreground check — requiring the target to be the active
+      // tab is defense-in-depth against a backgrounded frame's port driving a fill into itself.
+      const tab = createChromeTabMock({ id: 1 });
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      const result = await autofillOrchestrator.fillCipher({
+        tab,
+        cipher: makeCipher(CipherType.Login),
+        pageDetails: [pageDetail(1, 0)],
+      });
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
+    });
+  });
+
   describe("autofillTabWithCipher", () => {
-    it("collects the tab and fills the given cipher, returning the TOTP", async () => {
+    it("collects the tab and fills the given cipher, returning the outcome", async () => {
       const pd = pageDetail(1, 0);
       const cipher = { id: "c1" } as any;
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
@@ -742,10 +972,28 @@ describe("AutofillOrchestrator", () => {
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ tab: pd.tab, cipher, pageDetails: [pd] }),
       );
-      expect(result).toEqual({ filled: true, totp: "999999" });
+      expect(result).toEqual({ didAutofill: true, totp: "999999" });
+      // A fill is account activity regardless of the entry point.
+      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
     });
 
-    it("does not fill and reports filled=false when the collect is empty", async () => {
+    it("security: refuses to fill when the target is not the foreground tab", async () => {
+      // The context menu's fill is foreground-verified like any other. If the target is not the
+      // current-window active tab, the commit refuses it. (The opt-out lives in the sibling
+      // `unsafeAutofillTabWithCipher`, exercised in its own block.)
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      const result = await autofillOrchestrator.autofillTabWithCipher(pd.tab, { id: "c1" } as any);
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
+    });
+
+    it("does not fill and reports didAutofill=false when the collect is empty", async () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
       const result = await autofillOrchestrator.autofillTabWithCipher(
@@ -754,19 +1002,64 @@ describe("AutofillOrchestrator", () => {
       );
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
-      expect(result).toEqual({ filled: false, totp: null });
+      expect(result).toEqual({ didAutofill: false });
+    });
+  });
+
+  describe("unsafeAutofillTabWithCipher", () => {
+    it("fills even when the target is not the current-window active tab", async () => {
+      // An unsafe fill is not active-tab-verified: the single-action popout deliberately
+      // fills its explicit sender tab, which need not be the current-window active tab.
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      const result = await autofillOrchestrator.unsafeAutofillTabWithCipher(pd.tab, {
+        id: "c1",
+      } as any);
+
+      expect(autofillService.doAutoFill).toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: true });
+    });
+
+    it("does not fill and reports didAutofill=false when the collect is empty", async () => {
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
+
+      const result = await autofillOrchestrator.unsafeAutofillTabWithCipher(
+        createChromeTabMock({ id: 1 }),
+        { id: "c1" } as any,
+      );
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
     });
   });
 
   describe("autoSubmitLoginOnTab", () => {
     it("collects the reporting frame and fills it with the auto-submit script", async () => {
       const pd = pageDetail(1, 0);
+      const cipher = makeCipher(CipherType.Login);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
+
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
 
       await autofillOrchestrator.autoSubmitLoginOnTab(pd.tab, 0);
 
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith([pd], pd.tab, true, true);
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tab: pd.tab,
+          cipher,
+          pageDetails: [pd],
+          autoSubmitLogin: true,
+        }),
+      );
+      // A submit that filled used a credential, so the url's rotation advances (inside commit).
+      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(pd.tab.url);
     });
 
     it("does not fill when the frame has no page details to submit", async () => {
@@ -774,7 +1067,28 @@ describe("AutofillOrchestrator", () => {
 
       await autofillOrchestrator.autoSubmitLoginOnTab(createChromeTabMock({ id: 1 }), 0);
 
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+    });
+
+    it("security: refuses to fill-and-submit onto a tab that is not the foreground tab", async () => {
+      // Security bound (foreground-only): a submit both fills *and* transmits a credential, so it runs
+      // through the same `commit` active-tab check as any other fill. That check is defense-in-depth
+      // against a tab-switch race and stays in `commit`; it drops the submit when the tab is no longer
+      // foreground.
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      await autofillOrchestrator.autoSubmitLoginOnTab(pd.tab, 0);
+
+      // The read ran but no credential was filled or submitted to the non-foreground tab, and no
+      // activity was booked — the guard short-circuits before `doAutoFill`, so a blocked submit
+      // cannot keep the vault unlocked.
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
     });
   });
 
@@ -787,7 +1101,9 @@ describe("AutofillOrchestrator", () => {
       await flushPromises();
 
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
-      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith([pd], pd.tab, true, true);
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ pageDetails: [pd], autoSubmitLogin: true }),
+      );
     });
   });
 });

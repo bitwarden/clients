@@ -14,7 +14,6 @@ import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
@@ -66,6 +65,7 @@ import {
   COLLECT_PAGE_DETAILS_RESPONSE_COMMAND,
   FormData,
   GenerateFillScriptOptions,
+  DID_NOT_AUTOFILL,
   PageDetail,
 } from "./abstractions/autofill.service";
 import {
@@ -453,7 +453,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const tab = options.tab;
     const tabUrl = tab?.url;
     if (!tabUrl || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
-      return { didAutofill: false };
+      return DID_NOT_AUTOFILL;
     }
 
     let totp: string | null = null;
@@ -562,89 +562,8 @@ export default class AutofillService implements AutofillServiceInterface {
       // Map the internal `null` (no TOTP) to the outcome's optional `totp`.
       return { didAutofill: true, totp: totp ?? undefined };
     } else {
-      return { didAutofill: false };
+      return DID_NOT_AUTOFILL;
     }
-  }
-
-  /**
-   * Autofill the specified tab with the next login item from the cache
-   * @param {PageDetail[]} pageDetails The data scraped from the page
-   * @param {chrome.tabs.Tab} tab The tab to be autofilled
-   * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
-   * @param {boolean} autoSubmitLogin Whether the autofill is for an auto-submit login
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any
-   */
-  async doAutoFillOnTab(
-    pageDetails: PageDetail[],
-    tab: chrome.tabs.Tab,
-    fromCommand: boolean,
-    autoSubmitLogin = false,
-  ): Promise<AutoFillResult> {
-    let cipher: CipherView;
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return { didAutofill: false };
-    }
-
-    if (!tab.url) {
-      return { didAutofill: false };
-    }
-    const tabUrl = tab.url;
-    if (fromCommand) {
-      cipher = await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId);
-    } else {
-      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
-        tabUrl,
-        activeUserId,
-        true,
-      );
-      const lastLaunched = lastLaunchedCipher?.localData?.lastLaunched;
-      if (
-        lastLaunchedCipher &&
-        lastLaunched &&
-        Date.now().valueOf() - lastLaunched.valueOf() < 30000
-      ) {
-        cipher = lastLaunchedCipher;
-      } else {
-        cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, true);
-      }
-    }
-
-    if (cipher == null || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return { didAutofill: false };
-    }
-
-    if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
-        this.cipherService.updateLastUsedIndexForUrl(tabUrl);
-      }
-
-      return { didAutofill: false };
-    }
-
-    const result = await this.doAutoFill({
-      tab: tab,
-      cipher: cipher,
-      pageDetails: pageDetails,
-      skipLastUsed: !fromCommand,
-      skipUsernameOnlyFill: !fromCommand,
-      onlyEmptyFields: !fromCommand,
-      fillNewPassword: fromCommand,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: fromCommand,
-      autoSubmitLogin,
-    });
-
-    // Update last used index as autofill has succeeded
-    if (fromCommand && result.didAutofill) {
-      this.cipherService.updateLastUsedIndexForUrl(tabUrl);
-    }
-
-    return result;
   }
 
   /**
@@ -675,81 +594,6 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Autofill the active tab with the next cipher from the cache
-   * @param {PageDetail[]} pageDetails The data scraped from the page
-   * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any
-   */
-  async doAutoFillActiveTab(
-    pageDetails: PageDetail[],
-    fromCommand: boolean,
-    cipherType?: CipherType,
-  ): Promise<AutoFillResult> {
-    if (!pageDetails[0]?.details?.fields?.length) {
-      return { didAutofill: false };
-    }
-
-    const tab = await this.getActiveTab();
-
-    if (!tab || !tab.url) {
-      return { didAutofill: false };
-    }
-
-    if (!cipherType || cipherType === CipherType.Login) {
-      return await this.doAutoFillOnTab(pageDetails, tab, fromCommand);
-    }
-
-    let cipher: CipherView;
-    let cacheKey = "";
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return { didAutofill: false };
-    }
-
-    if (cipherType === CipherType.Card) {
-      cacheKey = "cardCiphers";
-      cipher = await this.cipherService.getNextCardCipher(activeUserId);
-    } else {
-      cacheKey = "identityCiphers";
-      cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
-    }
-
-    if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return { didAutofill: false };
-    }
-
-    if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
-        this.cipherService.updateLastUsedIndexForUrl(cacheKey);
-      }
-
-      return { didAutofill: false };
-    }
-
-    const result = await this.doAutoFill({
-      tab: tab,
-      cipher: cipher,
-      pageDetails: pageDetails,
-      skipLastUsed: !fromCommand,
-      skipUsernameOnlyFill: !fromCommand,
-      onlyEmptyFields: !fromCommand,
-      fillNewPassword: false,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: false,
-    });
-
-    if (fromCommand && result.didAutofill) {
-      this.cipherService.updateLastUsedIndexForUrl(cacheKey);
-    }
-
-    return result;
-  }
-
-  /**
    * Activates the autofill on page load org policy.
    */
   async setAutoFillOnPageLoadOrgPolicy(): Promise<void> {
@@ -760,21 +604,6 @@ export default class AutofillService implements AutofillServiceInterface {
     if (autofillOnPageLoadOrgPolicy) {
       await this.autofillSettingsService.setAutofillOnPageLoad(true);
     }
-  }
-
-  /**
-   * Gets the active tab from the current window.
-   * Throws an error if no tab is found.
-   * @returns {Promise<chrome.tabs.Tab>}
-   * @private
-   */
-  private async getActiveTab(): Promise<chrome.tabs.Tab> {
-    const tab = await BrowserApi.getTabFromCurrentWindow();
-    if (!tab) {
-      throw new Error("No tab found.");
-    }
-
-    return tab;
   }
 
   /**

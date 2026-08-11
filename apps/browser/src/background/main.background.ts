@@ -1298,6 +1298,7 @@ export default class MainBackground {
     this.autofillOrchestrator = new AutofillOrchestrator(
       this.autofillLifecycleService,
       this.autofillService,
+      this.cipherService,
       this.autofillSettingsService,
       this.accountService,
       this.platformUtilsService,
@@ -1640,9 +1641,9 @@ export default class MainBackground {
           return;
         }
 
-        const { totp } = await this.autofillOrchestrator.autofillTabWithCipher(tab, cipher);
-        if (totp != null) {
-          this.platformUtilsService.copyToClipboard(totp);
+        const result = await this.autofillOrchestrator.autofillTabWithCipher(tab, cipher);
+        if (result.didAutofill && result.totp != null) {
+          this.platformUtilsService.copyToClipboard(result.totp);
         }
       },
       (tabId, frameId) => this.autofillOrchestrator.collectAutofillTriage(tabId, frameId),

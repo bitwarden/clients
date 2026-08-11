@@ -34,7 +34,10 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { PageDetail } from "../../../autofill/services/abstractions/autofill.service";
+import {
+  AutoFillResult,
+  PageDetail,
+} from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -308,17 +311,14 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      // Route the fill through the background AutofillOrchestrator so it runs through the single
-      // fill owner (see autofill.design.md). The cipher is sent by id so decrypted vault data stays
-      // off the message channel; the reprompt, TOTP copy, and popup close stay in the foreground
-      // here. The background collects and decides fillability, so there is no separate foreground
-      // page-details precondition to fall out of sync with the fill.
+      // The cipher is sent by id so decrypted vault data stays off the message channel. The background
+      // collects and decides fillability, so that the popup cannot fall out of sync with the fill.
       const response = await BrowserApi.sendMessageWithResponse<{
-        result?: { filled: boolean; totp: string | null };
+        result?: AutoFillResult;
       }>("fillCipherForPopup", { tabId: tab.id, cipherId: cipher.id });
       const outcome = response?.result;
 
-      if (!outcome?.filled) {
+      if (!outcome?.didAutofill) {
         this._reportAutofillFailure();
         return false;
       }

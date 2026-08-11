@@ -421,7 +421,7 @@ describe("ContextMenuClickedHandler", () => {
 
       it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
         const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
-        collectAutofillTriage.mockResolvedValue(null);
+        collectAutofillTriage.mockResolvedValue(undefined);
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 

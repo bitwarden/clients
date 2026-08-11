@@ -113,8 +113,8 @@ describe("RuntimeBackground collection dispatch", () => {
       cipherService = mock<CipherService>();
       cipherService.getAllDecrypted.mockResolvedValue([cipher]);
       (main as any).cipherService = cipherService;
-      autofillOrchestrator.autofillTabWithCipher.mockResolvedValue({
-        filled: true,
+      autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
+        didAutofill: true,
         totp: "totp-123",
       });
     });
@@ -125,8 +125,8 @@ describe("RuntimeBackground collection dispatch", () => {
         popupSender,
       );
 
-      expect(autofillOrchestrator.autofillTabWithCipher).toHaveBeenCalledWith(tab, cipher);
-      expect(result).toEqual({ filled: true, totp: "totp-123" });
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).toHaveBeenCalledWith(tab, cipher);
+      expect(result).toEqual({ didAutofill: true, totp: "totp-123" });
     });
 
     it("rejects a content-script sender without fetching or filling", async () => {
@@ -136,8 +136,8 @@ describe("RuntimeBackground collection dispatch", () => {
       );
 
       expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
-      expect(autofillOrchestrator.autofillTabWithCipher).not.toHaveBeenCalled();
-      expect(result).toEqual({ filled: false, totp: null });
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
     });
 
     it("does not fill when the cipher id is unknown", async () => {
@@ -146,8 +146,8 @@ describe("RuntimeBackground collection dispatch", () => {
         popupSender,
       );
 
-      expect(autofillOrchestrator.autofillTabWithCipher).not.toHaveBeenCalled();
-      expect(result).toEqual({ filled: false, totp: null });
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
     });
   });
 

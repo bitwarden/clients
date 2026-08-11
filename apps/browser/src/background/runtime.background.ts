@@ -30,7 +30,10 @@ import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-p
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
-import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import {
+  AutofillService,
+  AutoFillResult,
+} from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
@@ -176,7 +179,7 @@ export default class RuntimeBackground {
         // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
         // the message channel.
-        const noFill = { filled: false, totp: null as string | null };
+        const noFill: AutoFillResult = { didAutofill: false };
         if (!this.isExtensionPageSender(sender)) {
           return noFill;
         }
@@ -195,7 +198,11 @@ export default class RuntimeBackground {
         if (cipher == null) {
           return noFill;
         }
-        return await this.autofillOrchestrator.autofillTabWithCipher(targetTab, cipher);
+        // The only sender of `fillCipherForPopup` is an extension page, as confirmed by the
+        // `isExtensionPageSender(sender)` guard above, so this is never reachable from a
+        // content-script-placed message.
+        // eslint-disable-next-line no-restricted-syntax
+        return await this.autofillOrchestrator.unsafeAutofillTabWithCipher(targetTab, cipher);
       }
       case AutofillMessageCommand.pageTransitionDetected:
         // A page-lifecycle monitor reports a transition as a fact. The service
