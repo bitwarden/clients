@@ -1,9 +1,6 @@
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { DialogService } from "@bitwarden/components";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
-import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { LogRecorder } from "../log-recorder";
 
@@ -15,7 +12,6 @@ export class PrivateKeyStep implements RecoveryStep {
   constructor(
     private privateKeyRegenerationService: UserAsymmetricKeysRegenerationService,
     private dialogService: DialogService,
-    private cryptoFunctionService: CryptoFunctionService,
   ) {}
 
   async runDiagnostics(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<boolean> {
@@ -24,37 +20,15 @@ export class PrivateKeyStep implements RecoveryStep {
       return false;
     }
 
-    // Make sure the private key decrypts properly and is not somehow encrypted by a different user key / broken during key rotation.
-    const encryptedPrivateKey = workingData.encryptedPrivateKey;
-    if (!encryptedPrivateKey) {
-      logger.record("No encrypted private key found");
-      return false;
-    }
-    logger.record("Private key length: " + encryptedPrivateKey.length);
-    let privateKey: Uint8Array;
     try {
-      await SdkLoadService.Ready;
-      privateKey = PureCrypto.unwrap_decapsulation_key(
-        encryptedPrivateKey,
-        workingData.userKey.toEncoded(),
+      workingData.isPrivateKeyCorrupt = await this.privateKeyRegenerationService.shouldRegenerate(
+        workingData.userId,
       );
     } catch {
-      logger.record("Private key was un-decryptable");
-      workingData.isPrivateKeyCorrupt = true;
       return false;
     }
 
-    // Make sure the contained private key can be parsed and the public key can be derived. If not, then the private key may be corrupt / generated with an incompatible ASN.1 representation / with incompatible padding.
-    try {
-      const publicKey = await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
-      logger.record("Public key length: " + publicKey.length);
-    } catch {
-      logger.record("Public key could not be derived; private key is corrupt");
-      workingData.isPrivateKeyCorrupt = true;
-      return false;
-    }
-
-    return true;
+    return !workingData.isPrivateKeyCorrupt;
   }
 
   canRecover(workingData: RecoveryWorkingData): boolean {

@@ -1,4 +1,3 @@
-import { WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { UserKey } from "@bitwarden/common/types/key";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
@@ -36,7 +35,6 @@ export abstract class RecoveryStep {
 export type RecoveryWorkingData = {
   userId: UserId | null;
   userKey: UserKey | null;
-  encryptedPrivateKey: WrappedPrivateKey | null;
   isPrivateKeyCorrupt: boolean;
   ciphers: Cipher[];
   folders: Folder[];
