@@ -18,6 +18,7 @@ import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 
 import { DesktopLoginComponentService } from "./desktop-login-component.service";
 
@@ -44,6 +45,7 @@ describe("DesktopLoginComponentService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
   let ssoUrlService: MockProxy<SsoUrlService>;
+  let serverCommunicationConfigService: MockProxy<ServerCommunicationConfigService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -63,6 +65,9 @@ describe("DesktopLoginComponentService", () => {
     toastService = mock<ToastService>();
     platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
     ssoUrlService = mock<SsoUrlService>();
+    serverCommunicationConfigService = mock<ServerCommunicationConfigService>();
+    // Default to a non-proxied server so SSO uses the direct fragment URL.
+    serverCommunicationConfigService.needsBootstrap$.mockReturnValue(of(false));
 
     TestBed.configureTestingModule({
       providers: [
@@ -78,6 +83,7 @@ describe("DesktopLoginComponentService", () => {
               i18nService,
               toastService,
               ssoUrlService,
+              serverCommunicationConfigService,
             ),
         },
         { provide: DefaultLoginComponentService, useExisting: DesktopLoginComponentService },
@@ -89,6 +95,10 @@ describe("DesktopLoginComponentService", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
         { provide: SsoUrlService, useValue: ssoUrlService },
+        {
+          provide: ServerCommunicationConfigService,
+          useValue: serverCommunicationConfigService,
+        },
       ],
     });
 
@@ -136,6 +146,7 @@ describe("DesktopLoginComponentService", () => {
             codeChallenge,
             state,
             email,
+            false,
             undefined,
           );
         } else {
@@ -143,6 +154,56 @@ describe("DesktopLoginComponentService", () => {
           expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(platformUtilsService.launchUri).toHaveBeenCalled();
         }
+      });
+    });
+
+    describe("pre-auth proxy launch URL selection (packaged app)", () => {
+      beforeEach(() => {
+        (global as any).ipc.platform.isAppImage = false;
+        (global as any).ipc.platform.isDev = false;
+
+        passwordGenerationService.generatePassword.mockResolvedValueOnce("testState");
+        passwordGenerationService.generatePassword.mockResolvedValueOnce("testCodeVerifier");
+        jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue("testCodeChallenge");
+      });
+
+      it("uses the direct SSO URL when the server is not behind a pre-auth proxy", async () => {
+        serverCommunicationConfigService.needsBootstrap$.mockReturnValue(of(false));
+
+        await service.redirectToSsoLogin("test@bitwarden.com");
+
+        expect(ssoUrlService.buildSsoUrl).toHaveBeenCalled();
+        expect(ssoUrlService.buildSsoLaunchConnectorUrl).not.toHaveBeenCalled();
+        expect(platformUtilsService.launchUri).toHaveBeenCalled();
+      });
+
+      it("uses the launch connector URL when the server needs bootstrap (pre-auth proxy)", async () => {
+        serverCommunicationConfigService.needsBootstrap$.mockReturnValue(of(true));
+
+        await service.redirectToSsoLogin("test@bitwarden.com");
+
+        expect(serverCommunicationConfigService.needsBootstrap$).toHaveBeenCalledWith(
+          "webvault.bitwarden.com",
+        );
+        expect(ssoUrlService.buildSsoLaunchConnectorUrl).toHaveBeenCalled();
+        expect(ssoUrlService.buildSsoUrl).not.toHaveBeenCalled();
+        expect(platformUtilsService.launchUri).toHaveBeenCalled();
+      });
+
+      it("forwards useSsoLaunchConnector to the localhost callback for AppImage/dev builds", async () => {
+        (global as any).ipc.platform.isAppImage = true;
+        serverCommunicationConfigService.needsBootstrap$.mockReturnValue(of(true));
+
+        await service.redirectToSsoLogin("test@bitwarden.com");
+
+        expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
+          "testCodeChallenge",
+          "testState",
+          "test@bitwarden.com",
+          true,
+          undefined,
+        );
+        expect(platformUtilsService.launchUri).not.toHaveBeenCalled();
       });
     });
   });
@@ -178,6 +239,7 @@ describe("DesktopLoginComponentService", () => {
             codeChallenge,
             state,
             email,
+            false,
             orgSsoIdentifier,
           );
         } else {
