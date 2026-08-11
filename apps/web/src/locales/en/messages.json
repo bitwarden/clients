@@ -1752,14 +1752,8 @@
   "noDetailsToCopy": {
     "message": "No details to copy"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Me"

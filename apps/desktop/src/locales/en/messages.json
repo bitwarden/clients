@@ -519,14 +519,8 @@
   "launch": {
     "message": "Launch"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Copy value",
