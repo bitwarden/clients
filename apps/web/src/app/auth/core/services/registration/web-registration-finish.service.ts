@@ -16,6 +16,7 @@ import {
   OrganizationInviteService,
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -126,7 +127,13 @@ export class WebRegistrationFinishService
         orgInvite.organizationUserId,
       );
       registerRequest.org_invite_token = orgInvite.token;
-    } else if (orgInvite?.kind === OrgInviteKind.Open) {
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
       registerRequest.open_org_invite = {
         organization_id: asUuid<SdkOrganizationId>(orgInvite.organizationId),
         code: orgInvite.inviteLinkCode,
@@ -209,7 +216,13 @@ export class WebRegistrationFinishService
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
-    } else if (orgInvite?.kind === OrgInviteKind.Open) {
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
       registerRequest.openOrgInvite = new OpenOrgInviteRequest(
         orgInvite.organizationId,
         orgInvite.inviteLinkCode,

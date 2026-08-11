@@ -261,7 +261,9 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([legacyUserKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(flag === FeatureFlag.GenerateInviteLink),
+      );
 
       masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
         salt,
@@ -313,7 +315,10 @@ describe("WebRegistrationFinishService", () => {
     label: "SDK flow",
     setupMocks: () => {
       configService.getFeatureFlag.mockImplementation((flag) =>
-        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
+        Promise.resolve(
+          flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration ||
+            flag === FeatureFlag.GenerateInviteLink,
+        ),
       );
 
       postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
@@ -432,6 +437,30 @@ describe("WebRegistrationFinishService", () => {
 
     it("does not populate open-org-invite fields when a direct org invite is stashed", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(variant.directOrgInvite);
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const request = variant.getRequest();
+      expect(request[variant.fields.openOrgInvite]).toBeUndefined();
+    });
+
+    it("does not populate open-org-invite fields when GenerateInviteLink flag is off, even if an open invite is stashed", async () => {
+      // Defense in depth: an open invite stashed while the flag was on must not leak
+      // into a flag-off session.
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(
+          flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration &&
+            variant.label === "SDK flow",
+        ),
+      );
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "00000000-0000-0000-0000-000000000010",
+          inviteLinkCode: "00000000-0000-0000-0000-000000000011",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
 
       await service.finishRegistration(email, passwordInputResult);
 
