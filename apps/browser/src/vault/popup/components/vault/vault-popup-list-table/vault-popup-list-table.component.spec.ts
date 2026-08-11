@@ -26,10 +26,9 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
@@ -147,7 +146,7 @@ describe("VaultPopupListTableComponent", () => {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        { provide: VaultPopupCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
+        { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
         {
           provide: StateProvider,
           useValue: {

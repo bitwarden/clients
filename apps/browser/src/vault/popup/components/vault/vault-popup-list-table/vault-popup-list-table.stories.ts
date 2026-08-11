@@ -35,10 +35,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
@@ -377,7 +376,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { showFavicons$: of(false) },
     },
     {
-      provide: VaultPopupCopyButtonsService,
+      provide: VaultCopyButtonsService,
       useValue: { showQuickCopyActions$: of(false) },
     },
     {
