@@ -8,6 +8,6 @@
   @if (!hasRunHealthScan()) {
     <health-intro (onTriggerHealthScan)="handleHealthScan()" />
   } @else {
-    <div>RESULTS PLACEHOLDER</div>
+    <dirt-health-overview />
   }
 </popup-page>
