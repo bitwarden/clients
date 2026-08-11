@@ -33,6 +33,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { DesktopSetInitialPasswordService } from "./desktop-set-initial-password.service";
 
@@ -44,6 +46,7 @@ describe("DesktopSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -59,6 +62,7 @@ describe("DesktopSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -74,6 +78,7 @@ describe("DesktopSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -153,12 +158,14 @@ describe("DesktopSetInitialPasswordService", () => {
     function setupMocks() {
       // Mock makeMasterKeyEncryptedUserKey() values
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
+      legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue(
+        masterKeyEncryptedUserKey,
+      );
 
       // Mock keyPair values
       keyService.userPrivateKey$.mockReturnValue(of(null));
       keyService.userPublicKey$.mockReturnValue(of(null));
-      keyService.makeKeyPair.mockResolvedValue(keyPair);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
     }
 
     describe("given the initial password was successfully set", () => {

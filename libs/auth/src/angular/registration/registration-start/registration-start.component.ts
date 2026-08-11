@@ -10,6 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
+import { RegisterStartOpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/register-start-open-org-invite.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -196,12 +197,12 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     // on-flag branch.
     let request: RegisterSendVerificationEmailRequest;
     if (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink)) {
-      const sealedOpenOrgInviteData = await this.sealOpenOrgInviteIfPresent(this.email.value);
+      const openOrgInviteRequest = await this.buildOpenOrgInviteRequestIfPresent(this.email.value);
       request = new RegisterSendVerificationEmailRequest(
         this.email.value,
         sanitizedName,
         this.receiveMarketingEmails.value,
-        sealedOpenOrgInviteData,
+        openOrgInviteRequest,
       );
     } else {
       request = new RegisterSendVerificationEmailRequest(
@@ -262,13 +263,16 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * When an `OpenOrganizationInvite` is stashed, seals its `organizationId`,
-   * `inviteLinkCode`, and `inviteKey` via the
-   * organization-invite service so the sealed blob can ride the verification-email
-   * URL fragment through the tab-boundary. Returns `undefined` when no open org invite is
-   * stashed. The caller is responsible for feature-flag gating.
+   * When an `OpenOrganizationInvite` is stashed, seals it via the organization-invite service
+   * and wraps the result in a {@link RegisterStartOpenOrgInviteRequest} so the sealed blob
+   * can ride the verification-email URL fragment through the tab-boundary and the server
+   * can identify the invite link and apply any invite-link–gated behaviors. Returns
+   * `undefined` when no open org invite is stashed or when sealing fails. The caller is
+   * responsible for feature-flag gating.
    */
-  private async sealOpenOrgInviteIfPresent(email: string): Promise<string | undefined> {
+  private async buildOpenOrgInviteRequestIfPresent(
+    email: string,
+  ): Promise<RegisterStartOpenOrgInviteRequest | undefined> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
     if (invite == null) {
       return undefined;
@@ -278,7 +282,14 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       inviteLinkCode: invite.inviteLinkCode,
       inviteKey: invite.inviteKey,
     });
-    return sealed ?? undefined;
+    if (sealed == null) {
+      return undefined;
+    }
+    return new RegisterStartOpenOrgInviteRequest(
+      invite.organizationId,
+      invite.inviteLinkCode,
+      sealed,
+    );
   }
 
   /**

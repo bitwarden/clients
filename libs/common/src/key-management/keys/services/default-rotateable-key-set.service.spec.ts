@@ -1,8 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -13,14 +12,14 @@ import { RotateableKeySet } from "../models/rotateable-key-set";
 import { DefaultRotateableKeySetService } from "./default-rotateable-key-set.service";
 
 describe("DefaultRotateableKeySetService", () => {
-  let keyService!: MockProxy<KeyService>;
+  let legacyCompatKeyService!: MockProxy<LegacyCompatKeyService>;
   let encryptService!: MockProxy<EncryptService>;
   let service!: DefaultRotateableKeySetService;
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
-    service = new DefaultRotateableKeySetService(keyService, encryptService);
+    service = new DefaultRotateableKeySetService(legacyCompatKeyService, encryptService);
   });
 
   describe("createKeySet", () => {
@@ -50,7 +49,7 @@ describe("DefaultRotateableKeySetService", () => {
       const encryptedUserKey = new EncString("encryptedUserKey");
       const encryptedPublicKey = new EncString("encryptedPublicKey");
       const encryptedPrivateKey = new EncString("encryptedPrivateKey");
-      keyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey]);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
       encryptService.wrapEncapsulationKey.mockResolvedValue(encryptedPublicKey);
 
@@ -59,7 +58,7 @@ describe("DefaultRotateableKeySetService", () => {
       expect(result).toEqual(
         new RotateableKeySet(encryptedUserKey, encryptedPublicKey, encryptedPrivateKey),
       );
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(externalKey);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(externalKey);
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
         userKey,
         Utils.fromB64ToArray("publicKey"),
