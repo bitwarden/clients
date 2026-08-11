@@ -56,6 +56,30 @@ export class WebmapperDraftService {
     await this.draftsState.update((drafts) => ({ ...(drafts ?? {}), [key]: draft }));
   }
 
+  /**
+   * Applies `mutate` to the draft as it stands at write time. Prefer this over
+   * read-then-{@link setDraft}: background capture and an open panel write the same
+   * key, and a whole-draft write from an earlier read drops whatever landed between.
+   *
+   * `mutate` must be free of side effects — the state layer may re-invoke the update.
+   */
+  async updateDraft(
+    host: string,
+    pathname: string | null,
+    mutate: (draft: WebmapperDraft) => void,
+  ): Promise<WebmapperDraft> {
+    const key = keyFor(host, pathname);
+    let next!: WebmapperDraft;
+    await this.draftsState.update((drafts) => {
+      // Drafts persist as JSON, so this round-trip is a faithful deep copy.
+      const current = drafts?.[key];
+      next = current ? JSON.parse(JSON.stringify(current)) : emptyDraft(host, pathname);
+      mutate(next);
+      return { ...(drafts ?? {}), [key]: next };
+    });
+    return next;
+  }
+
   async clearDraft(host: string, pathname: string | null): Promise<void> {
     const key = keyFor(host, pathname);
     await this.draftsState.update((drafts) => {

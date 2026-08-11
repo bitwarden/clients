@@ -112,6 +112,61 @@ describe("WebmapperDraftService", () => {
     });
   });
 
+  describe("updateDraft", () => {
+    it("applies the mutation to the stored draft", async () => {
+      await service.setDraft(draftWith("example.com", "/login"));
+
+      const next = await service.updateDraft("example.com", "/login", (d) => {
+        d.irrelevant = true;
+      });
+
+      expect(next.irrelevant).toBe(true);
+      expect((await service.getDraft("example.com", "/login")).irrelevant).toBe(true);
+    });
+
+    it("seeds an empty draft when nothing is stored yet", async () => {
+      const next = await service.updateDraft("example.com", "/login", (d) => {
+        d.forms[0].category = "identity";
+      });
+
+      expect(next.host).toBe("example.com");
+      expect(next.forms[0].category).toBe("identity");
+    });
+
+    it("does not mutate the caller's previously-read copy", async () => {
+      await service.setDraft(draftWith("example.com", "/login"));
+      const read = await service.getDraft("example.com", "/login");
+
+      await service.updateDraft("example.com", "/login", (d) => {
+        d.irrelevant = true;
+      });
+
+      expect(read.irrelevant).toBe(false);
+    });
+
+    // Background capture and the open panel both write this key. A whole-object
+    // write from a stale read silently drops whatever landed in between.
+    it("keeps a write that landed after the caller last read", async () => {
+      // The background reads, then awaits a content-script round trip.
+      const beforeRoundTrip = await service.getDraft("example.com", "/login");
+
+      // Meanwhile the panel marks the page irrelevant.
+      await service.updateDraft("example.com", "/login", (d) => {
+        d.irrelevant = true;
+      });
+
+      // The content script answers; the background records its capture.
+      expect(beforeRoundTrip.irrelevant).toBe(false);
+      await service.updateDraft("example.com", "/login", (d) => {
+        d.forms[0].fields.username = [{ selector: "#u", warnings: [], alternates: [] }];
+      });
+
+      const final = await service.getDraft("example.com", "/login");
+      expect(final.forms[0].fields.username).toHaveLength(1);
+      expect(final.irrelevant).toBe(true);
+    });
+  });
+
   describe("clearDraft", () => {
     it("removes the draft for the key, reverting to empty", async () => {
       await service.setDraft(draftWith("example.com", "/login"));

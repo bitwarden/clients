@@ -55,6 +55,13 @@ describe("WebmapperComponent", () => {
     draftService.draft$.mockReturnValue(draft$.asObservable());
     draftService.setDraft.mockResolvedValue(undefined);
     draftService.clearDraft.mockResolvedValue(undefined);
+    // Mirrors the real service: the mutation is applied to a copy of the draft as
+    // it stands at write time, and the result is handed back to the caller.
+    draftService.updateDraft.mockImplementation(async (_host, _pathname, fn) => {
+      const next = JSON.parse(JSON.stringify(component.draft() ?? draft$.value)) as WebmapperDraft;
+      fn(next);
+      return next;
+    });
 
     platformUtilsService = mock<PlatformUtilsService>();
     toastService = mock<ToastService>();
@@ -258,29 +265,36 @@ describe("WebmapperComponent", () => {
   });
 
   describe("draft mutations", () => {
+    /** Mutations are keyed off the loaded page, so both signals must be set. */
+    function loaded(draft: WebmapperDraft) {
+      component.url.set({ host: HOST, pathname: PATH });
+      component.draft.set(draft);
+    }
+
     it("persists form-level actions through the draft service", () => {
-      component.draft.set(emptyDraft(HOST, PATH));
+      loaded(emptyDraft(HOST, PATH));
 
       component.setCategory(0, "login");
-      expect(draftService.setDraft).toHaveBeenCalledTimes(1);
+      expect(draftService.updateDraft).toHaveBeenCalledTimes(1);
 
       component.addForm();
       component.removeForm(1);
       component.setActiveForm(0);
       component.toggleIrrelevant();
-      expect(draftService.setDraft).toHaveBeenCalledTimes(5);
+      expect(draftService.updateDraft).toHaveBeenCalledTimes(5);
     });
 
-    it("does nothing when there is no loaded draft", () => {
+    it("does nothing when no page is loaded", () => {
+      component.url.set(null);
       component.draft.set(null);
       component.setCategory(0, "login");
-      expect(draftService.setDraft).not.toHaveBeenCalled();
+      expect(draftService.updateDraft).not.toHaveBeenCalled();
     });
 
     it("edits a selector via startEdit/saveEdit and updates the signal", async () => {
       const draft = emptyDraft(HOST, PATH);
       addSelector(draft, component.fieldsSlot("username"), fieldEntry("#old"));
-      component.draft.set(draft);
+      loaded(draft);
 
       component.startEdit(component.addressAt(0, component.fieldsSlot("username"), 0), "#old");
       expect(component.editValue()).toBe("#old");
@@ -289,26 +303,26 @@ describe("WebmapperComponent", () => {
       component.saveEdit();
       await flush();
 
-      expect(draftService.setDraft).toHaveBeenCalled();
+      expect(draftService.updateDraft).toHaveBeenCalled();
       expect(component.draft()!.forms[0].fields.username[0].selector).toBe("#new");
       expect(component.editing()).toBeNull();
     });
 
     it("does not enter edit mode for a sequence (array) selector", () => {
-      component.draft.set(emptyDraft(HOST, PATH));
+      loaded(emptyDraft(HOST, PATH));
       component.startEdit(component.addressAt(0, component.fieldsSlot("username"), 0), ["a", "b"]);
       expect(component.editing()).toBeNull();
     });
 
     it("cancels the edit when the value is blank", () => {
-      component.draft.set(emptyDraft(HOST, PATH));
+      loaded(emptyDraft(HOST, PATH));
       component.editing.set(component.addressAt(0, component.fieldsSlot("username"), 0));
       component.editValue.set("   ");
 
       component.saveEdit();
 
       expect(component.editing()).toBeNull();
-      expect(draftService.setDraft).not.toHaveBeenCalled();
+      expect(draftService.updateDraft).not.toHaveBeenCalled();
     });
 
     it("removes a selector and swaps an alternate through the service", () => {
@@ -318,19 +332,19 @@ describe("WebmapperComponent", () => {
         warnings: [],
         alternates: ["#b"],
       });
-      component.draft.set(draft);
+      loaded(draft);
 
       component.swapAlternate(component.addressAt(0, component.fieldsSlot("username"), 0), 0);
       component.removeSelector(component.addressAt(0, component.fieldsSlot("username"), 0));
 
-      expect(draftService.setDraft).toHaveBeenCalledTimes(2);
+      expect(draftService.updateDraft).toHaveBeenCalledTimes(2);
     });
 
     it("routes container actions through the service", () => {
-      component.draft.set(emptyDraft(HOST, PATH));
+      loaded(emptyDraft(HOST, PATH));
       component.pickContainer(0, 0);
       component.cancelContainer(0);
-      expect(draftService.setDraft).toHaveBeenCalledTimes(2);
+      expect(draftService.updateDraft).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -426,6 +440,7 @@ describe("WebmapperComponent template", () => {
   let fixture: ComponentFixture<WebmapperComponent>;
   let draftService: MockProxy<WebmapperDraftService>;
   let draft$: BehaviorSubject<WebmapperDraft>;
+  let lastWritten: WebmapperDraft | null;
 
   const flush = () => new Promise((resolve) => setTimeout(resolve));
 
@@ -442,16 +457,23 @@ describe("WebmapperComponent template", () => {
     return fixture.debugElement.query(By.css(`#${id}`))?.nativeElement as T;
   }
 
-  /** The draft the component last handed to the service for persistence. */
+  /** The draft the component last wrote through the service. */
   function persisted(): WebmapperDraft {
-    return draftService.setDraft.mock.calls.at(-1)![0];
+    return lastWritten!;
   }
 
   beforeEach(async () => {
+    lastWritten = null;
     draft$ = new BehaviorSubject<WebmapperDraft>(emptyDraft(HOST, PATH));
     draftService = mock<WebmapperDraftService>();
     draftService.draft$.mockReturnValue(draft$.asObservable());
     draftService.setDraft.mockResolvedValue(undefined);
+    draftService.updateDraft.mockImplementation(async (_host, _pathname, fn) => {
+      const next = JSON.parse(JSON.stringify(component.draft() ?? draft$.value)) as WebmapperDraft;
+      fn(next);
+      lastWritten = next;
+      return next;
+    });
 
     global.chrome = {
       tabs: {
@@ -589,6 +611,94 @@ describe("WebmapperComponent template", () => {
 
       const input = byId<HTMLInputElement>("webmapper_input_edit-selector-0-fields-username-0");
       expect(input.value).toBe("#user");
+    });
+
+    // `editing` is a positional address, so anything that renumbers or replaces
+    // entries must drop it — otherwise the pending text lands in the wrong entry.
+    describe("a pending edit does not survive a structural change", () => {
+      /** Three username selectors, with an edit pending on the middle one. */
+      async function editingTheMiddleOf(stored: WebmapperDraft): Promise<void> {
+        for (const sel of ["#a", "#b", "#c"]) {
+          addSelector(stored, component.fieldsSlot("username"), fieldEntry(sel));
+        }
+        await render(stored);
+
+        byId("webmapper_button_edit-selector-0-fields-username-1").click();
+        fixture.detectChanges();
+        expect(component.editValue()).toBe("#b");
+      }
+
+      it("removing an earlier selector does not overwrite the one that inherits the index", async () => {
+        const stored = emptyDraft(HOST, PATH);
+        await editingTheMiddleOf(stored);
+
+        byId("webmapper_button_remove-selector-0-fields-username-0").click();
+        await flush();
+        fixture.detectChanges();
+
+        expect(component.editing()).toBeNull();
+        expect(persisted().forms[0].fields.username.map((e) => e.selector)).toEqual(["#b", "#c"]);
+      });
+
+      it("swapping an alternate under the edited entry does not overwrite the swap", async () => {
+        const stored = emptyDraft(HOST, PATH);
+        addSelector(stored, component.fieldsSlot("username"), {
+          selector: "#chosen",
+          warnings: [],
+          alternates: ["#alt"],
+        });
+        await render(stored);
+
+        byId("webmapper_button_edit-selector-0-fields-username-0").click();
+        fixture.detectChanges();
+
+        // The alternates row renders outside the edit branch, so it stays clickable.
+        byId("webmapper_button_use-alternate-0-fields-username-0-0").click();
+        await flush();
+        fixture.detectChanges();
+
+        expect(component.editing()).toBeNull();
+        expect(persisted().forms[0].fields.username[0].selector).toBe("#alt");
+      });
+
+      it("removing a form drops an edit pending in another form", async () => {
+        const stored = emptyDraft(HOST, PATH);
+        addSelector(stored, component.fieldsSlot("username"), fieldEntry("#form0"));
+        addForm(stored);
+        setActiveForm(stored, 1);
+        addSelector(stored, component.fieldsSlot("username"), fieldEntry("#form1"));
+        await render(stored);
+
+        byId("webmapper_button_edit-selector-1-fields-username-0").click();
+        fixture.detectChanges();
+        expect(component.editValue()).toBe("#form1");
+
+        byId("webmapper_button_remove-form-0").click();
+        await flush();
+        fixture.detectChanges();
+
+        expect(component.editing()).toBeNull();
+        expect(persisted().forms).toHaveLength(1);
+        expect(persisted().forms[0].fields.username[0].selector).toBe("#form1");
+      });
+
+      it("drops an edit when the panel follows the browser to another page", async () => {
+        const stored = emptyDraft(HOST, PATH);
+        addSelector(stored, component.fieldsSlot("username"), fieldEntry("#u"));
+        await render(stored);
+
+        byId("webmapper_button_edit-selector-0-fields-username-0").click();
+        fixture.detectChanges();
+        expect(component.editing()).not.toBeNull();
+
+        jest
+          .spyOn(BrowserApi, "getCurrentTab")
+          .mockResolvedValue({ id: 43, url: "https://other.test/signup" } as chrome.tabs.Tab);
+        await component.ngOnInit();
+        await flush();
+
+        expect(component.editing()).toBeNull();
+      });
     });
 
     it("disables editing for a sequence selector", async () => {

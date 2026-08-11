@@ -51,9 +51,7 @@ import {
 import { CATEGORIES } from "../../webmapper/keys";
 import { parseUrl, ParsedUrl } from "../../webmapper/url";
 
-// Identifies one selector entry within the draft: which form, which slot, which
-// position in that slot's list. The whole surface (edit, remove, swap, is-editing)
-// speaks this instead of loose (formIndex, kind, key, selectorIndex) tuples.
+/** Positional address of one selector entry within the draft. */
 type SelectorAddress = { formIndex: number; slot: Slot; selectorIndex: number };
 
 function sameSlot(a: Slot, b: Slot): boolean {
@@ -176,25 +174,28 @@ export class WebmapperComponent implements OnInit, OnDestroy {
     }
     this.tabId.set(tab?.id);
     this.exportText.set(null);
+    // An edit belongs to the page it was started on.
+    this.cancelEdit();
     // Setting `url` drives the draft-loading pipeline in the constructor.
     this.url.set(tab?.url ? parseUrl(tab.url) : null);
   }
 
+  /**
+   * `editing` must never outlive a change to the structure it points into: it is a
+   * positional address, and a mutation can renumber or replace the entry there, so a
+   * later save would land in whichever entry inherited the index. Dropping the edit
+   * here holds that for every action, including ones added later.
+   */
   private async mutate(fn: (draft: WebmapperDraft) => void) {
-    const draft = this.draft();
-    if (!draft) {
+    this.cancelEdit();
+    const url = this.url();
+    if (!url) {
       return;
     }
-    fn(draft);
-    await this.persist(draft);
+    // Applied at write time rather than to the local copy: a background capture
+    // can land between the panel's read and its write.
+    this.draft.set(await this.draftService.updateDraft(url.host, url.pathname, fn));
   }
-
-  private async persist(draft: WebmapperDraft) {
-    await this.draftService.setDraft(draft);
-    this.draft.set({ ...draft });
-  }
-
-  // ---------- template helpers ----------
 
   keysOf(map: Record<string, SelectorEntry[]>): string[] {
     return Object.keys(map);
@@ -224,11 +225,7 @@ export class WebmapperComponent implements OnInit, OnDestroy {
     return { formIndex, slot, selectorIndex };
   }
 
-  /**
-   * Slug identifying one selector entry, so the controls repeated for it can carry
-   * unique DOM ids. Field and action keys are camelCase identifiers, so the result
-   * is always id-safe.
-   */
+  /** Unique DOM-id fragment for an entry's controls; keys are camelCase, so id-safe. */
   addressId(address: SelectorAddress): string {
     const slot =
       address.slot.kind === "container" ? "container" : `${address.slot.kind}-${address.slot.key}`;
@@ -244,8 +241,6 @@ export class WebmapperComponent implements OnInit, OnDestroy {
       sameSlot(e.slot, address.slot)
     );
   }
-
-  // ---------- form-level actions ----------
 
   setCategory(formIndex: number, value: string) {
     void this.mutate((d) => setCategory(d, formIndex, value));
@@ -267,8 +262,6 @@ export class WebmapperComponent implements OnInit, OnDestroy {
     void this.mutate((d) => toggleIrrelevant(d));
   }
 
-  // ---------- container chooser ----------
-
   pickContainer(formIndex: number, candidateIndex: number) {
     void this.mutate((d) => pickContainerCandidate(d, formIndex, candidateIndex));
   }
@@ -276,8 +269,6 @@ export class WebmapperComponent implements OnInit, OnDestroy {
   cancelContainer(formIndex: number) {
     void this.mutate((d) => cancelPendingContainer(d, formIndex));
   }
-
-  // ---------- selector entry actions ----------
 
   startEdit(address: SelectorAddress, current: SelectorValue) {
     if (Array.isArray(current)) {
@@ -288,6 +279,7 @@ export class WebmapperComponent implements OnInit, OnDestroy {
   }
 
   saveEdit() {
+    // Read both before mutate() — it clears the edit state on the way in.
     const e = this.editing();
     const next = this.editValue().trim();
     if (!e || !next) {
@@ -295,7 +287,6 @@ export class WebmapperComponent implements OnInit, OnDestroy {
       return;
     }
     void this.mutate((d) => editSelectorAt(d, e.formIndex, e.slot, e.selectorIndex, next));
-    this.cancelEdit();
   }
 
   cancelEdit() {
@@ -314,8 +305,6 @@ export class WebmapperComponent implements OnInit, OnDestroy {
       swapAlternateAt(d, address.formIndex, address.slot, address.selectorIndex, alternateIndex),
     );
   }
-
-  // ---------- export / clear ----------
 
   async copyJsonc() {
     const draft = this.draft();

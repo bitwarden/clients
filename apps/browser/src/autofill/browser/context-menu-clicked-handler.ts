@@ -56,12 +56,11 @@ import {
   setPendingContainer,
   Slot,
   toggleIrrelevant,
-  WebmapperDraft,
 } from "../webmapper/draft";
 import { isWebmapperMenuId, parseWebmapperMenuId, WebmapperMenuAction } from "../webmapper/menu";
 import { WebmapperCommand, WebmapperContainerCandidatesResponse } from "../webmapper/messaging";
 import { GeneratedSelector } from "../webmapper/selector";
-import { parseUrl } from "../webmapper/url";
+import { ParsedUrl, parseUrl } from "../webmapper/url";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
 export type CopyToClipboardAction = (options: CopyToClipboardOptions) => void;
@@ -391,24 +390,26 @@ export class ContextMenuClickedHandler {
       return;
     }
 
-    const draft = await this.webmapperDrafts.getDraft(parsed.host, parsed.pathname);
-
     switch (action.kind) {
-      case "toggle-irrelevant":
-        toggleIrrelevant(draft);
-        await this.webmapperDrafts.setDraft(draft);
+      case "toggle-irrelevant": {
+        const next = await this.webmapperDrafts.updateDraft(
+          parsed.host,
+          parsed.pathname,
+          toggleIrrelevant,
+        );
         await this.sendWebmapperFeedback(
           tab.id,
           "success",
-          draft.irrelevant ? "Marked page irrelevant" : "Cleared irrelevant flag",
+          next.irrelevant ? "Marked page irrelevant" : "Cleared irrelevant flag",
         );
         return;
+      }
       case "set-container":
-        await this.webmapperPickContainer(draft, tab, info);
+        await this.webmapperPickContainer(parsed, tab, info);
         return;
       case "field":
       case "action":
-        await this.webmapperCapture(draft, tab, info, action);
+        await this.webmapperCapture(parsed, tab, info, action);
         return;
     }
   }
@@ -433,7 +434,7 @@ export class ContextMenuClickedHandler {
   }
 
   private async webmapperCapture(
-    draft: WebmapperDraft,
+    parsed: ParsedUrl,
     tab: chrome.tabs.Tab,
     info: chrome.contextMenus.OnClickData,
     action: Extract<WebmapperMenuAction, { key: string }>,
@@ -465,8 +466,11 @@ export class ContextMenuClickedHandler {
       kind: action.kind === "field" ? "fields" : "actions",
       key: action.key,
     };
-    addSelector(draft, slot, captured);
-    await this.webmapperDrafts.setDraft(draft);
+    // Written through updateDraft, not a read-modify-write: the selector round trip
+    // above is long enough for the open panel to have persisted an edit meanwhile.
+    await this.webmapperDrafts.updateDraft(parsed.host, parsed.pathname, (d) =>
+      addSelector(d, slot, captured),
+    );
 
     const warnCount = captured.warnings.length;
     const warnSuffix = warnCount ? ` (${warnCount} warning${warnCount === 1 ? "" : "s"})` : "";
@@ -478,10 +482,12 @@ export class ContextMenuClickedHandler {
   }
 
   private async webmapperPickContainer(
-    draft: WebmapperDraft,
+    parsed: ParsedUrl,
     tab: chrome.tabs.Tab,
     info: chrome.contextMenus.OnClickData,
   ) {
+    // Read only to seed the candidate walk; the write below re-reads.
+    const draft = await this.webmapperDrafts.getDraft(parsed.host, parsed.pathname);
     const candidates = await this.webmapperGetContainerCandidates(
       tab,
       info,
@@ -503,8 +509,9 @@ export class ContextMenuClickedHandler {
       );
       return;
     }
-    setPendingContainer(draft, candidates);
-    await this.webmapperDrafts.setDraft(draft);
+    await this.webmapperDrafts.updateDraft(parsed.host, parsed.pathname, (d) =>
+      setPendingContainer(d, candidates),
+    );
     await this.sendWebmapperFeedback(
       tab.id!,
       "success",

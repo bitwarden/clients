@@ -2,17 +2,12 @@
 // slice of map-the-web's forms.jsonc, with extra per-selector metadata
 // (warnings, alternates) stripped at export time.
 //
-// A `slot` identifies a list of selector entries within a form:
-//   { kind: "fields",    key }   → form.fields[key]
-//   { kind: "actions",   key }   → form.actions[key]
-//   { kind: "container"      }   → form.container
-// All four edit operations (add, edit, swap, remove) are parametrised by slot
-// so the three list kinds share one implementation. Container has no `add`:
-// it goes through the pending-container chooser flow instead.
+// Edit operations are parametrised by `slot` so the three list kinds share one
+// implementation. Container has no `add`: it goes through the pending-container
+// chooser instead.
 //
-// These operations are pure and mutate the draft in place; persistence and
-// chrome.storage sync live in the storage service. With OnPush change
-// detection, callers must publish a new draft reference after mutating.
+// These operations mutate the draft in place; persistence lives in the storage
+// service, and its updateDraft supplies the copy they mutate.
 
 // A selector is a string, or an array of strings for sequences (one logical
 // value spread across multiple inputs) — matching the schema's compositeSelector
@@ -87,8 +82,6 @@ function ensureActiveForm(draft: WebmapperDraft): WebmapperForm {
   return draft.forms[draft.activeFormIndex];
 }
 
-// ---------- slot resolution ----------
-
 // Read the list at `slot` in `form`, or null/undefined if not present.
 // Never creates a list; callers that need to write use `ensureSlotList`.
 function slotList(form: WebmapperForm | undefined, slot: Slot): SelectorEntry[] | null | undefined {
@@ -124,8 +117,6 @@ function clearEmptySlot(form: WebmapperForm, slot: Slot): void {
     delete form[slot.kind][slot.key];
   }
 }
-
-// ---------- slot operations ----------
 
 // Add a captured selector to the active form. Container uses the pending-
 // candidate flow instead; passing kind:"container" here is a usage error.
@@ -191,8 +182,6 @@ export function removeSelectorAt(
   clearEmptySlot(form, slot);
 }
 
-// ---------- container workflow ----------
-
 export function setPendingContainer(
   draft: WebmapperDraft,
   candidates: ContainerCandidate[] | null,
@@ -222,8 +211,6 @@ export function cancelPendingContainer(draft: WebmapperDraft, formIndex: number)
     draft.forms[formIndex].pendingContainer = null;
   }
 }
-
-// ---------- form-level operations ----------
 
 export function fieldSelectorsForActive(draft: WebmapperDraft): string[] {
   const form = draft.forms[draft.activeFormIndex];
@@ -276,8 +263,6 @@ export function setActiveForm(draft: WebmapperDraft, formIndex: number): void {
 export function toggleIrrelevant(draft: WebmapperDraft): void {
   draft.irrelevant = !draft.irrelevant;
 }
-
-// ---------- validation / serialisation ----------
 
 function isFormPristine(form: WebmapperForm): boolean {
   return (

@@ -1,12 +1,5 @@
 // Selector generator for webmapper.
 //
-// generateSelector(element) → {
-//   selector,        // chosen CSS selector (with ">>>" across shadow boundaries)
-//   matches,         // # of matches for the chosen selector in its root
-//   alternates,      // other unique candidates worth offering the user
-//   warnings,        // human-readable cautions (auto-gen ids, positional, etc.)
-// }
-//
 // Strategy per element (within its own root):
 //   1. #id (if id looks stable)
 //   2. tag[name="..."]
@@ -24,8 +17,11 @@
 // selectors with " >>> ".
 
 export interface GeneratedSelector {
+  /** Chosen selector, joined with `>>>` across shadow boundaries. */
   selector: string | null;
+  /** How many elements the chosen selector matches within its own root. */
   matches: number;
+  /** Other unique candidates worth offering the user. */
   alternates: string[];
   warnings: string[];
   /** True when any segment fell back to a positional/structural chain. */
@@ -229,15 +225,9 @@ function chooseForSegment(element: Element): SegmentResult {
   return { selector: chosen, alternates, warnings, structural };
 }
 
-// DEFERRED: closed shadow roots.
-// `event.composedPath()` is retargeted at a closed boundary — its first entry is
-// the closed root's host, not the clicked inner element — so capture can't see the
-// true target. The descent primitive already exists in this repo:
-// DomQueryService.getShadowRoot uses `chrome.dom.openOrClosedShadowRoot` (Chrome) /
-// `host.openOrClosedShadowRoot` (Firefox) to enter a closed root without patching
-// the page (preferred over the `attachShadow`/MAIN-world override map-the-web notes).
-// Recovering the click target would layer coordinate hit-testing over that descent;
-// `shadowSegments` below already walks *up* correctly via getRootNode(). Later pass.
+// DEFERRED: closed shadow roots. composedPath() is retargeted at a closed boundary,
+// so capture sees the host, not the clicked element. Descending needs
+// DomQueryService.getShadowRoot plus coordinate hit-testing; walking *up* is fine.
 //
 // Walks up shadow boundaries, returning one element per segment from outermost
 // (doc-rooted) to innermost (the target element).
