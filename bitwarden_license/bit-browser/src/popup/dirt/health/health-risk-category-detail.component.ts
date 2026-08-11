@@ -5,6 +5,7 @@ import { filter, map, switchMap, take } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
+import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
@@ -63,17 +64,17 @@ export class HealthRiskCategoryDetailComponent {
   }>(() => {
     const keys: { titleKey?: string; descriptionKey?: string; emptyKey?: string } = {};
     switch (this.category()) {
-      case "exposed-passwords":
+      case RiskCategory.Exposed:
         keys.titleKey = "exposedPasswordsTitle";
         keys.descriptionKey = "exposedPasswordsDescription";
         keys.emptyKey = "exposedPasswordsEmpty";
         break;
-      case "weak-passwords":
+      case RiskCategory.Weak:
         keys.titleKey = "weakPasswordsTitle";
         keys.descriptionKey = "weakPasswordsDescription";
         keys.emptyKey = "weakPasswordsEmpty";
         break;
-      case "reused-passwords":
+      case RiskCategory.Reused:
         keys.titleKey = "reusedPasswordsTitle";
         keys.descriptionKey = "reusedPasswordsDescription";
         keys.emptyKey = "reusedPasswordsEmpty";
@@ -83,11 +84,11 @@ export class HealthRiskCategoryDetailComponent {
   });
   readonly emptyIcon = computed(() => {
     switch (this.category()) {
-      case "exposed-passwords":
+      case RiskCategory.Exposed:
         return ReportExposedPasswords;
-      case "weak-passwords":
+      case RiskCategory.Weak:
         return UnlockedIcon;
-      case "reused-passwords":
+      case RiskCategory.Reused:
         return NoCredentialsIcon;
     }
   });

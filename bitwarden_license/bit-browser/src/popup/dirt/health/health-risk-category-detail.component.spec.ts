@@ -12,6 +12,7 @@ import {
   ReportExposedPasswords,
   UnlockedIcon,
 } from "@bitwarden/assets/svg";
+import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
@@ -76,21 +77,21 @@ class MockAppVaultIcon {
 /** The route param, and the content the page is expected to render for it. */
 const categories = [
   {
-    category: "exposed-passwords",
+    category: RiskCategory.Exposed,
     titleKey: "exposedPasswordsTitle",
     descriptionKey: "exposedPasswordsDescription",
     emptyKey: "exposedPasswordsEmpty",
     icon: ReportExposedPasswords,
   },
   {
-    category: "weak-passwords",
+    category: RiskCategory.Weak,
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
     emptyKey: "weakPasswordsEmpty",
     icon: UnlockedIcon,
   },
   {
-    category: "reused-passwords",
+    category: RiskCategory.Reused,
     titleKey: "reusedPasswordsTitle",
     descriptionKey: "reusedPasswordsDescription",
     emptyKey: "reusedPasswordsEmpty",
@@ -307,12 +308,12 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     it("swaps the title, description and empty icon when the category changes", async () => {
-      params$.next({ category: "exposed-passwords" });
+      params$.next({ category: RiskCategory.Exposed });
       await initComponent();
       expect(pageTitle()).toBe("exposedPasswordsTitle");
       expect(text()).toContain("exposedPasswordsDescription");
 
-      params$.next({ category: "reused-passwords" });
+      params$.next({ category: RiskCategory.Reused });
       fixture.detectChanges();
 
       expect(pageTitle()).toBe("reusedPasswordsTitle");
