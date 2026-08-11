@@ -91,11 +91,6 @@ if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
     Exit 1
 }
 
-# No cargo-xwin precheck here: `npm run build-native` (below) installs it at the
-# version pinned in desktop_native/Cargo.toml under [workspace.metadata.bin].
-# Checking for it up front would both fail before that install could run, and
-# duplicate the pinned version number into this file.
-
 try {
 
 # Resolve certificate file before we change directories.
