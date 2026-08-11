@@ -1,5 +1,7 @@
 import { ElementRef } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { FormControl, FormGroup } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
@@ -8,6 +10,8 @@ import { BehaviorSubject, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -22,12 +26,15 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
+  ChipFilterOption,
   CompactModeService,
   DialogService,
+  FilterMenuComponent,
   ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
@@ -36,6 +43,7 @@ import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vau
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -112,6 +120,28 @@ describe("VaultPopupListTableComponent", () => {
     updateSectionOpenStoredState: jest.fn(),
   };
 
+  // A real `FormGroup`, since the filter chips are bridged to it by `VaultFilterChipDirective` and
+  // the two-way sync is exercised through its actual value/`valueChanges` behavior.
+  const filterForm = new FormGroup({
+    organization: new FormControl<Organization | null>(null),
+    collection: new FormControl<CollectionView | null>(null),
+    folder: new FormControl<FolderView | null>(null),
+    cipherType: new FormControl<CipherType | null>(null),
+  });
+
+  const cipherTypes$ = new BehaviorSubject<ChipFilterOption<CipherType>[]>([]);
+  const organizations$ = new BehaviorSubject<ChipFilterOption<Organization>[]>([]);
+  const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
+  const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
+
+  const vaultPopupListFiltersService = {
+    filterForm,
+    cipherTypes$: cipherTypes$.asObservable(),
+    organizations$: organizations$.asObservable(),
+    collections$: collections$.asObservable(),
+    folders$: folders$.asObservable(),
+  };
+
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
   const compactModeService = {
     enabled$: compactModeEnabled$.asObservable(),
@@ -128,6 +158,11 @@ describe("VaultPopupListTableComponent", () => {
     searchText$.next("");
     hasSearchText$.next(false);
     compactModeEnabled$.next(false);
+    filterForm.reset({ organization: null, collection: null, folder: null, cipherType: null });
+    cipherTypes$.next([]);
+    organizations$.next([]);
+    collections$.next([]);
+    folders$.next([]);
     clickItemsToAutofillVaultView$.next(true);
 
     await TestBed.configureTestingModule({
@@ -139,6 +174,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
         { provide: VaultPopupLoadingService, useValue: vaultPopupLoadingService },
         { provide: VaultPopupSectionService, useValue: vaultPopupSectionService },
+        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersService },
         { provide: CompactModeService, useValue: compactModeService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -401,6 +437,91 @@ describe("VaultPopupListTableComponent", () => {
       const row = makeRow("autofill", { type: CipherType.Identity });
       expect(component["isCard"](row)).toBe(false);
       expect(component["isIdentity"](row)).toBe(true);
+    });
+  });
+
+  /**
+   * The chips are bridged to `VaultPopupListFiltersService.filterForm` rather than owning the
+   * filter state themselves, so these assert the round trip in both directions. Filtering itself
+   * is applied upstream (`filterFunction$` in `VaultPopupItemsService`), so a chip's job ends at
+   * writing the form.
+   */
+  describe("filter chips", () => {
+    /** Resolves the projected `bit-filter-menu` for a `filterForm` control. */
+    const chipFor = (key: string) =>
+      fixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((chip) => chip.componentInstance.key() === key)?.componentInstance;
+
+    it("renders a chip per dimension, omitting those whose options are empty", () => {
+      cipherTypes$.next([{ value: CipherType.Login, label: "Login" }]);
+      fixture.detectChanges();
+
+      // Type is unconditional; the other three are hidden while their option streams are empty
+      // (no orgs, or folders/collections narrowed away by the selected organization).
+      expect(chipFor("cipherType")).toBeDefined();
+      expect(chipFor("organization")).toBeUndefined();
+      expect(chipFor("collection")).toBeUndefined();
+      expect(chipFor("folder")).toBeUndefined();
+
+      organizations$.next([{ value: { id: "org-1" } as Organization, label: "Org 1" }]);
+      fixture.detectChanges();
+
+      expect(chipFor("organization")).toBeDefined();
+    });
+
+    it("writes a chip selection back to its filterForm control", () => {
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      chipFor("cipherType").toggle(CipherType.Card);
+      fixture.detectChanges();
+
+      expect(filterForm.controls.cipherType.value).toBe(CipherType.Card);
+    });
+
+    it("clears the filterForm control when the chip is cleared", () => {
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      chipFor("cipherType").toggle(CipherType.Card);
+      fixture.detectChanges();
+      chipFor("cipherType").clear();
+      fixture.detectChanges();
+
+      expect(filterForm.controls.cipherType.value).toBeNull();
+    });
+
+    it("reflects filterForm writes made outside the table onto the chip", () => {
+      cipherTypes$.next([{ value: CipherType.Identity, label: "Identity" }]);
+      fixture.detectChanges();
+
+      // e.g. the vault header's own filter UI, or `resetFilterForm()`.
+      filterForm.controls.cipherType.setValue(CipherType.Identity);
+      fixture.detectChanges();
+
+      expect(chipFor("cipherType").value()).toBe(CipherType.Identity);
+      expect(chipFor("cipherType").active()).toBe(true);
+    });
+
+    it("seeds a chip from filters already applied before it rendered", () => {
+      // The view cache restores filters into the form before the table mounts.
+      filterForm.controls.cipherType.setValue(CipherType.Card);
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      expect(chipFor("cipherType").value()).toBe(CipherType.Card);
+    });
+
+    it("flattens nested folder options into one option per node", () => {
+      const parent = { id: "f-1", name: "Parent" } as FolderView;
+      const child = { id: "f-2", name: "Parent/Child" } as FolderView;
+      folders$.next([
+        { value: parent, label: "Parent", children: [{ value: child, label: "Parent/Child" }] },
+      ]);
+      fixture.detectChanges();
+
+      expect(component["folderOptions"]().map((o) => o.value)).toEqual([parent, child]);
     });
   });
 

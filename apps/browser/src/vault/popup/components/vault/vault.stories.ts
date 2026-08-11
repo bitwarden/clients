@@ -47,6 +47,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -72,7 +73,10 @@ import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/p
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
-import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import {
+  MY_VAULT_ID,
+  VaultPopupListFiltersService,
+} from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../services/vault-popup-section.service";
@@ -236,6 +240,54 @@ const STORY_USER_ID = "00000000-0000-4000-8000-0000000000ff" as UserId;
 const STORY_ORG_ID = "00000000-0000-4000-8000-0000000000fe" as OrganizationId;
 
 /**
+ * Options for the list table's toolbar filter chips (VFO1 on). Each chip only renders when its
+ * stream has entries, so these decide which of Vault / Shared folders / My folders appear at all —
+ * without them the toolbar would show a lone inert Type chip, under-representing the real one.
+ *
+ * IDs are fixed rather than generated: these feed chip labels that Chromatic snapshots.
+ */
+const FILTER_ORGANIZATION_OPTIONS = [
+  { value: { id: MY_VAULT_ID } as Organization, label: "My vault", icon: "bwi-user" as const },
+  { value: { id: STORY_ORG_ID } as Organization, label: "Acme Co", icon: "bwi-business" as const },
+];
+
+const FILTER_COLLECTION_OPTIONS = [
+  {
+    value: { id: "00000000-0000-4000-8000-0000000000fa", name: "Engineering" } as CollectionView,
+    label: "Engineering",
+  },
+  {
+    value: { id: "00000000-0000-4000-8000-0000000000fb", name: "Marketing" } as CollectionView,
+    label: "Marketing",
+  },
+];
+
+// Nested, to exercise the chip's tree flattening: the child renders as its own option.
+const FILTER_FOLDER_OPTIONS = [
+  {
+    value: { id: "00000000-0000-4000-8000-0000000000fc", name: "Work" } as FolderView,
+    label: "Work",
+    children: [
+      {
+        value: { id: "00000000-0000-4000-8000-0000000000fd", name: "Work/EU" } as FolderView,
+        label: "Work/EU",
+      },
+    ],
+  },
+  {
+    value: { id: "00000000-0000-4000-8000-0000000000f9", name: "Personal" } as FolderView,
+    label: "Personal",
+  },
+];
+
+const FILTER_CIPHER_TYPE_OPTIONS = [
+  { value: CipherType.Login, label: "Login" },
+  { value: CipherType.Card, label: "Card" },
+  { value: CipherType.Identity, label: "Identity" },
+  { value: CipherType.SecureNote, label: "Note" },
+];
+
+/**
  * Fixed so the org-notification banner's revision date never shifts between Chromatic builds. The
  * banner compares this against the dismissal timestamp in state (kept `null`) to decide visibility.
  */
@@ -385,14 +437,23 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         // The component's `loading$` stays true until `allFilters$` emits, so this must be a
         // BehaviorSubject-like stream with a value rather than a bare `Subject`.
-        allFilters$: of({ organizations: [], collections: [], folders: [] }),
+        // Kept in step with the individual streams below: the legacy (VFO1-off) header reads this
+        // one, the list table's chips read those, and a mismatch would make the two presentations
+        // disagree about which filters exist.
+        allFilters$: of({
+          organizations: FILTER_ORGANIZATION_OPTIONS,
+          collections: FILTER_COLLECTION_OPTIONS,
+          folders: FILTER_FOLDER_OPTIONS,
+        }),
+        // No filters applied, so the chips render in their unset state and the legacy header's
+        // count badge stays hidden — matching `hasFilterApplied$: of(false)` above.
         filters$: of({}),
         filterVisibilityState$: of(false),
         numberOfAppliedFilters$: of(0),
-        organizations$: of([]),
-        collections$: of([]),
-        folders$: of([]),
-        cipherTypes$: of([]),
+        organizations$: of(FILTER_ORGANIZATION_OPTIONS),
+        collections$: of(FILTER_COLLECTION_OPTIONS),
+        folders$: of(FILTER_FOLDER_OPTIONS),
+        cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         // `app-vault-list-filters` binds this directly to a `[formGroup]`, so it has to be a real
         // FormGroup with the controls the template names.
         filterForm: new FormBuilder().group({
@@ -629,6 +690,21 @@ const buildProviders = (args: StoryArgs) => {
           collection: "Collection",
           folder: "Folder",
           type: "Type",
+          // The list table's filter chips (flag on). The three vfo1-terminology chips resolve to
+          // the plural VFO1 keys, so omitting those makes `Vfo1I18nPipe` throw and the chips render
+          // label-less.
+          vaults: "Vaults",
+          sharedFolders: "Shared folders",
+          myFolders: "My folders",
+          all: "All",
+          // The chips' menus, and the dialog the filter row collapses into below `md`.
+          filter: "Filter",
+          filtersSelected: "__$1__ selected",
+          removeItem: "Remove __$1__",
+          clear: "Clear",
+          clearAll: "Clear all",
+          done: "Done",
+          noMatchingItems: "No matching items",
           // Legacy grouped list containers
           searchResults: "Search results",
           favorites: "Favorites",

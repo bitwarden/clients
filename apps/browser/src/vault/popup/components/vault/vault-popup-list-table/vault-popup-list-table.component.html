@@ -19,6 +19,64 @@
       (ngModelChange)="onSearchTextChanged()"
       appAutofocus
     ></bit-search>
+
+    <!--
+      The dimension chips. Each drives its `filterForm` control through
+      `bitVaultFilterChip`, which keeps the form authoritative rather than moving filter
+      state onto the chips — `filterFunction$` (applied upstream in
+      `VaultPopupItemsService`) reads the form, so a selection here re-narrows the rows
+      the table receives. Deliberately no Favorites toggle: favorites are their own
+      section rather than a filter.
+    -->
+    <bit-filter-menu
+      key="cipherType"
+      bitVaultFilterChip="cipherType"
+      [placeholderText]="'type' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of cipherTypeOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+
+    @if (organizationOptions().length) {
+      <bit-filter-menu
+        key="organization"
+        bitVaultFilterChip="organization"
+        [placeholderText]="'vault' | vfo1I18n: 'vaults'"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of organizationOptions(); track option.value.id) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (collectionOptions().length) {
+      <bit-filter-menu
+        key="collection"
+        bitVaultFilterChip="collection"
+        [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of collectionOptions(); track option.value.id) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (folderOptions().length) {
+      <bit-filter-menu
+        key="folder"
+        bitVaultFilterChip="folder"
+        [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of folderOptions(); track option.label) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
   <!-- Zeroes `bit-no-items`' built-in top padding, which would offset the centering. -->
   <bit-no-items slot="empty" class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0">

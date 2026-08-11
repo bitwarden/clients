@@ -17,9 +17,12 @@ import { filter, map, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -33,8 +36,10 @@ import {
   BitTableToolbarComponent,
   BitTableV2Component,
   ChipActionComponent,
+  ChipFilterOption,
   CompactModeService,
   defineTable,
+  FilterMenuModule,
   IconButtonModule,
   IconComponent,
   NoItemsModule,
@@ -42,11 +47,12 @@ import {
   SearchModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective } from "@bitwarden/vault";
+import { OrgIconDirective, Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 import {
   VaultPopupListTableService,
   VaultTableRow,
@@ -56,6 +62,13 @@ import { VaultPopupSectionService } from "../../../services/vault-popup-section.
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+
+import { VaultFilterChipDirective } from "./vault-filter-chip.directive";
+
+/** Flattens a nested `ChipFilterOption` tree into a single depth-first list. */
+function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
+  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
+}
 
 @Component({
   selector: "app-vault-popup-list-table",
@@ -81,6 +94,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    FilterMenuModule,
     IconButtonModule,
     IconComponent,
     NoItemsModule,
@@ -90,6 +104,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
+    VaultFilterChipDirective,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
 })
 export class VaultPopupListTableComponent implements OnDestroy {
@@ -98,6 +115,7 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
   private readonly listTableService = inject(VaultPopupListTableService);
+  private readonly listFiltersService = inject(VaultPopupListFiltersService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly scrollLayout = inject(ScrollLayoutService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -132,6 +150,35 @@ export class VaultPopupListTableComponent implements OnDestroy {
   });
 
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
+
+  /**
+   * The dimension-filter options. Each stream hides its own chip when empty — organizations are
+   * absent for a user with no orgs, and folders/collections narrow to the selected organization —
+   * so the chips are rendered conditionally on these having entries.
+   */
+  protected readonly cipherTypeOptions = toSignal(this.listFiltersService.cipherTypes$, {
+    initialValue: [] as ChipFilterOption<CipherType>[],
+  });
+
+  protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
+    initialValue: [] as ChipFilterOption<Organization>[],
+  });
+
+  private readonly collectionTree = toSignal(this.listFiltersService.collections$, {
+    initialValue: [] as ChipFilterOption<CollectionView>[],
+  });
+
+  private readonly folderTree = toSignal(this.listFiltersService.folders$, {
+    initialValue: [] as ChipFilterOption<FolderView>[],
+  });
+
+  /**
+   * Collections and folders arrive as nested trees, but a chip's options are a flat list, so the
+   * nesting is flattened into one option per node. Names already carry their full path (folders are
+   * nested by splitting on "/"), so a flat list still reads unambiguously.
+   */
+  protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
+  protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),
