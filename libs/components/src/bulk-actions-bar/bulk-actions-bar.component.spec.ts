@@ -735,6 +735,48 @@ describe("BulkActionsBarComponent — additional actions", () => {
     expect(document.activeElement).toBe(primary);
   });
 
+  it("returns the roving tabindex when the trigger hides", async () => {
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    // `End` moves the manager onto the trigger, leaving it the toolbar's only
+    // `tabindex="0"`.
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(trigger()!.getAttribute("tabindex")).toBe("0");
+
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    await flushOverflowReady();
+
+    // Without the handoff the toolbar's only tab stop would be a hidden
+    // element, dropping the whole bar out of the tab order.
+    expect(trigger()!.hidden).toBe(true);
+    expect(trigger()!.getAttribute("tabindex")).toBe("-1");
+    expect(closeBtn.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("moves focus off the trigger when it hides while focused", async () => {
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(trigger());
+
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    await flushOverflowReady();
+
+    expect(document.activeElement).toBe(closeBtn);
+  });
+
   it("re-shows the trigger and lets focus reach it when additional actions are toggled back on", async () => {
     host.showAdditional.set(false);
     fixture.detectChanges();

@@ -114,6 +114,15 @@ export class BulkActionsBarComponent {
   protected readonly visible = computed(() => this.effectiveCount() > 0);
 
   /**
+   * Mirrors the directive's trigger-hiding condition. Derived rather than read off
+   * `nativeElement.hidden`, which the directive may not have written yet.
+   */
+  private readonly triggerHidden = computed(() => {
+    const list = this.overflowList();
+    return list.ready() && list.overflow().length === 0 && !this.hasAdditionalActions();
+  });
+
+  /**
    * The bar's intrinsic width (in px), remeasured whenever the rendered toolbar
    * buttons change. Used both as the cap (`max-width`) and as the threshold for
    * entering compact mode.
@@ -243,34 +252,37 @@ export class BulkActionsBarComponent {
       onCleanup(() => manager.destroy());
     });
 
-    // Packing hides buttons without rebuilding the manager, so a roving
-    // tabindex left on one drops the toolbar out of the tab order.
+    // Packing a button into the menu — or hiding the trigger once nothing
+    // overflows — hides it without rebuilding the manager, so a roving tabindex
+    // left on it drops the toolbar out of the tab order.
     effect(() => {
       const list = this.overflowList();
       const packedAway = new Set(
         list.overflow().map((i) => list.items()[i]?.elementRef.nativeElement),
       );
+      const trigger = this.additionalActionsTrigger();
+      const triggerHidden = this.triggerHidden();
+      const unavailable = (item: BulkActionButtonComponent) =>
+        item.disabled ||
+        packedAway.has(item.elementRef.nativeElement) ||
+        (item === trigger && triggerHidden);
+
       const manager = this.keyManager();
       const items = this.managedItems();
-      const activeEl = items[manager?.activeItemIndex ?? -1]?.elementRef.nativeElement;
+      const active = items[manager?.activeItemIndex ?? -1];
 
-      if (manager == null || activeEl == null || !packedAway.has(activeEl)) {
+      if (manager == null || active == null || !unavailable(active)) {
         return;
       }
 
       // `updateActiveItem` bypasses `skipPredicate`, so pick a target that is
       // actually focusable rather than assuming the close button.
-      const next = items.findIndex(
-        (item) =>
-          !packedAway.has(item.elementRef.nativeElement) &&
-          !item.elementRef.nativeElement.hidden &&
-          !item.disabled,
-      );
+      const next = items.findIndex((item) => !unavailable(item));
       if (next === -1) {
         return;
       }
 
-      const hadFocus = activeEl === this.document.activeElement;
+      const hadFocus = active.elementRef.nativeElement === this.document.activeElement;
       manager.updateActiveItem(next);
       this.applyRovingTabIndex(next, items);
       if (hadFocus) {
