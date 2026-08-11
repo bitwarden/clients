@@ -44,6 +44,8 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AppComponent } from "./app.component";
 
@@ -100,6 +102,7 @@ describe("AppComponent (desktop)", () => {
           ngZone,
           mock<VaultTimeoutSettingsService>(),
           mock<KeyService>(),
+          mock<LegacyCompatKeyService>(),
           logService,
           mock<MessagingService>(),
           mock<ServerNotificationsService>(),
