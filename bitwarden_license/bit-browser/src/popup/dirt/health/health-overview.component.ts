@@ -21,7 +21,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AtRiskGaugeComponent } from "../shared/at-risk-gauge/at-risk-gauge.component";
 
-import { RiskCategoryItemComponent } from "./risk-category-item.component";
+import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 /**
  * How each risk category renders, in the fixed order the overview shows them.
@@ -86,7 +86,7 @@ const RISK_CATEGORY_ROWS: readonly {
   templateUrl: "./health-overview.component.html",
   imports: [
     AtRiskGaugeComponent,
-    RiskCategoryItemComponent,
+    RiskCategoryNavItemComponent,
     CardComponent,
     ItemModule,
     SectionHeaderComponent,

@@ -12,24 +12,26 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * A single row on the Health Overview: one vault-health risk category with its
- * deduplicated at-risk count and a link to that category's detail list.
+ * deduplicated at-risk count, navigating to that category's detail list. Named
+ * for the navigation so it stays distinct from the rows inside a category,
+ * which list individual logins.
  *
- * Presentational — it derives everything from its inputs and emits no events.
+ * Presentational: it derives everything from its inputs and emits no events.
  *
  * Renders the `<a bit-item-content>` only. The surrounding `<bit-item>` is
  * supplied by the consumer so that sibling rows are true siblings, which
  * `bit-item-group`'s compact-mode corner rounding depends on.
  */
 @Component({
-  selector: "dirt-risk-category-item",
-  templateUrl: "./risk-category-item.component.html",
+  selector: "dirt-risk-category-nav-item",
+  templateUrl: "./risk-category-nav-item.component.html",
   // display: contents so bit-item-content, not this wrapper, is the flex child
   // of bit-item-action and can span the full row width.
   host: { class: "tw-contents" },
   imports: [RouterModule, ItemModule, IconTileComponent, IconComponent, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RiskCategoryItemComponent {
+export class RiskCategoryNavItemComponent {
   /**
    * Localization key for the title when the count is 0, e.g.
    * "exposedPasswordsNone". Takes no placeholder.

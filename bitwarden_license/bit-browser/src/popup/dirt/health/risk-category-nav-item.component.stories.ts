@@ -4,11 +4,11 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService, ItemModule } from "@bitwarden/components";
 
-import { RiskCategoryItemComponent } from "./risk-category-item.component";
+import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 export default {
-  title: "Browser/DIRT/Risk Category Item",
-  component: RiskCategoryItemComponent,
+  title: "Browser/DIRT/Risk Category Nav Item",
+  component: RiskCategoryNavItemComponent,
   decorators: [
     moduleMetadata({
       imports: [RouterTestingModule, ItemModule],
@@ -68,7 +68,7 @@ export default {
     template: `
       <bit-item-group>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             [labelKeyNone]="labelKeyNone"
             [labelKeySingular]="labelKeySingular"
             [labelKeyPlural]="labelKeyPlural"
@@ -83,9 +83,9 @@ export default {
       </bit-item-group>
     `,
   }),
-} as Meta<RiskCategoryItemComponent>;
+} as Meta<RiskCategoryNavItemComponent>;
 
-type Story = StoryObj<RiskCategoryItemComponent>;
+type Story = StoryObj<RiskCategoryNavItemComponent>;
 
 /** At risk: a positive count, with the category's own icon and tile colour. */
 export const AtRisk: Story = {};
@@ -111,7 +111,7 @@ export const AllCategories: Story = {
     template: `
       <bit-item-group>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="exposedPasswordsNone"
             labelKeySingular="exposedPassword"
             labelKeyPlural="exposedPasswordsPlural"
@@ -124,7 +124,7 @@ export const AllCategories: Story = {
           />
         </bit-item>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="weakPasswordsNone"
             labelKeySingular="weakPassword"
             labelKeyPlural="weakPasswordsPlural"
@@ -137,7 +137,7 @@ export const AllCategories: Story = {
           />
         </bit-item>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="reusedPasswordsNone"
             labelKeySingular="reusedPassword"
             labelKeyPlural="reusedPasswordsPlural"
@@ -163,7 +163,7 @@ export const AllCategoriesHealthy: Story = {
     template: `
       <bit-item-group>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="exposedPasswordsNone"
             labelKeySingular="exposedPassword"
             labelKeyPlural="exposedPasswordsPlural"
@@ -176,7 +176,7 @@ export const AllCategoriesHealthy: Story = {
           />
         </bit-item>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="weakPasswordsNone"
             labelKeySingular="weakPassword"
             labelKeyPlural="weakPasswordsPlural"
@@ -189,7 +189,7 @@ export const AllCategoriesHealthy: Story = {
           />
         </bit-item>
         <bit-item>
-          <dirt-risk-category-item
+          <dirt-risk-category-nav-item
             labelKeyNone="reusedPasswordsNone"
             labelKeySingular="reusedPassword"
             labelKeyPlural="reusedPasswordsPlural"

@@ -3,10 +3,10 @@ import { RouterTestingModule } from "@angular/router/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { RiskCategoryItemComponent } from "./risk-category-item.component";
+import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
-describe("RiskCategoryItemComponent", () => {
-  let fixture: ComponentFixture<RiskCategoryItemComponent>;
+describe("RiskCategoryNavItemComponent", () => {
+  let fixture: ComponentFixture<RiskCategoryNavItemComponent>;
 
   /**
    * Renders the row with the given count, defaulting the remaining inputs to
@@ -23,7 +23,7 @@ describe("RiskCategoryItemComponent", () => {
       route: string;
     }> = {},
   ) {
-    fixture = TestBed.createComponent(RiskCategoryItemComponent);
+    fixture = TestBed.createComponent(RiskCategoryNavItemComponent);
     fixture.componentRef.setInput("labelKeyNone", inputs.labelKeyNone ?? "exposedPasswordsNone");
     fixture.componentRef.setInput("labelKeySingular", inputs.labelKeySingular ?? "exposedPassword");
     fixture.componentRef.setInput(
@@ -59,7 +59,7 @@ describe("RiskCategoryItemComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RiskCategoryItemComponent, RouterTestingModule],
+      imports: [RiskCategoryNavItemComponent, RouterTestingModule],
       providers: [
         {
           provide: I18nService,

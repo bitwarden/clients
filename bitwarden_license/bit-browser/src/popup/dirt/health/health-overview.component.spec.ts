@@ -18,7 +18,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AtRiskGaugeComponent } from "../shared/at-risk-gauge/at-risk-gauge.component";
 
 import { HealthOverviewComponent } from "./health-overview.component";
-import { RiskCategoryItemComponent } from "./risk-category-item.component";
+import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 @Component({
   selector: "dirt-at-risk-gauge",
@@ -32,11 +32,11 @@ class MockAtRiskGaugeComponent {
 }
 
 @Component({
-  selector: "dirt-risk-category-item",
+  selector: "dirt-risk-category-nav-item",
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MockRiskCategoryItemComponent {
+class MockRiskCategoryNavItemComponent {
   readonly labelKeyNone = input.required<string>();
   readonly labelKeySingular = input.required<string>();
   readonly labelKeyPlural = input.required<string>();
@@ -77,10 +77,10 @@ describe("HealthOverviewComponent", () => {
     return el ? (el.componentInstance as MockAtRiskGaugeComponent) : null;
   }
 
-  function rows(): MockRiskCategoryItemComponent[] {
+  function rows(): MockRiskCategoryNavItemComponent[] {
     return fixture.debugElement
-      .queryAll((n) => n.name === "dirt-risk-category-item")
-      .map((n) => n.componentInstance as MockRiskCategoryItemComponent);
+      .queryAll((n) => n.name === "dirt-risk-category-nav-item")
+      .map((n) => n.componentInstance as MockRiskCategoryNavItemComponent);
   }
 
   function text(): string {
@@ -108,8 +108,8 @@ describe("HealthOverviewComponent", () => {
       ],
     })
       .overrideComponent(HealthOverviewComponent, {
-        remove: { imports: [AtRiskGaugeComponent, RiskCategoryItemComponent] },
-        add: { imports: [MockAtRiskGaugeComponent, MockRiskCategoryItemComponent] },
+        remove: { imports: [AtRiskGaugeComponent, RiskCategoryNavItemComponent] },
+        add: { imports: [MockAtRiskGaugeComponent, MockRiskCategoryNavItemComponent] },
       })
       .compileComponents();
   });
