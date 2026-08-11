@@ -11,6 +11,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -84,6 +86,7 @@ export class NativeMessagingBackground {
   private callbacks = new Map<number, Callback>();
   constructor(
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private messagingService: MessagingService,
@@ -455,7 +458,7 @@ export class NativeMessagingBackground {
     if (this.secureChannel?.publicKey == null) {
       return;
     }
-    const fingerprint = await this.keyService.getFingerprint(
+    const fingerprint = await this.legacyCompatKeyService.getFingerprint(
       this.appId!,
       this.secureChannel.publicKey,
     );

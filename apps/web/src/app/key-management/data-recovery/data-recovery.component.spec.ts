@@ -234,7 +234,6 @@ describe("DataRecoveryComponent", () => {
         userId: mockUserId,
         userKey: null as any,
         isPrivateKeyCorrupt: false,
-        encryptedPrivateKey: null,
         ciphers: [],
         folders: [],
       };
