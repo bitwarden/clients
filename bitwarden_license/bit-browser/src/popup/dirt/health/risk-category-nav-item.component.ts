@@ -15,12 +15,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
  * deduplicated at-risk count, navigating to that category's detail list. Named
  * for the navigation so it stays distinct from the rows inside a category,
  * which list individual logins.
- *
- * Presentational: it derives everything from its inputs and emits no events.
- *
- * Renders the `<a bit-item-content>` only. The surrounding `<bit-item>` is
- * supplied by the consumer so that sibling rows are true siblings, which
- * `bit-item-group`'s compact-mode corner rounding depends on.
  */
 @Component({
   selector: "dirt-risk-category-nav-item",
