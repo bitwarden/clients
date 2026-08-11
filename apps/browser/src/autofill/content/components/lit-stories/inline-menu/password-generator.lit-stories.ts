@@ -7,20 +7,7 @@ import {
   InlineMenuPasswordGenerator,
   InlineMenuPasswordGeneratorProps,
 } from "../../inline-menu/password-generator";
-import { mockI18n } from "../mock-data";
-
-const passwordGeneratorI18n = {
-  generatedPassword: mockI18n.generatedPassword,
-  lowercaseAriaLabel: mockI18n.lowercaseAriaLabel,
-  uppercaseAriaLabel: mockI18n.uppercaseAriaLabel,
-  regeneratePassword: mockI18n.regeneratePassword,
-  characterDescriptors: {
-    hashSignCharacterDescriptor: mockI18n.hashSignCharacterDescriptor,
-    ampersandCharacterDescriptor: mockI18n.ampersandCharacterDescriptor,
-    asteriskCharacterDescriptor: mockI18n.asteriskCharacterDescriptor,
-    exclamationCharacterDescriptor: mockI18n.exclamationCharacterDescriptor,
-  },
-};
+import { mockI18n, mockPasswordGeneratorI18n } from "../mock-data";
 
 type ComponentAndControls = InlineMenuPasswordGeneratorProps & { width: number };
 
@@ -38,7 +25,7 @@ export default {
     password: "f9#WxF4HjsC&*6",
     headingText: mockI18n.fillGeneratedPassword,
     theme: ThemeTypes.Light,
-    i18n: passwordGeneratorI18n,
+    i18n: mockPasswordGeneratorI18n,
     handleFillPassword: () => alert("Fill generated password"),
     handleRefreshPassword: () => alert("Regenerate password"),
     width: 280,
