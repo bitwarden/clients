@@ -534,14 +534,8 @@
       }
     }
   },
-  "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Copy value",

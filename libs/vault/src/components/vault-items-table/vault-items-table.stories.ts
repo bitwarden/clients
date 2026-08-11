@@ -490,7 +490,7 @@ export default {
               attachments: "Attachments",
               options: "Options",
               optionsForItem: (name) => `Options for ${name}`,
-              launchWebsiteName: (name) => `Launch website ${name}`,
+              launchWebsite: "Launch website",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               // Empty states

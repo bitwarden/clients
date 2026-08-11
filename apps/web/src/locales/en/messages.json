@@ -1771,6 +1771,9 @@
       }
     }
   },
+  "launchWebsite": {
+    "message": "Launch website"
+  },
   "me": {
     "message": "Me"
   },
