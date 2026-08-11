@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Pokaż karty w sugestiach"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Pokaż klucze SSH w sugestiach"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Pokaż sugestie po kliknięciu ikony"
   },
@@ -5076,13 +5079,13 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Przesłane pliki"
   },
   "clickToUploadOrDragAndDrop": {
     "message": "Click to upload or drag and drop"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Wybierz plik"
   },
   "maxFileSizeParam": {
     "message": "Max. file size: $SIZE$ MB",

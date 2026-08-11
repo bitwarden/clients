@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "பரிந்துரைகளாக கார்டுகளைக் காட்டு"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "ஐகான் தேர்ந்தெடுக்கப்பட்டபோது பரிந்துரைகளைக் காட்டு"
   },

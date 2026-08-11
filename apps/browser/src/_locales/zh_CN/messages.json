@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "将支付卡显示为建议"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "选择图标时显示建议"
   },

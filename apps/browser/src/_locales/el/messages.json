@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Εμφάνιση καρτών ως προτάσεις"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Εμφάνιση προτάσεων όταν το εικονίδιο είναι επιλεγμένο"
   },

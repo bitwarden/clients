@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "A kártyák megjelenítése javaslatként"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Az SSH kulcsok megjelenítése javaslatként"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Javaslatok megjelenítése a az ikon kiválasztásakor"
   },

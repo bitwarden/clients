@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Apresentar os cartões como sugestões"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Mostrar chaves SSH como sugestões"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Apresentar sugestões quando o ícone é selecionado"
   },

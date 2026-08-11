@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Показувати картки як пропозиції"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Показувати пропозиції, якщо вибрано піктограму"
   },
