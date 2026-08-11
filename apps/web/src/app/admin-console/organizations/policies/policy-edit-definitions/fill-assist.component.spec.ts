@@ -274,6 +274,18 @@ describe.each`
     expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
   });
 
+  it("does not double-prefix https:// when the form value already has it", async () => {
+    // Enter-key submission skips the blur handler, so a pasted `https://…`
+    // can still be in the raw form value at save time. buildRequestData must
+    // be idempotent — strip any existing prefix before prepending.
+    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    component.data?.patchValue({ rulesUrl: "https://acme.example.com/rules" });
+
+    const request = await component.buildRequest();
+
+    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+  });
+
   it("saves the default URL as a canonical full URL when unchanged", async () => {
     fixture.componentRef.setInput("policy", new FillAssistPolicy());
 

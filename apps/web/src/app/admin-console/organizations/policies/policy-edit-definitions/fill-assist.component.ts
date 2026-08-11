@@ -201,6 +201,8 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   }
 
   // Prepend `https://` back so the stored policy data is a canonical full URL.
+  // Strip first to stay idempotent — submitting with Enter skips the blur
+  // handler, so the form value may still carry a pasted `https://` prefix.
   protected override buildRequestData() {
     const data = this.data?.getRawValue();
     if (data == null) {
@@ -208,7 +210,7 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     }
     return {
       ...data,
-      rulesUrl: data.rulesUrl ? HTTPS_PREFIX + data.rulesUrl : data.rulesUrl,
+      rulesUrl: data.rulesUrl ? HTTPS_PREFIX + stripHttpsPrefix(data.rulesUrl) : data.rulesUrl,
     };
   }
 
