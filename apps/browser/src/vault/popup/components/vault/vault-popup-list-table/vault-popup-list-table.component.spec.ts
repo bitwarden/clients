@@ -333,6 +333,38 @@ describe("VaultPopupListTableComponent", () => {
 
       expect(scrollLayout.scrollableRef()).toBeNull();
     });
+
+    /**
+     * The viewport is destroyed whenever the table falls back to its loading or empty branch, so a
+     * search matching nothing detaches it. Holding the detached element as the host would freeze
+     * everything reading it — the scrolled-state separator would stay drawn over the empty state.
+     */
+    it("releases the scroll host when the viewport is removed, and re-publishes when it returns", async () => {
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const scrollLayout = TestBed.inject(ScrollLayoutService);
+      const viewport = (await whenScrollHostPublished(scrollLayout))!.nativeElement;
+
+      // A search that matches nothing drops the table into its empty branch.
+      hasSearchText$.next(true);
+      filteredCiphers$.next([]);
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).toBeNull();
+      expect(scrollLayout.scrollableRef()?.nativeElement).not.toBe(viewport);
+
+      // Clearing the search brings rows — and a fresh viewport — back.
+      hasSearchText$.next(false);
+      filteredCiphers$.next([makeCipher()]);
+      fixture.detectChanges();
+
+      const republished = await whenScrollHostPublished(scrollLayout);
+      expect(republished?.nativeElement).toBe(
+        fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport"),
+      );
+    });
   });
 
   describe("group predicates", () => {

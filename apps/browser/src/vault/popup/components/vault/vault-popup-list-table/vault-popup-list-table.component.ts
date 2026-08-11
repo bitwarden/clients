@@ -171,7 +171,18 @@ export class VaultPopupListTableComponent implements OnDestroy {
       "cdk-virtual-scroll-viewport",
     );
 
-    if (!viewport || current?.nativeElement === viewport) {
+    // The viewport is destroyed whenever the table falls back to its loading or empty branch (e.g. a
+    // search that matches nothing). Release the host rather than leaving a detached element
+    // published, so `popup-page`'s own region takes back over until rows return.
+    if (!viewport) {
+      if (current === this.publishedScrollHost) {
+        this.scrollLayout.scrollableRef.set(this.displacedScrollHost);
+        this.publishedScrollHost = null;
+      }
+      return;
+    }
+
+    if (current?.nativeElement === viewport) {
       return;
     }
 
