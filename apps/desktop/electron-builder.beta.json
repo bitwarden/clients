@@ -35,7 +35,7 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.plist",
+    "entitlements": "resources/entitlements.mac.autofill-enabled.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
@@ -86,7 +86,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"],

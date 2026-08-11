@@ -201,7 +201,7 @@ pub mod autofill {
                 }
             });
 
-            let paths = desktop_core::ipc::all_paths(&name);
+            let paths = desktop_core::ipc::autofill_all_paths(&name);
 
             let server =
                 desktop_core::ipc::server::Server::start(paths.clone(), send).map_err(|e| {

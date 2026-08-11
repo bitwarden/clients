@@ -269,7 +269,7 @@ static IPC_PATH: &str = "af-test";
 impl AutofillProviderClient {
     /// Whether the client is immediately available for connection.
     pub fn is_available() -> bool {
-        desktop_core::ipc::path(IPC_PATH).exists()
+        desktop_core::ipc::autofill_path(IPC_PATH).exists()
     }
 
     /// Request the desktop client's lock status.
@@ -378,7 +378,7 @@ impl AutofillProviderClient {
     #[cfg_attr(feature = "uniffi", uniffi::constructor)]
     pub fn connect() -> Self {
         tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
-        let path = desktop_core::ipc::path(IPC_PATH);
+        let path = desktop_core::ipc::autofill_path(IPC_PATH);
         Self::connect_to_path(path)
     }
 
