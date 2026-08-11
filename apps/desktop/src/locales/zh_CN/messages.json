@@ -4568,6 +4568,79 @@
   "noFileChosen": {
     "message": "未选择文件"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "或复制/粘贴要导入的文件内容"
   },
@@ -5370,16 +5443,16 @@
     "message": "分配到这些集合"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到此项目。"
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到此项目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到这些项目。"
   },
   "noCollectionsAssigned": {
     "message": "未分配任何集合"
@@ -5388,7 +5461,7 @@
     "message": "分配"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
