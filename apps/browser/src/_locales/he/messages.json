@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "הצג כרטיסים כהצעות"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "הצג הצעות כאשר נבחר סמל"
   },

@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Kaarten als suggesties weergeven"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "SSH-sleutels als suggesties weergeven"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Suggesties weergeven wanneer pictogram is geselecteerd"
   },
@@ -5033,7 +5036,7 @@
     }
   },
   "fileAdded": {
-    "message": "",
+    "message": "Bestand toegevoegd: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",

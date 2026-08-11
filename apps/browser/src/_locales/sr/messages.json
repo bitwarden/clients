@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Приказати картице као предлоге"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Приказати предлоге када је изабрана икона"
   },

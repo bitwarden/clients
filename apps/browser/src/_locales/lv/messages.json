@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Attēlot kartes kā ieteikumus"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Attēlot ieteikumus, kad tiek atlasīta ikona"
   },

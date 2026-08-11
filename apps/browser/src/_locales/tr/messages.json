@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Kartları öneri olarak göster"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "SSH anahtarlarını öneri olarak göster"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Simge seçildiğinde önerileri göster"
   },

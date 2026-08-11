@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Zobrazit karty jako návrhy"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Zobrazit návrhy, když je vybrána ikona"
   },

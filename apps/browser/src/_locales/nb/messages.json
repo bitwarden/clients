@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Vis kort som forslag"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Vis forslag når ikonet er valgt"
   },

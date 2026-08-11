@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "카드를 제안으로 표시"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "아이콘 선택 시 제안 표시"
   },

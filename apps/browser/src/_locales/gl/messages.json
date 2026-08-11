@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Amosar tarxetas como suxestións"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Amosar as suxestións ó premer a icona de Bitwarden"
   },

@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden-kjennemerke"
   },
   "extName": {
     "message": "Bitwarden Password Manager",
@@ -1967,6 +1967,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Display cards as suggestions"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Display suggestions when icon is selected"

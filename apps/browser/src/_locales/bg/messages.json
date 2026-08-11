@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Показване на карти като предложения"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Показване на SSH ключове като предложения"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Показване на предложения когато иконката е избрана"
   },

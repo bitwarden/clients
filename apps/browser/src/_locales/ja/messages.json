@@ -1968,6 +1968,9 @@
   "showInlineMenuCardsLabel": {
     "message": "カードを候補として表示する"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "SSH キーをサジェストに表示"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "アイコンが選択されているときに候補を表示する"
   },
