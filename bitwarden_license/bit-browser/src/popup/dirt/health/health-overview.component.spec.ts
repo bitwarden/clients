@@ -37,9 +37,11 @@ class MockAtRiskGaugeComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockRiskCategoryItemComponent {
+  readonly labelKeyNone = input.required<string>();
   readonly labelKeySingular = input.required<string>();
   readonly labelKeyPlural = input.required<string>();
   readonly descriptionKey = input.required<string>();
+  readonly descriptionKeyNone = input.required<string>();
   readonly count = input.required<number>();
   readonly icon = input.required<string>();
   readonly variant = input<string>("primary");
@@ -143,8 +145,19 @@ describe("HealthOverviewComponent", () => {
     await initComponent();
 
     expect(text()).toContain("yourVaultIsHealthy");
-    expect(text()).toContain("passwordsAreSecure");
     expect(text()).not.toContain("yourVaultRiskIsHigh");
+  });
+
+  it("keeps the same count line in the clean state, reading zero of the total", async () => {
+    // The design shows "0 of 200 passwords need fixing" when nothing is at
+    // risk, so the line is not swapped for a differently-phrased one.
+    reportService.buildVaultHealthReport$.mockReturnValue(
+      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 })),
+    );
+
+    await initComponent();
+
+    expect(text()).toContain("passwordsNeedFixing");
   });
 
   it("labels the category list with a section header", async () => {
@@ -174,6 +187,25 @@ describe("HealthOverviewComponent", () => {
       "exposedPassword",
       "weakPassword",
       "reusedPassword",
+    ]);
+  });
+
+  it("gives every category its own zero-state title and description", async () => {
+    reportService.buildVaultHealthReport$.mockReturnValue(
+      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 })),
+    );
+
+    await initComponent();
+
+    expect(rows().map((r) => r.labelKeyNone())).toEqual([
+      "exposedPasswordsNone",
+      "weakPasswordsNone",
+      "reusedPasswordsNone",
+    ]);
+    expect(rows().map((r) => r.descriptionKeyNone())).toEqual([
+      "exposedPasswordsNoneDesc",
+      "weakPasswordsNoneDesc",
+      "reusedPasswordsNoneDesc",
     ]);
   });
 

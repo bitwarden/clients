@@ -14,14 +14,17 @@ describe("RiskCategoryItemComponent", () => {
    */
   async function initComponent(
     inputs: Partial<{
+      labelKeyNone: string;
       labelKeySingular: string;
       labelKeyPlural: string;
       descriptionKey: string;
+      descriptionKeyNone: string;
       count: number;
       route: string;
     }> = {},
   ) {
     fixture = TestBed.createComponent(RiskCategoryItemComponent);
+    fixture.componentRef.setInput("labelKeyNone", inputs.labelKeyNone ?? "exposedPasswordsNone");
     fixture.componentRef.setInput("labelKeySingular", inputs.labelKeySingular ?? "exposedPassword");
     fixture.componentRef.setInput(
       "labelKeyPlural",
@@ -30,6 +33,10 @@ describe("RiskCategoryItemComponent", () => {
     fixture.componentRef.setInput(
       "descriptionKey",
       inputs.descriptionKey ?? "exposedPasswordsDesc",
+    );
+    fixture.componentRef.setInput(
+      "descriptionKeyNone",
+      inputs.descriptionKeyNone ?? "exposedPasswordsNoneDesc",
     );
     fixture.componentRef.setInput("count", inputs.count ?? 0);
     fixture.componentRef.setInput("icon", "bwi-error");
@@ -42,8 +49,12 @@ describe("RiskCategoryItemComponent", () => {
     return fixture.nativeElement.textContent;
   }
 
-  function checkmark(): HTMLElement | null {
-    return fixture.nativeElement.querySelector(".bwi-check-circle");
+  function tile(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("bit-icon-tile > div");
+  }
+
+  function tileIcon(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("bit-icon-tile i");
   }
 
   beforeEach(async () => {
@@ -92,31 +103,37 @@ describe("RiskCategoryItemComponent", () => {
     expect(text()).not.toContain("exposedPasswordsPlural");
   });
 
-  it("uses the plural title at a count of zero", async () => {
+  it("uses the none title and description at a count of zero", async () => {
     await initComponent({ count: 0 });
 
-    expect(text()).toContain("exposedPasswordsPlural");
+    // "No exposed passwords", not "0 exposed passwords" — and the description
+    // states the absence of risk rather than what the risk would have been.
+    expect(text()).toContain("exposedPasswordsNone");
+    expect(text()).toContain("exposedPasswordsNoneDesc");
+    expect(text()).not.toContain("exposedPasswordsPlural");
   });
 
-  it("shows a labelled checkmark when the category is healthy", async () => {
+  it("shows a labelled checkmark in the leading tile when the category is healthy", async () => {
     await initComponent({ count: 0 });
 
-    // The label matters as much as the icon: the healthy state must not be
-    // conveyed by colour alone.
-    expect(checkmark()).not.toBeNull();
-    expect(checkmark()?.getAttribute("aria-label")).toBe("categoryHealthy");
+    // The check replaces the category icon rather than sitting beside it, and
+    // it carries a label so the healthy state is never conveyed by colour alone.
+    expect(tileIcon()?.classList).toContain("bwi-check");
+    expect(tileIcon()?.classList).not.toContain("bwi-error");
+    expect(tile()?.getAttribute("aria-label")).toBe("categoryHealthy");
   });
 
-  it("does not show a checkmark when the category has at-risk items", async () => {
+  it("shows the category icon and no checkmark when the category has at-risk items", async () => {
     await initComponent({ count: 3 });
 
-    expect(checkmark()).toBeNull();
+    expect(tileIcon()?.classList).toContain("bwi-error");
+    expect(tileIcon()?.classList).not.toContain("bwi-check");
+    expect(tile()?.getAttribute("aria-label")).toBeNull();
   });
 
-  it("renders a count of zero rather than hiding the row", async () => {
+  it("renders the row rather than hiding it when the count is zero", async () => {
     await initComponent({ count: 0 });
 
-    expect(text()).toContain("0");
     expect(fixture.nativeElement.querySelector("a[bit-item-content]")).not.toBeNull();
   });
 

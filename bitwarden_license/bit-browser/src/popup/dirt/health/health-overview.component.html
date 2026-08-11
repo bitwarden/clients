@@ -12,13 +12,7 @@
     </h2>
 
     <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
-      @if (isAtRisk()) {
-        {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
-      } @else {
-        <!-- Two placeholders, per the prototype copy: the healthy branch only
-             renders when at-risk is 0, so the secure count equals the total. -->
-        {{ "passwordsAreSecure" | i18n: totalCount() : totalCount() }}
-      }
+      {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
     </span>
   </div>
 
@@ -30,9 +24,11 @@
     @for (row of categoryRows(); track row.category) {
       <bit-item>
         <dirt-risk-category-item
+          [labelKeyNone]="row.labelKeyNone"
           [labelKeySingular]="row.labelKeySingular"
           [labelKeyPlural]="row.labelKeyPlural"
           [descriptionKey]="row.descriptionKey"
+          [descriptionKeyNone]="row.descriptionKeyNone"
           [count]="row.count"
           [icon]="row.icon"
           [variant]="row.variant"

@@ -29,36 +29,44 @@ import { RiskCategoryItemComponent } from "./risk-category-item.component";
  */
 const RISK_CATEGORY_ROWS: readonly {
   category: RiskCategory;
+  labelKeyNone: string;
   labelKeySingular: string;
   labelKeyPlural: string;
   descriptionKey: string;
+  descriptionKeyNone: string;
   icon: BitwardenIcon;
   variant: IconTileVariant;
   route: string;
 }[] = [
   {
     category: RiskCategory.Exposed,
+    labelKeyNone: "exposedPasswordsNone",
     labelKeySingular: "exposedPassword",
     labelKeyPlural: "exposedPasswordsPlural",
     descriptionKey: "exposedPasswordsDesc",
+    descriptionKeyNone: "exposedPasswordsNoneDesc",
     icon: "bwi-error",
     variant: "danger",
     route: "/health/exposed",
   },
   {
     category: RiskCategory.Weak,
+    labelKeyNone: "weakPasswordsNone",
     labelKeySingular: "weakPassword",
     labelKeyPlural: "weakPasswordsPlural",
     descriptionKey: "weakPasswordsDesc",
+    descriptionKeyNone: "weakPasswordsNoneDesc",
     icon: "bwi-warning",
     variant: "warning",
     route: "/health/weak",
   },
   {
     category: RiskCategory.Reused,
+    labelKeyNone: "reusedPasswordsNone",
     labelKeySingular: "reusedPassword",
     labelKeyPlural: "reusedPasswordsPlural",
     descriptionKey: "reusedPasswordsDesc",
+    descriptionKeyNone: "reusedPasswordsNoneDesc",
     icon: "bwi-refresh",
     variant: "primary",
     route: "/health/reused",

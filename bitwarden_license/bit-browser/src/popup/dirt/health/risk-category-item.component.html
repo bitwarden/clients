@@ -1,16 +1,13 @@
 <a bit-item-content [routerLink]="route()" [truncate]="false">
-  <bit-icon-tile slot="start" [icon]="icon()" [variant]="variant()" />
+  <bit-icon-tile
+    slot="start"
+    [icon]="tileIcon()"
+    [variant]="tileVariant()"
+    [ariaLabel]="isHealthy() ? ('categoryHealthy' | i18n) : undefined"
+  />
 
   {{ labelKey() | i18n: count() }}
-  <span slot="secondary">{{ descriptionKey() | i18n }}</span>
+  <span slot="secondary">{{ activeDescriptionKey() | i18n }}</span>
 
-  @if (isHealthy()) {
-    <bit-icon
-      slot="end"
-      name="bwi-check-circle"
-      class="tw-text-fg-success"
-      [ariaLabel]="'categoryHealthy' | i18n"
-    />
-  }
   <bit-icon slot="end" name="bwi-angle-right" class="tw-text-fg-body-subtle" />
 </a>
