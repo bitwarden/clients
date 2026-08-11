@@ -7548,7 +7548,7 @@
   },
   "exposedPasswordsPlural": {
     "message": "$COUNT$ exposed passwords",
-    "description": "Title of the exposed risk category row, including the count. Also used for a count of zero.",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7574,7 +7574,7 @@
   },
   "weakPasswordsPlural": {
     "message": "$COUNT$ weak passwords",
-    "description": "Title of the weak risk category row, including the count. Also used for a count of zero.",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7600,7 +7600,7 @@
   },
   "reusedPasswordsPlural": {
     "message": "$COUNT$ reused passwords",
-    "description": "Title of the reused risk category row, including the count. Also used for a count of zero.",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
         "content": "$1",
