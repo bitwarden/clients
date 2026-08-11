@@ -1,20 +1,27 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, ReplaySubject } from "rxjs";
+import { BehaviorSubject, of, ReplaySubject, Subject, throwError } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { HealthOverviewComponent } from "./health-overview.component";
+import { HealthScanErrorComponent } from "./health-scan-error.component";
+import { HealthScanningComponent } from "./health-scanning.component";
 import { HealthComponent } from "./health.component";
 import { HealthAccessService } from "./services/health-access.service";
 
@@ -48,17 +55,28 @@ class MockPopOutComponent {}
 })
 class MockCurrentAccountComponent {}
 
-/**
- * Stands in for the real overview, which injects the vault-health report
- * service, the cipher service, and the log service. The shell only needs to
- * know that it renders.
- */
 @Component({
   selector: "dirt-health-overview",
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MockHealthOverviewComponent {}
+class MockHealthOverviewComponent {
+  readonly report = input.required<VaultHealthReportView>();
+}
+
+@Component({
+  selector: "dirt-health-scanning",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthScanningComponent {}
+
+@Component({
+  selector: "dirt-health-scan-error",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthScanErrorComponent {}
 
 describe("HealthComponent", () => {
   const userId = Utils.newGuid() as UserId;
@@ -68,6 +86,9 @@ describe("HealthComponent", () => {
   let hasBeenOpened$: BehaviorSubject<boolean>;
   let hasRunScan$: BehaviorSubject<boolean>;
   let healthAccessService: MockProxy<HealthAccessService>;
+  let cipherService: MockProxy<CipherService>;
+  let reportService: MockProxy<VaultHealthReportService>;
+  let logService: MockProxy<LogService>;
 
   /** Creates the component and flushes the microtask that writes the state. */
   async function initComponent() {
@@ -86,9 +107,26 @@ describe("HealthComponent", () => {
     return fixture.nativeElement.querySelector("health-intro button");
   }
 
-  /** The Health Overview, rendered once the User has run a Health scan. */
-  function overview(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("dirt-health-overview");
+  /** The Health Overview, rendered once a scan has succeeded. */
+  function overview(): MockHealthOverviewComponent | null {
+    const el = fixture.debugElement.query((n) => n.name === "dirt-health-overview");
+    return el ? (el.componentInstance as MockHealthOverviewComponent) : null;
+  }
+
+  /** The scan progress view, rendered while a scan is in flight. */
+  function scanning(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("dirt-health-scanning");
+  }
+
+  /** The scan failure view, rendered when a scan does not complete. */
+  function scanError(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("dirt-health-scan-error");
+  }
+
+  /** Settles the scan pipeline and re-renders. */
+  async function settle() {
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   beforeEach(async () => {
@@ -102,11 +140,22 @@ describe("HealthComponent", () => {
     healthAccessService.healthHasBeenOpened$.mockReturnValue(hasBeenOpened$);
     healthAccessService.hasRunHealthScan$.mockReturnValue(hasRunScan$);
 
+    cipherService = mock<CipherService>();
+    cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
+
+    reportService = mock<VaultHealthReportService>();
+    reportService.buildVaultHealthReport$.mockReturnValue(of(new VaultHealthReportView()));
+
+    logService = mock<LogService>();
+
     await TestBed.configureTestingModule({
       imports: [HealthComponent],
       providers: [
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: HealthAccessService, useValue: healthAccessService },
+        { provide: CipherService, useValue: cipherService },
+        { provide: VaultHealthReportService, useValue: reportService },
+        { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: AbstractThemingService,
@@ -122,6 +171,8 @@ describe("HealthComponent", () => {
             PopOutComponent,
             CurrentAccountComponent,
             HealthOverviewComponent,
+            HealthScanningComponent,
+            HealthScanErrorComponent,
           ],
         },
         add: {
@@ -131,6 +182,8 @@ describe("HealthComponent", () => {
             MockPopOutComponent,
             MockCurrentAccountComponent,
             MockHealthOverviewComponent,
+            MockHealthScanningComponent,
+            MockHealthScanErrorComponent,
           ],
         },
       })
@@ -143,6 +196,8 @@ describe("HealthComponent", () => {
 
       expect(intro()).not.toBeNull();
       expect(overview()).toBeNull();
+      expect(scanning()).toBeNull();
+      expect(scanError()).toBeNull();
     });
 
     it("replaces the intro with the results once a Health scan has been run", async () => {
@@ -150,10 +205,134 @@ describe("HealthComponent", () => {
       expect(intro()).not.toBeNull();
 
       hasRunScan$.next(true);
-      fixture.detectChanges();
+      await settle();
 
       expect(intro()).toBeNull();
       expect(overview()).not.toBeNull();
+    });
+  });
+
+  describe("vault scan", () => {
+    it("does not start the scan until the intro's CTA has been used", async () => {
+      await initComponent();
+
+      expect(intro()).not.toBeNull();
+      expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+
+      hasRunScan$.next(true);
+      await settle();
+
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    });
+
+    it("scans automatically on a later visit, with no prompt", async () => {
+      hasRunScan$.next(true);
+
+      await initComponent();
+      await settle();
+
+      expect(intro()).toBeNull();
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the scan progress view while the scan is running", async () => {
+      hasRunScan$.next(true);
+      reportService.buildVaultHealthReport$.mockReturnValue(new Subject<VaultHealthReportView>());
+
+      await initComponent();
+      await settle();
+
+      expect(scanning()).not.toBeNull();
+      expect(overview()).toBeNull();
+      expect(scanError()).toBeNull();
+    });
+
+    it("hands the report to the Health Overview once the scan succeeds", async () => {
+      hasRunScan$.next(true);
+      reportService.buildVaultHealthReport$.mockReturnValue(
+        of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
+      );
+
+      await initComponent();
+      await settle();
+
+      expect(overview()).not.toBeNull();
+      expect(overview()?.report().atRiskCount).toBe(10);
+      expect(scanning()).toBeNull();
+      expect(scanError()).toBeNull();
+    });
+
+    it("shows the scan failure view when the scan fails", async () => {
+      hasRunScan$.next(true);
+      reportService.buildVaultHealthReport$.mockReturnValue(
+        throwError(() => new Error("HIBP unavailable")),
+      );
+
+      await initComponent();
+      await settle();
+
+      expect(scanError()).not.toBeNull();
+      expect(overview()).toBeNull();
+      expect(scanning()).toBeNull();
+    });
+
+    it("logs the error when the scan fails", async () => {
+      hasRunScan$.next(true);
+      reportService.buildVaultHealthReport$.mockReturnValue(
+        throwError(() => new Error("HIBP unavailable")),
+      );
+
+      await initComponent();
+      await settle();
+
+      expect(logService.error).toHaveBeenCalled();
+    });
+
+    it("does not scan the replayed null from cipherViews$, which would report a permanently healthy vault", async () => {
+      // This is what filterOutNullish() in the scan pipeline is for, so this
+      // test fails if it is ever removed as redundant. cipherViews$ is
+      // shareReplay-cached with refCount: false and emits null when the
+      // decrypted ciphers are cleared, so a fresh subscriber can receive null
+      // FIRST. Scanning it reports an empty vault and, because take(1) then
+      // completes, the user is stranded on a permanent "healthy" reading.
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[] | null>(null);
+      cipherService.cipherViews$.mockReturnValue(ciphers$ as never);
+      reportService.buildVaultHealthReport$.mockReturnValue(
+        of(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 })),
+      );
+
+      await initComponent();
+      await settle();
+
+      // Nothing should have been scanned off the null; the tab is still scanning.
+      expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+      expect(scanning()).not.toBeNull();
+
+      // The real ciphers arrive; now it scans, exactly once, with those ciphers.
+      const real = [{} as CipherView, {} as CipherView];
+      ciphers$.next(real);
+      await settle();
+
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledWith(real, userId);
+      expect(overview()?.report().atRiskCount).toBe(12);
+    });
+
+    it("scans once and does not rescan when the vault changes", async () => {
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+
+      await initComponent();
+      await settle();
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+
+      // A vault edit must not re-run the breach lookup.
+      ciphers$.next([{} as CipherView]);
+      await settle();
+
+      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
     });
   });
 
