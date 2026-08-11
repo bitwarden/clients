@@ -55,9 +55,13 @@ CDK `SelectionModel.clear()` call.
 ## Additional actions
 
 Project `<bit-bulk-additional-action>` entries to add menu-only actions — items that live in the
-overflow / "Additional actions" menu, not in the toolbar row. When at least one is present, the bar
-renders an icon-only ellipsis trigger at the end of the toolbar that opens a bar-owned menu
-containing those entries.
+overflow / "Additional actions" menu, not in the toolbar row.
+
+The bar renders an icon-only ellipsis trigger at the end of the toolbar whenever it has something to
+put in the menu — either at least one additional action is present, or one or more primary actions
+have packed into the menu (see [Responsive packing](#responsive-packing)). It hides only when both
+are empty. The menu it opens is bar-owned and lists overflowed primary actions first, then a
+divider, then the additional actions; the divider appears only when both groups are non-empty.
 
 The `[icon]` input is **optional** on additional actions (unlike primary actions, where it's
 required) — menu items can be label-only. When provided, the icon renders as a leading affordance
@@ -72,11 +76,28 @@ inside the menu item.
 
 ## Compact mode
 
-When the bar's container is narrower than the bar's natural width, a `ResizeObserver` flips the bar
-into compact mode: action labels collapse and each rendered button exposes its label via tooltip
-instead. No consumer wiring is required.
+The bar adapts to its container in two stages, and neither needs consumer wiring. First: when the
+container is narrower than the bar's natural width, a `ResizeObserver` flips the bar into compact
+mode — action labels collapse and each rendered button exposes its label via tooltip instead.
 
 <Canvas of={stories.Compact} />
+
+## Responsive packing
+
+Second: once collapsing labels no longer buys enough room, the bar moves primary actions into the
+overflow menu rather than clipping them. The count display, **Clear** button, and ellipsis trigger
+always stay in the row; only the primary-action row gives ground.
+
+Packing is first-fit in DOM order — the bar keeps as many leading actions visible as fit and moves
+the trailing ones into the menu. Declare `<bit-bulk-action>` entries most-important-first so the
+least important are the first to pack away.
+
+A packed action keeps its icon and label as a menu item, invokes the same `[action]` callback, and
+carries its `[disabled]` state over. Nothing about an action's contract changes when it packs.
+Packed buttons are hidden in place rather than removed — the bar needs them in the DOM to measure —
+so assert on visibility, not presence, when testing this.
+
+<Canvas of={stories.WithOverflow} />
 
 ## Keyboard shortcut
 
@@ -90,6 +111,10 @@ before — the same stash-and-restore pattern CDK Overlay uses internally.
   Focus inside the bar follows a roving tabindex via Angular CDK's `FocusKeyManager` — horizontal
   arrow keys move between items, <kbd>Home</kbd>/<kbd>End</kbd> jump to the ends, and navigation
   wraps.
+- When the item holding the roving tabindex becomes unreachable — a primary action packs into the
+  menu, or the ellipsis trigger hides because the menu has nothing left to show — the bar hands the
+  tabindex to the next reachable item, and moves focus with it if the vanishing item had focus. The
+  toolbar never drops out of the tab order as the container resizes.
 - A visually-hidden `role="status" aria-live="polite"` region sits alongside the toolbar and
   announces count changes — including the "Selection cleared" transition that fires after the bar
   slides away.
