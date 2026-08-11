@@ -13,7 +13,8 @@ import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   OrganizationId as SdkOrganizationId,
   UserId as SdkUserId,
@@ -26,7 +27,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 
 export class DefaultRegistrationFinishService implements RegistrationFinishService {
   constructor(
-    protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected accountApiService: AccountApiService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected configService: ConfigService,
@@ -95,18 +96,18 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       return;
     }
 
-    const newMasterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
       passwordInputResult.newPassword,
       passwordInputResult.salt,
       passwordInputResult.kdfConfig,
     );
 
-    const [newUserKey, newEncUserKey] = await this.keyService.makeUserKey(newMasterKey);
+    const [newUserKey, newEncUserKey] = await this.legacyCompatKeyService.makeUserKey(newMasterKey);
 
     if (!newUserKey || !newEncUserKey) {
       throw new Error("User key could not be created");
     }
-    const userAsymmetricKeys = await this.keyService.makeKeyPair(newUserKey);
+    const userAsymmetricKeys = await this.legacyCompatKeyService.makeKeyPair(newUserKey);
 
     const registerRequest = await this.buildRegisterRequest(
       newUserKey,
