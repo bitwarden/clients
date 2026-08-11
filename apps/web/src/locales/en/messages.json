@@ -6049,6 +6049,15 @@
       }
     }
   },
+  "downloadedAttachmentForItem": {
+    "message": "Downloaded attachment for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "editedCollectionsForItem": {
     "message": "Edited collections for item $ID$.",
     "placeholders": {
