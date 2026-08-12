@@ -201,4 +201,35 @@ describe("EnterBillingAddressComponent", () => {
 
     expect(hint).toBeNull();
   });
+
+  it("resets the tax ID when switching to an unsupported country", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("CA");
+    setTaxId("987654321");
+
+    setCountry("US");
+
+    expect(component.group.controls.taxId.value).toBeNull();
+    expect(component.group.controls.taxId.disabled).toBe(true);
+  });
+
+  it("does not submit a stale tax ID after switching to an unsupported country", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("CA");
+    setTaxId("987654321");
+
+    setCountry("US");
+
+    expect(getBillingAddressFromControls(component.group.getRawValue()).taxId).toBeNull();
+  });
+
+  it("preserves the tax ID when switching between supported countries", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("CA");
+    setTaxId("987654321");
+
+    setCountry("GB");
+
+    expect(component.group.controls.taxId.value).toBe("987654321");
+  });
 });

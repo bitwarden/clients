@@ -211,6 +211,8 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
         this.group.controls.taxId.enable();
       } else {
         this.group.controls.taxId.disable();
+        // getRawValue() includes disabled controls, so clear the value rather than just disabling.
+        this.group.controls.taxId.reset();
       }
     });
 
