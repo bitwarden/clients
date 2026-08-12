@@ -240,6 +240,13 @@ describe("WebRegistrationFinishService", () => {
       providerUserId: string;
       salesAssistedToken: string;
       emailVerificationToken: string;
+      openOrgInvite: string;
+    };
+    // Field names inside the openOrgInvite/open_org_invite nested object
+    // (camelCase on legacy, snake_case on SDK).
+    openOrgInviteFields: {
+      organizationId: string;
+      code: string;
     };
   }
 
@@ -256,7 +263,9 @@ describe("WebRegistrationFinishService", () => {
       legacyCompatKeyService.makeUserKey.mockResolvedValue([legacyUserKey, userKeyEncString]);
       legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(flag === FeatureFlag.GenerateInviteLink),
+      );
 
       masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
         salt,
@@ -296,6 +305,11 @@ describe("WebRegistrationFinishService", () => {
       providerUserId: "providerUserId",
       salesAssistedToken: "salesAssistedToken",
       emailVerificationToken: "emailVerificationToken",
+      openOrgInvite: "openOrgInvite",
+    },
+    openOrgInviteFields: {
+      organizationId: "organizationId",
+      code: "code",
     },
   };
 
@@ -303,7 +317,10 @@ describe("WebRegistrationFinishService", () => {
     label: "SDK flow",
     setupMocks: () => {
       configService.getFeatureFlag.mockImplementation((flag) =>
-        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
+        Promise.resolve(
+          flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration ||
+            flag === FeatureFlag.GenerateInviteLink,
+        ),
       );
 
       postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
@@ -340,6 +357,11 @@ describe("WebRegistrationFinishService", () => {
       providerUserId: "provider_user_id",
       salesAssistedToken: "sales_assisted_token",
       emailVerificationToken: "email_verification_token",
+      openOrgInvite: "open_org_invite",
+    },
+    openOrgInviteFields: {
+      organizationId: "organization_id",
+      code: "code",
     },
   };
 
@@ -380,13 +402,63 @@ describe("WebRegistrationFinishService", () => {
       expect(request).toMatchSnapshot();
     });
 
-    it("does not populate direct-invite fields when a stashed open org invite is active", async () => {
-      // Open invites don't carry direct-invite fields. The kind-guarded write path
-      // must skip the direct-invite branch and leave the register request clean.
+    it("populates open-org-invite fields and skips direct-invite fields when a stashed open org invite is active", async () => {
+      // Open invites carry the invite link reference (not the per-user credentials of a
+      // direct invite). The kind-guarded write path must set the open-invite fields and
+      // leave direct-invite fields untouched.
+      const openOrgInvite = new OpenOrganizationInvite({
+        // The SDK request converts organization_id via asUuid, so the fixture must
+        // be a valid UUID.
+        organizationId: "00000000-0000-0000-0000-000000000010",
+        inviteLinkCode: "00000000-0000-0000-0000-000000000011",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const request = variant.getRequest();
+      expect(request[variant.fields.orgInviteToken]).toBeUndefined();
+      expect(request[variant.fields.orgUserId]).toBeUndefined();
+      expect(request[variant.fields.openOrgInvite]).toEqual({
+        [variant.openOrgInviteFields.organizationId]: openOrgInvite.organizationId,
+        [variant.openOrgInviteFields.code]: openOrgInvite.inviteLinkCode,
+      });
+      expect(request).toMatchSnapshot();
+    });
+
+    it("does not populate open-org-invite fields when no invite is stashed", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const request = variant.getRequest();
+      expect(request[variant.fields.openOrgInvite]).toBeUndefined();
+    });
+
+    it("does not populate open-org-invite fields when a direct org invite is stashed", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(variant.directOrgInvite);
+
+      await service.finishRegistration(email, passwordInputResult);
+
+      const request = variant.getRequest();
+      expect(request[variant.fields.openOrgInvite]).toBeUndefined();
+    });
+
+    it("does not populate open-org-invite fields when GenerateInviteLink flag is off, even if an open invite is stashed", async () => {
+      // Defense in depth: an open invite stashed while the flag was on must not leak
+      // into a flag-off session.
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(
+          flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration &&
+            variant.label === "SDK flow",
+        ),
+      );
       organizationInviteService.getOrganizationInvite.mockResolvedValue(
         new OpenOrganizationInvite({
-          organizationId: "organizationId",
-          inviteLinkCode: "link-code",
+          organizationId: "00000000-0000-0000-0000-000000000010",
+          inviteLinkCode: "00000000-0000-0000-0000-000000000011",
           inviteKey: "link-key",
           organizationName: "openOrgName",
         }),
@@ -395,8 +467,7 @@ describe("WebRegistrationFinishService", () => {
       await service.finishRegistration(email, passwordInputResult);
 
       const request = variant.getRequest();
-      expect(request[variant.fields.orgInviteToken]).toBeUndefined();
-      expect(request[variant.fields.orgUserId]).toBeUndefined();
+      expect(request[variant.fields.openOrgInvite]).toBeUndefined();
     });
 
     it("does not throw the mutual-exclusion error when emailVerificationToken is present alongside a stashed open org invite", async () => {
@@ -404,20 +475,25 @@ describe("WebRegistrationFinishService", () => {
       // BOTH the verification token (from the email link) AND an open invite in
       // state (unsealed from the blob). Open invites don't set any direct-invite /
       // family / emergency / provider / sales-assisted token, so the guard must
-      // let this through.
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(
-        new OpenOrganizationInvite({
-          organizationId: "organizationId",
-          inviteLinkCode: "link-code",
-          inviteKey: "link-key",
-          organizationName: "openOrgName",
-        }),
-      );
+      // let this through, and both the verification token and the open-invite
+      // context must survive to the server.
+      const openOrgInvite = new OpenOrganizationInvite({
+        organizationId: "00000000-0000-0000-0000-000000000010",
+        inviteLinkCode: "00000000-0000-0000-0000-000000000011",
+        inviteKey: "link-key",
+        organizationName: "openOrgName",
+      });
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
 
       await expect(
         service.finishRegistration(email, passwordInputResult, emailVerificationToken),
       ).resolves.not.toThrow();
-      expect(variant.getRequest()).toBeDefined();
+      const request = variant.getRequest();
+      expect(request[variant.fields.emailVerificationToken]).toEqual(emailVerificationToken);
+      expect(request[variant.fields.openOrgInvite]).toEqual({
+        [variant.openOrgInviteFields.organizationId]: openOrgInvite.organizationId,
+        [variant.openOrgInviteFields.code]: openOrgInvite.inviteLinkCode,
+      });
     });
 
     it("forwards the org-sponsored free family plan token", async () => {
@@ -724,6 +800,20 @@ describe("WebRegistrationFinishService", () => {
         orgUserHasExistingUser: false,
       });
       organizationInviteService.getOrganizationInvite.mockResolvedValue(badOrgInvite);
+
+      await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow();
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws when the open org invite's organizationId is not a valid UUID", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "not-a-uuid",
+          inviteLinkCode: "00000000-0000-0000-0000-000000000020",
+          inviteKey: "link-key",
+          organizationName: "openOrgName",
+        }),
+      );
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow();
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
