@@ -120,7 +120,7 @@ export class PoliciesComponent {
    */
   protected nameKeys(p: BasePolicyEditDefinition): [string, string] {
     const legacy = (this.useDrawer() && p.v2?.name) || p.name;
-    const next = p.nameVfo1 ?? (this.useDrawer() && p.v2?.nameVfo1) ?? legacy;
+    const next = p.nameVfo1 ?? (this.useDrawer() ? p.v2?.nameVfo1 : undefined) ?? legacy;
     return [legacy, next];
   }
 
@@ -129,7 +129,8 @@ export class PoliciesComponent {
    */
   protected descriptionKeys(p: BasePolicyEditDefinition): [string, string] {
     const legacy = (this.useDrawer() && p.v2?.description) || p.description;
-    const next = p.descriptionVfo1 ?? (this.useDrawer() && p.v2?.descriptionVfo1) ?? legacy;
+    const next =
+      p.descriptionVfo1 ?? (this.useDrawer() ? p.v2?.descriptionVfo1 : undefined) ?? legacy;
     return [legacy, next];
   }
 

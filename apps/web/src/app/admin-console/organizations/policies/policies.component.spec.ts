@@ -382,6 +382,88 @@ describe("PoliciesComponent", () => {
     });
   });
 
+  describe("nameKeys", () => {
+    it("falls back to the legacy name when no VFO1 override exists and drawers are off", () => {
+      const policy: BasePolicyEditDefinition = {
+        name: "Test Policy",
+        description: "Test Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      const [legacy, next] = component["nameKeys"](policy);
+
+      expect(legacy).toBe("Test Policy");
+      // Regression guard: `&&` short-circuiting to `false` (instead of `undefined`) must not
+      // leak into the VFO1 key when drawers are disabled and no override is set.
+      expect(next).toBe("Test Policy");
+    });
+
+    it("prefers the top-level nameVfo1 override regardless of the drawers flag", () => {
+      const policy: BasePolicyEditDefinition = {
+        name: "Test Policy",
+        nameVfo1: "Test Policy VFO1",
+        description: "Test Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      const [, next] = component["nameKeys"](policy);
+
+      expect(next).toBe("Test Policy VFO1");
+    });
+
+    it("falls back to the legacy name when drawers are off, even if v2.nameVfo1 is set", () => {
+      const policy: BasePolicyEditDefinition = {
+        name: "Test Policy",
+        description: "Test Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+        v2: { component: {} as any, nameVfo1: "Drawer Policy VFO1" },
+      };
+
+      const [, next] = component["nameKeys"](policy);
+
+      expect(next).toBe("Test Policy");
+    });
+  });
+
+  describe("descriptionKeys", () => {
+    it("falls back to the legacy description when no VFO1 override exists and drawers are off", () => {
+      const policy: BasePolicyEditDefinition = {
+        name: "Test Policy",
+        description: "Test Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      const [legacy, next] = component["descriptionKeys"](policy);
+
+      expect(legacy).toBe("Test Description");
+      expect(next).toBe("Test Description");
+    });
+  });
+
   describe("handleLaunchEvent", () => {
     describe("when policyId is in query params", () => {
       const mockPolicyId = newGuid();
