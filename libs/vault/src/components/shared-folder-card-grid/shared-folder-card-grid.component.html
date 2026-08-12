@@ -55,7 +55,14 @@
 
 <ng-template #card let-folder>
   <li>
-    <bit-item class="!tw-mb-0">
+    <!--
+      `bit-item` gives the interactive row composition these cards need (start/end slots, hover,
+      focus-visible-within, truncation) but is styled to stack as a list: `tw-border-0 tw-border-b`,
+      so only a bottom divider shows. Promote the border to all four sides using the same token
+      `BaseCardDirective` applies, so these match every other card in the system.
+      Remove once CL-1281 ships a first-class card variant.
+    -->
+    <bit-item class="!tw-mb-0 !tw-border !tw-border-border-base">
       <a
         bit-item-content
         [routerLink]="folder.commands"

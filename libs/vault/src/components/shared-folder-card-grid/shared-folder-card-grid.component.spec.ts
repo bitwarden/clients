@@ -118,6 +118,17 @@ describe("SharedFolderCardGridComponent", () => {
       });
     });
 
+    it("borders each card on all four sides rather than as a stacked list row", () => {
+      createComponent(folderNodes(2));
+
+      // `bit-item` defaults to `tw-border-0 tw-border-b` for stacked rows; these cards stand alone
+      // and use the same border token as `BaseCardDirective`.
+      fixture.nativeElement.querySelectorAll("bit-item").forEach((item: HTMLElement) => {
+        expect(item.classList).toContain("!tw-border");
+        expect(item.classList).toContain("!tw-border-border-base");
+      });
+    });
+
     it("renders nothing when the parent passes an empty list", () => {
       createComponent([]);
 

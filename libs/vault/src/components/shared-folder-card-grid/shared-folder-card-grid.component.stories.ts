@@ -63,8 +63,9 @@ const LONG_NAME_FOLDERS = folderNodes([
 ]);
 
 /**
- * The terminology mock is swapped per story. `Vfo1TerminologyService.enabled` is a signal, so the
- * mock exposes one too, and derives its icon mapping from it exactly as the real service does.
+ * Stories default to the flag on, since that is the state this component ships for;
+ * {@link TerminologyFlagOff} overrides it. `Vfo1TerminologyService.enabled` is a signal, so the mock
+ * exposes one too, and derives its icon mapping from it exactly as the real service does.
  */
 function terminologyProvider(enabled: boolean) {
   const enabledSignal = signal(enabled);
@@ -86,7 +87,7 @@ export default {
     moduleMetadata({
       imports: [RouterTestingModule],
       providers: [
-        terminologyProvider(false),
+        terminologyProvider(true),
         {
           provide: RoutedVaultFilterService,
           useValue: {
@@ -169,10 +170,11 @@ export const LongNames: Story = {
   },
 };
 
-export const TerminologyFlagOn: Story = {
+/** Every other story runs with the flag on; this one covers the pre-VFO1 terms and icon. */
+export const TerminologyFlagOff: Story = {
   decorators: [
     moduleMetadata({
-      providers: [terminologyProvider(true)],
+      providers: [terminologyProvider(false)],
     }),
   ],
   args: {
@@ -181,12 +183,7 @@ export const TerminologyFlagOn: Story = {
 };
 
 export const Rtl: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [terminologyProvider(true)],
-    }),
-    componentWrapperDecorator((story) => `<div dir="rtl">${story}</div>`),
-  ],
+  decorators: [componentWrapperDecorator((story) => `<div dir="rtl">${story}</div>`)],
   args: {
     folders: MANY_FOLDERS,
   },
