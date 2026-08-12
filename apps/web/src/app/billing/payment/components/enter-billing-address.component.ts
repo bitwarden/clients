@@ -29,7 +29,7 @@ export const getBillingAddressFromForm = (formGroup: BillingAddressFormGroup): B
 
 export const getBillingAddressFromControls = (controls: BillingAddressControls) => {
   const { taxId, ...addressFields } = controls;
-  const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country) : null;
+  const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country, taxId) : null;
   return taxIdType
     ? { ...addressFields, taxId: { code: taxIdType.code, value: taxId! } }
     : { ...addressFields, taxId: null };
