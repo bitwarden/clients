@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
@@ -47,6 +48,7 @@ export class MemberDialogManagerService {
     private toastService: ToastService,
     private userNamePipe: UserNamePipe,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async openInviteDialog(
@@ -341,7 +343,9 @@ export class MemberDialogManagerService {
         placeholders: [this.userNamePipe.transform(user)],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.userNamePipe.transform(user)],
       },
       type: "warning",

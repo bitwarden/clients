@@ -35,6 +35,8 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
@@ -114,6 +116,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private unlockService: UnlockService,
     private loginStrategyCacheService: LoginStrategyCacheService,
     private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
@@ -333,6 +336,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.policyService,
               this.passwordPreloginService,
               this.unlockService,
+              this.legacyCompatKeyService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
