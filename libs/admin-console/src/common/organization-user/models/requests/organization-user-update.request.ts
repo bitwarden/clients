@@ -1,7 +1,8 @@
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString } from "@bitwarden/legacy-crypto";
 
 export class OrganizationUserUpdateRequest {
   type: OrganizationUserType;
