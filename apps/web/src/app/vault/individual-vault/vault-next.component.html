@@ -1,0 +1,25 @@
+<app-header></app-header>
+
+<vault-organization-user-notifications></vault-organization-user-notifications>
+
+<vault-items-table
+  [ciphers]="ciphers()"
+  [loading]="loading()"
+  [rowActions]="rowActions()"
+  [folders]="folders()"
+  [collections]="collections()"
+  [organizations]="organizations()"
+  [itemAction]="itemAction"
+  (action)="onAction($event)"
+>
+  <button
+    slot="toolbar"
+    id="vault-next_button_add-item"
+    type="button"
+    bitButton
+    buttonType="primary"
+    (click)="addItem()"
+  >
+    {{ "addItem" | i18n }}
+  </button>
+</vault-items-table>
