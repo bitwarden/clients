@@ -84,8 +84,8 @@ describe("DefaultVaultHealthReportService", () => {
 
   /** Runs a scan and reads the report the service published for it. */
   const report = async (ciphers: CipherView[]): Promise<VaultHealthReportView> => {
-    await service.buildVaultHealthReport$(ciphers, userId);
-    return (await firstValueFrom(service.getVaultHealthReport$()))!;
+    await service.buildVaultHealthReport(ciphers, userId);
+    return (await firstValueFrom(service.getVaultHealthReport$(userId)))!;
   };
 
   /** The health views bucketed into a category, in order. */
@@ -209,7 +209,7 @@ describe("DefaultVaultHealthReportService", () => {
     const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
     cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
 
-    await expect(service.buildVaultHealthReport$(ciphers, userId)).rejects.toThrow(
+    await expect(service.buildVaultHealthReport(ciphers, userId)).rejects.toThrow(
       "HIBP unavailable",
     );
   });
@@ -259,29 +259,31 @@ describe("DefaultVaultHealthReportService", () => {
       // Null rather than an empty report, so the Health tab can tell "not scanned
       // yet" from "scanned, nothing at risk" and avoid flashing a false healthy
       // reading while the breach lookup is still in flight.
-      await expect(firstValueFrom(service.getVaultHealthReport$())).resolves.toBeNull();
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toBeNull();
     });
 
     it("replays the latest report to a subscriber that arrives after the scan", async () => {
       // The Risk Category Detail page subscribes on navigation, long after the
       // overview triggered the scan, and reads this replayed value.
       const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
-      await service.buildVaultHealthReport$(ciphers, userId);
+      await service.buildVaultHealthReport(ciphers, userId);
 
-      const replayed = await firstValueFrom(service.getVaultHealthReport$());
+      const replayed = await firstValueFrom(service.getVaultHealthReport$(userId));
 
       expect(cipherIds(replayed!.categoryItems.exposed)).toEqual(["a"]);
     });
 
     it("pushes each rescan to existing subscribers", async () => {
       const emissions: (VaultHealthReportView | null)[] = [];
-      const subscription = service.getVaultHealthReport$().subscribe((r) => emissions.push(r));
+      const subscription = service
+        .getVaultHealthReport$(userId)
+        .subscribe((r) => emissions.push(r));
 
-      await service.buildVaultHealthReport$(
+      await service.buildVaultHealthReport(
         withRisks([{ cipher: login("a"), risk: risk("a", { strength: 1 }) }]),
         userId,
       );
-      await service.buildVaultHealthReport$(
+      await service.buildVaultHealthReport(
         withRisks([
           { cipher: login("a"), risk: risk("a", { strength: 1 }) },
           { cipher: login("b"), risk: risk("b", { strength: 1 }) },
@@ -293,6 +295,36 @@ describe("DefaultVaultHealthReportService", () => {
       expect(emissions[0]).toBeNull();
       expect(emissions[1]!.atRiskCount).toBe(1);
       expect(emissions[2]!.atRiskCount).toBe(2);
+    });
+
+    it("does not emit one user's report to another", async () => {
+      // The service outlives an account switch, and each item carries a
+      // decrypted CipherView, so the previous account's logins must not be
+      // served to the next one.
+      const otherUserId = "other-user-id" as UserId;
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+
+      await expect(firstValueFrom(service.getVaultHealthReport$(otherUserId))).resolves.toBeNull();
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.not.toBeNull();
+    });
+
+    it("drops the previous user's report once a scan runs for another user", async () => {
+      const otherUserId = "other-user-id" as UserId;
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("b"), risk: risk("b", { strength: 1 }) }]),
+        otherUserId,
+      );
+
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toBeNull();
+      const other = await firstValueFrom(service.getVaultHealthReport$(otherUserId));
+      expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
     });
   });
 

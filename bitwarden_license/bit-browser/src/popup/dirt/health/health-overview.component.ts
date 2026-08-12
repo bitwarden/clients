@@ -120,7 +120,7 @@ export class HealthOverviewComponent implements OnInit {
             filterOutNullish(),
             take(1),
             switchMap((ciphers) =>
-              this.vaultHealthReportService.buildVaultHealthReport$(ciphers, userId),
+              this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId),
             ),
           ),
         ),
@@ -133,8 +133,14 @@ export class HealthOverviewComponent implements OnInit {
       .subscribe();
   }
 
-  /** The latest scan result after being triggered by component init. */
-  protected readonly report = toSignal(this.vaultHealthReportService.getVaultHealthReport$());
+  /** The latest scan result for the active account, after being triggered by component init. */
+  protected readonly report = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+    ),
+    { initialValue: null },
+  );
 
   /** True once a scan result is available to render. */
   protected readonly hasReport = computed(() => this.report() != null);

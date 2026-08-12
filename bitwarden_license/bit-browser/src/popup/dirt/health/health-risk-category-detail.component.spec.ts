@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import {
@@ -23,8 +23,11 @@ import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-s
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -102,9 +105,12 @@ const categories = [
 ] as const;
 
 describe("HealthRiskCategoryDetailComponent", () => {
+  const userId = Utils.newGuid() as UserId;
+
   let fixture: ComponentFixture<HealthRiskCategoryDetailComponent>;
   let params$: BehaviorSubject<Params>;
   let report$: BehaviorSubject<VaultHealthReportView | null>;
+  let reportService: MockProxy<VaultHealthReportService>;
   let router: MockProxy<Router>;
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
@@ -212,7 +218,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     params$ = new BehaviorSubject<Params>({ category: RiskCategory.Exposed });
 
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
-    const reportService = mock<VaultHealthReportService>();
+    reportService = mock<VaultHealthReportService>();
     reportService.getVaultHealthReport$.mockReturnValue(report$);
     setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
@@ -237,6 +243,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
       providers: [
         { provide: ActivatedRoute, useValue: { params: params$ } },
         { provide: Router, useValue: router },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: userId } as Account) },
+        },
         { provide: VaultHealthReportService, useValue: reportService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
@@ -352,6 +362,24 @@ describe("HealthRiskCategoryDetailComponent", () => {
       fixture.detectChanges();
 
       expect(noItemsIcon()).toBe(NoCredentialsIcon);
+    });
+  });
+
+  it("reads the report for the active account", async () => {
+    await initComponent();
+
+    expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
+  });
+
+  describe("without a report", () => {
+    beforeEach(() => {
+      report$.next(null);
+    });
+
+    it("routes back to the health overview", async () => {
+      await initComponent();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tabs/health"]);
     });
   });
 

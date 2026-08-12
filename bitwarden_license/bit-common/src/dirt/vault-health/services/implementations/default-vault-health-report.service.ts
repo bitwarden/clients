@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, map, Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -14,31 +14,47 @@ import {
 } from "../../models/view/vault-health-report.view";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
+/** The latest report together with the user it was built for. */
+type ScopedReport = { userId: UserId; report: VaultHealthReportView };
+
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
-  /** Null until the first scan completes, so consumers can tell "not scanned yet" from "nothing at risk". */
-  private readonly report = new BehaviorSubject<VaultHealthReportView | null>(null);
+  /**
+   * Null until the first scan completes, so consumers can tell "not scanned yet"
+   * from "nothing at risk".
+   *
+   * The report is tagged with the user it was built for: this service outlives a
+   * lock or an account switch (the popup's Angular app is not recreated for
+   * either), and each item now carries a decrypted CipherView, so an untagged
+   * cache would serve one account's logins to the next.
+   */
+  private readonly report = new BehaviorSubject<ScopedReport | null>(null);
 
   constructor(private cipherRiskService: CipherRiskService) {}
 
   /**
-   * Compute-only: the caller (the Health-tab root component) owns fetching the
-   * vault ciphers and deciding when to recompute. This service filters the
-   * given ciphers to the personal-vault logins in scope, then categorizes,
-   * deduplicates (highest-risk-wins), and scores them. Errors from the risk
-   * computation propagate to the caller.
+   * Filters the given ciphers to the personal-vault logins in scope, then
+   * categorizes, deduplicates (highest-risk-wins), and scores them, publishing
+   * the result to `getVaultHealthReport$`. The caller (the Health-tab root
+   * component) owns fetching the vault ciphers and deciding when to recompute.
+   * Errors from the risk computation propagate to the caller.
    */
-  async buildVaultHealthReport$(ciphers: CipherView[], userId: UserId): Promise<void> {
+  async buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void> {
     const logins = this.filterScopedLogins(ciphers);
-    const newReport = await this.buildReport(logins, userId);
-    this.report.next(newReport);
+    const report = await this.buildReport(logins, userId);
+    this.report.next({ userId, report });
   }
 
   /**
-   * Get the latest vault health scan report, run buildVaultHealthReport$ first to generate the report.
-   * @returns an observable that emits the latest vault health scan report
+   * Get the latest vault health scan report for a user, run buildVaultHealthReport
+   * first to generate the report.
+   * @returns an observable that emits the latest report built for `userId`, or
+   * null when no scan has run for that user
    */
-  getVaultHealthReport$(): Observable<VaultHealthReportView | null> {
-    return this.report.asObservable();
+  getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportView | null> {
+    return this.report.pipe(
+      map((scoped) => (scoped?.userId === userId ? scoped.report : null)),
+      distinctUntilChanged(),
+    );
   }
 
   /**
@@ -74,14 +90,14 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     // views directly by id (no reliance on array position).
     const healthViews = risks.map((risk) => this.toCipherHealthView(risk));
     const atRisk = healthViews.filter((health) => health.isAtRisk());
+    const loginsById = new Map(logins.map((cipher) => [cipher.id, cipher]));
 
     const categoryItems: Record<RiskCategory, VaultHealthReportItem[]> = atRisk.reduce(
       (items: Record<RiskCategory, VaultHealthReportItem[]>, health) => {
-        const category = this.highestRiskCategory(health);
-        const cipher = logins.find((c) => c.id === health.cipherId);
-        if (cipher) {
-          items[category].push(new VaultHealthReportItem(cipher, health));
-        }
+        // Every health view is derived from `logins`, so the lookup always hits;
+        const cipher = loginsById.get(health.cipherId);
+        items[this.highestRiskCategory(health)].push(new VaultHealthReportItem(cipher!, health));
+
         return items;
       },
       { exposed: [], weak: [], reused: [] },

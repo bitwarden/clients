@@ -66,7 +66,7 @@ describe("HealthOverviewComponent", () => {
    * scan, not returned from the call, so nothing is available until it runs.
    */
   function scanYields(report: VaultHealthReportView) {
-    reportService.buildVaultHealthReport$.mockImplementation(async () => {
+    reportService.buildVaultHealthReport.mockImplementation(async () => {
       report$.next(report);
     });
   }
@@ -105,7 +105,7 @@ describe("HealthOverviewComponent", () => {
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
     reportService = mock<VaultHealthReportService>();
     reportService.getVaultHealthReport$.mockReturnValue(report$);
-    reportService.buildVaultHealthReport$.mockResolvedValue(undefined);
+    reportService.buildVaultHealthReport.mockResolvedValue(undefined);
 
     logService = mock<LogService>();
 
@@ -257,7 +257,7 @@ describe("HealthOverviewComponent", () => {
     await initComponent();
 
     // Nothing should have been scanned off the null.
-    expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+    expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
     expect(gauge()).toBeNull();
 
     // The real ciphers arrive; now it scans, exactly once, with those ciphers.
@@ -266,15 +266,15 @@ describe("HealthOverviewComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledWith(real, userId);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledWith(real, userId);
     expect(gauge()?.value()).toBe(12);
     expect(text()).toContain("yourVaultRiskIsHigh");
   });
 
   it("renders nothing until the report resolves", async () => {
     // A scan that never settles, so the service never publishes a report.
-    reportService.buildVaultHealthReport$.mockReturnValue(new Promise<void>(() => {}));
+    reportService.buildVaultHealthReport.mockReturnValue(new Promise<void>(() => {}));
 
     await initComponent();
 
@@ -299,17 +299,17 @@ describe("HealthOverviewComponent", () => {
     scanYields(new VaultHealthReportView({ totalCount: 1, atRiskCount: 0 }));
 
     await initComponent();
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
 
     // A vault edit must not re-run the breach lookup.
     ciphers$.next([{} as CipherView]);
     await fixture.whenStable();
 
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
   });
 
   it("logs the error and renders nothing when the scan fails", async () => {
-    reportService.buildVaultHealthReport$.mockRejectedValue(new Error("HIBP unavailable"));
+    reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
 
     await initComponent();
 
