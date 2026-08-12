@@ -1,4 +1,4 @@
-import { Observable, from } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -8,10 +8,15 @@ import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "../../models/risk-category";
-import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
+import {
+  VaultHealthReportItem,
+  VaultHealthReportView,
+} from "../../models/view/vault-health-report.view";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
+  private readonly report = new BehaviorSubject<VaultHealthReportView>(new VaultHealthReportView());
+
   constructor(private cipherRiskService: CipherRiskService) {}
 
   /**
@@ -21,12 +26,18 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * deduplicates (highest-risk-wins), and scores them. Errors from the risk
    * computation propagate to the caller.
    */
-  buildVaultHealthReport$(
-    ciphers: CipherView[],
-    userId: UserId,
-  ): Observable<VaultHealthReportView> {
+  async buildVaultHealthReport$(ciphers: CipherView[], userId: UserId): Promise<void> {
     const logins = this.filterScopedLogins(ciphers);
-    return from(this.buildReport(logins, userId));
+    const newReport = await this.buildReport(logins, userId);
+    this.report.next(newReport);
+  }
+
+  /**
+   * Get the latest vault health scan report, run buildVaultHealthReport$ first to generate the report.
+   * @returns an observable that emits the latest vault health scan report
+   */
+  getVaultHealthReport$(): Observable<VaultHealthReportView> {
+    return this.report.asObservable();
   }
 
   /**
@@ -63,16 +74,17 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     const healthViews = risks.map((risk) => this.toCipherHealthView(risk));
     const atRisk = healthViews.filter((health) => health.isAtRisk());
 
-    const categoryItems: Record<RiskCategory, CipherHealthView[]> = {
-      exposed: [],
-      weak: [],
-      reused: [],
-    };
-
-    for (const health of atRisk) {
-      const category = this.highestRiskCategory(health);
-      categoryItems[category].push(health);
-    }
+    const categoryItems: Record<RiskCategory, VaultHealthReportItem[]> = atRisk.reduce(
+      (items: Record<RiskCategory, VaultHealthReportItem[]>, health) => {
+        const category = this.highestRiskCategory(health);
+        const cipher = logins.find((c) => c.id === health.cipherId);
+        if (cipher) {
+          items[category].push(new VaultHealthReportItem(cipher, health));
+        }
+        return items;
+      },
+      { exposed: [], weak: [], reused: [] },
+    );
 
     return new VaultHealthReportView({
       totalCount,
@@ -90,6 +102,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       hasWeakPassword: risk.password_strength < 3,
       hasReusedPassword: (risk.reuse_count ?? 1) > 1,
       exposedCount,
+      reuseCount: risk.reuse_count ?? 0,
       weakPasswordScore: risk.password_strength,
     });
   }

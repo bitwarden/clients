@@ -12,32 +12,33 @@
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
-        <span slot="end">{{ items().length }}</span>
+        <span slot="end">{{ items()?.length }}</span>
       </bit-section-header>
-      @for (item of items(); track item.id) {
+      @for (item of items(); track item.cipher.id) {
+        @let cipher = item.cipher;
         <bit-item class="tw-flex tw-gap-2 tw-items-center">
-          <button bit-item-content type="button" (click)="onItemClick(item)">
+          <button bit-item-content type="button" (click)="onItemClick(cipher)">
             <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
-              <app-vault-icon [cipher]="item"></app-vault-icon>
+              <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span bitTypography="body1">
-              {{ item.name }}
+              {{ cipher.name }}
             </span>
             <div slot="secondary" class="tw-flex tw-flex-col">
               <span bitTypography="body2" class="tw-text-muted">
-                {{ item.login.username }}
+                {{ cipher.login.username }}
               </span>
             </div>
           </button>
           <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
-            @if (item.login.uri != null) {
+            @if (cipher.login.uri != null) {
               <bit-item-action>
                 <button
                   type="button"
                   bitButton
                   buttonType="primaryOutline"
                   endIcon="bwi-external-link"
-                  (click)="onChangePassword(item)"
+                  (click)="onChangePassword(cipher)"
                 >
                   {{ "changePassword" | i18n }}
                 </button>

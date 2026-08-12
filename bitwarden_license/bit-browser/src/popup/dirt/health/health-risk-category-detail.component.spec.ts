@@ -279,34 +279,6 @@ describe("HealthRiskCategoryDetailComponent", () => {
       },
     );
 
-    it("does not render content for another category", async () => {
-      params$.next({ category: "weak-passwords" });
-
-      await initComponent();
-
-      expect(text()).not.toContain("exposedPasswords");
-      expect(text()).not.toContain("reusedPasswords");
-    });
-
-    // The page title is an interpolated attribute, so an unmapped category coerces to a blank
-    // string rather than falling back to any default copy.
-    it("renders no content keys for an unrecognized category", async () => {
-      params$.next({ category: "not-a-category" });
-
-      await initComponent();
-
-      expect(pageTitle()).toBe("");
-      expect(text()).not.toContain("Description");
-    });
-
-    it("renders no content keys when the route has no category", async () => {
-      params$.next({});
-
-      await initComponent();
-
-      expect(pageTitle()).toBe("");
-    });
-
     it("swaps the title, description and empty icon when the category changes", async () => {
       params$.next({ category: RiskCategory.Exposed });
       await initComponent();

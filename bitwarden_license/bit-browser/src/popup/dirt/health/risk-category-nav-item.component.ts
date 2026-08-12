@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
 import {
   BitwardenIcon,
   IconComponent,
@@ -54,6 +55,7 @@ export class RiskCategoryNavItemComponent {
   readonly variant = input<IconTileVariant>("primary");
   /** Router path for this category's Risk Category Detail. */
   readonly route = input.required<string>();
+  readonly report = input.required<VaultHealthReportView>();
 
   /**
    * A category with no at-risk items is healthy. It still renders, so the list

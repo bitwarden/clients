@@ -1,19 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { filter, map, switchMap, take } from "rxjs/operators";
+import { map } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   NoItemsModule,
@@ -55,8 +54,29 @@ export class HealthRiskCategoryDetailComponent {
   readonly changeLoginPasswordService = inject(ChangeLoginPasswordService);
   readonly passwordRepromptService = inject(PasswordRepromptService);
   readonly platformUtilsService = inject(PlatformUtilsService);
+  readonly vaultHealthReportService = inject(VaultHealthReportService);
 
   readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
+  readonly report = toSignal(this.vaultHealthReportService.getVaultHealthReport$());
+
+  readonly items = computed(() => {
+    const category = this.category();
+    const report = this.report();
+    if (!category || !report) {
+      return [];
+    }
+
+    switch (category) {
+      case RiskCategory.Exposed:
+        return report.categoryItems.exposed;
+      case RiskCategory.Weak:
+        return report.categoryItems.weak;
+      case RiskCategory.Reused:
+        return report.categoryItems.reused;
+      default:
+        return [];
+    }
+  });
   readonly contentKeys = computed<{
     titleKey?: string;
     descriptionKey?: string;
@@ -109,18 +129,4 @@ export class HealthRiskCategoryDetailComponent {
       queryParams: { cipherId: item.id, type: item.type },
     });
   };
-
-  // TODO: REMOVE - FOR TESTING ONLY
-  readonly accountService = inject(AccountService);
-  readonly cipherService = inject(CipherService);
-  readonly items = toSignal(
-    this.accountService.activeAccount$.pipe(
-      filter((account) => account != null),
-      switchMap((account) =>
-        this.cipherService.cipherViews$(account.id).pipe(filter((ciphers) => ciphers != null)),
-      ),
-      take(5),
-    ),
-    { initialValue: [] },
-  );
 }

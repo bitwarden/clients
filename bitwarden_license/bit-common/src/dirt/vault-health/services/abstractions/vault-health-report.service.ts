@@ -22,8 +22,10 @@ export abstract class VaultHealthReportService {
    * the caller can route to the scan-failure state (PM-39223); they are not
    * swallowed here.
    */
-  abstract buildVaultHealthReport$(
-    ciphers: CipherView[],
-    userId: UserId,
-  ): Observable<VaultHealthReportView>;
+  abstract buildVaultHealthReport$(ciphers: CipherView[], userId: UserId): Promise<void>;
+
+  /** Get the latest vault health scan report, run buildVaultHealthReport$ first to generate the report.
+   * @returns an observable that emits the latest vault health scan report
+   */
+  abstract getVaultHealthReport$(): Observable<VaultHealthReportView>;
 }
