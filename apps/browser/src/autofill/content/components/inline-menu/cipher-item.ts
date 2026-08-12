@@ -81,7 +81,7 @@ export function InlineMenuCipherItem({
   const onViewKeyUp = (event: KeyboardEvent) => handleViewCipherKeyUp(event, onListEdgeReached);
 
   return html`
-    <div data-cipher-item class=${cipherItemStyles({ bordered, theme })}>
+    <div data-cipher-item role="listitem" class=${cipherItemStyles({ bordered, theme })}>
       <div data-cipher-content class=${cipherItemContentStyles(theme)}>
         <button
           type="button"
