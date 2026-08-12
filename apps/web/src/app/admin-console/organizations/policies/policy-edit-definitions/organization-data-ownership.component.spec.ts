@@ -132,6 +132,18 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
       expect(component.data.controls.enableIndividualItemsTransfer.disabled).toBe(true);
     });
 
+    it("should resolve the organization from the organizationId input when the policy has never been saved (404 response has no organizationId)", async () => {
+      setupOrg(true);
+      // Simulates PolicyEditDrawerComponent/MultiStepPolicyEditDialogComponent's 404 fallback:
+      // `new PolicyResponse({ Enabled: false })` has no OrganizationId.
+      fixture.componentRef.setInput("policyResponse", new PolicyStatusResponse({ Enabled: true }));
+      fixture.componentRef.setInput("organizationId", ORG_ID);
+
+      await component.ngOnInit();
+
+      expect(component.data.controls.enableIndividualItemsTransfer.enabled).toBe(true);
+    });
+
     it("should enable enableIndividualItemsTransfer control when enabled changes to true and useMyItems is true", async () => {
       setupOrg(true);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
