@@ -284,11 +284,6 @@ export const WithStartSlot: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child A" route="aa"></bit-nav-item>
           <bit-nav-item text="Child B" route="ab"></bit-nav-item>
         </bit-nav-group>
-        <bit-nav-group text="Alongside an icon" [route]="['b']" icon="bwi-filter">
-          <bit-icon-tile icon="bwi-collection-shared" variant="success" size="sm"></bit-icon-tile>
-          <bit-nav-item text="Child A" route="ba"></bit-nav-item>
-          <bit-nav-item text="Child B" route="bb"></bit-nav-item>
-        </bit-nav-group>
       </bit-side-nav>
     `,
   }),
