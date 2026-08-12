@@ -65,7 +65,7 @@ import {
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
-import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
+import { enabledFlags, featureFlagModesAtWidth } from "@bitwarden/storybook";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
@@ -813,13 +813,14 @@ export default {
     // story already provides `ConfigService` via `applicationConfig` — so this file must not provide
     // one, or the modes would silently stop taking effect.
     //
-    // The viewport is pinned to the popup's own width because `popupFrame` constrains the story with
-    // CSS, while the list table's toolbar picks its presentation from `matchMedia` — so on a wide
-    // screen these would snapshot the inline chip row, which the extension never shows. Every popup
-    // width is below `md`, so the real popup always collapses the chips into the filter dialog.
+    // Each mode also pins the viewport to the popup's own width: `popupFrame` constrains the story
+    // with CSS, while the list table's toolbar picks its presentation from `matchMedia` — so on a
+    // wide screen these would snapshot the inline chip row, which the extension never shows. Every
+    // popup width is below `md`, so the real popup always collapses the chips into the filter
+    // dialog. The width rides inside each mode because Chromatic rejects `viewports` and `modes`
+    // together on one story.
     chromatic: {
-      modes: featureFlagModes(FeatureFlag.VFO1Foundation),
-      viewports: [PopupWidthOptions.narrow],
+      modes: featureFlagModesAtWidth(PopupWidthOptions.narrow, FeatureFlag.VFO1Foundation),
     },
   },
 } as Meta<VaultComponent>;
@@ -916,12 +917,20 @@ export const WithNotifications: Story = {
   ...buildStory({ showOrgNotification: true }),
   parameters: {
     chromatic: {
+      // This map replaces the meta-level one wholesale, so it has to re-pin the popup width too —
+      // see the note there on why the width rides inside each mode.
       modes: {
-        "flag off": enabledFlags(FeatureFlag.PM31948_OrgUserNotificationBanner),
-        "flag on": enabledFlags(
-          FeatureFlag.PM31948_OrgUserNotificationBanner,
-          FeatureFlag.VFO1Foundation,
-        ),
+        "flag off": {
+          ...enabledFlags(FeatureFlag.PM31948_OrgUserNotificationBanner),
+          viewport: { width: PopupWidthOptions.narrow },
+        },
+        "flag on": {
+          ...enabledFlags(
+            FeatureFlag.PM31948_OrgUserNotificationBanner,
+            FeatureFlag.VFO1Foundation,
+          ),
+          viewport: { width: PopupWidthOptions.narrow },
+        },
       },
     },
   },
