@@ -145,6 +145,7 @@ import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  SshAgentDestinationSettingsService,
   SshImportPromptService,
   VaultFilterServiceAbstraction,
   VaultFilterService,
@@ -162,6 +163,7 @@ import { DesktopAutofillService } from "../../autofill/services/desktop-autofill
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopSshAgentDestinationSettingsService } from "../../autofill/services/desktop-ssh-agent-destination-settings.service";
 import { SshAgentDestinationsService } from "../../autofill/services/ssh-agent-destinations.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
@@ -428,6 +430,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SshAgentDestinationsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SshAgentDestinationSettingsService,
+    useClass: DesktopSshAgentDestinationSettingsService,
+    deps: [SshAgentDestinationsService],
   }),
   safeProvider({
     provide: DesktopAutofillService,

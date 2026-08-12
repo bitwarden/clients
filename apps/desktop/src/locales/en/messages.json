@@ -641,6 +641,21 @@
   "sshFingerprint": {
     "message": "Fingerprint"
   },
+  "sshAgentDestinations": {
+    "message": "SSH agent destinations"
+  },
+  "sshAgentDestinationsDescription": {
+    "message": "When destination information is available, only offer this key for these SSH host key fingerprints. Leave empty to offer this key for any destination."
+  },
+  "sshAgentDestinationFingerprint": {
+    "message": "SSH host key fingerprint"
+  },
+  "addSshAgentDestination": {
+    "message": "Add destination"
+  },
+  "invalidSshAgentDestinationFingerprint": {
+    "message": "Enter a valid SHA256 host key fingerprint, starting with \"SHA256:\""
+  },
   "sshKeyAlgorithm": {
     "message": "Key type"
   },

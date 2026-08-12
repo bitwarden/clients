@@ -97,6 +97,19 @@ describe("CipherFormComponent", () => {
       expect(mockCipherArchiveService.userCanArchive$).toHaveBeenCalledWith("user-id");
     });
 
+    it("cipherSaved$ emits the same saved cipher as the cipherSaved output", async () => {
+      const savedCipher = new CipherView();
+      savedCipher.id = "saved-cipher-id";
+      mockAddEditFormService.saveCipher = jest.fn().mockResolvedValue(savedCipher);
+
+      const cipherSaved$Spy = jest.fn();
+      component.cipherSaved$.subscribe(cipherSaved$Spy);
+
+      await component.submit();
+
+      expect(cipherSaved$Spy).toHaveBeenCalledWith(savedCipher);
+    });
+
     it("shows an error toast and aborts when the policy applies but there are no eligible orgs", async () => {
       component.config = {
         mode: "add",

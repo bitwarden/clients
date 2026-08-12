@@ -38,3 +38,53 @@
     </bit-form-field>
   </bit-card>
 </section>
+
+@if (showDestinationSettings) {
+  <section [formGroup]="destinationsForm" class="tw-mb-5 bit-compact:tw-mb-4">
+    <bit-section-header>
+      <h2 bitTypography="h6">
+        {{ "sshAgentDestinations" | i18n }}
+      </h2>
+    </bit-section-header>
+    <bit-card>
+      <p bitTypography="body2" class="tw-text-muted tw-mb-3">
+        {{ "sshAgentDestinationsDescription" | i18n }}
+      </p>
+      <div formArrayName="fingerprints">
+        @for (control of fingerprints.controls; track $index; let i = $index) {
+          <bit-form-field>
+            <bit-label>{{ "sshAgentDestinationFingerprint" | i18n }}</bit-label>
+            <input
+              [id]="'destinationFingerprint-' + i"
+              bitInput
+              [formControlName]="i"
+              placeholder="SHA256:..."
+            />
+            <button
+              type="button"
+              bitIconButton="bwi-minus-circle"
+              buttonType="danger"
+              slot="inline-end"
+              [id]="'sshkey-section_button_remove-destination-' + i"
+              [label]="'remove' | i18n"
+              data-testid="remove-destination"
+              (click)="removeDestinationRow(i)"
+            ></button>
+          </bit-form-field>
+        }
+      </div>
+
+      <button
+        type="button"
+        bitLink
+        linkType="primary"
+        startIcon="bwi-plus"
+        id="sshkey-section_button_add-destination"
+        data-testid="add-destination-button"
+        (click)="addDestinationRow()"
+      >
+        {{ "addSshAgentDestination" | i18n }}
+      </button>
+    </bit-card>
+  </section>
+}

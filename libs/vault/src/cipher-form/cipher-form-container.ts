@@ -29,6 +29,12 @@ export type CipherForm = {
   cardDetails?: CardDetailsSectionComponent["cardDetailsForm"];
   identityDetails?: IdentitySectionComponent["identityForm"];
   sshKeyDetails?: SshKeySectionComponent["sshKeyForm"];
+  /**
+   * Only participates in the parent form's validity — an invalid destination fingerprint blocks
+   * Save. Values here are never patched into the cipher; see
+   * {@link SshKeySectionComponent.destinationsForm}.
+   */
+  sshAgentDestinations?: SshKeySectionComponent["destinationsForm"];
   bankAccountDetails?: BankAccountSectionComponent["bankAccountForm"];
   driversLicenseDetails?: DriversLicenseSectionComponent["driversLicenseForm"];
   passportDetails?: PassportSectionComponent["passportForm"];
@@ -89,4 +95,12 @@ export abstract class CipherFormContainer {
    * This can be used for child forms to react to changes in the form status.
    */
   formStatusChange$: Observable<"enabled" | "disabled">;
+
+  /**
+   * Emits the saved {@link CipherView} after a successful save, including for a newly-created
+   * cipher (which has no `id` until this point). Child forms that need to persist data keyed by
+   * cipher ID, but that isn't part of the synced cipher itself, can use this to defer persistence
+   * until an ID exists.
+   */
+  abstract readonly cipherSaved$: Observable<CipherView>;
 }
