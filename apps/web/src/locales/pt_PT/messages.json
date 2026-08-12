@@ -1252,7 +1252,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "A pasta partilhada $NAME$ será eliminada permanentemente. Os itens da pasta não serão eliminados.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1261,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Estas pastas partilhadas serão eliminadas permanentemente. Os itens das pastas não serão eliminados."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ pasta(s) partilhada(s) serão eliminada(s) permanentemente.",
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
+  "noFileSelected": {
+    "message": "Nenhum ficheiro selecionado"
+  },
+  "fileChosen": {
+    "message": "Ficheiro escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Ficheiro adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ficheiros adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Ficheiro removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 ficheiro carregado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ ficheiros carregados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Ficheiros carregados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para carregar ou arraste e largue"
+  },
+  "chooseFiles": {
+    "message": "Escolher ficheiros"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do ficheiro: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
@@ -4240,6 +4313,15 @@
   "pendingCancellation": {
     "message": "Cancelamento pendente"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Vai mudar para a faturação anual em $DATE$. O plano e o preço apresentados correspondem à sua próxima subscrição anual.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "A subscrição foi marcada para cancelamento no final do período de faturação atual."
   },
@@ -4609,6 +4691,9 @@
   "organizationName": {
     "message": "Nome da organização"
   },
+  "vaultName": {
+    "message": "Nome do cofre"
+  },
   "accountOwnedBusiness": {
     "message": "Esta conta é propriedade de uma empresa."
   },
@@ -4725,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limitado a $COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Adicione e partilhe com um máximo de $COUNT$ utilizadores",
     "placeholders": {
@@ -4739,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Criar coleções ilimitadas"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Criar pastas partilhadas ilimitadas"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ de armazenamento de ficheiros encriptados",
@@ -6441,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Não foi possível aderir a $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "O link de convite já não é válido."
+  },
+  "returnToLogin": {
+    "message": "Voltar ao início de sessão"
+  },
+  "returnToRegistration": {
+    "message": "Voltar ao registo"
+  },
   "joinOrganizationDesc": {
     "message": "Foi convidado a juntar-se à organização listada acima. Para aceitar o convite, é necessário iniciar sessão ou criar uma nova conta Bitwarden."
   },
@@ -6467,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Não foi possível aceitar o convite. Peça a um administrador da organização para enviar um novo link de convite."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Já é membro desta organização."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Os endereços de e-mail com o domínio $DOMAIN$ não são permitidos nesta organização.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Não pode aderir a esta organização porque já é administrador de uma organização gratuita."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "O seu acesso a esta organização foi revogado. Contacte o seu administrador para recuperar o acesso."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Os utilizadores de fornecedores não podem aderir através deste link de convite."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Uma organização da qual já é membro só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "A organização à qual está a tentar aderir só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Tem de configurar a verificação de dois passos para aderir a esta organização."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Tem de verificar o seu endereço de e-mail antes de aderir a uma organização."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Não foi possível aceitar o seu convite porque não há lugares disponíveis."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Este domínio não é aceite por esta organização. Tente utilizar um endereço de e-mail diferente."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Não foi possível desencriptar o convite da organização. Tente novamente utilizando o mesmo navegador para iniciar e concluir o processo de registo."
+  },
+  "goToLogin": {
+    "message": "Ir para o início de sessão"
+  },
+  "goToVault": {
+    "message": "Ir para o cofre"
   },
   "rememberEmail": {
     "message": "Memorizar e-mail"
@@ -9296,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Planos familiares patrocinados"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Resgates por não membros"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Sem planos familiares patrocinados"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Ainda não há resgates"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Os planos familiares patrocinados para não membros serão apresentados aqui"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Nenhum não membro resgatou o Plano Familiar Patrocinado."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Os seus membros são elegíveis para resgatar um Plano Familiar Patrocinado. Pode patrocinar um plano Familiar para funcionários que não sejam membros da sua organização Bitwarden, mas isso requer lugares disponíveis na sua organização."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Quando remover um patrocínio ativo, ficará disponível um lugar na sua organização após a data de renovação da organização patrocinada."
@@ -9311,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "O utilizador e a sua família são elegíveis para o plano Familiar gratuito Bitwarden. Resgate com o seu e-mail pessoal para manter os seus dados seguros mesmo quando não estiver no trabalho."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "É elegível, juntamente com a sua família, para um Plano Familiar Patrocinado sem custos adicionais. Resgate este plano com o seu e-mail pessoal para manter os seus dados seguros e separados da sua conta Bitwarden profissional."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Resgate hoje mesmo o seu plano Familiar gratuito Bitwarden para manter os seus dados seguros mesmo quando não está no trabalho."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "O plano Bitwarden Familiar inclui"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "O plano Familiar Bitwarden inclui"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acesso Premium para um máximo de 6 utilizadores"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Coleções partilhadas para membros familiares"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Pastas partilhadas para membros da família"
   },
   "memberFamilies": {
     "message": "Membros do plano familiar"
@@ -12727,6 +12929,36 @@
     "message": "Reorganização, aquisição, mudança de prioridades ou deixámos de precisar de um gestor de palavras-passe.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Mude para a faturação anual e poupe $SAVINGS$ por ano",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Custo atual (faturação mensal)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Custo da faturação anual",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Os preços apresentados não incluem os impostos aplicáveis. A mudança entra em vigor na próxima data de renovação.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Mudar para a faturação anual",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "A sua subscrição passará para a faturação anual na próxima data de renovação.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Mau apoio ao cliente",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -14013,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Coleções ilimitadas"
   },
+  "unlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas"
+  },
   "secureDataSharing": {
     "message": "Partilha segura de dados"
   },
@@ -15247,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Coleções familiares ilimitadas"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas para a família"
+  },
   "familiesSharedStorage": {
     "message": "Armazenamento partilhado para informações importantes da família"
   },
@@ -15261,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Até $COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Até $COUNT$ pastas partilhadas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15678,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Abra a página de subscrição da sua conta Bitwarden na cloud e transfira o ficheiro de licença. Depois, regresse a este ecrã e carregue-o abaixo."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Abra a página da subscrição na sua conta Bitwarden e transfira o ficheiro de licença. Em seguida, volte a este ecrã e carregue-o abaixo."
   },
   "viewAllPlans": {
     "message": "Ver todos os planos"
