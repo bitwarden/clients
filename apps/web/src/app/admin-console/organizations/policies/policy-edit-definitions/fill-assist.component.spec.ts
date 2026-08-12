@@ -278,6 +278,17 @@ describe("FillAssistPolicyComponent", () => {
     expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
   });
 
+  it("trims surrounding whitespace before saving", async () => {
+    // `new URL()` tolerates surrounding whitespace, so this string passes the
+    // validator; without trimming it silently 404s downstream.
+    fixture.componentRef.setInput("policy", new FillAssistPolicy());
+    component.data?.patchValue({ rulesUrl: "  acme.example.com/rules  " });
+
+    const request = await component.buildRequest();
+
+    expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+  });
+
   it("saves the default URL as a canonical full URL when unchanged", async () => {
     fixture.componentRef.setInput("policy", new FillAssistPolicy());
 

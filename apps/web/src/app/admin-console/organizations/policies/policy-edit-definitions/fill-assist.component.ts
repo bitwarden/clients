@@ -198,14 +198,19 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   // Prepend `https://` back so the stored policy data is a canonical full URL.
   // Strip first to stay idempotent — submitting with Enter skips the blur
   // handler, so the form value may still carry a pasted `https://` prefix.
+  // Trim before that: the URL constructor tolerates surrounding whitespace,
+  // so `"example.com/rules "` slips past the validator; without trimming here
+  // the space percent-encodes when the client joins the URL with the manifest
+  // filename and silently 404s.
   protected override buildRequestData() {
     const data = this.data?.getRawValue();
     if (data == null) {
       return null;
     }
+    const rulesUrl = typeof data.rulesUrl === "string" ? data.rulesUrl.trim() : data.rulesUrl;
     return {
       ...data,
-      rulesUrl: data.rulesUrl ? HTTPS_PREFIX + stripHttpsPrefix(data.rulesUrl) : data.rulesUrl,
+      rulesUrl: rulesUrl ? HTTPS_PREFIX + stripHttpsPrefix(rulesUrl) : rulesUrl,
     };
   }
 
