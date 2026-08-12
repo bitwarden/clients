@@ -14,6 +14,28 @@ export declare namespace autofill {
     key: string
     value: string
   }
+  /** Request to retrieve a one-time code credential. */
+  export interface OtpAutofillRequest {
+    userName: string
+    displayName?: string
+    serviceIdentifier: string
+    recordIdentifier?: string
+    /**
+     * Native context required for callbacks to the OS. Format differs by OS.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * A UUID representing the request.
+     *
+     * ## Windows
+     * Not implemented
+     */
+    context: string
+  }
+  /** Response for a one-time code autofill request. */
+  export interface OtpAutofillResponse {
+    code: string
+  }
   /** Request to assert a credential. */
   export interface PasskeyAssertionRequest {
     /** Relying Party ID for the request. */
@@ -233,6 +255,7 @@ export declare namespace autofill {
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeOtpAutofill(clientId: number, sequenceNumber: number, response: OtpAutofillResponse): number
     completePasswordAutofill(clientId: number, sequenceNumber: number, response: PasswordAutofillResponse): number
     completeLockStatus(clientId: number, sequenceNumber: number, response: LockStatusResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
@@ -279,6 +302,13 @@ export declare namespace autofill {
    * will use the same value to identify the request to be cancelled.
    */
   passwordAutofillCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasswordAutofillRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to execute when a one-time code autofill request is received.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
+   */
+  otpAutofillCallback: { (error: null, clientId: number, sequenceNumber: number, message: OtpAutofillRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   }
   export function runCommand(value: string): Promise<string>
 }

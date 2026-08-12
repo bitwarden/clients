@@ -4,6 +4,7 @@ uniffi::setup_scaffolding!("autofill_provider");
 
 mod assertion;
 mod lock_status;
+mod otp;
 mod password;
 mod registration;
 mod window_handle_query;
@@ -42,6 +43,7 @@ pub use crate::{
         PasskeyAssertionWithoutUserInterfaceRequest, PreparePasskeyAssertionCallback,
     },
     lock_status::LockStatusResponse,
+    otp::{OtpAutofillRequest, OtpAutofillResponse, PrepareOtpAutofillCallback},
     password::{
         PasswordAutofillRequest, PasswordAutofillResponse, PreparePasswordAutofillCallback,
     },
@@ -174,6 +176,7 @@ pub enum ExtensionRequest {
     CancelRequest(String),
     LockStatus,
     NativeStatus(NativeStatus),
+    Otp(OtpAutofillRequest),
     PasskeyAssertion(PasskeyAssertionRequest),
     PasskeyAssertionWithoutUserInterface(PasskeyAssertionWithoutUserInterfaceRequest),
     PasskeyRegistration(PasskeyRegistrationRequest),
@@ -438,6 +441,15 @@ impl AutofillProviderClient {
             ExtensionRequest::PasskeyAssertionWithoutUserInterface(request),
             Some(Box::new(callback)),
         );
+    }
+
+    /// Send a request to the desktop client for a one-time code.
+    pub fn prepare_otp(
+        &self,
+        request: OtpAutofillRequest,
+        callback: Arc<dyn PrepareOtpAutofillCallback>,
+    ) {
+        self.send_request(ExtensionRequest::Otp(request), Some(Box::new(callback)));
     }
 
     /// Send a request to the desktop client for a password.

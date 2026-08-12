@@ -34,9 +34,12 @@ import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/f
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
+type OtpAutofillRequest = autofill.OtpAutofillRequest;
+type OtpAutofillResponse = autofill.OtpAutofillResponse;
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
@@ -55,6 +58,7 @@ import {
 import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
   AutofillFido2Credential,
+  AutofillOtpCredential,
   AutofillPasswordCredential,
   AutofillSyncCommand,
 } from "../models/autofill-sync.command";
@@ -81,6 +85,7 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
+    private totpService: TotpService,
     platformUtilsService: PlatformUtilsService,
   ) {
     const deviceType = platformUtilsService.getDevice();
@@ -257,6 +262,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     let fido2Credentials: AutofillFido2Credential[] = [];
     let passwordCredentials: AutofillPasswordCredential[] = [];
+    let otpCredentials: AutofillOtpCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -288,16 +294,40 @@ export class DesktopAutofillService implements OnDestroy {
       }));
     }
 
+    if (status.value.support.otp) {
+      otpCredentials = cipherViews
+        .filter(
+          (cipher) =>
+            !cipher.isDeleted &&
+            cipher.type === CipherType.Login &&
+            cipher.login.uris?.length > 0 &&
+            cipher.login.uris.some(
+              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+            ) &&
+            !Utils.isNullOrWhitespace(cipher.login.username) &&
+            cipher.login.hasTotp,
+        )
+        .map((cipher) => ({
+          type: "otp",
+          cipherId: cipher.id,
+          uri: cipher.login.uris.find(
+            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+          )!.uri as string,
+          username: cipher.login.username as string,
+        }));
+    }
+
     this.logService.info("Syncing autofill credentials", {
       fido2Credentials: fido2Credentials.length,
       passwordCredentials: passwordCredentials.length,
+      otpCredentials: otpCredentials.length,
     });
 
     const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
       namespace: "autofill",
       command: "sync",
       params: {
-        credentials: [...fido2Credentials, ...passwordCredentials],
+        credentials: [...fido2Credentials, ...passwordCredentials, ...otpCredentials],
       },
     });
 
@@ -336,6 +366,43 @@ export class DesktopAutofillService implements OnDestroy {
       (await firstValueFrom(this.authService.activeAccountStatus$)) ===
       AuthenticationStatus.Unlocked;
     return { isUnlocked };
+  }
+
+  async doOtpAutofill(
+    request: OtpAutofillRequest,
+    abortController: AbortController,
+  ): Promise<OtpAutofillResponse> {
+    // TODO: we need to pin to the user ID too instead of assuming the active account.
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      throw new Error("No active account");
+    }
+
+    const userId = activeAccount.id;
+    const accountStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (accountStatus !== AuthenticationStatus.Unlocked) {
+      throw new Error("Vault is not unlocked, cannot provide credentials");
+    }
+
+    // TODO: implement UI selection, using serviceIdentifier as context.
+    const cipherId = request.recordIdentifier as CipherId | undefined;
+    if (!cipherId) {
+      throw new Error(
+        "Record identifier not included, and UI to select credential is not implemented",
+      );
+    }
+    const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, cipherId));
+    if (!cipher) {
+      throw new Error(`No cipher found with that cipher ID: ${cipherId}`);
+    }
+
+    // Is this supposed to be a CipherViewLike?
+    const totpSecret = cipher.login?.totp;
+    if (!cipher.login?.hasTotp || !totpSecret) {
+      throw new Error("Cipher does not have TOTP code");
+    }
+    const { code } = await firstValueFrom(this.totpService.getCode$(totpSecret));
+    return { code };
   }
 
   async doPasskeyRegistration(
@@ -396,6 +463,7 @@ export class DesktopAutofillService implements OnDestroy {
       throw new Error("Vault is not unlocked, cannot provide credentials");
     }
 
+    // TODO: implement UI selection, using serviceIdentifier as context.
     const cipherId = request.recordIdentifier as CipherId | undefined;
     if (!cipherId) {
       throw new Error(
@@ -474,6 +542,12 @@ export class DesktopAutofillService implements OnDestroy {
     this.makeListener(
       ipcDesktopAutofill.listenPasswordAutofill,
       (request, abortController) => this.doPasswordAutofill(request, abortController),
+      (request) => request.context,
+    );
+
+    this.makeListener(
+      ipcDesktopAutofill.listenOtpAutofill,
+      (request, abortController) => this.doOtpAutofill(request, abortController),
       (request) => request.context,
     );
 

@@ -124,6 +124,7 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/s
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -479,6 +480,7 @@ const safeProviders: SafeProvider[] = [
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,
+      TotpServiceAbstraction,
       PlatformUtilsService,
     ],
   }),

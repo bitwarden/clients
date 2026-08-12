@@ -10,7 +10,8 @@ export type AutofillSyncParams = {
   credentials: AutofillCredential[];
 };
 
-export type AutofillCredential = AutofillFido2Credential | AutofillPasswordCredential;
+export type AutofillCredential =
+  AutofillFido2Credential | AutofillPasswordCredential | AutofillOtpCredential;
 
 export type AutofillFido2Credential = {
   type: "fido2";
@@ -21,6 +22,13 @@ export type AutofillFido2Credential = {
   credentialId: string;
   /** Should be Base64URL-encoded binary data */
   userHandle: string;
+};
+
+export type AutofillOtpCredential = {
+  type: "otp";
+  cipherId: string;
+  uri: string;
+  username: string;
 };
 
 export type AutofillPasswordCredential = {

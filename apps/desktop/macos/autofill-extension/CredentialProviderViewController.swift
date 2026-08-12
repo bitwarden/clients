@@ -381,6 +381,29 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             }
         }
 
+        if #available(macOS 15.0, *), let request = credentialRequest as? ASOneTimeCodeCredentialRequest {
+            if let otpIdentity = request.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (one-time code) called \(request)")
+
+                Task {
+                    let context = UUID().uuidString
+                    let req = OtpAutofillRequest(
+                        userName: otpIdentity.user,
+                        displayName: otpIdentity.label,
+                        serviceIdentifier: otpIdentity.serviceIdentifier.identifier,
+                        recordIdentifier: otpIdentity.recordIdentifier,
+                        context: context
+                    )
+
+                    let client = await getClient()
+                    self.beginRequest(context)
+                    client.prepareOtp(request: req, callback: OtpCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+                }
+                return
+            }
+        }
+
         timeoutTimer.cancel()
 
         logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2 called wrong")
@@ -606,6 +629,26 @@ private final class PasswordCallback: PreparePasswordAutofillCallback {
                 user: credential.username,
                 password: credential.password
             ))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
+    }
+}
+
+// Forwards a one-time code autofill result from the IPC layer to the host request.
+@available(macOS 15.0, *)
+private final class OtpCallback: PrepareOtpAutofillCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: OtpAutofillResponse) {
+        request.complete { ctx in
+            ctx.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: credential.code))
         }
     }
 

@@ -10,6 +10,7 @@ import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } fro
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 
 import { DesktopAutofillService } from "./desktop-autofill.service";
 import { NativeWindowObject } from "./desktop-fido2-user-interface.service";
@@ -23,6 +24,7 @@ describe("DesktopAutofillService", () => {
   >;
   let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
+  let totpService: MockProxy<TotpService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
@@ -35,6 +37,7 @@ describe("DesktopAutofillService", () => {
     fido2AuthenticatorService = mock<Fido2AuthenticatorServiceAbstraction<NativeWindowObject>>();
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
+    totpService = mock<TotpService>();
     platformUtilsService = mock<PlatformUtilsService>();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
@@ -49,6 +52,7 @@ describe("DesktopAutofillService", () => {
       fido2AuthenticatorService,
       accountService,
       authService,
+      totpService,
       platformUtilsService,
     );
   });
@@ -103,6 +107,7 @@ describe("DesktopAutofillService", () => {
         fido2AuthenticatorService,
         accountService,
         authService,
+        totpService,
         platformUtilsService,
       );
 

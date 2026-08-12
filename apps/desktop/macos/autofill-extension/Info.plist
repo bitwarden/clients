@@ -12,6 +12,8 @@
 				<true/>
 				<key>ProvidesPasswords</key>
 				<true/>
+				<key>ProvidesOneTimeCodes</key>
+				<true/>
 				<key>ShowsConfigurationUI</key>
 				<true/>
 			</dict>
