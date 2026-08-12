@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -123,7 +123,7 @@ describe("DefaultCollectionAdminService", () => {
       encryptService.decryptString.mockResolvedValue("Decrypted Name");
       mockApiResponse([makeAccessDetailsResponse()]);
 
-      await service.collectionAdminViews$(orgId, userId).toPromise();
+      await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.CollectionAdminBulkDecrypt,
@@ -141,7 +141,7 @@ describe("DefaultCollectionAdminService", () => {
           of(makeResult([makeCollectionView(collectionId1, { name: "Decrypted Name" })])),
         );
 
-        const result = await service.collectionAdminViews$(orgId, userId).toPromise();
+        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
         expect(collectionEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
           expect.arrayContaining([expect.objectContaining({ id: collectionId1 })]),
@@ -149,7 +149,7 @@ describe("DefaultCollectionAdminService", () => {
         );
         expect(encryptService.decryptString).not.toHaveBeenCalled();
         expect(result).toHaveLength(1);
-        expect(result![0].name).toBe("Decrypted Name");
+        expect(result[0].name).toBe("Decrypted Name");
       });
 
       it("shows a placeholder view for a collection that fails to decrypt, without dropping it", async () => {
@@ -172,10 +172,10 @@ describe("DefaultCollectionAdminService", () => {
           ),
         );
 
-        const result = await service.collectionAdminViews$(orgId, userId).toPromise();
+        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
         expect(result).toHaveLength(2);
-        const failedView = result!.find((v) => v.id === collectionId1);
+        const failedView = result.find((v) => v.id === collectionId1);
         expect(failedView?.name).toBe("[error: cannot decrypt]");
       });
 
@@ -203,12 +203,12 @@ describe("DefaultCollectionAdminService", () => {
         );
         encryptService.decryptString.mockResolvedValue("Decrypted Name");
 
-        const result = await service.collectionAdminViews$(orgId, userId).toPromise();
+        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
         expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
         expect(encryptService.decryptString).toHaveBeenCalled();
         expect(result).toHaveLength(1);
-        expect(result![0].name).toBe("Decrypted Name");
+        expect(result[0].name).toBe("Decrypted Name");
       });
     });
 
@@ -221,12 +221,12 @@ describe("DefaultCollectionAdminService", () => {
         mockApiResponse([makeAccessDetailsResponse()]);
         encryptService.decryptString.mockResolvedValue("Decrypted Name");
 
-        const result = await service.collectionAdminViews$(orgId, userId).toPromise();
+        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
         expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
         expect(encryptService.decryptString).toHaveBeenCalled();
         expect(result).toHaveLength(1);
-        expect(result![0].name).toBe("Decrypted Name");
+        expect(result[0].name).toBe("Decrypted Name");
       });
     });
   });

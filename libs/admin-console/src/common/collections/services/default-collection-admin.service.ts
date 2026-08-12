@@ -1,5 +1,6 @@
 import {
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   forkJoin,
   from,
@@ -152,15 +153,14 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Observable<CollectionAdminView[]> {
     if (collections.length > 0 && collections.every(isCollectionAccessDetailsResponse)) {
-      return this.configService
-        .getFeatureFlag$(FeatureFlag.CollectionAdminBulkDecrypt)
-        .pipe(
-          switchMap((bulkDecryptEnabled) =>
-            bulkDecryptEnabled
-              ? this.decryptManyV2(collections as CollectionAccessDetailsResponse[], userId)
-              : this.decryptManyV1(organizationId, collections, orgKeys),
-          ),
-        );
+      return this.configService.getFeatureFlag$(FeatureFlag.CollectionAdminBulkDecrypt).pipe(
+        distinctUntilChanged(),
+        switchMap((bulkDecryptEnabled) =>
+          bulkDecryptEnabled
+            ? this.decryptManyV2(collections as CollectionAccessDetailsResponse[], userId)
+            : this.decryptManyV1(organizationId, collections, orgKeys),
+        ),
+      );
     }
 
     return this.decryptManyV1(organizationId, collections, orgKeys);

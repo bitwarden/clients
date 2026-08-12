@@ -1,4 +1,14 @@
-import { Observable, catchError, concatMap, map, of, switchMap, tap, throwError } from "rxjs";
+import {
+  Observable,
+  catchError,
+  concatMap,
+  distinctUntilChanged,
+  map,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
@@ -46,15 +56,14 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       return of({ success: [], failure: [] });
     }
 
-    return this.configService
-      .getFeatureFlag$(FeatureFlag.CollectionBulkDecryptWithFailures)
-      .pipe(
-        switchMap((bulkDecryptEnabled) =>
-          bulkDecryptEnabled
-            ? this.decryptManyWithFailuresV2(collections, userId)
-            : this.decryptManyWithFailuresV1(collections, userId),
-        ),
-      );
+    return this.configService.getFeatureFlag$(FeatureFlag.CollectionBulkDecryptWithFailures).pipe(
+      distinctUntilChanged(),
+      switchMap((bulkDecryptEnabled) =>
+        bulkDecryptEnabled
+          ? this.decryptManyWithFailuresV2(collections, userId)
+          : this.decryptManyWithFailuresV1(collections, userId),
+      ),
+    );
   }
 
   /**
