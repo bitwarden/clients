@@ -158,14 +158,15 @@
       } @else if (isEmpty()) {
         <!--
           Empty state: no rows render (no data, or all filtered out). Projects
-          `[slot=empty]`; falls back to a default `<bit-no-items>`.
+          `[slot=empty]`; falls back to a default `<bit-status-layout>`.
         -->
         <ng-content select="[slot=empty]">
-          <bit-no-items>
+          <bit-status-layout>
+            <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
             <span slot="title">{{
               (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
             }}</span>
-          </bit-no-items>
+          </bit-status-layout>
         </ng-content>
       } @else if (isVirtualized()) {
         <!--

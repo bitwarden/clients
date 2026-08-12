@@ -19,7 +19,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { TableDataSource, NoItemsModule, ToastService, IconModule } from "@bitwarden/components";
+import {
+  TableDataSource,
+  StatusLayoutComponent,
+  ToastService,
+  IconModule,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -48,7 +53,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
       ],
     }),
   ] satisfies SafeProvider[],
-  imports: [SharedModule, NoItemsModule, HeaderModule, IconModule],
+  imports: [SharedModule, StatusLayoutComponent, HeaderModule, IconModule],
 })
 export class DeviceApprovalsComponent implements OnInit, OnDestroy {
   tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();

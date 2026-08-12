@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { OrganizationSponsorshipInvitesResponse } from "@bitwarden/common/billing/models/response/organization-sponsorship-invites.response";
@@ -21,12 +22,13 @@ import {
   DialogService,
   IconButtonModule,
   MenuModule,
-  NoItemsModule,
+  StatusLayoutComponent,
   TableModule,
   ToastService,
   TypographyModule,
   IconComponent,
   IconModule,
+  SvgComponent,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -48,7 +50,8 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
     I18nPipe,
     IconButtonModule,
     MenuModule,
-    NoItemsModule,
+    StatusLayoutComponent,
+    SvgComponent,
     TableModule,
     TypographyModule,
     IconComponent,
@@ -63,6 +66,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
   organizationId = "";
   organizationKey$: Observable<OrgKey>;
+
+  readonly noResultsSvg = NoResults;
 
   private locale: string = "";
 

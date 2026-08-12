@@ -20,7 +20,8 @@
     *ngIf="listState === sendState.Empty"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
-    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+    <bit-status-layout class="tw-text-main">
+      <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
       <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
       <ng-container slot="description">
         <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "sendsBodyNoItems" | i18n }}</p>
@@ -31,7 +32,7 @@
         slot="button"
         [buttonType]="'secondary'"
       ></tools-new-send-dropdown>
-    </bit-no-items>
+    </bit-status-layout>
   </div>
 
   <ng-container *ngIf="listState !== sendState.Empty && !(showSkeletonsLoaders$ | async)">
@@ -39,10 +40,11 @@
       *ngIf="listState === sendState.NoResults"
       class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
     >
-      <bit-no-items [icon]="noResultsIcon">
+      <bit-status-layout>
+        <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
         <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
         <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
-      </bit-no-items>
+      </bit-status-layout>
     </div>
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
