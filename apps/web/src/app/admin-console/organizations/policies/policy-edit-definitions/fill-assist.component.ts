@@ -22,7 +22,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
-  CheckboxModule,
   FormFieldModule,
   LinkModule,
   SwitchComponent,
@@ -102,13 +101,9 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 25;
   component = FillAssistPolicyComponent;
-  // Each component renders its own description paragraph so the "Learn more"
+  // The component renders its own description paragraph so the "Learn more"
   // link can be inlined; suppress the framework's plain-text rendering.
   showDescription = false;
-  v2 = {
-    component: FillAssistPolicyV2Component,
-    showDescription: false,
-  };
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules);
@@ -122,9 +117,9 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   imports: [
     AsyncPipe,
     ReactiveFormsModule,
-    CheckboxModule,
     FormFieldModule,
     LinkModule,
+    SwitchComponent,
     TypographyModule,
     I18nPipe,
   ],
@@ -226,24 +221,3 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
     return request;
   }
 }
-
-/**
- * Drawer (v2) variant. Reuses all form logic from the standard component and only swaps the
- * template: the enable toggle is rendered as a switch instead of a checkbox.
- */
-@Component({
-  selector: "fill-assist-v2-policy-edit",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "fill-assist-v2.component.html",
-  imports: [
-    AsyncPipe,
-    ReactiveFormsModule,
-    CheckboxModule,
-    FormFieldModule,
-    LinkModule,
-    SwitchComponent,
-    TypographyModule,
-    I18nPipe,
-  ],
-})
-export class FillAssistPolicyV2Component extends FillAssistPolicyComponent {}

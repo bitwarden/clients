@@ -21,11 +21,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  FillAssistPolicy,
-  FillAssistPolicyComponent,
-  FillAssistPolicyV2Component,
-} from "./fill-assist.component";
+import { FillAssistPolicy, FillAssistPolicyComponent } from "./fill-assist.component";
 
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
@@ -76,19 +72,15 @@ describe("FillAssistPolicy", () => {
     expect(result).toBe(false);
   });
 
-  it("renders the v2 component inside the drawer", () => {
+  it("renders inside the drawer via the single component definition", () => {
     const policy = new FillAssistPolicy();
 
-    expect(policy.v2?.component).toBe(FillAssistPolicyV2Component);
-    expect(policy.v2?.component).not.toBe(policy.component);
+    expect(policy.component).toBe(FillAssistPolicyComponent);
+    expect(policy.v2).toBeUndefined();
   });
 });
 
-describe.each`
-  description                      | componentClass
-  ${"FillAssistPolicyComponent"}   | ${FillAssistPolicyComponent}
-  ${"FillAssistPolicyV2Component"} | ${FillAssistPolicyV2Component}
-`("$description", ({ componentClass }) => {
+describe("FillAssistPolicyComponent", () => {
   let component: FillAssistPolicyComponent;
   let fixture: ComponentFixture<FillAssistPolicyComponent>;
   let accountService: FakeAccountService;
@@ -119,7 +111,7 @@ describe.each`
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(componentClass);
+    fixture = TestBed.createComponent(FillAssistPolicyComponent);
     component = fixture.componentInstance;
   });
 
