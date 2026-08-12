@@ -5,8 +5,6 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
@@ -15,7 +13,11 @@ import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  EncryptService,
+  LegacyCompatKeyService,
+} from "@bitwarden/legacy-crypto";
 
 import { Response } from "../../../models/response";
 
