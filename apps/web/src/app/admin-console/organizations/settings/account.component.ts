@@ -54,7 +54,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   loading = true;
   canUseApi = false;
   org!: OrganizationResponse;
-  taxFormPromise!: Promise<unknown>;
 
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
