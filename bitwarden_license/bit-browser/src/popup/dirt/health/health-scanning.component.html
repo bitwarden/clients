@@ -7,11 +7,15 @@
     <!-- The heading is projected as the bar's label rather than sitting outside
          it. Left unprojected, the bar renders its own screen-reader-only copy of
          accessibleName, which this live region would announce alongside the
-         visible heading. -->
+         visible heading.
+
+         ariaValueText must differ from that heading. A screen reader announces
+         the bar's name and then its value, so reusing the heading here would
+         speak the same phrase twice from two ARIA slots. -->
     <bit-progress-bar
       [value]="progress()"
       [hideStartHint]="true"
-      [ariaValueText]="'scanningYourVault' | i18n"
+      [ariaValueText]="'scanInProgress' | i18n"
     >
       <h2 slot="label" bitTypography="body1" class="tw-mb-2 tw-font-semibold tw-text-fg-heading">
         {{ "scanningYourVault" | i18n }}

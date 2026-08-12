@@ -7708,6 +7708,10 @@
     "message": "Checking for exposed, weak, and reused passwords.",
     "description": "Explains what the vault health scan is doing while it runs."
   },
+  "scanInProgress": {
+    "message": "In progress",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
   "healthScanFailed": {
     "message": "Something went wrong",
     "description": "Heading shown when the vault health scan did not complete."

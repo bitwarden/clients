@@ -90,6 +90,18 @@ describe("HealthScanningComponent", () => {
     // status instead of a misleading number.
     const bar = fixture.nativeElement.querySelector('[role="progressbar"]');
 
-    expect(bar.getAttribute("aria-valuetext")).toBe("scanningYourVault");
+    expect(bar.getAttribute("aria-valuetext")).toBe("scanInProgress");
+  });
+
+  it("gives the progress bar a value distinct from its name", () => {
+    // A screen reader announces the bar's name and then its value. Reusing the
+    // heading as the value would speak the same phrase twice, which is the same
+    // duplication the projected label above removed from the DOM.
+    const bar = fixture.nativeElement.querySelector('[role="progressbar"]');
+    const name = fixture.nativeElement.querySelector(
+      `#${bar.getAttribute("aria-labelledby")}`,
+    ).textContent;
+
+    expect(bar.getAttribute("aria-valuetext")).not.toBe(name.trim());
   });
 });

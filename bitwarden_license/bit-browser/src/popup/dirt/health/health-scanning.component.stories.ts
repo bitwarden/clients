@@ -17,6 +17,7 @@ export default {
             new I18nMockService({
               scanningYourVault: "Scanning your vault",
               scanningYourVaultDescription: "Checking for exposed, weak, and reused passwords.",
+              scanInProgress: "In progress",
             }),
         },
       ],
