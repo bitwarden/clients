@@ -8,7 +8,8 @@
     [attr.id]="contentId"
     [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
     role="group"
-    class="tw-flex tw-flex-col tw-gap-0.5"
+    class="tw-flex tw-flex-col"
+    [class]="sideNavService.version() === '2' ? 'tw-gap-0.5' : ''"
   >
     <ng-content></ng-content>
   </div>
