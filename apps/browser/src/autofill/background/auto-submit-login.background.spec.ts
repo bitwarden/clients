@@ -273,6 +273,85 @@ describe("AutoSubmitLoginBackground", () => {
       });
     });
 
+    describe("reporting auto-submit invalidation to the lifecycle", () => {
+      beforeEach(async () => {
+        webRequestDetails = mock<chrome.webRequest.WebRequestDetails>({
+          initiator: validIpdUrl1,
+          url: validAutoSubmitUrl,
+          type: "main_frame",
+          tabId: 5,
+        });
+        await autoSubmitLoginBackground.init();
+        autoSubmitLoginBackground["currentAutoSubmitHostData"] = {
+          url: validAutoSubmitUrl,
+          tabId: 1,
+        };
+        autoSubmitLoginBackground["validAutoSubmitHosts"].add(validAutoSubmitHost);
+      });
+
+      it("reports a whole-flow invalidation keyed to the active flow's tab when a POST follows submission", () => {
+        webRequestDetails.method = "POST";
+
+        triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(1);
+      });
+
+      it("reports a whole-flow invalidation when a redirection to an invalid host is made", () => {
+        webRequestDetails.url = "https://invalid-host.com";
+
+        triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(1);
+      });
+
+      it("reports a single-host invalidation keyed to the request's tab when a valid host navigates away", () => {
+        webRequestDetails.url = `https://${validAutoSubmitHost}`;
+        webRequestDetails.initiator = `https://${validAutoSubmitHost}#autosubmit=1`;
+
+        triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(
+          webRequestDetails.tabId,
+          validAutoSubmitHost,
+        );
+      });
+
+      it("reports a single-host invalidation keyed to the request's tab when an internal navigation is detected via the tab URL", async () => {
+        webRequestDetails.url = `https://${validAutoSubmitHost}/some-other-route`;
+        jest
+          .spyOn(BrowserApi, "getTab")
+          .mockResolvedValue(mock<chrome.tabs.Tab>({ url: validAutoSubmitHost }));
+
+        triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
+        await flushPromises();
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(
+          webRequestDetails.tabId,
+          validAutoSubmitHost,
+        );
+      });
+
+      it("does not report an invalidation when removing a host that was never a member", () => {
+        // Drives the single-host path directly: the public disable paths pre-check
+        // membership, so a non-member removal is only reachable here. Proves the
+        // `Set.delete` guard keeps the signal silent on a no-op removal.
+        autoSubmitLoginBackground["invalidateAutoSubmitHost"]("https://not-a-member.example", 1);
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).not.toHaveBeenCalled();
+      });
+
+      it("does not report an invalidation when tearing down an already-empty workflow", () => {
+        autoSubmitLoginBackground["validAutoSubmitHosts"].clear();
+        webRequestDetails.method = "POST";
+        // A POST with no active hosts cannot pass the post-after-submission guard, so
+        // drive the teardown directly to prove the empty-set path stays silent.
+        autoSubmitLoginBackground["clearAutoSubmitHostData"]();
+
+        expect(autofillLifecycleService.reportAutoSubmitInvalidated).not.toHaveBeenCalled();
+      });
+    });
+
     describe("when the extension is running on a Safari browser", () => {
       const tabId = 1;
       const tab = mock<chrome.tabs.Tab>({ id: tabId, url: validIpdUrl1 });
@@ -381,6 +460,43 @@ describe("AutoSubmitLoginBackground", () => {
             );
 
             expect(autoSubmitLoginBackground["validAutoSubmitHosts"].size).toBe(0);
+          });
+
+          it("reports a whole-flow invalidation, falling back to the navigating tab when no flow tab is recorded", () => {
+            autoSubmitLoginBackground["validAutoSubmitHosts"].add(validIpdUrl1);
+
+            triggerWebNavigationOnCompletedEvent(
+              mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+                tabId: newTabId,
+                url: validIpdUrl2,
+                frameId: 0,
+              }),
+            );
+
+            expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(
+              newTabId,
+            );
+          });
+
+          it("reports a whole-flow invalidation keyed to the recorded flow tab when one exists", () => {
+            const flowTabId = 99;
+            autoSubmitLoginBackground["validAutoSubmitHosts"].add(validIpdUrl1);
+            autoSubmitLoginBackground["currentAutoSubmitHostData"] = {
+              url: validAutoSubmitUrl,
+              tabId: flowTabId,
+            };
+
+            triggerWebNavigationOnCompletedEvent(
+              mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+                tabId: newTabId,
+                url: validIpdUrl2,
+                frameId: 0,
+              }),
+            );
+
+            expect(autofillLifecycleService.reportAutoSubmitInvalidated).toHaveBeenCalledWith(
+              flowTabId,
+            );
           });
 
           it("updates the most recent idp host", () => {
@@ -511,6 +627,21 @@ describe("AutoSubmitLoginBackground", () => {
           expect(autoSubmitLoginBackground["validAutoSubmitHosts"].has(validAutoSubmitHost)).toBe(
             false,
           );
+        });
+
+        it("reports the flow-complete fact to the lifecycle, carrying the sender's tab and host", () => {
+          sendMockExtensionMessage({ command: "multiStepAutoSubmitLoginComplete" }, sender);
+
+          expect(autofillLifecycleService.reportAutoSubmitFlowComplete).toHaveBeenCalledWith(
+            sender.tab?.id,
+            validAutoSubmitHost,
+          );
+        });
+
+        it("does not report an invalidation for a completed flow", () => {
+          sendMockExtensionMessage({ command: "multiStepAutoSubmitLoginComplete" }, sender);
+
+          expect(autofillLifecycleService.reportAutoSubmitInvalidated).not.toHaveBeenCalled();
         });
       });
     });

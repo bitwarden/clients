@@ -27,6 +27,30 @@ export type AutomatedLoginStepReady = Readonly<{
 }>;
 
 /**
+ * A policy-gated auto-submit login workflow reporting that its multi-step
+ * fill-and-submit sequence has finished.
+ */
+export type AutoSubmitFlowComplete = Readonly<{
+  tabId: number;
+  host: string;
+}>;
+
+/**
+ * The authoritative fact that an auto-submit target has been retired from the
+ * active workflow by *invalidation*.
+ *
+ * `kind` discriminates the two retirements the workflow makes:
+ * - `"host"`: a single host left the active set; the workflow's other hosts remain.
+ * - `"flow"`: the whole workflow was torn down at once, retiring every host.
+ *
+ * A *completed* flow also retires its host, but reports that through
+ * {@link AutoSubmitFlowComplete} instead — the two events are distinct.
+ */
+export type AutoSubmitInvalidated =
+  | Readonly<{ kind: "host"; tabId: number; host: string }>
+  | Readonly<{ kind: "flow"; tabId: number }>;
+
+/**
  * A page transition reconciled against monitoring — the *Resolved* state of the
  * buffering state machine (see `lifecycle.design.md`).
  */
@@ -97,6 +121,39 @@ export abstract class AutofillLifecycleService {
    * Emits each automated-login step-ready fact for a consumer (the orchestrator) to interpret.
    */
   abstract automatedLoginStepReady$: Observable<AutomatedLoginStepReady>;
+  /**
+   * Records that a policy-gated auto-submit login workflow has completed its
+   * multi-step fill-and-submit sequence. The caller is responsible for the
+   * workflow's policy validation before reporting.
+   *
+   * `tabId` and `host` should report browser-supplied values. Reports that fail
+   * to supply either are dropped, so a downstream signal always carries a
+   * definite tab and host.
+   */
+  abstract reportAutoSubmitFlowComplete: (
+    tabId: number | undefined,
+    host: string | undefined,
+  ) => void;
+  /**
+   * Emits each auto-submit flow-complete fact for the lifecycle state machine to interpret.
+   */
+  abstract autoSubmitFlowComplete$: Observable<AutoSubmitFlowComplete>;
+  /**
+   * Records that an auto-submit target has been retired from the active workflow.
+   * The single authoritative entry point for every internal invalidation path in
+   * the validating background. The caller is responsible for the workflow's policy
+   * validation before reporting.
+   *
+   * `tabId` should report a browser-supplied value; a report without one is
+   * dropped, so a downstream signal always carries a definite tab. Pass the removed
+   * `host` to invalidate a single host (`kind: "host"`); omit it to invalidate the
+   * whole flow (`kind: "flow"`).
+   */
+  abstract reportAutoSubmitInvalidated: (tabId: number | undefined, host?: string) => void;
+  /**
+   * Emits each auto-submit invalidation fact for the lifecycle state machine to interpret.
+   */
+  abstract autoSubmitInvalidated$: Observable<AutoSubmitInvalidated>;
   /**
    * Fires when a tab is removed. Tab removal is a lifecycle concern; consumers
    * that key work by tab (e.g. per-tab reactive groups) can use this signal to

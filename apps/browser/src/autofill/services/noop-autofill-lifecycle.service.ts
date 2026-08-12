@@ -27,6 +27,8 @@ export class NoopAutofillLifecycleService implements AutofillLifecycleService {
   // popup never subscribes to them. Only the invoked methods below warn.
   readonly pageTransitionResolved$ = EMPTY;
   readonly automatedLoginStepReady$ = EMPTY;
+  readonly autoSubmitFlowComplete$ = EMPTY;
+  readonly autoSubmitInvalidated$ = EMPTY;
   readonly tabRemoved$ = () => EMPTY;
   // `liveTabs$` emits an (empty) set rather than `EMPTY`: a `withLatestReady`
   // consumer must receive a value or it would stall. The popup never drives fills,
@@ -43,6 +45,14 @@ export class NoopAutofillLifecycleService implements AutofillLifecycleService {
 
   reportAutomatedLoginStepReady() {
     this.warnInvoked("reportAutomatedLoginStepReady");
+  }
+
+  reportAutoSubmitFlowComplete() {
+    this.warnInvoked("reportAutoSubmitFlowComplete");
+  }
+
+  reportAutoSubmitInvalidated() {
+    this.warnInvoked("reportAutoSubmitInvalidated");
   }
 
   startMonitoringFrame(): Promise<void> {

@@ -41,6 +41,8 @@ describe("NoopAutofillLifecycleService", () => {
           AutomationWorkflow.autoSubmitLogin,
         ),
     ],
+    ["reportAutoSubmitFlowComplete", () => service.reportAutoSubmitFlowComplete(1, "example.test")],
+    ["reportAutoSubmitInvalidated", () => service.reportAutoSubmitInvalidated(1, "example.test")],
     ["startMonitoringFrame", () => service.startMonitoringFrame(createChromeTabMock(), 0)],
     ["retireAllFrames", () => service.retireAllFrames()],
   ])("warns when %s is invoked", async (method, invoke) => {
@@ -59,6 +61,8 @@ describe("NoopAutofillLifecycleService", () => {
     const emissions: unknown[] = [];
     let pageTransitionCompleted = false;
     let stepReadyCompleted = false;
+    let flowCompleteCompleted = false;
+    let invalidatedCompleted = false;
     let tabRemovedCompleted = false;
 
     service.pageTransitionResolved$.subscribe({
@@ -69,6 +73,14 @@ describe("NoopAutofillLifecycleService", () => {
       next: (value) => emissions.push(value),
       complete: () => (stepReadyCompleted = true),
     });
+    service.autoSubmitFlowComplete$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (flowCompleteCompleted = true),
+    });
+    service.autoSubmitInvalidated$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (invalidatedCompleted = true),
+    });
     service.tabRemoved$(1).subscribe({
       next: (value) => emissions.push(value),
       complete: () => (tabRemovedCompleted = true),
@@ -77,6 +89,8 @@ describe("NoopAutofillLifecycleService", () => {
     expect(emissions).toEqual([]);
     expect(pageTransitionCompleted).toBe(true);
     expect(stepReadyCompleted).toBe(true);
+    expect(flowCompleteCompleted).toBe(true);
+    expect(invalidatedCompleted).toBe(true);
     expect(tabRemovedCompleted).toBe(true);
     expect(logService.warning).not.toHaveBeenCalled();
   });

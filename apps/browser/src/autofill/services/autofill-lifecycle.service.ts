@@ -25,6 +25,8 @@ import {
   AutomatedLoginStepReady,
   AutomationWorkflow,
   AutofillLifecycleService,
+  AutoSubmitFlowComplete,
+  AutoSubmitInvalidated,
   PageTransitionResolved,
 } from "./abstractions/autofill-lifecycle.service";
 
@@ -77,6 +79,16 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    * login).
    */
   private readonly stepReadyReports$ = new Subject<AutomatedLoginStepReady>();
+
+  /**
+   * Auto-submit flow-complete facts reported by the validating auto-submit background.
+   */
+  private readonly autoSubmitFlowCompleteReports$ = new Subject<AutoSubmitFlowComplete>();
+
+  /**
+   * Auto-submit invalidation facts reported by the validating auto-submit background.
+   */
+  private readonly autoSubmitInvalidatedReports$ = new Subject<AutoSubmitInvalidated>();
 
   /**
    * Removed tab ids, fed from `chrome.tabs.onRemoved` in `init()`. `tabRemoved$`
@@ -141,6 +153,18 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    */
   readonly automatedLoginStepReady$: Observable<AutomatedLoginStepReady> =
     this.stepReadyReports$.asObservable();
+
+  /**
+   * Emits each auto-submit flow-complete fact for the lifecycle state machine to interpret.
+   */
+  readonly autoSubmitFlowComplete$: Observable<AutoSubmitFlowComplete> =
+    this.autoSubmitFlowCompleteReports$.asObservable();
+
+  /**
+   * Emits each auto-submit invalidation fact for the lifecycle state machine to interpret.
+   */
+  readonly autoSubmitInvalidated$: Observable<AutoSubmitInvalidated> =
+    this.autoSubmitInvalidatedReports$.asObservable();
 
   /**
    * Fires when a tab is removed. Tab removal is a lifecycle concern; consumers
@@ -276,6 +300,31 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
 
     // prevent shared rx consumers from mutating a shared message
     this.stepReadyReports$.next(Object.freeze({ tab, tabId, frameId, frameUrl, workflow }));
+  }
+
+  reportAutoSubmitFlowComplete(tabId: number | undefined, host: string | undefined) {
+    // A flow-complete fact without a tab id or host cannot be coordinated downstream.
+    if (tabId == null || !host) {
+      return;
+    }
+
+    // prevent shared rx consumers from mutating a shared message
+    this.autoSubmitFlowCompleteReports$.next(Object.freeze({ tabId, host }));
+  }
+
+  reportAutoSubmitInvalidated(tabId: number | undefined, host?: string) {
+    // An invalidation fact without a tab id cannot be coordinated downstream.
+    if (tabId == null) {
+      return;
+    }
+
+    // A host retires a single member; its absence retires the whole flow.
+    const invalidation: AutoSubmitInvalidated = host
+      ? { kind: "host", tabId, host }
+      : { kind: "flow", tabId };
+
+    // prevent shared rx consumers from mutating a shared message
+    this.autoSubmitInvalidatedReports$.next(Object.freeze(invalidation));
   }
 
   /**

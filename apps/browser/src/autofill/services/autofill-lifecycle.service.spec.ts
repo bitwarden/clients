@@ -14,6 +14,8 @@ import { flushPromises } from "../spec/testing-utils";
 import {
   AutomatedLoginStepReady,
   AutomationWorkflow,
+  AutoSubmitFlowComplete,
+  AutoSubmitInvalidated,
   PageTransitionResolved,
 } from "./abstractions/autofill-lifecycle.service";
 import { DefaultAutofillLifecycleService } from "./autofill-lifecycle.service";
@@ -533,6 +535,76 @@ describe("DefaultAutofillLifecycleService", () => {
 
     it("drops a report without a url", async () => {
       service.reportAutomatedLoginStepReady(tab, 0, undefined, AutomationWorkflow.autoSubmitLogin);
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
+    });
+  });
+
+  describe("auto-submit flow-complete relay", () => {
+    const host = "idp.example.test";
+    let resolved: AutoSubmitFlowComplete[];
+    let subscription: Subscription;
+
+    beforeEach(() => {
+      service.init();
+      resolved = [];
+      subscription = service.autoSubmitFlowComplete$.subscribe((fact) => resolved.push(fact));
+    });
+
+    afterEach(() => subscription?.unsubscribe());
+
+    it("relays a reported flow-complete fact", async () => {
+      service.reportAutoSubmitFlowComplete(1, host);
+      await flushPromises();
+
+      expect(resolved).toEqual([{ tabId: 1, host }]);
+    });
+
+    it("drops a report without a tab id", async () => {
+      service.reportAutoSubmitFlowComplete(undefined, host);
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
+    });
+
+    it("drops a report without a host", async () => {
+      service.reportAutoSubmitFlowComplete(1, "");
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
+    });
+  });
+
+  describe("auto-submit invalidated relay", () => {
+    const host = "auto-submit.example.test";
+    let resolved: AutoSubmitInvalidated[];
+    let subscription: Subscription;
+
+    beforeEach(() => {
+      service.init();
+      resolved = [];
+      subscription = service.autoSubmitInvalidated$.subscribe((fact) => resolved.push(fact));
+    });
+
+    afterEach(() => subscription?.unsubscribe());
+
+    it("relays a single-host invalidation as a 'host' fact carrying the host", async () => {
+      service.reportAutoSubmitInvalidated(1, host);
+      await flushPromises();
+
+      expect(resolved).toEqual([{ kind: "host", tabId: 1, host }]);
+    });
+
+    it("relays a whole-flow invalidation as a 'flow' fact when the host is omitted", async () => {
+      service.reportAutoSubmitInvalidated(1);
+      await flushPromises();
+
+      expect(resolved).toEqual([{ kind: "flow", tabId: 1 }]);
+    });
+
+    it("drops a report without a tab id", async () => {
+      service.reportAutoSubmitInvalidated(undefined, host);
       await flushPromises();
 
       expect(resolved).toEqual([]);
