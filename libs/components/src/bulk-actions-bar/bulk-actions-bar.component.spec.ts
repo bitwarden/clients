@@ -368,22 +368,6 @@ describe("BulkActionsBarComponent", () => {
       fixture.detectChanges();
       expect(remeasure).toHaveBeenCalledTimes(2);
     });
-
-    it("does not remeasure before the directive's first pass has landed", () => {
-      // The directive's first measurement resolves during setup, so wind
-      // `ready` back to reproduce the pre-measure window.
-      const list = host.bar()["overflowList"]();
-      list.ready.set(false);
-      fixture.detectChanges();
-
-      const remeasure = jest.spyOn(list, "remeasure");
-      host.bar().compact.set(false);
-      fixture.detectChanges();
-
-      // Gated on `ready` so a consumer-driven remeasure can't race the
-      // directive's own first measurement.
-      expect(remeasure).not.toHaveBeenCalled();
-    });
   });
 
   describe("reserved shell width", () => {

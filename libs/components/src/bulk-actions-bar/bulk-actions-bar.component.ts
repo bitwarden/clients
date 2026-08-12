@@ -114,15 +114,6 @@ export class BulkActionsBarComponent {
   protected readonly visible = computed(() => this.effectiveCount() > 0);
 
   /**
-   * Mirrors the directive's trigger-hiding condition. Derived rather than read off
-   * `nativeElement.hidden`, which the directive may not have written yet.
-   */
-  private readonly triggerHidden = computed(() => {
-    const list = this.overflowList();
-    return list.ready() && list.overflow().length === 0 && !this.hasAdditionalActions();
-  });
-
-  /**
    * The bar's intrinsic width (in px), remeasured whenever the rendered toolbar
    * buttons change. Used both as the cap (`max-width`) and as the threshold for
    * entering compact mode.
@@ -212,14 +203,9 @@ export class BulkActionsBarComponent {
     // `compact` swaps label visibility and button padding, so item widths change
     // with it, but the directive only remeasures on item-set changes. Without
     // this, widths cached while wide would drive packing once we narrow.
-    // Same `ready()` gate as above.
     effect(() => {
       this.compact();
-      const list = this.overflowList();
-      if (!list.ready()) {
-        return;
-      }
-      list.remeasure();
+      this.overflowList().remeasure();
     });
 
     // FocusKeyManager captures button references at construction. Rebuild it
@@ -256,16 +242,9 @@ export class BulkActionsBarComponent {
     // overflows — hides it without rebuilding the manager, so a roving tabindex
     // left on it drops the toolbar out of the tab order.
     effect(() => {
-      const list = this.overflowList();
-      const packedAway = new Set(
-        list.overflow().map((i) => list.items()[i]?.elementRef.nativeElement),
-      );
-      const trigger = this.additionalActionsTrigger();
-      const triggerHidden = this.triggerHidden();
+      const hidden = this.overflowList().hiddenElements();
       const unavailable = (item: BulkActionButtonComponent) =>
-        item.disabled ||
-        packedAway.has(item.elementRef.nativeElement) ||
-        (item === trigger && triggerHidden);
+        item.disabled || hidden.has(item.elementRef.nativeElement);
 
       const manager = this.keyManager();
       const items = this.managedItems();
