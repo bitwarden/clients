@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -38,7 +39,9 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
  * The trailing actions column for a vault items table, in two tiers:
  *
  * 1. **Built-in quick actions** — Launch and Copy, revealed on row hover/focus.
- * 2. **The client-specific overflow menu** — always visible, built from {@link rowActions}.
+ * 2. **The client-specific overflow menu** — always visible, built from {@link rowActions}. An
+ *    action the client reports as `premiumGated` for a row renders the Upgrade badge and opens
+ *    the upgrade prompt instead of emitting.
  *
  * Every control lives in `<bit-cell>`'s `end` slot. The cell's middle element is `flex-grow`,
  * so the end slot is pushed hard right — which anchors the overflow trigger to the same
@@ -59,6 +62,7 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
     IconButtonModule,
     IconModule,
     MenuModule,
+    PremiumBadgeComponent,
     VaultItemCopyActionsComponent,
     SkeletonTextComponent,
   ],

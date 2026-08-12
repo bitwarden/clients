@@ -1,10 +1,12 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,6 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -367,6 +370,8 @@ const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView
     id: "archive",
     label: "Archive",
     icon: "bwi-archive",
+    // Archive is a premium feature, so a free user gets the Upgrade badge rather than the action.
+    premiumGated: () => true,
     event: (item) => ({ type: "archive", items: [item] }),
   },
   {
@@ -493,6 +498,9 @@ export default {
               launchWebsite: "Launch website",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              // Premium-gated row actions
+              upgrade: "Upgrade",
+              upgradeToPremium: "Upgrade to premium",
               // Empty states
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
@@ -549,6 +557,15 @@ export default {
         {
           provide: CopyCipherFieldService,
           useValue: { copy: () => Promise.resolve(true), totpAllowed: () => Promise.resolve(true) },
+        },
+        // A free user, so the premium-gated Archive action shows its Upgrade badge.
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: { hasPremiumFromAnySource$: () => of(false) },
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: { promptForPremium: () => action("PremiumUpgradePrompt") },
         },
       ],
     }),

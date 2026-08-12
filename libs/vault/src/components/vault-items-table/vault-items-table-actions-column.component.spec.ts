@@ -5,12 +5,14 @@ import { of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -84,6 +86,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
   let host: HostComponent;
   let cipherService: CipherService;
   let platformUtilsService: PlatformUtilsService;
+  let premiumUpgradePromptService: PremiumUpgradePromptService;
 
   beforeEach(async () => {
     const accountService = mock<AccountService>();
@@ -102,6 +105,11 @@ describe("VaultItemsTableActionsColumnComponent", () => {
 
     cipherService = mock<CipherService>();
     platformUtilsService = mock<PlatformUtilsService>();
+    premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+
+    // Drives `*appNotPremium` inside the Upgrade badge — a free user, so the badge renders.
+    const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [HostComponent],
@@ -115,6 +123,11 @@ describe("VaultItemsTableActionsColumnComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingAccountProfileStateService,
+        },
       ],
     }).compileComponents();
 
@@ -236,6 +249,54 @@ describe("VaultItemsTableActionsColumnComponent", () => {
       fixture.detectChanges();
 
       expect(menuTriggers()).toHaveLength(0);
+    });
+  });
+
+  describe("premium-gated actions", () => {
+    const archive: VaultItemsTableRowAction<CipherView, TestEvent> = {
+      id: "archive",
+      label: "Archive",
+      icon: "bwi-archive",
+      premiumGated: () => true,
+      event: (item) => ({ type: "archive", item }),
+    };
+
+    it("prompts for premium instead of emitting the action's event", async () => {
+      host.ciphers.set([loginCipher()]);
+      host.rowActions.set([archive]);
+      fixture.detectChanges();
+
+      openMenu(0)[0].click();
+      await fixture.whenStable();
+
+      expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
+      expect(host.emitted).toEqual([]);
+    });
+
+    it("badges the menu item so a free user sees why it is gated", () => {
+      host.ciphers.set([loginCipher()]);
+      host.rowActions.set([archive]);
+      fixture.detectChanges();
+
+      const menuItem = openMenu(0)[0];
+
+      expect(menuItem.querySelector("app-premium-badge")).not.toBeNull();
+      // The badge is a button of its own, so the menu item hides it from assistive tech.
+      expect(menuItem.querySelector("[aria-hidden]")).not.toBeNull();
+    });
+
+    it("leaves an ungated action emitting, with no badge", () => {
+      const cipher = loginCipher();
+      host.ciphers.set([cipher]);
+      host.rowActions.set([{ ...archive, premiumGated: () => false }]);
+      fixture.detectChanges();
+
+      const menuItem = openMenu(0)[0];
+      menuItem.click();
+
+      expect(menuItem.querySelector("app-premium-badge")).toBeNull();
+      expect(host.emitted).toEqual([{ type: "archive", item: cipher }]);
+      expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
     });
   });
 

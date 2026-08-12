@@ -45,16 +45,32 @@
         ></button>
         <bit-menu #rowMenu>
           @for (rowAction of actions; track rowAction.id) {
-            <button
-              type="button"
-              bitMenuItem
-              [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
-              [variant]="rowAction.variant ?? 'primary'"
-              (click)="action.emit(rowAction.event(row))"
-            >
-              <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
-              {{ rowAction.label }}
-            </button>
+            @if (rowAction.premiumGated?.(row)) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
+                [variant]="rowAction.variant ?? 'primary'"
+                (click)="badge.promptForPremium($event)"
+              >
+                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                {{ rowAction.label }}
+                <div slot="end" class="-tw-mt-0.5" aria-hidden>
+                  <app-premium-badge #badge />
+                </div>
+              </button>
+            } @else {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
+                [variant]="rowAction.variant ?? 'primary'"
+                (click)="action.emit(rowAction.event(row))"
+              >
+                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                {{ rowAction.label }}
+              </button>
+            }
           }
         </bit-menu>
       }

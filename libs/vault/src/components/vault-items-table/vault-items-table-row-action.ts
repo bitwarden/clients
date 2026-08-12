@@ -35,6 +35,16 @@ export type VaultItemsTableRowAction<C extends CipherViewLike, E> = {
   /** Whether the action shows for `item`. Omit for always-shown. */
   show?: (item: C) => boolean;
 
+  /**
+   * Whether the action is gated behind a premium upgrade for `item` — Archive, for one, is only
+   * available to premium users. When it returns `true` the menu item carries the Upgrade badge and
+   * choosing it opens the upgrade prompt instead of emitting {@link event}; the client decides who
+   * counts as gated, so the table never inspects the user's plan itself.
+   *
+   * Omit for actions that are never gated.
+   */
+  premiumGated?: (item: C) => boolean;
+
   /** Menu item styling, passed straight to `bitMenuItem`. Defaults to `"primary"`. */
   variant?: "primary" | "danger";
 };
