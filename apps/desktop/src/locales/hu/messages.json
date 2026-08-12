@@ -4568,6 +4568,79 @@
   "noFileChosen": {
     "message": "Nincs kiválasztott fájl."
   },
+  "noFileSelected": {
+    "message": "Nincs kiválasztott fájl."
+  },
+  "fileChosen": {
+    "message": "Kiválasztott fájl: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "A fájl hozzáadásra került: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fájl hozzáadásra került: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "A fájl hozzáadásra került: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fájl lett feltöltve."
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fájl lett feltöltve.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Feltöltött fájlok"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Kattintás a feltöltéshez vagy vonszolás ide"
+  },
+  "chooseFiles": {
+    "message": "Fájlok kiválasztása"
+  },
+  "maxFileSizeParam": {
+    "message": "Maximális fájlméret: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "vagy vágólapon vigyük be fájl tartalmat"
   },

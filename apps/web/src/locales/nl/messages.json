@@ -1252,7 +1252,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "De gedeelde map $NAME$ zal permanent worden verwijderd. De items in de map zullen niet worden verwijderd.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1261,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Deze gedeelde mappen worden permanent verwijderd. De items in de mappen worden niet verwijderd."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ gedeelde mappen worden definitief verwijderd.",
@@ -3312,6 +3312,79 @@
   "noFileChosen": {
     "message": "Geen bestand gekozen"
   },
+  "noFileSelected": {
+    "message": "Geen bestand gekozen"
+  },
+  "fileChosen": {
+    "message": "Bestand gekozen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Bestand toegevoegd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ bestanden toegevoegd: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Bestand verwijderd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 bestand geüpload"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ bestanden geüpload",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Geüploade bestanden"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klik om te uploaden of sleep en zet neer"
+  },
+  "chooseFiles": {
+    "message": "Bestanden kiezen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. bestandsgrootte: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "of kopieer en plak de inhoud van het importbestand"
   },
@@ -4240,6 +4313,15 @@
   "pendingCancellation": {
     "message": "In afwachting van opzegging"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Het abonnement is gemarkeerd voor opzegging aan het einde van de huidige betalingsperiode."
   },
@@ -4609,6 +4691,9 @@
   "organizationName": {
     "message": "Organisatienaam"
   },
+  "vaultName": {
+    "message": "Kluisnaam"
+  },
   "accountOwnedBusiness": {
     "message": "Dit account is eigendom van een bedrijf."
   },
@@ -4725,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Beperkt tot $COUNT$ gedeelde mappen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Toevoegen en delen met maximaal $COUNT$ gebruikers",
     "placeholders": {
@@ -4739,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Oneindig veel verzamelingen aanmaken"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Onbeperkte gedeelde mappen aanmaken"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ versleutelde bestandsopslag",
@@ -6441,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Kan niet toetreden tot $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "De uitnodigingslink is niet meer geldig"
+  },
+  "returnToLogin": {
+    "message": "Terug naar inloggen"
+  },
+  "returnToRegistration": {
+    "message": "Terug naar registratie"
+  },
   "joinOrganizationDesc": {
     "message": "Je bent uitgenodigd om lid te worden van bovenstaande organisatie. Om de uitnodiging te accepteren, moet je inloggen of een nieuw Bitwarden-account aanmaken."
   },
@@ -6467,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Kan de uitnodiging niet accepteren. Vraag een organisatiebeheerder om een nieuwe uitnodigingslink te verzenden."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Kan uitnodiging niet accepteren"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Je bent al lid van deze organisatie."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "E-mailberichten die overeenkomen met $DOMAIN$ zijn niet toegestaan in deze organisatie.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Je kunt niet deelnemen aan deze organisatie omdat je al de beheerder van een gratis organisatie bent."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Je rechten voor deze organisatie zijn ingetrokken. Neem contact op met je beheerder om toegang te krijgen."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider-gebruikers kunnen geen lid worden via deze uitnodigingslink."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Een organisatie je al lid van bent, staat haar leden slechts toe tot één organisatie te behoren."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "De organisatie waar je je probeert aan te sluiten laat haar leden slechts tot één organisatie behoren."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Je moet tweestapsaanmelding instellen om lid te worden van deze organisatie."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Je moet je e-mailadres verifiëren voordat je lid kunt worden van een organisatie."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Je uitnodiging kon niet worden geaccepteerd omdat er geen plaats beschikbaar is."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Er is iets misgegaan, vernieuw de pagina en probeer opnieuw."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Dit domein is niet geaccepteerd door deze organisatie. Probeer een ander e-mailadres."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Kon uitnodiging niet accepteren"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Kon de organisatie-uitnodiging niet decoderen. Probeer het opnieuw met dezelfde browser om het aanmeldingsproces te starten en af te ronden."
+  },
+  "goToLogin": {
+    "message": "Ga naar inloggen"
+  },
+  "goToVault": {
+    "message": "Ga naar kluis"
   },
   "rememberEmail": {
     "message": "Mijn e-mailadres onthouden"
@@ -9296,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gesponsorde families"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Verzilveringen van niet-leden"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Geen gesponsorde families"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Nog geen verzilveringen"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Geen niet-leden hebben het gesponsorde Familie-abonnement verzilverd."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Leden van je organisatie komen in aanmerking voor gratis Bitwarden Familie. Je kunt de gratis Bitwarden Familie sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie. Het sponsoren van een niet-lid vereist een beschikbare zitplaats binnen je organisatie."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Je leden komen in aanmerking om een gesponsord familie-abonnement te verzilveren. Je kunt een familie-abonnement sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie, maar dit vereist wel beschikbare zetels binnen je organisatie."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Als je een actieve sponsoring verwijdert, komt er een plaats binnen je organisatie beschikbaar na de verlengingsdatum van de gesponsorde organisatie."
@@ -9311,10 +9504,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Jij en je familie komen in aanmerking voor een kosteloos gesponsord Families-abonnement. Verzilver dit abonnement met je persoonlijke e-mailadres om je gegevens veilig en gescheiden van je Bitwarden-werkaccount te houden."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Verzilver je gratis Bitwarden Families vandaag om je gegevens veilig te houden, zelfs wanneer je niet aan het werk bent."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Bitwarden Families omvat"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Bitwarden Families omvat"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9322,6 +9521,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Gedeelde collecties voor familieleden"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Gedeelde mappen voor familieleden"
   },
   "memberFamilies": {
     "message": "Lid-families"
@@ -12727,6 +12929,36 @@
     "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Slechte klantenservice",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -14013,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "Onbeperkte collecties"
   },
+  "unlimitedSharedFolders": {
+    "message": "Onbeperkte gedeelde mappen"
+  },
   "secureDataSharing": {
     "message": "Beveiligd gegevens delen"
   },
@@ -15247,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "Onbeperkte familiecollecties"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Onbeperkte familie gedeelde mappen"
+  },
   "familiesSharedStorage": {
     "message": "Gedeelde opslag voor belangrijke familie-informatie"
   },
@@ -15261,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Tot $COUNT$ collectie(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Tot $COUNT$ gedeelde mappen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15678,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open de abonnementspagina op je Bitwarden-cloudaccount en download je licentiebestand. Ga daarna terug naar dit scherm en upload het hieronder."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open de abonnementspagina op je Bitwarden-account en download je licentiebestand. Ga daarna terug naar dit scherm en upload het hieronder."
   },
   "viewAllPlans": {
     "message": "Alle abonnementen bekijken"
