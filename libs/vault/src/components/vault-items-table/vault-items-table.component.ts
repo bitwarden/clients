@@ -17,6 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -92,17 +93,12 @@ export type VaultItemsTableFilters = {
   folder?: string[];
 };
 
-/** Every cipher type the Type chip offers when a client doesn't narrow the list. */
-const ALL_CIPHER_TYPES: CipherType[] = [
-  CipherType.Login,
-  CipherType.Card,
-  CipherType.Identity,
-  CipherType.SecureNote,
-  CipherType.SshKey,
-  CipherType.BankAccount,
-  CipherType.DriversLicense,
-  CipherType.Passport,
-];
+/**
+ * Every cipher type the Type chip offers when a client doesn't narrow the list, in the order the
+ * new item dialog lists them. Derived from {@link DIALOG_CIPHER_MENU_ITEMS} so the two stay in
+ * step as types are added.
+ */
+const ALL_CIPHER_TYPES: CipherType[] = DIALOG_CIPHER_MENU_ITEMS.map((item) => item.type);
 
 /**
  * Widens an id to a plain string.
@@ -113,17 +109,16 @@ const ALL_CIPHER_TYPES: CipherType[] = [
  */
 const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
-/** i18n key per cipher type, for the Type chip's options. */
-const CIPHER_TYPE_LABELS: Record<CipherType, string> = {
-  [CipherType.Login]: "typeLogin",
-  [CipherType.Card]: "typeCard",
-  [CipherType.Identity]: "typeIdentity",
-  [CipherType.SecureNote]: "typeSecureNote",
-  [CipherType.SshKey]: "typeSshKey",
-  [CipherType.BankAccount]: "typeBankAccount",
-  [CipherType.DriversLicense]: "typeDriversLicense",
-  [CipherType.Passport]: "typePassport",
-};
+/**
+ * i18n key per cipher type, for the Type chip's options — taken from the same menu items
+ * {@link ALL_CIPHER_TYPES} is built from, so a type and its label come from one place.
+ *
+ * Those items cover every {@link CipherType}, so the lookup in {@link
+ * VaultItemsTableComponent.cipherTypeLabel} always resolves.
+ */
+const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
+  DIALOG_CIPHER_MENU_ITEMS.map((item) => [item.type, item.labelKey]),
+);
 
 /**
  * The shared vault items list: a cipher-only table on `bit-table-v2` with its own search and
@@ -307,7 +302,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
     this.ciphers().length > 0 ? "clearFiltersOrTryAnother" : "emptyVaultDescription",
   );
 
-  protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS[type];
+  protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 
   /**
    * The Type chip's options: {@link cipherTypes} narrowed to the types actually present among
