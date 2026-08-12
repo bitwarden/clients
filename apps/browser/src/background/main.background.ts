@@ -801,6 +801,21 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
+    // Constructed before the key service, which depends on it to delete platform-specific copies of
+    // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      () => this.configService,
+      this.logService,
+      () => this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      () => this.vaultTimeoutSettingsService,
+      () => this.ipcService,
+    );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+
     this.keyService = new DefaultKeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -809,6 +824,7 @@ export default class MainBackground {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      browserBiometricsService,
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
@@ -983,18 +999,6 @@ export default class MainBackground {
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
-    const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-      this.vaultTimeoutSettingsService,
-      () => this.ipcService,
-    );
-    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
-    this.biometricsService = browserBiometricsService;
     this.unlockService = new DefaultUnlockService(
       this.registerSdkService,
       this.accountCryptographicStateService,

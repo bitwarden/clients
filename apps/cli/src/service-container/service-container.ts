@@ -529,6 +529,8 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    const cliBiometricsService = new CliBiometricsService();
+
     this.keyService = new KeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -537,6 +539,7 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      cliBiometricsService,
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(

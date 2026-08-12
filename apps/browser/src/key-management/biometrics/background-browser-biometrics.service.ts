@@ -34,10 +34,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private configService: () => ConfigService,
     private logService: LogService,
-    private keyService: KeyService,
+    private keyService: () => KeyService,
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private vaultTimeoutSettingsService: () => VaultTimeoutSettingsService,
     private ipcService: () => IpcService,
   ) {
     super();
@@ -106,7 +106,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         );
         if (response.user_key) {
           const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
-          if (!(await this.keyService.validateUserKey(userKey, userId))) {
+          if (!(await this.keyService().validateUserKey(userKey, userId))) {
             this.logService.info("Biometric unlock for user failed: invalid user key");
             return null;
           }
@@ -197,7 +197,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   async setShouldAutopromptNow(value: boolean): Promise<void> {}
   async canEnableBiometricUnlock(): Promise<boolean> {
     const status = await this.getBiometricsStatus();
-    const isBiometricsAlreadyEnabled = await this.vaultTimeoutSettingsService.isBiometricLockSet();
+    const isBiometricsAlreadyEnabled =
+      await this.vaultTimeoutSettingsService().isBiometricLockSet();
     const statusAllowsBiometric =
       status !== BiometricsStatus.DesktopDisconnected &&
       status !== BiometricsStatus.NotEnabledInConnectedDesktopApp &&
@@ -210,6 +211,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     value: SymmetricCryptoKey,
   ): Promise<void> {}
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {}
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return false;
   }

@@ -33,6 +33,7 @@ export class CliBiometricsService extends BiometricsService {
     value: SymmetricCryptoKey,
   ): Promise<void> {}
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {}
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return false;
   }
