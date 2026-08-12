@@ -178,7 +178,6 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
 
   protected selectableCountries = selectableCountries;
   protected supportsTaxId$!: Observable<boolean>;
-  protected taxIdWarningActive = false;
 
   private destroy$ = new Subject<void>();
 
@@ -220,10 +219,6 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
         this.group.controls.taxId.reset();
       }
     });
-
-    this.taxIdWarningActive =
-      this.scenario.type === "update" &&
-      this.scenario.taxIdWarning === TaxIdWarningTypes.FailedVerification;
   }
 
   ngOnDestroy() {
@@ -240,6 +235,13 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
 
   get taxIdHint(): string | null {
     return this.computeTaxIdHint(this.group.value.country, this.group.value.taxId);
+  }
+
+  get taxIdWarningActive(): boolean {
+    return (
+      this.scenario.type === "update" &&
+      this.scenario.taxIdWarning === TaxIdWarningTypes.FailedVerification
+    );
   }
 
   private computeTaxIdHint(country: string | null | undefined, taxId: string | null | undefined) {
