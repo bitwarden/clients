@@ -46,7 +46,6 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly collections = input<CollectionView[]>([]);
   readonly organizations = input<Organization[]>([]);
   readonly loading = input<boolean>(false);
-  readonly showPremiumFeatures = input<boolean>(false);
   readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
