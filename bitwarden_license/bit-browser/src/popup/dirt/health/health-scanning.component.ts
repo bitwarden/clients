@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { IconModule, TypographyModule } from "@bitwarden/components";
+import { IconComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -11,7 +11,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "dirt-health-scanning",
   templateUrl: "./health-scanning.component.html",
-  imports: [IconModule, TypographyModule, I18nPipe],
+  imports: [IconComponent, TypographyModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HealthScanningComponent {}
