@@ -21,6 +21,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 export class DesktopSetInitialPasswordService
   extends DefaultSetInitialPasswordService
@@ -41,6 +42,7 @@ export class DesktopSetInitialPasswordService
     private messagingService: MessagingService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
+    protected unlockService: UnlockService,
   ) {
     super(
       apiService,
@@ -56,6 +58,7 @@ export class DesktopSetInitialPasswordService
       userDecryptionOptionsService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   }
 
