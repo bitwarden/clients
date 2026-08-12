@@ -49,7 +49,6 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   priority = 70;
   component = SessionTimeoutPolicyComponent;
   showDescription = false;
-  showEnabledBadge = true;
 }
 
 const DEFAULT_HOURS = 8;

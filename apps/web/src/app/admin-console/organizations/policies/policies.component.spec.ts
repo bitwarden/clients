@@ -395,7 +395,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -483,7 +482,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -510,7 +508,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -538,7 +535,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -571,7 +567,6 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -607,7 +602,6 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 

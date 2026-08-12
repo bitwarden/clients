@@ -234,20 +234,9 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
 
 **Note**: Use `ossPolicyEditRegister` for open-source policies and `bitPolicyEditRegister` for Bitwarden Licensed policies.
 
-#### Policy with an On/Off Badge
-
-Set `showEnabledBadge = true` to show an **On/Off** badge in the drawer header reflecting the
-saved policy state (instead of the default plain title):
-
-```typescript
-export class YourNewPolicy extends BasePolicyEditDefinition {
-  // ...
-  component = YourNewPolicyComponent;
-  showEnabledBadge = true;
-}
-```
-
-The `policySteps` property on `BasePolicyEditComponent` defaults to a single step that saves the policy, so no override is needed for simple policies.
+The drawer header always shows an **On/Off** badge reflecting the saved policy state alongside
+the policy name as the title. The `policySteps` property on `BasePolicyEditComponent` defaults to
+a single step that saves the policy, so no override is needed for simple policies.
 
 #### Multi-Step Policy Workflow
 
