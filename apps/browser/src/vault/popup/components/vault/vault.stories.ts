@@ -270,8 +270,10 @@ const FILTER_FOLDER_OPTIONS = [
     label: "Work",
     children: [
       {
+        // Nesting splits the name and keeps only the trailing segment on each node, so the real
+        // `folders$` labels this "EU" — never the full "Work/EU" path.
         value: { id: "00000000-0000-4000-8000-0000000000fd", name: "Work/EU" } as FolderView,
-        label: "Work/EU",
+        label: "EU",
       },
     ],
   },

@@ -251,7 +251,7 @@ const FOLDER_OPTIONS = [
     value: { id: "folder-work", name: "Work" } as FolderView,
     label: "Work",
     children: [
-      // Nested nodes carry only their trailing segment; the component rejoins the full path.
+      // Nested nodes carry only their trailing segment, which is what the option renders.
       { value: { id: "folder-work-eu", name: "Work/EU" } as FolderView, label: "EU" },
     ],
   },
