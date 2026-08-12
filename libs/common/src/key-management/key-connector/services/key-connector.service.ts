@@ -17,6 +17,8 @@ import {
   KeyService,
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
@@ -84,6 +86,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
@@ -295,7 +298,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await SdkLoadService.Ready;
     const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,
@@ -305,11 +308,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
-    const userKey = await this.keyService.makeUserKey(masterKey);
+    const userKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
     await this.keyService.setUserKey(userKey[0], userId);
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
-    const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
+    const [pubKey, privKey] = await this.legacyCompatKeyService.makeKeyPair(userKey[0]);
 
     try {
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
