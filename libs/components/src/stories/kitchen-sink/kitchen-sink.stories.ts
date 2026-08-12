@@ -90,6 +90,8 @@ export default {
               sideNavigation: "Side navigation",
               skipLink: "Skip link",
               more: "More",
+              showMore: "Show more",
+              showMoreCount: "Show 5 more",
             });
           },
         },
