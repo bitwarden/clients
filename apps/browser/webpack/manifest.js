@@ -31,13 +31,32 @@ function transform(browser) {
   };
 }
 
-// Beta builds route the extension name through a channel-specific i18n message
-// key so translators can localize the beta variant alongside the stable one.
+// Beta channel deltas live in `beta-overrides.json` so the diff between the
+// stable and beta manifest is visible in one file. Nested overrides (e.g.
+// action.default_title) are only merged when the target key already exists,
+// which naturally handles the MV2 (`browser_action`) vs MV3 (`action`) split.
 function transformChannel(manifest) {
-  if (process.env.CHANNEL === "beta") {
-    manifest.name = "__MSG_extNameBeta__";
+  if (process.env.CHANNEL !== "beta") {
+    return manifest;
   }
-  return manifest;
+  return applyOverrides(manifest, require("./beta-overrides.json"));
+}
+
+function applyOverrides(target, overrides) {
+  for (const [key, value] of Object.entries(overrides)) {
+    if (isPlainObject(value)) {
+      if (target[key]) {
+        applyOverrides(target[key], value);
+      }
+    } else {
+      target[key] = value;
+    }
+  }
+  return target;
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 const browsers = ["chrome", "edge", "firefox", "opera", "safari"];
