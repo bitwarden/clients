@@ -95,11 +95,6 @@ export class HealthComponent {
     { initialValue: null },
   );
 
-  /** True while the scan is in flight, including before it reports progress. */
-  protected readonly isScanning = computed(
-    () => (this.scan()?.status ?? "scanning") === "scanning",
-  );
-
   /** True when the scan did not complete. */
   protected readonly scanFailed = computed(() => this.scan()?.status === "error");
 
