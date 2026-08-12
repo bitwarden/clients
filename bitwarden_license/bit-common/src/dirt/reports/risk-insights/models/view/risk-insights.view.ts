@@ -1,7 +1,8 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsApi } from "../api/risk-insights.api";
