@@ -714,6 +714,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
     if (!this.userHasPremium()) {
+      await this.premiumUpgradePromptService.promptForPremium();
       return;
     }
     const dialogRef = AttachmentsV2Component.open(this.dialogService, { cipherId, canEditCipher });
