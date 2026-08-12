@@ -12,13 +12,14 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 export class DesktopSetInitialPasswordService
   extends DefaultSetInitialPasswordService
@@ -30,6 +31,7 @@ export class DesktopSetInitialPasswordService
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -45,6 +47,7 @@ export class DesktopSetInitialPasswordService
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
