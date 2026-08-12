@@ -25,7 +25,15 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "requireSsoPolicyTitle",
+    // Figma shows this drawer title unchanged under VFO1 - only the list row name changes.
+    // Pinning this to the same key as `name` prevents the drawer from leaking the list-only
+    // `nameVfo1` text.
+    nameVfo1: "requireSsoPolicyTitle",
     description: "requireSsoPolicyDescV2",
+    // Figma shows this drawer body unchanged under VFO1 - only the list row and prerequisite
+    // callout change. Pinning this to the same key as `description` prevents the drawer from
+    // leaking the list-only `descriptionVfo1` text.
+    descriptionVfo1: "requireSsoPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",
     prerequisiteKeyVfo1: "requireSsoPolicyReqV2Vfo1",
   };

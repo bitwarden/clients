@@ -23,7 +23,14 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     name: "freeFamiliesSponsorshipPolicyTitleV2",
+    // Figma shows a drawer-specific VFO1 title ("Remove Sponsored Families Plan") that differs
+    // from both the legacy drawer title and the list's VFO1 title (`nameVfo1`, singular "Family").
+    nameVfo1: "freeFamiliesSponsorshipPolicyTitleV2Vfo1",
     description: "freeFamiliesSponsorshipPolicyDescV2",
+    // Figma shows this drawer body unchanged under VFO1 - only the title and list row change.
+    // Pinning this to the same key as `description` prevents the drawer from leaking the
+    // list-only `descriptionVfo1` text.
+    descriptionVfo1: "freeFamiliesSponsorshipPolicyDescV2",
   };
 }
 

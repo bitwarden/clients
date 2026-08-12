@@ -26,6 +26,10 @@ export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: AutomaticAppLoginPolicyV2Component,
     description: "automaticAppLoginWithSSODescV2",
+    // Figma shows this drawer body unchanged under VFO1 - only the list row changes. Pinning
+    // this to the same key as `description` prevents the drawer from leaking the list-only
+    // `descriptionVfo1` text.
+    descriptionVfo1: "automaticAppLoginWithSSODescV2",
   };
 }
 

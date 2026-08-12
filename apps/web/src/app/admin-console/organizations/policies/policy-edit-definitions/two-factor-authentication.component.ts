@@ -22,6 +22,10 @@ export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: SimpleTogglePolicyComponent,
     description: "twoStepLoginPolicyDescV2",
+    // Figma shows this drawer body unchanged under VFO1 - only the list row changes. Pinning
+    // this to the same key as `description` prevents the drawer from leaking the list-only
+    // `descriptionVfo1` text.
+    descriptionVfo1: "twoStepLoginPolicyDescV2",
   };
 }
 

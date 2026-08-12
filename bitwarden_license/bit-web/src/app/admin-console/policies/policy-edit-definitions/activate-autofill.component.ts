@@ -34,6 +34,10 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: ActivateAutofillV2PolicyComponent,
     name: "enableAutofillOnPageLoad",
+    // Figma shows this drawer title unchanged under VFO1 - only the list row name changes.
+    // Pinning this to the same key as `name` prevents the drawer from leaking the list-only
+    // `nameVfo1` text.
+    nameVfo1: "enableAutofillOnPageLoad",
     showDescription: false,
   };
 

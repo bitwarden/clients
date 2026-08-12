@@ -26,6 +26,10 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   v2 = {
     component: UriMatchDefaultPolicyV2Component,
     description: "uriMatchDetectionPolicyDescV2",
+    // Figma shows this drawer body unchanged under VFO1 - only the list row changes. Pinning
+    // this to the same key as `description` prevents the drawer from leaking the list-only
+    // `descriptionVfo1` text.
+    descriptionVfo1: "uriMatchDetectionPolicyDescV2",
     prerequisiteKey: "requireSsoPolicyReqV2",
     prerequisiteKeyVfo1: "requireSsoPolicyReqV2Vfo1",
   };

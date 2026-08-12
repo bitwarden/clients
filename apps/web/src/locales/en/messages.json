@@ -8188,7 +8188,7 @@
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
   "centralizeDataOwnershipDescV2": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. Learn more about "
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. "
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Give all users a dedicated “My Items” space for managing their own logins."
@@ -14606,6 +14606,10 @@
   "freeFamiliesSponsorshipTitleVfo1": {
     "message": "Remove Sponsored Family Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Remove Sponsored Families Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Do not allow members to redeem a Families plan through this organization."
