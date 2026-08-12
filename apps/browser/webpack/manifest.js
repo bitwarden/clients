@@ -31,12 +31,12 @@ function transform(browser) {
   };
 }
 
-// Beta channel deltas live in `manifest-beta-overrides.json` so the diff
+// Beta channel manifest overrides live in `manifest-beta-overrides.json` so the diff
 // between the stable and beta manifest is visible in one file. Nested
 // overrides (e.g. action.default_title) are only merged when the target key
 // already exists, which naturally handles the MV2 (`browser_action`) vs MV3
 // (`action`) split. Version stamping is handled separately post-build by
-// scripts/update-manifest-beta.sh — see beta-release.json for the ordinal.
+// scripts/update-manifest-beta.sh.
 function transformChannel(manifest) {
   if (process.env.CHANNEL !== "beta") {
     return manifest;

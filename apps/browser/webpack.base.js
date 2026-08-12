@@ -201,7 +201,7 @@ module.exports.buildConfig = function buildConfig(params) {
         {
           from: path.resolve(__dirname, "src/images"),
           to: "images",
-          filter: (resourcePath) => !resourcePath.includes("_beta"),
+          filter: (resourcePath) => !path.basename(resourcePath).includes("_beta"),
         },
         ...(process.env.CHANNEL === "beta"
           ? [
