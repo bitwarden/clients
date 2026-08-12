@@ -29,10 +29,10 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
-import { VaultItemsTableColumn } from "./vault-items-table-row-action";
 import {
   MY_VAULT,
   NO_FOLDER,
+  VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
 } from "./vault-items-table.component";

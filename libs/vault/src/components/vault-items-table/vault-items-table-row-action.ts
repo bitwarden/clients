@@ -2,11 +2,6 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { BitwardenIcon } from "@bitwarden/components";
 
 /**
- * Every column the vault items table declares, passed as `defineTable`'s second type parameter.
- */
-export type VaultItemsTableColumn = "name" | "vault" | "sharedFolders" | "myFolders" | "actions";
-
-/**
  * A client-supplied action for a row's overflow menu.
  *
  * The action carries an event **factory** rather than an event, so the shared table never

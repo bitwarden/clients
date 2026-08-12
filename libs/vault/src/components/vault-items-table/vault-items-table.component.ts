@@ -56,7 +56,7 @@ import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
-import { VaultItemsTableColumn, VaultItemsTableRowAction } from "./vault-items-table-row-action";
+import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
 
 /**
@@ -67,6 +67,22 @@ export const MY_VAULT = "myVault";
 
 /** Sentinel for the My folders chip's "no folder" option. */
 export const NO_FOLDER = "noFolder";
+
+/**
+ * Every column the table declares, in display order. Doubles as the default column set — which of
+ * them actually render is narrowed from here per the rows on hand, see {@link
+ * VaultItemsTableComponent.visibleColumns}.
+ */
+export const VAULT_COLUMNS = Object.freeze([
+  "name",
+  "vault",
+  "sharedFolders",
+  "myFolders",
+  "actions",
+] as const);
+
+/** Passed as `defineTable`'s second type parameter. */
+export type VaultItemsTableColumn = (typeof VAULT_COLUMNS)[number];
 
 /**
  * The `filterValues` key `bit-table-v2` reserves for a projected `bit-search` (its module-private
@@ -260,13 +276,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   protected readonly selection: SelectionConfig<C> = { multiple: true };
 
   /** The configured column set to display */
-  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([
-    "name",
-    "vault",
-    "sharedFolders",
-    "myFolders",
-    "actions",
-  ]);
+  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
 
   /**
    * The relevant columns to be displayed based on the current ciphers provided.

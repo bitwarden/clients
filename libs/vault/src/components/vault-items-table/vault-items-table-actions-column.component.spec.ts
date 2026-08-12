@@ -20,7 +20,8 @@ import { CopyCipherFieldService } from "../../services/copy-cipher-field.service
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import { VaultItemsTableCopyPresentation } from "./vault-items-table-copy-presentation";
-import { VaultItemsTableColumn, VaultItemsTableRowAction } from "./vault-items-table-row-action";
+import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
+import { VaultItemsTableColumn } from "./vault-items-table.component";
 
 type TestEvent = { type: string; item: CipherView };
 

@@ -7,13 +7,12 @@ export {
   DEFAULT_COPY_PRESENTATION,
   type VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
-export {
-  type VaultItemsTableColumn,
-  type VaultItemsTableRowAction,
-} from "./vault-items-table-row-action";
+export { type VaultItemsTableRowAction } from "./vault-items-table-row-action";
 export {
   MY_VAULT,
   NO_FOLDER,
+  VAULT_COLUMNS,
+  type VaultItemsTableColumn,
   VaultItemsTableComponent,
   type VaultItemsTableFilters,
 } from "./vault-items-table.component";

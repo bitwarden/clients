@@ -30,7 +30,9 @@ import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
-import { VaultItemsTableRowAction, VaultItemsTableColumn } from "./vault-items-table-row-action";
+import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
+// Type-only, so it erases at build time and adds no runtime edge back to the table component.
+import type { VaultItemsTableColumn } from "./vault-items-table.component";
 
 /**
  * The trailing actions column for a vault items table, in two tiers:
