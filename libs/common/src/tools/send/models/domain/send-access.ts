@@ -63,6 +63,7 @@ export class SendAccess extends Domain {
       case SendType.Text:
         model.text = await this.text.decrypt(key);
         break;
+      case SendType.Item:
       default:
         break;
     }

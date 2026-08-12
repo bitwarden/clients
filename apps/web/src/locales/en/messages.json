@@ -16896,6 +16896,10 @@
     "message": "Link saved and copied to clipboard",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
   "expiryOneHour": {
     "message": "1 hour",
     "description": "Share link expiry duration option: one hour"

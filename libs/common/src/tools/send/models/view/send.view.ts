@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+
 import { View } from "../../../../models/view/view";
 import { Utils } from "../../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
+import { CipherView } from "../../../../vault/models/view/cipher.view";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
@@ -21,6 +23,9 @@ export class SendView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data: {
+    data?: CipherView;
+  } = {};
   maxAccessCount?: number = null;
   accessCount = 0;
   revisionDate: Date = null;
@@ -93,6 +98,7 @@ export class SendView implements View {
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),
+      data: json.data,
       revisionDate: json.revisionDate == null ? null : new Date(json.revisionDate),
       deletionDate: json.deletionDate == null ? null : new Date(json.deletionDate),
       expirationDate: json.expirationDate == null ? null : new Date(json.expirationDate),

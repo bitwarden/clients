@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  OnDestroy,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -67,7 +75,7 @@ import { ExpiryChoice, ExpiryOption } from "../share-link.types";
     I18nPipe,
   ],
 })
-export class ShareItemFormComponent {
+export class ShareItemFormComponent implements OnDestroy {
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
   private readonly folderService = inject(FolderService);
@@ -80,7 +88,6 @@ export class ShareItemFormComponent {
   readonly cipher = input.required<CipherView>();
 
   protected readonly activeLinks = signal<ShareLink[]>([]);
-  protected readonly accordionExpanded = signal(false);
   protected readonly collections = signal<CollectionView[]>([]);
   protected readonly folder = signal<FolderView | null>(null);
 
@@ -210,15 +217,16 @@ export class ShareItemFormComponent {
       });
 
     cipher$.pipe(takeUntilDestroyed()).subscribe((cipher) => {
-      this.refreshActiveLinks(cipher.id as CipherId);
+      void this.shareLinkService.setCipher(cipher.id as CipherId);
     });
 
-    this.shareLinkService.links$.pipe(takeUntilDestroyed()).subscribe(() => {
-      const currentCipher = this.cipher();
-      if (currentCipher) {
-        this.refreshActiveLinks(currentCipher.id as CipherId);
-      }
+    this.shareLinkService.links$.pipe(takeUntilDestroyed()).subscribe((links) => {
+      this.activeLinks.set(links);
     });
+  }
+
+  ngOnDestroy(): void {
+    void this.shareLinkService.setCipher(undefined);
   }
 
   protected async copyLink(link: ShareLink): Promise<void> {
@@ -256,19 +264,26 @@ export class ShareItemFormComponent {
       .filter((e) => e.length > 0);
 
     const link = await this.shareLinkService.createShareLink(
-      currentCipher.id as CipherId,
+      currentCipher,
       emails,
       formValue.expiryHours,
       formValue.oneTimeShare,
     );
 
-    this.platformUtilsService.copyToClipboard(link.url);
+    if (link) {
+      this.platformUtilsService.copyToClipboard(link);
 
-    this.toastService.showToast({
-      variant: "success",
-      title: undefined,
-      message: this.i18nService.t("linkSavedAndCopied"),
-    });
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("linkSavedAndCopied"),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("linkSavedCopyFailed"),
+      });
+    }
 
     this.form.controls.emails.reset();
   }
@@ -278,9 +293,5 @@ export class ShareItemFormComponent {
       return emails[0] ?? "";
     }
     return `${emails[0]}, +${emails.length - 1}`;
-  }
-
-  private refreshActiveLinks(cipherId: CipherId): void {
-    this.activeLinks.set(this.shareLinkService.getLinksForCipher(cipherId));
   }
 }

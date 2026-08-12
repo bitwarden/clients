@@ -8,6 +8,7 @@ import {
   Send as SdkSend,
   SendId as SdkSendId,
   SendType as SdkSendType,
+  SendEncryptionType,
 } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
@@ -15,6 +16,7 @@ import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { UserId } from "../../../../types/guid";
+import { Cipher } from "../../../../vault/models/domain/cipher";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
@@ -55,6 +57,9 @@ export class Send extends Domain {
   notes: EncString;
   file: SendFile;
   text: SendText;
+  data: {
+    data?: Cipher;
+  } = {};
   key: EncString;
   maxAccessCount?: number;
   accessCount: number;
@@ -106,6 +111,13 @@ export class Send extends Domain {
       case SendType.File:
         this.file = new SendFile(obj.file);
         break;
+      case SendType.Item:
+        if (obj.data?.data) {
+          this.data = {
+            data: Cipher.fromJSON(JSON.parse(obj.data.data)),
+          };
+        }
+        break;
       default:
         break;
     }
@@ -141,6 +153,15 @@ export class Send extends Domain {
       case SendType.Text:
         model.text = await this.text.decrypt(model.cryptoKey);
         break;
+      case SendType.Item: {
+        if (this.data.data) {
+          const cipherView = await this.data.data.decrypt(model.cryptoKey);
+          model.data = {
+            data: cipherView,
+          };
+        }
+        break;
+      }
       default:
         break;
     }
@@ -185,6 +206,9 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
+      data: this.data?.data
+        ? { encryptionVersion: SendEncryptionType.V1, data: this.data.data.toSdkCipher() }
+        : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
