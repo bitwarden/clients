@@ -2318,6 +2318,7 @@ export default class MainBackground {
       this.accountService,
       this.generatorHistoryService,
       this.credentialGeneratorService,
+      this.configService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(

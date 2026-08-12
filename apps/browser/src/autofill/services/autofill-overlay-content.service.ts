@@ -859,7 +859,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. When the field is a login username field, it sends the typed value to
+   * the background to filter the inline menu list while the user is typing. For all
+   * other fields, it acts to remove the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -873,6 +875,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     this.storeModifiedFormElement(formFieldElement);
     if (elementIsSelectElement(formFieldElement)) {
+      return;
+    }
+
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    if (
+      autofillFieldData?.inlineMenuFillType === CipherType.Login &&
+      autofillFieldData?.fieldQualifier === AutofillFieldQualifier.username
+    ) {
+      await this.sendExtensionMessage("updateAutofillInlineMenuSearch", {
+        searchText: formFieldElement.value ?? "",
+      });
       return;
     }
 

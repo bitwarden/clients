@@ -31,7 +31,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -167,6 +169,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuButtonVisible: boolean = false;
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
+  private inlineMenuSearchText: string | null = null;
   private passkeyAuthTabId: number | null = null;
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
@@ -198,6 +201,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
       void this.withSenderTab(sender, () => this.closeInlineMenu(sender, message)),
+    updateAutofillInlineMenuSearch: ({ message, sender }) =>
+      void this.withSenderTab(sender, (tab) => this.updateInlineMenuSearch(message, sender, tab)),
     checkAutofillInlineMenuFocused: ({ sender }) =>
       void this.withSenderTab(sender, () => this.checkInlineMenuFocused(sender)),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
@@ -272,6 +277,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
   }
@@ -622,7 +628,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       firstValueFrom(this.environmentService.environment$),
     ]);
     const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
-    const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    const inlineMenuCiphersArray = this.filterInlineMenuCiphersBySearchText(
+      Array.from(this.inlineMenuCiphers),
+    );
     let inlineMenuCipherData: InlineMenuCipherData[];
     this.showPasskeysLabelsWithinInlineMenu = false;
 
@@ -642,6 +650,47 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
     return inlineMenuCipherData;
+  }
+
+  /**
+   * Filters the inline menu ciphers by the text the user has typed into a login username
+   * field. Ciphers are matched case-insensitively against the labels the inline menu list
+   * renders for a login cipher: the cipher name, the login username, and the passkey
+   * username. Returns the unfiltered ciphers when no search text is present or the
+   * focused field is not a login field.
+   *
+   * @param inlineMenuCiphersArray - Array of inline menu ciphers
+   */
+  private filterInlineMenuCiphersBySearchText(
+    inlineMenuCiphersArray: [string, CipherView][],
+  ): [string, CipherView][] {
+    const searchText = this.inlineMenuSearchText?.trim().toLowerCase();
+    if (!searchText || this.focusedFieldData?.inlineMenuFillType !== CipherType.Login) {
+      return inlineMenuCiphersArray;
+    }
+
+    return inlineMenuCiphersArray.filter(([, cipher]) =>
+      this.getInlineMenuCipherSearchValues(cipher).some((value) => value.includes(searchText)),
+    );
+  }
+
+  /**
+   * Collects the lower-cased values that a cipher can be matched against when the inline
+   * menu list is filtered by typed search text. The passkey username is included because
+   * the inline menu list renders it in place of the login username for passkey entries.
+   *
+   * @param cipher - The cipher to collect search values for
+   */
+  private getInlineMenuCipherSearchValues(cipher: CipherView): string[] {
+    const passkeyUsername = cipher.login?.fido2Credentials?.[0]?.userName;
+
+    return [
+      cipher.name,
+      cipher.login?.username,
+      typeof passkeyUsername === "string" ? passkeyUsername : undefined,
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.toLowerCase());
   }
 
   /**
@@ -1395,8 +1444,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    // The inline menu list is intentionally left open while the user filters it by typing,
+    // so it must keep being repositioned even though the focused field has a value.
+    const isFilteringBySearchText = !!this.inlineMenuSearchText;
+
     if (
       sender.tab &&
+      !isFilteringBySearchText &&
       (await this.checkFocusedFieldHasValue(sender.tab)) &&
       (this.checkIsInlineMenuCiphersPopulated(sender) ||
         (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked)
@@ -1642,6 +1696,42 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Handles input within a login username field while the inline menu list is open. When the
+   * InlineMenuTypedSearch feature flag is enabled, the typed value is stored and used to filter
+   * the ciphers presented within the inline menu list. When the flag is disabled, the legacy
+   * behavior is replicated: the inline menu list is closed while the user is typing and
+   * re-opened when the field has no value.
+   *
+   * @param message - The extension message containing the typed search text
+   * @param sender - The sender of the extension message
+   * @param tab - The tab associated with the sender
+   */
+  private async updateInlineMenuSearch(
+    { searchText }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+    tab: chrome.tabs.Tab,
+  ) {
+    const typedSearchEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.InlineMenuTypedSearch,
+    );
+
+    if (!typedSearchEnabled) {
+      this.closeInlineMenu(sender, {
+        overlayElement: AutofillOverlayElement.List,
+        forceCloseInlineMenu: true,
+      });
+
+      if (!searchText) {
+        await this.openInlineMenu(sender);
+      }
+      return;
+    }
+
+    this.inlineMenuSearchText = searchText ?? "";
+    await this.updateInlineMenuListCiphers(tab);
+  }
+
+  /**
    * Sends a message to the sender tab to close the autofill inline menu.
    *
    * @param sender - The sender of the port message
@@ -1655,6 +1745,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (sender.tab === null || sender.tab === undefined) {
       return;
     }
+    this.inlineMenuSearchText = null;
     const tab = sender.tab;
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
@@ -2088,6 +2179,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
     this.allFieldData = allFieldsRect ?? [];
     this.isFieldCurrentlyFocused = true;
+    this.inlineMenuSearchText = null;
 
     if (this.shouldUpdatePasswordGeneratorMenuOnFieldFocus()) {
       this.updateInlineMenuGeneratedPasswordOnFocus(sender.tab).catch((error) =>

@@ -529,14 +529,24 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("Closes the inline menu list and does not re-open the inline menu if the field has a value", async () => {
-          (autofillFieldElement as HTMLInputElement).value = "test";
+          const passwordFieldElement = document.getElementById(
+            "password-field",
+          ) as ElementWithOpId<FormFieldElement>;
+          (passwordFieldElement as HTMLInputElement).value = "test";
+          const passwordFieldData = createAutofillFieldMock({
+            opid: "password-field",
+            form: "validFormId",
+            elementNumber: 2,
+            autoCompleteType: "current-password",
+            type: "password",
+          });
 
           await autofillOverlayContentService.setupOverlayListeners(
-            autofillFieldElement,
-            autofillFieldData,
+            passwordFieldElement,
+            passwordFieldData,
             pageDetailsMock,
           );
-          autofillFieldElement.dispatchEvent(new Event("input"));
+          passwordFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
@@ -547,15 +557,68 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("opens the inline menu if the field does not have a value", async () => {
+          const passwordFieldElement = document.getElementById(
+            "password-field",
+          ) as ElementWithOpId<FormFieldElement>;
+          const passwordFieldData = createAutofillFieldMock({
+            opid: "password-field",
+            form: "validFormId",
+            elementNumber: 2,
+            autoCompleteType: "current-password",
+            type: "password",
+          });
+
           await autofillOverlayContentService.setupOverlayListeners(
-            autofillFieldElement,
-            autofillFieldData,
+            passwordFieldElement,
+            passwordFieldData,
             pageDetailsMock,
           );
-          autofillFieldElement.dispatchEvent(new Event("input"));
+          passwordFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
+        });
+
+        describe("input changes on a login username field", () => {
+          it("sends the typed value to filter the inline menu list instead of closing it", async () => {
+            (autofillFieldElement as HTMLInputElement).value = "test";
+
+            await autofillOverlayContentService.setupOverlayListeners(
+              autofillFieldElement,
+              autofillFieldData,
+              pageDetailsMock,
+            );
+            autofillFieldElement.dispatchEvent(new Event("input"));
+            await flushPromises();
+
+            expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuSearch", {
+              searchText: "test",
+            });
+            expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+              "closeAutofillInlineMenu",
+              expect.any(Object),
+            );
+            expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          });
+
+          it("sends an empty search value without closing the inline menu when the field is cleared", async () => {
+            await autofillOverlayContentService.setupOverlayListeners(
+              autofillFieldElement,
+              autofillFieldData,
+              pageDetailsMock,
+            );
+            autofillFieldElement.dispatchEvent(new Event("input"));
+            await flushPromises();
+
+            expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuSearch", {
+              searchText: "",
+            });
+            expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+              "closeAutofillInlineMenu",
+              expect.any(Object),
+            );
+            expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          });
         });
 
         describe("input changes on a field filled by a card cipher", () => {

@@ -252,6 +252,7 @@ describe("OverlayBackground", () => {
       accountService,
       generatorHistoryService,
       generatorService,
+      configService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -2698,6 +2699,319 @@ describe("OverlayBackground", () => {
             },
             topFrameSendOptions,
           );
+        });
+      });
+    });
+
+    describe("updateAutofillInlineMenuSearch message handler", () => {
+      let sender: chrome.runtime.MessageSender;
+      const url = "https://jest-testing-website.com";
+      const loginCipher1 = mock<CipherView>({
+        id: "id-1",
+        name: "name-1",
+        type: CipherType.Login,
+        login: { username: "username-1", password: "password", uri: url },
+      });
+      const loginCipher2 = mock<CipherView>({
+        id: "id-2",
+        name: "name-2",
+        type: CipherType.Login,
+        login: { username: "username-2", password: "password", uri: url },
+      });
+      const passkeyCipher = mock<CipherView>({
+        id: "id-3",
+        name: "name-3",
+        type: CipherType.Login,
+        login: {
+          username: undefined,
+          password: "password",
+          uri: url,
+          fido2Credentials: [{ rpName: "rp-name", userName: "passkey-username" }],
+        },
+      });
+
+      beforeEach(async () => {
+        sender = mock<chrome.runtime.MessageSender>({
+          tab: createChromeTabMock({ id: 1, url }),
+        });
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1 });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["inline-menu-cipher-0", loginCipher1],
+          ["inline-menu-cipher-1", loginCipher2],
+        ]);
+        await initOverlayElementPorts({ initButton: false, initList: true });
+      });
+
+      describe("when the InlineMenuTypedSearch feature flag is enabled", () => {
+        beforeEach(() => {
+          configService.getFeatureFlag.mockResolvedValue(true);
+        });
+
+        it("filters the inline menu ciphers by the typed username", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "username-1" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [expect.objectContaining({ name: "name-1" })],
+            }),
+          );
+          expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+            sender.tab,
+            expect.objectContaining({ command: "closeAutofillInlineMenu" }),
+            expect.anything(),
+          );
+        });
+
+        it("filters the inline menu ciphers by the cipher name", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "name-2" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [expect.objectContaining({ name: "name-2" })],
+            }),
+          );
+        });
+
+        it("filters the inline menu ciphers case-insensitively", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "USERNAME-1" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [expect.objectContaining({ name: "name-1" })],
+            }),
+          );
+        });
+
+        it("filters the inline menu ciphers by the passkey username", async () => {
+          overlayBackground["inlineMenuCiphers"] = new Map([
+            ["inline-menu-cipher-0", loginCipher1],
+            ["inline-menu-cipher-1", passkeyCipher],
+          ]);
+
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "passkey-user" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [expect.objectContaining({ name: "name-3" })],
+            }),
+          );
+        });
+
+        it("sends an empty list of ciphers when the search text matches no ciphers", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "no-match" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [],
+            }),
+          );
+        });
+
+        it("sends the full list of ciphers when the search text is only whitespace", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "   " },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [
+                expect.objectContaining({ name: "name-1" }),
+                expect.objectContaining({ name: "name-2" }),
+              ],
+            }),
+          );
+        });
+
+        it("sends the full list of ciphers when the search text is empty", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [
+                expect.objectContaining({ name: "name-1" }),
+                expect.objectContaining({ name: "name-2" }),
+              ],
+            }),
+          );
+        });
+
+        it("does not filter ciphers when the focused field is not a login field", async () => {
+          const cardCipher = mock<CipherView>({
+            id: "id-3",
+            name: "card-name",
+            type: CipherType.Card,
+            card: { subTitle: "subtitle" },
+          });
+          overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+            tabId: 1,
+            inlineMenuFillType: CipherType.Card,
+          });
+          overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-0", cardCipher]]);
+
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "no-match" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({
+              command: "updateAutofillInlineMenuListCiphers",
+              ciphers: [expect.objectContaining({ name: "card-name" })],
+            }),
+          );
+        });
+
+        it("resets the search text when the inline menu is closed", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "username-1" },
+            sender,
+          );
+          await flushPromises();
+
+          sendMockExtensionMessage(
+            { command: "closeAutofillInlineMenu", forceCloseInlineMenu: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(overlayBackground["inlineMenuSearchText"]).toBeNull();
+        });
+
+        it("resets the search text when a different field is focused", async () => {
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "username-1" },
+            sender,
+          );
+          await flushPromises();
+
+          sendMockExtensionMessage(
+            {
+              command: "updateFocusedFieldData",
+              focusedFieldData: createFocusedFieldDataMock({ tabId: 1 }),
+            },
+            sender,
+          );
+          await flushPromises();
+
+          expect(overlayBackground["inlineMenuSearchText"]).toBeNull();
+        });
+
+        describe("repositioning the inline menu list", () => {
+          let updateInlineMenuPositionSpy: jest.SpyInstance;
+
+          beforeEach(() => {
+            updateInlineMenuPositionSpy = jest
+              .spyOn(overlayBackground as any, "updateInlineMenuPosition")
+              .mockResolvedValue(undefined);
+            overlayBackground["isFieldCurrentlyFocused"] = true;
+            // The focused field holds the text the user has typed.
+            tabsSendMessageSpy.mockResolvedValue(true);
+          });
+
+          it("repositions the list while the ciphers are filtered by the typed search", async () => {
+            overlayBackground["inlineMenuSearchText"] = "username-1";
+            overlayBackground["currentInlineMenuCiphersCount"] = 1;
+
+            await overlayBackground["updateInlineMenuPositionAfterRepositionEvent"](sender);
+
+            expect(updateInlineMenuPositionSpy).toHaveBeenCalledWith(
+              sender,
+              AutofillOverlayElement.List,
+            );
+          });
+
+          it("does not reposition the list when no search is active and the field has a value", async () => {
+            overlayBackground["inlineMenuSearchText"] = null;
+            overlayBackground["currentInlineMenuCiphersCount"] = 1;
+
+            await overlayBackground["updateInlineMenuPositionAfterRepositionEvent"](sender);
+
+            expect(updateInlineMenuPositionSpy).not.toHaveBeenCalledWith(
+              sender,
+              AutofillOverlayElement.List,
+            );
+          });
+        });
+      });
+
+      describe("when the InlineMenuTypedSearch feature flag is disabled", () => {
+        beforeEach(() => {
+          configService.getFeatureFlag.mockResolvedValue(false);
+        });
+
+        it("closes the inline menu list without re-opening it when the field has a value", async () => {
+          const openInlineMenuSpy = jest
+            .spyOn(overlayBackground as any, "openInlineMenu")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "username-1" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+            sender.tab,
+            { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.List },
+            { frameId: 0 },
+          );
+          expect(openInlineMenuSpy).not.toHaveBeenCalled();
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(
+            expect.objectContaining({ command: "updateAutofillInlineMenuListCiphers" }),
+          );
+        });
+
+        it("closes the inline menu list and re-opens the inline menu when the field is empty", async () => {
+          const openInlineMenuSpy = jest
+            .spyOn(overlayBackground as any, "openInlineMenu")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage(
+            { command: "updateAutofillInlineMenuSearch", searchText: "" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+            sender.tab,
+            { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.List },
+            { frameId: 0 },
+          );
+          expect(openInlineMenuSpy).toHaveBeenCalledWith(sender);
         });
       });
     });
