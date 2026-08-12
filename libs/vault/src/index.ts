@@ -2,6 +2,7 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
+export { CipherRowMenuService } from "./services/cipher-row-menu.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {
   CopyCipherFieldService,
