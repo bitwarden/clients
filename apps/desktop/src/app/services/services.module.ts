@@ -162,7 +162,6 @@ import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/des
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
-import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -378,21 +377,6 @@ const safeProviders: SafeProvider[] = [
     provide: CryptoFunctionServiceAbstraction,
     useClass: WebCryptoFunctionService,
     deps: [WINDOW],
-  }),
-  safeProvider({
-    provide: KeyServiceAbstraction,
-    useClass: ElectronKeyService,
-    deps: [
-      CryptoFunctionServiceAbstraction,
-      EncryptService,
-      PlatformUtilsServiceAbstraction,
-      LogService,
-      StateServiceAbstraction,
-      StateProvider,
-      BiometricStateService,
-      DesktopBiometricsService,
-      AccountCryptographicStateService,
-    ],
   }),
   safeProvider({
     provide: DesktopSettingsService,
