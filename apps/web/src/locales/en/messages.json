@@ -15401,6 +15401,15 @@
       }
     }
   },
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
+    "placeholders": {
+      "example": {
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },

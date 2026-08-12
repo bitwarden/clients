@@ -1,5 +1,12 @@
+import { mock } from "jest-mock-extended";
+import { Subscription } from "rxjs";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TaxIdWarningTypes } from "@bitwarden/web-vault/app/billing/warnings/types";
+
 import {
   BillingAddressControls,
+  EnterBillingAddressComponent,
   getBillingAddressFromControls,
 } from "./enter-billing-address.component";
 
@@ -79,5 +86,119 @@ describe("getBillingAddressFromControls", () => {
     expect(result.city).toBe(controls.city);
     expect(result.state).toBe(controls.state);
     expect(result.taxId).toEqual({ code: "ca_bn", value: "987654321" });
+  });
+});
+
+describe("EnterBillingAddressComponent", () => {
+  let component: EnterBillingAddressComponent;
+  let subscription: Subscription;
+  let hint: string | null | undefined;
+
+  const i18nService = mock<I18nService>();
+  i18nService.t.mockImplementation((key: string, ...args: unknown[]) => [key, ...args].join(":"));
+
+  const setup = (scenario: EnterBillingAddressComponent["scenario"]) => {
+    component = new EnterBillingAddressComponent(i18nService);
+    component.scenario = scenario;
+    component.group = EnterBillingAddressComponent.getFormGroup();
+    component.ngOnInit();
+
+    hint = undefined;
+    subscription = (component as any).taxIdHint$.subscribe(
+      (value: string | null) => (hint = value),
+    );
+  };
+
+  const setCountry = (country: string) => component.group.controls.country.setValue(country);
+  const setTaxId = (taxId: string) => component.group.controls.taxId.setValue(taxId);
+
+  afterEach(() => {
+    subscription?.unsubscribe();
+    component?.ngOnDestroy();
+  });
+
+  it("shows the example up front for a single-format country", () => {
+    setup({ type: "update", supportsTaxId: true });
+
+    setCountry("FR");
+
+    expect(hint).toBe("taxIdFormatExample:FRAB123456789");
+  });
+
+  it("shows no hint for a multi-format country with no value", () => {
+    setup({ type: "update", supportsTaxId: true });
+
+    setCountry("CA");
+    expect(hint).toBeNull();
+
+    setCountry("GB");
+    expect(hint).toBeNull();
+  });
+
+  it("reacts to the entered value for a multi-format country", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("CA");
+
+    setTaxId("987654321");
+    expect(hint).toBe("taxIdFormatExample:123456789");
+
+    setTaxId("123456789RT0002");
+    expect(hint).toBe("taxIdFormatExample:123456789RT0002");
+
+    setTaxId("12345");
+    expect(hint).toBeNull();
+  });
+
+  it("resolves United Kingdom values by the entered value", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("GB");
+
+    setTaxId("GB123456789");
+    expect(hint).toBe("taxIdFormatExample:GB123456789");
+
+    setTaxId("XI123456789");
+    expect(hint).toBe("taxIdFormatExample:XI123456789");
+  });
+
+  it("prefixes the failed-verification warning with the example", () => {
+    setup({
+      type: "update",
+      supportsTaxId: true,
+      taxIdWarning: TaxIdWarningTypes.FailedVerification,
+    });
+    setCountry("CA");
+    setTaxId("987654321");
+
+    expect((component as any).taxIdWarningActive).toBe(true);
+    expect(hint).toBe("checkInputFormat taxIdFormatExample:123456789");
+  });
+
+  it("shows the failed-verification prefix alone when there is no example", () => {
+    setup({
+      type: "update",
+      supportsTaxId: true,
+      taxIdWarning: TaxIdWarningTypes.FailedVerification,
+    });
+
+    setCountry("CA");
+
+    expect(hint).toBe("checkInputFormat");
+  });
+
+  it("shows guidance during checkout", () => {
+    setup({ type: "checkout", supportsTaxId: true });
+
+    setCountry("FR");
+
+    expect((component as any).taxIdWarningActive).toBe(false);
+    expect(hint).toBe("taxIdFormatExample:FRAB123456789");
+  });
+
+  it("returns no hint when tax IDs are unsupported", () => {
+    setup({ type: "update", supportsTaxId: false });
+
+    setCountry("FR");
+
+    expect(hint).toBeNull();
   });
 });

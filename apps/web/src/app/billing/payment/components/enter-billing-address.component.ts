@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
+import { combineLatest, map, Observable, startWith, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -140,16 +140,18 @@ type Scenario =
                 [formControl]="group.controls.taxId"
                 data-testid="tax-id"
               />
-              @let hint = taxIdWarningHint;
+              @let hint = taxIdHint$ | async;
               @if (hint) {
-                <bit-hint
-                  ><i
-                    class="bwi bwi-exclamation-triangle tw-mr-1"
-                    title="{{ hint }}"
-                    aria-hidden="true"
-                  ></i
-                  >{{ hint }}</bit-hint
-                >
+                <bit-hint>
+                  @if (taxIdWarningActive) {
+                    <bit-icon
+                      name="bwi-exclamation-triangle"
+                      class="tw-mr-1"
+                      title="{{ hint }}"
+                    ></bit-icon>
+                  }
+                  {{ hint }}
+                </bit-hint>
               }
             </bit-form-field>
           </div>
@@ -170,6 +172,8 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
 
   protected selectableCountries = selectableCountries;
   protected supportsTaxId$!: Observable<boolean>;
+  protected taxIdHint$!: Observable<string | null>;
+  protected taxIdWarningActive = false;
 
   private destroy$ = new Subject<void>();
 
@@ -209,6 +213,15 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
         this.group.controls.taxId.disable();
       }
     });
+
+    this.taxIdWarningActive =
+      this.scenario.type === "update" &&
+      this.scenario.taxIdWarning === TaxIdWarningTypes.FailedVerification;
+
+    this.taxIdHint$ = combineLatest([
+      this.group.controls.country.valueChanges.pipe(startWith(this.group.value.country)),
+      this.group.controls.taxId.valueChanges.pipe(startWith(this.group.value.taxId)),
+    ]).pipe(map(([country, taxId]) => this.computeTaxIdHint(country, taxId)));
   }
 
   ngOnDestroy() {
@@ -223,38 +236,26 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.group.controls.state.disable();
   };
 
-  get taxIdWarningHint() {
-    if (
-      this.scenario.type === "checkout" ||
-      !this.scenario.supportsTaxId ||
-      !this.group.value.country ||
-      this.scenario.taxIdWarning !== TaxIdWarningTypes.FailedVerification
-    ) {
+  private computeTaxIdHint(country: string | null | undefined, taxId: string | null | undefined) {
+    if (!this.scenario.supportsTaxId || !country) {
       return null;
     }
-
-    const taxIdType = getTaxIdTypeForCountry(this.group.value.country);
-
-    if (!taxIdType) {
+    const types = taxIdTypes.filter((type) => type.iso === country);
+    if (types.length === 0) {
       return null;
     }
-
-    const checkInputFormat = this.i18nService.t("checkInputFormat");
-
-    switch (taxIdType.code) {
-      case "au_abn": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "ABN", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
-      case "eu_vat": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "EU VAT", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
-      case "gb_vat": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "GB VAT", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
+    const resolved =
+      types.length === 1
+        ? types[0]
+        : taxId
+          ? types.find((type) => type.format?.test(taxId))
+          : undefined;
+    const example = resolved ? this.i18nService.t("taxIdFormatExample", resolved.example) : null;
+    if (this.taxIdWarningActive) {
+      const check = this.i18nService.t("checkInputFormat");
+      return example ? `${check} ${example}` : check;
     }
+    return example;
   }
 
   static getFormGroup = (): BillingAddressFormGroup =>
