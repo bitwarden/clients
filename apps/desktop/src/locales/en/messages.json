@@ -113,6 +113,44 @@
   "sharedFolders": {
     "message": "Shared folders"
   },
+  "collectionsWithCount": {
+    "message": "Collections ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "sharedFoldersWithCount": {
+    "message": "Shared folders ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreCollectionsShownAbove": {
+    "message": "$COUNT$ more collections shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of collections is expanded. The revealed collections render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "myFolder": {
     "message": "My folder"
   },
