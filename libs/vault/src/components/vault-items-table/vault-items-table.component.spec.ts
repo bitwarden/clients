@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -77,6 +78,21 @@ describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
 
   beforeEach(async () => {
     const accountService = mock<AccountService>();
@@ -1178,5 +1194,15 @@ describe("VaultItemsTableComponent", () => {
         expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
       }));
     });
+  });
+
+  it("always applies the flex fill host classes", () => {
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.classList).toContain("tw-flex");
+    expect(host.classList).toContain("tw-flex-col");
+    expect(host.classList).toContain("tw-flex-1");
+    expect(host.classList).toContain("tw-min-h-0");
   });
 });

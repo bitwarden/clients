@@ -6,6 +6,8 @@
   [filters]="initialFilterValues()"
   [loading]="loading()"
   [selection]="selection"
+  [virtualRowHeight]="56"
+  height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
   <!--
