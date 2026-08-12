@@ -137,14 +137,16 @@ export class PasswordLoginStrategy extends LoginStrategy {
     email: string,
     preFetchedPreloginData?: PasswordPreloginData,
   ): Promise<MasterKey> {
+    const useSdkForPrelogin = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27060_PasswordPreloginFromSdk,
+    );
+
     // if we have prefetched prelogin data, use it
     if (preFetchedPreloginData) {
-      // If we are using the sdk to fetch the prelogin, then use the salt that is used. By not
-      // using the salt when the feature flag is off, this gives us the ability to turn off using
-      // the salt in the event of bad normalization occurring during the transition.
-      const useSdkForPrelogin = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27060_PasswordPreloginFromSdk,
-      );
+      // If we are using the sdk to fetch the prelogin data, only then do we want to
+      // use the salt that is passed back from the prelogin response in building the master key.
+      // This gives us the ability to turn off the feature of using the returned salt from salt
+      // in the event of bad normalization occurring during the transition.
       if (useSdkForPrelogin) {
         return this.legacyCompatKeyService.makeMasterKey(
           masterPassword,
@@ -167,7 +169,23 @@ export class PasswordLoginStrategy extends LoginStrategy {
       throw new Error("KDF config is required");
     }
 
-    return this.legacyCompatKeyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
+    // If we are using the sdk to fetch the prelogin data, only then do we want to
+    // use the salt that is passed back from the prelogin response in building the master key.
+    // This gives us the ability to turn off the feature of using the returned salt from salt
+    // in the event of bad normalization occurring during the transition.
+    if (useSdkForPrelogin) {
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        preloginData.salt,
+        preloginData.kdfConfig,
+      );
+    } else {
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        email,
+        preloginData.kdfConfig,
+      );
+    }
   }
 
   private async evaluateMasterPasswordIfRequired(
