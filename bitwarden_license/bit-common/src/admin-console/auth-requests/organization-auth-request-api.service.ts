@@ -1,6 +1,7 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { AdminAuthRequestUpdateRequest } from "./admin-auth-request-update.request";
 import { BulkDenyAuthRequestsRequest } from "./bulk-deny-auth-requests.request";

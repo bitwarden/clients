@@ -4,14 +4,13 @@ import { of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
 
