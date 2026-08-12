@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, ReplaySubject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import {
@@ -12,18 +12,20 @@ import {
   ReportExposedPasswords,
   UnlockedIcon,
 } from "@bitwarden/assets/svg";
-import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import {
+  RiskCategory,
+  VaultHealthReportItem,
+  VaultHealthReportView,
+} from "@bitwarden/bit-common/dirt/vault-health/models";
+import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -100,14 +102,10 @@ const categories = [
 ] as const;
 
 describe("HealthRiskCategoryDetailComponent", () => {
-  const userId = Utils.newGuid() as UserId;
-
   let fixture: ComponentFixture<HealthRiskCategoryDetailComponent>;
   let params$: BehaviorSubject<Params>;
-  let activeAccount$: ReplaySubject<Account | null>;
-  let ciphers$: BehaviorSubject<CipherView[]>;
+  let report$: BehaviorSubject<VaultHealthReportView | null>;
   let router: MockProxy<Router>;
-  let cipherService: MockProxy<CipherService>;
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
@@ -135,7 +133,36 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return cipher;
   }
 
-  /** Creates the component and flushes the microtasks that resolve the cipher stream. */
+  /**
+   * Publishes a report placing the given logins in one category's bucket. The
+   * page reads only the bucket its route names, so items land in exactly one.
+   */
+  function setReport(category: RiskCategory, ciphers: CipherView[]) {
+    const items = ciphers.map(
+      (cipher) =>
+        new VaultHealthReportItem(
+          cipher,
+          new CipherHealthView({
+            cipherId: cipher.id,
+            hasExposedPassword: category === RiskCategory.Exposed,
+            hasWeakPassword: category === RiskCategory.Weak,
+            hasReusedPassword: category === RiskCategory.Reused,
+            exposedCount: category === RiskCategory.Exposed ? 3 : 0,
+            reuseCount: category === RiskCategory.Reused ? 2 : 0,
+          }),
+        ),
+    );
+
+    report$.next(
+      new VaultHealthReportView({
+        totalCount: items.length,
+        atRiskCount: items.length,
+        categoryItems: { exposed: [], weak: [], reused: [], [category]: items },
+      }),
+    );
+  }
+
+  /** Creates the component and flushes the microtasks that resolve the report stream. */
   async function initComponent() {
     fixture = TestBed.createComponent(HealthRiskCategoryDetailComponent);
     fixture.detectChanges();
@@ -182,20 +209,17 @@ describe("HealthRiskCategoryDetailComponent", () => {
   }
 
   beforeEach(async () => {
-    params$ = new BehaviorSubject<Params>({ category: "exposed-passwords" });
+    params$ = new BehaviorSubject<Params>({ category: RiskCategory.Exposed });
 
-    activeAccount$ = new ReplaySubject<Account | null>(1);
-    activeAccount$.next({ id: userId } as Account);
-
-    ciphers$ = new BehaviorSubject<CipherView[]>([
+    report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
+    const reportService = mock<VaultHealthReportService>();
+    reportService.getVaultHealthReport$.mockReturnValue(report$);
+    setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
     ]);
 
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
-
-    cipherService = mock<CipherService>();
-    cipherService.cipherViews$.mockReturnValue(ciphers$);
 
     changeLoginPasswordService = mock<ChangeLoginPasswordService>();
     changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(
@@ -213,8 +237,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       providers: [
         { provide: ActivatedRoute, useValue: { params: params$ } },
         { provide: Router, useValue: router },
-        { provide: AccountService, useValue: { activeAccount$ } },
-        { provide: CipherService, useValue: cipherService },
+        { provide: VaultHealthReportService, useValue: reportService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -260,6 +283,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       "renders the %s description when the category has items",
       async (category, descriptionKey) => {
         params$.next({ category });
+        setReport(category, [buildLogin({ id: "cipher-1" })]);
 
         await initComponent();
 
@@ -271,11 +295,42 @@ describe("HealthRiskCategoryDetailComponent", () => {
       "renders the %s empty copy when the category has no items",
       async (category, emptyKey) => {
         params$.next({ category });
-        ciphers$.next([]);
+        setReport(category, []);
 
         await initComponent();
 
         expect(text()).toContain(emptyKey);
+      },
+    );
+
+    it.each(categories.map((c) => c.category))(
+      "shows only the %s bucket, not the logins at risk in other categories",
+      async (category) => {
+        // Highest-risk-wins means each login sits in exactly one bucket, so a
+        // category page must not pick up the report's other two.
+        params$.next({ category });
+        setReport(category, [buildLogin({ id: "in-category", name: "In category" })]);
+        const otherCategory = categories.find((c) => c.category !== category)!.category;
+        const report = report$.value!;
+        report.categoryItems[otherCategory] = [
+          new VaultHealthReportItem(
+            buildLogin({ id: "other", name: "Other category" }),
+            new CipherHealthView({
+              cipherId: "other",
+              hasExposedPassword: false,
+              hasWeakPassword: true,
+              hasReusedPassword: false,
+              exposedCount: 0,
+              reuseCount: 0,
+            }),
+          ),
+        ];
+
+        await initComponent();
+
+        expect(rows()).toHaveLength(1);
+        expect(text()).toContain("In category");
+        expect(text()).not.toContain("Other category");
       },
     );
 
@@ -285,6 +340,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(pageTitle()).toBe("exposedPasswordsTitle");
       expect(text()).toContain("exposedPasswordsDescription");
 
+      setReport(RiskCategory.Reused, [buildLogin({ id: "cipher-1" })]);
       params$.next({ category: RiskCategory.Reused });
       fixture.detectChanges();
 
@@ -292,7 +348,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(text()).toContain("reusedPasswordsDescription");
       expect(text()).not.toContain("exposedPasswordsDescription");
 
-      ciphers$.next([]);
+      setReport(RiskCategory.Reused, []);
       fixture.detectChanges();
 
       expect(noItemsIcon()).toBe(NoCredentialsIcon);
@@ -301,7 +357,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   describe("item list", () => {
     it("renders a row per item", async () => {
-      ciphers$.next([
+      setReport(RiskCategory.Exposed, [
         buildLogin({ id: "cipher-1", name: "Item 1" }),
         buildLogin({ id: "cipher-2", name: "Item 2" }),
       ]);
@@ -314,7 +370,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     it("renders each item's username", async () => {
-      ciphers$.next([buildLogin({ id: "cipher-1", username: "person@example.com" })]);
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1", username: "person@example.com" }),
+      ]);
 
       await initComponent();
 
@@ -322,7 +380,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     it("renders the item count alongside the section header", async () => {
-      ciphers$.next([
+      setReport(RiskCategory.Exposed, [
         buildLogin({ id: "cipher-1" }),
         buildLogin({ id: "cipher-2" }),
         buildLogin({ id: "cipher-3" }),
@@ -336,7 +394,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   describe("viewing an item", () => {
     it("routes to the cipher when a row is clicked", async () => {
-      ciphers$.next([
+      setReport(RiskCategory.Exposed, [
         buildLogin({ id: "cipher-1" }),
         buildLogin({ id: "cipher-2" }),
         buildLogin({ id: "cipher-3" }),
@@ -376,7 +434,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   describe("change password", () => {
     it("renders the change password button for an item with a URI", async () => {
-      ciphers$.next([buildLogin({ id: "cipher-1", uris: ["https://example.com"] })]);
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1", uris: ["https://example.com"] }),
+      ]);
 
       await initComponent();
 
@@ -384,7 +444,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     it("does not render the change password button for an item without a URI", async () => {
-      ciphers$.next([buildLogin({ id: "cipher-1", uris: [] })]);
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1", uris: [] })]);
 
       await initComponent();
 
@@ -393,7 +453,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     it("opens the change password URL for the clicked item using platform utils service", async () => {
-      ciphers$.next([
+      setReport(RiskCategory.Exposed, [
         buildLogin({ id: "cipher-1", uris: ["https://example.com"] }),
         buildLogin({ id: "cipher-2", uris: ["https://another.example.com"] }),
       ]);
@@ -416,7 +476,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   describe("empty state", () => {
     beforeEach(() => {
-      ciphers$.next([]);
+      setReport(RiskCategory.Exposed, []);
     });
 
     it.each(categories.map((c) => [c.category, c.icon] as const))(

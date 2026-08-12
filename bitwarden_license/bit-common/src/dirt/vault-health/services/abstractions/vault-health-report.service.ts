@@ -25,7 +25,8 @@ export abstract class VaultHealthReportService {
   abstract buildVaultHealthReport$(ciphers: CipherView[], userId: UserId): Promise<void>;
 
   /** Get the latest vault health scan report, run buildVaultHealthReport$ first to generate the report.
-   * @returns an observable that emits the latest vault health scan report
+   * @returns an observable that emits the latest vault health scan report, or null
+   * until the first scan completes
    */
-  abstract getVaultHealthReport$(): Observable<VaultHealthReportView>;
+  abstract getVaultHealthReport$(): Observable<VaultHealthReportView | null>;
 }

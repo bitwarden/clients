@@ -15,7 +15,8 @@ import {
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
-  private readonly report = new BehaviorSubject<VaultHealthReportView>(new VaultHealthReportView());
+  /** Null until the first scan completes, so consumers can tell "not scanned yet" from "nothing at risk". */
+  private readonly report = new BehaviorSubject<VaultHealthReportView | null>(null);
 
   constructor(private cipherRiskService: CipherRiskService) {}
 
@@ -36,7 +37,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * Get the latest vault health scan report, run buildVaultHealthReport$ first to generate the report.
    * @returns an observable that emits the latest vault health scan report
    */
-  getVaultHealthReport$(): Observable<VaultHealthReportView> {
+  getVaultHealthReport$(): Observable<VaultHealthReportView | null> {
     return this.report.asObservable();
   }
 
