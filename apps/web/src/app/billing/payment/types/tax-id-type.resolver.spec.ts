@@ -70,23 +70,42 @@ describe("getTaxIdTypeForCountry", () => {
       expect(getTaxIdTypeForCountry("GB", "not-a-tax-id")?.code).toBe("eu_vat");
       expect(getTaxIdTypeForCountry("ES", "not-a-tax-id")?.code).toBe("eu_vat");
     });
+
+    it("falls back to the tax-impacting type on a near-miss value", () => {
+      expect(getTaxIdTypeForCountry("CA", "12345678")?.code).toBe("ca_gst_hst");
+    });
+
+    it("falls back to the first entry when no entry impacts tax calculation", () => {
+      expect(getTaxIdTypeForCountry("BR")?.code).toBe("br_cnpj");
+      expect(getTaxIdTypeForCountry("BR", "not-a-tax-id")?.code).toBe("br_cnpj");
+    });
   });
 
   describe("format coverage", () => {
-    it("defines format on every entry of a multi-entry country", () => {
-      const countsByIso = taxIdTypes.reduce<Record<string, number>>((counts, type) => {
-        counts[type.iso] = (counts[type.iso] ?? 0) + 1;
-        return counts;
-      }, {});
+    const countsByIso = taxIdTypes.reduce<Record<string, number>>((counts, type) => {
+      counts[type.iso] = (counts[type.iso] ?? 0) + 1;
+      return counts;
+    }, {});
+    const multiEntryTypes = taxIdTypes.filter((type) => countsByIso[type.iso] > 1);
 
-      taxIdTypes
-        .filter((type) => countsByIso[type.iso] > 1)
-        .forEach((type) => {
-          expect(type.format).toBeDefined();
-        });
+    it("defines format on every entry of a multi-entry country", () => {
+      expect(multiEntryTypes.length).toBeGreaterThan(0);
+      multiEntryTypes.forEach((type) => {
+        expect(type.format).toBeDefined();
+      });
+    });
+
+    it("resolves every multi-entry example back to its own type", () => {
+      expect(multiEntryTypes.length).toBeGreaterThan(0);
+      multiEntryTypes.forEach((type) => {
+        expect(getTaxIdTypeForCountry(type.iso, type.example)?.code).toBe(type.code);
+      });
     });
 
     it("matches every entry's own example against its format", () => {
+      const typesWithFormat = taxIdTypes.filter((type) => type.format);
+
+      expect(typesWithFormat.length).toBeGreaterThan(0);
       taxIdTypes.forEach((type) => {
         if (type.format) {
           expect(type.format.test(type.example)).toBe(true);

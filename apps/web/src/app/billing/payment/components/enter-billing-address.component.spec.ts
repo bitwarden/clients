@@ -232,4 +232,13 @@ describe("EnterBillingAddressComponent", () => {
 
     expect(component.group.controls.taxId.value).toBe("987654321");
   });
+
+  it("re-enables the tax ID when returning to a supported country", () => {
+    setup({ type: "update", supportsTaxId: true });
+    setCountry("CA");
+    setCountry("US");
+    setCountry("CA");
+
+    expect(component.group.controls.taxId.enabled).toBe(true);
+  });
 });

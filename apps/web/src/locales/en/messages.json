@@ -15388,19 +15388,6 @@
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
-  "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
-    "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
-      "example": {
-        "content": "$2",
-        "example": "92873837267"
-      }
-    }
-  },
   "taxIdFormatExample": {
     "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {

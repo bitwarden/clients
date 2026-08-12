@@ -8,6 +8,11 @@ export type TaxIdType = Readonly<{
   format?: RegExp;
 }>;
 
+export const findTaxIdTypeByValue = (
+  types: ReadonlyArray<TaxIdType>,
+  value: string,
+): TaxIdType | undefined => types.find((type) => type.format?.test(value));
+
 export const getTaxIdTypeForCountry = (country: string, value?: string): TaxIdType | null => {
   const types = taxIdTypes.filter((type) => type.iso === country);
 
@@ -19,7 +24,7 @@ export const getTaxIdTypeForCountry = (country: string, value?: string): TaxIdTy
   }
 
   if (value) {
-    const matched = types.find((type) => type.format?.test(value));
+    const matched = findTaxIdTypeByValue(types, value);
     if (matched) {
       return matched;
     }
@@ -1102,7 +1107,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "United Kingdom VAT number",
     example: "GB123456789",
     impactsTaxCalculation: true,
-    // Absorbs the server's prefixed and unprefixed gb_vat rows so a bare 9-digit value resolves to gb_vat rather than the XI eu_vat row.
+    // Folds the server TaxService's prefixed and unprefixed gb_vat rows so a bare 9-digit value resolves to gb_vat, not the XI eu_vat row.
     format: /^(?:GB)?[0-9]{9}$/,
   },
   {

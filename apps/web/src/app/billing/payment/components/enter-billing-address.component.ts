@@ -10,7 +10,13 @@ import {
 } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { SharedModule } from "../../../shared";
-import { BillingAddress, getTaxIdTypeForCountry, selectableCountries, taxIdTypes } from "../types";
+import {
+  BillingAddress,
+  findTaxIdTypeByValue,
+  getTaxIdTypeForCountry,
+  selectableCountries,
+  taxIdTypes,
+} from "../types";
 
 export interface BillingAddressControls {
   country: string;
@@ -247,11 +253,7 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
       return null;
     }
     const resolved =
-      types.length === 1
-        ? types[0]
-        : taxId
-          ? types.find((type) => type.format?.test(taxId))
-          : undefined;
+      types.length === 1 ? types[0] : taxId ? findTaxIdTypeByValue(types, taxId) : undefined;
     const example = resolved ? this.i18nService.t("taxIdFormatExample", resolved.example) : null;
     if (this.taxIdWarningActive) {
       const check = this.i18nService.t("checkInputFormat");
