@@ -66,7 +66,9 @@ describe("CipherRowMenuService", () => {
     restrictedTypesSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
     cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject.asObservable());
-    restrictedItemTypesService.restricted$ = restrictedTypesSubject.asObservable();
+    Object.defineProperty(restrictedItemTypesService, "restricted$", {
+      value: restrictedTypesSubject.asObservable(),
+    });
 
     TestBed.configureTestingModule({
       providers: [
