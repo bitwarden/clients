@@ -65,6 +65,26 @@ describe("HealthScanningComponent", () => {
     expect(width).toBeLessThan(100);
   });
 
+  it("announces the heading once, not twice", () => {
+    // The heading is projected into the bar's label slot. Left unprojected, the
+    // bar renders its own sr-only copy of accessibleName, and this polite live
+    // region would then announce the same phrase twice.
+    const occurrences = (fixture.nativeElement.textContent.match(/scanningYourVault(?!D)/g) ?? [])
+      .length;
+
+    expect(occurrences).toBe(1);
+  });
+
+  it("names the progress bar from the projected heading", () => {
+    const bar = fixture.nativeElement.querySelector('[role="progressbar"]');
+    const labelledBy = bar.getAttribute("aria-labelledby");
+
+    expect(labelledBy).toBeTruthy();
+    expect(fixture.nativeElement.querySelector(`#${labelledBy}`).textContent).toContain(
+      "scanningYourVault",
+    );
+  });
+
   it("does not announce a percentage to assistive technology", () => {
     // The percentage is animated rather than real, so the bar announces its
     // status instead of a misleading number.

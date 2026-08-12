@@ -3,17 +3,20 @@
   role="status"
   aria-live="polite"
 >
-  <h2 bitTypography="body1" class="tw-mb-3 tw-font-semibold tw-text-fg-heading">
-    {{ "scanningYourVault" | i18n }}
-  </h2>
-
   <div class="tw-w-full">
+    <!-- The heading is projected as the bar's label rather than sitting outside
+         it. Left unprojected, the bar renders its own screen-reader-only copy of
+         accessibleName, which this live region would announce alongside the
+         visible heading. -->
     <bit-progress-bar
       [value]="progress()"
       [hideStartHint]="true"
-      [accessibleName]="'scanningYourVault' | i18n"
       [ariaValueText]="'scanningYourVault' | i18n"
-    />
+    >
+      <h2 slot="label" bitTypography="body1" class="tw-mb-2 tw-font-semibold tw-text-fg-heading">
+        {{ "scanningYourVault" | i18n }}
+      </h2>
+    </bit-progress-bar>
   </div>
 
   <p bitTypography="body2" class="tw-mb-0 tw-mt-3 tw-text-fg-body-subtle">
