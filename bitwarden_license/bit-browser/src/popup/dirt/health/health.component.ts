@@ -89,6 +89,10 @@ export class HealthComponent {
           filter(Boolean),
           take(1),
           switchMap(() => this.runScan$(userId)),
+          // Clears the previous account's result the moment the active account
+          // changes, so switching users can never briefly show A's at-risk
+          // counts to B while B's own scan is still starting.
+          startWith<HealthScanState | null>(null),
         ),
       ),
     ),

@@ -319,6 +319,30 @@ describe("HealthComponent", () => {
       expect(overview()?.report().atRiskCount).toBe(12);
     });
 
+    it("does not show one account's report to the next after a switch", async () => {
+      // The second account's scan flag is read from storage and has not
+      // resolved yet, which is the window in which the previous account's
+      // report could otherwise still be on screen.
+      const nextUserId = Utils.newGuid() as UserId;
+      const nextUserScan$ = new Subject<boolean>();
+      healthAccessService.hasRunHealthScan$.mockImplementation((id) =>
+        id === nextUserId ? nextUserScan$ : hasRunScan$,
+      );
+      hasRunScan$.next(true);
+      reportService.buildVaultHealthReport$.mockReturnValue(
+        of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
+      );
+
+      await initComponent();
+      await settle();
+      expect(overview()?.report().atRiskCount).toBe(10);
+
+      activeAccount$.next({ id: nextUserId } as Account);
+      await settle();
+
+      expect(overview()).toBeNull();
+    });
+
     it("scans once and does not rescan when the vault changes", async () => {
       hasRunScan$.next(true);
       const ciphers$ = new BehaviorSubject<CipherView[]>([]);
