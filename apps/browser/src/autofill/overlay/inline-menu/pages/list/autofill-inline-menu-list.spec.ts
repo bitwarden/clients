@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { render } from "lit";
+import { nothing, render } from "lit";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -16,7 +16,7 @@ import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
-jest.mock("lit", () => ({ render: jest.fn() }));
+jest.mock("lit", () => ({ render: jest.fn(), nothing: Symbol("nothing") }));
 jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../../../../content/components/inline-menu", () => ({
   InlineMenuPrompt: jest.fn(() => "prompt"),
@@ -328,6 +328,7 @@ describe("AutofillInlineMenuList", () => {
           }),
         );
         await flushPromises();
+        const [, initialHost] = jest.mocked(render).mock.calls[0];
         jest.mocked(InlineMenuCipherList).mockClear();
         jest.mocked(render).mockClear();
 
@@ -339,7 +340,12 @@ describe("AutofillInlineMenuList", () => {
         await flushPromises();
 
         expect(InlineMenuCipherList).toHaveBeenCalledTimes(1);
-        expect(render).toHaveBeenCalledTimes(1);
+        expect(render).toHaveBeenCalledTimes(2);
+        expect(render).toHaveBeenNthCalledWith(1, nothing, initialHost);
+        expect(render).toHaveBeenNthCalledWith(2, "cipher-list", initialHost);
+        expect(autofillInlineMenuList["inlineMenuListContainer"].firstElementChild).toBe(
+          initialHost,
+        );
         expect(
           autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll("ul").length,
         ).toBe(0);

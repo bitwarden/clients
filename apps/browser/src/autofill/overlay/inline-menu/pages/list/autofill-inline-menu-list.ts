@@ -1,7 +1,7 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
-import { render, TemplateResult } from "lit";
+import { nothing, render, TemplateResult } from "lit";
 import { FocusableElement } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -69,6 +69,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private isInitialized = false;
   private useLitComponents = false;
   private theme: Theme = ThemeTypes.Light;
+  private litHost?: HTMLDivElement;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -251,9 +252,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   private renderLit(template: TemplateResult) {
-    const host = globalThis.document.createElement("div");
-    this.inlineMenuListContainer.appendChild(host);
-    render(template, host);
+    if (!this.litHost) {
+      this.litHost = globalThis.document.createElement("div");
+    }
+    if (!this.inlineMenuListContainer.contains(this.litHost)) {
+      this.inlineMenuListContainer.appendChild(this.litHost);
+    }
+    render(template, this.litHost);
     this.syncEmotionStylesIntoShadowDom();
   }
 
@@ -683,9 +688,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   /**
    * Clears and resets the inline menu list container.
+   * Disconnect Lit first so ref cleanups run before the host
    */
   private resetInlineMenuContainer() {
     if (this.inlineMenuListContainer) {
+      if (this.litHost) {
+        render(nothing, this.litHost);
+      }
       this.inlineMenuListContainer.innerHTML = "";
       this.inlineMenuListContainer.classList.remove(
         "inline-menu-list-container--with-new-item-button",
