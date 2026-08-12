@@ -525,6 +525,22 @@ export const EndSlotSpacing: Story = {
           </ng-container>
         </bit-item>
         <bit-item>
+          <bit-item-content>Icon buttons wrapped at different depths</bit-item-content>
+          <ng-container slot="end">
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
+            </bit-item-action>
+            <div>
+              <bit-item-action>
+                <button type="button" bitIconButton="bwi-external-link" size="small" label="Launch"></button>
+              </bit-item-action>
+            </div>
+            <bit-item-action>
+              <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
+            </bit-item-action>
+          </ng-container>
+        </bit-item>
+        <bit-item>
           <bit-item-content>Chip next to two badges</bit-item-content>
           <ng-container slot="end">
             <bit-item-action>

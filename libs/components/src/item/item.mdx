@@ -115,9 +115,10 @@ should not add their own margins or wrapper padding to tune it.
 | Anything unrecognized | 8px                    |
 
 The space between two neighbors is the larger of their two values, not the sum — a badge beside
-plain text gets 8px, while a badge beside an icon button gets 4px. Content wrapped in
-`<bit-item-action>` is measured by what it contains, so a wrapped icon button is still treated as an
-icon button.
+plain text gets 8px, while a badge beside an icon button gets 4px. Wrapped content is measured by
+what it contains, no matter how many components deep, so an icon button inside `<bit-item-action>`
+or inside an app-level component is still treated as an icon button. Spacing a wrapper applies to
+its own contents is ignored inside the slot.
 
 <Canvas of={stories.EndSlotSpacing} />
 
