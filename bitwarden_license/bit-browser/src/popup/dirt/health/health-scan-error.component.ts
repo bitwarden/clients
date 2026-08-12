@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
-import { IconComponent, TypographyModule } from "@bitwarden/components";
+import { ReportBreach } from "@bitwarden/assets/svg";
+import { SvgComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -15,7 +16,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "dirt-health-scan-error",
   templateUrl: "./health-scan-error.component.html",
-  imports: [IconComponent, TypographyModule, I18nPipe],
+  imports: [SvgComponent, TypographyModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HealthScanErrorComponent {}
+export class HealthScanErrorComponent {
+  /** The pages-and-warning illustration the design frame uses for this state. */
+  protected readonly illustration = ReportBreach;
+}

@@ -24,6 +24,14 @@ describe("HealthScanErrorComponent", () => {
     expect(text).toContain("healthScanFailedDescription");
   });
 
+  it("renders the illustration decoratively", () => {
+    // The heading carries the announcement; the artwork must not add a second one.
+    const svg = fixture.nativeElement.querySelector("bit-svg");
+
+    expect(svg).not.toBeNull();
+    expect(svg.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("announces the failure assertively", () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
   });
