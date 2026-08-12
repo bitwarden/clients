@@ -579,14 +579,8 @@
   "username": {
     "message": "Username"
   },
-  "usernameLower": {
-    "message": "username"
-  },
   "password": {
     "message": "Password"
-  },
-  "passwordLower": {
-    "message": "password"
   },
   "newPassword": {
     "message": "New password"
@@ -732,9 +726,6 @@
   "securityCode": {
     "message": "Security code (CVV)"
   },
-  "securityCodeLower": {
-    "message": "security code (CVV)"
-  },
   "securityCodeSlashCVV": {
     "message": "Security code / CVV"
   },
@@ -749,9 +740,6 @@
   },
   "passportNumber": {
     "message": "Passport number"
-  },
-  "passportNumberLower": {
-    "message": "passport number"
   },
   "sex": {
     "message": "Sex"
@@ -774,29 +762,17 @@
   "nationalIdentificationNumber": {
     "message": "National identification number"
   },
-  "nationalIdentificationNumberLower": {
-    "message": "national identification number"
-  },
   "licenseNumber": {
     "message": "License number"
   },
-  "licenseNumberLower": {
-    "message": "license number"
-  },
   "email": {
     "message": "Email"
-  },
-  "emailLower": {
-    "message": "email"
   },
   "emails": {
     "message": "Emails"
   },
   "phone": {
     "message": "Phone"
-  },
-  "phoneLower": {
-    "message": "phone"
   },
   "january": {
     "message": "January"
@@ -1182,29 +1158,17 @@
   "firstName": {
     "message": "First name"
   },
-  "firstNameLower": {
-    "message": "first name"
-  },
   "middleName": {
     "message": "Middle name"
   },
-  "middleNameLower": {
-    "message": "middle name"
-  },
   "lastName": {
     "message": "Last name"
-  },
-  "lastNameLower": {
-    "message": "last name"
   },
   "fullName": {
     "message": "Full name"
   },
   "address": {
     "message": "Address"
-  },
-  "addressLower": {
-    "message": "address"
   },
   "address1": {
     "message": "Address 1"
@@ -1747,19 +1711,6 @@
   },
   "copyName": {
     "message": "Copy name"
-  },
-  "cardNumber": {
-    "message": "card number"
-  },
-  "copyField": {
-    "message": "Copy $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      }
-    }      
   },
   "noValueEntered": {
     "message": "No value entered",
@@ -2724,9 +2675,6 @@
   },
   "verificationCodeTotp": {
     "message": "Verification code (TOTP)"
-  },
-  "verificationCodeLower": {
-    "message": "verification code"
   },
   "copyVerificationCode": {
     "message": "Copy verification code"
@@ -6819,9 +6767,6 @@
   },
   "accountNumber": {
     "message": "Account number"
-  },
-  "accountNumberLower": {
-    "message": "account number"
   },
   "accountHolderName": {
     "message": "Account holder name"
@@ -16170,22 +16115,12 @@
   "nameOnAccount": {
     "message": "Name on account"
   },
-  "nameOnAccountLower": {
-    "message": "name on account"
-  },
   "bankRoutingNumber": {
     "message": "Routing number",
     "description": "Used in the bank account cipher type"
   },
-  "bankRoutingNumberLower": {
-    "message": "routing number",
-    "description": "Used in the bank account cipher type"
-  },
   "branchNumber": {
     "message": "Branch/institution number"
-  },
-  "branchNumberLower": {
-    "message": "branch/institution number"
   },
   "swiftCode": {
     "message": "SWIFT code"

@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -14,7 +13,11 @@ import { CopyFieldAction } from "../../services/copy-cipher-field.service";
 import { CopyCipherFieldDirective } from "../copy-cipher-field.directive";
 
 type CipherItem = {
-  /** Translation key for the respective value */
+  /**
+   * Translation key for the full copy action label, e.g. `copyUsername` -> "Copy username".
+   * Full phrases are used rather than composing "Copy" with a field name so translators
+   * receive a complete sentence to localize.
+   */
   key: string;
   /** Property key on `CipherView` to retrieve the copy value */
   field: CopyFieldAction;
@@ -44,8 +47,6 @@ export class VaultItemCopyActionsComponent {
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly CipherType = CipherType;
 
-  constructor(private readonly i18nService: I18nService) {}
-
   /*
    * singleCopyableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
    * code to be copied correctly. See #14167
@@ -59,9 +60,9 @@ export class VaultItemCopyActionsComponent {
 
   private getLoginCopyableItems(cipher: CipherViewLike): CipherItem[] {
     const loginItems: CipherItem[] = [
-      { key: "usernameLower", field: "username" },
-      { key: "passwordLower", field: "password" },
-      { key: "verificationCodeLower", field: "totp" },
+      { key: "copyUsername", field: "username" },
+      { key: "copyPassword", field: "password" },
+      { key: "copyVerificationCode", field: "totp" },
     ];
 
     return cipher.viewPassword
@@ -71,67 +72,65 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyableCard() {
     const cardItems: CipherItem[] = [
-      { key: "securityCodeLower", field: "securityCode" },
-      { key: "cardNumber", field: "cardNumber" },
+      { key: "copySecurityCode", field: "securityCode" },
+      { key: "copyNumber", field: "cardNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), cardItems);
   }
 
   get singleCopyableIdentity() {
     const identityItems: CipherItem[] = [
-      { key: "addressLower", field: "address" },
-      { key: "emailLower", field: "email" },
-      { key: "usernameLower", field: "username" },
-      { key: "phoneLower", field: "phone" },
+      { key: "copyAddress", field: "address" },
+      { key: "copyEmail", field: "email" },
+      { key: "copyUsername", field: "username" },
+      { key: "copyPhone", field: "phone" },
     ];
     return this.findSingleCopyableItem(this.cipher(), identityItems);
   }
 
   get singleCopyableBankAccount() {
     const bankAccountItems: CipherItem[] = [
-      { key: "nameOnAccountLower", field: "nameOnAccount" },
-      { key: "accountNumberLower", field: "accountNumber" },
-      { key: "bankRoutingNumberLower", field: "routingNumber" },
-      { key: "branchNumberLower", field: "branchNumber" },
-      { key: "pin", field: "pin" },
-      { key: "iban", field: "iban" },
-      { key: "swiftCode", field: "swiftCode" },
+      { key: "copyNameOnAccount", field: "nameOnAccount" },
+      { key: "copyAccountNumber", field: "accountNumber" },
+      { key: "copyRoutingNumber", field: "routingNumber" },
+      { key: "copyBranchNumber", field: "branchNumber" },
+      { key: "copyPin", field: "pin" },
+      { key: "copyIban", field: "iban" },
+      { key: "copySwiftCode", field: "swiftCode" },
     ];
     return this.findSingleCopyableItem(this.cipher(), bankAccountItems);
   }
 
   get singleCopyableDriversLicense() {
     const driversLicenseItems: CipherItem[] = [
-      { key: "firstNameLower", field: "firstNameLicense" },
-      { key: "middleNameLower", field: "middleNameLicense" },
-      { key: "lastNameLower", field: "lastNameLicense" },
-      { key: "licenseNumberLower", field: "licenseNumber" },
+      { key: "copyFirstName", field: "firstNameLicense" },
+      { key: "copyMiddleName", field: "middleNameLicense" },
+      { key: "copyLastName", field: "lastNameLicense" },
+      { key: "copyLicenseNumber", field: "licenseNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), driversLicenseItems);
   }
 
   get singleCopyablePassport(): CipherItem | null {
     const passportItems: CipherItem[] = [
-      { key: "firstNameLower", field: "givenName" },
-      { key: "lastNameLower", field: "surname" },
-      { key: "passportNumberLower", field: "passportNumber" },
-      { key: "nationalIdentificationNumberLower", field: "nationalIdentificationNumber" },
+      { key: "copyFirstName", field: "givenName" },
+      { key: "copyLastName", field: "surname" },
+      { key: "copyPassportNumber", field: "passportNumber" },
+      { key: "copyNationalIdentificationNumber", field: "nationalIdentificationNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), passportItems);
   }
 
   /*
    * Given a list of CipherItems, if there is only one item with a value,
-   * return it with the translated key. Otherwise return null.
+   * return it. Otherwise return null. The template translates `key` via the i18n pipe.
    */
   findSingleCopyableItem(cipher: CipherViewLike, items: CipherItem[]): CipherItem | null {
     const itemsWithValue = items.filter(({ field }) =>
       CipherViewLikeUtils.hasCopyableValue(cipher, field),
     );
 
-    return itemsWithValue.length === 1
-      ? { ...itemsWithValue[0], key: this.i18nService.t(itemsWithValue[0].key) }
-      : null;
+    return itemsWithValue.length === 1 ? itemsWithValue[0] : null;
   }
 
   get hasLoginValues() {
