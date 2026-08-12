@@ -20,14 +20,12 @@ describe("VaultBannersService", () => {
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
   const userId = Utils.newGuid() as UserId;
   const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-  const getEmailVerified = jest.fn().mockResolvedValue(true);
   const lastSync$ = new BehaviorSubject<Date | null>(null);
   const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 
   beforeEach(() => {
     lastSync$.next(new Date("2024-05-14"));
     isSelfHost.mockClear();
-    getEmailVerified.mockClear().mockResolvedValue(true);
 
     TestBed.configureTestingModule({
       providers: [
