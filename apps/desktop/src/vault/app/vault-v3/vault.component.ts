@@ -202,6 +202,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private platformUtilsService = inject(PlatformUtilsService);
   private totpService = inject(TotpService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private folderService = inject(FolderService);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
@@ -244,13 +245,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
-  private folderService = inject(FolderService);
-
   protected readonly folders = toSignal(
     this.accountService.activeAccount$.pipe(
       map((a) => a?.id),
       filterOutNullish(),
       switchMap((userId) => this.folderService.folderViews$(userId)),
+      // Filter out "No folder" option, the table provides it by default.
+      map((folders) => folders.filter((f) => f.id)),
     ),
     { initialValue: [] },
   );
