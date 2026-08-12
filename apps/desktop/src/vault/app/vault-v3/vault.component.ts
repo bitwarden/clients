@@ -64,6 +64,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -127,6 +128,7 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
+import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
 import { VaultListComponent } from "./vault-list.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
@@ -149,6 +151,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   imports: [
     CommonModule,
     VaultListComponent,
+    VaultListTableComponent,
     DesktopHeaderComponent,
     NewCipherMenuComponent,
     SearchModule,
@@ -238,6 +241,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
       this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
     ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+    { initialValue: false },
+  );
+
+  private folderService = inject(FolderService);
+
+  protected readonly folders = toSignal(
+    this.accountService.activeAccount$.pipe(
+      map((a) => a?.id),
+      filterOutNullish(),
+      switchMap((userId) => this.folderService.folderViews$(userId)),
+    ),
+    { initialValue: [] },
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 
