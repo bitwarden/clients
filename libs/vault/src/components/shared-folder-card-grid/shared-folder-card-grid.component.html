@@ -3,7 +3,7 @@
 @if (count() > 0) {
   <section [attr.aria-labelledby]="headingId">
     <div class="tw-mb-3 tw-flex tw-items-baseline tw-justify-between tw-gap-4">
-      <h2 [id]="headingId" bitTypography="h6" class="tw-mb-0">
+      <h2 [id]="headingId" bitTypography="h4" class="tw-mb-0">
         {{ "collectionsInParent" | vfo1I18n: "sharedFoldersInParent" : parentName() }}
       </h2>
       @let countText = countSegments();
