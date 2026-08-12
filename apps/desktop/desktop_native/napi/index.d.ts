@@ -192,6 +192,323 @@ export declare namespace autofill {
     handle: Array<number>
   }
 }
+export declare namespace agent_access {
+  /** Wrapper for Electron to interface with the Agent Access desktop integration. */
+  export class AgentAccessState {
+    /**
+     * Connects to the relay, optionally starts the local listener, and starts serving
+     * credential requests from both.
+     *
+     * # Arguments
+     *
+     * * `config` - Relay URL and (optional) local socket/pipe path.
+     * * `credential_callback` - Looks the credential up in the unlocked vault and prompts
+     *   the user for approval.
+     * * `fingerprint_callback` - Prompts the user to verify a rendezvous handshake
+     *   fingerprint. Always invoked for rendezvous pairings — never auto-approved.
+     * * `storage_get_callback` / `storage_set_callback` - Back identity/connection/PSK
+     *   persistence (e.g. the OS keychain).
+     * * `event_callback` - Receives a best-effort activity-log event stream (connections,
+     *   credential requests, relay reconnects, ...) for the desktop's activity log.
+     *   Fire-and-forget: invoked under a short timeout, and any failure/timeout is
+     *   discarded — it can never affect protocol behavior.
+     */
+    static serve(config: AgentAccessConfig, credentialCallback: ((err: Error | null, arg: CredentialRequestData) => Promise<CredentialResponseData>), fingerprintCallback: ((err: Error | null, arg: FingerprintVerificationData) => Promise<FingerprintVerificationResponse>), storageGetCallback: ((err: Error | null, arg: string) => Promise<string | undefined | null>), storageSetCallback: ((err: Error | null, arg: StorageEntry) => Promise<undefined>), eventCallback: ((err: Error | null, arg: AgentAccessEvent) => Promise<undefined>)): Promise<AgentAccessState>
+    stop(): void
+    isRunning(): boolean
+    getFingerprint(): Promise<string>
+    generatePskToken(name: string | undefined | null, reusable: boolean): Promise<string>
+    generateRendezvousCode(name?: string | undefined | null): Promise<string>
+    listConnections(): Promise<Array<ConnectionInfoData>>
+    removeConnection(fingerprint: string): Promise<void>
+  }
+  /** Configuration for [`AgentAccessState::serve`]. */
+  export interface AgentAccessConfig {
+    /** WebSocket URL of the Agent Access relay. */
+    relayUrl: string
+    /**
+     * Path to the local Unix socket / Windows named pipe to listen on for the `aac` CLI.
+     * Main-process-owned: computed by `MainAgentAccessService`, never sourced from the
+     * renderer's `INIT` payload. `undefined`/`null` skips the local listener entirely.
+     */
+    socketPath?: string
+  }
+  /**
+   * A single agent-access activity event for the desktop's live activity log.
+   *
+   * SECURITY: never carries credential values, PSKs, tokens, or key material — see
+   * `agent_access_core::AgentAccessEvent`'s docs, which this mirrors field-for-field.
+   */
+  export interface AgentAccessEvent {
+    kind: string
+    /** Unix epoch milliseconds, stringified to avoid JS numeric-precision surprises. */
+    timestampMs: string
+    peerFingerprint?: string
+    peerName?: string
+    detail?: string
+    /**
+     * Comma-joined field names released by a `credentialApproved` event (e.g.
+     * `"username,password,totp"`).
+     */
+    fieldsShared?: string
+  }
+  /** Summary of a cached connection for the `listConnections()` surface. */
+  export interface ConnectionInfoData {
+    fingerprint: string
+    name?: string
+    /** Unix timestamp (seconds), stringified to avoid any JS numeric-precision surprises. */
+    cachedAt?: string
+    /** Unix timestamp (seconds), stringified to avoid any JS numeric-precision surprises. */
+    lastConnectedAt?: string
+  }
+  /** Which field of a [`CredentialRequestData`] the query matches against. */
+  export const enum CredentialQueryType {
+    Domain = 'domain',
+    Id = 'id',
+    Search = 'search',
+    /**
+     * Exact (or unique case-insensitive) Secrets Manager secret key match. Valid only for
+     * `resourceType: "secret"` requests.
+     */
+    Name = 'name'
+  }
+  /**
+   * A credential lookup — or, for `operation: "create"`, a proposed secret creation —
+   * requested by a paired remote agent or the local `aac` CLI, sent to Electron for approval.
+   *
+   * Not `#[derive(Debug)]`: `new_secret_value` carries a plaintext secret across the FFI
+   * boundary (Electron needs it to render the masked-with-reveal value field), so it must
+   * never end up formatted into a log line — see the manual `Debug` impl below, which mirrors
+   * `agent_access_core::CredentialRequestData`'s redaction of the same field.
+   */
+  export interface CredentialRequestData {
+    queryType: CredentialQueryType
+    queryValue: string
+    /** `None` for `origin: "local"` — local requesters have no cryptographic identity. */
+    requesterFingerprint?: string
+    requesterName?: string
+    origin: CredentialRequestOrigin
+    /** `None` on the relay path. */
+    localPeer?: LocalPeerInfoData
+    /** `None` on the relay path, and for `operation: "create"` requests. */
+    deliveryMode?: DeliveryMode
+    /**
+     * Whether this request is asking for a login credential or a Secrets Manager secret.
+     * Always `"credential"` on the relay path.
+     */
+    resourceType: ResourceType
+    /**
+     * Whether this is a lookup against existing vault data, or a proposal to create a new
+     * Secrets Manager secret. Always `"request"` on the relay path.
+     */
+    operation: OperationType
+    /** Proposed name for a new Secrets Manager secret. Only set for `operation: "create"`. */
+    newSecretName?: string
+    /**
+     * Proposed value for a new Secrets Manager secret. Only set for `operation: "create"`.
+     * Held in plaintext here because Electron needs it to render the masked-with-reveal
+     * value field in the creation-approval dialog — the same reason `secret_value` on
+     * [`CredentialResponseData`] crosses this boundary as a plain `String` rather than
+     * staying `Zeroizing`.
+     */
+    newSecretValue?: string
+    /** Proposed note for a new Secrets Manager secret. Only set for `operation: "create"`. */
+    newSecretNote?: string
+    /**
+     * Optional project-name hint for a new Secrets Manager secret — never trusted silently,
+     * see `agent_access_core::CredentialRequestData::project_hint`'s docs. Only set for
+     * `operation: "create"`.
+     */
+    projectHint?: string
+    /**
+     * Requested field roles (`"username"`/`"password"`/`"totp"`) for a
+     * `deliveryMode: "fill"` request (M5). `None`/absent means "default: all fields present
+     * and safe". Value-free — role names, never a credential value.
+     */
+    fillFields?: Array<string>
+    /**
+     * Optional `targetToken` from a prior `describeFillTarget` call (M5), binding this fill
+     * to a specific extension-produced field plan. Value-free — an opaque token.
+     */
+    fillTargetToken?: string
+  }
+  /** Which ingress a [`CredentialRequestData`] arrived through. */
+  export const enum CredentialRequestOrigin {
+    Relay = 'relay',
+    Local = 'local'
+  }
+  /**
+   * Electron's answer to a [`CredentialRequestData`]. Not `Debug`/`Clone` — it may carry a
+   * live credential, and nothing here should ever end up formatted into a log line.
+   */
+  export interface CredentialResponseData {
+    approved: boolean
+    username?: string
+    password?: string
+    totp?: string
+    uri?: string
+    notes?: string
+    credentialId?: string
+    /**
+     * Set when `approved: false` to distinguish "no match" (`"notFound"`) from an explicit
+     * user denial (`"denied"`), a locked/unavailable vault (`"locked"`), or a non-user
+     * failure (`"error"` — e.g. the feature was disabled, or a lookup failed). Any other
+     * value (including `None`) maps to the generic "denied" default on the local
+     * protocol's `status` field. `"locked"`/`"error"` exist so those cases are never
+     * reported to the requester as "Denied by user" — see
+     * `agent_access_core::CredentialDenialReason`'s docs.
+     */
+    reason?: string
+    /**
+     * Display name of the matched item, for the local protocol's reference-mode reply.
+     * Not yet populated by the renderer — see `MainAgentAccessService`'s report. Also
+     * doubles as the Secrets Manager secret's display name (`secret.name`) for
+     * `resourceType: "secret"` requests.
+     */
+    itemName?: string
+    /**
+     * The Secrets Manager secret's decrypted value, for `resourceType: "secret"` requests.
+     * Unset for credential requests.
+     */
+    secretValue?: string
+    /**
+     * Secrets Manager secret ID, for `resourceType: "secret"` requests. Unset for
+     * credential requests.
+     */
+    secretId?: string
+    /**
+     * Value-free JSON pass-through describing a `deliveryMode: "fill"` request's execution
+     * outcome (M5's `fill` response object) — the renderer builds this directly (its shape
+     * mirrors the wire example in agent-access-architecture.md's "M5" section). Parsed into
+     * a `serde_json::Value` by `agent_access_core::local_listener::local_protocol`; never
+     * read as a field by this crate. Set for `deliveryMode: "fill"` responses, approved or
+     * denied (an `originMismatch`/`noSafeTarget` denial can still carry the
+     * extension-reported origin here).
+     */
+    fillResult?: string
+    /**
+     * Value-free JSON pass-through describing the active browser tab for a
+     * `operation: "describeFillTarget"` request (M5's `fillTarget` response object). Set
+     * only for `describeFillTarget` responses.
+     */
+    fillTarget?: string
+    /**
+     * Machine-readable, value-free detail for an `"originMismatch"`/`"noSafeTarget"`
+     * `reason` (the mismatched origin, or a `looks-like-registration`/`ambiguous-target`/...
+     * reason code), or actionable static guidance for an `"error"` reason (e.g. "the
+     * browser extension is not connected"). `None` for every other reason, and optional
+     * even for these — the wire layer falls back to a generic message when it is absent.
+     *
+     * NEVER put a vault value here: this string is relayed verbatim to the requesting
+     * agent by `local_protocol.rs`'s denial dispatch.
+     */
+    denialDetail?: string
+    /**
+     * Field roles (`"username"`/`"password"`/`"totp"`) actually filled by an approved
+     * `deliveryMode: "fill"` request, for the activity log's `fieldsShared` (M5). Supplied
+     * directly by the renderer rather than derived by parsing `fill_result`.
+     */
+    fillFieldsShared?: Array<string>
+  }
+  /**
+   * How the requester wants an approved credential delivered. Only present for
+   * `origin: "local"` requests.
+   */
+  export const enum DeliveryMode {
+    Inject = 'inject',
+    Reference = 'reference',
+    /**
+     * M5, "Browser fill delivery" — the credential value never crosses this napi boundary
+     * at all for this mode; the renderer resolves it and pushes it directly to the browser
+     * extension. Credential resource only.
+     */
+    Fill = 'fill'
+  }
+  /** A handshake fingerprint pending user verification (rendezvous pairing only). */
+  export interface FingerprintVerificationData {
+    fingerprint: string
+    identityFingerprint: string
+  }
+  /** Electron's answer to a [`FingerprintVerificationData`]. */
+  export interface FingerprintVerificationResponse {
+    approved: boolean
+    name?: string
+  }
+  /**
+   * OS-verified identity of the local peer (the `aac` CLI process), captured at accept time
+   * from peer credentials — never self-reported. `None` fields mean resolution failed for
+   * that piece of metadata, not that the peer is untrusted; see
+   * `agent_access_core::LocalPeerInfo`'s docs.
+   */
+  export interface LocalPeerInfoData {
+    pid: number
+    processName?: string
+    exePath?: string
+    parent?: ParentProcessInfoData
+    signature?: SignatureInfoData
+  }
+  /**
+   * Whether a [`CredentialRequestData`] is asking to look up existing vault data, to
+   * create a new Secrets Manager secret (M4b, `secretCreate`), or to describe the active
+   * browser tab's fillable fields (M5, `describeFillTarget`). Always `"request"` on the
+   * relay path — creates and describe-target requests are local-transport-only, same
+   * restriction as `resourceType: "secret"` (see agent-access-architecture.md, "M4b — secret
+   * creation" and "M5 — Browser fill delivery").
+   */
+  export const enum OperationType {
+    Request = 'request',
+    Create = 'create',
+    DescribeFillTarget = 'describeFillTarget'
+  }
+  /**
+   * Best-effort one-level parent-chain walk from the local peer (W2a, `crate::attestation`
+   * in `agent_access_core`) — identifies whoever spawned the `aac` CLI (the agent), since the
+   * socket peer itself is always `aac`. `None` on `LocalPeerInfoData::parent` means the walk
+   * failed or hit `launchd`/`init` — see `agent_access_core::attestation`'s docs — not that
+   * the peer is untrusted.
+   */
+  export interface ParentProcessInfoData {
+    pid: number
+    processName?: string
+    exePath?: string
+  }
+  /**
+   * Which kind of vault data a [`CredentialRequestData`] is asking for. Always `"credential"`
+   * on the relay path — Secrets Manager secrets are local-transport-only (see
+   * agent-access-architecture.md, "M4", invariant 6).
+   */
+  export const enum ResourceType {
+    Credential = 'credential',
+    Secret = 'secret'
+  }
+  /**
+   * Code-signature facts (W2a) about the attested process — the resolved `parent` if
+   * present, else the immediate peer. An unsigned or invalid-signature binary still produces
+   * a `SignatureInfoData` with `valid: false` and the best available `identity` (falling back
+   * to the executable path) — `None` on `LocalPeerInfoData::signature` means verification
+   * could not be attempted at all.
+   */
+  export interface SignatureInfoData {
+    kind: SignatureKindData
+    identity: string
+    valid: boolean
+  }
+  /**
+   * Which platform mechanism produced a [`SignatureInfoData`], and therefore how to read
+   * `identity`.
+   */
+  export const enum SignatureKindData {
+    MacosTeamId = 'macosTeamId',
+    WindowsPublisher = 'windowsPublisher',
+    LinuxPathOnly = 'linuxPathOnly'
+  }
+  /** One key/value pair for the `storageSetCallback`. `value: None` means "delete this key". */
+  export interface StorageEntry {
+    key: string
+    value?: string
+  }
+}
+
 export declare namespace autofill {
   export class AutofillIpcServer {
     /**

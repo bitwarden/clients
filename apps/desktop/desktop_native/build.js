@@ -89,6 +89,76 @@ function buildProxyBin(target, release = true) {
     cargoBuild("desktop_proxy", target, release)
 }
 
+/**
+ * Path to the Cargo manifest for the Agent Access CLI (`ap-cli`, binary name `aac`).
+ *
+ * This crate lives in a sibling checkout of the `agent-access` repo, not this repo. It is
+ * intentionally NOT a member of the `desktop_native` Cargo workspace (it's bin-only, has no
+ * `[lib]` target, and carries its own workspace/lockfile), so it must be built out-of-workspace
+ * via `--manifest-path` rather than through {@link cargoBuild}.
+ *
+ * TODO: pin this to a git rev of github.com/bitwarden/agent-access before merging, same as the
+ * `ap-client` path dependency in desktop_native/agent_access/Cargo.toml.
+ */
+// Four levels up from desktop_native: desktop -> apps -> clients -> the checkout root that holds
+// both repos. Equivalent to the `../../../../../agent-access/...` path used by the `ap-client`
+// dependency in agent_access/Cargo.toml, which starts one directory deeper.
+const agentAccessRoot = path.join(__dirname, "..", "..", "..", "..", "agent-access");
+const agentAccessCliManifest = path.join(agentAccessRoot, "crates", "ap-cli", "Cargo.toml");
+
+/**
+ * Build the Agent Access CLI (`aac`) binary and copy it to the `dist` folder.
+ *
+ * Mirrors {@link cargoBuild}'s target-inference and copy logic, but builds against
+ * {@link agentAccessCliManifest} instead of the `desktop_native` workspace, so the resulting
+ * binary is read from the `agent-access` checkout's own `target` directory.
+ *
+ * Built with `--no-default-features` to drop the `bws` feature (Bitwarden Secrets Manager
+ * support), which pulls in the full Secrets Manager SDK that the bundled binary never needs -
+ * it is only ever invoked as `aac connect`.
+ * @param {string} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
+ * @param {boolean} release Whether to build in release mode.
+ */
+function buildAgentAccessCliBin(target, release) {
+    if (!fs.existsSync(agentAccessCliManifest)) {
+        throw new Error(
+            "Agent Access CLI (aac) build requires a sibling checkout of github.com/bitwarden/agent-access " +
+            `at ${agentAccessRoot}, but no Cargo manifest was found at ${agentAccessCliManifest}. ` +
+            "Clone github.com/bitwarden/agent-access next to this repo's checkout root (see the TODO in " +
+            "agent_access/Cargo.toml and above buildAgentAccessCliBin: pin this to a git rev before merging) " +
+            "before building desktop_native. The bundled aac binary is required for the local Agent Access " +
+            "feature, so this build cannot silently skip it."
+        );
+    }
+    const targetArg = target ? `--target=${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    const args = ["build", "--manifest-path", agentAccessCliManifest, "--bin", "aac", "--no-default-features", releaseArg, targetArg]
+    // Use cross-compilation helper if necessary
+    if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+        args.unshift("xwin")
+    }
+    runCommand("cargo", args.filter(s => s != ''))
+
+    // Infer the architecture and platform if not passed explicitly
+    let nodeArch, platform;
+    if (target) {
+        nodeArch = rustTargetsMap[target].nodeArch;
+        platform = rustTargetsMap[target].platform;
+    }
+    else {
+        nodeArch = process.arch;
+        platform = process.platform;
+    }
+
+    // Copy the resulting binary to the dist folder
+    const profileFolder = isRelease ? "release" : "debug";
+    const ext = platform === "win32" ? ".exe" : "";
+    const src = path.join(agentAccessRoot, "target", target ? target : "", profileFolder, `aac${ext}`)
+    const dst = path.join(__dirname, "dist", `aac.${platform}-${nodeArch}${ext}`)
+    console.log(`Copying ${src} to ${dst}`);
+    fs.copyFileSync(src, dst);
+}
+
 function buildWindowsPluginBin(target, release = true) {
     // This is for windows, but we use effectivePlatform so we can
     // cross-compile to Windows from other hosts.
@@ -146,6 +216,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildAgentAccessCliBin(false, mode === "release");
     buildWindowsPluginBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
@@ -157,6 +228,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildAgentAccessCliBin(target, isRelease);
     buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
@@ -177,6 +249,7 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildAgentAccessCliBin(target, isRelease);
     buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();

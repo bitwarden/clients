@@ -3,6 +3,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { AutofillOverlayElementType } from "../../enums/autofill-overlay.enum";
 import AutofillScript from "../../models/autofill-script";
+import { AgentFillOp } from "../../types/agent-fill";
 
 import { AutofillMonitor } from "./autofill-monitor";
 
@@ -25,6 +26,8 @@ export type AutofillExtensionMessage = {
   addNewCipherType?: CipherType;
   ignoreFieldFocus?: boolean;
   iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
+  agentFillOps?: AgentFillOp[];
+  agentFillExpectedOrigin?: string;
   data?: {
     direction?: "previous" | "next" | "current";
     forceCloseInlineMenu?: boolean;
@@ -39,6 +42,7 @@ export type AutofillExtensionMessageHandlers = {
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
   collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
+  agentFillForm: ({ message }: AutofillExtensionMessageParam) => void;
   applyTargetedFields: ({ message }: AutofillExtensionMessageParam) => void;
   clearTargetingRulesCache: () => void;
   startAutofillMonitors: () => void;

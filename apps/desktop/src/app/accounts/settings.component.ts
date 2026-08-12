@@ -113,6 +113,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private timerId: any;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
+  showAgentAccess = false;
   autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
@@ -156,6 +157,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
+    enableAgentAccess: false,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     showQuickCopyActions: false,
@@ -267,6 +269,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
     }
 
+    this.configService
+      .getFeatureFlag$(FeatureFlag.DesktopAgentAccess)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((enabled) => {
+        this.showAgentAccess = enabled;
+      });
+
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.currentUserEmail = activeAccount.email;
@@ -313,6 +322,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
+      enableAgentAccess: await firstValueFrom(this.desktopSettingsService.agentAccessEnabled$),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(
         this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
@@ -604,6 +614,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setSshAgentPromptBehavior(
       this.form.value.sshAgentPromptBehavior,
     );
+  }
+
+  async saveAgentAccess() {
+    await this.desktopSettingsService.setAgentAccessEnabled(this.form.value.enableAgentAccess);
   }
 
   async savePreventScreenshots() {

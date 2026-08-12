@@ -143,6 +143,7 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  protected readonly showAgentAccess = signal(false);
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -180,6 +181,7 @@ export class SettingsDialogComponent implements OnInit {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
+    enableAgentAccess: false,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     enableAutotype: this.formBuilder.control<boolean>({
@@ -257,6 +259,13 @@ export class SettingsDialogComponent implements OnInit {
         });
     }
 
+    this.configService
+      .getFeatureFlag$(FeatureFlag.DesktopAgentAccess)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        this.showAgentAccess.set(enabled);
+      });
+
     this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
 
     this.userHasPinSet.set(await this.pinService.isPinSet(this.currentUserId()));
@@ -285,6 +294,7 @@ export class SettingsDialogComponent implements OnInit {
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
+      enableAgentAccess: await firstValueFrom(this.desktopSettingsService.agentAccessEnabled$),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(
         this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
@@ -599,6 +609,10 @@ export class SettingsDialogComponent implements OnInit {
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
     await this.desktopSettingsService.setSshAgentPromptBehavior(newValue);
+  }
+
+  protected async saveAgentAccess() {
+    await this.desktopSettingsService.setAgentAccessEnabled(this.form.value.enableAgentAccess);
   }
 
   protected async savePreventScreenshots() {

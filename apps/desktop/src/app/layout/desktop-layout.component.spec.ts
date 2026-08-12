@@ -10,6 +10,7 @@ import { DialogService, NavigationModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { AgentAccessNavComponent } from "../../agent-access/components/agent-access-nav.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
@@ -22,6 +23,13 @@ import { DesktopLayoutComponent } from "./desktop-layout.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockSendFiltersNavComponent {}
+
+@Component({
+  selector: "app-agent-access-nav",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockAgentAccessNavComponent {}
 
 @Component({
   selector: "app-vault-filter",
@@ -80,8 +88,16 @@ describe("DesktopLayoutComponent", () => {
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
-        remove: { imports: [SendFiltersNavComponent, VaultFilterComponent] },
-        add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
+        remove: {
+          imports: [SendFiltersNavComponent, VaultFilterComponent, AgentAccessNavComponent],
+        },
+        add: {
+          imports: [
+            MockSendFiltersNavComponent,
+            MockVaultFiltersNavComponent,
+            MockAgentAccessNavComponent,
+          ],
+        },
       })
       .compileComponents();
 

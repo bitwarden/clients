@@ -707,6 +707,535 @@
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
+  "enableAgentAccess": {
+    "message": "Enable Agent Access"
+  },
+  "enableAgentAccessDesc": {
+    "message": "Allow paired remote agents to request individual credentials from your unlocked Bitwarden vault. Each request requires your approval."
+  },
+  "agentAccessUnlockRequired": {
+    "message": "Please unlock your vault to approve the credential request."
+  },
+  "agentAccessUnlockTimeout": {
+    "message": "Credential request timed out."
+  },
+  "agentAccessPairNewAgent": {
+    "message": "Pair a new agent"
+  },
+  "agentAccessAgentNameHint": {
+    "message": "A label to help you recognize this agent later."
+  },
+  "agentAccessPskToken": {
+    "message": "Pairing token"
+  },
+  "agentAccessRemoteIntro": {
+    "message": "Do these on the machine where the agent runs."
+  },
+  "agentAccessRemoteStepInstall": {
+    "message": "Install the Agent Access CLI there."
+  },
+  "agentAccessRemoteStepPaste": {
+    "message": "Paste these instructions into the agent to pair and start requesting credentials."
+  },
+  "agentAccessRunByHand": {
+    "message": "Or pair by hand with this command"
+  },
+  "agentAccessPskTokenWarning": {
+    "message": "This token is a vault-access credential, so treat it like a password. Paste it directly into the target machine's Agent Access setup, never into an agent's chat or prompt, where it could be logged or retained."
+  },
+  "agentAccessPskTokenUseHint": {
+    "message": "Paste this into the target machine's Agent Access configuration, not into an agent's conversation. It stays valid until you remove the agent, and can reconnect it more than once."
+  },
+  "agentAccessRemoteApprovalNote": {
+    "message": "Remote access still needs a human at this computer: every request this agent makes is approved here, one at a time. There's no unattended mode. If this computer is locked, asleep, or Bitwarden is closed, requests will time out and be denied."
+  },
+  "agentAccessAgentPromptRemote": {
+    "message": "Use Agent Access to request vault credentials once you've been paired with it.\n\nPairing isn't something to do from this conversation: the person running you already has, or will generate, a one-time pairing token and runs $CLI$ connect --token <token> themselves, directly on this machine. Don't ask for that token or offer to run the pairing command with it — it's a vault-access credential and must never be pasted into a prompt.\n\nOnce paired, to log in or authenticate with a saved credential, run:\n$CLI$ run --domain <domain> -- <command>\n\nThe credential is injected into <command>'s environment (AAC_USERNAME, AAC_PASSWORD, AAC_TOTP, etc.) and scrubbed from anything it prints, so you never see the actual username, password, or TOTP code.\n\nTo look up an item without using it, run:\n$CLI$ get --domain <domain>\n\nThis returns a reference (bw://item/<id>) and the item's name, never the secret values.\n\nTo act on a specific item you already have a reference for, run:\n$CLI$ run --ref bw://item/<id> -- <command>\n\nEach request opens an approval prompt on the paired computer. A human there has to be present to approve it, so this doesn't work unattended.",
+    "placeholders": {
+      "cli": {
+        "content": "$1",
+        "example": "aac"
+      }
+    }
+  },
+  "agentAccessCopyAgentInstructions": {
+    "message": "Copy instructions for your agent"
+  },
+  "agentAccessGetCli": {
+    "message": "Get the Agent Access CLI"
+  },
+  "agentAccessAgentName": {
+    "message": "Agent name"
+  },
+  "agentAccessApprovalTitle": {
+    "message": "Credential request"
+  },
+  "agentAccessRequestedBy": {
+    "message": "$AGENT$ is requesting access to a vault item.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessReferenceModeNotice": {
+    "message": "It will receive only a reference to this item, along with its name and username — never the password."
+  },
+  "agentAccessFullCredentialNotice": {
+    "message": "It will receive the full credential for this item, including the password."
+  },
+  "agentAccessRequestedCredential": {
+    "message": "Requesting: $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Example Login"
+      }
+    }
+  },
+  "agentAccessFieldsShared": {
+    "message": "The following fields will be shared:"
+  },
+  "agentAccessMultipleMatches": {
+    "message": "$COUNT$ vault items matched this request. Choose which one to share:",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessSelectCredential": {
+    "message": "Vault item"
+  },
+  "agentAccessSharedFields": {
+    "message": "Shared: $FIELDS$",
+    "placeholders": {
+      "fields": {
+        "content": "$1",
+        "example": "username, password"
+      }
+    }
+  },
+  "agentAccessNoPairedAgents": {
+    "message": "No paired agents"
+  },
+  "agentAccessNoPairedAgentsDescription": {
+    "message": "Pair an agent to let it request credentials from your vault from another machine."
+  },
+  "agentAccessColumnLastConnected": {
+    "message": "Last connected"
+  },
+  "agentAccessRemoveAgent": {
+    "message": "Remove agent"
+  },
+  "agentAccessNotRunning": {
+    "message": "Agent Access isn't running. Enable it in settings to pair agents."
+  },
+  "agentAccessQueryTypeDomain": {
+    "message": "Domain"
+  },
+  "agentAccessQueryTypeId": {
+    "message": "Item ID"
+  },
+  "agentAccessQueryTypeSearch": {
+    "message": "Search"
+  },
+  "agentAccess": {
+    "message": "Agent access"
+  },
+  "agentAccessNavHint": {
+    "message": "Manage agents and view activity from Agent access in the sidebar."
+  },
+  "agentAccessActivity": {
+    "message": "Activity"
+  },
+  "agentAccessSetup": {
+    "message": "Setup"
+  },
+  "agentAccessAgents": {
+    "message": "Agents"
+  },
+  "agentAccessActivityEmpty": {
+    "message": "No activity yet."
+  },
+  "agentAccessActivityEmptyDescription": {
+    "message": "Connections and credential requests will appear here."
+  },
+  "agentAccessEventConnectionEstablished": {
+    "message": "Connection established"
+  },
+  "agentAccessEventSessionRefreshed": {
+    "message": "Session refreshed"
+  },
+  "agentAccessEventConnectionRejected": {
+    "message": "Connection rejected"
+  },
+  "agentAccessEventReconnecting": {
+    "message": "Reconnecting"
+  },
+  "agentAccessEventReconnected": {
+    "message": "Reconnected"
+  },
+  "agentAccessEventError": {
+    "message": "Error"
+  },
+  "agentAccessEventHandshakeCompleted": {
+    "message": "Handshake completed"
+  },
+  "agentAccessColumnTime": {
+    "message": "Time"
+  },
+  "agentAccessColumnAgent": {
+    "message": "Agent"
+  },
+  "agentAccessColumnRequest": {
+    "message": "Request"
+  },
+  "agentAccessColumnResult": {
+    "message": "Result"
+  },
+  "agentAccessStatusPending": {
+    "message": "Waiting for you"
+  },
+  "agentAccessStatusShared": {
+    "message": "Shared"
+  },
+  "agentAccessStatusDenied": {
+    "message": "Denied"
+  },
+  "agentAccessStatusNotFound": {
+    "message": "No match"
+  },
+  "agentAccessStatusFilled": {
+    "message": "Filled"
+  },
+  "agentAccessStatusFillFailed": {
+    "message": "Fill failed"
+  },
+  "agentAccessSharedItemFields": {
+    "message": "$ITEM$ — $FIELDS$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "GitHub"
+      },
+      "fields": {
+        "content": "$2",
+        "example": "username, password"
+      }
+    }
+  },
+  "agentAccessResultNoMatch": {
+    "message": "Nothing in your vault matched this query."
+  },
+  "agentAccessResultDenied": {
+    "message": "No credential was shared."
+  },
+  "agentAccessUnknownApplication": {
+    "message": "Unknown application"
+  },
+  "agentAccessFirstUseTitle": {
+    "message": "New application requesting vault access"
+  },
+  "agentAccessFirstUseSignedBy": {
+    "message": "Signed by $IDENTITY$",
+    "placeholders": {
+      "identity": {
+        "content": "$1",
+        "example": "TEAMID123:com.anysphere.cursor"
+      }
+    }
+  },
+  "agentAccessFirstUsePublishedBy": {
+    "message": "Published by $IDENTITY$",
+    "placeholders": {
+      "identity": {
+        "content": "$1",
+        "example": "Anysphere, Inc."
+      }
+    }
+  },
+  "agentAccessFirstUseAtPath": {
+    "message": "Running from $PATH$",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "/Applications/Cursor.app"
+      }
+    }
+  },
+  "agentAccessFirstUseSignatureUnverified": {
+    "message": "Its code signature could not be verified."
+  },
+  "agentAccessFirstUseWeakerGuaranteeNote": {
+    "message": "This identifies the application by its file location only, not a verified code signature. That's a weaker guarantee than a signed app on macOS or Windows: anything else placed at that same path would be trusted the same way."
+  },
+  "agentAccessFirstUseCaveat": {
+    "message": "This confirms which binary is asking, not that it's safe to use. Other software running as you could act through it, or wait for you to approve a request and read the result."
+  },
+  "agentAccessFirstUseScope": {
+    "message": "Access"
+  },
+  "agentAccessFirstUseScopeAllLogins": {
+    "message": "All logins"
+  },
+  "agentAccessFirstUseScopeAllLoginsHint": {
+    "message": "This application can request any login item in your vault by name, domain, or search."
+  },
+  "agentAccessFirstUseNotStandingAccess": {
+    "message": "Authorizing doesn't grant standing access. You'll still review and approve every credential request individually."
+  },
+  "agentAccessConnectTitle": {
+    "message": "Agents on this computer"
+  },
+  "agentAccessConnectDisclaimer": {
+    "message": "These agents run on this computer and connect directly. No pairing needed."
+  },
+  "agentAccessConnectNotListedTrigger": {
+    "message": "My agent isn't listed"
+  },
+  "agentAccessConnectMcpConfigHint": {
+    "message": "Add this to your MCP client's configuration file (for example, Cursor's mcp.json)."
+  },
+  "agentAccessConnectCopyConfig": {
+    "message": "Copy config"
+  },
+  "agentAccessConnectMcpConfigLabel": {
+    "message": "MCP server configuration"
+  },
+  "agentAccessConnectAacNotFoundTitle": {
+    "message": "Agent Access CLI not found"
+  },
+  "agentAccessConnectAacNotFoundDescription": {
+    "message": "Bitwarden couldn't find the bundled Agent Access CLI (aac), so it can't generate a working MCP configuration. Reinstalling Bitwarden Desktop usually fixes this."
+  },
+  "agentAccessConnectDetected": {
+    "message": "Detected"
+  },
+  "agentAccessConnectConnectedBadge": {
+    "message": "Connected"
+  },
+  "agentAccessConnectManualCommandHint": {
+    "message": "Run this command in your terminal to connect this agent."
+  },
+  "agentAccessConnectCopyCommand": {
+    "message": "Copy command"
+  },
+  "agentAccessConnectCommandLabel": {
+    "message": "$AGENT$ setup command",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessConnectAddToAgent": {
+    "message": "Add to $AGENT$",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Cursor"
+      }
+    }
+  },
+  "agentAccessConnectDeeplinkFallback": {
+    "message": "Didn't open? Write the config file directly"
+  },
+  "agentAccessConnectConnectAction": {
+    "message": "Connect"
+  },
+  "agentAccessConnectRefreshStatuses": {
+    "message": "Refresh status"
+  },
+  "agentAccessRegisterAgentAdded": {
+    "message": "Added Bitwarden to $AGENT$. You may need to restart it to pick up the change.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessRegisterAgentUpdated": {
+    "message": "Updated Bitwarden's entry in $AGENT$. You may need to restart it to pick up the change.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessRegisterAgentAlreadyPresent": {
+    "message": "Bitwarden is already configured in $AGENT$.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessRegisterAgentError": {
+    "message": "Couldn't connect to $AGENT$ automatically. Use \"Copy config\" below and add it yourself instead.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "agentAccessConnectedAgentsTitle": {
+    "message": "Connected agents"
+  },
+  "agentAccessNoConnectedAgents": {
+    "message": "No agents have connected yet."
+  },
+  "agentAccessNoConnectedAgentsDescription": {
+    "message": "Connect your AI assistant on the Setup tab, then approve its first request. It'll show up in this list right after."
+  },
+  "agentAccessColumnLastUsed": {
+    "message": "Last used"
+  },
+  "agentAccessRemoteAgentsTitle": {
+    "message": "Agents on other devices"
+  },
+  "agentAccessRemoteAgentsDescription": {
+    "message": "Agents running on another machine connect through the Bitwarden relay, so each one has to be paired first."
+  },
+  "agentAccessPairAgentAction": {
+    "message": "Pair an agent"
+  },
+  "agentAccessUnnamedAgent": {
+    "message": "Unnamed agent"
+  },
+  "agentAccessConnectAgentAction": {
+    "message": "Connect an agent"
+  },
+  "agentAccessSetupIntro": {
+    "message": "Connect the AI assistants you want to use with your vault. Nothing is released without your explicit approval, and every agent is prompted for the first time it asks."
+  },
+  "agentAccessQueryTypeName": {
+    "message": "Secret name"
+  },
+  "agentAccessMultipleSecretMatches": {
+    "message": "$COUNT$ secrets matched this request. Choose which one to share:",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessSelectSecret": {
+    "message": "Secret"
+  },
+  "agentAccessSecretResourceLabel": {
+    "message": "Secret"
+  },
+  "agentAccessStatusCreated": {
+    "message": "Created"
+  },
+  "agentAccessCreateRequestLabel": {
+    "message": "New secret"
+  },
+  "agentAccessCreateRequestTitle": {
+    "message": "New Secrets Manager secret requested"
+  },
+  "agentAccessCreateRequestIntro": {
+    "message": "This agent wants to create a new secret in Secrets Manager. Choose where it should live, then review the value before authorizing."
+  },
+  "agentAccessProject": {
+    "message": "Project"
+  },
+  "agentAccessCreateNoProjectOption": {
+    "message": "No project (visible to admins only)"
+  },
+  "agentAccessCreateNewProjectOption": {
+    "message": "+ Create new project"
+  },
+  "agentAccessCreateNewProjectNameLabel": {
+    "message": "New project name"
+  },
+  "agentAccessCreateProjectHint": {
+    "message": "Only projects you can write to are shown."
+  },
+  "agentAccessCreateProjectRequired": {
+    "message": "Choose a project, or create a new one, to continue."
+  },
+  "agentAccessCreateAdminOnlyWarning": {
+    "message": "This secret won't be assigned to a project, so only organization admins will be able to see it."
+  },
+  "agentAccessCreateNoSmAccess": {
+    "message": "You don't have access to Secrets Manager in any organization."
+  },
+  "agentAccessCreateFailedToast": {
+    "message": "Couldn't create the secret. Try again."
+  },
+  "agentAccessCreatedItem": {
+    "message": "Created $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "DB_PASSWORD"
+      }
+    }
+  },
+  "agentAccessCreateFallbackName": {
+    "message": "a new secret"
+  },
+  "agentAccessFillTitle": {
+    "message": "Fill login in your browser?"
+  },
+  "agentAccessFillRequestedBy": {
+    "message": "$AGENT$ is asking Bitwarden to fill a login into the page open in your browser. Nothing is shared with the agent itself.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "Cursor"
+      }
+    }
+  },
+  "agentAccessFillOriginLabel": {
+    "message": "Filling on"
+  },
+  "agentAccessFillMultipleMatches": {
+    "message": "$COUNT$ items match this site. Choose which one to fill.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessFillSingleMatch": {
+    "message": "The item \"$ITEM$\" will be filled.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "agentAccessFillFieldPlan": {
+    "message": "Fields that will be filled"
+  },
+  "agentAccessFillSkippedReason": {
+    "message": "will not be filled ($REASON$)",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "no one-time-code field"
+      }
+    }
+  },
+  "agentAccessFillApprove": {
+    "message": "Fill"
+  },
+  "agentAccessFillResultFailed": {
+    "message": "Approved, but no fields were filled."
+  },
   "premiumRequired": {
     "message": "Premium required"
   },
@@ -6374,6 +6903,25 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "completed": {
+    "message": "Completed"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

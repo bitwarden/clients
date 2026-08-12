@@ -315,6 +315,26 @@
                   "sshAgentPromptBehaviorDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="showAgentAccess">
+                <div class="checkbox">
+                  <label for="enableAgentAccess">
+                    <input
+                      id="enableAgentAccess"
+                      type="checkbox"
+                      aria-describedby="enableAgentAccessHelp"
+                      formControlName="enableAgentAccess"
+                      (change)="saveAgentAccess()"
+                    />
+                    {{ "enableAgentAccess" | i18n }}
+                  </label>
+                </div>
+                <small id="enableAgentAccessHelp" class="help-block">{{
+                  "enableAgentAccessDesc" | i18n
+                }}</small>
+                <small *ngIf="this.form.value.enableAgentAccess" class="help-block">{{
+                  "agentAccessNavHint" | i18n
+                }}</small>
+              </div>
               <div class="form-group" *ngIf="!isLinux">
                 <div class="checkbox">
                   <label for="allowScreenshots">

@@ -8,6 +8,7 @@ import { DomElementVisibilityService } from "../services/abstractions/dom-elemen
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { AgentFillOpResult } from "../types/agent-fill";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import { sendExtensionMessage } from "../utils";
 import { EventSecurity } from "../utils/event-security";
@@ -33,6 +34,7 @@ class AutofillInit implements AutofillInitInterface {
     collectAutofillTriage: () =>
       this.isMonitoring ? this.collectPageDetailsForContextMenu() : undefined,
     fillForm: ({ message }) => (this.isMonitoring ? this.fillForm(message) : undefined),
+    agentFillForm: ({ message }) => (this.isMonitoring ? this.agentFillForm(message) : undefined),
     applyTargetedFields: ({ message }) =>
       this.isMonitoring ? this.applyTargetedFields(message) : undefined,
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
@@ -201,6 +203,20 @@ class AutofillInit implements AutofillInitInterface {
           isFieldCurrentlyFilling: false,
         }),
       250,
+    );
+  }
+
+  /**
+   * Executes an agent fill (Agent Access browser-fill) in this frame. All §4.1 write-time
+   * safety checks live in {@link InsertAutofillContentService.fillAgentFields}; the per-op
+   * results returned here are value-free (opid + status + static reason).
+   *
+   * @param message - The extension message carrying the ops and the expected origin.
+   */
+  private agentFillForm(message: AutofillExtensionMessage): Promise<AgentFillOpResult[]> {
+    return this.insertAutofillContentService.fillAgentFields(
+      message.agentFillOps ?? [],
+      message.agentFillExpectedOrigin ?? "",
     );
   }
 

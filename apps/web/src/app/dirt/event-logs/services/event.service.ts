@@ -319,6 +319,20 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientSharedWithAgent:
+        msg = this.i18nService.t("sharedItemWithAgentId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "sharedItemWithAgentId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientAutofilledByAgent:
+        msg = this.i18nService.t("autofilledItemByAgentId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "autofilledItemByAgentId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
 
       // Collection
       case EventType.Collection_Created:
@@ -778,6 +792,20 @@ export class EventService {
       case EventType.Secret_Created:
         msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_RetrievedByAgent:
+        msg = this.i18nService.t("agentAccessedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentAccessedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secret_CreatedByAgent:
+        msg = this.i18nService.t("agentCreatedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentCreatedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
         break;
       case EventType.Secret_Deleted:
         msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev, options));

@@ -5513,6 +5513,24 @@
       }
     }
   },
+  "sharedItemWithAgentId": {
+    "message": "Shared item $ID$ with an agent.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "autofilledItemByAgentId": {
+    "message": "Autofilled item $ID$ for an agent.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "viewedPasswordItemId": {
     "message": "Viewed password for item $ID$.",
     "placeholders": {
@@ -11583,6 +11601,24 @@
   },
   "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentAccessedSecretWithId": {
+    "message": "Agent accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentCreatedSecretWithId": {
+    "message": "Agent created a secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",

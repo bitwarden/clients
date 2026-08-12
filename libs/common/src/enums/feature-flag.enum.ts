@@ -42,6 +42,7 @@ export enum FeatureFlag {
   WindowsNativeCredentialSync = "windows-native-credential-sync",
   SSHAgentV2 = "ssh-agent-v2",
   SSHecdsa = "ssh-ecdsa",
+  DesktopAgentAccess = "desktop-agent-access",
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
@@ -167,6 +168,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
+  // TODO(agent-access): revert to FALSE before PR — TRUE only for local testing until the
+  // server-side flag exists.
+  [FeatureFlag.DesktopAgentAccess]: true as boolean,
 
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,

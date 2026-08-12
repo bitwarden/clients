@@ -1,0 +1,16 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg */
+
+// This svg is the Cursor brand mark, which contains trademarked colors not part of our
+// Bitwarden theme colors and must not be recolored.
+// This mark's background is filled pure black (fill="#000") and would otherwise blend into a
+// dark-theme background, so the tile carries its own themed hairline border
+// (tw-stroke-border-strong) rather than depending on a wrapper to supply contrast. That border is
+// drawn as an unclipped sibling rect (same rx/size as the black tile) rather than a stroke on the
+// tile itself, since the tile lives inside clip-path #prefix__clip0_5_17 and a stroke there would
+// be clipped away. The viewBox is padded by 10 units on every side so the border isn't clipped.
+
+import { svg } from "@bitwarden/assets/svg";
+
+export const CursorIcon = svg`
+  <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 532 532"><g clip-path="url(#prefix__clip0_5_17)"><rect width="512" height="512" rx="122" fill="#000"/><g clip-path="url(#prefix__clip1_5_17)"><mask id="prefix__a" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="85" y="89" width="343" height="334"><path d="M85 89h343v334H85V89z" fill="#fff"/></mask><g mask="url(#prefix__a)"><path d="M255.428 423l148.991-83.5L255.428 256l-148.99 83.5 148.99 83.5z" fill="url(#prefix__paint0_linear_5_17)"/><path d="M404.419 339.5v-167L255.428 89v167l148.991 83.5z" fill="url(#prefix__paint1_linear_5_17)"/><path d="M255.428 89l-148.99 83.5v167l148.99-83.5V89z" fill="url(#prefix__paint2_linear_5_17)"/><path d="M404.419 172.5L255.428 423V256l148.991-83.5z" fill="#E4E4E4"/><path d="M404.419 172.5L255.428 256l-148.99-83.5h297.981z" fill="#fff"/></g></g></g><rect width="512" height="512" rx="122" fill="none" class="tw-stroke-border-strong" stroke-width="16"/><defs><linearGradient id="prefix__paint0_linear_5_17" x1="255.428" y1="256" x2="255.428" y2="423" gradientUnits="userSpaceOnUse"><stop offset=".16" stop-color="#fff" stop-opacity=".39"/><stop offset=".658" stop-color="#fff" stop-opacity=".8"/></linearGradient><linearGradient id="prefix__paint1_linear_5_17" x1="404.419" y1="173.015" x2="257.482" y2="261.497" gradientUnits="userSpaceOnUse"><stop offset=".182" stop-color="#fff" stop-opacity=".31"/><stop offset=".715" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="prefix__paint2_linear_5_17" x1="255.428" y1="89" x2="112.292" y2="342.802" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" stop-opacity=".6"/><stop offset=".667" stop-color="#fff" stop-opacity=".22"/></linearGradient><clipPath id="prefix__clip0_5_17"><path fill="#fff" d="M0 0h512v512H0z"/></clipPath><clipPath id="prefix__clip1_5_17"><path fill="#fff" transform="translate(85 89)" d="M0 0h343v334H0z"/></clipPath></defs></svg>
+`;

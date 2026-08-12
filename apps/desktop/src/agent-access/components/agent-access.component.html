@@ -1,0 +1,26 @@
+<div class="tw-m-4 tw-p-4 tw-flex tw-flex-col tw-gap-6">
+  <app-header>
+    <bit-tab-nav-bar slot="tabs">
+      <bit-tab-link route="agents">{{ "agentAccessAgents" | i18n }}</bit-tab-link>
+      <bit-tab-link route="setup">{{ "agentAccessSetup" | i18n }}</bit-tab-link>
+      <bit-tab-link route="activity">{{ "agentAccessActivity" | i18n }}</bit-tab-link>
+    </bit-tab-nav-bar>
+  </app-header>
+
+  <!--
+    Agent Access reaching this page at all means the setting is on (the sidebar nav item is gated on
+    it), so a persistent "Running" indicator would report the same value every time. State is
+    surfaced only when it's actionable: the agent failed to start, and the user has to go turn it
+    back on.
+
+    The only place this fact is surfaced now that the Agents tab's setup checklist — whose first
+    task said the same thing — is gone, so it's never suppressed.
+  -->
+  @if (!pageState.statusLoading() && !pageState.running()) {
+    <bit-callout type="warning" data-testid="agent-access-not-running-callout">
+      {{ "agentAccessNotRunning" | i18n }}
+    </bit-callout>
+  }
+
+  <router-outlet></router-outlet>
+</div>

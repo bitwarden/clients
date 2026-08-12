@@ -48,6 +48,8 @@ export enum EventType {
   Cipher_ClientToggledIbanVisible = 1130,
   Cipher_ClientCopiedNationalIdentificationNumber = 1131,
   Cipher_ClientToggledNationalIdentificationNumberVisible = 1132,
+  Cipher_ClientSharedWithAgent = 1133,
+  Cipher_ClientAutofilledByAgent = 1134,
 
   Collection_Created = 1300,
   Collection_Updated = 1301,
@@ -140,6 +142,8 @@ export enum EventType {
   Secret_Deleted = 2103,
   Secret_Permanently_Deleted = 2104,
   Secret_Restored = 2105,
+  Secret_RetrievedByAgent = 2106,
+  Secret_CreatedByAgent = 2107,
 
   Project_Retrieved = 2200,
   Project_Created = 2201,

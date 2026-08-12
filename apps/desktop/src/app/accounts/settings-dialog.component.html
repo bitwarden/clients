@@ -190,6 +190,23 @@
           </bit-form-field>
         }
 
+        @if (showAgentAccess()) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="enableAgentAccess"
+              (change)="saveAgentAccess()"
+            />
+            <bit-label>{{ "enableAgentAccess" | i18n }}</bit-label>
+            <bit-hint>{{ "enableAgentAccessDesc" | i18n }}</bit-hint>
+          </bit-form-control>
+
+          @if (form.value.enableAgentAccess) {
+            <p bitTypography="helper" class="tw-ms-5">{{ "agentAccessNavHint" | i18n }}</p>
+          }
+        }
+
         @if (!isLinux) {
           <bit-form-control>
             <input

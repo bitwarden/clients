@@ -1,0 +1,85 @@
+@if (rows().length === 0) {
+  <bit-no-items [icon]="NoResults">
+    <ng-container slot="title">{{ "agentAccessActivityEmpty" | i18n }}</ng-container>
+    <ng-container slot="description">{{
+      "agentAccessActivityEmptyDescription" | i18n
+    }}</ng-container>
+  </bit-no-items>
+} @else {
+  <bit-table>
+    <ng-container header>
+      <tr>
+        <th bitCell>{{ "agentAccessColumnTime" | i18n }}</th>
+        <th bitCell>{{ "agentAccessColumnAgent" | i18n }}</th>
+        <th bitCell>{{ "agentAccessColumnRequest" | i18n }}</th>
+        <th bitCell>{{ "agentAccessColumnResult" | i18n }}</th>
+      </tr>
+    </ng-container>
+    <ng-template body>
+      @for (entry of rows(); track entry.id) {
+        <tr bitRow>
+          <td bitCell class="tw-whitespace-nowrap tw-align-top">
+            {{ entryDate(entry.timestampMs) | date: "short" }}
+          </td>
+          <td bitCell class="tw-align-top">{{ agentLabel(entry) }}</td>
+
+          @if (entry.type === AgentAccessActivityType.CredentialRequest) {
+            <!-- The query is what the agent asked for, captioned by how it asked (domain / item
+                 id / secret name / search). Agent-supplied text, never decrypted vault content.
+                 A create row has no query at all — see `queryType`'s doc on
+                 `CredentialRequestActivity` for why the main process never stores one. -->
+            <td bitCell class="tw-align-top">
+              <div class="tw-flex tw-items-center tw-gap-2">
+                @if (entry.queryType) {
+                  <div bitTypography="helper" class="tw-text-muted">
+                    {{ queryTypeLabel(entry.queryType) }}
+                  </div>
+                } @else {
+                  <div bitTypography="helper" class="tw-text-muted">
+                    {{ "agentAccessCreateRequestLabel" | i18n }}
+                  </div>
+                }
+                @if (isSecretRequest(entry)) {
+                  <span bitBadge variant="subtle" [startIcon]="null" size="small">
+                    {{ "agentAccessSecretResourceLabel" | i18n }}
+                  </span>
+                }
+              </div>
+              @if (entry.queryValue) {
+                <span class="tw-font-mono tw-break-all">{{ entry.queryValue }}</span>
+              }
+            </td>
+            <td bitCell class="tw-align-top">
+              <span
+                bitBadge
+                [variant]="statusVariant(entry.status)"
+                [startIcon]="null"
+                size="small"
+              >
+                {{ statusLabel(entry.status) }}
+              </span>
+              @let result = requestResultLabel(entry);
+              @if (result) {
+                <div bitTypography="helper" class="tw-text-muted tw-pt-1">{{ result }}</div>
+              }
+            </td>
+          } @else {
+            <td bitCell class="tw-align-top">
+              <span
+                bitBadge
+                [variant]="lifecycleVariant(entry.kind)"
+                [startIcon]="null"
+                size="small"
+              >
+                {{ lifecycleLabel(entry.kind) }}
+              </span>
+            </td>
+            <td bitCell class="tw-align-top tw-text-muted">
+              {{ entry.detail || "—" }}
+            </td>
+          }
+        </tr>
+      }
+    </ng-template>
+  </bit-table>
+}

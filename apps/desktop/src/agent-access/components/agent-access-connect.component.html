@@ -1,0 +1,225 @@
+<bit-section [disableMargin]="true">
+  <!-- A real section header, peer to the Setup tab's "Agents on other devices" section, so the two
+       ways of adding an agent read as siblings rather than one heading and one muted chevron. -->
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ "agentAccessConnectTitle" | i18n }}</h2>
+
+    @if (!loading()) {
+      <!-- `ManualCommand`/`Deeplink` actions complete outside this app's process (the user's own
+           terminal, the vendor's own install flow), so re-running the status probe on window
+           focus (see the component's host binding) is the main way this page learns they
+           worked. This button covers the case where the user never leaves the app window — it
+           carries a visible label rather than a bare icon, since "did that work?" is a step in
+           the flow, not an incidental utility. -->
+      <button
+        slot="end"
+        id="agent-access-connect_button_refresh-statuses"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        startIcon="bwi-refresh"
+        [bitAction]="refreshRegistrationStatuses"
+      >
+        {{ "agentAccessConnectRefreshStatuses" | i18n }}
+      </button>
+    }
+  </bit-section-header>
+
+  <p bitTypography="body2" class="tw-text-muted tw-mb-4">
+    {{ "agentAccessConnectDisclaimer" | i18n }}
+  </p>
+
+  @if (!loading() && aacPath() === null) {
+    <bit-callout
+      type="warning"
+      title="{{ 'agentAccessConnectAacNotFoundTitle' | i18n }}"
+      data-testid="agent-access-connect-not-found"
+    >
+      <p class="tw-mb-2">{{ "agentAccessConnectAacNotFoundDescription" | i18n }}</p>
+      <a
+        id="agent-access-connect_link_get-cli"
+        bitLink
+        href="#"
+        appStopClick
+        (click)="openSetupDocs()"
+        >{{ "agentAccessGetCli" | i18n }}</a
+      >
+    </bit-callout>
+  }
+
+  <!-- Two columns at most. A third column narrows each card past the width a `ManualCommand`
+       agent's shell command needs, and that command is the whole payload of those cards. -->
+  <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
+    @if (loading()) {
+      @for (i of skeletonPlaceholders; track i) {
+        <bit-card class="tw-h-full">
+          <bit-skeleton-group>
+            <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+            <bit-skeleton-text [lines]="1" class="tw-w-1/2"></bit-skeleton-text>
+          </bit-skeleton-group>
+        </bit-card>
+      }
+    } @else {
+      @for (agent of selectableAgents(); track agent.definition.id) {
+        <!-- The grid stretches every card to its row's height; making the card a column and letting
+             its body grow (`tw-flex-1`) hands that height to the `tw-mt-auto` on each action row,
+             which is what puts every card's button on the same baseline despite `ManualCommand`
+             cards carrying a command block the others don't have. -->
+        <bit-card class="tw-flex tw-h-full tw-flex-col">
+          <div class="tw-flex tw-flex-1 tw-flex-col tw-gap-3">
+            <div class="tw-flex tw-items-center tw-gap-3">
+              <div
+                class="tw-flex tw-size-8 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-border tw-border-border-base tw-bg-bg-secondary tw-p-1"
+              >
+                <bit-svg [content]="AGENT_LOGOS[agent.definition.id]" class="tw-w-full"></bit-svg>
+              </div>
+
+              <bit-label class="tw-m-0 tw-min-w-0 tw-truncate">{{
+                agent.definition.displayName
+              }}</bit-label>
+
+              @if (agent.badge; as badge) {
+                <span bitBadge [variant]="badge.variant" size="small" class="tw-shrink-0">{{
+                  badge.messageKey | i18n
+                }}</span>
+              }
+            </div>
+
+            @switch (agent.action.kind) {
+              @case (McpRegistrationStrategyKind.ManualCommand) {
+                <p bitTypography="helper" class="tw-m-0 tw-text-muted">
+                  {{ "agentAccessConnectManualCommandHint" | i18n }}
+                </p>
+                <!-- Wraps rather than scrolling horizontally: a command the user can only reach by
+                     dragging a scrollbar inside a card reads as truncated, and the Copy button
+                     below means the wrapped rendering never has to be selected by hand. -->
+                <pre
+                  class="tw-m-0 tw-whitespace-pre-wrap tw-break-all tw-rounded-lg tw-bg-bg-secondary tw-p-3 tw-font-mono tw-text-sm tw-text-main"
+                  [attr.data-testid]="'agent-access-connect-command-' + agent.definition.id"
+                  >{{ agent.action.command }}</pre>
+                <div class="tw-mt-auto">
+                  <button
+                    [id]="'agent-access-connect_button_copy-command-' + agent.definition.id"
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    [disabled]="agent.action.command === null"
+                    [appCopyClick]="agent.action.command ?? ''"
+                    showToast
+                    [valueLabel]="
+                      'agentAccessConnectCommandLabel' | i18n: agent.definition.displayName
+                    "
+                  >
+                    {{ "agentAccessConnectCopyCommand" | i18n }}
+                  </button>
+                </div>
+              }
+              @case (McpRegistrationStrategyKind.Deeplink) {
+                <div class="tw-mt-auto tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                  <button
+                    [id]="'agent-access-connect_button_launch-deeplink-' + agent.definition.id"
+                    type="button"
+                    bitButton
+                    buttonType="primary"
+                    [disabled]="agent.action.deeplinkUri === null"
+                    (click)="launchDeeplink(agent.action.deeplinkUri)"
+                  >
+                    {{ "agentAccessConnectAddToAgent" | i18n: agent.definition.displayName }}
+                  </button>
+
+                  @if (agent.action.hasFallback) {
+                    <!-- Explicit, clearly-labelled secondary action — never an automatic retry
+                         after the deeplink above. A failed `launchUri` fails silently, so this
+                         app can't tell success from failure and must not write to the user's
+                         config file as a side effect it never confirmed was needed. -->
+                    <button
+                      [id]="'agent-access-connect_button_fallback-' + agent.definition.id"
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      [bitAction]="registerWithAgentAction(agent.definition.id)"
+                    >
+                      {{ "agentAccessConnectDeeplinkFallback" | i18n }}
+                    </button>
+                  }
+                </div>
+              }
+              @case (McpRegistrationStrategyKind.FileMerge) {
+                <div class="tw-mt-auto">
+                  <button
+                    [id]="'agent-access-connect_button_connect-' + agent.definition.id"
+                    type="button"
+                    bitButton
+                    buttonType="primary"
+                    [bitAction]="registerWithAgentAction(agent.definition.id)"
+                  >
+                    {{ "agentAccessConnectConnectAction" | i18n }}
+                  </button>
+                </div>
+              }
+            }
+
+            @if (agent.connectResultMessageKey) {
+              <bit-hint
+                [attr.data-testid]="'agent-access-connect-result-' + agent.definition.id"
+                [class.tw-text-fg-danger]="agent.connectResultIsError"
+                [class.tw-text-fg-success]="!agent.connectResultIsError"
+                >{{ agent.connectResultMessageKey | i18n: agent.definition.displayName }}</bit-hint
+              >
+            }
+          </div>
+        </bit-card>
+      }
+    }
+  </div>
+
+  @if (mcpConfigJson() !== null) {
+    <!-- Collapsed by default: it's the escape hatch for agents not in the picker grid above, not
+         the default view. Now unambiguously scoped to this section — it used to sit at the same
+         indentation as the (then-collapsed) remote-agents disclosure, which made a sub-option of
+         "agents on this computer" look like a peer of "agents on other devices". -->
+    <div class="tw-pt-4">
+      <button
+        id="agent-access-connect_button_toggle-mcp-config"
+        type="button"
+        class="tw-flex tw-items-center tw-gap-2 tw-border-0 tw-bg-transparent tw-p-0 tw-text-muted"
+        bitTypography="body1"
+        [bitDisclosureTriggerFor]="mcpConfigDisclosure"
+      >
+        <bit-icon [name]="mcpConfigOpen() ? 'bwi-angle-down' : 'bwi-angle-right'"></bit-icon>
+        {{ "agentAccessConnectNotListedTrigger" | i18n }}
+      </button>
+
+      <bit-disclosure
+        #mcpConfigDisclosure
+        [(open)]="mcpConfigOpen"
+        class="tw-flex tw-flex-col tw-gap-3 tw-pt-3"
+      >
+        <p bitTypography="helper" class="tw-text-muted tw-m-0">
+          {{ "agentAccessConnectMcpConfigHint" | i18n }}
+        </p>
+
+        <pre
+          class="tw-m-0 tw-overflow-x-auto tw-rounded-lg tw-bg-bg-secondary tw-p-3 tw-font-mono tw-text-sm tw-text-main"
+          data-testid="agent-access-connect-mcp-config"
+          >{{ mcpConfigJson() }}</pre>
+
+        <div>
+          <button
+            id="agent-access-connect_button_copy-config"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [appCopyClick]="mcpConfigJson() ?? ''"
+            showToast
+            [valueLabel]="'agentAccessConnectMcpConfigLabel' | i18n"
+          >
+            {{ "agentAccessConnectCopyConfig" | i18n }}
+          </button>
+        </div>
+      </bit-disclosure>
+    </div>
+  }
+</bit-section>

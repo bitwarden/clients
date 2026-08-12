@@ -50,6 +50,14 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
+const AGENT_ACCESS_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "agentAccessEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
 const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   DESKTOP_SETTINGS_DISK,
   "sshAgentRememberAuthorizations",
@@ -109,6 +117,10 @@ export class DesktopSettingsService {
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly agentAccessEnabledState = this.stateProvider.getGlobal(AGENT_ACCESS_ENABLED);
+
+  agentAccessEnabled$ = this.agentAccessEnabledState.state$.pipe(map(Boolean));
 
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
@@ -201,6 +213,14 @@ export class DesktopSettingsService {
 
   async setSshAgentPromptBehavior(value: SshAgentPromptType) {
     await this.sshAgentPromptBehavior.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not Agent Access (remote-agent vault credential access) is
+   * enabled.
+   */
+  async setAgentAccessEnabled(value: boolean) {
+    await this.agentAccessEnabledState.update(() => value);
   }
 
   /**

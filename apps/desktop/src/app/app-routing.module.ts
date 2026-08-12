@@ -46,6 +46,11 @@ import {
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 
+import { AgentAccessActivityComponent } from "../agent-access/components/agent-access-activity.component";
+import { AgentAccessAgentsComponent } from "../agent-access/components/agent-access-agents.component";
+import { AgentAccessSetupComponent } from "../agent-access/components/agent-access-setup.component";
+import { AgentAccessComponent } from "../agent-access/components/agent-access.component";
+import { AgentAccessPageStateService } from "../agent-access/services/agent-access-page-state.service";
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
@@ -455,6 +460,18 @@ const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "agent-access",
+        component: AgentAccessComponent,
+        data: { pageTitle: { key: "agentAccess" } } satisfies RouteDataProperties,
+        providers: [AgentAccessPageStateService],
+        children: [
+          { path: "", pathMatch: "full", redirectTo: "agents" },
+          { path: "agents", component: AgentAccessAgentsComponent },
+          { path: "setup", component: AgentAccessSetupComponent },
+          { path: "activity", component: AgentAccessActivityComponent },
+        ],
       },
     ],
   },

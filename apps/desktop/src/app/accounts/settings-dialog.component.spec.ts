@@ -196,6 +196,7 @@ describe("SettingsDialogComponent", () => {
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
+    desktopSettingsService.agentAccessEnabled$ = of(false);
     desktopSettingsService.preventScreenshots$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);

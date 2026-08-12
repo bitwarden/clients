@@ -338,6 +338,7 @@ import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
+import { AgentFillBackground } from "../autofill/background/agent-fill.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
@@ -552,6 +553,7 @@ export default class MainBackground {
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   autofillTriageService: AutofillTriageService;
+  agentFillBackground: AgentFillBackground;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
   collectionEncryptionService: CollectionEncryptionService;
@@ -1621,6 +1623,12 @@ export default class MainBackground {
     this.autofillTriageService = new AutofillTriageService(
       this.inlineMenuFieldQualificationService,
     );
+    this.agentFillBackground = new AgentFillBackground(
+      this.ipcService,
+      this.autofillService,
+      this.inlineMenuFieldQualificationService,
+      this.logService,
+    );
 
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
@@ -1856,6 +1864,7 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
+    this.agentFillBackground.init();
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
       await this.sharedUnlockLeaderService.start();
     }

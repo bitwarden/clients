@@ -1,0 +1,93 @@
+<div class="tw-flex tw-flex-col tw-gap-3">
+  @if (pageState.grantsLoading()) {
+    <div class="tw-flex tw-flex-col tw-gap-3">
+      @for (i of skeletonRows; track i) {
+        <bit-skeleton-group>
+          <bit-skeleton class="tw-size-8" slot="start"></bit-skeleton>
+          <bit-skeleton-text [lines]="2" class="tw-w-1/2"></bit-skeleton-text>
+        </bit-skeleton-group>
+      }
+    </div>
+  } @else if (pageState.grants().length === 0) {
+    <bit-no-items [icon]="DevicesIcon" data-testid="agent-access-no-connected-agents">
+      <ng-container slot="title">{{ "agentAccessNoConnectedAgents" | i18n }}</ng-container>
+      <ng-container slot="description">{{
+        "agentAccessNoConnectedAgentsDescription" | i18n
+      }}</ng-container>
+      <!-- First-run CTA, replacing the setup checklist that used to sit above this list on the
+           Agents tab. `../setup` resolves against the `agents` child route this component is
+           always rendered inside (see `AgentAccessAgentsComponent`), not against this component's
+           own position in the template. -->
+      <a
+        slot="button"
+        id="agent-access-connected-agents_anchor_connect-agent"
+        bitButton
+        buttonType="secondary"
+        [routerLink]="['../setup']"
+      >
+        {{ "agentAccessConnectAgentAction" | i18n }}
+      </a>
+    </bit-no-items>
+  } @else {
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "name" | i18n }}</th>
+          <th bitCell>{{ "agentAccessColumnLastUsed" | i18n }}</th>
+          <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (grant of pageState.grants(); track grant.id) {
+          <tr bitRow>
+            <td bitCell>
+              <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
+                <!-- The brand logo resolves only from a verified signature (see `resolveAgentBrand`
+                     and `brandLogo`), so an unrecognized or unsigned agent gets the neutral glyph
+                     rather than borrowing a familiar brand mark. -->
+                <div
+                  class="tw-flex tw-size-8 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-lg tw-border tw-border-border-base tw-bg-bg-secondary tw-p-1"
+                >
+                  @if (brandLogo(grant); as logo) {
+                    <bit-svg [content]="logo" class="tw-w-full"></bit-svg>
+                  } @else {
+                    <bit-icon name="bwi-terminal" class="tw-text-lg tw-text-muted"></bit-icon>
+                  }
+                </div>
+                <div class="tw-flex tw-min-w-0 tw-flex-col" [title]="descriptorValue(grant)">
+                  <span class="tw-truncate">{{ grant.displayName }}</span>
+                  <span class="tw-truncate tw-text-muted" bitTypography="helper">
+                    @switch (descriptorKind(grant)) {
+                      @case ("signedBy") {
+                        {{ "agentAccessFirstUseSignedBy" | i18n: descriptorValue(grant) }}
+                      }
+                      @case ("publishedBy") {
+                        {{ "agentAccessFirstUsePublishedBy" | i18n: descriptorValue(grant) }}
+                      }
+                      @default {
+                        {{ "agentAccessFirstUseAtPath" | i18n: descriptorValue(grant) }}
+                      }
+                    }
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              {{ lastUsedDate(grant) | date: "medium" }}
+            </td>
+            <td bitCell class="tw-text-right">
+              <button
+                [id]="'agent-access-connected-agents_button_remove-agent-' + grant.id"
+                type="button"
+                bitIconButton="bwi-trash"
+                buttonType="dangerGhost"
+                [bitAction]="removeGrantAction(grant)"
+                [label]="'agentAccessRemoveAgent' | i18n"
+              ></button>
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  }
+</div>

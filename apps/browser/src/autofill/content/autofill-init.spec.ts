@@ -451,6 +451,60 @@ describe("AutofillInit", () => {
         });
       });
 
+      describe("agentFillForm", () => {
+        const agentFillOps = [
+          { opid: "__0", role: "username" as const, value: "user@example.com" },
+        ];
+        const agentFillExpectedOrigin = "https://example.com";
+
+        it("delegates to fillAgentFields and responds with the per-op results", async () => {
+          const results = [{ opid: "__0", status: "filled" as const }];
+          const fillAgentFieldsSpy = jest
+            .spyOn(autofillInit["insertAutofillContentService"], "fillAgentFields")
+            .mockResolvedValue(results);
+
+          sendMockExtensionMessage(
+            { command: "agentFillForm", agentFillOps, agentFillExpectedOrigin },
+            sender,
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(fillAgentFieldsSpy).toHaveBeenCalledWith(agentFillOps, agentFillExpectedOrigin);
+          expect(sendResponse).toHaveBeenCalledWith(results);
+        });
+
+        it("defaults to no ops and an unmatchable origin when the message omits them", async () => {
+          const fillAgentFieldsSpy = jest
+            .spyOn(autofillInit["insertAutofillContentService"], "fillAgentFields")
+            .mockResolvedValue([]);
+
+          sendMockExtensionMessage({ command: "agentFillForm" }, sender, sendResponse);
+          await flushPromises();
+
+          expect(fillAgentFieldsSpy).toHaveBeenCalledWith([], "");
+        });
+
+        it("drops the command without responding when monitoring is stopped", async () => {
+          autofillInit.stopMonitoring();
+          const fillAgentFieldsSpy = jest.spyOn(
+            autofillInit["insertAutofillContentService"],
+            "fillAgentFields",
+          );
+
+          const response = autofillInit["handleExtensionMessage"](
+            { command: "agentFillForm", agentFillOps, agentFillExpectedOrigin },
+            sender,
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(response).toBe(null);
+          expect(fillAgentFieldsSpy).not.toHaveBeenCalled();
+          expect(sendResponse).not.toHaveBeenCalled();
+        });
+      });
+
       describe("clearTargetingRulesCache", () => {
         let collectPageDetailsSpy: jest.SpyInstance;
 

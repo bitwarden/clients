@@ -5,7 +5,8 @@ import AutofillScript, {
   FillScript,
   FillScriptActionTypes,
 } from "../models/autofill-script";
-import { FormFieldElement } from "../types";
+import { ElementWithOpId, FormFieldElement } from "../types";
+import { AgentFillOp, AgentFillOpResult } from "../types/agent-fill";
 import {
   currentlyInSandboxedIframe,
   elementIsFillableFormField,
@@ -56,6 +57,85 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     for (let index = 0; index < fillScript.script.length; index++) {
       await this.runFillScriptAction(fillScript.script[index]);
     }
+  }
+
+  /**
+   * Executes a one-shot agent fill (Agent Access browser-fill, plan §4.1) against this frame.
+   *
+   * Every op is independently re-checked at write time, regardless of what was planned:
+   * - the document origin must string-equal the origin the background verified;
+   * - sandboxed iframes are refused outright;
+   * - the element must resolve by exact opid and still be connected;
+   * - a `password` value is only ever written into an `<input type="password">` — no heuristic,
+   *   no override; conversely no other role may write into a password input;
+   * - readonly/disabled and non-viewable elements are refused.
+   *
+   * The credential value exists here only for the duration of the write. Results carry opid,
+   * status, and a static reason — never the value, and nothing on this path logs.
+   *
+   * @param ops - The per-field write operations to perform.
+   * @param expectedOrigin - The origin the background observed; compared to `location.origin`.
+   */
+  async fillAgentFields(ops: AgentFillOp[], expectedOrigin: string): Promise<AgentFillOpResult[]> {
+    const failAll = (reason: string): AgentFillOpResult[] =>
+      ops.map((op) => ({ opid: op.opid, status: "failed" as const, reason }));
+
+    if (currentlyInSandboxedIframe()) {
+      return failAll("sandboxed-iframe");
+    }
+    if (!expectedOrigin || globalThis.location.origin !== expectedOrigin) {
+      return failAll("origin-mismatch");
+    }
+
+    const results: AgentFillOpResult[] = [];
+    for (const op of ops) {
+      results.push(await this.fillAgentField(op));
+    }
+    return results;
+  }
+
+  /**
+   * Performs the write-time checks and value insertion for a single agent-fill op.
+   * Reuses the same click/focus/keyboard event simulation as regular autofill so sites
+   * register the input.
+   */
+  private async fillAgentField(op: AgentFillOp): Promise<AgentFillOpResult> {
+    const fail = (reason: string): AgentFillOpResult => ({
+      opid: op.opid,
+      status: "failed",
+      reason,
+    });
+
+    const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(op.opid);
+    // getAutofillFieldElementByOpid falls back to an index-based guess for unknown opids; a
+    // guessed element must never receive a credential, so require an exact opid match.
+    if (
+      !element ||
+      !element.isConnected ||
+      (element as ElementWithOpId<FormFieldElement>).opid !== op.opid
+    ) {
+      return fail("element-not-found");
+    }
+    if (!elementIsInputElement(element)) {
+      return fail("not-an-input");
+    }
+    // The absolute §4.1 rule: passwords land in password inputs only, and password inputs
+    // receive nothing but passwords.
+    if (op.role === "password" && element.type !== "password") {
+      return fail("not-password-input");
+    }
+    if (op.role !== "password" && element.type === "password") {
+      return fail("role-forbidden-for-password-input");
+    }
+    if (isReadonlyOrDisabledFormFieldElement(element)) {
+      return fail("readonly-or-disabled");
+    }
+    if (!(await this.domElementVisibilityService.isElementViewable(element))) {
+      return fail("not-viewable");
+    }
+
+    this.handleInsertValueAndTriggerSimulatedEvents(element, () => (element.value = op.value));
+    return { opid: op.opid, status: "filled" };
   }
 
   /**

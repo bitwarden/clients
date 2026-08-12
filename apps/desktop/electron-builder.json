@@ -80,11 +80,16 @@
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
         "to": "MacOS/desktop_proxy.inherit"
+      },
+      {
+        "from": "desktop_native/dist/aac.${platform}-${arch}",
+        "to": "MacOS/aac"
       }
     ],
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
+      "MacOS/aac",
       "Contents/Plugins/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
@@ -110,6 +115,10 @@
       {
         "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
         "to": "bitwarden_plugin_authenticator.exe"
+      },
+      {
+        "from": "desktop_native/dist/aac.win32-${arch}.exe",
+        "to": "aac.exe"
       }
     ],
     "extraResources": [
@@ -134,6 +143,10 @@
       {
         "from": "desktop_native/dist/libprocess_isolation.so",
         "to": "libprocess_isolation.so"
+      },
+      {
+        "from": "desktop_native/dist/aac.${platform}-${arch}",
+        "to": "aac"
       }
     ],
     "target": ["deb", "rpm", "AppImage", "snap"],

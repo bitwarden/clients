@@ -1,0 +1,42 @@
+<div class="tw-flex tw-flex-col tw-gap-6">
+  @if (pageState.statusLoading() || pageState.grantsLoading()) {
+    <bit-card>
+      <div class="tw-flex tw-flex-col tw-gap-3">
+        @for (i of skeletonRows; track i) {
+          <bit-skeleton-group>
+            <bit-skeleton class="tw-size-8" edgeShape="circle" slot="start"></bit-skeleton>
+            <bit-skeleton-text [lines]="1" class="tw-w-1/2"></bit-skeleton-text>
+          </bit-skeleton-group>
+        }
+      </div>
+    </bit-card>
+  } @else {
+    <!-- Local agents are the primary list content (agent-access-architecture.md, "M2 — onboarding"
+         — "Connected local agents... are the primary list content; remote paired agents are
+         secondary"). Adding one happens on the Setup tab, so this tab only ever links there. -->
+    <bit-section [disableMargin]="true">
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "agentAccessConnectedAgentsTitle" | i18n }}</h2>
+
+        <!-- Only in the header once there's a list to add to; the empty state inside
+             `app-agent-access-connected-agents` carries the same CTA itself, and showing both at
+             once gives the user two identical buttons a few hundred pixels apart. Same split as the
+             Setup tab's remote-agents section. -->
+        @if (pageState.grants().length > 0) {
+          <a
+            slot="end"
+            id="agent-access-agents_anchor_connect-agent"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            startIcon="bwi-plus"
+            [routerLink]="['../setup']"
+          >
+            {{ "agentAccessConnectAgentAction" | i18n }}
+          </a>
+        }
+      </bit-section-header>
+      <app-agent-access-connected-agents></app-agent-access-connected-agents>
+    </bit-section>
+  }
+</div>

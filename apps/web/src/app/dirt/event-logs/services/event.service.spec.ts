@@ -453,3 +453,63 @@ describe("EventService shortcode escaping", () => {
     expect(info.message).not.toContain("<code><script></code>");
   });
 });
+
+describe("EventService agent-mediated events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation((id: string, p1?: string) => `${id}${p1 ?? ""}`);
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  it("renders the 'shared with agent' message and short id for Cipher_ClientSharedWithAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Cipher_ClientSharedWithAgent,
+      cipherId: "cipher-1234-5678",
+      organizationId: null,
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("sharedItemWithAgentId");
+    expect(info.humanReadableMessage).toContain("cipher-1".substring(0, 8));
+  });
+
+  it("renders the agent-autofill message and short id for Cipher_ClientAutofilledByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Cipher_ClientAutofilledByAgent,
+      cipherId: "cipher-1234-5678",
+      organizationId: null,
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("autofilledItemByAgentId");
+    expect(info.humanReadableMessage).toContain("cipher-1".substring(0, 8));
+  });
+
+  it("renders the agent-accessed-secret message and short id for Secret_RetrievedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Secret_RetrievedByAgent,
+      secretId: "secret-1234-5678",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentAccessedSecretWithId");
+    expect(info.humanReadableMessage).toContain("secret-1".substring(0, 8));
+  });
+
+  it("renders the agent-created-secret message and short id for Secret_CreatedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Secret_CreatedByAgent,
+      secretId: "secret-8765-4321",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentCreatedSecretWithId");
+    expect(info.humanReadableMessage).toContain("secret-8".substring(0, 8));
+  });
+});

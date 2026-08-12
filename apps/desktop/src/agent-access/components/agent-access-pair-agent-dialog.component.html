@@ -1,0 +1,155 @@
+<form [formGroup]="pairForm" [bitSubmit]="generatePairingCredential" bit-dialog>
+  <span bitDialogTitle>{{ "agentAccessPairNewAgent" | i18n }}</span>
+
+  <div bitDialogContent>
+    @if (!agentRunning() && !loading()) {
+      <bit-callout type="warning">
+        {{ "agentAccessNotRunning" | i18n }}
+      </bit-callout>
+    } @else if (agentRunning()) {
+      @if (credential() === null) {
+        <bit-form-field>
+          <bit-label>{{ "agentAccessAgentName" | i18n }}</bit-label>
+          <input
+            id="agent-access-pair-agent-dialog_input_agent-name"
+            bitInput
+            type="text"
+            formControlName="agentName"
+            autocomplete="off"
+          />
+          <bit-hint>{{ "agentAccessAgentNameHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      } @else {
+        <bit-callout type="warning" title="{{ 'agentAccessPskToken' | i18n }}">
+          {{ "agentAccessPskTokenWarning" | i18n }}
+        </bit-callout>
+
+        <bit-form-field>
+          <bit-label>{{ "agentAccessPskToken" | i18n }}</bit-label>
+          <input
+            id="agent-access-pair-agent-dialog_input_credential"
+            bitInput
+            type="text"
+            class="tw-font-mono"
+            [value]="credential()"
+            readonly
+            aria-readonly="true"
+            data-testid="agent-access-psk-token"
+          />
+          <button
+            id="agent-access-pair-agent-dialog_button_copy-credential"
+            bitSuffix
+            type="button"
+            bitIconButton="bwi-clone"
+            [appCopyClick]="credential()"
+            showToast
+            [valueLabel]="'agentAccessPskToken' | i18n"
+            [label]="'copy' | i18n"
+          ></button>
+          <bit-hint>{{ "agentAccessPskTokenUseHint" | i18n }}</bit-hint>
+        </bit-form-field>
+
+        <bit-callout type="info" data-testid="agent-access-approval-note">
+          {{ "agentAccessRemoteApprovalNote" | i18n }}
+        </bit-callout>
+
+        <p bitTypography="body1" class="tw-mt-1">
+          {{ "agentAccessRemoteIntro" | i18n }}
+        </p>
+
+        <ol class="tw-m-0 tw-list-decimal tw-space-y-4 tw-ps-5">
+          <li>
+            <p bitTypography="body2" class="tw-mb-0">
+              {{ "agentAccessRemoteStepInstall" | i18n }}
+              <a
+                id="agent-access-pair-agent-dialog_link_get-cli"
+                bitLink
+                href="#"
+                appStopClick
+                (click)="openSetupDocs()"
+                >{{ "agentAccessGetCli" | i18n }}</a
+              >
+            </p>
+          </li>
+
+          <li>
+            <p bitTypography="body2" class="tw-mb-2">
+              {{ "agentAccessRemoteStepPaste" | i18n }}
+            </p>
+            <button
+              id="agent-access-pair-agent-dialog_button_copy-agent-prompt"
+              type="button"
+              bitButton
+              buttonType="primary"
+              [appCopyClick]="agentPrompt()"
+              showToast
+              [valueLabel]="'agentAccessCopyAgentInstructions' | i18n"
+            >
+              {{ "agentAccessCopyAgentInstructions" | i18n }}
+            </button>
+          </li>
+
+          <li>
+            <bit-form-field disableMargin>
+              <bit-label>{{ "agentAccessRunByHand" | i18n }}</bit-label>
+              <input
+                id="agent-access-pair-agent-dialog_input_pair-command"
+                bitInput
+                type="text"
+                class="tw-font-mono"
+                [value]="pairCommand()"
+                readonly
+                aria-readonly="true"
+                data-testid="agent-access-pair-command"
+              />
+              <button
+                id="agent-access-pair-agent-dialog_button_copy-command"
+                bitSuffix
+                type="button"
+                bitIconButton="bwi-clone"
+                [appCopyClick]="pairCommand()"
+                showToast
+                [valueLabel]="'agentAccessRunByHand' | i18n"
+                [label]="'copy' | i18n"
+              ></button>
+            </bit-form-field>
+          </li>
+        </ol>
+      }
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (agentRunning() && credential() === null) {
+      <button
+        id="agent-access-pair-agent-dialog_button_generate"
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+      >
+        {{ "agentAccessPairNewAgent" | i18n }}
+      </button>
+      <button
+        id="agent-access-pair-agent-dialog_button_cancel"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        bitDialogClose
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    } @else {
+      <button
+        id="agent-access-pair-agent-dialog_button_close"
+        type="button"
+        bitButton
+        buttonType="primary"
+        bitDialogClose
+      >
+        {{ agentRunning() ? ("done" | i18n) : ("close" | i18n) }}
+      </button>
+    }
+  </ng-container>
+</form>

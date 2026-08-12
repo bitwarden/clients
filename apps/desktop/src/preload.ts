@@ -1,5 +1,6 @@
 import { contextBridge } from "electron";
 
+import agentAccess from "./agent-access/preload";
 import tools from "./app/tools/preload";
 import auth from "./auth/preload";
 import autofill from "./autofill/preload";
@@ -23,6 +24,7 @@ export const ipc = {
   platform,
   keyManagement,
   tools,
+  agentAccess,
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);

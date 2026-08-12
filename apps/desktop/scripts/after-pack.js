@@ -66,6 +66,10 @@ async function run(context) {
     const appPath = `${context.appOutDir}/${appName}.app`;
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
+    // The bundled Agent Access CLI. It is listed in electron-builder's `signIgnore` like the proxy
+    // binaries, which means electron-builder skips it and signing is our responsibility here —
+    // an unsigned Mach-O inside the bundle fails notarization.
+    const agentAccessCliPath = path.join(appPath, "Contents", "MacOS", "aac");
 
     const packageId = context.packager.appInfo.id;
 
@@ -86,6 +90,12 @@ async function run(context) {
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
       );
+
+      // `aac` is launched by a *separate* agent process rather than as a child of this app, so it
+      // gets the standalone proxy entitlements, not the inherit ones.
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${agentAccessCliPath}"`,
+      );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
       // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
@@ -96,6 +106,9 @@ async function run(context) {
       );
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${agentAccessCliPath}"`,
       );
     }
   }

@@ -39,6 +39,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { MainAgentAccessCliService } from "./agent-access/main/main-agent-access-cli.service";
+import { MainAgentAccessService } from "./agent-access/main/main-agent-access.service";
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
@@ -103,6 +105,8 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
+  agentAccessService: MainAgentAccessService;
+  agentAccessCliService: MainAgentAccessCliService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   ssoCookieMain: SsoCookieMain;
@@ -334,6 +338,13 @@ export class Main {
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+    this.agentAccessService = new MainAgentAccessService(this.logService, this.messagingService);
+    this.agentAccessCliService = new MainAgentAccessCliService(
+      this.logService,
+      app.getPath("userData"),
+      app.getPath("exe"),
+      app.getAppPath(),
+    );
 
     new EphemeralValueStorageService();
 

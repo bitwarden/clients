@@ -15,6 +15,10 @@ manual_test = []
 
 [dependencies]
 anyhow = { workspace = true }
+# Renamed on import: this crate's own napi submodule is also named `agent_access` (to match
+# the generated `agentAccess` TS namespace), so the dependency is aliased here to avoid a name
+# collision between the crate and the submodule.
+agent_access_core = { package = "agent_access", path = "../agent_access" }
 async-trait = { workspace = true }
 autofill_provider = { path = "../autofill_provider", features = ["napi"] }
 autotype = { path = "../autotype" }
@@ -29,6 +33,10 @@ ssh_agent = { path = "../ssh_agent" }
 tokio = { workspace = true, features = ["time"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+# Wraps the `secretValue` DTO field (agent_access.rs) so it's scrubbed on drop before handing it
+# to `agent_access_core::CredentialResponseData::secret_value`. Pinned to match
+# `agent_access`'s own direct pin (not a [workspace.dependencies] entry there either).
+zeroize = "=1.8.2"
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = { workspace = true }

@@ -1,0 +1,67 @@
+[package]
+name = "agent_access"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+async-trait = { workspace = true }
+base64 = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+# Peer-process resolution for the local listener (`peer_info.rs`) — macOS libproc fast path +
+# cross-platform fallback, mirroring (not depending on) `ssh_agent::server::peer_info`.
+sysinfo = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["sync", "macros", "time", "rt", "net", "io-util"] }
+tracing = { workspace = true }
+# Wraps in-memory credential secrets (e.g. the password handed to ap-client) so they're
+# scrubbed on drop. Not in [workspace.dependencies] because nothing else in desktop_native
+# needs it yet; pinned exactly like the other direct, crate-local deps below.
+zeroize = "=1.8.2"
+
+# Dev-time path dependency on a local checkout of the Agent Access SDK.
+# TODO: pin to a git rev of github.com/bitwarden/agent-access before merging.
+ap-client = { path = "../../../../../agent-access/crates/ap-client", features = [
+    "native-websocket",
+] }
+ap-noise = { path = "../../../../../agent-access/crates/ap-noise" }
+ap-relay-protocol = { path = "../../../../../agent-access/crates/ap-relay-protocol" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# `libproc`-equivalent syscalls (`proc_pidpath`) for the macOS fast path in `peer_info.rs`. Only
+# used on macOS (see peer_info.rs's `cfg(target_os = "macos")` gate) — narrowed from `cfg(unix)`
+# so it isn't pulled in as a dead dependency on Linux.
+libc = { workspace = true }
+# W2a caller attestation (`attestation.rs`): `SecCodeCopyGuestWithAttributes` /
+# `SecCodeCheckValidity` come from `security-framework`'s safe wrapper; `SecCodeCopySigningInformation`
+# and the `kSecCodeInfo*` dictionary keys aren't exposed there (as of 2.17.0), so `attestation.rs`
+# declares those directly against Security.framework and reads the result with `core-foundation`.
+core-foundation = { workspace = true }
+security-framework = { workspace = true }
+security-framework-sys = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_System_Pipes",
+] }
+# W2a caller attestation (`attestation.rs`): Authenticode publisher verification, mirroring
+# `chromium_importer/src/chromium/platform/windows/signature.rs`'s usage of the same crate/pin.
+verifysign = "=0.2.4"
+
+[dev-dependencies]
+tokio = { workspace = true, features = [
+    "sync",
+    "macros",
+    "time",
+    "rt",
+    "rt-multi-thread",
+    "test-util",
+    "net",
+    "io-util",
+] }
+
+[lints]
+workspace = true
