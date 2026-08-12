@@ -15,6 +15,8 @@ import { OrgKey, ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebProviderService } from "./web-provider.service";
@@ -22,6 +24,7 @@ import { WebProviderService } from "./web-provider.service";
 describe("WebProviderService", () => {
   let sut: WebProviderService;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let syncService: MockProxy<SyncService>;
   let apiService: MockProxy<ApiService>;
   let i18nService: MockProxy<I18nService>;
@@ -39,6 +42,7 @@ describe("WebProviderService", () => {
 
   beforeEach(() => {
     keyService = mock();
+    legacyCompatKeyService = mock();
     syncService = mock();
     apiService = mock();
     i18nService = mock();
@@ -48,6 +52,7 @@ describe("WebProviderService", () => {
 
     sut = new WebProviderService(
       keyService,
+      legacyCompatKeyService,
       syncService,
       apiService,
       i18nService,
@@ -127,8 +132,11 @@ describe("WebProviderService", () => {
     const defaultCollectionTranslation = "Default Collection";
 
     beforeEach(() => {
-      keyService.makeOrgKey.mockResolvedValue([new EncString("mockEncryptedKey"), mockOrgKey]);
-      keyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("mockEncryptedKey"),
+        mockOrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
       i18nService.t.mockReturnValue(defaultCollectionTranslation);
       encryptService.encryptString.mockResolvedValue(encryptedCollectionName);
       keyService.providerKeys$.mockReturnValue(of(mockProviderKeysById));
@@ -145,8 +153,8 @@ describe("WebProviderService", () => {
         activeUserId,
       );
 
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
+      expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         defaultCollectionTranslation,

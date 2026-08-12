@@ -56,7 +56,7 @@ export class AutofillInlineMenuContainer {
     pointerEvents: "auto",
     margin: "0",
     padding: "0",
-    colorScheme: "normal",
+    colorScheme: "auto",
   };
   private readonly defaultIframeAttributes: Record<string, string> = {
     src: "",
