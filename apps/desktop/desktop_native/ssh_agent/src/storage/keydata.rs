@@ -28,6 +28,33 @@ pub trait QueryableKeyData: Send + Sync {
     fn cipher_id(&self) -> &String;
 }
 
+/// Classifies how a key relates to a verified destination host-key fingerprint for a connection.
+///
+/// This exists to serve two distinct, related purposes on the identities returned by
+/// `SSH_AGENTC_REQUEST_IDENTITIES`:
+/// * **Filtering** — whether a key is offered at all (`NoMatch` is omitted; the other two variants
+///   are offered).
+/// * **Prioritization** — among offered keys, `ExplicitMatch` keys are listed before `Unrestricted`
+///   keys, so OpenSSH tries a destination-matching key first.
+///
+/// This is an identity-offering optimization, not an authorization or security boundary: it only
+/// changes which identities are *offered* and in what order, never whether signing is authorized
+/// (that remains governed by session-bind verification and the auth policy independently of this
+/// classification).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum DestinationMatch {
+    /// `host_fingerprint` is present in this key's `destination_fingerprints`. Offered, and
+    /// listed ahead of `Unrestricted` keys.
+    ExplicitMatch,
+    /// This key has no configured `destination_fingerprints` (or no verified `host_fingerprint`
+    /// was available for the connection, in which case every key is classified uniformly as
+    /// `Unrestricted` so the original order is preserved unchanged). Offered, but not
+    /// prioritized ahead of other offered keys.
+    Unrestricted,
+    /// This key is restricted to other destinations. Not offered for this connection.
+    NoMatch,
+}
+
 /// An intermediary struct representing an SSH key from the vault,
 /// before its private key has been parsed.
 pub struct UnparsedSSHKeyData {
@@ -153,23 +180,24 @@ impl SSHKeyData {
         &self.private_key
     }
 
-    /// Determines whether this key should be offered for the given verified destination host-key
-    /// fingerprint.
-    ///
-    /// Returns `true` when `host_fingerprint` is `None` (no verified session-bind info), when this
-    /// key has no configured `destination_fingerprints` (unrestricted), or when `host_fingerprint`
-    /// is present in `destination_fingerprints`. Returns `false` only when this key is restricted
-    /// to other destinations.
+    /// Classifies this key against the given verified destination host-key fingerprint. See
+    /// [`DestinationMatch`] for how filtering and prioritization are derived from the result.
     #[must_use]
-    pub(super) fn is_offered_for(&self, host_fingerprint: Option<&str>) -> bool {
+    pub(super) fn destination_match(&self, host_fingerprint: Option<&str>) -> DestinationMatch {
         let Some(host_fingerprint) = host_fingerprint else {
-            return true;
+            return DestinationMatch::Unrestricted;
         };
-        self.destination_fingerprints.is_empty()
-            || self
-                .destination_fingerprints
-                .iter()
-                .any(|fp| fp == host_fingerprint)
+        if self.destination_fingerprints.is_empty() {
+            DestinationMatch::Unrestricted
+        } else if self
+            .destination_fingerprints
+            .iter()
+            .any(|fp| fp == host_fingerprint)
+        {
+            DestinationMatch::ExplicitMatch
+        } else {
+            DestinationMatch::NoMatch
+        }
     }
 }
 
@@ -363,26 +391,35 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
     }
 
     #[test]
-    fn is_offered_for_no_host_fingerprint_returns_true_even_when_restricted() {
+    fn destination_match_no_host_fingerprint_is_unrestricted_even_when_restricted() {
         let key = keydata_with_destinations(&["SHA256:other"]);
-        assert!(key.is_offered_for(None));
+        assert_eq!(key.destination_match(None), DestinationMatch::Unrestricted);
     }
 
     #[test]
-    fn is_offered_for_unrestricted_key_returns_true_for_any_host() {
+    fn destination_match_unrestricted_key_is_unrestricted_for_any_host() {
         let key = keydata_with_destinations(&[]);
-        assert!(key.is_offered_for(Some("SHA256:anything")));
+        assert_eq!(
+            key.destination_match(Some("SHA256:anything")),
+            DestinationMatch::Unrestricted
+        );
     }
 
     #[test]
-    fn is_offered_for_matching_destination_returns_true() {
+    fn destination_match_matching_destination_is_explicit_match() {
         let key = keydata_with_destinations(&["SHA256:a", "SHA256:b"]);
-        assert!(key.is_offered_for(Some("SHA256:b")));
+        assert_eq!(
+            key.destination_match(Some("SHA256:b")),
+            DestinationMatch::ExplicitMatch
+        );
     }
 
     #[test]
-    fn is_offered_for_non_matching_destination_returns_false() {
+    fn destination_match_non_matching_destination_is_no_match() {
         let key = keydata_with_destinations(&["SHA256:a", "SHA256:b"]);
-        assert!(!key.is_offered_for(Some("SHA256:c")));
+        assert_eq!(
+            key.destination_match(Some("SHA256:c")),
+            DestinationMatch::NoMatch
+        );
     }
 }

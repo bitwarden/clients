@@ -10,11 +10,11 @@ use common::{
     agent_with_keys, always_approving_agent, always_denying_agent,
     framed_invalid_session_bind_extension, framed_request_identities,
     framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, read_framed_response, session_bind_extension_with_fingerprint,
-    test_ecdsa_p256_key, test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob,
-    test_ecdsa_p521_key, test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob,
-    test_rsa_key, test_rsa_key_blob, test_rsa_key_with_destinations, unsupported_dsa_key_blob,
-    MockApprovalRequester,
+    parse_key_names, parse_sign_response_algorithm, read_framed_response,
+    session_bind_extension_with_fingerprint, test_ecdsa_p256_key, test_ecdsa_p256_key_blob,
+    test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key, test_ecdsa_p521_key_blob,
+    test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
+    test_rsa_key_with_destinations, unsupported_dsa_key_blob, MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -610,6 +610,63 @@ async fn test_list_keys_includes_key_matching_bound_destination_host_fingerprint
     assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
     let count = u32::from_be_bytes(response[1..5].try_into().unwrap());
     assert_eq!(count, 2, "both unrestricted and matching keys are offered");
+    assert_eq!(
+        parse_key_names(&response),
+        vec!["Matching RSA Key".to_string(), "Test Key".to_string()],
+        "the destination-matching key must be listed before the unrestricted key"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_prioritizes_matching_destination_over_multiple_unrestricted_keys() {
+    setup();
+    // Two unrestricted keys (distinct algorithms, so distinct public keys) are inserted before
+    // the destination-matching key, so a naive implementation that merely preserves
+    // insertion/keystore order (without prioritizing) would list the match last. It must still be
+    // listed first.
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    let (bind_frame, fingerprint) = session_bind_extension_with_fingerprint(false);
+    stream.write_all(&bind_frame).await.unwrap();
+    let bind_response = read_framed_response(&mut stream).await;
+    assert_eq!(bind_response[0], 6, "session-bind should succeed");
+
+    agent
+        .replace(vec![
+            test_ecdsa_p256_key(),
+            test_ecdsa_p384_key(),
+            test_rsa_key_with_destinations("Matching Key", &[fingerprint.as_str()]),
+        ])
+        .unwrap();
+
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    let names = parse_key_names(&response);
+    assert_eq!(names.len(), 3, "no key should be dropped");
+    assert_eq!(
+        names[0], "Matching Key",
+        "the destination-matching key must be listed first"
+    );
+    assert_eq!(
+        names[1..].iter().collect::<std::collections::HashSet<_>>(),
+        [
+            "Test ECDSA P-256 Key".to_string(),
+            "Test ECDSA P-384 Key".to_string()
+        ]
+        .iter()
+        .collect::<std::collections::HashSet<_>>(),
+        "both unrestricted keys must still be offered"
+    );
 
     agent.stop();
 }

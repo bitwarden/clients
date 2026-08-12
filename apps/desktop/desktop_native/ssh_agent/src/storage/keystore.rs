@@ -10,9 +10,12 @@ use std::sync::{
 use anyhow::Result;
 use secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
 
-use crate::crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData};
 #[cfg(test)]
 use crate::storage::keydata::MockQueryableKeyData;
+use crate::{
+    crypto::{PrivateKey, PublicKey, QueryableKeyData, SSHKeyData},
+    storage::keydata::DestinationMatch,
+};
 
 /// Securely store and retrieve SSH key data.
 ///
@@ -48,9 +51,18 @@ pub trait KeyStore: Send + Sync {
     /// # Arguments
     ///
     /// * `host_fingerprint` - The verified SHA-256 fingerprint of the destination host key for the
-    ///   current connection, if session-bind information is available. When `None`, all keys are
-    ///   returned regardless of their configured destinations. When `Some`, keys restricted to
-    ///   other destinations are omitted.
+    ///   current connection, if session-bind information is available.
+    ///
+    ///   **Filtering**: when `None`, all keys are returned regardless of their configured
+    ///   destinations (fallback behavior — original keystore order, unmodified). When `Some`,
+    ///   keys restricted to other destinations are omitted entirely.
+    ///
+    ///   **Prioritization**: among the keys that are returned, ones explicitly configured for
+    ///   `host_fingerprint` are ordered before unrestricted keys, so OpenSSH tries a
+    ///   destination-matching key first. This is an identity-offering optimization, not an
+    ///   authorization boundary — it never affects whether signing is authorized. The relative
+    ///   order within each group (explicit matches among themselves, unrestricted keys among
+    ///   themselves) matches their order in the underlying keystore.
     ///
     /// # Returns
     ///
@@ -130,20 +142,30 @@ impl KeyStore for InMemoryEncryptedKeyStore {
         &self,
         host_fingerprint: Option<&'a str>,
     ) -> Result<Vec<(PublicKey, String)>> {
-        self.secure_memory
+        // Two buckets, filled in a single pass over the keystore's existing order: this makes the
+        // partition stable (each bucket keeps the relative order its members already had) and
+        // preserves the original collect::<Result<_, _>>() semantics of returning on the *first*
+        // unparseable key, since `?` short-circuits at the same point in the same iteration order.
+        let mut explicit_matches = Vec::new();
+        let mut unrestricted = Vec::new();
+
+        for bytes in self
+            .secure_memory
             .lock()
             .expect("Mutex is not poisoned")
             .to_vec()?
-            .into_iter()
-            .map(SSHKeyData::try_from)
-            .filter_map(|result| match result {
-                Ok(key_data) if key_data.is_offered_for(host_fingerprint) => {
-                    Some(Ok((key_data.public_key().clone(), key_data.name().clone())))
-                }
-                Ok(_) => None,
-                Err(error) => Some(Err(error)),
-            })
-            .collect::<Result<Vec<_>, _>>()
+        {
+            let key_data = SSHKeyData::try_from(bytes)?;
+            let entry = (key_data.public_key().clone(), key_data.name().clone());
+            match key_data.destination_match(host_fingerprint) {
+                DestinationMatch::ExplicitMatch => explicit_matches.push(entry),
+                DestinationMatch::Unrestricted => unrestricted.push(entry),
+                DestinationMatch::NoMatch => {}
+            }
+        }
+
+        explicit_matches.extend(unrestricted);
+        Ok(explicit_matches)
     }
 
     fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>> {
@@ -545,5 +567,269 @@ mod tests {
 
         let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 2);
+    }
+
+    /// Names of the keys returned for `host_fingerprint`, in order.
+    fn names_in_order(
+        ks: &InMemoryEncryptedKeyStore,
+        host_fingerprint: Option<&str>,
+    ) -> Vec<String> {
+        ks.get_all_public_keys_and_names(host_fingerprint)
+            .unwrap()
+            .into_iter()
+            .map(|(_, name)| name)
+            .collect()
+    }
+
+    /// `baseline`, restricted to the names in `keep`, preserving `baseline`'s relative order.
+    fn filter_preserving_order(baseline: &[String], keep: &[&str]) -> Vec<String> {
+        baseline
+            .iter()
+            .filter(|name| keep.contains(&name.as_str()))
+            .cloned()
+            .collect()
+    }
+
+    #[test]
+    fn test_get_all_explicit_match_ordered_before_unrestricted() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let unrestricted =
+            create_test_keydata_ed25519_with_destinations("unrestricted", "cipher-1", &[]);
+        let matching =
+            create_test_keydata_ed25519_with_destinations("matching", "cipher-2", &["SHA256:host"]);
+        ks.insert(unrestricted).unwrap();
+        ks.insert(matching).unwrap();
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(
+            result,
+            vec!["matching".to_string(), "unrestricted".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_get_all_unrestricted_keys_still_returned_alongside_explicit_match() {
+        // Prioritization must not turn into exclusive selection: once any explicit match exists,
+        // unrestricted keys must still be present in the result, not dropped.
+        let ks = InMemoryEncryptedKeyStore::new();
+        let matching =
+            create_test_keydata_ed25519_with_destinations("matching", "cipher-1", &["SHA256:host"]);
+        let unrestricted =
+            create_test_keydata_ed25519_with_destinations("unrestricted", "cipher-2", &[]);
+        ks.insert(matching).unwrap();
+        ks.insert(unrestricted).unwrap();
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result.len(), 2);
+        assert!(result.contains(&"unrestricted".to_string()));
+    }
+
+    #[test]
+    fn test_get_all_restricted_non_matching_key_still_omitted_under_prioritization() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let matching =
+            create_test_keydata_ed25519_with_destinations("matching", "cipher-1", &["SHA256:host"]);
+        let non_matching = create_test_keydata_ed25519_with_destinations(
+            "non-matching",
+            "cipher-2",
+            &["SHA256:other"],
+        );
+        ks.insert(matching).unwrap();
+        ks.insert(non_matching).unwrap();
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result, vec!["matching".to_string()]);
+    }
+
+    #[test]
+    fn test_get_all_multiple_explicit_matches_preserve_relative_order() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let names = ["match-a", "match-b", "match-c"];
+        for (i, name) in names.iter().enumerate() {
+            ks.insert(create_test_keydata_ed25519_with_destinations(
+                name,
+                &format!("cipher-{i}"),
+                &["SHA256:host"],
+            ))
+            .unwrap();
+        }
+        let baseline = names_in_order(&ks, None);
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result, filter_preserving_order(&baseline, &names));
+    }
+
+    #[test]
+    fn test_get_all_multiple_unrestricted_keys_preserve_relative_order() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let names = ["unres-a", "unres-b", "unres-c"];
+        for (i, name) in names.iter().enumerate() {
+            ks.insert(create_test_keydata_ed25519_with_destinations(
+                name,
+                &format!("cipher-{i}"),
+                &[],
+            ))
+            .unwrap();
+        }
+        let baseline = names_in_order(&ks, None);
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result, filter_preserving_order(&baseline, &names));
+    }
+
+    #[test]
+    fn test_get_all_stable_partition_with_mixed_matches_unrestricted_and_non_matching() {
+        // Mirrors the ordering example from the feature spec: two explicit matches, two
+        // unrestricted keys, and one restricted-but-non-matching key, inserted in a shuffled
+        // arrangement. The result must be [explicit matches in original relative order] followed
+        // by [unrestricted keys in original relative order], with the non-matching key omitted.
+        let ks = InMemoryEncryptedKeyStore::new();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "match-2",
+            "cipher-1",
+            &["SHA256:host"],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "unrestricted-1",
+            "cipher-2",
+            &[],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "match-1",
+            "cipher-3",
+            &["SHA256:host"],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "restricted-non-match",
+            "cipher-4",
+            &["SHA256:other"],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "unrestricted-2",
+            "cipher-5",
+            &[],
+        ))
+        .unwrap();
+        let baseline = names_in_order(&ks, None);
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        let expected_matches = filter_preserving_order(&baseline, &["match-1", "match-2"]);
+        let expected_unrestricted =
+            filter_preserving_order(&baseline, &["unrestricted-1", "unrestricted-2"]);
+        assert_eq!(result.len(), 4);
+        assert_eq!(&result[..2], expected_matches.as_slice());
+        assert_eq!(&result[2..], expected_unrestricted.as_slice());
+        assert!(!result.contains(&"restricted-non-match".to_string()));
+    }
+
+    #[test]
+    fn test_get_all_no_explicit_matches_preserves_original_order_among_unrestricted() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let names = ["key-a", "key-b", "key-c"];
+        for (i, name) in names.iter().enumerate() {
+            ks.insert(create_test_keydata_ed25519_with_destinations(
+                name,
+                &format!("cipher-{i}"),
+                &[],
+            ))
+            .unwrap();
+        }
+        let baseline = names_in_order(&ks, None);
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result, baseline);
+    }
+
+    #[test]
+    fn test_get_all_every_key_matches_preserves_original_order() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let names = ["key-a", "key-b", "key-c"];
+        for (i, name) in names.iter().enumerate() {
+            ks.insert(create_test_keydata_ed25519_with_destinations(
+                name,
+                &format!("cipher-{i}"),
+                &["SHA256:host"],
+            ))
+            .unwrap();
+        }
+        let baseline = names_in_order(&ks, None);
+
+        let result = names_in_order(&ks, Some("SHA256:host"));
+
+        assert_eq!(result, baseline);
+    }
+
+    #[test]
+    fn test_get_all_without_host_fingerprint_matches_raw_keystore_order_exactly() {
+        // The fallback path must not reorder anything: it should reproduce the exact sequence the
+        // underlying store yields, independent of any configured destinations.
+        let ks = InMemoryEncryptedKeyStore::new();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "restricted",
+            "cipher-1",
+            &["SHA256:other"],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "unrestricted",
+            "cipher-2",
+            &[],
+        ))
+        .unwrap();
+        ks.insert(create_test_keydata_ed25519_with_destinations(
+            "matching",
+            "cipher-3",
+            &["SHA256:host"],
+        ))
+        .unwrap();
+
+        let raw_order: Vec<String> = ks
+            .secure_memory
+            .lock()
+            .expect("Mutex is not poisoned")
+            .to_vec()
+            .unwrap()
+            .into_iter()
+            .map(|bytes| SSHKeyData::try_from(bytes).unwrap().name().clone())
+            .collect();
+
+        let result = names_in_order(&ks, None);
+
+        assert_eq!(result, raw_order);
+    }
+
+    #[test]
+    fn test_get_all_propagates_parse_error_for_malformed_stored_entry() {
+        // A malformed entry (however it got into the store) must still surface as an error rather
+        // than being silently skipped — this preserves the pre-existing
+        // collect::<Result<Vec<_>, _>>() short-circuit-on-first-error behavior.
+        let ks = InMemoryEncryptedKeyStore::new();
+        let valid =
+            create_test_keydata_ed25519_with_destinations("valid", "cipher-1", &["SHA256:host"]);
+        ks.insert(valid).unwrap();
+
+        let malformed_key = PublicKey {
+            alg: "ssh-ed25519".to_string(),
+            blob: vec![0, 1, 2, 3],
+        };
+        ks.secure_memory
+            .lock()
+            .expect("Mutex is not poisoned")
+            .put(malformed_key, b"not valid rkyv bytes");
+
+        let result = ks.get_all_public_keys_and_names(Some("SHA256:host"));
+
+        assert!(result.is_err());
     }
 }

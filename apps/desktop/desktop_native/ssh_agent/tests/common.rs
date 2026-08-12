@@ -289,17 +289,40 @@ where
 
 /// Parses the human-readable name of the first key from an IDENTITIES_ANSWER body.
 pub fn parse_first_key_name(response: &[u8]) -> String {
+    parse_key_names(response)
+        .into_iter()
+        .next()
+        .expect("at least one key in response")
+}
+
+/// Parses the human-readable names of every key in an IDENTITIES_ANSWER body, in the order the
+/// server returned them.
+pub fn parse_key_names(response: &[u8]) -> Vec<String> {
     // byte 0: type; bytes 1-4: count; then for each key: [4-byte blob_len][blob][4-byte
     // name_len][name]
-    let blob_len = u32::from_be_bytes(response[5..9].try_into().expect("4-byte slice")) as usize;
-    let name_offset = 9 + blob_len;
-    let name_len = u32::from_be_bytes(
-        response[name_offset..name_offset + 4]
-            .try_into()
-            .expect("4-byte slice"),
-    ) as usize;
-    String::from_utf8(response[name_offset + 4..name_offset + 4 + name_len].to_vec())
-        .expect("valid UTF-8 key name")
+    let count = u32::from_be_bytes(response[1..5].try_into().expect("4-byte slice")) as usize;
+    let mut offset = 5;
+    let mut names = Vec::with_capacity(count);
+    for _ in 0..count {
+        let blob_len = u32::from_be_bytes(
+            response[offset..offset + 4]
+                .try_into()
+                .expect("4-byte slice"),
+        ) as usize;
+        offset += 4 + blob_len;
+        let name_len = u32::from_be_bytes(
+            response[offset..offset + 4]
+                .try_into()
+                .expect("4-byte slice"),
+        ) as usize;
+        offset += 4;
+        names.push(
+            String::from_utf8(response[offset..offset + name_len].to_vec())
+                .expect("valid UTF-8 key name"),
+        );
+        offset += name_len;
+    }
+    names
 }
 
 mockall::mock! {
