@@ -1,7 +1,7 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
-import { render } from "lit";
+import { render, TemplateResult } from "lit";
 import { FocusableElement } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -11,10 +11,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { Lock } from "../../../../content/components/icons";
-import {
-  InlineMenuPrompt,
-  InlineMenuPromptProps,
-} from "../../../../content/components/inline-menu";
+import { InlineMenuCipherList, InlineMenuPrompt } from "../../../../content/components/inline-menu";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import { EventSecurity } from "../../../../utils/event-security";
@@ -168,15 +165,18 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private buildLockedInlineMenu() {
     if (this.useLitComponents) {
-      this.renderLitPrompt({
-        message: this.getTranslation("unlockYourAccountToViewAutofillSuggestions"),
-        actionText: this.getTranslation("unlockAccount"),
-        i18n: { actionAria: this.getTranslation("unlockAccountAria") },
-        icon: Lock,
-        handleAction: (event) => this.handleUnlockButtonClick(event as MouseEvent),
-        dataTestId: "inline-menu-locked-state",
-        actionDataTestId: "inline-menu-unlock-button",
-      });
+      this.renderLit(
+        InlineMenuPrompt({
+          message: this.getTranslation("unlockYourAccountToViewAutofillSuggestions"),
+          actionText: this.getTranslation("unlockAccount"),
+          i18n: { actionAria: this.getTranslation("unlockAccountAria") },
+          theme: this.theme,
+          icon: Lock,
+          handleAction: (event) => this.handleUnlockButtonClick(event as MouseEvent),
+          dataTestId: "inline-menu-locked-state",
+          actionDataTestId: "inline-menu-unlock-button",
+        }),
+      );
       return;
     }
 
@@ -212,16 +212,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.showInlineMenuAccountCreation = true;
 
     if (this.useLitComponents) {
-      this.renderLitPrompt({
-        actionText: this.getTranslation("saveToBitwarden"),
-        i18n: {
-          actionAria: `${this.getTranslation("saveToBitwarden")}, ${this.getTranslation("opensInANewWindow")}`,
-        },
-        handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
-        handleKeyUp: this.handleSaveLoginInlineMenuKeyUp,
-        dataTestId: "inline-menu-save-login",
-        actionDataTestId: "inline-menu-save-login-button",
-      });
+      this.renderLit(
+        InlineMenuPrompt({
+          actionText: this.getTranslation("saveToBitwarden"),
+          i18n: {
+            actionAria: `${this.getTranslation("saveToBitwarden")}, ${this.getTranslation("opensInANewWindow")}`,
+          },
+          theme: this.theme,
+          handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
+          handleKeyUp: this.handleSaveLoginInlineMenuKeyUp,
+          dataTestId: "inline-menu-save-login",
+          actionDataTestId: "inline-menu-save-login-button",
+        }),
+      );
       return;
     }
 
@@ -247,10 +250,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.append(inlineMenuListButtonContainer);
   }
 
-  private renderLitPrompt(props: Omit<InlineMenuPromptProps, "theme">) {
-    const promptHost = globalThis.document.createElement("div");
-    this.inlineMenuListContainer.appendChild(promptHost);
-    render(InlineMenuPrompt({ ...props, theme: this.theme }), promptHost);
+  private renderLit(template: TemplateResult) {
+    const host = globalThis.document.createElement("div");
+    this.inlineMenuListContainer.appendChild(host);
+    render(template, host);
     this.syncEmotionStylesIntoShadowDom();
   }
 
@@ -616,6 +619,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
+    if (this.useLitComponents) {
+      this.renderLitCipherList();
+      return;
+    }
+
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
@@ -625,6 +633,43 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
     this.toggleScrollClass();
+
+    if (!this.showInlineMenuAccountCreation) {
+      return;
+    }
+
+    const addNewLoginButtonContainer = this.buildNewItemButton();
+    this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
+    this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
+    this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+  }
+
+  private renderLitCipherList() {
+    this.renderLit(
+      InlineMenuCipherList({
+        ciphers: this.ciphers,
+        theme: this.theme,
+        showPasskeysLabels: this.showPasskeysLabels,
+        viewButtonText: this.getTranslation("view"),
+        opensInANewWindowText: this.getTranslation("opensInANewWindow"),
+        fillCredentialsForText: this.getTranslation("fillCredentialsFor"),
+        logInWithPasskeyAriaLabel: this.getTranslation("logInWithPasskeyAriaLabel"),
+        usernameText: this.getTranslation("username"),
+        cardNumberEndsWithText: this.getTranslation("cardNumberEndsWith"),
+        fillVerificationCodeText: this.getTranslation("fillVerificationCode"),
+        totpCodeAria: this.getTranslation("totpCodeAria"),
+        passkeysText: this.getTranslation("passkeys"),
+        passwordsText: this.getTranslation("passwords"),
+        handleFillCipher: (cipher) =>
+          this.triggerFillCipherClickEvent(cipher, !!cipher.login?.passkey),
+        handleViewCipher: (cipher) =>
+          this.postMessageToParent({
+            command: "viewSelectedCipher",
+            inlineMenuCipherId: cipher.id,
+          }),
+        onTotpPeriodElapsed: () => this.postMessageToParent({ command: "refreshOverlayCiphers" }),
+      }),
+    );
 
     if (!this.showInlineMenuAccountCreation) {
       return;
@@ -1169,6 +1214,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
+    if (this.useLitComponents) {
+      const fillButtons =
+        this.inlineMenuListContainer.querySelectorAll<HTMLElement>("[data-fill-cipher]");
+      const target =
+        event.code === "ArrowDown" ? fillButtons[0] : fillButtons[fillButtons.length - 1];
+      target?.focus();
+      return;
+    }
+
     if (event.code === "ArrowDown") {
       const firstFillButton = this.ciphersList.firstElementChild?.querySelector(
         ".fill-cipher-button",
@@ -1656,7 +1710,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const firstListElement = this.inlineMenuListContainer.querySelector(
-      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button']",
+      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-fill-cipher]",
     ) as HTMLElement;
     firstListElement?.focus();
   }
