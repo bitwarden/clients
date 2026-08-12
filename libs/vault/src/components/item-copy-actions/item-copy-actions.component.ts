@@ -59,9 +59,9 @@ export class VaultItemCopyActionsComponent {
 
   private getLoginCopyableItems(cipher: CipherViewLike): CipherItem[] {
     const loginItems: CipherItem[] = [
-      { key: "username", field: "username" },
-      { key: "password", field: "password" },
-      { key: "verificationCodeTotp", field: "totp" },
+      { key: "usernameLower", field: "username" },
+      { key: "passwordLower", field: "password" },
+      { key: "verificationCodeLower", field: "totp" },
     ];
 
     return cipher.viewPassword
@@ -71,7 +71,7 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyableCard() {
     const cardItems: CipherItem[] = [
-      { key: "securityCode", field: "securityCode" },
+      { key: "securityCodeLower", field: "securityCode" },
       { key: "cardNumber", field: "cardNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), cardItems);
@@ -79,20 +79,20 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyableIdentity() {
     const identityItems: CipherItem[] = [
-      { key: "address", field: "address" },
-      { key: "email", field: "email" },
-      { key: "username", field: "username" },
-      { key: "phone", field: "phone" },
+      { key: "addressLower", field: "address" },
+      { key: "emailLower", field: "email" },
+      { key: "usernameLower", field: "username" },
+      { key: "phoneLower", field: "phone" },
     ];
     return this.findSingleCopyableItem(this.cipher(), identityItems);
   }
 
   get singleCopyableBankAccount() {
     const bankAccountItems: CipherItem[] = [
-      { key: "nameOnAccount", field: "nameOnAccount" },
-      { key: "accountNumber", field: "accountNumber" },
-      { key: "bankRoutingNumber", field: "routingNumber" },
-      { key: "branchNumber", field: "branchNumber" },
+      { key: "nameOnAccountLower", field: "nameOnAccount" },
+      { key: "accountNumberLower", field: "accountNumber" },
+      { key: "bankRoutingNumberLower", field: "routingNumber" },
+      { key: "branchNumberLower", field: "branchNumber" },
       { key: "pin", field: "pin" },
       { key: "iban", field: "iban" },
       { key: "swiftCode", field: "swiftCode" },
@@ -102,20 +102,20 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyableDriversLicense() {
     const driversLicenseItems: CipherItem[] = [
-      { key: "firstName", field: "firstNameLicense" },
-      { key: "middleName", field: "middleNameLicense" },
-      { key: "lastName", field: "lastNameLicense" },
-      { key: "licenseNumber", field: "licenseNumber" },
+      { key: "firstNameLower", field: "firstNameLicense" },
+      { key: "middleNameLower", field: "middleNameLicense" },
+      { key: "lastNameLower", field: "lastNameLicense" },
+      { key: "licenseNumberLower", field: "licenseNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), driversLicenseItems);
   }
 
   get singleCopyablePassport(): CipherItem | null {
     const passportItems: CipherItem[] = [
-      { key: "firstName", field: "givenName" },
-      { key: "lastName", field: "surname" },
-      { key: "passportNumber", field: "passportNumber" },
-      { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
+      { key: "firstNameLower", field: "givenName" },
+      { key: "lastNameLower", field: "surname" },
+      { key: "passportNumberLower", field: "passportNumber" },
+      { key: "nationalIdentificationNumberLower", field: "nationalIdentificationNumber" },
     ];
     return this.findSingleCopyableItem(this.cipher(), passportItems);
   }

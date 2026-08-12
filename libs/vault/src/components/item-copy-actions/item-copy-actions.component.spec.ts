@@ -267,10 +267,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableLogin;
 
       expect(result).toEqual({
-        key: "translated-username",
+        key: "translated-usernameLower",
         field: "username",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("username");
+      expect(i18nService.t).toHaveBeenCalledWith("usernameLower");
     });
 
     it("returns null when password is hidden but multiple fields exist, ensuring username and totp are shown in the menu UI", () => {
@@ -323,7 +323,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
       // The key should be the translated field name (e.g. "username"), NOT "Copy username",
       // because the template wraps it in copyFieldCipherName = "Copy $FIELD$, $CIPHERNAME$".
-      expect(result?.key).toBe("translated-username");
+      expect(result?.key).toBe("translated-usernameLower");
       expect(result?.key).not.toContain("copy");
     });
   });
@@ -338,10 +338,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableCard;
 
       expect(result).toEqual({
-        key: "translated-securityCode",
+        key: "translated-securityCodeLower",
         field: "securityCode",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("securityCode");
+      expect(i18nService.t).toHaveBeenCalledWith("securityCodeLower");
     });
 
     it("returns null when both card number and security code are available", () => {
@@ -368,10 +368,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableIdentity;
 
       expect(result).toEqual({
-        key: "translated-email",
+        key: "translated-emailLower",
         field: "email",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("email");
+      expect(i18nService.t).toHaveBeenCalledWith("emailLower");
     });
 
     it("returns null when multiple identity fields are available", () => {
@@ -400,10 +400,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableBankAccount;
 
       expect(result).toEqual({
-        key: "translated-accountNumber",
+        key: "translated-accountNumberLower",
         field: "accountNumber",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("accountNumber");
+      expect(i18nService.t).toHaveBeenCalledWith("accountNumberLower");
     });
 
     it("returns null when multiple bank account fields are available", () => {
@@ -455,10 +455,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableDriversLicense;
 
       expect(result).toEqual({
-        key: "translated-licenseNumber",
+        key: "translated-licenseNumberLower",
         field: "licenseNumber",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("licenseNumber");
+      expect(i18nService.t).toHaveBeenCalledWith("licenseNumberLower");
     });
 
     it("returns null when multiple drivers license fields are available", () => {
@@ -834,7 +834,7 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyablePassport;
 
       expect(result).toEqual({
-        key: "translated-passportNumber",
+        key: "translated-passportNumberLower",
         field: "passportNumber",
       });
     });

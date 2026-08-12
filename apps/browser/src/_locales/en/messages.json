@@ -664,8 +664,14 @@
   "username": {
     "message": "Username"
   },
+  "usernameLower": {
+    "message": "username"
+  },
   "password": {
     "message": "Password"
+  },
+  "passwordLower": {
+    "message": "password"
   },
   "totp": {
     "message": "Authenticator secret"
@@ -1548,6 +1554,9 @@
   "verificationCodeTotp": {
     "message": "Verification code (TOTP)"
   },
+  "verificationCodeTotpLower": {
+    "message": "verification code (TOTP)"
+  },
   "copyVerificationCode": {
     "message": "Copy verification code"
   },
@@ -2165,6 +2174,9 @@
   "securityCode": {
     "message": "Security code"
   },
+  "securityCodeLower": {
+    "message": "security code"
+  },
   "cardNumber": {
     "message": "card number"
   },
@@ -2192,11 +2204,20 @@
   "firstName": {
     "message": "First name"
   },
+  "firstNameLower": {
+    "message": "first name"
+  },
   "middleName": {
     "message": "Middle name"
   },
+  "middleNameLower": {
+    "message": "middle name"
+  },
   "lastName": {
     "message": "Last name"
+  },
+  "lastNameLower": {
+    "message": "last name"
   },
   "fullName": {
     "message": "Full name"
@@ -2212,6 +2233,9 @@
   },
   "passportNumber": {
     "message": "Passport number"
+  },
+  "passportNumberLower": {
+    "message": "passport number"
   },
   "dateOfBirth": {
     "message": "Date of birth"
@@ -2249,6 +2273,9 @@
   "nationalIdentificationNumber": {
     "message": "National identification number"
   },
+  "nationalIdentificationNumberLower": {
+    "message": "national identification number"
+  },
   "issuingAuthority": {
     "message": "Issuing authority"
   },
@@ -2261,8 +2288,14 @@
   "licenseNumber": {
     "message": "License number"
   },
+  "licenseNumberLower": {
+    "message": "license number"
+  },
   "email": {
     "message": "Email"
+  },
+  "emailLower": {
+    "message": "email"
   },
   "emails": {
     "message": "Emails"
@@ -2270,8 +2303,14 @@
   "phone": {
     "message": "Phone"
   },
+  "phoneLower": {
+    "message": "phone"
+  },
   "address": {
     "message": "Address"
+  },
+  "addressLower": {
+    "message": "address"
   },
   "address1": {
     "message": "Address 1"
@@ -7376,6 +7415,9 @@
   "nameOnAccount": {
     "message": "Name on account"
   },
+  "nameOnAccountLower": {
+    "message": "name on account"
+  },
   "bankAccountType": {
     "message": "Account type"
   },
@@ -7388,12 +7430,22 @@
   "accountNumber": {
     "message": "Account number"
   },
+  "accountNumberLower": {
+    "message": "account number"
+  },
   "bankRoutingNumber": {
     "message": "Routing number",
     "description": "Used in the bank account cipher type"
   },
+  "bankRoutingNumberLower": {
+    "message": "routing number",
+    "description": "Used in the bank account cipher type"
+  },
   "branchNumber": {
     "message": "Branch/institution number"
+  },
+  "branchNumberLower": {
+    "message": "branch/institution number"
   },
   "swiftCode": {
     "message": "SWIFT code"
