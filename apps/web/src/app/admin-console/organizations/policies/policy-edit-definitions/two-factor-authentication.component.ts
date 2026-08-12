@@ -11,6 +11,9 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   name = "twoStepLoginPolicyTitle";
   description = "twoStepLoginPolicyDesc";
+  // Pins the short list text, overriding the v2 fallback ("...This policy won't be enforced for
+  // owners and admins.") that otherwise leaks into the list when PolicyDrawers is also on.
+  descriptionVfo1 = "twoStepLoginPolicyDesc";
   type = PolicyType.TwoFactorAuthentication;
   category = PolicyCategory.Authentication;
   priority = 40;
