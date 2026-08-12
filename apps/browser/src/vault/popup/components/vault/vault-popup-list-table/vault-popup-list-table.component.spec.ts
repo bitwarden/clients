@@ -519,12 +519,40 @@ describe("VaultPopupListTableComponent", () => {
     it("flattens nested folder options into one option per node", () => {
       const parent = { id: "f-1", name: "Parent" } as FolderView;
       const child = { id: "f-2", name: "Parent/Child" } as FolderView;
+      // Nesting keeps only the trailing segment on each node, so the child's label is "Child".
       folders$.next([
-        { value: parent, label: "Parent", children: [{ value: child, label: "Parent/Child" }] },
+        { value: parent, label: "Parent", children: [{ value: child, label: "Child" }] },
       ]);
       fixture.detectChanges();
 
       expect(component["folderOptions"]().map((o) => o.value)).toEqual([parent, child]);
+    });
+
+    it("keeps each nested option's own label, which may repeat across branches", () => {
+      // "Work/Personal" and "Home/Personal" both nest to a node labeled "Personal". Options are
+      // rendered with their own label and tracked by id, so the repeat is expected, not a defect.
+      folders$.next([
+        {
+          value: { id: "f-1", name: "Work" } as FolderView,
+          label: "Work",
+          children: [
+            { value: { id: "f-2", name: "Work/Personal" } as FolderView, label: "Personal" },
+          ],
+        },
+        {
+          value: { id: "f-3", name: "Home" } as FolderView,
+          label: "Home",
+          children: [
+            { value: { id: "f-4", name: "Home/Personal" } as FolderView, label: "Personal" },
+          ],
+        },
+      ]);
+      fixture.detectChanges();
+
+      const options = component["folderOptions"]();
+      expect(options.map((o) => o.label)).toEqual(["Work", "Personal", "Home", "Personal"]);
+      // Ids stay unique, which is what keeps the `@for` track expression stable.
+      expect(new Set(options.map((o) => o.value.id)).size).toBe(4);
     });
 
     /**

@@ -47,7 +47,7 @@ import {
   SearchModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
+import { OrgIconDirective, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
@@ -106,7 +106,6 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     OrgIconDirective,
     VaultFilterChipDirective,
     Vfo1I18nPipe,
-    Vfo1IconPipe,
   ],
 })
 export class VaultPopupListTableComponent implements OnDestroy {
@@ -174,8 +173,11 @@ export class VaultPopupListTableComponent implements OnDestroy {
 
   /**
    * Collections and folders arrive as nested trees, but a chip's options are a flat list, so the
-   * nesting is flattened into one option per node. Names already carry their full path (folders are
-   * nested by splitting on "/"), so a flat list still reads unambiguously.
+   * nesting is flattened into one option per node.
+   *
+   * Each node keeps the label the tree gave it — the trailing path segment — so a child of "Work"
+   * shows as "EU" rather than "Work/EU". Options are therefore tracked by id, not label, since
+   * two folders like "Work/Personal" and "Home/Personal" flatten to the same label.
    */
   protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
   protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));

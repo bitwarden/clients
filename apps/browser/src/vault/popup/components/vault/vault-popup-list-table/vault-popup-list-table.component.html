@@ -76,7 +76,7 @@
         [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
         [unsetLabel]="'all' | i18n"
       >
-        @for (option of folderOptions(); track option.label) {
+        @for (option of folderOptions(); track option.value.id) {
           <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
       </bit-filter-menu>
