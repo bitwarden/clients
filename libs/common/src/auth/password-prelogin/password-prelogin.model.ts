@@ -1,16 +1,23 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordPreloginResponse } from "./password-prelogin.response";
 
 /**
  * Domain model representing the server's prelogin response for password-based authentication.
- * Contains the KDF configuration needed to derive the master key from the user's master password.
+ * Contains the KDF configuration and salt needed to derive the master key from the user's master
+ * password.
  */
 export class PasswordPreloginData {
   constructor(
     readonly kdfConfig: KdfConfig,
+    /**
+     * The salt the server dictates for master key derivation. Only consumed when
+     * {@link FeatureFlag.PM27060_PasswordPreloginFromSdk} is on; callers otherwise derive from the
+     * user-entered email. Nullable while PM-28143 is in flight — the server does not populate it on
+     * every deployment.
+     */
     readonly salt: string,
   ) {}
 
@@ -19,14 +26,7 @@ export class PasswordPreloginData {
    * @param response The raw API response from the prelogin endpoint.
    */
   static fromResponse(response: PasswordPreloginResponse): PasswordPreloginData {
-    const kdfConfig =
-      response.kdfSettings.kdfType === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(response.kdfSettings.iterations)
-        : new Argon2KdfConfig(
-            response.kdfSettings.iterations,
-            response.kdfSettings.memory!,
-            response.kdfSettings.parallelism!,
-          );
+    const kdfConfig = response.kdfSettings.toKdfConfig();
     kdfConfig.validateKdfConfigForPrelogin();
     return new PasswordPreloginData(kdfConfig, response.salt);
   }

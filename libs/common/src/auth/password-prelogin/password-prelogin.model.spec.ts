@@ -5,23 +5,35 @@ import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { PasswordPreloginData } from "./password-prelogin.model";
 import { PasswordPreloginResponse } from "./password-prelogin.response";
 
+const salt = "user@example.com";
+
 describe("PasswordPreloginData", () => {
   describe("fromResponse", () => {
     it.each([
       {
         description: "PBKDF2",
-        response: { Kdf: 0, KdfIterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+        response: {
+          KdfSettings: {
+            KdfType: 0,
+            Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue,
+          },
+          Salt: salt,
+        },
         expected: new PasswordPreloginData(
           new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+          salt,
         ),
       },
       {
         description: "Argon2",
         response: {
-          Kdf: 1,
-          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
-          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          KdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          Salt: salt,
         },
         expected: new PasswordPreloginData(
           new Argon2KdfConfig(
@@ -29,6 +41,7 @@ describe("PasswordPreloginData", () => {
             Argon2KdfConfig.MEMORY.defaultValue,
             Argon2KdfConfig.PARALLELISM.defaultValue,
           ),
+          salt,
         ),
       },
     ])("maps a $description response to a PasswordPreloginData", ({ response, expected }) => {
@@ -37,10 +50,60 @@ describe("PasswordPreloginData", () => {
       expect(result).toEqual(expected);
     });
 
+    it("carries the server-supplied salt through to the model", () => {
+      const serverSalt = "  Normalized.Salt@Example.com ";
+
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse({
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          Salt: serverSalt,
+        }),
+      );
+
+      // The salt is passed through verbatim — normalization is the server's/SDK's responsibility,
+      // and re-normalizing here would defeat the point of asking the server for it.
+      expect(result.salt).toBe(serverSalt);
+    });
+
+    it("maps a camelCase response, matching the casing the server actually serializes", () => {
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse({
+          kdfSettings: { kdfType: 0, iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+          salt,
+        }),
+      );
+
+      expect(result).toEqual(
+        new PasswordPreloginData(
+          new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+          salt,
+        ),
+      );
+    });
+
+    it("returns an undefined salt when the server omits it", () => {
+      // PM-28143: Salt is nullable server-side while the transition is in flight. This documents
+      // today's behavior — the undefined flows through untouched. PasswordLoginStrategy only reads
+      // it when PM27060_PasswordPreloginFromSdk is on.
+      const result = PasswordPreloginData.fromResponse(
+        new PasswordPreloginResponse({
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+        }),
+      );
+
+      expect(result.salt).toBeUndefined();
+      expect(result.kdfConfig).toEqual(
+        new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+      );
+    });
+
     it.each([
       {
         description: "PBKDF2 iterations below minimum",
-        response: { Kdf: 0, KdfIterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+        response: {
+          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+          Salt: salt,
+        },
         expectedError: new RegExp(
           `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
         ),
@@ -48,10 +111,13 @@ describe("PasswordPreloginData", () => {
       {
         description: "Argon2 iterations below minimum",
         response: {
-          Kdf: 1,
-          KdfIterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
-          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
-          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          KdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          Salt: salt,
         },
         expectedError: new RegExp(
           `Argon2 iterations must be at least ${Argon2KdfConfig.PRELOGIN_ITERATIONS_MIN}`,
@@ -60,10 +126,13 @@ describe("PasswordPreloginData", () => {
       {
         description: "Argon2 memory below minimum",
         response: {
-          Kdf: 1,
-          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-          KdfMemory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
-          KdfParallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          KdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.PRELOGIN_MEMORY_MIN - 1,
+            Parallelism: Argon2KdfConfig.PARALLELISM.defaultValue,
+          },
+          Salt: salt,
         },
         expectedError: new RegExp(
           `Argon2 memory must be at least ${Argon2KdfConfig.PRELOGIN_MEMORY_MIN} MiB`,
@@ -72,10 +141,13 @@ describe("PasswordPreloginData", () => {
       {
         description: "Argon2 parallelism below minimum",
         response: {
-          Kdf: 1,
-          KdfIterations: Argon2KdfConfig.ITERATIONS.defaultValue,
-          KdfMemory: Argon2KdfConfig.MEMORY.defaultValue,
-          KdfParallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
+          KdfSettings: {
+            KdfType: 1,
+            Iterations: Argon2KdfConfig.ITERATIONS.defaultValue,
+            Memory: Argon2KdfConfig.MEMORY.defaultValue,
+            Parallelism: Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN - 1,
+          },
+          Salt: salt,
         },
         expectedError: new RegExp(
           `Argon2 parallelism must be at least ${Argon2KdfConfig.PRELOGIN_PARALLELISM_MIN}`,
@@ -85,6 +157,14 @@ describe("PasswordPreloginData", () => {
       expect(() =>
         PasswordPreloginData.fromResponse(new PasswordPreloginResponse(response)),
       ).toThrow(expectedError);
+    });
+
+    it("throws when the response omits KdfSettings entirely", () => {
+      // KdfConfigResponse validates the payload on construction, so a server that hasn't shipped
+      // the PM-28143 change fails loudly here rather than deriving a key from an undefined KDF.
+      expect(() => new PasswordPreloginResponse({ Salt: salt })).toThrow(
+        "KDF config response does not contain a valid KDF type",
+      );
     });
   });
 });

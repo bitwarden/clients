@@ -9,7 +9,7 @@ export class PasswordPreloginResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.kdfSettings = this.getResponseProperty("KdfSettings");
+    this.kdfSettings = new KdfConfigResponse(this.getResponseProperty("KdfSettings"));
     this.salt = this.getResponseProperty("Salt");
   }
 }
