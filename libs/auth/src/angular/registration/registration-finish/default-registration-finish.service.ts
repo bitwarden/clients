@@ -153,6 +153,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       provider_invite_token: undefined,
       provider_user_id: undefined,
       sales_assisted_token: undefined,
+      open_org_invite: undefined,
     };
 
     return registerFinishRequest;
