@@ -25,6 +25,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
@@ -54,6 +55,7 @@ export class InitService {
     private sharedUnlockFollowerService: SharedUnlockFollowerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
+    private logService: LogService,
   ) {}
 
   init() {
@@ -68,7 +70,12 @@ export class InitService {
       if (activeAccount) {
         // If there is an active account, we must await the process of setting the user key in memory
         // if the auto user key is set to avoid race conditions of any code trying to access the user key from mem.
-        await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
+        // A failure here leaves the account locked rather than failing app initialization.
+        try {
+          await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
+        } catch (e) {
+          this.logService.error("[InitService] Failed to auto-unlock user on startup", e);
+        }
       }
 
       this.serverNotificationsService.startListening();

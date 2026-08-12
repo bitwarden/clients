@@ -1210,7 +1210,12 @@ export class ServiceContainer {
     // as this runs on every command and could be a performance hit
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (activeAccount?.id) {
-      await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
+      // A failure here leaves the vault locked rather than failing every command outright.
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
+      } catch (e) {
+        this.logService.error("[ServiceContainer] Failed to auto-unlock user on init", e);
+      }
     }
 
     this.inited = true;

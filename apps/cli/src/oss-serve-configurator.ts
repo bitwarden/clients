@@ -125,6 +125,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
       this.serviceContainer.unlockService,
+      this.serviceContainer.logService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,
