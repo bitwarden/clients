@@ -65,7 +65,13 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 
 import { VaultFilterChipDirective } from "./vault-filter-chip.directive";
 
-/** Flattens a nested `ChipFilterOption` tree into a single depth-first list. */
+/**
+ * Flattens a nested `ChipFilterOption` tree into a single depth-first list.
+ *
+ * Interim: the designs call for an indented, expand/collapse tree, but `bit-filter-option` has no
+ * depth or children concept, so a flat list is the only shape the menu renders today. Recursive
+ * nesting is being added in CL-985; revisit this (and drop the flattening) once it lands.
+ */
 function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
 }
