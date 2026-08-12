@@ -19,6 +19,33 @@
           <bit-form-field>
             <bit-label>{{ "email" | i18n }}</bit-label>
             <input bitInput [value]="email()" readonly />
+            @if (profile.emailVerified) {
+              <span
+                bitBadge
+                variant="success"
+                slot="inline-end"
+                class="tw-shrink-0 tw-whitespace-nowrap"
+              >
+                {{ "verified" | i18n }}
+              </span>
+            } @else {
+              <button
+                id="profile_button_verifyEmail"
+                type="button"
+                buttonType="secondary"
+                size="small"
+                startIcon="bwi-envelope"
+                bitButton
+                bitFormButton
+                appStopClick
+                appStopProp
+                slot="inline-end"
+                class="tw-shrink-0 tw-whitespace-nowrap"
+                [bitAction]="verifyEmail"
+              >
+                {{ "verifyEmail" | i18n }}
+              </button>
+            }
           </bit-form-field>
         </div>
         <div class="tw-col-span-12 @3xl:tw-col-span-6 tw-row-start-1 @3xl:tw-row-start-auto">

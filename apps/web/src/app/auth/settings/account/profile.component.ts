@@ -114,4 +114,12 @@ export class ProfileComponent implements OnInit {
       message: this.i18nService.t("accountUpdated"),
     });
   };
+
+  protected readonly verifyEmail = async () => {
+    await this.apiService.postAccountVerifyEmail();
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("checkInboxForVerification"),
+    });
+  };
 }
