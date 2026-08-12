@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { combineLatest, map, Observable, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -146,7 +146,7 @@ type Scenario =
                 [formControl]="group.controls.taxId"
                 data-testid="tax-id"
               />
-              @let hint = taxIdHint$ | async;
+              @let hint = taxIdHint;
               @if (hint) {
                 <bit-hint>
                   @if (taxIdWarningActive) {
@@ -178,7 +178,6 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
 
   protected selectableCountries = selectableCountries;
   protected supportsTaxId$!: Observable<boolean>;
-  protected taxIdHint$!: Observable<string | null>;
   protected taxIdWarningActive = false;
 
   private destroy$ = new Subject<void>();
@@ -225,11 +224,6 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.taxIdWarningActive =
       this.scenario.type === "update" &&
       this.scenario.taxIdWarning === TaxIdWarningTypes.FailedVerification;
-
-    this.taxIdHint$ = combineLatest([
-      this.group.controls.country.valueChanges.pipe(startWith(this.group.value.country)),
-      this.group.controls.taxId.valueChanges.pipe(startWith(this.group.value.taxId)),
-    ]).pipe(map(([country, taxId]) => this.computeTaxIdHint(country, taxId)));
   }
 
   ngOnDestroy() {
@@ -244,8 +238,12 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.group.controls.state.disable();
   };
 
+  get taxIdHint(): string | null {
+    return this.computeTaxIdHint(this.group.value.country, this.group.value.taxId);
+  }
+
   private computeTaxIdHint(country: string | null | undefined, taxId: string | null | undefined) {
-    if (!this.scenario.supportsTaxId || !country) {
+    if (!this.scenario.supportsTaxId || !country || country === "US") {
       return null;
     }
     const types = taxIdTypes.filter((type) => type.iso === country);
@@ -254,12 +252,19 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     }
     const resolved =
       types.length === 1 ? types[0] : taxId ? findTaxIdTypeByValue(types, taxId) : undefined;
-    const example = resolved ? this.i18nService.t("taxIdFormatExample", resolved.example) : null;
+
     if (this.taxIdWarningActive) {
       const check = this.i18nService.t("checkInputFormat");
-      return example ? `${check} ${example}` : check;
+      return resolved
+        ? `${check} ${this.i18nService.t("taxIdFormatExample", resolved.example)}`
+        : check;
     }
-    return example;
+
+    if (types.length === 1) {
+      return this.i18nService.t("taxIdFormatExample", types[0].example);
+    }
+
+    return resolved ? this.i18nService.t("recognizedTaxIdFormat", resolved.description) : null;
   }
 
   static getFormGroup = (): BillingAddressFormGroup =>

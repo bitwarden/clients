@@ -1,5 +1,4 @@
 import { mock } from "jest-mock-extended";
-import { Subscription } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { TaxIdWarningTypes } from "@bitwarden/web-vault/app/billing/warnings/types";
@@ -91,8 +90,6 @@ describe("getBillingAddressFromControls", () => {
 
 describe("EnterBillingAddressComponent", () => {
   let component: EnterBillingAddressComponent;
-  let subscription: Subscription;
-  let hint: string | null | undefined;
 
   const i18nService = mock<I18nService>();
   i18nService.t.mockImplementation((key: string, ...args: unknown[]) => [key, ...args].join(":"));
@@ -102,18 +99,13 @@ describe("EnterBillingAddressComponent", () => {
     component.scenario = scenario;
     component.group = EnterBillingAddressComponent.getFormGroup();
     component.ngOnInit();
-
-    hint = undefined;
-    subscription = (component as any).taxIdHint$.subscribe(
-      (value: string | null) => (hint = value),
-    );
   };
 
   const setCountry = (country: string) => component.group.controls.country.setValue(country);
   const setTaxId = (taxId: string) => component.group.controls.taxId.setValue(taxId);
+  const hint = () => (component as any).taxIdHint as string | null;
 
   afterEach(() => {
-    subscription?.unsubscribe();
     component?.ngOnDestroy();
   });
 
@@ -122,17 +114,17 @@ describe("EnterBillingAddressComponent", () => {
 
     setCountry("FR");
 
-    expect(hint).toBe("taxIdFormatExample:FRAB123456789");
+    expect(hint()).toBe("taxIdFormatExample:FRAB123456789");
   });
 
   it("shows no hint for a multi-format country with no value", () => {
     setup({ type: "update", supportsTaxId: true });
 
     setCountry("CA");
-    expect(hint).toBeNull();
+    expect(hint()).toBeNull();
 
     setCountry("GB");
-    expect(hint).toBeNull();
+    expect(hint()).toBeNull();
   });
 
   it("reacts to the entered value for a multi-format country", () => {
@@ -140,13 +132,13 @@ describe("EnterBillingAddressComponent", () => {
     setCountry("CA");
 
     setTaxId("987654321");
-    expect(hint).toBe("taxIdFormatExample:123456789");
+    expect(hint()).toBe("recognizedTaxIdFormat:Canadian Business Number");
 
     setTaxId("123456789RT0002");
-    expect(hint).toBe("taxIdFormatExample:123456789RT0002");
+    expect(hint()).toBe("recognizedTaxIdFormat:Canadian GST/HST number");
 
     setTaxId("12345");
-    expect(hint).toBeNull();
+    expect(hint()).toBeNull();
   });
 
   it("resolves United Kingdom values by the entered value", () => {
@@ -154,10 +146,10 @@ describe("EnterBillingAddressComponent", () => {
     setCountry("GB");
 
     setTaxId("GB123456789");
-    expect(hint).toBe("taxIdFormatExample:GB123456789");
+    expect(hint()).toBe("recognizedTaxIdFormat:United Kingdom VAT number");
 
     setTaxId("XI123456789");
-    expect(hint).toBe("taxIdFormatExample:XI123456789");
+    expect(hint()).toBe("recognizedTaxIdFormat:Northern Ireland VAT number");
   });
 
   it("prefixes the failed-verification warning with the example", () => {
@@ -170,7 +162,7 @@ describe("EnterBillingAddressComponent", () => {
     setTaxId("987654321");
 
     expect((component as any).taxIdWarningActive).toBe(true);
-    expect(hint).toBe("checkInputFormat taxIdFormatExample:123456789");
+    expect(hint()).toBe("checkInputFormat taxIdFormatExample:123456789");
   });
 
   it("shows the failed-verification prefix alone when there is no example", () => {
@@ -182,7 +174,7 @@ describe("EnterBillingAddressComponent", () => {
 
     setCountry("CA");
 
-    expect(hint).toBe("checkInputFormat");
+    expect(hint()).toBe("checkInputFormat");
   });
 
   it("shows guidance during checkout", () => {
@@ -191,7 +183,7 @@ describe("EnterBillingAddressComponent", () => {
     setCountry("FR");
 
     expect((component as any).taxIdWarningActive).toBe(false);
-    expect(hint).toBe("taxIdFormatExample:FRAB123456789");
+    expect(hint()).toBe("taxIdFormatExample:FRAB123456789");
   });
 
   it("returns no hint when tax IDs are unsupported", () => {
@@ -199,7 +191,7 @@ describe("EnterBillingAddressComponent", () => {
 
     setCountry("FR");
 
-    expect(hint).toBeNull();
+    expect(hint()).toBeNull();
   });
 
   it("resets the tax ID when switching to an unsupported country", () => {
@@ -240,5 +232,22 @@ describe("EnterBillingAddressComponent", () => {
     setCountry("CA");
 
     expect(component.group.controls.taxId.enabled).toBe(true);
+  });
+
+  it("returns no hint for the United States", () => {
+    setup({ type: "update", supportsTaxId: true });
+
+    setCountry("US");
+
+    expect(hint()).toBeNull();
+  });
+
+  it("shows no stale hint after switching from an unsupported country to a supported one", () => {
+    setup({ type: "update", supportsTaxId: true });
+
+    setCountry("US");
+    setCountry("CA");
+
+    expect(hint()).toBeNull();
   });
 });

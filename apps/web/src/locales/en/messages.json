@@ -15397,6 +15397,15 @@
       }
     }
   },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
+      }
+    }
+  },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },
