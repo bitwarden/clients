@@ -239,6 +239,9 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
     let client = match &validated {
         ValidatedRequest::Lookup { client, .. } => client,
         ValidatedRequest::Create { client, .. } => client,
+        ValidatedRequest::Update { client, .. } => client,
+        ValidatedRequest::Delete { client, .. } => client,
+        ValidatedRequest::List { client, .. } => client,
         ValidatedRequest::DescribeFillTarget { client } => client,
     };
     if let Some(client) = client {
@@ -283,6 +286,10 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 new_secret_value: None,
                 new_secret_note: None,
                 project_hint: None,
+                target_id: None,
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
                 // `Some` only for `delivery: "fill"` — `local_protocol::validate` guarantees
                 // `fill` is `None` for every other delivery mode.
                 fill_fields: fill.as_ref().and_then(|f| f.fields.clone()),
@@ -296,8 +303,10 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
             )
         }
         ValidatedRequest::Create {
+            resource,
             name,
             value,
+            generate,
             note,
             project,
             ..
@@ -312,7 +321,12 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
             let request_data = CredentialRequestData {
                 // No query on a create — `Name`/the proposed name gives a handler that inspects
                 // these fields before checking `operation` something meaningful rather than an
-                // empty string (see `CredentialRequestData::query_value`'s docs).
+                // empty string (see `CredentialRequestData::query_value`'s docs). Same
+                // force-fill rule for `projectCreate` (M6): the proposed name, not the empty
+                // string — the main-process activity buffer must never see names for a
+                // non-lookup op, but `query_value` here is consumed only by the handler
+                // dispatch, never persisted into the activity row (see `MainAgentAccessService`'s
+                // `isCreate`/`operation !== Request` gate for that guarantee).
                 query_type: CredentialQueryKind::Name,
                 query_value: name.clone(),
                 requester_fingerprint: None,
@@ -320,23 +334,143 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 origin: CredentialRequestOrigin::Local,
                 local_peer: peer.clone(),
                 delivery_mode: None,
-                resource: ResourceKind::Secret,
+                resource,
                 operation: RequestOperation::Create,
                 new_secret_name: Some(name),
                 // Moved (not cloned) from the already-`Zeroizing` `value` produced by
                 // `local_protocol::validate` — never a second live copy of the incoming value.
-                new_secret_value: Some(value),
+                // `None` when the create instead opted for `generate` (M6) — mutually exclusive
+                // by construction, enforced in `validate`.
+                new_secret_value: value,
                 new_secret_note: note,
                 project_hint: project,
+                target_id: None,
+                generate_value: generate.is_some(),
+                generate_length: generate.and_then(|g| g.length),
+                generate_symbols: generate.and_then(|g| g.symbols),
                 fill_fields: None,
                 fill_target_token: None,
             };
-            (
-                ResourceKind::Secret,
-                RequestOperation::Create,
+            (resource, RequestOperation::Create, None, request_data)
+        }
+        ValidatedRequest::Update {
+            resource,
+            target_id,
+            name,
+            value,
+            generate,
+            note,
+            project,
+            ..
+        } => {
+            emit_event(
+                &event_sink,
+                "credential_requested",
+                &peer,
+                Some("update".to_string()),
                 None,
-                request_data,
-            )
+            );
+            let request_data = CredentialRequestData {
+                // Force-filled with `target_id`, never a name — the "Invariant guard extension"
+                // in agent-access-architecture.md's "M6" section: the main-process activity
+                // buffer must never see names for a non-lookup op, and an id is the only
+                // meaningful stand-in `query_value` can carry here (mirrors `Create`'s use of
+                // the proposed name, and `Delete`'s identical treatment below).
+                query_type: CredentialQueryKind::Id,
+                query_value: target_id.clone(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: CredentialRequestOrigin::Local,
+                local_peer: peer.clone(),
+                delivery_mode: None,
+                resource,
+                operation: RequestOperation::Update,
+                // `name` carries the rename, `value` the agent-supplied replacement value,
+                // `note` the note change (`Some("")` = clear), `project` the move-to hint —
+                // every one of them "absent = unchanged" per the wire contract, already
+                // enforced by `local_protocol::validate`.
+                new_secret_name: name,
+                new_secret_value: value,
+                new_secret_note: note,
+                project_hint: project,
+                target_id: Some(target_id),
+                generate_value: generate.is_some(),
+                generate_length: generate.and_then(|g| g.length),
+                generate_symbols: generate.and_then(|g| g.symbols),
+                fill_fields: None,
+                fill_target_token: None,
+            };
+            (resource, RequestOperation::Update, None, request_data)
+        }
+        ValidatedRequest::Delete {
+            resource,
+            target_id,
+            ..
+        } => {
+            emit_event(
+                &event_sink,
+                "credential_requested",
+                &peer,
+                Some("delete".to_string()),
+                None,
+            );
+            let request_data = CredentialRequestData {
+                // Force-filled with `target_id`, same rule as `Update` above.
+                query_type: CredentialQueryKind::Id,
+                query_value: target_id.clone(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: CredentialRequestOrigin::Local,
+                local_peer: peer.clone(),
+                delivery_mode: None,
+                resource,
+                operation: RequestOperation::Delete,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: Some(target_id),
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+            };
+            (resource, RequestOperation::Delete, None, request_data)
+        }
+        ValidatedRequest::List { resource, .. } => {
+            emit_event(
+                &event_sink,
+                "credential_requested",
+                &peer,
+                Some("list".to_string()),
+                None,
+            );
+            let request_data = CredentialRequestData {
+                // Force-filled with an empty string — a list request has no single target to
+                // name, same "nothing meaningful to carry" treatment as `DescribeFillTarget`
+                // below.
+                query_type: CredentialQueryKind::Search,
+                query_value: String::new(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: CredentialRequestOrigin::Local,
+                local_peer: peer.clone(),
+                delivery_mode: None,
+                resource,
+                operation: RequestOperation::List,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: None,
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+            };
+            (resource, RequestOperation::List, None, request_data)
         }
         ValidatedRequest::DescribeFillTarget { .. } => {
             emit_event(
@@ -364,6 +498,10 @@ async fn handle_connection<S: AsyncRead + AsyncWrite + Unpin>(
                 new_secret_value: None,
                 new_secret_note: None,
                 project_hint: None,
+                target_id: None,
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
                 fill_fields: None,
                 fill_target_token: None,
             };
@@ -578,6 +716,116 @@ mod tests {
                 approved: true,
                 item_name: Some("DB_PASSWORD".to_string()),
                 secret_id: Some("secret-1".to_string()),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `projectCreate` request carries `resource: Project` and no value/generate/
+    /// note/project fields.
+    struct ProjectCreateApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for ProjectCreateApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Project);
+            assert_eq!(request.operation, RequestOperation::Create);
+            assert_eq!(request.new_secret_name.as_deref(), Some("my-app"));
+            assert!(request.new_secret_value.is_none());
+            assert!(!request.generate_value);
+            Ok(CredentialResponseData {
+                approved: true,
+                item_name: Some("my-app".to_string()),
+                project_id: Some("project-1".to_string()),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `secretUpdate` request threads `target_id`/the `new_secret_*`/`generate_*`
+    /// fields correctly, and that `query_value` is force-filled with the target id (M6's
+    /// "Invariant guard extension" — the main-process activity buffer must never see names for
+    /// a non-lookup op).
+    struct UpdateApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for UpdateApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Secret);
+            assert_eq!(request.operation, RequestOperation::Update);
+            assert_eq!(request.target_id.as_deref(), Some("secret-1"));
+            assert_eq!(request.query_type, CredentialQueryKind::Id);
+            assert_eq!(request.query_value, "secret-1");
+            assert_eq!(request.new_secret_name.as_deref(), Some("NEW_NAME"));
+            assert_eq!(
+                request.new_secret_value.as_deref().map(String::as_str),
+                Some("new-value")
+            );
+            assert_eq!(request.new_secret_note.as_deref(), Some(""));
+            assert_eq!(request.project_hint.as_deref(), Some("my-app"));
+            Ok(CredentialResponseData {
+                approved: true,
+                item_name: Some("NEW_NAME".to_string()),
+                secret_id: Some("secret-1".to_string()),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `secretDelete` request threads `target_id` correctly and carries none of the
+    /// create/update fields.
+    struct DeleteApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for DeleteApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Secret);
+            assert_eq!(request.operation, RequestOperation::Delete);
+            assert_eq!(request.target_id.as_deref(), Some("secret-1"));
+            assert_eq!(request.query_type, CredentialQueryKind::Id);
+            assert_eq!(request.query_value, "secret-1");
+            assert!(request.new_secret_name.is_none());
+            assert!(request.new_secret_value.is_none());
+            Ok(CredentialResponseData {
+                approved: true,
+                item_name: Some("DB_PASSWORD".to_string()),
+                secret_id: Some("secret-1".to_string()),
+                ..Default::default()
+            })
+        }
+    }
+
+    /// Asserts a `projectList` request carries `resource: Project`, `operation: List`, and an
+    /// empty `query_value` (M6's force-fill rule: "list -> empty string").
+    struct ListApprovingHandler;
+
+    #[async_trait]
+    impl CredentialRequestHandler for ListApprovingHandler {
+        async fn handle_credential_request(
+            &self,
+            request: CredentialRequestData,
+        ) -> Result<CredentialResponseData, CallbackError> {
+            assert_eq!(request.resource, ResourceKind::Project);
+            assert_eq!(request.operation, RequestOperation::List);
+            assert_eq!(request.query_value, "");
+            assert!(request.target_id.is_none());
+            Ok(CredentialResponseData {
+                approved: true,
+                projects: Some(vec![crate::callbacks::ProjectEntry {
+                    id: "project-1".to_string(),
+                    name: "My Project".to_string(),
+                    write: true,
+                    organization: Some("Acme".to_string()),
+                }]),
                 ..Default::default()
             })
         }
@@ -833,6 +1081,154 @@ mod tests {
             !line.contains("prod db"),
             "the note must never appear in a local reply"
         );
+    }
+
+    // --- M6 round trips: projectCreate/secretUpdate/secretDelete/projectList -----------------
+
+    #[tokio::test]
+    async fn project_create_wire_round_trip() {
+        let request = "{\"version\":1,\"op\":\"projectCreate\",\
+            \"create\":{\"name\":\"my-app\"},\
+            \"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(ProjectCreateApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"reference\":\"bw://project/project-1\""));
+        assert!(line.contains("\"item\""));
+        assert!(line.contains("my-app"));
+        assert!(!line.contains("\"secret\""));
+        assert!(!line.contains("\"credential\""));
+    }
+
+    #[tokio::test]
+    async fn secret_update_wire_round_trip() {
+        let request = "{\"version\":1,\"op\":\"secretUpdate\",\
+            \"target\":{\"id\":\"secret-1\"},\
+            \"update\":{\"name\":\"NEW_NAME\",\"value\":\"new-value\",\"note\":\"\",\
+            \"project\":\"my-app\"},\
+            \"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(UpdateApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"reference\":\"bw://secret/secret-1\""));
+        assert!(line.contains("\"item\""));
+        assert!(line.contains("NEW_NAME"));
+        assert!(
+            !line.contains("\"secret\""),
+            "an update response must never carry a secret object"
+        );
+        assert!(
+            !line.contains("new-value"),
+            "the updated value must never be echoed back"
+        );
+    }
+
+    #[tokio::test]
+    async fn secret_delete_wire_round_trip() {
+        let request = "{\"version\":1,\"op\":\"secretDelete\",\
+            \"target\":{\"id\":\"secret-1\"},\
+            \"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(DeleteApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"reference\":\"bw://secret/secret-1\""));
+        assert!(line.contains("\"item\""));
+        assert!(!line.contains("\"secret\""));
+    }
+
+    #[tokio::test]
+    async fn project_list_wire_round_trip() {
+        let request =
+            "{\"version\":1,\"op\":\"projectList\",\"client\":{\"name\":\"aac\",\"version\":\"0.1.0\"}}\n";
+        let line = round_trip(
+            request,
+            Arc::new(ListApprovingHandler),
+            Arc::new(NoopEventSink),
+        )
+        .await;
+
+        assert!(line.contains("\"status\":\"approved\""));
+        assert!(line.contains("\"projects\""));
+        assert!(line.contains("My Project"));
+        assert!(line.contains("bw://project/project-1"));
+        assert!(!line.contains("\"reference\":\"bw://item"));
+        assert!(!line.contains("\"item\""));
+    }
+
+    /// Force-fill matrix (M6's "Invariant guard extension"): `query_value` must never carry a
+    /// name for a non-lookup op — create uses the proposed name (existing, M4b), update/delete
+    /// use the target id, and list uses the empty string. Asserted here (rather than only via
+    /// the handler assertions above) so the rule is pinned in one place per op.
+    #[tokio::test]
+    async fn query_value_force_fill_matrix() {
+        struct RecordingHandler(Arc<std::sync::Mutex<Option<(CredentialQueryKind, String)>>>);
+
+        #[async_trait]
+        impl CredentialRequestHandler for RecordingHandler {
+            async fn handle_credential_request(
+                &self,
+                request: CredentialRequestData,
+            ) -> Result<CredentialResponseData, CallbackError> {
+                *self.0.lock().unwrap() = Some((request.query_type, request.query_value));
+                Ok(CredentialResponseData {
+                    approved: true,
+                    item_name: Some("x".to_string()),
+                    secret_id: Some("id-1".to_string()),
+                    project_id: Some("id-1".to_string()),
+                    projects: Some(vec![]),
+                    ..Default::default()
+                })
+            }
+        }
+
+        let cases: [(&str, CredentialQueryKind, &str); 4] = [
+            (
+                "{\"version\":1,\"op\":\"secretCreate\",\"create\":{\"name\":\"NEW\",\"value\":\"v\"}}\n",
+                CredentialQueryKind::Name,
+                "NEW",
+            ),
+            (
+                "{\"version\":1,\"op\":\"secretUpdate\",\"target\":{\"id\":\"id-1\"},\"update\":{\"name\":\"n\"}}\n",
+                CredentialQueryKind::Id,
+                "id-1",
+            ),
+            (
+                "{\"version\":1,\"op\":\"secretDelete\",\"target\":{\"id\":\"id-1\"}}\n",
+                CredentialQueryKind::Id,
+                "id-1",
+            ),
+            (
+                "{\"version\":1,\"op\":\"projectList\"}\n",
+                CredentialQueryKind::Search,
+                "",
+            ),
+        ];
+
+        for (request, expected_kind, expected_value) in cases {
+            let recorded = Arc::new(std::sync::Mutex::new(None));
+            let handler = Arc::new(RecordingHandler(Arc::clone(&recorded)));
+            let _line = round_trip(request, handler, Arc::new(NoopEventSink)).await;
+            let (kind, value) = recorded.lock().unwrap().clone().unwrap_or_else(|| {
+                panic!("handler was never invoked for request {request:?}")
+            });
+            assert_eq!(kind, expected_kind, "request {request:?}");
+            assert_eq!(value, expected_value, "request {request:?}");
+        }
     }
 
     // --- fill / describeFillTarget wire round trips (M5) --------------------------------------

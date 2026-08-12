@@ -512,4 +512,54 @@ describe("EventService agent-mediated events", () => {
     expect(info.humanReadableMessage).toContain("agentCreatedSecretWithId");
     expect(info.humanReadableMessage).toContain("secret-8".substring(0, 8));
   });
+
+  it("renders the agent-edited-secret message and short id for Secret_EditedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Secret_EditedByAgent,
+      secretId: "secret-1111-2222",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentEditedSecretWithId");
+    expect(info.humanReadableMessage).toContain("secret-1".substring(0, 8));
+  });
+
+  it("renders the agent-deleted-secret message and short id for Secret_DeletedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Secret_DeletedByAgent,
+      secretId: "secret-3333-4444",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentDeletedSecretWithId");
+    expect(info.humanReadableMessage).toContain("secret-3".substring(0, 8));
+  });
+
+  it("renders the agent-created-project message and short id for Project_CreatedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Project_CreatedByAgent,
+      projectId: "proja-1234-5678",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentCreatedProjectWithId");
+    expect(info.humanReadableMessage).toContain("proja-12".substring(0, 8));
+  });
+
+  it("renders the agent-edited-project message and short id for Project_EditedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Project_EditedByAgent,
+      projectId: "projb-2222-3333",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentEditedProjectWithId");
+    expect(info.humanReadableMessage).toContain("projb-22".substring(0, 8));
+  });
+
+  it("renders the agent-deleted-project message and short id for Project_DeletedByAgent", async () => {
+    const info = await sut.getEventInfo({
+      type: EventType.Project_DeletedByAgent,
+      projectId: "projc-4444-5555",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).toContain("agentDeletedProjectWithId");
+    expect(info.humanReadableMessage).toContain("projc-44".substring(0, 8));
+  });
 });

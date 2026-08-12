@@ -35,8 +35,8 @@ pub use callbacks::{
     AgentAccessEvent, CallbackError, CredentialDenialReason, CredentialQueryKind,
     CredentialRequestData, CredentialRequestHandler, CredentialRequestOrigin,
     CredentialResponseData, DeliveryMode, EventSink, FingerprintVerificationData,
-    FingerprintVerificationResponse, FingerprintVerifier, KvStorage, RequestOperation,
-    ResourceKind,
+    FingerprintVerificationResponse, FingerprintVerifier, KvStorage, ProjectEntry,
+    RequestOperation, ResourceKind,
 };
 pub use client::{AgentAccessConfig, DesktopAgentAccess};
 pub use error::AgentAccessError;

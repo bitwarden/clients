@@ -1,0 +1,75 @@
+<form [bitSubmit]="submit" [formGroup]="createProjectRequestForm" bit-dialog>
+  <div class="tw-font-medium" bitDialogTitle>
+    @if (isRename()) {
+      {{ "agentAccessProjectRenameRequestTitle" | i18n }}
+    } @else {
+      {{ "agentAccessProjectCreateRequestTitle" | i18n }}
+    }
+  </div>
+  <div bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <bit-callout
+        type="warning"
+        title="{{
+          (isRename()
+            ? 'agentAccessProjectRenameRequestTitle'
+            : 'agentAccessProjectCreateRequestTitle'
+          ) | i18n
+        }}"
+      >
+        {{ "agentAccessRequestedBy" | i18n: requesterDisplayName }}
+      </bit-callout>
+
+      @if (isRename()) {
+        <bit-form-field disableMargin>
+          <bit-label>{{ "agentAccessProject" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            [value]="params.projectName + ' → ' + params.newProjectName"
+            readonly
+          />
+        </bit-form-field>
+      } @else {
+        <bit-form-field disableMargin>
+          <bit-label>{{ "agentAccessProject" | i18n }}</bit-label>
+          <input bitInput type="text" [value]="params.projectName" readonly />
+        </bit-form-field>
+
+        <bit-form-field disableMargin>
+          <bit-label>{{ "organization" | i18n }}</bit-label>
+          <bit-select
+            id="create-project-request_select_organization"
+            formControlName="organizationId"
+          >
+            @for (org of params.organizations; track org.id) {
+              <bit-option [value]="org.id" [label]="org.name"></bit-option>
+            }
+          </bit-select>
+        </bit-form-field>
+      }
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="create-project-request_button_authorize"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      [disabled]="!isRename() && createProjectRequestForm.invalid"
+    >
+      <span>{{ "authorize" | i18n }}</span>
+    </button>
+    <button
+      id="create-project-request_button_deny"
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      (click)="deny()"
+    >
+      {{ "deny" | i18n }}
+    </button>
+  </ng-container>
+</form>

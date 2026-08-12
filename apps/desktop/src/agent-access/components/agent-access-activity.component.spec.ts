@@ -65,6 +65,7 @@ describe("AgentAccessActivityComponent", () => {
   };
 
   let mockResolveSecretName: jest.Mock;
+  let mockResolveProjectName: jest.Mock;
 
   function createComponent(): AgentAccessActivityComponent {
     const messageListener = {
@@ -90,7 +91,12 @@ describe("AgentAccessActivityComponent", () => {
     // The renderer-memory SM name cache — mirrors `cipherService` for secrets. Defaults to "not
     // seen this session" (undefined) so a test can opt in to a resolved name explicitly.
     mockResolveSecretName = jest.fn().mockReturnValue(undefined);
-    const agentAccessSecretsService = { resolveSecretName: mockResolveSecretName };
+    // M6 project analogue of `resolveSecretName` — same "not seen this session" default.
+    mockResolveProjectName = jest.fn().mockReturnValue(undefined);
+    const agentAccessSecretsService = {
+      resolveSecretName: mockResolveSecretName,
+      resolveProjectName: mockResolveProjectName,
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -330,6 +336,146 @@ describe("AgentAccessActivityComponent", () => {
         "agentAccessCreatedItem",
         "agentAccessCreateFallbackName",
       );
+    });
+  });
+
+  // M6 (agent-access-architecture.md, "M6 — Full Secrets Manager surface"): `updated`/`deleted`
+  // rows never carry a `queryValue` either (same reason as `created`) and resolve their target
+  // name from the appropriate session-scoped cache — secret via `resolveSecretName`, project via
+  // the new `resolveProjectName` — falling back to a generic label, never a raw query value.
+  describe("updated/deleted result labels", () => {
+    let component: AgentAccessActivityComponent;
+    const resultLabel = (entry: CredentialRequestActivity) =>
+      (component as any).requestResultLabel(entry) as string | undefined;
+
+    const updatedSecretRequest: CredentialRequestActivity = {
+      type: "credential_request",
+      id: "request-3",
+      timestampMs: "1700000000000",
+      agentName: "Cursor",
+      origin: "local",
+      status: "updated",
+      resourceType: "secret",
+      operation: "update",
+      secretId: "secret-1",
+      resolvedAtMs: "1700000005000",
+    };
+
+    const deletedProjectRequest: CredentialRequestActivity = {
+      type: "credential_request",
+      id: "request-4",
+      timestampMs: "1700000000000",
+      agentName: "Cursor",
+      origin: "local",
+      status: "deleted",
+      resourceType: "project",
+      operation: "delete",
+      projectId: "proj-1",
+      resolvedAtMs: "1700000005000",
+    };
+
+    beforeEach(async () => {
+      component = createComponent();
+      await component.ngOnInit();
+    });
+
+    it("resolves an updated secret's name from the secret name cache, by secretId", () => {
+      mockResolveSecretName.mockReturnValue("PROD_DB_PASSWORD");
+
+      expect(resultLabel(updatedSecretRequest)).toBe("agentAccessUpdatedItem");
+      expect(mockResolveSecretName).toHaveBeenCalledWith("secret-1");
+      expect(TestBed.inject(I18nService).t).toHaveBeenCalledWith(
+        "agentAccessUpdatedItem",
+        "PROD_DB_PASSWORD",
+      );
+    });
+
+    it("falls back to a generic label, never a raw query value, when an updated secret's name was never cached", () => {
+      mockResolveSecretName.mockReturnValue(undefined);
+
+      expect(resultLabel(updatedSecretRequest)).toBe("agentAccessUpdatedItem");
+      expect(TestBed.inject(I18nService).t).toHaveBeenCalledWith(
+        "agentAccessUpdatedItem",
+        "agentAccessUpdateFallbackName",
+      );
+    });
+
+    it("resolves a deleted project's name from the project name cache, by projectId", () => {
+      mockResolveProjectName.mockReturnValue("my-app");
+
+      expect(resultLabel(deletedProjectRequest)).toBe("agentAccessDeletedItem");
+      expect(mockResolveProjectName).toHaveBeenCalledWith("proj-1");
+      expect(TestBed.inject(I18nService).t).toHaveBeenCalledWith(
+        "agentAccessDeletedItem",
+        "my-app",
+      );
+    });
+
+    it("falls back to a generic label, never a raw query value, when a deleted project's name was never cached", () => {
+      mockResolveProjectName.mockReturnValue(undefined);
+
+      expect(resultLabel(deletedProjectRequest)).toBe("agentAccessDeletedItem");
+      expect(TestBed.inject(I18nService).t).toHaveBeenCalledWith(
+        "agentAccessDeletedItem",
+        "agentAccessDeleteFallbackName",
+      );
+    });
+
+    it("never falls back to a project's name for a secret row, or vice versa", () => {
+      mockResolveProjectName.mockReturnValue("wrong-cache");
+      mockResolveSecretName.mockReturnValue(undefined);
+
+      resultLabel(updatedSecretRequest);
+
+      expect(mockResolveProjectName).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("listed result label", () => {
+    let component: AgentAccessActivityComponent;
+    const resultLabel = (entry: CredentialRequestActivity) =>
+      (component as any).requestResultLabel(entry) as string | undefined;
+
+    const listedRequest: CredentialRequestActivity = {
+      type: "credential_request",
+      id: "request-5",
+      timestampMs: "1700000000000",
+      agentName: "Cursor",
+      origin: "local",
+      status: "listed",
+      resourceType: "project",
+      operation: "list",
+      resolvedAtMs: "1700000005000",
+    };
+
+    beforeEach(async () => {
+      component = createComponent();
+      await component.ngOnInit();
+    });
+
+    it("shows a static released-the-list label", () => {
+      expect(resultLabel(listedRequest)).toBe("agentAccessResultListed");
+    });
+  });
+
+  describe("status badge metadata", () => {
+    let component: AgentAccessActivityComponent;
+
+    beforeEach(async () => {
+      component = createComponent();
+      await component.ngOnInit();
+    });
+
+    it("labels and colors updated/deleted/listed distinctly from created/denied", () => {
+      const statusLabel = (status: string) => (component as any).statusLabel(status) as string;
+      const statusVariant = (status: string) => (component as any).statusVariant(status) as string;
+
+      expect(statusLabel("updated")).toBe("agentAccessStatusUpdated");
+      expect(statusLabel("deleted")).toBe("agentAccessStatusDeleted");
+      expect(statusLabel("listed")).toBe("agentAccessStatusListed");
+      expect(statusVariant("updated")).toBe("success");
+      expect(statusVariant("deleted")).toBe("danger");
+      expect(statusVariant("listed")).toBe("subtle");
     });
   });
 

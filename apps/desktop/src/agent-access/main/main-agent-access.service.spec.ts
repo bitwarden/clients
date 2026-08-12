@@ -869,6 +869,248 @@ describe("MainAgentAccessService", () => {
         expect(entry.secretId).toBeUndefined();
       });
     });
+
+    // M6 — Full Secrets Manager surface: update/delete/list (agent-access-architecture.md, "M6").
+    // Same ids-only invariant as M4b's create, generalized: the Rust side force-fills napi's
+    // non-optional `queryValue` with the *target id* for update/delete (rather than a proposed
+    // name), but the row must omit queryType/queryValue for every non-"request" operation
+    // regardless — an id would be tolerable on its own, but consistency across every non-lookup
+    // operation is the pinned invariant, not "only names are dangerous".
+    describe("M6 — update/delete/list", () => {
+      const getActivity = () => ipcHandlers.get("agentaccess.getactivity")!({});
+      const respond = (requestId: number, body: Record<string, unknown>) =>
+        ipcHandlers.get("agentaccess.credentialrequestresponse")!({}, { requestId, ...body });
+
+      const updateRequestData: agent_access.CredentialRequestData = {
+        ...mockCredentialData,
+        // Force-filled by the Rust side with the *target id* for update/delete (M6's invariant
+        // guard extension) — a recognizable fixture so a regression copying it into the buffer
+        // is caught below.
+        queryValue: "secret-target-1",
+        resourceType: "secret",
+        operation: "update",
+        targetId: "secret-target-1",
+        generateValue: true,
+        generateLength: 64,
+        generateSymbols: false,
+      } as agent_access.CredentialRequestData;
+
+      const deleteRequestData: agent_access.CredentialRequestData = {
+        ...mockCredentialData,
+        queryValue: "secret-target-2",
+        resourceType: "secret",
+        operation: "delete",
+        targetId: "secret-target-2",
+      } as agent_access.CredentialRequestData;
+
+      const listRequestData: agent_access.CredentialRequestData = {
+        ...mockCredentialData,
+        queryValue: "",
+        resourceType: "project",
+        operation: "list",
+      } as agent_access.CredentialRequestData;
+
+      describe("narrowing", () => {
+        it.each(["update", "delete", "list"])(
+          "narrows operation %s without degrading to the Request fallback",
+          async (operation) => {
+            void capturedCredentialCb(null, {
+              ...mockCredentialData,
+              operation,
+            } as agent_access.CredentialRequestData);
+
+            const [entry] = await getActivity();
+            expect(entry).toMatchObject({ operation });
+          },
+        );
+
+        it("narrows resourceType project without degrading to the Credential fallback", async () => {
+          void capturedCredentialCb(null, listRequestData);
+
+          const [entry] = await getActivity();
+          expect(entry).toMatchObject({ resourceType: "project" });
+        });
+
+        // Regression test: an operation string outside the known contract must still narrow to
+        // Request (never treated as a write/list) — and therefore keeps queryType/queryValue on
+        // the row, exactly like a genuine "request" row.
+        it("narrows an unrecognized operation string to Request and keeps queryType/queryValue on the row", async () => {
+          void capturedCredentialCb(null, {
+            ...mockCredentialData,
+            operation: "not-a-real-operation",
+          } as unknown as agent_access.CredentialRequestData);
+
+          const [entry] = await getActivity();
+          expect(entry).toMatchObject({
+            operation: "request",
+            queryType: "domain",
+            queryValue: "example.com",
+          });
+        });
+      });
+
+      it("forwards targetId, generateValue, generateLength, and generateSymbols to the renderer's live request message", () => {
+        void capturedCredentialCb(null, updateRequestData);
+
+        expect(mockMessagingService.send).toHaveBeenCalledWith(
+          "agentaccess.credentialrequest",
+          expect.objectContaining({
+            operation: "update",
+            targetId: "secret-target-1",
+            generateValue: true,
+            generateLength: 64,
+            generateSymbols: false,
+          }),
+        );
+      });
+
+      it.each([
+        ["update", "updateRequestData"],
+        ["delete", "deleteRequestData"],
+        ["list", "listRequestData"],
+      ])("never stores queryType or queryValue on a(n) %s row — ids only", async (operation) => {
+        const data =
+          operation === "update"
+            ? updateRequestData
+            : operation === "delete"
+              ? deleteRequestData
+              : listRequestData;
+
+        void capturedCredentialCb(null, data);
+
+        const [entry] = await getActivity();
+        expect(entry).not.toHaveProperty("queryType");
+        expect(entry).not.toHaveProperty("queryValue");
+        expect(JSON.stringify(entry)).not.toContain("secret-target-1");
+        expect(JSON.stringify(entry)).not.toContain("secret-target-2");
+      });
+
+      it("records secretId and projectId on an Updated resolution, like Created", async () => {
+        const credentialPromise = capturedCredentialCb(null, updateRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: {
+            approved: true,
+            secretId: "secret-target-1",
+            projectId: "project-1",
+            itemName: "DB_PASSWORD",
+          },
+          outcome: { status: "updated", secretId: "secret-target-1", projectId: "project-1" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({
+          status: "updated",
+          secretId: "secret-target-1",
+          projectId: "project-1",
+        });
+      });
+
+      it("records secretId (without a projectId) on an Updated resolution when no project move happened", async () => {
+        const credentialPromise = capturedCredentialCb(null, updateRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: { approved: true, secretId: "secret-target-1", itemName: "DB_PASSWORD" },
+          outcome: { status: "updated", secretId: "secret-target-1" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({ status: "updated", secretId: "secret-target-1" });
+        expect(entry.projectId).toBeUndefined();
+      });
+
+      it("records secretId on a Deleted resolution of a secret target", async () => {
+        const credentialPromise = capturedCredentialCb(null, deleteRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: { approved: true, secretId: "secret-target-2", itemName: "DB_PASSWORD" },
+          outcome: { status: "deleted", secretId: "secret-target-2" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({ status: "deleted", secretId: "secret-target-2" });
+      });
+
+      it("records projectId (without a secretId) on a Deleted resolution of a project target", async () => {
+        const projectDeleteData: agent_access.CredentialRequestData = {
+          ...mockCredentialData,
+          queryValue: "project-target-1",
+          resourceType: "project",
+          operation: "delete",
+          targetId: "project-target-1",
+        } as agent_access.CredentialRequestData;
+        const credentialPromise = capturedCredentialCb(null, projectDeleteData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: { approved: true, projectId: "project-target-1", itemName: "my-app" },
+          outcome: { status: "deleted", projectId: "project-target-1" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry).toMatchObject({ status: "deleted", projectId: "project-target-1" });
+        expect(entry.secretId).toBeUndefined();
+      });
+
+      it("resolves a Listed outcome copying neither secretId nor projectId — the list itself was the release", async () => {
+        const credentialPromise = capturedCredentialCb(null, listRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: {
+            approved: true,
+            projects: [{ id: "project-1", name: "my-app", write: true, organization: "Acme" }],
+          },
+          outcome: { status: "listed" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry.status).toBe("listed");
+        expect(entry.secretId).toBeUndefined();
+        expect(entry.projectId).toBeUndefined();
+        expect(entry.resolvedAtMs).toEqual(expect.any(String));
+      });
+
+      it("never copies a project name out of the response payload into the activity buffer", async () => {
+        const credentialPromise = capturedCredentialCb(null, listRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: {
+            approved: true,
+            projects: [{ id: "project-1", name: "PROJECT_NAME_LEAK_IF_STORED", write: true }],
+          },
+          outcome: { status: "listed" },
+        });
+        await credentialPromise;
+
+        expect(JSON.stringify(await getActivity())).not.toContain("PROJECT_NAME_LEAK_IF_STORED");
+      });
+
+      it("does not record secretId or projectId when an update request is denied", async () => {
+        const credentialPromise = capturedCredentialCb(null, updateRequestData);
+        const { requestId } = lastMessage("agentaccess.credentialrequest");
+
+        await respond(requestId, {
+          response: { approved: false, reason: "denied" },
+          outcome: { status: "denied", secretId: "secret-target-1", projectId: "project-1" },
+        });
+        await credentialPromise;
+
+        const [entry] = await getActivity();
+        expect(entry.status).toBe("denied");
+        expect(entry.secretId).toBeUndefined();
+        expect(entry.projectId).toBeUndefined();
+      });
+    });
   });
 
   // Browser fill delivery (agent-access-architecture.md, "M5"): fill-delivery and

@@ -365,6 +365,12 @@ fn spawn_dispatch(
                         new_secret_value: None,
                         new_secret_note: None,
                         project_hint: None,
+                        // Update/delete/list (M6, "Full Secrets Manager surface") are
+                        // local-transport-only too — the relay never constructs one.
+                        target_id: None,
+                        generate_value: false,
+                        generate_length: None,
+                        generate_symbols: None,
                         // Fill delivery is local-transport-only too (agent-access-architecture
                         // .md, "M5 — Browser fill delivery") — the relay never constructs one.
                         fill_fields: None,

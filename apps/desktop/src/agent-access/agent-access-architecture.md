@@ -805,6 +805,281 @@ enum value + CollectController case + humanization alongside the uncommitted M4c
 12. `describeFillTarget` touches no vault data and requires no approval; its reply describes the
     page only.
 
+## M6 — Full Secrets Manager surface (update/delete/projects/generation)
+
+Direction (Max, 2026-08-12): the MCP server should expose "pretty much all functions we have
+available in sdk-sm" — the target flow is an agent that identifies hardcoded credentials, creates
+or **generates** secrets in SM *without ever knowing the generated values*, and rewires code to
+reference `bw://secret/<uuid>` + the bws SDK. This supersedes M4b's create-only stance; the
+blast-radius bound moves from "additive writes only" to "every write is a separate, single-target,
+human-approved operation with truthful consequence labeling."
+
+Explicitly excluded, with reasons the tools' descriptions must NOT contradict:
+- `/secrets/sync` — service-account-only on the server (400 for users).
+- A standalone "generate a password and hand it to the agent" tool — plaintext to the agent is
+  the anti-pattern this feature removes; generation exists only inside create/update.
+- Bulk writes — the server has bulk delete endpoints; the wire deliberately carries ONE id per
+  op so one approval == one consequence.
+- Trash operations (restore / permanently delete) — org-admin-only server-side, and "agent
+  empties the trash" has no remediation use case.
+- Secret note read-back — notes remain write-only through Agent Access (M4 invariant 2).
+
+**Server facts this section relies on (recon 2026-08-12):**
+
+- `PUT /secrets/{id}` is FULL-REPLACE: `Key`/`Value`/`Note` all `[Required]` EncStrings (org
+  key), `Note` must be the encryption of `""` when empty; `ProjectIds` ≤ 1 (400 otherwise).
+  `ProjectIds` null/omitted ⇒ "no mapping change" (only secret Write needed); `[]` ⇒ strip all
+  projects ⇒ **denied for non-admins**; `[newId]` (different from current) ⇒ move, requires
+  Write on the NEW project. `valueChanged` is never sent (web parity; server would write a
+  SecretVersion row and can 404 on missing OrganizationUser). `accessPoliciesRequests` omitted.
+- `POST /secrets/delete` takes a bare JSON array of ids; response is per-id `{Id, Error}` —
+  authz failure is an `Error` string, not an HTTP error. It is a **soft delete** (SM trash;
+  restore/empty are org-admin-only).
+- `GET /organizations/{orgId}/projects` (unlogged), `POST .../projects` (create, ANY SM user,
+  self-grants read+write, Free-plan max-projects 400 possible), `PUT /projects/{id}` (rename
+  only, needs project Write), `POST /projects/delete` (bare id array, per-id `{Id, Error}`,
+  needs project Write) — project delete is a **HARD delete**: the Project row is removed and
+  contained secrets survive project-less (invisible to non-admins without direct policies).
+- `GET /projects/{projectId}/secrets` exists, is unlogged, and serves the orphan-count warning.
+- Update/delete/project endpoints currently log hardcoded `Secret_Edited`/`Secret_Deleted`/
+  `Project_*` — the agent-mediated header resolution only covers get/create (M4c); M6-E extends
+  it.
+
+### Wire protocol v1 — six new ops + `generate` on `secretCreate` (local socket ONLY)
+
+Same framing, caps, timeout, and status vocabulary as before; none of these ops ride the relay.
+Op string ⇒ (resource, operation): `secretRequest`=(Secret,Request), `secretCreate`=(Secret,
+Create), `secretUpdate`=(Secret,Update), `secretDelete`=(Secret,Delete), `projectList`=(Project,
+List), `projectCreate`=(Project,Create), `projectUpdate`=(Project,Update), `projectDelete`=
+(Project,Delete). New reference scheme **`bw://project/<id>`**.
+
+**`secretCreate` (extended):** `create.value` becomes optional; new alternative
+`create.generate: {"length"?: int, "symbols"?: bool}` — EXACTLY ONE of `value`/`generate` must be
+present (validate() error otherwise). `length` ∈ [12, 128], default 40; `symbols` default true;
+charset is upper+lower+digits(+symbols). Out-of-range length is a validation error ("generate.length
+must be between 12 and 128"), not a clamp. Response unchanged (reference + item, value NEVER echoed
+— now it can't be: for generated creates the requester has nothing to echo).
+
+**`secretUpdate`:**
+`{"version":1,"op":"secretUpdate","target":{"id":"<uuid>"},"update":{"name"?,"value"?,
+"generate"?:{...},"note"?,"project"?},"client":{...}}`
+- `target.id` required non-empty; `update` requires ≥1 field; `value`/`generate` mutually
+  exclusive; `generate` same shape/bounds as create.
+- Field semantics: absent = unchanged. `name` = rename. `note: ""` = clear note (desktop encrypts
+  `""`). `project` = move-to HINT (name string, same trust rules as create's hint: dialog
+  preselects an exact decrypted-name match among writable projects, user always sees/changes it).
+  There is deliberately NO "remove project" form (server denies it for non-admins anyway).
+- Response (approved): `{"version":1,"status":"approved","reference":"bw://secret/<id>",
+  "item":{"name":"<post-update name>"}}`.
+
+**`secretDelete`:** `{"version":1,"op":"secretDelete","target":{"id":"<uuid>"},"client":{...}}`
+— no query/delivery/create/update/fill. Response (approved): reference + `item{name}` of the
+deleted secret. A per-id `Error` in the server reply after approval ⇒ wire `error` with a generic
+message (never the server's text verbatim — it can name policy internals).
+
+**`projectList`:** `{"version":1,"op":"projectList","client":{...}}` — no query. ONE approval
+releases the full readable project list across the user's SM orgs (names are org metadata, no
+secret material; the dialog shows every name being shared). Response (approved):
+`{"version":1,"status":"approved","projects":[{"name":"...","reference":"bw://project/<id>",
+"write":true,"organization":"<org name>"}]}` — new top-level `projects` array, capped at 200
+entries. This is the one list-shaped release; every other op stays single-target.
+
+**`projectCreate`:** `{"version":1,"op":"projectCreate","create":{"name":"..."},"client":{...}}`
+— `create.name` required non-empty; `value`/`generate`/`note`/`project` must be ABSENT (op
+decides the shape; a stray `value` on a projectCreate is a validation error). Response:
+`bw://project/<id>` + `item{name}`.
+
+**`projectUpdate`:** `{"version":1,"op":"projectUpdate","target":{"id"},"update":{"name":"..."}}`
+— rename only (mirrors the server). **`projectDelete`:**
+`{"version":1,"op":"projectDelete","target":{"id"}}`. Responses: reference + `item{name}`.
+
+### aac (SDK repo) — 7 new MCP tools (M6-A)
+
+`transport/local.rs`: `PROJECT_REFERENCE_PREFIX = "bw://project/"` + `strip_project_reference`;
+`WireTarget{id}`, `WireGenerateOptions{length,symbols}` (both optional on the wire, defaults
+applied desktop-side; aac validates bounds before sending), `WireSecretUpdate` (redacting `Debug`:
+`value` REDACTED, `note` presence-only, `name`/`project` verbatim — matches `WireSecretCreate`);
+`WireSecretCreate.value` becomes `Option<Zeroizing<String>>` + `generate: Option<...>`; request
+fns `request_secret_update`, `request_secret_delete`, `request_project_list`,
+`request_project_create`, `request_project_update`, `request_project_delete`; `WireResponse`
+gains `#[serde(default)] projects: Option<Vec<WireProjectEntry>>`
+(`WireProjectEntry{name, reference, write, organization}` — plain `Debug` is fine, no secret
+material); interpreters follow the existing per-op pattern (version check first, reference must
+start with the right prefix, derived id non-empty). Delete outcomes parse reference + name.
+
+`command/mcp.rs` — tool count 8 → **15**, definitions in this order after `create_secret`:
+1. `generate_secret({name, note?, project?, length?, symbols?})` → `{secretId, reference, name}`.
+   Description MUST state: the value is generated inside the Bitwarden desktop app and encrypted
+   before storage; **it is never shown to you and cannot be retrieved through this interface**;
+   use `run_with_secret` to use it and the reference/UUID to wire SDK integration; requires
+   desktop approval.
+2. `update_secret({secretId? | reference?, name?, value?, generate?, length?, symbols?, note?,
+   project?})` → `{secretId, reference, name}`. Exactly one of `secretId`/`reference`; ≥1 change
+   field; `value` xor `generate` (a bare `generate: true` uses default options). Description: for
+   rotation prefer `generate: true` so the new value never passes through you; renames/moves
+   never expose the value to anyone.
+3. `delete_secret({secretId? | reference?})` → `{deleted: true, secretId, name}`. Description
+   MUST say: moves the secret to the Secrets Manager trash; an organization admin can restore it.
+4. `list_projects({})` → `[{projectId, reference, name, write, organization}]`.
+5. `create_project({name})` → `{projectId, reference, name}`.
+6. `update_project({projectId? | reference?, name})` → `{projectId, reference, name}`.
+7. `delete_project({projectId? | reference?})` → `{deleted: true, projectId, name}`. Description
+   MUST warn: permanent; secrets inside are NOT deleted but lose the project and may become
+   inaccessible to non-admin users.
+Every description states that each call requires approval in the Bitwarden desktop app (the
+existing "Bitwarden desktop" description test enforces this). NO new CLI subcommands (argv
+plaintext anti-pattern; MCP only). Update `SERVER_INSTRUCTIONS` with the remediation workflow
+(find hardcoded creds → `generate_secret`/`create_secret` into a project → replace literals with
+references/UUIDs → `run_with_secret` at runtime) and the count/name tests (`tools.len()==15`,
+required-field assertions per tool, value-never-in-output table tests for update mirroring
+`create_secret_value_never_in_output_on_every_status`).
+
+### Desktop Rust + napi (M6-B)
+
+`callbacks.rs`: `ResourceKind` += `Project`; `RequestOperation` += `Update`, `Delete`, `List`;
+`CredentialRequestData` += `target_id: Option<String>`, `generate_value: bool`,
+`generate_length: Option<u32>`, `generate_symbols: Option<bool>` (Debug: presence-only where it
+isn't already; `target_id` may print verbatim — it's an id); `CredentialResponseData` +=
+`project_id: Option<String>`, `projects: Option<Vec<ProjectEntry>>`
+(`ProjectEntry{id, name, write, organization}` — names decrypt renderer-side and transit main
+only inside this in-flight response, they are never buffered; plain Debug prints presence/count
+only, not names).
+
+`local_protocol.rs`: `WireTarget`, `WireGenerate`, `WireUpdate` structs (redacting Debug on
+`WireUpdate.value`); validate() arms per the op table above — each arm rejects every foreign
+top-level object (`query`/`delivery`/`fill`/`create`/`update`/`target` — whichever don't belong,
+mirroring the existing per-arm rejections); `ValidatedRequest` gains `Update { target_id, name,
+value: Option<Zeroizing<String>>, generate: Option<GenerateOptions>, note, project, client }`,
+`Delete { resource, target_id, client }`, `List { resource, client }`, and Create gains
+`value: Option<Zeroizing<String>>` + `generate: Option<GenerateOptions>` (exactly-one enforced in
+validate()); `build_response` dispatch extends: `(Update, _)` / `(Delete, _)` → reference +
+`item{name}` built from (`secret_id`|`project_id`) + `item_name`, fail-closed if either missing;
+`(List, _)` → `projects` array from `ProjectEntry` vec, fail-closed if `projects.is_none()`;
+reference prefix selected by `resource` (`bw://secret/` vs `bw://project/`).
+
+**Invariant guard extension** (`local_listener/mod.rs`): the main-process buffer must never see
+names for non-lookup ops — `query_value` is force-filled with: create → proposed name (existing),
+update/delete → `target_id`, projectCreate → proposed name, list → `""`. Main TS keeps
+queryType/queryValue OUT of the activity row for every `operation !== "request"` (existing
+`isCreate` gate generalizes). Spec-assert both sides.
+
+napi (`agent_access.rs` + `index.d.ts` — **the .d.ts additions are already hand-applied by the
+architect; make the Rust match them exactly**): `OperationType` += `update|delete|list`,
+`ResourceType` += `project`, request fields `targetId?`, `generateValue?`, `generateLength?`,
+`generateSymbols?`; response fields `projectId?`, `projects?: Array<AgentAccessProjectEntry>`;
+new `AgentAccessProjectEntry {id, name, write, organization}`. The napi `From` impls must
+preserve EMPTY STRINGS on `newSecretNote` (note `""` = clear; do not collapse to None).
+
+### Desktop TS main + models (M6-C)
+
+Models (hand-mirror): `AgentAccessOperation` += `Update:"update"`, `Delete:"delete"`,
+`List:"list"`; `AgentAccessResourceType` += `Project:"project"`; `AgentAccessRequestStatus` +=
+`updated`, `deleted`, `listed`; `CredentialRequestActivity`/`CredentialRequestOutcome` +=
+`projectId?` (ids only, invariant 3 of M4 unchanged). Main service: pass-through of the new
+request fields to the renderer message (`targetId`, `generateValue`, `generateLength`,
+`generateSymbols`); the activity-row query omission generalizes from `isCreate` to
+`operation !== Request`; `resolveCredentialRequest` treats `updated`/`deleted`/`listed` as
+resolved statuses, copying `secretId`/`projectId` on `updated`/`deleted` (like `Shared`/
+`Created`); pending-timeout and one-way Pending→resolved rules unchanged.
+
+### Desktop TS renderer (M6-D)
+
+`agent-access-secrets.service.ts` new/changed methods (all propagate failures on post-approval
+paths, degrade-to-empty on read paths, per existing convention):
+- `getSecretForUpdate(secretId, organizationId, userId)` → `GET /secrets/{id}` **with the
+  agent-mediated header**, returning `{ nameDecrypted, keyEncString, valueEncString,
+  noteEncString, currentProjectId? }` — Key decrypted for display; **Value and Note ciphertexts
+  are passed through verbatim when unchanged, never decrypted** (the rename/move path touches no
+  plaintext value at any layer).
+- `updateSecret(...)` → `PUT /secrets/{id}` with header; body always carries key/value/note
+  (changed fields freshly encrypted, unchanged fields = original ciphertexts; note cleared =
+  encrypt `""`); `projectIds` OMITTED unless the user confirmed a move, then `[newProjectId]`.
+- `deleteSecret(secretId, organizationId, userId)` → `POST /secrets/delete` with header, body
+  `[secretId]`; a non-null per-id `error` throws (pipeline denies with generic error + toast).
+- `updateProject` / `deleteProject` → `PUT /projects/{id}` / `POST /projects/delete` with header,
+  same per-id error rule; `createProject` FIXED to send the header (existing gap).
+- `countSecretsInProject(projectId, organizationId, userId)` → `GET /projects/{id}/secrets`,
+  count only, degrade to `undefined` on failure (dialog then warns without a number).
+- `generateSecretValue(options)` — thin wrapper over `PasswordGenerationServiceAbstraction
+  .generatePassword({length, uppercase, lowercase, number: true, minNumber: 1, special: symbols,
+  minSpecial: symbols ? 1 : 0})` (provided app-wide by JslibServicesModule; the deprecated façade
+  is a deliberate choice over `CredentialGeneratorService.generate$`'s account-bound ceremony —
+  comment this). Value lives only in the local scope of the create/update handler: generated at
+  submit time, encrypted, POSTed, discarded.
+- Project name cache sibling of `secretNameCache` + `resolveProjectName` for activity display.
+
+Pipeline (`desktop-agent-access.service.ts`): the operation branch generalizes —
+`create` (extended: `generateValue` requests show a "Bitwarden will generate a strong random
+value; the agent never sees it" notice instead of the masked value field), `update` →
+`handleUpdateRequest`, `delete` → `handleDeleteRequest`, `list` → `handleProjectListRequest`,
+each after the SAME enable/unlock/grant gates, each resolving names/state BEFORE the dialog
+(TOCTOU: what is approved is what was displayed) and calling the API only AFTER approval.
+Unknown resource/operation combinations deny (fail-closed), never fall through to lookup.
+
+Dialogs (params/results pinned so the pipeline and components can be built against this doc):
+- `update-secret-request.component`: params `{requesterName?, requesterFingerprint?, secretName,
+  organizationName, currentProjectName?, changes: { name?: {from, to}, value?: "agent" |
+  "generated", note?: {to} , project?: {toHint} }, writableProjects?, preselectedProjectId?,
+  userId}`; result `{approved, projectId?}`. Agent-supplied values masked with reveal toggle
+  (create-dialog pattern); generated values shown as the notice chip; project picker rendered
+  ONLY when a move was requested.
+- `confirm-delete-request.component` (shared secret/project): params `{requesterName?,
+  requesterFingerprint?, kind: "secret" | "project", itemName, organizationName?,
+  containedSecretCount?}`; result `{approved}`. Danger-styled submit. Secret copy: moved to SM
+  trash, org-admin-restorable. Project copy: permanent, contained secrets lose their project and
+  may become inaccessible to non-admins (count shown when known).
+- `create-project-request.component`: params `{requesterName?, requesterFingerprint?,
+  projectName, organizations, lastOrganizationId?, userId}`; result `{approved,
+  organizationId?}`. (Rename reuses this shape with from→to copy via a `mode` param — D's
+  choice, but ONE simple component for both is preferred over a fourth dialog.)
+- `project-list-request.component`: params `{requesterName?, requesterFingerprint?, entries:
+  [{name, organizationName, write}]}`; result `{approved}` — the dialog lists every name being
+  released.
+Activity component: exhaustive `REQUEST_STATUS_META` gains `updated`/`deleted`/`listed` (the
+Record type forces the locale keys); result labels resolve secret names via the existing cache
+and project names via the new one; `deleted` label must not degrade to a bare id when the cache
+misses — fall back like `Created` does. i18n: extend the staged `agentAccess*` block in
+`locales/en/messages.json` (merge, never regenerate; `en` only; follow the `agentAccessCreate*`
+family naming — new families `agentAccessUpdate*`, `agentAccessDelete*`, `agentAccessProject*`).
+
+### Server + clients event mirror (M6-E)
+
+Server (branch `prototype/agentic-event-logs`): `EventType.cs` += `Secret_EditedByAgent = 2108`,
+`Secret_DeletedByAgent = 2109`, `Project_CreatedByAgent = 2204`, `Project_EditedByAgent = 2205`,
+`Project_DeletedByAgent = 2206` (2108-2199 and 2204-2299 confirmed free). Factor the private
+`AgentMediatedHeaderName`/`IsAgentMediatedRequest`/`ResolveAgentMediatedEventType` trio out of
+`SecretsController` into a shared internal helper under `src/Api/SecretsManager/` and apply it
+to: `PUT /secrets/{id}` (:241), `POST /secrets/delete` (:284), and in `ProjectsController` to
+create (:98), update (:120), delete (:196). `Project_Retrieved` gets NO agent flavor (the
+desktop never calls `GET /projects/{id}`; lists are unlogged). Tests mirror the committed
+`SetAgentMediatedHeader` pattern. Clients mirror (same repo as C/D but disjoint files):
+`libs/common/.../event-type.enum.ts` += the five values;
+`apps/web/.../event.service.ts` + web locale keys humanize them ("Agent updated secret {id}",
+etc.); `ItemEvents` category list consistency check.
+
+The update flow writes TWO agent rows by construction (`Secret_RetrievedByAgent` from the merge
+GET + `Secret_EditedByAgent` from the PUT) — accurate, since the desktop did retrieve the
+ciphertexts; documented rather than suppressed.
+
+### Invariants (additive to M4's and M5's)
+
+13. No wire reply ever carries a secret value for ANY M6 op — update/delete/project responses
+    are reference+name-shaped by construction; the only value-bearing reply remains
+    inject-delivery `secretRequest`.
+14. Generated values are born in the renderer at approval time, encrypted with the org key,
+    POSTed, and discarded — never in a wire reply, never in main, never in `aac`, never logged,
+    never shown to the agent by any path.
+15. An update that does not change the value never decrypts it, at any layer (ciphertext
+    passthrough).
+16. One approval == one target: no bulk writes on the wire; `projectList` is the sole
+    list-shaped release and carries names/ids/flags only.
+17. Consequence labeling is truthful: secret delete says trash/restorable; project delete says
+    permanent/orphaning. No dialog understates what the server will do.
+18. Project hints (create AND update-move) are never trusted silently; the user sees and can
+    change the target. Removing a secret's project via agent is unrepresentable on the wire.
+19. All SM value-reads and mutations send `Bitwarden-Agent-Mediated: 1`; list endpoints are
+    unlogged server-side and need no header.
+
 ## Sequencing & ownership
 
 | #       | Work                                                          | Repo                        | Depends on          |

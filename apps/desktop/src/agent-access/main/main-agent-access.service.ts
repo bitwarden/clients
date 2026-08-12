@@ -139,7 +139,8 @@ function toAgentAccessResourceType(resourceType: unknown): AgentAccessResourceTy
  * Narrows napi's `OperationType` (an ambient `const enum` with no runtime backing) to the
  * TS-side const object. Falls back to `Request` for a value outside the contract — the same
  * defensive default as `toAgentAccessResourceType`, and the correct one: a value this service
- * doesn't recognize as `"create"` must never be treated as a write.
+ * doesn't recognize as `"create"`/`"update"`/`"delete"`/`"list"` (M6) must never be treated as a
+ * write.
  */
 function toAgentAccessOperation(operation: unknown): AgentAccessOperation {
   const known: readonly string[] = Object.values(AgentAccessOperation);
@@ -439,7 +440,11 @@ export class MainAgentAccessService {
   private openCredentialRequest(requestId: number, data: agent_access.CredentialRequestData): void {
     try {
       const operation = toAgentAccessOperation(data.operation);
-      const isCreate = operation === AgentAccessOperation.Create;
+      // True for every write/list operation (`create`/`update`/`delete`/`list`, M4b/M6) — none of
+      // them are a plain lookup, so none of them get a `queryType`/`queryValue` on the row (see
+      // the invariant comment below). `describeFillTarget` never reaches here (early return
+      // above), so this is never true for it.
+      const isNonLookup = operation !== AgentAccessOperation.Request;
 
       // No activity row for `describeFillTarget` (agent-access-architecture.md, "M5"): the
       // operation is approval-free and vault-free — an agent preflights before every fill, so a
@@ -465,14 +470,17 @@ export class MainAgentAccessService {
           data.origin === AgentAccessActivityOrigin.Local
             ? AgentAccessActivityOrigin.Local
             : AgentAccessActivityOrigin.Relay,
-        // HARD INVARIANT (agent-access-architecture.md, "M4b"): napi's `queryValue` field on
-        // `CredentialRequestData` isn't optional, so the Rust side fills it with the *proposed
-        // secret name* on a create request — there is no other value to put there. This
-        // main-process activity buffer stores ids only, never names/values (see
-        // `CredentialRequestActivity`'s docs), so `queryType`/`queryValue` are omitted entirely
-        // for a create row rather than copied from `data`. Do not "fix" this by reading
-        // `data.queryValue` here — that is exactly the leak this guards against.
-        ...(isCreate
+        // HARD INVARIANT (agent-access-architecture.md, "M4b"/"M6"): napi's `queryValue` field on
+        // `CredentialRequestData` isn't optional, so the Rust side force-fills it for every
+        // non-lookup operation — the *proposed name* for `create`/`projectCreate`, the *target
+        // id* for `update`/`delete` — there is no other value to put there. This main-process
+        // activity buffer stores ids only, never names/values (see `CredentialRequestActivity`'s
+        // docs), so `queryType`/`queryValue` are omitted entirely for every `operation !==
+        // "request"` row rather than copied from `data` — an id would be tolerable on its own,
+        // but a name must never enter the buffer, and consistency across every non-lookup
+        // operation wins over special-casing which ones happen to carry an id today. Do not "fix"
+        // this by reading `data.queryValue` here — that is exactly the leak this guards against.
+        ...(isNonLookup
           ? {}
           : { queryType: toCredentialQueryType(data.queryType), queryValue: data.queryValue }),
         status: AgentAccessRequestStatus.Pending,
@@ -512,14 +520,19 @@ export class MainAgentAccessService {
         return;
       }
 
-      // Only a `Shared`/`Created`/`Filled` outcome may point at an item; anything else has
-      // nothing to point at, and a stray id on a denial (or a `FillFailed`, where nothing was
-      // written) would imply a release/creation/fill that never happened. `Filled` stores the
-      // cipher *id* only, plus the roles actually filled and the extension-reported page origin
-      // — metadata, never names or values (the reference-model invariant).
-      const releasedOrCreated =
+      // Only a `Shared`/`Created`/`Updated`/`Deleted`/`Filled` outcome may point at a target;
+      // anything else has nothing to point at, and a stray id on a denial (or a `FillFailed`,
+      // where nothing was written) would imply a release/write/fill that never happened. `Filled`
+      // stores the cipher *id* only, plus the roles actually filled and the extension-reported
+      // page origin — metadata, never names or values (the reference-model invariant). `Listed`
+      // (M6) has no single target — the project *list itself* was the release — so it copies
+      // neither a `secretId` nor a `projectId`; it still transitions `Pending -> "listed"` like
+      // every other terminal status.
+      const pointsAtSecretOrProject =
         outcome.status === AgentAccessRequestStatus.Shared ||
-        outcome.status === AgentAccessRequestStatus.Created;
+        outcome.status === AgentAccessRequestStatus.Created ||
+        outcome.status === AgentAccessRequestStatus.Updated ||
+        outcome.status === AgentAccessRequestStatus.Deleted;
       const pointsAtCipher =
         outcome.status === AgentAccessRequestStatus.Shared ||
         outcome.status === AgentAccessRequestStatus.Filled;
@@ -530,7 +543,8 @@ export class MainAgentAccessService {
         ...entry,
         status: outcome.status,
         cipherId: pointsAtCipher ? outcome.cipherId : undefined,
-        secretId: releasedOrCreated ? outcome.secretId : undefined,
+        secretId: pointsAtSecretOrProject ? outcome.secretId : undefined,
+        projectId: pointsAtSecretOrProject ? outcome.projectId : undefined,
         fieldsShared: pointsAtCipher ? outcome.fieldsShared : undefined,
         fillOrigin: fillOutcome ? outcome.fillOrigin : undefined,
         resolvedAtMs: `${Date.now()}`,
@@ -598,6 +612,15 @@ export class MainAgentAccessService {
         newSecretValue: data.newSecretValue,
         newSecretNote: data.newSecretNote,
         projectHint: data.projectHint,
+        // Additive (M6): the id of the existing secret/project an `update`/`delete` request
+        // targets, and generation parameters for a `create`/`update` that asks the desktop to
+        // generate the value instead of the agent supplying one. All value-free (an id, a
+        // boolean, a length, a symbols flag) — none of these ride `activityBuffer` either, same
+        // as the create fields above.
+        targetId: data.targetId,
+        generateValue: data.generateValue,
+        generateLength: data.generateLength,
+        generateSymbols: data.generateSymbols,
         // Additive (M5): fill-delivery parameters — requested field roles and the optional
         // target token from a prior describeFillTarget. Value-free by construction (role names
         // and an opaque token); like the create fields above, they ride the live IPC message

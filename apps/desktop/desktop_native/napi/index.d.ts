@@ -316,10 +316,30 @@ export declare namespace agent_access {
     newSecretNote?: string
     /**
      * Optional project-name hint for a new Secrets Manager secret — never trusted silently,
-     * see `agent_access_core::CredentialRequestData::project_hint`'s docs. Only set for
-     * `operation: "create"`.
+     * see `agent_access_core::CredentialRequestData::project_hint`'s docs. Set for
+     * `operation: "create"`, and for `operation: "update"` when the agent proposes a
+     * project move (M6).
      */
     projectHint?: string
+    /**
+     * Id of the existing secret or project an `operation: "update"`/`"delete"` request
+     * targets (M6). An opaque identifier, never a name or value.
+     */
+    targetId?: string
+    /**
+     * When true, the desktop generates the secret's value at approval time instead of the
+     * agent supplying one (M6): renderer-side generation, org-key encryption, then discard —
+     * the value never crosses this boundary in either direction. Mutually exclusive with
+     * `newSecretValue` (enforced in `local_protocol::validate`). Valid for
+     * `operation: "create"` and `"update"` on `resourceType: "secret"`.
+     */
+    generateValue?: boolean
+    /** Requested generated-value length, already validated to [12, 128] by the wire layer.
+     *  Absent means the desktop default (40). Only set alongside `generateValue: true`. */
+    generateLength?: number
+    /** Whether the generated value includes symbols (default true). Only set alongside
+     *  `generateValue: true`. */
+    generateSymbols?: boolean
     /**
      * Requested field roles (`"username"`/`"password"`/`"totp"`) for a
      * `deliveryMode: "fill"` request (M5). `None`/absent means "default: all fields present
@@ -376,6 +396,18 @@ export declare namespace agent_access {
      * credential requests.
      */
     secretId?: string
+    /**
+     * Secrets Manager project ID, for approved `resourceType: "project"`
+     * create/update/delete responses (M6). Unset otherwise.
+     */
+    projectId?: string
+    /**
+     * The readable project list released by an approved `operation: "list"` request (M6) —
+     * names, ids, and write flags only, no secret material. The names transit main only
+     * inside this in-flight response and are never buffered there (ids-only activity
+     * invariant). Unset for every other operation.
+     */
+    projects?: Array<AgentAccessProjectEntry>
     /**
      * Value-free JSON pass-through describing a `deliveryMode: "fill"` request's execution
      * outcome (M5's `fill` response object) — the renderer builds this directly (its shape
@@ -458,7 +490,24 @@ export declare namespace agent_access {
   export const enum OperationType {
     Request = 'request',
     Create = 'create',
+    /** Update an existing SM secret, or rename a project (M6, `secretUpdate`/`projectUpdate`). */
+    Update = 'update',
+    /** Delete a single SM secret or project (M6, `secretDelete`/`projectDelete`). */
+    Delete = 'delete',
+    /** Release the readable SM project list in one approval (M6, `projectList`). */
+    List = 'list',
     DescribeFillTarget = 'describeFillTarget'
+  }
+  /**
+   * One entry of an approved `operation: "list"` response (M6, `projectList`) — project
+   * metadata only, no secret material. `organization` is the org's display name, resolved
+   * renderer-side.
+   */
+  export interface AgentAccessProjectEntry {
+    id: string
+    name: string
+    write: boolean
+    organization?: string
   }
   /**
    * Best-effort one-level parent-chain walk from the local peer (W2a, `crate::attestation`
@@ -479,7 +528,9 @@ export declare namespace agent_access {
    */
   export const enum ResourceType {
     Credential = 'credential',
-    Secret = 'secret'
+    Secret = 'secret',
+    /** Secrets Manager project (M6) — list/create/update/delete operations only. */
+    Project = 'project'
   }
   /**
    * Code-signature facts (W2a) about the attested process — the resolved `parent` if

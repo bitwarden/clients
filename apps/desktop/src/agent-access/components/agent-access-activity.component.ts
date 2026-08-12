@@ -94,6 +94,18 @@ const REQUEST_STATUS_META: Readonly<
     labelKey: "agentAccessStatusFillFailed",
     variant: "warning",
   },
+  [AgentAccessRequestStatus.Updated]: {
+    labelKey: "agentAccessStatusUpdated",
+    variant: "success",
+  },
+  [AgentAccessRequestStatus.Deleted]: {
+    labelKey: "agentAccessStatusDeleted",
+    variant: "danger",
+  },
+  [AgentAccessRequestStatus.Listed]: {
+    labelKey: "agentAccessStatusListed",
+    variant: "subtle",
+  },
 });
 
 /** i18n key per query type, used to caption the query text (e.g. `Domain  github.com`). The
@@ -313,6 +325,18 @@ export class AgentAccessActivityComponent implements OnInit {
       }
       case AgentAccessRequestStatus.FillFailed:
         return this.i18nService.t("agentAccessFillResultFailed");
+      case AgentAccessRequestStatus.Updated: {
+        const name =
+          this.resolveWriteTargetName(entry) ?? this.i18nService.t("agentAccessUpdateFallbackName");
+        return this.i18nService.t("agentAccessUpdatedItem", name);
+      }
+      case AgentAccessRequestStatus.Deleted: {
+        const name =
+          this.resolveWriteTargetName(entry) ?? this.i18nService.t("agentAccessDeleteFallbackName");
+        return this.i18nService.t("agentAccessDeletedItem", name);
+      }
+      case AgentAccessRequestStatus.Listed:
+        return this.i18nService.t("agentAccessResultListed");
       case AgentAccessRequestStatus.NotFound:
         return this.i18nService.t("agentAccessResultNoMatch");
       case AgentAccessRequestStatus.Denied:
@@ -320,5 +344,24 @@ export class AgentAccessActivityComponent implements OnInit {
       default:
         return undefined;
     }
+  }
+
+  /**
+   * Resolves an `Updated`/`Deleted` row's target name from the session-scoped cache — a secret
+   * name via `resolveSecretName` (keyed by `secretId`) or a project name via
+   * `resolveProjectName` (keyed by `projectId`), depending on `resourceType`. Never falls back to
+   * `entry.queryValue` — an update/delete row never has one (the same reason a create row
+   * doesn't; see `queryType`'s doc on `CredentialRequestActivity`) — the caller falls back to a
+   * generic label instead, exactly like a `Created` row does.
+   */
+  private resolveWriteTargetName(entry: CredentialRequestActivity): string | undefined {
+    if (entry.resourceType === AgentAccessResourceType.Project) {
+      return entry.projectId
+        ? this.agentAccessSecretsService.resolveProjectName(entry.projectId)
+        : undefined;
+    }
+    return entry.secretId
+      ? this.agentAccessSecretsService.resolveSecretName(entry.secretId)
+      : undefined;
   }
 }

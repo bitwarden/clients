@@ -96,6 +96,8 @@ pub mod agent_access {
     pub enum ResourceType {
         Credential,
         Secret,
+        /// Secrets Manager project (M6) — list/create/update/delete operations only.
+        Project,
     }
 
     impl From<agent_access_core::ResourceKind> for ResourceType {
@@ -103,6 +105,7 @@ pub mod agent_access {
             match kind {
                 agent_access_core::ResourceKind::Credential => Self::Credential,
                 agent_access_core::ResourceKind::Secret => Self::Secret,
+                agent_access_core::ResourceKind::Project => Self::Project,
             }
         }
     }
@@ -118,6 +121,12 @@ pub mod agent_access {
     pub enum OperationType {
         Request,
         Create,
+        /// Update an existing SM secret, or rename a project (M6, `secretUpdate`/`projectUpdate`).
+        Update,
+        /// Delete a single SM secret or project (M6, `secretDelete`/`projectDelete`).
+        Delete,
+        /// Release the readable SM project list in one approval (M6, `projectList`).
+        List,
         DescribeFillTarget,
     }
 
@@ -126,6 +135,9 @@ pub mod agent_access {
             match operation {
                 agent_access_core::RequestOperation::Request => Self::Request,
                 agent_access_core::RequestOperation::Create => Self::Create,
+                agent_access_core::RequestOperation::Update => Self::Update,
+                agent_access_core::RequestOperation::Delete => Self::Delete,
+                agent_access_core::RequestOperation::List => Self::List,
                 agent_access_core::RequestOperation::DescribeFillTarget => Self::DescribeFillTarget,
             }
         }
@@ -300,9 +312,25 @@ pub mod agent_access {
         /// Proposed note for a new Secrets Manager secret. Only set for `operation: "create"`.
         pub new_secret_note: Option<String>,
         /// Optional project-name hint for a new Secrets Manager secret — never trusted silently,
-        /// see `agent_access_core::CredentialRequestData::project_hint`'s docs. Only set for
-        /// `operation: "create"`.
+        /// see `agent_access_core::CredentialRequestData::project_hint`'s docs. Set for
+        /// `operation: "create"`, and for `operation: "update"` when the agent proposes a
+        /// project move (M6).
         pub project_hint: Option<String>,
+        /// Id of the existing secret or project an `operation: "update"`/`"delete"` request
+        /// targets (M6). An opaque identifier, never a name or value.
+        pub target_id: Option<String>,
+        /// When true, the desktop generates the secret's value at approval time instead of the
+        /// agent supplying one (M6): renderer-side generation, org-key encryption, then discard —
+        /// the value never crosses this boundary in either direction. Mutually exclusive with
+        /// `newSecretValue` (enforced in `local_protocol::validate`). Valid for
+        /// `operation: "create"` and `"update"` on `resourceType: "secret"`.
+        pub generate_value: Option<bool>,
+        /// Requested generated-value length, already validated to `[12, 128]` by the wire layer.
+        /// Absent means the desktop default (40). Only set alongside `generateValue: true`.
+        pub generate_length: Option<u32>,
+        /// Whether the generated value includes symbols (default true). Only set alongside
+        /// `generateValue: true`.
+        pub generate_symbols: Option<bool>,
         /// Requested field roles (`"username"`/`"password"`/`"totp"`) for a
         /// `deliveryMode: "fill"` request (M5). `None`/absent means "default: all fields present
         /// and safe". Value-free — role names, never a credential value.
@@ -326,8 +354,17 @@ pub mod agent_access {
                 operation: data.operation.into(),
                 new_secret_name: data.new_secret_name,
                 new_secret_value: data.new_secret_value.map(|value| value.to_string()),
+                // CRITICAL: a direct `Option<String>` -> `Option<String>` pass-through — this
+                // must never become a `.filter(|s| !s.is_empty())` or similar, which would
+                // collapse `Some("")` (the wire contract's "clear the note" signal, M6) into
+                // `None` ("no change"). See `note_empty_string_survives_the_request_conversion`
+                // below for the regression test pinning this.
                 new_secret_note: data.new_secret_note,
                 project_hint: data.project_hint,
+                target_id: data.target_id,
+                generate_value: Some(data.generate_value),
+                generate_length: data.generate_length,
+                generate_symbols: data.generate_symbols,
                 fill_fields: data.fill_fields,
                 fill_target_token: data.fill_target_token,
             }
@@ -350,9 +387,36 @@ pub mod agent_access {
                 .field("has_new_secret_value", &self.new_secret_value.is_some())
                 .field("has_new_secret_note", &self.new_secret_note.is_some())
                 .field("has_project_hint", &self.project_hint.is_some())
+                .field("target_id", &self.target_id)
+                .field("generate_value", &self.generate_value)
+                .field("generate_length", &self.generate_length)
+                .field("generate_symbols", &self.generate_symbols)
                 .field("fill_fields", &self.fill_fields)
                 .field("fill_target_token", &self.fill_target_token)
                 .finish()
+        }
+    }
+
+    /// One entry of an approved `operation: "list"` response (M6, `projectList`) — project
+    /// metadata only, no secret material. `organization` is the org's display name, resolved
+    /// renderer-side.
+    #[napi(object)]
+    #[derive(Debug, Clone)]
+    pub struct AgentAccessProjectEntry {
+        pub id: String,
+        pub name: String,
+        pub write: bool,
+        pub organization: Option<String>,
+    }
+
+    impl From<AgentAccessProjectEntry> for agent_access_core::ProjectEntry {
+        fn from(entry: AgentAccessProjectEntry) -> Self {
+            Self {
+                id: entry.id,
+                name: entry.name,
+                write: entry.write,
+                organization: entry.organization,
+            }
         }
     }
 
@@ -386,6 +450,14 @@ pub mod agent_access {
         /// Secrets Manager secret ID, for `resourceType: "secret"` requests. Unset for
         /// credential requests.
         pub secret_id: Option<String>,
+        /// Secrets Manager project ID, for approved `resourceType: "project"`
+        /// create/update/delete responses (M6). Unset otherwise.
+        pub project_id: Option<String>,
+        /// The readable project list released by an approved `operation: "list"` request (M6) —
+        /// names, ids, and write flags only, no secret material. The names transit main only
+        /// inside this in-flight response and are never buffered there (ids-only activity
+        /// invariant). Unset for every other operation.
+        pub projects: Option<Vec<AgentAccessProjectEntry>>,
         /// Value-free JSON pass-through describing a `deliveryMode: "fill"` request's execution
         /// outcome (M5's `fill` response object) — the renderer builds this directly (its shape
         /// mirrors the wire example in agent-access-architecture.md's "M5" section). Parsed into
@@ -427,6 +499,13 @@ pub mod agent_access {
                 item_name: data.item_name,
                 secret_value: data.secret_value.map(zeroize::Zeroizing::new),
                 secret_id: data.secret_id,
+                project_id: data.project_id,
+                projects: data.projects.map(|entries| {
+                    entries
+                        .into_iter()
+                        .map(agent_access_core::ProjectEntry::from)
+                        .collect()
+                }),
                 fill_result: data.fill_result,
                 fill_target: data.fill_target,
                 denial_detail: data.denial_detail,
@@ -526,6 +605,158 @@ pub mod agent_access {
                 map_denial_reason("not_found"),
                 Some(agent_access_core::CredentialDenialReason::NotFound)
             );
+        }
+    }
+
+    /// M6 ("Full Secrets Manager surface") DTO-conversion tests: the request-side additions
+    /// (`targetId`/`generateValue`/`generateLength`/`generateSymbols`), the `ResourceType::Project`/
+    /// `OperationType::{Update,Delete,List}` mirrors, and the response-side project list
+    /// (`projectId`/`projects`/`AgentAccessProjectEntry`).
+    #[cfg(test)]
+    mod m6_conversion_tests {
+        use super::*;
+
+        fn base_core_request() -> agent_access_core::CredentialRequestData {
+            agent_access_core::CredentialRequestData {
+                query_type: agent_access_core::CredentialQueryKind::Id,
+                query_value: "target-1".to_string(),
+                requester_fingerprint: None,
+                requester_name: None,
+                origin: agent_access_core::CredentialRequestOrigin::Local,
+                local_peer: None,
+                delivery_mode: None,
+                resource: agent_access_core::ResourceKind::Secret,
+                operation: agent_access_core::RequestOperation::Update,
+                new_secret_name: None,
+                new_secret_value: None,
+                new_secret_note: None,
+                project_hint: None,
+                target_id: Some("target-1".to_string()),
+                generate_value: false,
+                generate_length: None,
+                generate_symbols: None,
+                fill_fields: None,
+                fill_target_token: None,
+            }
+        }
+
+        /// CRITICAL regression guard: `Some("")` on `new_secret_note` (the wire contract's
+        /// "clear the note" signal, M6) must survive the core -> napi request conversion
+        /// unchanged — never collapsed to `None`, which would silently turn an intended note
+        /// clear into a no-op.
+        #[test]
+        fn note_empty_string_survives_the_request_conversion() {
+            let mut core_request = base_core_request();
+            core_request.new_secret_note = Some(String::new());
+            let napi_request = CredentialRequestData::from(core_request);
+            assert_eq!(napi_request.new_secret_note.as_deref(), Some(""));
+        }
+
+        #[test]
+        fn note_absent_stays_absent() {
+            let core_request = base_core_request();
+            let napi_request = CredentialRequestData::from(core_request);
+            assert!(napi_request.new_secret_note.is_none());
+        }
+
+        #[test]
+        fn target_id_and_generate_flags_convert_verbatim() {
+            let mut core_request = base_core_request();
+            core_request.target_id = Some("secret-1".to_string());
+            core_request.generate_value = true;
+            core_request.generate_length = Some(64);
+            core_request.generate_symbols = Some(false);
+            let napi_request = CredentialRequestData::from(core_request);
+            assert_eq!(napi_request.target_id.as_deref(), Some("secret-1"));
+            assert_eq!(napi_request.generate_value, Some(true));
+            assert_eq!(napi_request.generate_length, Some(64));
+            assert_eq!(napi_request.generate_symbols, Some(false));
+        }
+
+        #[test]
+        fn generate_value_false_converts_to_some_false_not_none() {
+            // `generate_value` is a plain `bool` in `agent_access_core` (always present) but an
+            // optional `boolean` on the napi/TS surface (per the hand-applied `index.d.ts`) —
+            // the conversion must produce `Some(false)`, not `None`, so the renderer sees an
+            // explicit "no" rather than an absent field it might otherwise mis-default.
+            let core_request = base_core_request();
+            let napi_request = CredentialRequestData::from(core_request);
+            assert_eq!(napi_request.generate_value, Some(false));
+        }
+
+        #[test]
+        fn resource_type_project_round_trips() {
+            assert!(matches!(
+                ResourceType::from(agent_access_core::ResourceKind::Project),
+                ResourceType::Project
+            ));
+        }
+
+        #[test]
+        fn operation_type_update_delete_list_round_trip() {
+            assert!(matches!(
+                OperationType::from(agent_access_core::RequestOperation::Update),
+                OperationType::Update
+            ));
+            assert!(matches!(
+                OperationType::from(agent_access_core::RequestOperation::Delete),
+                OperationType::Delete
+            ));
+            assert!(matches!(
+                OperationType::from(agent_access_core::RequestOperation::List),
+                OperationType::List
+            ));
+        }
+
+        #[test]
+        fn project_entry_converts_to_core() {
+            let entry = AgentAccessProjectEntry {
+                id: "project-1".to_string(),
+                name: "My Project".to_string(),
+                write: true,
+                organization: Some("Acme".to_string()),
+            };
+            let core_entry = agent_access_core::ProjectEntry::from(entry);
+            assert_eq!(core_entry.id, "project-1");
+            assert_eq!(core_entry.name, "My Project");
+            assert!(core_entry.write);
+            assert_eq!(core_entry.organization.as_deref(), Some("Acme"));
+        }
+
+        #[test]
+        fn response_project_id_and_projects_convert() {
+            let response = CredentialResponseData {
+                approved: true,
+                username: None,
+                password: None,
+                totp: None,
+                uri: None,
+                notes: None,
+                credential_id: None,
+                reason: None,
+                item_name: None,
+                secret_value: None,
+                secret_id: None,
+                project_id: Some("project-1".to_string()),
+                projects: Some(vec![AgentAccessProjectEntry {
+                    id: "project-1".to_string(),
+                    name: "My Project".to_string(),
+                    write: true,
+                    organization: None,
+                }]),
+                fill_result: None,
+                fill_target: None,
+                denial_detail: None,
+                fill_fields_shared: None,
+            };
+            let core_response: agent_access_core::CredentialResponseData = response.into();
+            assert_eq!(core_response.project_id.as_deref(), Some("project-1"));
+            let projects = core_response.projects.expect("projects expected");
+            assert_eq!(projects.len(), 1);
+            assert_eq!(projects[0].id, "project-1");
+            assert_eq!(projects[0].name, "My Project");
+            assert!(projects[0].write);
+            assert!(projects[0].organization.is_none());
         }
     }
 

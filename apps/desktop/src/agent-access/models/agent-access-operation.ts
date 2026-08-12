@@ -10,12 +10,20 @@
  * only operation before M4b), to create a new Secrets Manager secret (`Create`,
  * agent-access-architecture.md "M4b — secret creation"), or to describe the active browser
  * tab's fillable fields (`DescribeFillTarget`, agent-access-architecture.md "M5 — Browser fill
- * delivery"). Always `Request` on the relay path — creates and describe-target requests are
- * local-transport-only, same restriction as `resourceType: "secret"`.
+ * delivery"). M6 adds the remaining Secrets Manager writes (`Update`, `Delete`) and the
+ * project-list release (`List`) — see agent-access-architecture.md "M6 — Full Secrets Manager
+ * surface". Always `Request` on the relay path — every other operation is local-transport-only,
+ * same restriction as `resourceType: "secret"`.
  */
 export const AgentAccessOperation = Object.freeze({
   Request: "request",
   Create: "create",
+  /** Update an existing SM secret or rename a project (M6). Single target, never bulk. */
+  Update: "update",
+  /** Delete a single SM secret (soft, to trash) or project (hard, orphans secrets) (M6). */
+  Delete: "delete",
+  /** Release the readable SM project list (names/ids/write flags only) in one approval (M6). */
+  List: "list",
   /**
    * Approval-free, vault-free, unlock-free page description (M5): the renderer round-trips to
    * the browser extension and replies with the active tab's login surface — no vault data is

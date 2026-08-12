@@ -67,6 +67,13 @@ pub enum ResourceKind {
     #[default]
     Credential,
     Secret,
+    /// Secrets Manager project (M6 — "Full Secrets Manager surface"). Only ever paired with
+    /// [`RequestOperation::List`]/[`Create`](RequestOperation::Create)/
+    /// [`Update`](RequestOperation::Update)/[`Delete`](RequestOperation::Delete) — there is no
+    /// `projectRequest` lookup op on the wire, so this variant never appears on a
+    /// [`RequestOperation::Request`]. Local-transport-only, same restriction as
+    /// [`Secret`](Self::Secret).
+    Project,
 }
 
 /// Which ingress a [`CredentialRequestData`] arrived through. The single enforcement point
@@ -103,6 +110,21 @@ pub enum RequestOperation {
     /// data for this operation — mirrors [`Create`](Self::Create)'s treatment of
     /// `delivery_mode` (always `None`).
     DescribeFillTarget,
+    /// Rename a Secrets Manager secret, or move/rotate/note-clear it (`secretUpdate`); or rename
+    /// a project (`projectUpdate`) — M6, "Full Secrets Manager surface". Local-transport-only,
+    /// same restriction as [`Create`](Self::Create). `CredentialRequestData::target_id` carries
+    /// the id being updated; `new_secret_name`/`new_secret_value`/`generate_*`/`new_secret_note`/
+    /// `project_hint` carry the proposed changes (absent = unchanged, per the wire contract).
+    Update,
+    /// Delete a single Secrets Manager secret (`secretDelete`, soft/trash) or project
+    /// (`projectDelete`, hard) — M6. Local-transport-only. `CredentialRequestData::target_id`
+    /// carries the id being deleted; no other request field is meaningful.
+    Delete,
+    /// Release the full readable Secrets Manager project list in one approval (`projectList`) —
+    /// M6. Local-transport-only, always paired with [`ResourceKind::Project`]. No query, no
+    /// target — `CredentialRequestData::query_type`/`query_value`/`target_id` carry no
+    /// meaningful data for this operation, same treatment as [`DescribeFillTarget`](Self::DescribeFillTarget).
+    List,
 }
 
 /// How the requester wants an approved credential delivered. Only meaningful for
@@ -167,21 +189,48 @@ pub struct CredentialRequestData {
     /// Secrets Manager secret. Always [`RequestOperation::Request`] on the relay path (see
     /// [`RequestOperation`]'s docs).
     pub operation: RequestOperation,
-    /// Proposed name for a new Secrets Manager secret. Only set for
-    /// [`RequestOperation::Create`] requests.
+    /// Proposed name for a new Secrets Manager secret/project (`secretCreate`/`projectCreate`),
+    /// or a rename proposed by an update (`secretUpdate`/`projectUpdate`, M6). Only set for
+    /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests; absent on an update
+    /// means "no rename requested".
     pub new_secret_name: Option<String>,
-    /// Proposed value for a new Secrets Manager secret. `Zeroizing` so it's scrubbed on drop,
-    /// matching every other in-memory secret value in this crate. Only set for
-    /// [`RequestOperation::Create`] requests.
+    /// Proposed value for a new Secrets Manager secret (`secretCreate`), or an agent-supplied
+    /// replacement value on `secretUpdate` (M6). `Zeroizing` so it's scrubbed on drop, matching
+    /// every other in-memory secret value in this crate. Only set for
+    /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests, and mutually exclusive
+    /// with [`generate_value`](Self::generate_value) being `true` (enforced by
+    /// `local_listener::local_protocol::validate`).
     pub new_secret_value: Option<Zeroizing<String>>,
-    /// Proposed note for a new Secrets Manager secret. Only set for [`RequestOperation::Create`]
-    /// requests.
+    /// Proposed note for a new Secrets Manager secret, or a note change on `secretUpdate` (M6) —
+    /// `Some("")` means "clear the note". Only set for
+    /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests.
     pub new_secret_note: Option<String>,
-    /// Optional project-name hint for a new Secrets Manager secret — never trusted silently, the
-    /// renderer's project picker only preselects a writable project whose decrypted name matches
-    /// exactly (agent-access-architecture.md, "M4b — secret creation"). Only set for
-    /// [`RequestOperation::Create`] requests.
+    /// Optional project-name hint for a new Secrets Manager secret, or a project move proposed
+    /// by a `secretUpdate` (M6) — never trusted silently, the renderer's project picker only
+    /// preselects a writable project whose decrypted name matches exactly
+    /// (agent-access-architecture.md, "M4b — secret creation" and "M6"). Only set for
+    /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests.
     pub project_hint: Option<String>,
+    /// Id of the existing Secrets Manager secret or project a [`RequestOperation::Update`]/
+    /// [`RequestOperation::Delete`] request targets (M6). An opaque identifier, never a name or
+    /// value, so it's printed verbatim in `Debug` rather than presence-only.
+    pub target_id: Option<String>,
+    /// When `true`, the desktop generates the secret's value at approval time instead of the
+    /// agent supplying one (M6): renderer-side generation, org-key encryption, then discard — the
+    /// generated value never crosses into this struct in either direction. Mutually exclusive
+    /// with [`new_secret_value`](Self::new_secret_value) being `Some` (enforced by
+    /// `local_listener::local_protocol::validate`). Only meaningful for
+    /// [`RequestOperation::Create`]/[`RequestOperation::Update`] requests on
+    /// [`ResourceKind::Secret`]. Value-free (a flag, never a value), so printed verbatim in
+    /// `Debug`.
+    pub generate_value: bool,
+    /// Requested generated-value length, already validated to `[12, 128]` by
+    /// `local_listener::local_protocol::validate`. `None` means the desktop default (40). Only
+    /// meaningful alongside `generate_value: true`. Value-free, printed verbatim in `Debug`.
+    pub generate_length: Option<u32>,
+    /// Whether the generated value includes symbols (default `true`). Only meaningful alongside
+    /// `generate_value: true`. Value-free, printed verbatim in `Debug`.
+    pub generate_symbols: Option<bool>,
     /// Requested field roles (`"username"`/`"password"`/`"totp"`) for a `delivery: "fill"`
     /// request (M5). `None` means "default: all fields present and safe", per the wire
     /// contract. Value-free — role names, never a credential value — so it's printed directly
@@ -212,6 +261,10 @@ impl std::fmt::Debug for CredentialRequestData {
             .field("has_new_secret_value", &self.new_secret_value.is_some())
             .field("has_new_secret_note", &self.new_secret_note.is_some())
             .field("has_project_hint", &self.project_hint.is_some())
+            .field("target_id", &self.target_id)
+            .field("generate_value", &self.generate_value)
+            .field("generate_length", &self.generate_length)
+            .field("generate_symbols", &self.generate_symbols)
             .field("fill_fields", &self.fill_fields)
             .field("fill_target_token", &self.fill_target_token)
             .finish()
@@ -254,6 +307,20 @@ pub enum CredentialDenialReason {
     NoSafeTarget,
 }
 
+/// One entry of an approved [`RequestOperation::List`] response (M6, `projectList`) — project
+/// metadata only, no secret material. `organization` is the org's display name, resolved
+/// renderer-side. Plain `Debug`/`Clone` are fine here (no secret material — see
+/// agent-access-architecture.md's "M6" wire section: "names are org metadata, no secret
+/// material"); the count-only redaction lives on [`CredentialResponseData`]'s own `Debug`
+/// instead, since that's the type actually at risk of an accidental `{:?}` in a log statement.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProjectEntry {
+    pub id: String,
+    pub name: String,
+    pub write: bool,
+    pub organization: Option<String>,
+}
+
 /// The host's answer to a [`CredentialRequestData`].
 ///
 /// Only the fields the host explicitly chooses to release are populated. `approved: false`
@@ -287,6 +354,16 @@ pub struct CredentialResponseData {
     /// correlation — the secret analogue of [`credential_id`](Self::credential_id). Unset for
     /// credential requests.
     pub secret_id: Option<String>,
+    /// Secrets Manager project ID, for an approved [`ResourceKind::Project`]
+    /// create/update/delete response (M6) — the project analogue of
+    /// [`secret_id`](Self::secret_id). Unset for every other resource/operation.
+    pub project_id: Option<String>,
+    /// The readable Secrets Manager project list released by an approved
+    /// [`RequestOperation::List`] request (M6) — names, ids, and write flags only, no secret
+    /// material. Names decrypt renderer-side and transit main only inside this in-flight
+    /// response; they are never buffered (this crate's `Debug` impl below prints only the
+    /// count). Unset for every other operation.
+    pub projects: Option<Vec<ProjectEntry>>,
     /// Value-free JSON pass-through describing a `delivery: "fill"` request's execution outcome
     /// (M5's `fill` response object: `{status, origin, fields: [...]}`) — produced by the TS
     /// host, parsed into a `serde_json::Value` by `local_listener::local_protocol`. Set for
@@ -329,6 +406,11 @@ impl std::fmt::Debug for CredentialResponseData {
             .field("has_item_name", &self.item_name.is_some())
             .field("has_secret_value", &self.secret_value.is_some())
             .field("secret_id", &self.secret_id)
+            .field("project_id", &self.project_id)
+            // Never `{:?}` the `Vec<ProjectEntry>` itself — names are decrypted org metadata
+            // and this crate's blanket "an accidental Debug can't leak it" rule applies here
+            // too, even though `ProjectEntry` itself derives a plain `Debug` (see its docs).
+            .field("projects_count", &self.projects.as_ref().map(Vec::len))
             .field("has_fill_result", &self.fill_result.is_some())
             .field("has_fill_target", &self.fill_target.is_some())
             .field("has_denial_detail", &self.denial_detail.is_some())

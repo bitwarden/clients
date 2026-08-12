@@ -58,10 +58,27 @@ import {
 } from "../components/approve-credential-request.component";
 import { ApproveFillRequestComponent } from "../components/approve-fill-request.component";
 import {
+  ConfirmDeleteRequestComponent,
+  ConfirmDeleteRequestResult,
+} from "../components/confirm-delete-request.component";
+import {
+  CreateProjectRequestComponent,
+  CreateProjectRequestResult,
+} from "../components/create-project-request.component";
+import {
   CreateSecretRequestComponent,
   CreateSecretRequestResult,
 } from "../components/create-secret-request.component";
 import { FirstUseAuthorizationDialogComponent } from "../components/first-use-authorization-dialog.component";
+import {
+  ProjectListRequestComponent,
+  ProjectListRequestResult,
+} from "../components/project-list-request.component";
+import {
+  UpdateSecretRequestChanges,
+  UpdateSecretRequestComponent,
+  UpdateSecretRequestResult,
+} from "../components/update-secret-request.component";
 import { AgentAccessRequestStatus } from "../models/agent-access-activity";
 import { AgentAccessDeliveryMode } from "../models/agent-access-delivery-mode";
 import { AgentAccessGrantScope, UpsertAgentAccessGrantInput } from "../models/agent-access-grant";
@@ -75,7 +92,7 @@ import {
   deriveAgentAccessDisplayName,
 } from "../utils/agent-access-attestation.util";
 
-import { AgentAccessSecretsService } from "./agent-access-secrets.service";
+import { AgentAccessSecretsService, SmProjectMatch } from "./agent-access-secrets.service";
 import {
   AgentFillBrowserService,
   MultipleBrowsersError,
@@ -100,6 +117,10 @@ const GRANTS_CHANGED_COMMAND = new CommandDefinition<Record<string, never>>(
  *  short search term) must not build dozens of live-credential payloads or render an unusable
  *  picker. */
 const MAX_CREDENTIAL_MATCHES = 20;
+
+/** Caps a `projectList` release (agent-access-architecture.md, "M6"): "capped at 200 entries.
+ *  This is the one list-shaped release; every other op stays single-target." */
+const MAX_PROJECT_LIST_ENTRIES = 200;
 
 // Actionable, value-free `denialDetail` strings for `deliveryMode: "fill"` pre-prompt failures
 // (agent-access-architecture.md, "M5": "Extension unreachable / ambiguous browser count
@@ -420,15 +441,25 @@ export class DesktopAgentAccessService implements OnDestroy {
             ),
           );
         }),
-        // Secret-creation branch (agent-access-architecture.md, "M4b — secret creation"): after
-        // the shared enable/unlock/grant gates above, a `secretCreate` request has nothing to
-        // look up — the proposed name/value/note/project hint already rode along on `message` —
-        // so it skips `lookupCandidates` entirely and takes its own path through
-        // `handleCreateRequest`, which owns its own approve/deny/respond lifecycle. Everything
-        // else in the pipeline (the credential/secret *lookup* path below) is unchanged.
+        // Write/list branch (agent-access-architecture.md, "M4b" + "M6 — Full Secrets Manager
+        // surface"): after the shared enable/unlock/grant gates above, a create/update/delete/
+        // list request has no vault/SM *lookup* to run through `lookupCandidates` — either
+        // nothing exists yet (`create`) or the target is already named by id (`update`/`delete`)
+        // or there is no query at all (`list`) — so each takes its own path through
+        // `handleWriteOrListRequest`, which owns its own resolve/dialog/approve/deny/respond
+        // lifecycle end to end. `request` and `describeFillTarget` fall through unchanged to the
+        // branches below.
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) => {
-          if ((message.operation as string | undefined) === AgentAccessOperation.Create) {
-            return from(this.handleCreateRequest(message, userId)).pipe(switchMap(() => EMPTY));
+          const operation = message.operation as string | undefined;
+          if (
+            operation === AgentAccessOperation.Create ||
+            operation === AgentAccessOperation.Update ||
+            operation === AgentAccessOperation.Delete ||
+            operation === AgentAccessOperation.List
+          ) {
+            return from(this.handleWriteOrListRequest(message, userId, operation)).pipe(
+              switchMap(() => EMPTY),
+            );
           }
           return of([message, userId] as const);
         }),
@@ -940,12 +971,76 @@ export class DesktopAgentAccessService implements OnDestroy {
     );
   }
 
-  // Secret-*creation* branch (agent-access-architecture.md, "M4b — secret creation"). Unlike the
-  // lookup paths above, there is nothing to match against existing data: the proposed
-  // name/value/note/project-hint already rode along on `message` (napi's `CredentialRequestData`,
-  // `operation: "create"` fields), so this goes straight to the creation-approval dialog rather
-  // than through `lookupCandidates`. Owns its own full lifecycle (dialog, project creation,
-  // secret creation, respond/deny) since none of it is shared with the read path.
+  // Dispatches every non-"request" operation (agent-access-architecture.md, "M6 — Full Secrets
+  // Manager surface") to its own handler, branching on `resourceType` where an operation applies
+  // to more than one resource. Fail-closed by construction: any resource/operation combination
+  // not explicitly routed below denies rather than falling through to the credential/secret
+  // *lookup* path — a malformed or future-version message must never be silently treated as a
+  // read.
+  private async handleWriteOrListRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+    operation: string,
+  ): Promise<void> {
+    const resourceType =
+      (message.resourceType as string | undefined) ?? AgentAccessResourceType.Credential;
+    const requestId = message.requestId as number;
+
+    switch (operation) {
+      case AgentAccessOperation.Create:
+        if (resourceType === AgentAccessResourceType.Project) {
+          await this.handleProjectCreateRequest(message, userId);
+          return;
+        }
+        if (resourceType === AgentAccessResourceType.Secret) {
+          await this.handleCreateRequest(message, userId);
+          return;
+        }
+        break;
+      case AgentAccessOperation.Update:
+        if (resourceType === AgentAccessResourceType.Secret) {
+          await this.handleUpdateSecretRequest(message, userId);
+          return;
+        }
+        if (resourceType === AgentAccessResourceType.Project) {
+          await this.handleUpdateProjectRequest(message, userId);
+          return;
+        }
+        break;
+      case AgentAccessOperation.Delete:
+        if (
+          resourceType === AgentAccessResourceType.Secret ||
+          resourceType === AgentAccessResourceType.Project
+        ) {
+          await this.handleDeleteRequest(message, userId, resourceType);
+          return;
+        }
+        break;
+      case AgentAccessOperation.List:
+        if (resourceType === AgentAccessResourceType.Project) {
+          await this.handleProjectListRequest(message, userId);
+          return;
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Unreachable given the caller's own membership check on `operation`, but every unmatched
+    // resourceType above falls through here — fail closed rather than silently no-op.
+    this.logService.error(
+      `Agent Access: unsupported resourceType/operation combination for a write request (resourceType: ${resourceType}, operation: ${operation})`,
+    );
+    await this.denyCredentialRequest(requestId);
+  }
+
+  // Secret-*creation* branch (agent-access-architecture.md, "M4b — secret creation", extended by
+  // "M6" for `generateValue`). Unlike the lookup paths above, there is nothing to match against
+  // existing data: the proposed name/value/note/project-hint already rode along on `message`
+  // (napi's `CredentialRequestData`, `operation: "create"` fields), so this goes straight to the
+  // creation-approval dialog rather than through `lookupCandidates`. Owns its own full lifecycle
+  // (dialog, project creation, secret creation, respond/deny) since none of it is shared with the
+  // read path.
   private async handleCreateRequest(
     message: Record<string, unknown>,
     userId: UserId,
@@ -954,11 +1049,15 @@ export class DesktopAgentAccessService implements OnDestroy {
     const secretName = message.newSecretName as string | undefined;
     const secretValue = message.newSecretValue as string | undefined;
     const secretNote = message.newSecretNote as string | undefined;
+    // M6: a `generate: true` create request carries no `newSecretValue` at all — the value is
+    // born inside this handler, at approval time, and never crosses the napi boundary in either
+    // direction (agent-access-architecture.md, invariant 14).
+    const generate = message.generateValue === true;
 
-    if (!secretName || !secretValue) {
-      // Defensive: the wire contract requires both non-empty for a `secretCreate` request
-      // (agent-access-architecture.md, "M4b" — "`name`/`value` required non-empty") — this should
-      // be unreachable, but deny rather than open a dialog with nothing to show.
+    if (!secretName || (!generate && !secretValue)) {
+      // Defensive: the wire contract requires a name always, and EXACTLY ONE of value/generate
+      // (agent-access-architecture.md, "M4b"/"M6") — this should be unreachable, but deny rather
+      // than open a dialog with nothing to show.
       this.logService.error(
         "Agent Access: create request is missing a proposed secret name or value",
       );
@@ -984,6 +1083,12 @@ export class DesktopAgentAccessService implements OnDestroy {
       requesterFingerprint: message.requesterFingerprint as string | undefined,
       secretName,
       secretValue,
+      generated: generate
+        ? {
+            length: message.generateLength as number | undefined,
+            symbols: message.generateSymbols as boolean | undefined,
+          }
+        : undefined,
       secretNote,
       projectHint: message.projectHint as string | undefined,
       organizations,
@@ -1018,11 +1123,21 @@ export class DesktopAgentAccessService implements OnDestroy {
       // sends `projectIds: undefined` in that case, never an empty array (M4b server facts:
       // project-less creates are denied for non-admin users; >1 project is a 400).
 
+      // The generated value is born HERE, at approval time, in this local variable only — it is
+      // encrypted by `createSecret` immediately below and then discarded; it never appears in
+      // the response sent to main, never in any outcome, never logged (M6, invariant 14).
+      const finalValue = generate
+        ? await this.agentAccessSecretsService.generateSecretValue({
+            length: message.generateLength as number | undefined,
+            symbols: message.generateSymbols as boolean | undefined,
+          })
+        : (secretValue as string);
+
       const secretId = await this.agentAccessSecretsService.createSecret(
         result.organizationId,
         userId,
         projectId,
-        { name: secretName, value: secretValue, note: secretNote },
+        { name: secretName, value: finalValue, note: secretNote },
       );
 
       // Session-remembered (in-memory only) so the next create in this session preselects the
@@ -1053,6 +1168,505 @@ export class DesktopAgentAccessService implements OnDestroy {
       });
       await this.denyCredentialRequest(requestId);
     }
+  }
+
+  // `projectCreate` branch (agent-access-architecture.md, "M6"). Sibling of `handleCreateRequest`
+  // for the other creatable resource: no vault/SM lookup, straight to the creation dialog, own
+  // full lifecycle. `CreateProjectRequestComponent` in its default (`create`) mode.
+  private async handleProjectCreateRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    // NOTE (contract deviation, flagged for review): the napi `CredentialRequestData` interface
+    // documents `newSecretName` as "Only set for `operation: create`" of a *secret* — there is no
+    // separate field for a proposed *project* name. The M6 wire protocol requires one for both
+    // `projectCreate` and `projectUpdate` (rename), so this reuses `newSecretName` as the generic
+    // "proposed name" carrier for project operations too, on the assumption the M6-B napi/Rust
+    // implementation populates it that way. If M6-B lands a dedicated field instead, this (and
+    // `handleUpdateProjectRequest` below) need to read that field instead.
+    const proposedName = message.newSecretName as string | undefined;
+    if (!proposedName) {
+      this.logService.error("Agent Access: project create request is missing a proposed name");
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const organizations = await this.agentAccessSecretsService.smOrganizations(userId);
+    if (organizations.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessCreateNoSmAccess"),
+      });
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    ipc.platform.focusWindow();
+
+    const dialogRef = CreateProjectRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      mode: "create",
+      projectName: proposedName,
+      organizations,
+      userId,
+      lastOrganizationId: this.lastCreateOrganizationId,
+    });
+
+    const result: CreateProjectRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved || result.organizationId == null) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    try {
+      const created = await this.agentAccessSecretsService.createProject(
+        result.organizationId,
+        userId,
+        proposedName,
+      );
+      this.lastCreateOrganizationId = result.organizationId;
+
+      const response: agent_access.CredentialResponseData = {
+        approved: true,
+        projectId: created.id,
+        itemName: created.name,
+      };
+      await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+        status: AgentAccessRequestStatus.Created,
+        projectId: created.id,
+        operation: AgentAccessOperation.Create,
+      });
+    } catch (e) {
+      this.logService.error("Agent Access: failed to create a Secrets Manager project", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessCreateFailedToast"),
+      });
+      await this.denyCredentialRequest(requestId);
+    }
+  }
+
+  // `secretUpdate` branch (agent-access-architecture.md, "M6-D"). Unlike create, the target
+  // already exists, so this resolves its current state BEFORE the dialog (TOCTOU discipline:
+  // what is approved is what was displayed) — locating the org via `findSecrets` by `id` query
+  // (the wire message carries no org context of its own), then fetching the ciphertexts needed
+  // for a passthrough PUT via `getSecretForUpdate`. The dialog shows a from -> to summary per
+  // changed field, never the secret's current value or note.
+  private async handleUpdateSecretRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    const targetId = message.targetId as string | undefined;
+    if (!targetId) {
+      this.logService.error("Agent Access: secret update request is missing a target id");
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const located = await this.agentAccessSecretsService.findSecrets(
+      CredentialQueryType.Id,
+      targetId,
+      userId,
+    );
+    const match = located[0];
+    if (match == null) {
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+      return;
+    }
+
+    let detail;
+    try {
+      detail = await this.agentAccessSecretsService.getSecretForUpdate(
+        targetId,
+        match.organizationId,
+        userId,
+      );
+    } catch (e) {
+      this.logService.error("Agent Access: failed to fetch a Secrets Manager secret for update", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessUpdateFailedToast"),
+      });
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const proposedName = message.newSecretName as string | undefined;
+    const proposedValue = message.newSecretValue as string | undefined;
+    const proposedNote = message.newSecretNote as string | undefined;
+    const generate = message.generateValue === true;
+    const projectHint = message.projectHint as string | undefined;
+
+    const changes: UpdateSecretRequestChanges = {};
+    if (proposedName != null && proposedName !== detail.nameDecrypted) {
+      changes.name = { from: detail.nameDecrypted, to: proposedName };
+    }
+    if (generate) {
+      changes.value = "generated";
+    } else if (proposedValue != null) {
+      changes.value = "agent";
+    }
+    if (proposedNote !== undefined) {
+      changes.note = { to: proposedNote };
+    }
+    if (projectHint) {
+      changes.project = { toHint: projectHint };
+    }
+
+    if (Object.keys(changes).length === 0) {
+      // Defensive: the wire contract requires >= 1 change field — this should be unreachable,
+      // but deny rather than open a dialog with nothing to show.
+      this.logService.error("Agent Access: secret update request proposes no changes");
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    // The project picker (and its hint-match preselect) is resolved BEFORE the dialog only when
+    // a move was actually proposed — mirrors `CreateSecretRequestComponent`'s hint-preselect
+    // discipline: never trusted silently, always shown and changeable.
+    let writableProjects: SmProjectMatch[] | undefined;
+    let preselectedProjectId: string | undefined;
+    if (changes.project != null) {
+      const projects = await this.agentAccessSecretsService.listProjects(
+        match.organizationId,
+        userId,
+      );
+      writableProjects = projects.filter((project) => project.write);
+      preselectedProjectId = writableProjects.find((project) => project.name === projectHint)?.id;
+    }
+
+    ipc.platform.focusWindow();
+    const dialogRef = UpdateSecretRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      secretName: detail.nameDecrypted,
+      organizationName: match.organizationName,
+      changes,
+      writableProjects,
+      preselectedProjectId,
+      userId,
+    });
+
+    const result: UpdateSecretRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    try {
+      // The generated value is born HERE, at approval time, in this local variable only — see
+      // the identical comment in `handleCreateRequest` (M6, invariant 14).
+      let finalValue: string | undefined;
+      if (generate) {
+        finalValue = await this.agentAccessSecretsService.generateSecretValue({
+          length: message.generateLength as number | undefined,
+          symbols: message.generateSymbols as boolean | undefined,
+        });
+      } else if (proposedValue != null) {
+        finalValue = proposedValue;
+      }
+      // `finalValue` left `undefined` means "unchanged" — `updateSecret` passes the original
+      // value ciphertext through verbatim in that case, never decrypting it.
+
+      const finalName = changes.name?.to ?? detail.nameDecrypted;
+
+      await this.agentAccessSecretsService.updateSecret(match.organizationId, userId, targetId, {
+        keyEncString: detail.keyEncString,
+        name: changes.name?.to,
+        valueEncString: detail.valueEncString,
+        value: finalValue,
+        noteEncString: detail.noteEncString,
+        note: changes.note?.to,
+        projectId: result.projectId,
+      });
+
+      const response: agent_access.CredentialResponseData = {
+        approved: true,
+        secretId: targetId,
+        itemName: finalName,
+      };
+      await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+        status: AgentAccessRequestStatus.Updated,
+        secretId: targetId,
+        operation: AgentAccessOperation.Update,
+      });
+    } catch (e) {
+      // API failure after approval: deny with a generic error rather than leaving the request to
+      // time out (mirrors `handleCreateRequest`'s catch).
+      this.logService.error("Agent Access: failed to update a Secrets Manager secret", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessUpdateFailedToast"),
+      });
+      await this.denyCredentialRequest(requestId);
+    }
+  }
+
+  // `projectUpdate` branch (agent-access-architecture.md, "M6-D") — rename only, mirroring the
+  // server. Locates the project (and its org) by scanning every SM org's project list, since
+  // (like the secret update path) the wire message carries no org context of its own.
+  // `CreateProjectRequestComponent` in `rename` mode shows the current -> proposed name.
+  private async handleUpdateProjectRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    const targetId = message.targetId as string | undefined;
+    // See the field-reuse note in `handleProjectCreateRequest` — this is the same assumption.
+    const proposedName = message.newSecretName as string | undefined;
+    if (!targetId || !proposedName) {
+      this.logService.error(
+        "Agent Access: project rename request is missing a target id or a proposed name",
+      );
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const located = await this.locateProject(targetId, userId);
+    if (located == null) {
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+      return;
+    }
+
+    ipc.platform.focusWindow();
+    const dialogRef = CreateProjectRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      mode: "rename",
+      projectName: located.name,
+      newProjectName: proposedName,
+      organizations: [],
+      userId,
+    });
+
+    const result: CreateProjectRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    try {
+      await this.agentAccessSecretsService.updateProject(
+        targetId,
+        located.organizationId,
+        userId,
+        proposedName,
+      );
+
+      const response: agent_access.CredentialResponseData = {
+        approved: true,
+        projectId: targetId,
+        itemName: proposedName,
+      };
+      await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+        status: AgentAccessRequestStatus.Updated,
+        projectId: targetId,
+        operation: AgentAccessOperation.Update,
+      });
+    } catch (e) {
+      this.logService.error("Agent Access: failed to rename a Secrets Manager project", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessUpdateFailedToast"),
+      });
+      await this.denyCredentialRequest(requestId);
+    }
+  }
+
+  // Shared `secretDelete`/`projectDelete` branch (agent-access-architecture.md, "M6-D"):
+  // resolves the target's current name (and, for a project, the contained-secret count) BEFORE
+  // the confirm-delete dialog, so what's approved is exactly what's displayed. Consequence
+  // labeling truthfulness (invariant 17) lives in `ConfirmDeleteRequestComponent`'s copy — this
+  // method only resolves state and performs the call.
+  private async handleDeleteRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+    resourceType: typeof AgentAccessResourceType.Secret | typeof AgentAccessResourceType.Project,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+    const targetId = message.targetId as string | undefined;
+    if (!targetId) {
+      this.logService.error("Agent Access: delete request is missing a target id");
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    let itemName: string;
+    let organizationId: string;
+    let organizationName: string | undefined;
+    let containedSecretCount: number | undefined;
+
+    if (resourceType === AgentAccessResourceType.Secret) {
+      const located = await this.agentAccessSecretsService.findSecrets(
+        CredentialQueryType.Id,
+        targetId,
+        userId,
+      );
+      const match = located[0];
+      if (match == null) {
+        await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+        return;
+      }
+      itemName = match.name;
+      organizationId = match.organizationId;
+      organizationName = match.organizationName;
+    } else {
+      const located = await this.locateProject(targetId, userId);
+      if (located == null) {
+        await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+        return;
+      }
+      itemName = located.name;
+      organizationId = located.organizationId;
+      organizationName = located.organizationName;
+      containedSecretCount = await this.agentAccessSecretsService.countSecretsInProject(
+        targetId,
+        organizationId,
+        userId,
+      );
+    }
+
+    ipc.platform.focusWindow();
+    const dialogRef = ConfirmDeleteRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      kind: resourceType,
+      itemName,
+      organizationName,
+      containedSecretCount,
+    });
+
+    const result: ConfirmDeleteRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    try {
+      if (resourceType === AgentAccessResourceType.Secret) {
+        await this.agentAccessSecretsService.deleteSecret(targetId, organizationId, userId);
+      } else {
+        await this.agentAccessSecretsService.deleteProject(targetId, organizationId, userId);
+      }
+
+      const response: agent_access.CredentialResponseData = {
+        approved: true,
+        itemName,
+        ...(resourceType === AgentAccessResourceType.Secret
+          ? { secretId: targetId }
+          : { projectId: targetId }),
+      };
+      await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+        status: AgentAccessRequestStatus.Deleted,
+        ...(resourceType === AgentAccessResourceType.Secret
+          ? { secretId: targetId }
+          : { projectId: targetId }),
+        operation: AgentAccessOperation.Delete,
+      });
+    } catch (e) {
+      this.logService.error(`Agent Access: failed to delete a Secrets Manager ${resourceType}`, e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("agentAccessDeleteFailedToast"),
+      });
+      await this.denyCredentialRequest(requestId);
+    }
+  }
+
+  // `projectList` branch (agent-access-architecture.md, "M6-D") — the sole list-shaped release in
+  // the whole M6 surface (invariant 16): gathers every readable project across every SM org the
+  // user belongs to, capped at `MAX_PROJECT_LIST_ENTRIES`, and releases the full list in one
+  // approval. No per-item picker — `ProjectListRequestComponent` enumerates everything that will
+  // go out.
+  private async handleProjectListRequest(
+    message: Record<string, unknown>,
+    userId: UserId,
+  ): Promise<void> {
+    const requestId = message.requestId as number;
+
+    const orgs = await this.agentAccessSecretsService.smOrganizations(userId);
+    const entries: { id: string; name: string; write: boolean; organizationName?: string }[] = [];
+    for (const org of orgs) {
+      if (entries.length >= MAX_PROJECT_LIST_ENTRIES) {
+        break;
+      }
+      const projects = await this.agentAccessSecretsService.listProjects(org.id, userId);
+      for (const project of projects) {
+        if (entries.length >= MAX_PROJECT_LIST_ENTRIES) {
+          break;
+        }
+        entries.push({
+          id: project.id,
+          name: project.name,
+          write: project.write,
+          organizationName: org.name,
+        });
+      }
+    }
+
+    if (entries.length === 0) {
+      await this.denyCredentialRequest(requestId, CredentialDenialReason.NotFound);
+      return;
+    }
+
+    ipc.platform.focusWindow();
+    const dialogRef = ProjectListRequestComponent.open(this.dialogService, {
+      requesterName: message.requesterName as string | undefined,
+      requesterFingerprint: message.requesterFingerprint as string | undefined,
+      entries: entries.map((entry) => ({
+        name: entry.name,
+        organizationName: entry.organizationName,
+        write: entry.write,
+      })),
+    });
+
+    const result: ProjectListRequestResult | undefined = await firstValueFrom(dialogRef.closed);
+    if (result == null || !result.approved) {
+      await this.denyCredentialRequest(requestId);
+      return;
+    }
+
+    const response: agent_access.CredentialResponseData = {
+      approved: true,
+      projects: entries.map((entry) => ({
+        id: entry.id,
+        name: entry.name,
+        write: entry.write,
+        organization: entry.organizationName,
+      })),
+    };
+    await ipc.agentAccess.credentialRequestResponse(requestId, response, {
+      status: AgentAccessRequestStatus.Listed,
+      operation: AgentAccessOperation.List,
+    });
+  }
+
+  // Shared by `handleUpdateProjectRequest`/`handleDeleteRequest`: finds a project (and its org)
+  // by id, scanning every SM org's project list — the wire message carries no org context for a
+  // project target, unlike a secret's `findSecrets` seam. Returns `undefined` (never throws) when
+  // the project isn't found in any readable org, letting the caller deny with `NotFound`.
+  private async locateProject(
+    projectId: string,
+    userId: UserId,
+  ): Promise<{ name: string; organizationId: string; organizationName?: string } | undefined> {
+    const orgs = await this.agentAccessSecretsService.smOrganizations(userId);
+    for (const org of orgs) {
+      const projects = await this.agentAccessSecretsService.listProjects(org.id, userId);
+      const match = projects.find((project) => project.id === projectId);
+      if (match != null) {
+        return { name: match.name, organizationId: org.id, organizationName: org.name };
+      }
+    }
+    return undefined;
   }
 
   // Grant check + first-use authorization for a local-origin credential request

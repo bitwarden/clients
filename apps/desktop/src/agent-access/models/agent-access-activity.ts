@@ -27,6 +27,24 @@ export const AgentAccessRequestStatus = Object.freeze({
    */
   Created: "created",
   /**
+   * The user approved an `operation: "update"` request and the target secret or project was
+   * updated (agent-access-architecture.md, "M6"). `secretId`/`projectId` is copied onto the row
+   * like `Created`.
+   */
+  Updated: "updated",
+  /**
+   * The user approved an `operation: "delete"` request and the target was deleted — soft
+   * (SM trash) for secrets, hard for projects (agent-access-architecture.md, "M6").
+   * `secretId`/`projectId` is copied onto the row like `Created`.
+   */
+  Deleted: "deleted",
+  /**
+   * The user approved an `operation: "list"` request and the readable project list (names, ids,
+   * write flags — no secret material) was released in one approval (M6's sole list-shaped
+   * release). No target id is copied: the row records that the list itself was shared.
+   */
+  Listed: "listed",
+  /**
    * The user approved a `deliveryMode: "fill"` request and the browser extension filled at
    * least one field (agent-access-architecture.md, "M5 — Browser fill delivery"). The fill
    * analogue of `Shared`: `cipherId` and `fieldsShared` (the roles actually filled) are copied
@@ -125,6 +143,12 @@ export interface CredentialRequestActivity extends AgentAccessActivityBase {
    * {@link AgentAccessResourceType.Secret} requests.
    */
   secretId?: string;
+  /**
+   * Id of the Secrets Manager project a `Created`/`Updated`/`Deleted` row targeted, for
+   * {@link AgentAccessResourceType.Project} requests (M6). An opaque identifier — names resolve
+   * at render time from the renderer-side project name cache, ids-only invariant unchanged.
+   */
+  projectId?: string;
   /** Which fields were released, e.g. `["username", "password"]`. Never their values. */
   fieldsShared?: string[];
   /**
@@ -159,9 +183,12 @@ export type AgentAccessActivityEntry = CredentialRequestActivity | LifecycleActi
 export interface CredentialRequestOutcome {
   status: AgentAccessRequestStatus;
   cipherId?: string;
-  /** Id of the released or newly-created Secrets Manager secret. Only meaningful alongside a
-   *  `Shared` or `Created` status. */
+  /** Id of the released, newly-created, updated, or deleted Secrets Manager secret. Only
+   *  meaningful alongside a `Shared`, `Created`, `Updated`, or `Deleted` status. */
   secretId?: string;
+  /** Id of the created/updated/deleted Secrets Manager project — see
+   *  {@link CredentialRequestActivity.projectId}. */
+  projectId?: string;
   fieldsShared?: string[];
   /** Extension-reported page origin of a fill attempt — see
    *  {@link CredentialRequestActivity.fillOrigin}. Only meaningful alongside a `Filled` or

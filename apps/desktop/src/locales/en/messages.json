@@ -1236,6 +1236,150 @@
   "agentAccessFillResultFailed": {
     "message": "Approved, but no fields were filled."
   },
+  "agentAccessStatusUpdated": {
+    "message": "Updated"
+  },
+  "agentAccessStatusDeleted": {
+    "message": "Deleted"
+  },
+  "agentAccessStatusListed": {
+    "message": "Listed"
+  },
+  "agentAccessUpdatedItem": {
+    "message": "Updated $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "DB_PASSWORD"
+      }
+    }
+  },
+  "agentAccessUpdateFallbackName": {
+    "message": "an item"
+  },
+  "agentAccessDeletedItem": {
+    "message": "Deleted $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "DB_PASSWORD"
+      }
+    }
+  },
+  "agentAccessDeleteFallbackName": {
+    "message": "an item"
+  },
+  "agentAccessResultListed": {
+    "message": "Released the project list."
+  },
+  "agentAccessUpdateFailedToast": {
+    "message": "Couldn't update the secret. Try again."
+  },
+  "agentAccessDeleteFailedToast": {
+    "message": "Couldn't delete the item. Try again."
+  },
+  "agentAccessGeneratedValueNoticeTitle": {
+    "message": "Bitwarden will generate this value"
+  },
+  "agentAccessGeneratedValueNotice": {
+    "message": "Bitwarden will generate a strong random value ($LENGTH$ characters); the agent never sees it.",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "40"
+      }
+    }
+  },
+  "agentAccessUpdateRequestTitle": {
+    "message": "Secret update requested"
+  },
+  "agentAccessUpdateRequestIntro": {
+    "message": "This agent wants to update the secret \"$SECRET$\" in Secrets Manager. Review each proposed change before authorizing.",
+    "placeholders": {
+      "secret": {
+        "content": "$1",
+        "example": "DB_PASSWORD"
+      }
+    }
+  },
+  "agentAccessUpdateNewValueProposed": {
+    "message": "A new value was proposed"
+  },
+  "agentAccessUpdateGeneratedValueNotice": {
+    "message": "Bitwarden will generate a new strong random value; the agent never sees it."
+  },
+  "agentAccessUpdateProposedNoteLabel": {
+    "message": "Proposed note"
+  },
+  "agentAccessUpdateNoteCleared": {
+    "message": "The note will be cleared"
+  },
+  "agentAccessUpdateDoNotMoveOption": {
+    "message": "Don't move this secret"
+  },
+  "agentAccessUpdateMoveHint": {
+    "message": "The agent proposed moving this secret to a project named \"$PROJECT$\". Choose a project, or leave it unchanged.",
+    "placeholders": {
+      "project": {
+        "content": "$1",
+        "example": "my-app"
+      }
+    }
+  },
+  "agentAccessDeleteSecretRequestTitle": {
+    "message": "Secret deletion requested"
+  },
+  "agentAccessDeleteProjectRequestTitle": {
+    "message": "Project deletion requested"
+  },
+  "agentAccessDeleteSecretTrashNotice": {
+    "message": "The secret will be moved to the Secrets Manager trash. An organization admin can restore it."
+  },
+  "agentAccessDeleteProjectPermanentWarning": {
+    "message": "This is permanent. The project cannot be restored."
+  },
+  "agentAccessDeleteProjectContainedSecretsWarning": {
+    "message": "$COUNT$ secrets will lose this project. They are not deleted, but may become inaccessible to non-admin users.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "agentAccessDeleteProjectContainedSecretsUnknownWarning": {
+    "message": "Secrets in this project will lose it. They are not deleted, but may become inaccessible to non-admin users."
+  },
+  "agentAccessDeleteConfirmAction": {
+    "message": "Delete"
+  },
+  "agentAccessProjectCreateRequestTitle": {
+    "message": "New Secrets Manager project requested"
+  },
+  "agentAccessProjectRenameRequestTitle": {
+    "message": "Project rename requested"
+  },
+  "agentAccessProjectListRequestTitle": {
+    "message": "Project list requested"
+  },
+  "agentAccessProjectListRequestIntro": {
+    "message": "This agent wants to see every Secrets Manager project you can access. Authorizing releases all $COUNT$ names below.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "agentAccessProjectListAccessColumn": {
+    "message": "Access"
+  },
+  "agentAccessProjectListWriteAccess": {
+    "message": "Read & write"
+  },
+  "agentAccessProjectListReadOnlyAccess": {
+    "message": "Read only"
+  },
   "premiumRequired": {
     "message": "Premium required"
   },

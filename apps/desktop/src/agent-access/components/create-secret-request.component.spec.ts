@@ -265,6 +265,19 @@ describe("CreateSecretRequestComponent", () => {
     });
   });
 
+  // M6: a `generate: true` create request carries no value at all — the dialog must never be
+  // handed one to display, even accidentally.
+  describe("generated value mode", () => {
+    it("carries generation options instead of a secret value", () => {
+      const component = createComponent(
+        makeParams({ secretValue: undefined, generated: { length: 64, symbols: false } }),
+      );
+
+      expect(component.params.secretValue).toBeUndefined();
+      expect(component.params.generated).toEqual({ length: 64, symbols: false });
+    });
+  });
+
   // Display-only invariant: nothing in this dialog lets the user edit the proposed name or
   // value — the params are the single source of truth for what gets created, and the only way
   // to change them is to deny and let the agent re-request.

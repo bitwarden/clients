@@ -12,7 +12,7 @@ use zeroize::Zeroizing;
 
 use crate::callbacks::{
     CallbackError, CredentialDenialReason, CredentialQueryKind, CredentialResponseData,
-    DeliveryMode, RequestOperation, ResourceKind,
+    DeliveryMode, ProjectEntry, RequestOperation, ResourceKind,
 };
 
 /// The only protocol version this server understands. Requests with a different `version` are
@@ -36,12 +36,22 @@ pub(super) struct WireRequest {
     pub(super) query: Option<WireQuery>,
     #[serde(default)]
     pub(super) delivery: Option<WireDelivery>,
-    /// Present only on a `secretCreate` request (agent-access-architecture.md, "M4b — secret
-    /// creation"). [`validate`] rejects it as a protocol error on every other `op` — a
-    /// `credentialRequest`/`secretRequest` silently ignoring a `create` object would be a cheap
-    /// but confusing way for a client bug to go unnoticed.
+    /// Present only on a `secretCreate`/`projectCreate` request (agent-access-architecture.md,
+    /// "M4b — secret creation" and "M6"). [`validate`] rejects it as a protocol error on every
+    /// other `op` — a `credentialRequest`/`secretRequest` silently ignoring a `create` object
+    /// would be a cheap but confusing way for a client bug to go unnoticed.
     #[serde(default)]
     pub(super) create: Option<WireCreate>,
+    /// Present only on a `secretUpdate`/`projectUpdate` request (M6, "Full Secrets Manager
+    /// surface"). [`validate`] rejects it on every other `op`, same reasoning as [`create`]
+    /// above.
+    #[serde(default)]
+    pub(super) update: Option<WireUpdate>,
+    /// Present only on a `secretUpdate`/`secretDelete`/`projectUpdate`/`projectDelete` request
+    /// (M6) — the id of the secret/project being acted on. [`validate`] rejects it on every
+    /// other `op`, same reasoning as [`create`] above.
+    #[serde(default)]
+    pub(super) target: Option<WireTarget>,
     /// Present only on a `credentialRequest` with `delivery: "fill"` (agent-access-architecture
     /// .md, "M5 — Browser fill delivery"). [`validate`] rejects it on every other delivery mode
     /// and on `secretRequest`/`secretCreate` — a `fill` object silently ignored elsewhere would
@@ -50,6 +60,74 @@ pub(super) struct WireRequest {
     pub(super) fill: Option<WireFillParams>,
     #[serde(default)]
     pub(super) client: Option<WireClientInfo>,
+}
+
+/// The `target` object on a `secretUpdate`/`secretDelete`/`projectUpdate`/`projectDelete`
+/// request (M6) — identifies which existing secret/project the request acts on. Value-free (an
+/// opaque id, never a name or value), so a derived `Debug` is fine.
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+pub(super) struct WireTarget {
+    pub(super) id: String,
+}
+
+/// The `generate` object on a `secretCreate`/`secretUpdate` request's `create`/`update` object
+/// (M6) — requests the desktop generate the secret's value at approval time instead of the agent
+/// supplying one. Both fields optional on the wire (defaults applied desktop-side); `length`
+/// bounds are enforced by [`validate`], not here. Value-free (generation parameters, never a
+/// value), so a derived `Debug` is fine.
+#[derive(Debug, Deserialize, Clone, Copy, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct WireGenerate {
+    #[serde(default)]
+    pub(super) length: Option<u32>,
+    #[serde(default)]
+    pub(super) symbols: Option<bool>,
+}
+
+/// Validated generation parameters produced by [`validate`] from a [`WireGenerate`] — `length`
+/// (if present) is already known to be in `[12, 128]`, so downstream code (the renderer's
+/// password-generation call) can treat this as pre-validated. Value-free, same reasoning as
+/// [`WireGenerate`].
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub(super) struct GenerateOptions {
+    pub(super) length: Option<u32>,
+    pub(super) symbols: Option<bool>,
+}
+
+/// The `update` object on a `secretUpdate`/`projectUpdate` request. Every field is optional —
+/// absent means "unchanged" per the wire contract, including `note`: `Some("")` clears the note,
+/// `None` leaves it alone. [`validate`] enforces the per-resource shape (`projectUpdate` allows
+/// only `name`; `secretUpdate` allows all four, with `value`/`generate` mutually exclusive and
+/// at least one field required to be present).
+///
+/// Never `#[derive(Debug)]` — `value`/`note` must never be logged, mirroring [`WireCreate`]'s
+/// redaction; `name`/`project` are printed verbatim, same as [`WireCreate`]'s (they can reveal
+/// what an agent is proposing, but not a secret value).
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct WireUpdate {
+    #[serde(default)]
+    pub(super) name: Option<String>,
+    #[serde(default)]
+    pub(super) value: Option<String>,
+    #[serde(default)]
+    pub(super) generate: Option<WireGenerate>,
+    #[serde(default)]
+    pub(super) note: Option<String>,
+    #[serde(default)]
+    pub(super) project: Option<String>,
+}
+
+impl std::fmt::Debug for WireUpdate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WireUpdate")
+            .field("name", &self.name)
+            .field("has_value", &self.value.is_some())
+            .field("generate", &self.generate)
+            .field("has_note", &self.note.is_some())
+            .field("project", &self.project)
+            .finish()
+    }
 }
 
 /// The `fill` object on a `credentialRequest` with `delivery: "fill"` (M5). Both fields are
@@ -66,9 +144,12 @@ pub(super) struct WireFillParams {
     pub(super) target_token: Option<String>,
 }
 
-/// The `create` object on a `secretCreate` request. `name`/`value` are required non-empty by
-/// [`validate`]; `note`/`project` are optional. `project` is a HINT only — never trusted
-/// silently, see `agent-access-architecture.md`'s "M4b — secret creation" wire section.
+/// The `create` object on a `secretCreate`/`projectCreate` request. `name` is required
+/// non-empty by [`validate`] for both ops. For `secretCreate`, exactly one of `value`/`generate`
+/// must be present (M6 — previously `value` alone was required); `note`/`project` are optional.
+/// For `projectCreate`, `value`/`generate`/`note`/`project` must all be absent — the op decides
+/// the shape. `project` is a HINT only — never trusted silently, see
+/// `agent-access-architecture.md`'s "M4b — secret creation" wire section.
 ///
 /// Never `#[derive(Debug)]` — `value`/`note` must never be logged, and `name`/`project` are
 /// redacted the same presence-only way `CredentialRequestData`'s `new_secret_name`/
@@ -79,7 +160,10 @@ pub(super) struct WireFillParams {
 #[serde(rename_all = "camelCase")]
 pub(super) struct WireCreate {
     pub(super) name: String,
-    pub(super) value: String,
+    #[serde(default)]
+    pub(super) value: Option<String>,
+    #[serde(default)]
+    pub(super) generate: Option<WireGenerate>,
     #[serde(default)]
     pub(super) note: Option<String>,
     #[serde(default)]
@@ -90,7 +174,8 @@ impl std::fmt::Debug for WireCreate {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("WireCreate")
             .field("has_name", &!self.name.is_empty())
-            .field("has_value", &!self.value.is_empty())
+            .field("has_value", &self.value.is_some())
+            .field("generate", &self.generate)
             .field("has_note", &self.note.is_some())
             .field("has_project", &self.project.is_some())
             .finish()
@@ -173,21 +258,57 @@ pub(super) enum ValidatedRequest {
         fill: Option<FillParams>,
         client: Option<WireClientInfo>,
     },
-    /// `secretCreate` — a proposal to create a new Secrets Manager secret. Always
-    /// [`ResourceKind::Secret`]; no query, no delivery on the wire (see "Wire (local socket
-    /// only)" in agent-access-architecture.md's "M4b — secret creation").
+    /// `secretCreate` / `projectCreate` — a proposal to create a new Secrets Manager secret or
+    /// project. No query, no delivery on the wire (see "Wire (local socket only)" in
+    /// agent-access-architecture.md's "M4b — secret creation" and "M6"). For
+    /// [`ResourceKind::Project`], `value`/`generate`/`note`/`project` are always `None` —
+    /// [`validate`] rejects a `projectCreate` that carries any of them.
     Create {
+        resource: ResourceKind,
         name: String,
         /// `Zeroizing` from the moment it leaves [`WireCreate`] — moved, never cloned, so there
         /// is never a second live copy of an incoming secret value sitting in a plain `String`.
-        value: Zeroizing<String>,
+        /// Mutually exclusive with `generate` being `Some` (M6) — [`validate`] enforces exactly
+        /// one of the two for a `secretCreate`.
+        value: Option<Zeroizing<String>>,
+        generate: Option<GenerateOptions>,
         note: Option<String>,
         project: Option<String>,
         client: Option<WireClientInfo>,
     },
+    /// `secretUpdate` / `projectUpdate` (M6) — a proposal to change an existing secret or rename
+    /// a project. `target_id` is the id being updated; every other field is "absent = unchanged"
+    /// per the wire contract. For [`ResourceKind::Project`], only `name` is ever `Some` —
+    /// [`validate`] rejects a `projectUpdate` that carries `value`/`generate`/`note`/`project`.
+    Update {
+        resource: ResourceKind,
+        target_id: String,
+        name: Option<String>,
+        /// Mutually exclusive with `generate` being `Some`, same rule as [`Create`](Self::Create).
+        value: Option<Zeroizing<String>>,
+        generate: Option<GenerateOptions>,
+        /// `Some("")` clears the note; `None` leaves it unchanged.
+        note: Option<String>,
+        project: Option<String>,
+        client: Option<WireClientInfo>,
+    },
+    /// `secretDelete` / `projectDelete` (M6) — a proposal to delete a single existing secret
+    /// (soft/trash) or project (hard). No query, no delivery, no create/update object on the
+    /// wire.
+    Delete {
+        resource: ResourceKind,
+        target_id: String,
+        client: Option<WireClientInfo>,
+    },
+    /// `projectList` (M6) — release the full readable Secrets Manager project list in one
+    /// approval. Always [`ResourceKind::Project`]; no query, no target on the wire.
+    List {
+        resource: ResourceKind,
+        client: Option<WireClientInfo>,
+    },
     /// `describeFillTarget` (M5) — vault-free, approval-free read of the active browser tab's
-    /// fillable fields. No query, no delivery, no fill/create object on the wire — [`validate`]
-    /// rejects a request that carries any of them under this op.
+    /// fillable fields. No query, no delivery, no fill/create/update/target object on the wire —
+    /// [`validate`] rejects a request that carries any of them under this op.
     DescribeFillTarget { client: Option<WireClientInfo> },
 }
 
@@ -224,16 +345,50 @@ impl std::fmt::Debug for ValidatedRequest {
                 .field("client", client)
                 .finish(),
             Self::Create {
+                resource,
                 note,
                 project,
                 client,
                 ..
             } => f
                 .debug_struct("ValidatedRequest::Create")
+                .field("resource", resource)
                 .field("name", &"<redacted>")
                 .field("value", &"<redacted>")
                 .field("has_note", &note.is_some())
                 .field("has_project", &project.is_some())
+                .field("client", client)
+                .finish(),
+            Self::Update {
+                resource,
+                target_id,
+                note,
+                project,
+                client,
+                ..
+            } => f
+                .debug_struct("ValidatedRequest::Update")
+                .field("resource", resource)
+                .field("target_id", target_id)
+                .field("name", &"<redacted>")
+                .field("value", &"<redacted>")
+                .field("has_note", &note.is_some())
+                .field("has_project", &project.is_some())
+                .field("client", client)
+                .finish(),
+            Self::Delete {
+                resource,
+                target_id,
+                client,
+            } => f
+                .debug_struct("ValidatedRequest::Delete")
+                .field("resource", resource)
+                .field("target_id", target_id)
+                .field("client", client)
+                .finish(),
+            Self::List { resource, client } => f
+                .debug_struct("ValidatedRequest::List")
+                .field("resource", resource)
                 .field("client", client)
                 .finish(),
             Self::DescribeFillTarget { client } => f
@@ -247,123 +402,388 @@ impl std::fmt::Debug for ValidatedRequest {
 /// Validates and unpacks a parsed [`WireRequest`], returning a human-readable (never
 /// vault-data-carrying) rejection reason on failure. Never panics on any input — every rejection
 /// path returns `Err`, which callers map to `WireStatus::Error` (see `local_listener::mod`'s
-/// `handle_connection`), so a malformed, op/query-type-mismatched, or op/create-mismatched
+/// `handle_connection`), so a malformed, op/query-type-mismatched, or op/object-mismatched
 /// request is always answered as a protocol error, never a crash.
 ///
-/// The `op` field selects the [`ResourceKind`]/[`RequestOperation`] pair (`"credentialRequest"`
-/// → `Credential`/`Request`, `"secretRequest"` → `Secret`/`Request`, `"secretCreate"` →
-/// `Secret`/`Create`). For the two `Request` ops the query type is then cross-checked against
-/// the resource per "M4 — Secrets Manager secrets over user auth": `domain` is only meaningful
-/// for a login credential, `name` only for a secret; `id`/`search` are valid for both. A `create`
-/// object on either `Request` op is rejected outright — silently ignoring it would let a client
-/// bug (or a confused caller) believe a create happened when nothing was created.
+/// The `op` field selects the [`ResourceKind`]/[`RequestOperation`] pair per the op table in
+/// agent-access-architecture.md's "M6 — Full Secrets Manager surface" ("Wire protocol v1 — six
+/// new ops"): `"credentialRequest"` → `Credential`/`Request`, `"secretRequest"` →
+/// `Secret`/`Request`, `"secretCreate"`/`"projectCreate"` → `Secret`/`Project`/`Create`,
+/// `"secretUpdate"`/`"projectUpdate"` → `.../Update`, `"secretDelete"`/`"projectDelete"` →
+/// `.../Delete`, `"projectList"` → `Project`/`List`. Each op is delegated to its own helper
+/// below, and every helper rejects every wire-level object that doesn't belong to its op
+/// explicitly (a silently-ignored foreign object would let a client bug go unnoticed) — the
+/// specific set of "foreign" fields differs per op and is documented on each helper.
 pub(super) fn validate(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
     if request.version != VERSION {
         return Err("unsupported protocol version");
     }
     match request.op.as_str() {
-        "credentialRequest" | "secretRequest" => {
-            if request.create.is_some() {
-                return Err("create object is not valid for this operation");
-            }
-            let resource = if request.op == "credentialRequest" {
-                ResourceKind::Credential
-            } else {
-                ResourceKind::Secret
-            };
-            let query = request.query.ok_or("missing query")?;
-            match (resource, query.kind) {
-                (ResourceKind::Credential, WireQueryType::Name) => {
-                    return Err("query type \"name\" is only valid for secretRequest");
-                }
-                (ResourceKind::Secret, WireQueryType::Domain) => {
-                    return Err("query type \"domain\" is only valid for credentialRequest");
-                }
-                // id/search are valid for both resource kinds; domain/name are already handled
-                // above for the resource kind they *don't* belong to.
-                _ => {}
-            }
-            let delivery = request
-                .delivery
-                .map(DeliveryMode::from)
-                .ok_or("missing delivery mode")?;
-            // M5: `fill` delivery is a credential-only concept — a secretRequest asking for it
-            // is a protocol error, not a silent downgrade to some other delivery mode.
-            if delivery == DeliveryMode::Fill && resource == ResourceKind::Secret {
-                return Err("fill delivery is not supported for secrets");
-            }
-            // A `fill` object only makes sense alongside `delivery: "fill"` — present anywhere
-            // else (inject/reference) it's the same "confusing client bug" class as an ignored
-            // `create` object above, so it's rejected rather than silently dropped.
-            if request.fill.is_some() && delivery != DeliveryMode::Fill {
-                return Err("fill object is only valid with delivery \"fill\"");
-            }
-            let fill = if delivery == DeliveryMode::Fill {
-                let params = request.fill.unwrap_or_default();
-                if let Some(fields) = &params.fields {
-                    for field in fields {
-                        if !matches!(field.as_str(), "username" | "password" | "totp") {
-                            return Err("unknown fill field role");
-                        }
-                    }
-                }
-                Some(FillParams {
-                    fields: params.fields,
-                    target_token: params.target_token,
-                })
-            } else {
-                None
-            };
-            Ok(ValidatedRequest::Lookup {
-                resource,
-                query,
-                delivery,
-                fill,
-                client: request.client,
-            })
-        }
-        "secretCreate" => {
-            if request.fill.is_some() {
-                return Err("fill object is not valid for this operation");
-            }
-            let create = request.create.ok_or("missing create object")?;
-            if create.name.is_empty() {
-                return Err("create.name must not be empty");
-            }
-            if create.value.is_empty() {
-                return Err("create.value must not be empty");
-            }
-            Ok(ValidatedRequest::Create {
-                name: create.name,
-                value: Zeroizing::new(create.value),
-                note: create.note,
-                project: create.project,
-                client: request.client,
-            })
-        }
-        "describeFillTarget" => {
-            // M5: vault-free, approval-free — and, unlike `credentialRequest`, has nothing on
-            // the wire *to* validate beyond "none of the other ops' fields snuck in." A stray
-            // `query`/`delivery`/`fill`/`create` is a protocol error rather than being silently
-            // ignored, matching this module's "an ignored field is a confusing client bug" rule.
-            if request.query.is_some() {
-                return Err("query is not valid for describeFillTarget");
-            }
-            if request.delivery.is_some() {
-                return Err("delivery is not valid for describeFillTarget");
-            }
-            if request.fill.is_some() {
-                return Err("fill object is not valid for describeFillTarget");
-            }
-            if request.create.is_some() {
-                return Err("create object is not valid for describeFillTarget");
-            }
-            Ok(ValidatedRequest::DescribeFillTarget {
-                client: request.client,
-            })
-        }
+        "credentialRequest" | "secretRequest" => validate_lookup(request),
+        "secretCreate" => validate_create(ResourceKind::Secret, request),
+        "projectCreate" => validate_create(ResourceKind::Project, request),
+        "secretUpdate" => validate_update(ResourceKind::Secret, request),
+        "projectUpdate" => validate_update(ResourceKind::Project, request),
+        "secretDelete" => validate_delete(ResourceKind::Secret, request),
+        "projectDelete" => validate_delete(ResourceKind::Project, request),
+        "projectList" => validate_list(request),
+        "describeFillTarget" => validate_describe_fill_target(request),
         _ => Err("unknown operation"),
     }
+}
+
+/// `credentialRequest` / `secretRequest` — a lookup against existing vault data. Foreign
+/// objects: `create`, `update`, `target` (a create/update/delete object on a lookup request).
+fn validate_lookup(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
+    if request.create.is_some() {
+        return Err("create object is not valid for this operation");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for this operation");
+    }
+    if request.target.is_some() {
+        return Err("target object is not valid for this operation");
+    }
+    let resource = if request.op == "credentialRequest" {
+        ResourceKind::Credential
+    } else {
+        ResourceKind::Secret
+    };
+    let query = request.query.ok_or("missing query")?;
+    match (resource, query.kind) {
+        (ResourceKind::Credential, WireQueryType::Name) => {
+            return Err("query type \"name\" is only valid for secretRequest");
+        }
+        (ResourceKind::Secret, WireQueryType::Domain) => {
+            return Err("query type \"domain\" is only valid for credentialRequest");
+        }
+        // id/search are valid for both resource kinds; domain/name are already handled
+        // above for the resource kind they *don't* belong to.
+        _ => {}
+    }
+    let delivery = request
+        .delivery
+        .map(DeliveryMode::from)
+        .ok_or("missing delivery mode")?;
+    // M5: `fill` delivery is a credential-only concept — a secretRequest asking for it
+    // is a protocol error, not a silent downgrade to some other delivery mode.
+    if delivery == DeliveryMode::Fill && resource == ResourceKind::Secret {
+        return Err("fill delivery is not supported for secrets");
+    }
+    // A `fill` object only makes sense alongside `delivery: "fill"` — present anywhere
+    // else (inject/reference) it's the same "confusing client bug" class as an ignored
+    // `create` object above, so it's rejected rather than silently dropped.
+    if request.fill.is_some() && delivery != DeliveryMode::Fill {
+        return Err("fill object is only valid with delivery \"fill\"");
+    }
+    let fill = if delivery == DeliveryMode::Fill {
+        let params = request.fill.unwrap_or_default();
+        if let Some(fields) = &params.fields {
+            for field in fields {
+                if !matches!(field.as_str(), "username" | "password" | "totp") {
+                    return Err("unknown fill field role");
+                }
+            }
+        }
+        Some(FillParams {
+            fields: params.fields,
+            target_token: params.target_token,
+        })
+    } else {
+        None
+    };
+    Ok(ValidatedRequest::Lookup {
+        resource,
+        query,
+        delivery,
+        fill,
+        client: request.client,
+    })
+}
+
+/// Validates a `generate` object shared by `secretCreate`/`secretUpdate` (M6): bounds-checks
+/// `length` into `[12, 128]` — the exact wire-contract error message
+/// ("generate.length must be between 12 and 128") is asserted by tests below.
+fn validate_generate_options(wire: WireGenerate) -> Result<GenerateOptions, &'static str> {
+    if let Some(length) = wire.length {
+        if !(12..=128).contains(&length) {
+            return Err("generate.length must be between 12 and 128");
+        }
+    }
+    Ok(GenerateOptions {
+        length: wire.length,
+        symbols: wire.symbols,
+    })
+}
+
+/// `secretCreate` / `projectCreate` (M4b, M6) — a proposal to create a new secret or project.
+/// `resource` is always [`ResourceKind::Secret`] or [`ResourceKind::Project`] — [`validate`]
+/// never calls this with [`ResourceKind::Credential`]. Foreign objects: `query`, `delivery`,
+/// `fill`, `update`, `target`.
+fn validate_create(
+    resource: ResourceKind,
+    request: WireRequest,
+) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for this operation");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for this operation");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for this operation");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for this operation");
+    }
+    if request.target.is_some() {
+        return Err("target object is not valid for this operation");
+    }
+    let create = request.create.ok_or("missing create object")?;
+    if create.name.is_empty() {
+        return Err("create.name must not be empty");
+    }
+
+    if resource == ResourceKind::Project {
+        // The op decides the shape — a stray value/generate/note/project on a projectCreate is
+        // a validation error, not a silently-ignored field (agent-access-architecture.md's "M6"
+        // wire section: "a stray `value` on a projectCreate is a validation error").
+        if create.value.is_some() {
+            return Err("value is not valid for projectCreate");
+        }
+        if create.generate.is_some() {
+            return Err("generate is not valid for projectCreate");
+        }
+        if create.note.is_some() {
+            return Err("note is not valid for projectCreate");
+        }
+        if create.project.is_some() {
+            return Err("project is not valid for projectCreate");
+        }
+        return Ok(ValidatedRequest::Create {
+            resource,
+            name: create.name,
+            value: None,
+            generate: None,
+            note: None,
+            project: None,
+            client: request.client,
+        });
+    }
+
+    // secretCreate: exactly one of value/generate.
+    let generate = match create.generate {
+        Some(wire) => Some(validate_generate_options(wire)?),
+        None => None,
+    };
+    let value = match create.value {
+        Some(value) => {
+            if value.is_empty() {
+                return Err("create.value must not be empty");
+            }
+            Some(Zeroizing::new(value))
+        }
+        None => None,
+    };
+    match (&value, &generate) {
+        (Some(_), Some(_)) => {
+            return Err("create.value and create.generate are mutually exclusive")
+        }
+        (None, None) => return Err("create.value or create.generate is required"),
+        _ => {}
+    }
+
+    Ok(ValidatedRequest::Create {
+        resource,
+        name: create.name,
+        value,
+        generate,
+        note: create.note,
+        project: create.project,
+        client: request.client,
+    })
+}
+
+/// `secretUpdate` / `projectUpdate` (M6) — a proposal to change an existing secret, or rename a
+/// project. `resource` is always [`ResourceKind::Secret`] or [`ResourceKind::Project`]. Foreign
+/// objects: `query`, `delivery`, `fill`, `create`.
+fn validate_update(
+    resource: ResourceKind,
+    request: WireRequest,
+) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for this operation");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for this operation");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for this operation");
+    }
+    if request.create.is_some() {
+        return Err("create object is not valid for this operation");
+    }
+    let target = request.target.ok_or("missing target")?;
+    if target.id.is_empty() {
+        return Err("target.id must not be empty");
+    }
+    let update = request.update.ok_or("missing update object")?;
+
+    if resource == ResourceKind::Project {
+        // Rename only — mirrors the server's PUT /projects/{id}. A stray value/generate/note/
+        // project on a projectUpdate is a validation error, same "op decides the shape" rule as
+        // projectCreate above.
+        if update.value.is_some() {
+            return Err("value is not valid for projectUpdate");
+        }
+        if update.generate.is_some() {
+            return Err("generate is not valid for projectUpdate");
+        }
+        if update.note.is_some() {
+            return Err("note is not valid for projectUpdate");
+        }
+        if update.project.is_some() {
+            return Err("project is not valid for projectUpdate");
+        }
+        let name = match update.name {
+            Some(name) if !name.is_empty() => name,
+            _ => return Err("update.name must not be empty"),
+        };
+        return Ok(ValidatedRequest::Update {
+            resource,
+            target_id: target.id,
+            name: Some(name),
+            value: None,
+            generate: None,
+            note: None,
+            project: None,
+            client: request.client,
+        });
+    }
+
+    // secretUpdate: value/generate mutually exclusive (both optional — an update can rename/
+    // move/clear-note without touching the value at all), at least one field must actually
+    // change something.
+    if let Some(name) = &update.name {
+        if name.is_empty() {
+            return Err("update.name must not be empty");
+        }
+    }
+    let generate = match update.generate {
+        Some(wire) => Some(validate_generate_options(wire)?),
+        None => None,
+    };
+    let value = update.value.map(Zeroizing::new);
+    if value.is_some() && generate.is_some() {
+        return Err("update.value and update.generate are mutually exclusive");
+    }
+    if update.name.is_none()
+        && value.is_none()
+        && generate.is_none()
+        && update.note.is_none()
+        && update.project.is_none()
+    {
+        return Err("update must change at least one field");
+    }
+
+    Ok(ValidatedRequest::Update {
+        resource,
+        target_id: target.id,
+        name: update.name,
+        value,
+        generate,
+        note: update.note,
+        project: update.project,
+        client: request.client,
+    })
+}
+
+/// `secretDelete` / `projectDelete` (M6) — a proposal to delete a single existing secret or
+/// project. Foreign objects: `query`, `delivery`, `fill`, `create`, `update`.
+fn validate_delete(
+    resource: ResourceKind,
+    request: WireRequest,
+) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for this operation");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for this operation");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for this operation");
+    }
+    if request.create.is_some() {
+        return Err("create object is not valid for this operation");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for this operation");
+    }
+    let target = request.target.ok_or("missing target")?;
+    if target.id.is_empty() {
+        return Err("target.id must not be empty");
+    }
+    Ok(ValidatedRequest::Delete {
+        resource,
+        target_id: target.id,
+        client: request.client,
+    })
+}
+
+/// `projectList` (M6) — release the full readable project list in one approval. Foreign
+/// objects: `query`, `delivery`, `fill`, `create`, `update`, `target` (there is nothing to scope
+/// a list request to).
+fn validate_list(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for this operation");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for this operation");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for this operation");
+    }
+    if request.create.is_some() {
+        return Err("create object is not valid for this operation");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for this operation");
+    }
+    if request.target.is_some() {
+        return Err("target object is not valid for this operation");
+    }
+    Ok(ValidatedRequest::List {
+        resource: ResourceKind::Project,
+        client: request.client,
+    })
+}
+
+/// `describeFillTarget` (M5) — vault-free, approval-free — and, unlike `credentialRequest`, has
+/// nothing on the wire *to* validate beyond "none of the other ops' fields snuck in." A stray
+/// `query`/`delivery`/`fill`/`create`/`update`/`target` is a protocol error rather than being
+/// silently ignored, matching this module's "an ignored field is a confusing client bug" rule.
+fn validate_describe_fill_target(request: WireRequest) -> Result<ValidatedRequest, &'static str> {
+    if request.query.is_some() {
+        return Err("query is not valid for describeFillTarget");
+    }
+    if request.delivery.is_some() {
+        return Err("delivery is not valid for describeFillTarget");
+    }
+    if request.fill.is_some() {
+        return Err("fill object is not valid for describeFillTarget");
+    }
+    if request.create.is_some() {
+        return Err("create object is not valid for describeFillTarget");
+    }
+    if request.update.is_some() {
+        return Err("update object is not valid for describeFillTarget");
+    }
+    if request.target.is_some() {
+        return Err("target object is not valid for describeFillTarget");
+    }
+    Ok(ValidatedRequest::DescribeFillTarget {
+        client: request.client,
+    })
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -444,6 +864,20 @@ impl std::fmt::Debug for WireSecret {
     }
 }
 
+/// One entry of an approved `projectList` reply (M6) — project metadata only, no secret
+/// material (agent-access-architecture.md's "M6" wire section: "names are org metadata, no
+/// secret material"). Plain `Debug`/`Serialize` are fine, same reasoning as
+/// `callbacks::ProjectEntry`'s docs.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct WireProjectEntry {
+    pub(super) name: String,
+    pub(super) reference: String,
+    pub(super) write: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(super) organization: Option<String>,
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct WireItem {
@@ -475,6 +909,12 @@ pub(super) struct WireResponse {
     pub(super) reference: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(super) item: Option<WireItem>,
+    /// The full readable project list released by an approved `projectList` reply (M6) — the
+    /// one list-shaped release in this protocol (agent-access-architecture.md invariant 16:
+    /// "one approval == one target: no bulk writes on the wire; `projectList` is the sole
+    /// list-shaped release"). `None`/absent for every other op.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(super) projects: Option<Vec<WireProjectEntry>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(super) message: Option<String>,
     /// M5's `fill` response object (`delivery: "fill"`'s execution outcome) — a value-free
@@ -501,6 +941,7 @@ impl WireResponse {
             secret: None,
             reference: None,
             item: None,
+            projects: None,
             message: Some(message.to_string()),
             fill: None,
             fill_target: None,
@@ -528,13 +969,18 @@ pub(super) struct DispatchOutcome {
 /// [`build_approved`], whose `match` on `delivery` is the actual enforcement point for
 /// "reference mode never carries secret values": there is no runtime filter here, only a code
 /// path that never constructs a [`WireCredential`] for [`DeliveryMode::Reference`]. The approved
-/// branch for a [`RequestOperation::Create`] is built by [`build_approved_create`], which never
-/// constructs a `secret`/`credential` object at all — a create response has no delivery mode to
-/// branch on in the first place (agent-access-architecture.md, "M4b — secret creation").
+/// branch for [`RequestOperation::Create`]/[`Update`](RequestOperation::Update)/
+/// [`Delete`](RequestOperation::Delete) is built by [`build_approved_reference_and_name`], which
+/// never constructs a `secret`/`credential` object at all — none of those three response shapes
+/// has a delivery mode to branch on in the first place (agent-access-architecture.md, "M4b —
+/// secret creation" and "M6" invariant 13). [`RequestOperation::List`] is built by
+/// [`build_approved_list`], the one op whose reply carries a `projects` array instead of a
+/// `reference` (invariant 16: "the sole list-shaped release").
 ///
-/// `delivery` is `None` for [`RequestOperation::Create`] (there is no delivery mode on that
-/// request) and must be `Some` for [`RequestOperation::Request`]; a caller-side invariant
-/// violation there fails closed with a generic error rather than panicking.
+/// `delivery` is `None` for every op except [`RequestOperation::Request`] (there is no delivery
+/// mode on a create/update/delete/list/describe request) and must be `Some` for
+/// [`RequestOperation::Request`]; a caller-side invariant violation there fails closed with a
+/// generic error rather than panicking.
 pub(super) fn build_response(
     outcome: Result<Result<CredentialResponseData, CallbackError>, tokio::time::error::Elapsed>,
     resource: ResourceKind,
@@ -544,9 +990,20 @@ pub(super) fn build_response(
     match outcome {
         Ok(Ok(response)) if response.approved => {
             let (built, fields_shared) = match (operation, delivery) {
-                // Nothing is released on a create — the response carries a reference and the
-                // item name the caller already proposed, never the value it sent.
-                (RequestOperation::Create, _) => (build_approved_create(&response), None),
+                // Nothing is released on a create/update/delete — the response carries a
+                // reference and the item name, never a value. `fields_shared` has no
+                // established plumbing for "the update changed the value" on this path, so —
+                // consistent with Create's existing treatment — all three report no fields
+                // shared (M6, "Full Secrets Manager surface" — see `local_listener::mod`'s
+                // request construction, which never sets a value-changed flag on the response).
+                (RequestOperation::Create, _)
+                | (RequestOperation::Update, _)
+                | (RequestOperation::Delete, _) => {
+                    (build_approved_reference_and_name(&response, resource), None)
+                }
+                // The one list-shaped release (invariant 16) — no fields_shared concept applies
+                // to a list of names/ids/flags.
+                (RequestOperation::List, _) => (build_approved_list(&response), None),
                 // A describe reply is page metadata, not vault data — no delivery mode to
                 // branch on, same shape as a create in that respect.
                 (RequestOperation::DescribeFillTarget, _) => {
@@ -663,6 +1120,14 @@ fn build_approved(
     match resource {
         ResourceKind::Credential => build_approved_credential(response, delivery),
         ResourceKind::Secret => build_approved_secret(response, delivery),
+        // Unreachable in practice — `validate` never produces a `ValidatedRequest::Lookup` (the
+        // only caller of `build_approved`, via `build_response`'s `Request` arm) with
+        // `ResourceKind::Project`; there is no `projectRequest` lookup op on the wire. Handled
+        // explicitly (fail closed) rather than `unreachable!()`, same "never panic on a
+        // caller-controlled input" rule as `build_approved_secret`'s `Fill` arm.
+        ResourceKind::Project => {
+            WireResponse::status(WireStatus::Error, "Lookup is not supported for projects")
+        }
     }
 }
 
@@ -725,6 +1190,7 @@ fn build_approved_credential(
                 secret: None,
                 reference: Some(reference),
                 item: None,
+                projects: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -742,6 +1208,7 @@ fn build_approved_credential(
                     name: response.item_name.clone(),
                     username: username.map(str::to_string),
                 }),
+                projects: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -785,6 +1252,7 @@ fn build_approved_fill(response: &CredentialResponseData, reference: String) -> 
             name: response.item_name.clone(),
             username: response.username.clone(),
         }),
+        projects: None,
         message: None,
         fill: Some(fill),
         fill_target: None,
@@ -818,6 +1286,7 @@ fn build_approved_describe_fill_target(response: &CredentialResponseData) -> Wir
         secret: None,
         reference: None,
         item: None,
+        projects: None,
         message: None,
         fill: None,
         fill_target: Some(fill_target),
@@ -858,6 +1327,7 @@ fn build_approved_secret(
                 }),
                 reference: Some(format!("bw://secret/{secret_id}")),
                 item: None,
+                projects: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -883,6 +1353,7 @@ fn build_approved_secret(
                     // `item.username` is a credential-only concept; secrets never populate it.
                     username: None,
                 }),
+                projects: None,
                 message: None,
                 fill: None,
                 fill_target: None,
@@ -900,35 +1371,104 @@ fn build_approved_secret(
     }
 }
 
-/// Builds the `status: "approved"` reply for an approved `secretCreate`. Reference + item name
-/// only — by construction there is no `secret` object and no `value` field anywhere in this
-/// function, so the created value can never be echoed back (agent-access-architecture.md, "M4b —
-/// secret creation": "The stored value is NEVER echoed back", and invariant 7). `note` is never
-/// read here either, same as every other local reply.
+/// Resolves the response's resource-appropriate id — `secret_id` for [`ResourceKind::Secret`],
+/// `project_id` for [`ResourceKind::Project`] — the single source of truth so a create/update/
+/// delete builder can never accidentally read the wrong id field for the resource it's building
+/// a reply for. Never called with [`ResourceKind::Credential`] (that path has its own
+/// `credential_id`-based reference construction in [`build_approved_credential`]).
+fn resource_id(response: &CredentialResponseData, resource: ResourceKind) -> Option<String> {
+    match resource {
+        ResourceKind::Secret => response.secret_id.clone(),
+        ResourceKind::Project => response.project_id.clone(),
+        ResourceKind::Credential => None,
+    }
+}
+
+/// Builds a `bw://secret/<id>` or `bw://project/<id>` reference for `resource`/`id`, mirroring
+/// the credential path's `bw://item/<id>` (M6's new reference scheme,
+/// agent-access-architecture.md's "M6" wire section: "New reference scheme `bw://project/<id>`").
+fn reference_for(resource: ResourceKind, id: &str) -> String {
+    match resource {
+        ResourceKind::Secret => format!("bw://secret/{id}"),
+        ResourceKind::Project => format!("bw://project/{id}"),
+        // Never reached — see `resource_id`'s docs.
+        ResourceKind::Credential => format!("bw://item/{id}"),
+    }
+}
+
+/// Builds the `status: "approved"` reply for an approved `secretCreate`/`projectCreate`,
+/// `secretUpdate`/`projectUpdate`, or `secretDelete`/`projectDelete`. Reference + item name
+/// only, for every one of those six ops — by construction there is no `secret` object and no
+/// `value` field anywhere in this function, so a secret's value (created, updated, or about to
+/// be deleted) can never be echoed back (agent-access-architecture.md, "M4b — secret creation":
+/// "The stored value is NEVER echoed back"; "M6" invariant 13: "update/delete/project responses
+/// are reference+name-shaped by construction"). `note` is never read here either, same as every
+/// other local reply.
 ///
-/// Missing `secret_id` or `item_name` on an approved response is a handler contract violation
-/// (mirrors [`build_approved_secret`]'s missing-id handling) — deny-safe: fail closed rather than
-/// synthesize a reference or a name from nothing.
-fn build_approved_create(response: &CredentialResponseData) -> WireResponse {
-    let (Some(secret_id), Some(name)) = (response.secret_id.clone(), response.item_name.clone())
-    else {
-        return WireResponse::status(
-            WireStatus::Error,
-            "Approved response missing secret id or name",
-        );
+/// Missing id (`secret_id`/`project_id`, per [`resource_id`]) or `item_name` on an approved
+/// response is a handler contract violation (mirrors [`build_approved_secret`]'s missing-id
+/// handling) — deny-safe: fail closed rather than synthesize a reference or a name from nothing.
+fn build_approved_reference_and_name(
+    response: &CredentialResponseData,
+    resource: ResourceKind,
+) -> WireResponse {
+    let (Some(id), Some(name)) = (
+        resource_id(response, resource),
+        response.item_name.clone(),
+    ) else {
+        return WireResponse::status(WireStatus::Error, "Approved response missing id or name");
     };
     WireResponse {
         version: VERSION,
         status: WireStatus::Approved,
         credential: None,
-        // No `secret` object, ever — a create response never carries a value, approved or not.
+        // No `secret` object, ever — none of these six ops' responses ever carry a value,
+        // approved or not.
         secret: None,
-        reference: Some(format!("bw://secret/{secret_id}")),
+        reference: Some(reference_for(resource, &id)),
         item: Some(WireItem {
             name: Some(name),
-            // `item.username` is a credential-only concept; secrets never populate it.
+            // `item.username` is a credential-only concept; secrets/projects never populate it.
             username: None,
         }),
+        projects: None,
+        message: None,
+        fill: None,
+        fill_target: None,
+    }
+}
+
+/// Cap on the number of entries released in a single `projectList` reply — defensive-in-depth;
+/// the renderer applies the same cap before it ever reaches this crate (agent-access-architecture
+/// .md's "M6" wire section: "new top-level `projects` array, capped at 200 entries").
+const MAX_PROJECT_LIST_ENTRIES: usize = 200;
+
+/// Builds the `status: "approved"` reply for `projectList` — the one list-shaped release in
+/// this protocol (invariant 16). No `reference`/`item` — a list reply's payload is the
+/// `projects` array itself, not a single reference. Missing `projects` on an approved response
+/// is a handler contract violation — fail closed, mirroring every other builder in this module.
+fn build_approved_list(response: &CredentialResponseData) -> WireResponse {
+    let Some(projects) = response.projects.as_ref() else {
+        return WireResponse::status(WireStatus::Error, "Approved response missing projects");
+    };
+    let entries: Vec<WireProjectEntry> = projects
+        .iter()
+        .take(MAX_PROJECT_LIST_ENTRIES)
+        .map(|entry: &ProjectEntry| WireProjectEntry {
+            name: entry.name.clone(),
+            reference: format!("bw://project/{}", entry.id),
+            write: entry.write,
+            organization: entry.organization.clone(),
+        })
+        .collect();
+    WireResponse {
+        version: VERSION,
+        status: WireStatus::Approved,
+        credential: None,
+        secret: None,
+        reference: None,
+        item: None,
+        projects: Some(entries),
         message: None,
         fill: None,
         fill_target: None,
@@ -976,6 +1516,12 @@ fn fields_shared_list(
         // secret's delivery is always `Inject`/`Reference` in practice; `secret_value` isn't
         // gated on delivery here (unchanged from before this fix — out of this bug's scope).
         ResourceKind::Secret => response.secret_value.is_some().then(|| "value".to_string()),
+        // Unreachable in practice — this function is only called from `build_response`'s
+        // `Request` arm (a `ValidatedRequest::Lookup`), and there is no `projectRequest` lookup
+        // op that could produce `ResourceKind::Project` there. `Create`/`Update`/`Delete`/`List`
+        // (which do use `ResourceKind::Project`) report `fields_shared` as `None` directly in
+        // `build_response`, never through this function.
+        ResourceKind::Project => None,
     }
 }
 
@@ -1040,7 +1586,7 @@ mod tests {
         assert!(request.delivery.is_none());
         let create = request.create.unwrap();
         assert_eq!(create.name, "DB_PASSWORD");
-        assert_eq!(create.value, "hunter2");
+        assert_eq!(create.value.as_deref(), Some("hunter2"));
         assert_eq!(create.note.as_deref(), Some("prod db"));
         assert_eq!(create.project.as_deref(), Some("my-app"));
     }
@@ -1095,6 +1641,8 @@ mod tests {
             }),
             delivery: Some(WireDelivery::Inject),
             create: None,
+            update: None,
+            target: None,
             fill: None,
             client: None,
         }
@@ -1232,10 +1780,13 @@ mod tests {
             delivery: None,
             create: Some(WireCreate {
                 name: "DB_PASSWORD".to_string(),
-                value: "hunter2".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
                 note: Some("prod db".to_string()),
                 project: Some("my-app".to_string()),
             }),
+            update: None,
+            target: None,
             fill: None,
             client: None,
         }
@@ -1246,14 +1797,18 @@ mod tests {
         let request = base_create_request();
         match validate(request).unwrap() {
             ValidatedRequest::Create {
+                resource,
                 name,
                 value,
+                generate,
                 note,
                 project,
                 ..
             } => {
+                assert_eq!(resource, ResourceKind::Secret);
                 assert_eq!(name, "DB_PASSWORD");
-                assert_eq!(value.as_str(), "hunter2");
+                assert_eq!(value.as_ref().unwrap().as_str(), "hunter2");
+                assert!(generate.is_none());
                 assert_eq!(note.as_deref(), Some("prod db"));
                 assert_eq!(project.as_deref(), Some("my-app"));
             }
@@ -1266,7 +1821,8 @@ mod tests {
         let request = WireRequest {
             create: Some(WireCreate {
                 name: "DB_PASSWORD".to_string(),
-                value: "hunter2".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
                 note: None,
                 project: None,
             }),
@@ -1295,7 +1851,8 @@ mod tests {
         let request = WireRequest {
             create: Some(WireCreate {
                 name: String::new(),
-                value: "hunter2".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
                 note: None,
                 project: None,
             }),
@@ -1309,7 +1866,8 @@ mod tests {
         let request = WireRequest {
             create: Some(WireCreate {
                 name: "DB_PASSWORD".to_string(),
-                value: String::new(),
+                value: Some(String::new()),
+                generate: None,
                 note: None,
                 project: None,
             }),
@@ -1319,11 +1877,135 @@ mod tests {
     }
 
     #[test]
+    fn validate_rejects_secret_create_with_neither_value_nor_generate() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "DB_PASSWORD".to_string(),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        };
+        assert_validation_error(request, "create.value or create.generate is required");
+    }
+
+    #[test]
+    fn validate_rejects_secret_create_with_both_value_and_generate() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "DB_PASSWORD".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: Some(WireGenerate {
+                    length: None,
+                    symbols: None,
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        };
+        assert_validation_error(
+            request,
+            "create.value and create.generate are mutually exclusive",
+        );
+    }
+
+    #[test]
+    fn validate_accepts_secret_create_with_generate_instead_of_value() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "DB_PASSWORD".to_string(),
+                value: None,
+                generate: Some(WireGenerate {
+                    length: Some(64),
+                    symbols: Some(false),
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        };
+        match validate(request).unwrap() {
+            ValidatedRequest::Create {
+                value, generate, ..
+            } => {
+                assert!(value.is_none());
+                let generate = generate.expect("generate options expected");
+                assert_eq!(generate.length, Some(64));
+                assert_eq!(generate.symbols, Some(false));
+            }
+            other => panic!("expected a Create, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_generate_length_below_the_minimum() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "DB_PASSWORD".to_string(),
+                value: None,
+                generate: Some(WireGenerate {
+                    length: Some(11),
+                    symbols: None,
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        };
+        assert_validation_error(request, "generate.length must be between 12 and 128");
+    }
+
+    #[test]
+    fn validate_rejects_generate_length_above_the_maximum() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "DB_PASSWORD".to_string(),
+                value: None,
+                generate: Some(WireGenerate {
+                    length: Some(129),
+                    symbols: None,
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        };
+        assert_validation_error(request, "generate.length must be between 12 and 128");
+    }
+
+    #[test]
+    fn validate_accepts_generate_length_at_the_bounds() {
+        for length in [12u32, 128u32] {
+            let request = WireRequest {
+                create: Some(WireCreate {
+                    name: "DB_PASSWORD".to_string(),
+                    value: None,
+                    generate: Some(WireGenerate {
+                        length: Some(length),
+                        symbols: None,
+                    }),
+                    note: None,
+                    project: None,
+                }),
+                ..base_create_request()
+            };
+            assert!(
+                validate(request).is_ok(),
+                "length {length} should be accepted"
+            );
+        }
+    }
+
+    #[test]
     fn validate_rejects_a_create_object_on_credential_request() {
         let request = WireRequest {
             create: Some(WireCreate {
                 name: "DB_PASSWORD".to_string(),
-                value: "hunter2".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
                 note: None,
                 project: None,
             }),
@@ -1342,11 +2024,751 @@ mod tests {
             }),
             create: Some(WireCreate {
                 name: "DB_PASSWORD".to_string(),
-                value: "hunter2".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
                 note: None,
                 project: None,
             }),
             ..base_lookup_request()
+        };
+        assert_validation_error(request, "create object is not valid for this operation");
+    }
+
+    // --- validate: projectCreate (M6) ---------------------------------------------------------
+
+    fn base_project_create_request() -> WireRequest {
+        WireRequest {
+            op: "projectCreate".to_string(),
+            create: Some(WireCreate {
+                name: "my-app".to_string(),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_create_request()
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_project_create_request() {
+        let request = base_project_create_request();
+        match validate(request).unwrap() {
+            ValidatedRequest::Create {
+                resource,
+                name,
+                value,
+                generate,
+                note,
+                project,
+                ..
+            } => {
+                assert_eq!(resource, ResourceKind::Project);
+                assert_eq!(name, "my-app");
+                assert!(value.is_none());
+                assert!(generate.is_none());
+                assert!(note.is_none());
+                assert!(project.is_none());
+            }
+            other => panic!("expected a Create, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_project_create_with_empty_name() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: String::new(),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "create.name must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_project_create_with_a_stray_value() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "my-app".to_string(),
+                value: Some("hunter2".to_string()),
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "value is not valid for projectCreate");
+    }
+
+    #[test]
+    fn validate_rejects_project_create_with_a_stray_generate() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "my-app".to_string(),
+                value: None,
+                generate: Some(WireGenerate::default()),
+                note: None,
+                project: None,
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "generate is not valid for projectCreate");
+    }
+
+    #[test]
+    fn validate_rejects_project_create_with_a_stray_note() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "my-app".to_string(),
+                value: None,
+                generate: None,
+                note: Some("hi".to_string()),
+                project: None,
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "note is not valid for projectCreate");
+    }
+
+    #[test]
+    fn validate_rejects_project_create_with_a_stray_project() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "my-app".to_string(),
+                value: None,
+                generate: None,
+                note: None,
+                project: Some("other".to_string()),
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "project is not valid for projectCreate");
+    }
+
+    #[test]
+    fn validate_rejects_query_on_project_create() {
+        let request = WireRequest {
+            query: Some(WireQuery {
+                kind: WireQueryType::Id,
+                value: "x".to_string(),
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "query is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_delivery_on_project_create() {
+        let request = WireRequest {
+            delivery: Some(WireDelivery::Inject),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "delivery is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_target_on_project_create() {
+        let request = WireRequest {
+            target: Some(WireTarget {
+                id: "project-1".to_string(),
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "target object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_update_on_project_create() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_create_request()
+        };
+        assert_validation_error(request, "update object is not valid for this operation");
+    }
+
+    // --- validate: secretUpdate (M6) ---------------------------------------------------------
+
+    fn base_secret_update_request() -> WireRequest {
+        WireRequest {
+            version: 1,
+            op: "secretUpdate".to_string(),
+            query: None,
+            delivery: None,
+            create: None,
+            target: Some(WireTarget {
+                id: "secret-1".to_string(),
+            }),
+            update: Some(WireUpdate {
+                name: Some("NEW_NAME".to_string()),
+                value: Some("new-value".to_string()),
+                generate: None,
+                note: Some("new note".to_string()),
+                project: Some("my-app".to_string()),
+            }),
+            fill: None,
+            client: None,
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_secret_update_request() {
+        let request = base_secret_update_request();
+        match validate(request).unwrap() {
+            ValidatedRequest::Update {
+                resource,
+                target_id,
+                name,
+                value,
+                generate,
+                note,
+                project,
+                ..
+            } => {
+                assert_eq!(resource, ResourceKind::Secret);
+                assert_eq!(target_id, "secret-1");
+                assert_eq!(name.as_deref(), Some("NEW_NAME"));
+                assert_eq!(value.as_ref().unwrap().as_str(), "new-value");
+                assert!(generate.is_none());
+                assert_eq!(note.as_deref(), Some("new note"));
+                assert_eq!(project.as_deref(), Some("my-app"));
+            }
+            other => panic!("expected an Update, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_secret_update_with_only_a_note_clear() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: None,
+                generate: None,
+                note: Some(String::new()),
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        match validate(request).unwrap() {
+            ValidatedRequest::Update {
+                name,
+                value,
+                note,
+                project,
+                ..
+            } => {
+                assert!(name.is_none());
+                assert!(value.is_none());
+                assert_eq!(note.as_deref(), Some(""));
+                assert!(project.is_none());
+            }
+            other => panic!("expected an Update, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_secret_update_with_generate_instead_of_value() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: None,
+                generate: Some(WireGenerate {
+                    length: Some(20),
+                    symbols: Some(true),
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        match validate(request).unwrap() {
+            ValidatedRequest::Update { value, generate, .. } => {
+                assert!(value.is_none());
+                let generate = generate.expect("generate options expected");
+                assert_eq!(generate.length, Some(20));
+                assert_eq!(generate.symbols, Some(true));
+            }
+            other => panic!("expected an Update, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_both_value_and_generate() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: Some("x".to_string()),
+                generate: Some(WireGenerate::default()),
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(
+            request,
+            "update.value and update.generate are mutually exclusive",
+        );
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_no_changed_fields() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "update must change at least one field");
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_generate_length_out_of_bounds() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: None,
+                generate: Some(WireGenerate {
+                    length: Some(200),
+                    symbols: None,
+                }),
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "generate.length must be between 12 and 128");
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_empty_rename() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some(String::new()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "update.name must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_missing_target() {
+        let request = WireRequest {
+            target: None,
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "missing target");
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_empty_target_id() {
+        let request = WireRequest {
+            target: Some(WireTarget { id: String::new() }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "target.id must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_secret_update_with_missing_update_object() {
+        let request = WireRequest {
+            update: None,
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "missing update object");
+    }
+
+    #[test]
+    fn validate_rejects_query_on_secret_update() {
+        let request = WireRequest {
+            query: Some(WireQuery {
+                kind: WireQueryType::Id,
+                value: "x".to_string(),
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "query is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_delivery_on_secret_update() {
+        let request = WireRequest {
+            delivery: Some(WireDelivery::Inject),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "delivery is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_fill_on_secret_update() {
+        let request = WireRequest {
+            fill: Some(WireFillParams::default()),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "fill object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_create_on_secret_update() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "x".to_string(),
+                value: Some("y".to_string()),
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        };
+        assert_validation_error(request, "create object is not valid for this operation");
+    }
+
+    // --- validate: projectUpdate (M6) --------------------------------------------------------
+
+    fn base_project_update_request() -> WireRequest {
+        WireRequest {
+            op: "projectUpdate".to_string(),
+            target: Some(WireTarget {
+                id: "project-1".to_string(),
+            }),
+            update: Some(WireUpdate {
+                name: Some("renamed".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_update_request()
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_project_update_request() {
+        let request = base_project_update_request();
+        match validate(request).unwrap() {
+            ValidatedRequest::Update {
+                resource,
+                target_id,
+                name,
+                value,
+                generate,
+                note,
+                project,
+                ..
+            } => {
+                assert_eq!(resource, ResourceKind::Project);
+                assert_eq!(target_id, "project-1");
+                assert_eq!(name.as_deref(), Some("renamed"));
+                assert!(value.is_none());
+                assert!(generate.is_none());
+                assert!(note.is_none());
+                assert!(project.is_none());
+            }
+            other => panic!("expected an Update, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_project_update_missing_name() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: None,
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_update_request()
+        };
+        assert_validation_error(request, "update.name must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_project_update_with_a_stray_value() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("renamed".to_string()),
+                value: Some("x".to_string()),
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_update_request()
+        };
+        assert_validation_error(request, "value is not valid for projectUpdate");
+    }
+
+    #[test]
+    fn validate_rejects_project_update_with_a_stray_generate() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("renamed".to_string()),
+                value: None,
+                generate: Some(WireGenerate::default()),
+                note: None,
+                project: None,
+            }),
+            ..base_project_update_request()
+        };
+        assert_validation_error(request, "generate is not valid for projectUpdate");
+    }
+
+    #[test]
+    fn validate_rejects_project_update_with_a_stray_note() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("renamed".to_string()),
+                value: None,
+                generate: None,
+                note: Some("hi".to_string()),
+                project: None,
+            }),
+            ..base_project_update_request()
+        };
+        assert_validation_error(request, "note is not valid for projectUpdate");
+    }
+
+    #[test]
+    fn validate_rejects_project_update_with_a_stray_project() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("renamed".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: Some("other".to_string()),
+            }),
+            ..base_project_update_request()
+        };
+        assert_validation_error(request, "project is not valid for projectUpdate");
+    }
+
+    // --- validate: secretDelete / projectDelete (M6) ---------------------------------------
+
+    fn base_secret_delete_request() -> WireRequest {
+        WireRequest {
+            version: 1,
+            op: "secretDelete".to_string(),
+            query: None,
+            delivery: None,
+            create: None,
+            update: None,
+            target: Some(WireTarget {
+                id: "secret-1".to_string(),
+            }),
+            fill: None,
+            client: None,
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_secret_delete_request() {
+        let request = base_secret_delete_request();
+        match validate(request).unwrap() {
+            ValidatedRequest::Delete {
+                resource,
+                target_id,
+                ..
+            } => {
+                assert_eq!(resource, ResourceKind::Secret);
+                assert_eq!(target_id, "secret-1");
+            }
+            other => panic!("expected a Delete, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_project_delete_request() {
+        let request = WireRequest {
+            op: "projectDelete".to_string(),
+            target: Some(WireTarget {
+                id: "project-1".to_string(),
+            }),
+            ..base_secret_delete_request()
+        };
+        match validate(request).unwrap() {
+            ValidatedRequest::Delete {
+                resource,
+                target_id,
+                ..
+            } => {
+                assert_eq!(resource, ResourceKind::Project);
+                assert_eq!(target_id, "project-1");
+            }
+            other => panic!("expected a Delete, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_delete_with_missing_target() {
+        let request = WireRequest {
+            target: None,
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "missing target");
+    }
+
+    #[test]
+    fn validate_rejects_delete_with_empty_target_id() {
+        let request = WireRequest {
+            target: Some(WireTarget { id: String::new() }),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "target.id must not be empty");
+    }
+
+    #[test]
+    fn validate_rejects_query_on_delete() {
+        let request = WireRequest {
+            query: Some(WireQuery {
+                kind: WireQueryType::Id,
+                value: "x".to_string(),
+            }),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "query is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_delivery_on_delete() {
+        let request = WireRequest {
+            delivery: Some(WireDelivery::Inject),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "delivery is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_fill_on_delete() {
+        let request = WireRequest {
+            fill: Some(WireFillParams::default()),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "fill object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_create_on_delete() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "x".to_string(),
+                value: Some("y".to_string()),
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "create object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_update_on_delete() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_secret_delete_request()
+        };
+        assert_validation_error(request, "update object is not valid for this operation");
+    }
+
+    // --- validate: projectList (M6) ---------------------------------------------------------
+
+    fn base_project_list_request() -> WireRequest {
+        WireRequest {
+            version: 1,
+            op: "projectList".to_string(),
+            query: None,
+            delivery: None,
+            create: None,
+            update: None,
+            target: None,
+            fill: None,
+            client: None,
+        }
+    }
+
+    #[test]
+    fn validate_accepts_a_well_formed_project_list_request() {
+        let request = base_project_list_request();
+        match validate(request).unwrap() {
+            ValidatedRequest::List { resource, .. } => {
+                assert_eq!(resource, ResourceKind::Project);
+            }
+            other => panic!("expected a List, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn validate_rejects_query_on_project_list() {
+        let request = WireRequest {
+            query: Some(WireQuery {
+                kind: WireQueryType::Id,
+                value: "x".to_string(),
+            }),
+            ..base_project_list_request()
+        };
+        assert_validation_error(request, "query is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_target_on_project_list() {
+        let request = WireRequest {
+            target: Some(WireTarget {
+                id: "x".to_string(),
+            }),
+            ..base_project_list_request()
+        };
+        assert_validation_error(request, "target object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_update_on_project_list() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_list_request()
+        };
+        assert_validation_error(request, "update object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_create_on_project_list() {
+        let request = WireRequest {
+            create: Some(WireCreate {
+                name: "x".to_string(),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_project_list_request()
         };
         assert_validation_error(request, "create object is not valid for this operation");
     }
@@ -1491,6 +2913,8 @@ mod tests {
             query: None,
             delivery: None,
             create: None,
+            update: None,
+            target: None,
             fill: None,
             client: Some(WireClientInfo {
                 name: "aac".to_string(),
@@ -1545,13 +2969,66 @@ mod tests {
         let request = WireRequest {
             create: Some(WireCreate {
                 name: "x".to_string(),
-                value: "y".to_string(),
+                value: Some("y".to_string()),
+                generate: None,
                 note: None,
                 project: None,
             }),
             ..base_describe_fill_target_request()
         };
         assert_validation_error(request, "create object is not valid for describeFillTarget");
+    }
+
+    #[test]
+    fn validate_rejects_an_update_object_on_describe_fill_target() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_describe_fill_target_request()
+        };
+        assert_validation_error(request, "update object is not valid for describeFillTarget");
+    }
+
+    #[test]
+    fn validate_rejects_a_target_object_on_describe_fill_target() {
+        let request = WireRequest {
+            target: Some(WireTarget {
+                id: "x".to_string(),
+            }),
+            ..base_describe_fill_target_request()
+        };
+        assert_validation_error(request, "target object is not valid for describeFillTarget");
+    }
+
+    #[test]
+    fn validate_rejects_an_update_object_on_credential_request() {
+        let request = WireRequest {
+            update: Some(WireUpdate {
+                name: Some("x".to_string()),
+                value: None,
+                generate: None,
+                note: None,
+                project: None,
+            }),
+            ..base_lookup_request()
+        };
+        assert_validation_error(request, "update object is not valid for this operation");
+    }
+
+    #[test]
+    fn validate_rejects_a_target_object_on_credential_request() {
+        let request = WireRequest {
+            target: Some(WireTarget {
+                id: "x".to_string(),
+            }),
+            ..base_lookup_request()
+        };
+        assert_validation_error(request, "target object is not valid for this operation");
     }
 
     // --- response construction --------------------------------------------------------------
@@ -2200,6 +3677,253 @@ mod tests {
         assert!(value.get("secret").is_none());
         assert!(value.get("credential").is_none());
         assert!(value["item"].get("username").is_none());
+    }
+
+    // --- update / delete response construction (M6) ---------------------------------------
+
+    fn approving_update_response(resource: ResourceKind) -> CredentialResponseData {
+        match resource {
+            ResourceKind::Project => CredentialResponseData {
+                approved: true,
+                item_name: Some("renamed".to_string()),
+                project_id: Some("project-1".to_string()),
+                notes: Some("do not leak me".to_string()),
+                ..Default::default()
+            },
+            _ => CredentialResponseData {
+                approved: true,
+                item_name: Some("NEW_NAME".to_string()),
+                secret_id: Some("secret-1".to_string()),
+                // A handler must never populate this on an update reply either — same
+                // never-echo guarantee as create.
+                secret_value: Some(zeroize::Zeroizing::new("new-value".to_string())),
+                notes: Some("do not leak me".to_string()),
+                ..Default::default()
+            },
+        }
+    }
+
+    #[test]
+    fn approved_secret_update_carries_reference_and_name_never_value() {
+        let outcome = build_response(
+            Ok(Ok(approving_update_response(ResourceKind::Secret))),
+            ResourceKind::Secret,
+            RequestOperation::Update,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert_eq!(
+            outcome.response.reference.as_deref(),
+            Some("bw://secret/secret-1")
+        );
+        assert_eq!(
+            outcome.response.item.as_ref().unwrap().name.as_deref(),
+            Some("NEW_NAME")
+        );
+        assert!(outcome.response.secret.is_none());
+        assert!(outcome.fields_shared.is_none());
+        let json = serde_json::to_string(&outcome.response).unwrap();
+        assert!(!json.contains("new-value"));
+        assert!(!json.contains("do not leak me"));
+    }
+
+    #[test]
+    fn approved_project_update_carries_project_reference() {
+        let outcome = build_response(
+            Ok(Ok(approving_update_response(ResourceKind::Project))),
+            ResourceKind::Project,
+            RequestOperation::Update,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert_eq!(
+            outcome.response.reference.as_deref(),
+            Some("bw://project/project-1")
+        );
+        assert_eq!(
+            outcome.response.item.as_ref().unwrap().name.as_deref(),
+            Some("renamed")
+        );
+    }
+
+    #[test]
+    fn approved_secret_update_missing_id_denies_safely() {
+        let mut response = approving_update_response(ResourceKind::Secret);
+        response.secret_id = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::Update,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.reference.is_none());
+    }
+
+    #[test]
+    fn approved_secret_update_missing_name_denies_safely() {
+        let mut response = approving_update_response(ResourceKind::Secret);
+        response.item_name = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::Update,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.reference.is_none());
+    }
+
+    #[test]
+    fn approved_project_update_missing_project_id_denies_safely() {
+        let mut response = approving_update_response(ResourceKind::Project);
+        response.project_id = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Project,
+            RequestOperation::Update,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.reference.is_none());
+    }
+
+    #[test]
+    fn approved_secret_delete_carries_reference_and_name_never_value() {
+        let outcome = build_response(
+            Ok(Ok(approving_update_response(ResourceKind::Secret))),
+            ResourceKind::Secret,
+            RequestOperation::Delete,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert_eq!(
+            outcome.response.reference.as_deref(),
+            Some("bw://secret/secret-1")
+        );
+        assert!(outcome.response.secret.is_none());
+        assert!(outcome.fields_shared.is_none());
+        let json = serde_json::to_string(&outcome.response).unwrap();
+        assert!(!json.contains("new-value"));
+    }
+
+    #[test]
+    fn approved_project_delete_carries_project_reference() {
+        let outcome = build_response(
+            Ok(Ok(approving_update_response(ResourceKind::Project))),
+            ResourceKind::Project,
+            RequestOperation::Delete,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert_eq!(
+            outcome.response.reference.as_deref(),
+            Some("bw://project/project-1")
+        );
+    }
+
+    #[test]
+    fn approved_delete_missing_id_denies_safely() {
+        let mut response = approving_update_response(ResourceKind::Secret);
+        response.secret_id = None;
+        let outcome = build_response(
+            Ok(Ok(response)),
+            ResourceKind::Secret,
+            RequestOperation::Delete,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.reference.is_none());
+    }
+
+    // --- projectList response construction (M6) --------------------------------------------
+
+    fn approving_list_response(entries: Vec<ProjectEntry>) -> CredentialResponseData {
+        CredentialResponseData {
+            approved: true,
+            projects: Some(entries),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn approved_list_carries_projects_array_no_reference_or_item() {
+        let outcome = build_response(
+            Ok(Ok(approving_list_response(vec![ProjectEntry {
+                id: "project-1".to_string(),
+                name: "My Project".to_string(),
+                write: true,
+                organization: Some("Acme".to_string()),
+            }]))),
+            ResourceKind::Project,
+            RequestOperation::List,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Approved);
+        assert!(outcome.response.reference.is_none());
+        assert!(outcome.response.item.is_none());
+        assert!(outcome.response.secret.is_none());
+        assert!(outcome.response.credential.is_none());
+        assert!(outcome.fields_shared.is_none());
+        let value: serde_json::Value = serde_json::to_value(&outcome.response).unwrap();
+        assert_eq!(value["projects"][0]["name"], "My Project");
+        assert_eq!(value["projects"][0]["reference"], "bw://project/project-1");
+        assert_eq!(value["projects"][0]["write"], true);
+        assert_eq!(value["projects"][0]["organization"], "Acme");
+    }
+
+    /// `organization` is omitted from the wire, not emitted as `null`, when the org couldn't be
+    /// resolved renderer-side.
+    #[test]
+    fn approved_list_omits_organization_when_absent() {
+        let outcome = build_response(
+            Ok(Ok(approving_list_response(vec![ProjectEntry {
+                id: "project-1".to_string(),
+                name: "My Project".to_string(),
+                write: false,
+                organization: None,
+            }]))),
+            ResourceKind::Project,
+            RequestOperation::List,
+            None,
+        );
+        let json = serde_json::to_string(&outcome.response).unwrap();
+        assert!(!json.contains("organization"));
+    }
+
+    #[test]
+    fn approved_list_truncates_to_the_200_entry_cap() {
+        let entries: Vec<ProjectEntry> = (0..250)
+            .map(|i| ProjectEntry {
+                id: format!("project-{i}"),
+                name: format!("Project {i}"),
+                write: true,
+                organization: None,
+            })
+            .collect();
+        let outcome = build_response(
+            Ok(Ok(approving_list_response(entries))),
+            ResourceKind::Project,
+            RequestOperation::List,
+            None,
+        );
+        let value: serde_json::Value = serde_json::to_value(&outcome.response).unwrap();
+        assert_eq!(value["projects"].as_array().unwrap().len(), 200);
+    }
+
+    #[test]
+    fn approved_list_missing_projects_denies_safely() {
+        let outcome = build_response(
+            Ok(Ok(CredentialResponseData {
+                approved: true,
+                ..Default::default()
+            })),
+            ResourceKind::Project,
+            RequestOperation::List,
+            None,
+        );
+        assert_eq!(outcome.response.status, WireStatus::Error);
+        assert!(outcome.response.projects.is_none());
     }
 
     #[test]

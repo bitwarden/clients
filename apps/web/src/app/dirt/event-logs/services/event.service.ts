@@ -811,6 +811,20 @@ export class EventService {
         msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
         break;
+      case EventType.Secret_EditedByAgent:
+        msg = this.i18nService.t("agentEditedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentEditedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secret_DeletedByAgent:
+        msg = this.i18nService.t("agentDeletedSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentDeletedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
       case EventType.Secret_Permanently_Deleted:
         msg = this.i18nService.t(
           "permanentlyDeletedSecretWithId",
@@ -856,6 +870,27 @@ export class EventService {
       case EventType.Project_Edited:
         msg = this.i18nService.t("editedProjectWithId", this.formatProjectId(ev, options));
         humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
+        break;
+      case EventType.Project_CreatedByAgent:
+        msg = this.i18nService.t("agentCreatedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentCreatedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_EditedByAgent:
+        msg = this.i18nService.t("agentEditedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentEditedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_DeletedByAgent:
+        msg = this.i18nService.t("agentDeletedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "agentDeletedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
         break;
       case EventType.ServiceAccount_UserAdded:
         msg = this.i18nService.t(

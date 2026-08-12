@@ -10,6 +10,7 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CredentialQueryType } from "../models/credential-query-type";
@@ -81,6 +82,24 @@ export interface SmProjectMatch {
   write: boolean;
 }
 
+/**
+ * A single Secrets Manager secret's ciphertexts, fetched to build an `updateSecret` PUT (M6-D —
+ * "the rename/move path touches no plaintext value at any layer"). `nameDecrypted` is the ONLY
+ * decrypted field here — it exists purely for display (the update dialog's "current name"). The
+ * three `*EncString` fields are opaque ciphertext strings, passed through verbatim to `updateSecret`
+ * for any field the user doesn't change; `valueEncString`/`noteEncString` are never decrypted by
+ * this service or its caller.
+ */
+export interface SmSecretForUpdate {
+  secretId: string;
+  organizationId: string;
+  nameDecrypted: string;
+  keyEncString: string;
+  valueEncString: string;
+  noteEncString: string;
+  currentProjectId?: string;
+}
+
 /** A single Secrets Manager secret as returned by `GET /organizations/{orgId}/secrets` — no
  *  value, `Key` is the (encrypted) secret name. */
 class SmSecretListItemResponse extends BaseResponse {
@@ -114,8 +133,13 @@ class SmOrganizationSecretsListResponse extends BaseResponse {
 
 /**
  * One secret with its value, as returned by `GET /secrets/{id}` (`BaseSecretResponseModel` on the
- * server). Deliberately does NOT parse `Note` — the never-released invariant is enforced by never
- * reading the field out of the response body at all, rather than by remembering to drop it later.
+ * server).
+ *
+ * `note`/`currentProjectId` exist only for {@link AgentAccessSecretsService.getSecretForUpdate}
+ * (M6-D — the rename/move path needs the *ciphertext* passthrough, never the plaintext): `note` is
+ * never decrypted anywhere in this class or in `getSecretValue` — the never-released invariant is
+ * enforced by never calling `decryptString` on it, not by omitting the field from this parser.
+ * `getSecretValue`'s returned {@link SmSecretValue} still never surfaces a `note` property.
  */
 class SmSecretDetailResponse extends BaseResponse {
   id: string;
@@ -124,6 +148,10 @@ class SmSecretDetailResponse extends BaseResponse {
   name: string;
   /** Encrypted secret value (server field `Value`). */
   value: string;
+  /** Encrypted note (server field `Note`) — opaque ciphertext, never decrypted here. */
+  note: string;
+  /** First associated project id, if any (server field `Projects[0].Id`). */
+  currentProjectId?: string;
 
   constructor(response: unknown) {
     super(response);
@@ -131,6 +159,12 @@ class SmSecretDetailResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Key");
     this.value = this.getResponseProperty("Value");
+    this.note = this.getResponseProperty("Note");
+    const projects = this.getResponseProperty("Projects");
+    this.currentProjectId =
+      Array.isArray(projects) && projects.length > 0
+        ? this.getResponseProperty("Id", projects[0])
+        : undefined;
   }
 }
 
@@ -179,6 +213,24 @@ class SmProjectCreateResponse extends BaseResponse {
   }
 }
 
+/** Wire shape of `POST /secrets/delete` / `POST /projects/delete` (M6-D) —
+ *  `{Data: [{Id, Error}]}`; `Error` is a non-null string on a per-id authz/validation failure
+ *  (an HTTP 200 reply, not a thrown error). See `AgentAccessSecretsService.assertBulkDeleteSucceeded`. */
+class SmBulkDeleteResponse extends BaseResponse {
+  results: Array<{ id: string; error?: string }>;
+
+  constructor(response: unknown) {
+    super(response);
+    const data = this.getResponseProperty("Data");
+    this.results = Array.isArray(data)
+      ? data.map((item: unknown) => ({
+          id: this.getResponseProperty("Id", item),
+          error: this.getResponseProperty("Error", item) ?? undefined,
+        }))
+      : [];
+  }
+}
+
 /** Wire shape of `POST /organizations/{orgId}/secrets` — only `Id` is read; the created secret's
  *  own `Key`/`Value`/`Note` are never parsed back out of the response (the caller already knows
  *  the plaintext it sent, and the stored value must never be echoed back — M4b invariant 7). */
@@ -210,7 +262,12 @@ class SmSecretCreateResponse extends BaseResponse {
  *
  * SECURITY: never logs a decrypted secret name or value. `findSecrets` never fetches values;
  * `getSecretValue` is only ever called for the single secret the user has already approved (see
- * its doc comment — M4c), and discards `note` unread from the wire response.
+ * its doc comment — M4c), and never decrypts `note`. M6 additions (`getSecretForUpdate`,
+ * `updateSecret`, `deleteSecret`, `updateProject`, `deleteProject`) extend the same discipline: an
+ * update that doesn't change the value/note never decrypts it (ciphertext passthrough), and a
+ * generated value (`generateSecretValue`) lives only in the caller's local scope between
+ * generation and the encrypted POST/PUT — never returned to main, never logged
+ * (agent-access-architecture.md, "M6", invariants 14-15).
  */
 @Injectable({
   providedIn: "root",
@@ -221,12 +278,19 @@ export class AgentAccessSecretsService {
   private readonly keyService = inject(KeyService);
   private readonly organizationService = inject(OrganizationService);
   private readonly logService = inject(LogService);
+  private readonly passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
 
   /** secretId -> decrypted name, populated as `findSecrets` decrypts secret list entries.
    *  Renderer memory only: no persistence, cleared only by process restart. Used by
    *  `AgentAccessActivityComponent` to resolve a released secret's display name without storing
    *  any decrypted Vault/SM data in the main process (mirrors the cipher-name reference model). */
   private readonly secretNameCache = new Map<string, string>();
+
+  /** projectId -> decrypted name — the M6 project analogue of {@link secretNameCache}, populated
+   *  as `listProjects` decrypts project list entries (and by `createProject`/`updateProject`,
+   *  which already know the plaintext they sent). Used by `AgentAccessActivityComponent` to
+   *  resolve a `Created`/`Updated`/`Deleted` project row's display name. */
+  private readonly projectNameCache = new Map<string, string>();
 
   /** Organizations the given user can request Secrets Manager secrets from: enabled orgs with
    *  Secrets Manager access. */
@@ -245,6 +309,13 @@ export class AgentAccessSecretsService {
    *  this session — the caller falls back to the raw query value. */
   resolveSecretName(secretId: string): string | undefined {
     return this.secretNameCache.get(secretId);
+  }
+
+  /** Project analogue of {@link resolveSecretName} — resolves a previously-seen project's
+   *  decrypted name from the session-scoped cache, for display (e.g. the activity log). Returns
+   *  `undefined` if the project was never looked up (or created/renamed) in this session. */
+  resolveProjectName(projectId: string): string | undefined {
+    return this.projectNameCache.get(projectId);
   }
 
   /**
@@ -410,6 +481,7 @@ export class AgentAccessSecretsService {
         listed.data.map(async (item): Promise<SmProjectMatch | null> => {
           try {
             const name = await this.encryptService.decryptString(new EncString(item.name), orgKey);
+            this.projectNameCache.set(item.id, name);
             return { id: item.id, name, write: item.write };
           } catch (e) {
             this.logService.error(
@@ -437,6 +509,11 @@ export class AgentAccessSecretsService {
    * Unlike the read paths above, this does NOT swallow failures — a project-creation failure
    * (e.g. a plan's max-projects limit) must propagate to the caller so the creation-approval
    * pipeline can deny with a generic error and toast rather than silently doing nothing.
+   *
+   * M6 fix: now marked `Bitwarden-Agent-Mediated` like `createSecret` — the M4b version of this
+   * method predated the header convention and was an oversight (agent-access-architecture.md,
+   * "M6-D": "createProject FIXED to send the header (existing gap)"; invariant 19: "All SM
+   * value-reads and mutations send `Bitwarden-Agent-Mediated: 1`").
    */
   async createProject(
     organizationId: string,
@@ -455,8 +532,13 @@ export class AgentAccessSecretsService {
       { name: encryptedName.encryptedString },
       true,
       true,
+      null,
+      markAgentMediated,
     );
     const created = new SmProjectCreateResponse(response);
+    // Seeds the session-scoped project name cache the same way `createSecret` seeds
+    // `secretNameCache` — the activity log stores `projectId` only, never a name.
+    this.projectNameCache.set(created.id, name);
     return { id: created.id, name };
   }
 
@@ -515,6 +597,259 @@ export class AgentAccessSecretsService {
     // this newly-created secret's display name without a round trip.
     this.secretNameCache.set(created.id, secret.name);
     return created.id;
+  }
+
+  /**
+   * Fetches the ciphertexts an `updateSecret` PUT needs for a secret update/rename/move
+   * (agent-access-architecture.md, "M6-D"). Marked `Bitwarden-Agent-Mediated` — same call as
+   * `getSecretValue`'s `GET /secrets/{id}`, so the server logs `Secret_RetrievedByAgent` here too
+   * (M6-D: "the update flow writes TWO agent rows by construction ... accurate, since the desktop
+   * did retrieve the ciphertexts").
+   *
+   * Only `Key` (the secret's name) is ever decrypted — `valueEncString`/`noteEncString` are
+   * handed back as opaque ciphertext strings for verbatim passthrough when the caller doesn't
+   * change them (ciphertext passthrough invariant: an update that doesn't change the value never
+   * decrypts it, at any layer).
+   *
+   * Does NOT swallow failures — called to resolve state *before* the update dialog opens, so a
+   * failure here must reach the caller and deny, never silently show a dialog with nothing to
+   * display.
+   */
+  async getSecretForUpdate(
+    secretId: string,
+    organizationId: string,
+    userId: UserId,
+  ): Promise<SmSecretForUpdate> {
+    const orgKey = await this.resolveOrgKey(organizationId, userId);
+    if (orgKey == null) {
+      throw new Error("Agent Access: no organization key available to fetch a secret for update");
+    }
+
+    const detail = await this.getSecretById(secretId);
+    const nameDecrypted = await this.encryptService.decryptString(
+      new EncString(detail.name),
+      orgKey,
+    );
+    this.secretNameCache.set(secretId, nameDecrypted);
+
+    return {
+      secretId,
+      organizationId,
+      nameDecrypted,
+      keyEncString: detail.name,
+      valueEncString: detail.value,
+      noteEncString: detail.note,
+      currentProjectId: detail.currentProjectId,
+    };
+  }
+
+  /**
+   * `PUT /secrets/{id}` (M6-D). Server semantics are full-replace (agent-access-architecture.md,
+   * "M6", server facts): `key`/`value`/`note` are ALWAYS sent as encrypted strings — a changed
+   * field (`update.name`/`update.value`/`update.note` present) is freshly encrypted here, an
+   * unchanged field falls back to the matching `*EncString` ciphertext passed through verbatim
+   * from `getSecretForUpdate`, NEVER decrypted. `update.note === ""` clears the note (encrypts an
+   * empty string) — distinct from `undefined`, which passes the original ciphertext through.
+   * `projectIds` is omitted unless `update.projectId` is set (a confirmed move), and is NEVER an
+   * empty array (the server denies that for non-admins).
+   *
+   * Does NOT swallow failures: this is the post-approval write, so an API failure (including a
+   * generic-message rejection) must reach the caller so it can deny with a generic error + toast.
+   */
+  async updateSecret(
+    organizationId: string,
+    userId: UserId,
+    secretId: string,
+    update: {
+      keyEncString: string;
+      name?: string;
+      valueEncString: string;
+      value?: string;
+      noteEncString: string;
+      note?: string;
+      projectId?: string;
+    },
+  ): Promise<void> {
+    const orgKey = await this.resolveOrgKey(organizationId, userId);
+    if (orgKey == null) {
+      throw new Error("Agent Access: no organization key available to update a secret");
+    }
+
+    const [key, value, note] = await Promise.all([
+      update.name != null
+        ? (await this.encryptService.encryptString(update.name, orgKey)).encryptedString
+        : update.keyEncString,
+      update.value != null
+        ? (await this.encryptService.encryptString(update.value, orgKey)).encryptedString
+        : update.valueEncString,
+      update.note !== undefined
+        ? (await this.encryptService.encryptString(update.note, orgKey)).encryptedString
+        : update.noteEncString,
+    ]);
+
+    await this.apiService.send(
+      "PUT",
+      `/secrets/${secretId}`,
+      {
+        key,
+        value,
+        note,
+        projectIds: update.projectId != null ? [update.projectId] : undefined,
+      },
+      true,
+      true,
+      null,
+      markAgentMediated,
+    );
+
+    if (update.name != null) {
+      this.secretNameCache.set(secretId, update.name);
+    }
+  }
+
+  /**
+   * `POST /secrets/delete` (M6-D). The server takes a BARE array of ids — never `{ids: [...]}` —
+   * and replies with `{data: [{id, error}]}`; a non-null `error` for this id means the delete was
+   * rejected (e.g. an authz failure), surfaced as an HTTP 200 rather than a thrown error, so this
+   * checks the per-id result explicitly and throws a generic message (never the server's own
+   * text, which can name internal policy details) rather than swallowing it. One id per call —
+   * M6 deliberately never bulk-deletes (invariant 16), even though the server endpoint could.
+   */
+  async deleteSecret(secretId: string, organizationId: string, userId: UserId): Promise<void> {
+    const response = await this.apiService.send(
+      "POST",
+      "/secrets/delete",
+      [secretId],
+      true,
+      true,
+      null,
+      markAgentMediated,
+    );
+    this.assertBulkDeleteSucceeded(response, secretId, "secret");
+  }
+
+  /**
+   * `PUT /projects/{id}` (M6-D) — rename only, mirroring the server (M6 server facts: "`PUT
+   * /projects/{id}` (rename only, needs project Write)"). Marked `Bitwarden-Agent-Mediated` like
+   * every other SM mutation (invariant 19).
+   */
+  async updateProject(
+    projectId: string,
+    organizationId: string,
+    userId: UserId,
+    name: string,
+  ): Promise<void> {
+    const orgKey = await this.resolveOrgKey(organizationId, userId);
+    if (orgKey == null) {
+      throw new Error("Agent Access: no organization key available to rename a project");
+    }
+
+    const encryptedName = await this.encryptService.encryptString(name, orgKey);
+    await this.apiService.send(
+      "PUT",
+      `/projects/${projectId}`,
+      { name: encryptedName.encryptedString },
+      true,
+      true,
+      null,
+      markAgentMediated,
+    );
+    this.projectNameCache.set(projectId, name);
+  }
+
+  /**
+   * `POST /projects/delete` (M6-D) — same bare-array/per-id-error shape as `deleteSecret`. This is
+   * a HARD delete server-side (the Project row is removed; contained secrets survive project-less
+   * — M6 server facts), which is why the confirm-delete dialog's copy for a project must say
+   * "permanent," never "trash" (agent-access-architecture.md invariant 17). This method itself
+   * only performs the call; the consequence-labeling truthfulness lives in the dialog copy.
+   */
+  async deleteProject(projectId: string, organizationId: string, userId: UserId): Promise<void> {
+    const response = await this.apiService.send(
+      "POST",
+      "/projects/delete",
+      [projectId],
+      true,
+      true,
+      null,
+      markAgentMediated,
+    );
+    this.assertBulkDeleteSucceeded(response, projectId, "project");
+  }
+
+  /**
+   * `GET /projects/{projectId}/secrets` (M6-D) — unlogged server-side (no header needed, like
+   * every other list endpoint), used only to power the confirm-delete dialog's orphan-count
+   * warning ("N secrets will lose this project"). A read path: degrades to `undefined` on any
+   * failure rather than throwing, so a count that can't be resolved just makes the dialog warn
+   * without a number instead of blocking the whole delete flow.
+   */
+  async countSecretsInProject(
+    projectId: string,
+    organizationId: string,
+    userId: UserId,
+  ): Promise<number | undefined> {
+    try {
+      const response = await this.apiService.send(
+        "GET",
+        `/projects/${projectId}/secrets`,
+        null,
+        true,
+        true,
+      );
+      // Wraps under `Secrets`, like `GET /organizations/{orgId}/secrets` (see
+      // `SmOrganizationSecretsListResponse`) — verified against that existing parser.
+      const listed = new SmOrganizationSecretsListResponse(response);
+      return listed.secrets.length;
+    } catch (e) {
+      this.logService.error(
+        "Agent Access: failed to count secrets in a Secrets Manager project",
+        e,
+      );
+      return undefined;
+    }
+  }
+
+  /**
+   * Generates a random secret value for a `generate: true` create/update (M6-D) — deliberately
+   * `PasswordGenerationServiceAbstraction.generatePassword`, the deprecated, account-independent
+   * façade, rather than `CredentialGeneratorService.generate$`: the latter's ceremony (active
+   * account context, saved generator policy/history) has nothing to attach to here — this value
+   * is born, encrypted, and discarded inside a single request handler, never saved to the user's
+   * own generator history. The generated string is returned to the caller's local scope only; it
+   * must never be logged, returned to the agent, or included in any IPC response/outcome
+   * (agent-access-architecture.md, invariant 14).
+   */
+  async generateSecretValue(options: { length?: number; symbols?: boolean } = {}): Promise<string> {
+    const symbols = options.symbols ?? true;
+    return this.passwordGenerationService.generatePassword({
+      length: options.length ?? 40,
+      uppercase: true,
+      lowercase: true,
+      number: true,
+      minNumber: 1,
+      special: symbols,
+      minSpecial: symbols ? 1 : 0,
+      ambiguous: true,
+    });
+  }
+
+  /** Shared per-id error check for `POST /secrets/delete` / `POST /projects/delete` — both reply
+   *  `{data: [{id, error}]}` (PascalCase on the wire: `{Data: [{Id, Error}]}`) with a non-null
+   *  `error` string on a per-id authz/validation failure (an HTTP 200, not a thrown error).
+   *  Throws a generic message, deliberately never the server's own `error` text (which can name
+   *  internal policy details), matching the "never the server's message verbatim" rule for
+   *  post-approval failures. */
+  private assertBulkDeleteSucceeded(
+    response: unknown,
+    id: string,
+    kind: "secret" | "project",
+  ): void {
+    const parsed = new SmBulkDeleteResponse(response);
+    const entry = parsed.results.find((result) => result.id === id);
+    if (entry?.error != null) {
+      throw new Error(`Agent Access: failed to delete a Secrets Manager ${kind}`);
+    }
   }
 
   /** Resolves the caller's org key for `organizationId`, or `undefined` if the account has no

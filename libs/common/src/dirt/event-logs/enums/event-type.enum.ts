@@ -144,11 +144,16 @@ export enum EventType {
   Secret_Restored = 2105,
   Secret_RetrievedByAgent = 2106,
   Secret_CreatedByAgent = 2107,
+  Secret_EditedByAgent = 2108,
+  Secret_DeletedByAgent = 2109,
 
   Project_Retrieved = 2200,
   Project_Created = 2201,
   Project_Edited = 2202,
   Project_Deleted = 2203,
+  Project_CreatedByAgent = 2204,
+  Project_EditedByAgent = 2205,
+  Project_DeletedByAgent = 2206,
 
   ServiceAccount_UserAdded = 2300,
   ServiceAccount_UserRemoved = 2301,

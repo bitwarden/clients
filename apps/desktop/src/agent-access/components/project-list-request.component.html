@@ -1,0 +1,60 @@
+<bit-dialog>
+  <div class="tw-font-medium" bitDialogTitle>{{ "agentAccessProjectListRequestTitle" | i18n }}</div>
+  <div bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <bit-callout type="warning" title="{{ 'agentAccessProjectListRequestTitle' | i18n }}">
+        {{ "agentAccessRequestedBy" | i18n: requesterDisplayName }}
+      </bit-callout>
+
+      <p class="tw-m-0 tw-text-muted" bitTypography="helper">
+        {{ "agentAccessProjectListRequestIntro" | i18n: params.entries.length }}
+      </p>
+
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "agentAccessProject" | i18n }}</th>
+            <th bitCell>{{ "organization" | i18n }}</th>
+            <th bitCell>{{ "agentAccessProjectListAccessColumn" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (entry of params.entries; track entry.name) {
+            <tr bitRow>
+              <td bitCell class="tw-font-mono">{{ entry.name }}</td>
+              <td bitCell class="tw-text-muted">{{ entry.organizationName || "—" }}</td>
+              <td bitCell class="tw-text-muted">
+                {{
+                  (entry.write
+                    ? "agentAccessProjectListWriteAccess"
+                    : "agentAccessProjectListReadOnlyAccess"
+                  ) | i18n
+                }}
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="project-list-request_button_authorize"
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="submit"
+    >
+      <span>{{ "authorize" | i18n }}</span>
+    </button>
+    <button
+      id="project-list-request_button_deny"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="deny()"
+    >
+      {{ "deny" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

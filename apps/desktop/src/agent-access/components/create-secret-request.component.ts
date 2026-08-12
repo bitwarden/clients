@@ -43,7 +43,14 @@ export interface CreateSecretRequestParams {
    *  different name or value, they deny and the agent can re-request (agent-access-architecture
    *  .md, "M4b" — "the item shown here is exactly the one released/created"). */
   secretName: string;
-  secretValue: string;
+  /** The agent-supplied value. Absent when {@link generated} is set — in that case Bitwarden
+   *  generates the value at approval time and it never crosses into this process at all
+   *  (agent-access-architecture.md, "M6": "generated inside the desktop app ... never shown to
+   *  you"). Mutually exclusive with `generated`. */
+  secretValue?: string;
+  /** Set instead of `secretValue` for a `generate: true` create request (M6). The dialog shows a
+   *  static notice — never a value, generated or otherwise — in its place. */
+  generated?: { length?: number; symbols?: boolean };
   secretNote?: string;
   /** Optional project-name HINT from the agent — never trusted silently; only ever used to
    *  preselect a `write === true` project whose *decrypted* name matches exactly. */

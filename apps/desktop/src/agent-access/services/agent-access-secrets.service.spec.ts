@@ -14,6 +14,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CredentialQueryType } from "../models/credential-query-type";
@@ -60,6 +61,7 @@ describe("AgentAccessSecretsService", () => {
   let accountService: MockProxy<AccountService>;
   let organizationService: MockProxy<OrganizationService>;
   let logService: MockProxy<LogService>;
+  let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
 
   function buildService(): AgentAccessSecretsService {
     apiService = mock<ApiService>();
@@ -68,6 +70,7 @@ describe("AgentAccessSecretsService", () => {
     accountService = mock<AccountService>();
     organizationService = mock<OrganizationService>();
     logService = mock<LogService>();
+    passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
 
     accountService.activeAccount$ = new BehaviorSubject({ id: UserOne }) as any;
     keyService.orgKeys$.mockReturnValue(
@@ -86,6 +89,7 @@ describe("AgentAccessSecretsService", () => {
         { provide: AccountService, useValue: accountService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: LogService, useValue: logService },
+        { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
       ],
     });
 
@@ -487,6 +491,8 @@ describe("AgentAccessSecretsService", () => {
         { name: "enc-new-project" },
         true,
         true,
+        null,
+        expect.any(Function),
       );
       expect(result).toEqual({ id: "new-project-1", name: "my-app" });
     });
@@ -500,7 +506,9 @@ describe("AgentAccessSecretsService", () => {
       );
     });
 
-    it("does not mark the create call as agent-mediated (only secret reads/creates are, not projects)", async () => {
+    // M6-D fix: createProject predated the agent-mediated header convention (an oversight) — it
+    // now sends the header like every other SM mutation (invariant 19).
+    it("marks the create call as agent-mediated (M6-D fix: createProject previously omitted this)", async () => {
       encryptService.encryptString.mockResolvedValue({
         encryptedString: "enc-new-project",
       } as EncString);
@@ -508,9 +516,19 @@ describe("AgentAccessSecretsService", () => {
 
       await service.createProject(OrgReadable, UserOne, "my-app");
 
-      const [, , , , , apiUrl, alterHeaders] = apiService.send.mock.calls[0];
-      expect(apiUrl).toBeUndefined();
-      expect(alterHeaders).toBeUndefined();
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("seeds the project name cache with the created project's name, resolvable via resolveProjectName", async () => {
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "enc" } as EncString);
+      apiService.send.mockResolvedValue({ Id: "new-project-1", Name: "enc" });
+
+      await service.createProject(OrgReadable, UserOne, "my-app");
+
+      expect(service.resolveProjectName("new-project-1")).toBe("my-app");
     });
   });
 
@@ -626,6 +644,456 @@ describe("AgentAccessSecretsService", () => {
           value: "hunter2",
         }),
       ).rejects.toThrow("server error");
+    });
+  });
+
+  // M6-D: fetches the ciphertexts an update needs, decrypting only the name.
+  describe("getSecretForUpdate", () => {
+    it("decrypts only the name, and passes back Value/Note as opaque ciphertext strings", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "s-a",
+        OrganizationId: OrgReadable,
+        Key: "enc-db",
+        Value: "enc-val-a",
+        Note: "enc-note-a",
+        Projects: [{ Id: "proj-1" }],
+      });
+      encryptService.decryptString.mockImplementation(
+        decryptByCiphertext({ "enc-db": "DB_PASSWORD" }),
+      );
+
+      const result = await service.getSecretForUpdate("s-a", OrgReadable, UserOne);
+
+      expect(result).toEqual({
+        secretId: "s-a",
+        organizationId: OrgReadable,
+        nameDecrypted: "DB_PASSWORD",
+        keyEncString: "enc-db",
+        valueEncString: "enc-val-a",
+        noteEncString: "enc-note-a",
+        currentProjectId: "proj-1",
+      });
+      // The value/note ciphertexts were never handed to decryptString — only the name was.
+      expect(encryptService.decryptString).toHaveBeenCalledTimes(1);
+      expect(encryptService.decryptString).toHaveBeenCalledWith(
+        expect.objectContaining({ encryptedString: "enc-db" }),
+        expect.anything(),
+      );
+    });
+
+    it("sends the agent-mediated header", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "s-a",
+        OrganizationId: OrgReadable,
+        Key: "enc-db",
+        Value: "enc-val-a",
+      });
+      encryptService.decryptString.mockResolvedValue("DB_PASSWORD");
+
+      await service.getSecretForUpdate("s-a", OrgReadable, UserOne);
+
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("has no currentProjectId when the secret has no projects", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "s-a",
+        OrganizationId: OrgReadable,
+        Key: "enc-db",
+        Value: "enc-val-a",
+        Projects: [],
+      });
+      encryptService.decryptString.mockResolvedValue("DB_PASSWORD");
+
+      const result = await service.getSecretForUpdate("s-a", OrgReadable, UserOne);
+
+      expect(result.currentProjectId).toBeUndefined();
+    });
+
+    it("throws (does not swallow) when the account has no key for the organization", async () => {
+      await expect(service.getSecretForUpdate("s-a", OrgNoAccess, UserOne)).rejects.toThrow(
+        /no organization key/,
+      );
+      expect(apiService.send).not.toHaveBeenCalled();
+    });
+
+    it("throws (does not swallow) when the API call fails", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
+
+      await expect(service.getSecretForUpdate("s-a", OrgReadable, UserOne)).rejects.toBeInstanceOf(
+        ErrorResponse,
+      );
+    });
+  });
+
+  // M6-D: ciphertext passthrough — an update that doesn't change a field never decrypts it, and
+  // the PUT body always carries key/value/note (changed = fresh ciphertext, unchanged = the
+  // original ciphertext string, verbatim).
+  describe("updateSecret", () => {
+    beforeEach(() => {
+      encryptService.encryptString.mockImplementation(
+        (async (plaintext: string) =>
+          ({ encryptedString: `enc-${plaintext}` }) as EncString) as any,
+      );
+    });
+
+    it("passes through the original ciphertexts verbatim when nothing changed but the caller still sends key/value/note", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "orig-key-ct",
+        valueEncString: "orig-value-ct",
+        noteEncString: "orig-note-ct",
+      });
+
+      // The value/note ciphertexts were never decrypted, and never re-encrypted — passed through
+      // verbatim to the PUT body (the ciphertext passthrough invariant).
+      expect(encryptService.decryptString).not.toHaveBeenCalled();
+      expect(encryptService.encryptString).not.toHaveBeenCalled();
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/s-a",
+        {
+          key: "orig-key-ct",
+          value: "orig-value-ct",
+          note: "orig-note-ct",
+          projectIds: undefined,
+        },
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+    });
+
+    it("freshly encrypts only the fields that changed, passing the rest through as ciphertext", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "orig-key-ct",
+        name: "NEW_NAME",
+        valueEncString: "orig-value-ct",
+        noteEncString: "orig-note-ct",
+      });
+
+      expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+      expect(encryptService.encryptString).toHaveBeenCalledWith("NEW_NAME", SomeKey);
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/s-a",
+        {
+          key: "enc-NEW_NAME",
+          value: "orig-value-ct",
+          note: "orig-note-ct",
+          projectIds: undefined,
+        },
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+    });
+
+    it("clears the note by encrypting an empty string when note is an explicit empty string", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "orig-key-ct",
+        valueEncString: "orig-value-ct",
+        noteEncString: "orig-note-ct",
+        note: "",
+      });
+
+      expect(encryptService.encryptString).toHaveBeenCalledWith("", SomeKey);
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/secrets/s-a",
+        expect.objectContaining({ note: "enc-" }),
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+    });
+
+    it("omits projectIds when no move was confirmed", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        valueEncString: "v",
+        noteEncString: "n",
+      });
+
+      const [, , body] = apiService.send.mock.calls[0];
+      expect((body as any).projectIds).toBeUndefined();
+    });
+
+    it("sends projectIds: [newProjectId] when a move was confirmed — never an empty array", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        valueEncString: "v",
+        noteEncString: "n",
+        projectId: "proj-new",
+      });
+
+      const [, , body] = apiService.send.mock.calls[0];
+      expect((body as any).projectIds).toEqual(["proj-new"]);
+    });
+
+    it("sends the agent-mediated header", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        valueEncString: "v",
+        noteEncString: "n",
+      });
+
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("updates the name cache when the name changed", async () => {
+      apiService.send.mockResolvedValue({});
+
+      await service.updateSecret(OrgReadable, UserOne, "s-a", {
+        keyEncString: "k",
+        name: "RENAMED",
+        valueEncString: "v",
+        noteEncString: "n",
+      });
+
+      expect(service.resolveSecretName("s-a")).toBe("RENAMED");
+    });
+
+    it("throws (does not swallow) when the API call fails", async () => {
+      apiService.send.mockRejectedValue(new Error("server error"));
+
+      await expect(
+        service.updateSecret(OrgReadable, UserOne, "s-a", {
+          keyEncString: "k",
+          valueEncString: "v",
+          noteEncString: "n",
+        }),
+      ).rejects.toThrow("server error");
+    });
+
+    it("throws (does not swallow) when the account has no key for the organization", async () => {
+      await expect(
+        service.updateSecret(OrgNoAccess, UserOne, "s-a", {
+          keyEncString: "k",
+          valueEncString: "v",
+          noteEncString: "n",
+        }),
+      ).rejects.toThrow(/no organization key/);
+      expect(apiService.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteSecret", () => {
+    it("sends the bare id array to POST /secrets/delete with the agent-mediated header", async () => {
+      apiService.send.mockResolvedValue({ data: [{ id: "s-a", error: null }] });
+
+      await service.deleteSecret("s-a", OrgReadable, UserOne);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/secrets/delete",
+        ["s-a"],
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("throws a generic error (never the server's own text) on a non-null per-id error", async () => {
+      apiService.send.mockResolvedValue({
+        data: [{ id: "s-a", error: "internal policy detail the user should never see" }],
+      });
+
+      await expect(service.deleteSecret("s-a", OrgReadable, UserOne)).rejects.toThrow(
+        /failed to delete/,
+      );
+      await expect(service.deleteSecret("s-a", OrgReadable, UserOne)).rejects.not.toThrow(
+        /internal policy detail/,
+      );
+    });
+
+    it("succeeds when the per-id error is null", async () => {
+      apiService.send.mockResolvedValue({ data: [{ id: "s-a", error: null }] });
+
+      await expect(service.deleteSecret("s-a", OrgReadable, UserOne)).resolves.toBeUndefined();
+    });
+
+    it("propagates a transport-level failure", async () => {
+      apiService.send.mockRejectedValue(new Error("network error"));
+
+      await expect(service.deleteSecret("s-a", OrgReadable, UserOne)).rejects.toThrow(
+        "network error",
+      );
+    });
+  });
+
+  describe("updateProject", () => {
+    it("encrypts the new name and PUTs to /projects/{id} with the agent-mediated header", async () => {
+      encryptService.encryptString.mockResolvedValue({
+        encryptedString: "enc-renamed",
+      } as EncString);
+      apiService.send.mockResolvedValue({});
+
+      await service.updateProject("proj-1", OrgReadable, UserOne, "renamed-app");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/projects/proj-1",
+        { name: "enc-renamed" },
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("updates the project name cache, resolvable via resolveProjectName", async () => {
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "enc" } as EncString);
+      apiService.send.mockResolvedValue({});
+
+      await service.updateProject("proj-1", OrgReadable, UserOne, "renamed-app");
+
+      expect(service.resolveProjectName("proj-1")).toBe("renamed-app");
+    });
+
+    it("throws (does not swallow) when the API call fails", async () => {
+      encryptService.encryptString.mockResolvedValue({ encryptedString: "enc" } as EncString);
+      apiService.send.mockRejectedValue(new Error("server error"));
+
+      await expect(
+        service.updateProject("proj-1", OrgReadable, UserOne, "renamed-app"),
+      ).rejects.toThrow("server error");
+    });
+  });
+
+  describe("deleteProject", () => {
+    it("sends the bare id array to POST /projects/delete with the agent-mediated header", async () => {
+      apiService.send.mockResolvedValue({ data: [{ id: "proj-1", error: null }] });
+
+      await service.deleteProject("proj-1", OrgReadable, UserOne);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/projects/delete",
+        ["proj-1"],
+        true,
+        true,
+        null,
+        expect.any(Function),
+      );
+      const [, , , , , , alterHeaders] = apiService.send.mock.calls[0];
+      const headers = new Headers();
+      (alterHeaders as (headers: Headers) => void)(headers);
+      expect(headers.get("Bitwarden-Agent-Mediated")).toBe("1");
+    });
+
+    it("throws a generic error on a non-null per-id error", async () => {
+      apiService.send.mockResolvedValue({
+        data: [{ id: "proj-1", error: "internal detail" }],
+      });
+
+      await expect(service.deleteProject("proj-1", OrgReadable, UserOne)).rejects.toThrow(
+        /failed to delete/,
+      );
+    });
+  });
+
+  describe("countSecretsInProject", () => {
+    it("returns the secret count from the wrapped Secrets array", async () => {
+      apiService.send.mockResolvedValue({ Secrets: [{ Id: "s-1" }, { Id: "s-2" }] });
+
+      const result = await service.countSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result).toBe(2);
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/projects/proj-1/secrets",
+        null,
+        true,
+        true,
+      );
+    });
+
+    it("does not mark the call as agent-mediated (list endpoints are unlogged)", async () => {
+      apiService.send.mockResolvedValue({ Secrets: [] });
+
+      await service.countSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      const [, , , , , apiUrl, alterHeaders] = apiService.send.mock.calls[0];
+      expect(apiUrl).toBeUndefined();
+      expect(alterHeaders).toBeUndefined();
+    });
+
+    it("degrades to undefined, without throwing, on failure", async () => {
+      apiService.send.mockRejectedValue(new ErrorResponse({}, 404));
+
+      const result = await service.countSecretsInProject("proj-1", OrgReadable, UserOne);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("generateSecretValue", () => {
+    it("generates with the default length (40) and symbols enabled", async () => {
+      passwordGenerationService.generatePassword.mockResolvedValue("generated-value");
+
+      const result = await service.generateSecretValue();
+
+      expect(result).toBe("generated-value");
+      expect(passwordGenerationService.generatePassword).toHaveBeenCalledWith({
+        length: 40,
+        uppercase: true,
+        lowercase: true,
+        number: true,
+        minNumber: 1,
+        special: true,
+        minSpecial: 1,
+        ambiguous: true,
+      });
+    });
+
+    it("honors an explicit length and symbols: false", async () => {
+      passwordGenerationService.generatePassword.mockResolvedValue("generated-value");
+
+      await service.generateSecretValue({ length: 64, symbols: false });
+
+      expect(passwordGenerationService.generatePassword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          length: 64,
+          special: false,
+          minSpecial: 0,
+        }),
+      );
+    });
+
+    it("propagates a generator failure rather than swallowing it", async () => {
+      passwordGenerationService.generatePassword.mockRejectedValue(new Error("generator error"));
+
+      await expect(service.generateSecretValue()).rejects.toThrow("generator error");
     });
   });
 });

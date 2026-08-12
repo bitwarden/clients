@@ -41,6 +41,19 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   LogLevel: { Trace: 0, Debug: 1, Info: 2, Warn: 3, Error: 4 },
 }));
 
+// `AgentAccessSecretsService` (mocked below, via `mockAgentAccessSecretsService`) imports
+// `PasswordGenerationServiceAbstraction` from `@bitwarden/generator-legacy` for
+// `generateSecretValue` (M6). That package's barrel unconditionally re-exports the concrete
+// legacy factory too, which pulls in `@bitwarden/generator-core`'s metadata module — and loading
+// that module graph in this spec (only this one; `agent-access-secrets.service.spec.ts` loads it
+// fine on its own) collides with the `@bitwarden/sdk-internal` mock above and throws during
+// module evaluation, before any test runs. Since `AgentAccessSecretsService` itself is fully
+// mocked as a plain object in `buildService` and never constructed here, only the *module*, never
+// the real class, needs to exist — stub it the same way the SDK is stubbed above.
+jest.mock("@bitwarden/generator-legacy", () => ({
+  PasswordGenerationServiceAbstraction: class {},
+}));
+
 function makeLoginCipher(
   id: string,
   name: string,
@@ -120,6 +133,15 @@ describe("DesktopAgentAccessService", () => {
   let mockDescribeTarget: jest.Mock;
   let mockFill: jest.Mock;
   let mockGetCode: jest.Mock;
+  let mockGetSecretForUpdate: jest.Mock;
+  let mockUpdateSecret: jest.Mock;
+  let mockDeleteSecret: jest.Mock;
+  let mockListProjects: jest.Mock;
+  let mockUpdateProject: jest.Mock;
+  let mockDeleteProject: jest.Mock;
+  let mockCountSecretsInProject: jest.Mock;
+  let mockGenerateSecretValue: jest.Mock;
+  let mockResolveProjectName: jest.Mock;
 
   function authSubjectFor(userId: string): BehaviorSubject<AuthenticationStatus> {
     if (!authStatusPerUser.has(userId)) {
@@ -170,8 +192,17 @@ describe("DesktopAgentAccessService", () => {
       getSecretValue: mockGetSecretValue,
       smOrganizations: mockSmOrganizations,
       resolveSecretName: jest.fn().mockReturnValue(undefined),
+      resolveProjectName: mockResolveProjectName,
       createProject: mockCreateProject,
       createSecret: mockCreateSecret,
+      getSecretForUpdate: mockGetSecretForUpdate,
+      updateSecret: mockUpdateSecret,
+      deleteSecret: mockDeleteSecret,
+      listProjects: mockListProjects,
+      updateProject: mockUpdateProject,
+      deleteProject: mockDeleteProject,
+      countSecretsInProject: mockCountSecretsInProject,
+      generateSecretValue: mockGenerateSecretValue,
     };
     const mockEventCollectionService = { collect: mockCollect };
     const mockDomainSettingsService = {
@@ -246,6 +277,20 @@ describe("DesktopAgentAccessService", () => {
     mockSmOrganizations = jest.fn().mockResolvedValue([]);
     mockCreateProject = jest.fn().mockResolvedValue({ id: "proj-new", name: "new project" });
     mockCreateSecret = jest.fn().mockResolvedValue("secret-created-1");
+    // M6 write paths: default to rejections/empty-lists so a stray update/delete/list test that
+    // doesn't configure these explicitly fails loudly (a generic-error deny) rather than silently
+    // fabricating a target or succeeding.
+    mockGetSecretForUpdate = jest
+      .fn()
+      .mockRejectedValue(new Error("no getSecretForUpdate fixture configured"));
+    mockUpdateSecret = jest.fn().mockResolvedValue(undefined);
+    mockDeleteSecret = jest.fn().mockResolvedValue(undefined);
+    mockListProjects = jest.fn().mockResolvedValue([]);
+    mockUpdateProject = jest.fn().mockResolvedValue(undefined);
+    mockDeleteProject = jest.fn().mockResolvedValue(undefined);
+    mockCountSecretsInProject = jest.fn().mockResolvedValue(undefined);
+    mockGenerateSecretValue = jest.fn().mockResolvedValue("generated-value");
+    mockResolveProjectName = jest.fn().mockReturnValue(undefined);
     // Cipher release events (M4c): default resolves so credential-release tests that don't care
     // about the event call don't have to configure it explicitly.
     mockCollect = jest.fn().mockResolvedValue(undefined);
@@ -1793,6 +1838,899 @@ describe("DesktopAgentAccessService", () => {
           }),
         }),
       );
+    });
+  });
+
+  // M6 (agent-access-architecture.md, "M6 — Full Secrets Manager surface"): `generate: true`
+  // extension of the create branch — the value is generated inside the handler at approval time
+  // and never appears anywhere but the create call.
+  describe("credential request — operation: 'create' with generateValue: true", () => {
+    const org = { id: "org-1", name: "Acme Inc", isAdmin: false } as any;
+
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("does not deny for a missing value when generateValue is true", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockDialogOpen.mockReturnValue({
+        closed: of({ approved: true, organizationId: "org-1", projectId: "proj-1" }),
+      });
+
+      credentialRequestSubject.next({
+        requestId: 200,
+        operation: "create",
+        resourceType: "secret",
+        newSecretName: "DB_PASSWORD",
+        generateValue: true,
+        generateLength: 64,
+        generateSymbols: false,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            secretValue: undefined,
+            generated: { length: 64, symbols: false },
+          }),
+        }),
+      );
+    });
+
+    it("generates the value at approval time and passes it (never the request) to createSecret", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockGenerateSecretValue.mockResolvedValue("generated-strong-value");
+      mockDialogOpen.mockReturnValue({
+        closed: of({ approved: true, organizationId: "org-1", projectId: "proj-1" }),
+      });
+
+      credentialRequestSubject.next({
+        requestId: 201,
+        operation: "create",
+        resourceType: "secret",
+        newSecretName: "DB_PASSWORD",
+        generateValue: true,
+        generateLength: 64,
+        generateSymbols: false,
+      });
+      await flush();
+
+      expect(mockGenerateSecretValue).toHaveBeenCalledWith({ length: 64, symbols: false });
+      expect(mockCreateSecret).toHaveBeenCalledWith("org-1", "user-1", "proj-1", {
+        name: "DB_PASSWORD",
+        value: "generated-strong-value",
+        note: undefined,
+      });
+    });
+
+    it("never puts the generated value in the response sent to main, nor in any outcome", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockGenerateSecretValue.mockResolvedValue("generated-strong-value");
+      mockCreateSecret.mockResolvedValue("secret-generated-1");
+      mockDialogOpen.mockReturnValue({
+        closed: of({ approved: true, organizationId: "org-1", projectId: "proj-1" }),
+      });
+
+      credentialRequestSubject.next({
+        requestId: 202,
+        operation: "create",
+        resourceType: "secret",
+        newSecretName: "DB_PASSWORD",
+        generateValue: true,
+      });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        202,
+        { approved: true, secretId: "secret-generated-1", itemName: "DB_PASSWORD" },
+        { status: "created", secretId: "secret-generated-1", operation: "create" },
+      );
+      const [, response, outcome] = mockCredentialRequestResponse.mock.calls[0];
+      expect(JSON.stringify(response)).not.toContain("generated-strong-value");
+      expect(JSON.stringify(outcome)).not.toContain("generated-strong-value");
+    });
+
+    it("does not generate a value at all when the dialog is denied", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 203,
+        operation: "create",
+        resourceType: "secret",
+        newSecretName: "DB_PASSWORD",
+        generateValue: true,
+      });
+      await flush();
+
+      expect(mockGenerateSecretValue).not.toHaveBeenCalled();
+      expect(mockCreateSecret).not.toHaveBeenCalled();
+    });
+  });
+
+  // M6: `projectCreate` (resourceType: "project", operation: "create") — sibling of secret
+  // creation, no lookup, own dialog/lifecycle.
+  describe("credential request — resourceType: 'project', operation: 'create'", () => {
+    const org = { id: "org-1", name: "Acme Inc" } as any;
+
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("denies without opening a dialog when there is no SM access", async () => {
+      mockSmOrganizations.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 210,
+        operation: "create",
+        resourceType: "project",
+        newSecretName: "my-app",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        210,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("creates the project and responds with status: created, projectId, operation: create", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockCreateProject.mockResolvedValue({ id: "proj-new-1", name: "my-app" });
+      mockDialogOpen.mockReturnValue({
+        closed: of({ approved: true, organizationId: "org-1" }),
+      });
+
+      credentialRequestSubject.next({
+        requestId: 211,
+        operation: "create",
+        resourceType: "project",
+        newSecretName: "my-app",
+      });
+      await flush();
+
+      expect(mockCreateProject).toHaveBeenCalledWith("org-1", "user-1", "my-app");
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        211,
+        { approved: true, projectId: "proj-new-1", itemName: "my-app" },
+        { status: "created", projectId: "proj-new-1", operation: "create" },
+      );
+    });
+
+    it("denies when the user rejects the dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([org]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 212,
+        operation: "create",
+        resourceType: "project",
+        newSecretName: "my-app",
+      });
+      await flush();
+
+      expect(mockCreateProject).not.toHaveBeenCalled();
+    });
+  });
+
+  // M6: `secretUpdate` — locates the secret's org, fetches ciphertexts, builds a from -> to
+  // changes summary, and on approval sends a passthrough PUT.
+  describe("credential request — operation: 'update', resourceType: 'secret'", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    function stubFoundSecret() {
+      mockFindSecrets.mockResolvedValue([
+        {
+          secretId: "s-a",
+          name: "DB_PASSWORD",
+          organizationId: "org-1",
+          organizationName: "Acme Inc",
+        },
+      ]);
+      mockGetSecretForUpdate.mockResolvedValue({
+        secretId: "s-a",
+        organizationId: "org-1",
+        nameDecrypted: "DB_PASSWORD",
+        keyEncString: "key-ct",
+        valueEncString: "value-ct",
+        noteEncString: "note-ct",
+      });
+    }
+
+    it("denies with reason notFound without opening a dialog when the target secret can't be located", async () => {
+      mockFindSecrets.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 220,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-missing",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        220,
+        { approved: false, reason: "notFound" },
+        { status: "not_found" },
+      );
+    });
+
+    it("opens the update dialog with a name change summary and approves with a passthrough update", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 221,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            secretName: "DB_PASSWORD",
+            changes: { name: { from: "DB_PASSWORD", to: "RENAMED" } },
+          }),
+        }),
+      );
+      expect(mockUpdateSecret).toHaveBeenCalledWith("org-1", "user-1", "s-a", {
+        keyEncString: "key-ct",
+        name: "RENAMED",
+        valueEncString: "value-ct",
+        value: undefined,
+        noteEncString: "note-ct",
+        note: undefined,
+        projectId: undefined,
+      });
+    });
+
+    it("passes projectId: undefined (ciphertext passthrough) when only the name changed — never decrypts the value", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 222,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      const [, , , update] = mockUpdateSecret.mock.calls[0];
+      expect(update.value).toBeUndefined();
+      expect(update.valueEncString).toBe("value-ct");
+      expect(update.projectId).toBeUndefined();
+    });
+
+    it("resolves an agent-supplied value as changes.value: 'agent' and forwards the plaintext to updateSecret", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 223,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretValue: "new-hunter3",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ data: expect.objectContaining({ changes: { value: "agent" } }) }),
+      );
+      expect(mockUpdateSecret).toHaveBeenCalledWith(
+        "org-1",
+        "user-1",
+        "s-a",
+        expect.objectContaining({ value: "new-hunter3" }),
+      );
+    });
+
+    it("generates the value at approval time for generateValue: true, never forwarding the request field", async () => {
+      stubFoundSecret();
+      mockGenerateSecretValue.mockResolvedValue("generated-rotation-value");
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 224,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        generateValue: true,
+        generateLength: 50,
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ changes: { value: "generated" } }),
+        }),
+      );
+      expect(mockGenerateSecretValue).toHaveBeenCalledWith({ length: 50, symbols: undefined });
+      expect(mockUpdateSecret).toHaveBeenCalledWith(
+        "org-1",
+        "user-1",
+        "s-a",
+        expect.objectContaining({ value: "generated-rotation-value" }),
+      );
+      const [, response, outcome] = mockCredentialRequestResponse.mock.calls[0];
+      expect(JSON.stringify(response)).not.toContain("generated-rotation-value");
+      expect(JSON.stringify(outcome)).not.toContain("generated-rotation-value");
+    });
+
+    it("clears the note by passing an explicit empty string, distinct from an absent (unchanged) note", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 225,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretNote: "",
+      });
+      await flush();
+
+      expect(mockUpdateSecret).toHaveBeenCalledWith(
+        "org-1",
+        "user-1",
+        "s-a",
+        expect.objectContaining({ note: "" }),
+      );
+    });
+
+    it("sends projectId: [target] only when the dialog confirms a move; renders the project picker only then", async () => {
+      stubFoundSecret();
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true, projectId: "proj-1" }) });
+
+      credentialRequestSubject.next({
+        requestId: 226,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        projectHint: "my-app",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            changes: { project: { toHint: "my-app" } },
+            writableProjects: [{ id: "proj-1", name: "my-app", write: true }],
+            preselectedProjectId: "proj-1",
+          }),
+        }),
+      );
+      expect(mockUpdateSecret).toHaveBeenCalledWith(
+        "org-1",
+        "user-1",
+        "s-a",
+        expect.objectContaining({ projectId: "proj-1" }),
+      );
+    });
+
+    it("omits projectId (never an empty array) when no move was requested at all", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 227,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      const [, , , update] = mockUpdateSecret.mock.calls[0];
+      expect(update.projectId).toBeUndefined();
+      expect(mockListProjects).not.toHaveBeenCalled();
+    });
+
+    it("responds with status: updated, secretId, and operation: update on success", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 228,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        228,
+        { approved: true, secretId: "s-a", itemName: "RENAMED" },
+        { status: "updated", secretId: "s-a", operation: "update" },
+      );
+    });
+
+    it("denies when the user rejects the update dialog, without calling updateSecret", async () => {
+      stubFoundSecret();
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 229,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockUpdateSecret).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        229,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("denies with a generic error and toast when the API call fails after approval", async () => {
+      stubFoundSecret();
+      mockUpdateSecret.mockRejectedValue(new Error("server error"));
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 230,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        230,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+
+    it("denies when the pre-dialog fetch of ciphertexts fails", async () => {
+      mockFindSecrets.mockResolvedValue([
+        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
+      ]);
+      mockGetSecretForUpdate.mockRejectedValue(new Error("fetch failed"));
+
+      credentialRequestSubject.next({
+        requestId: 231,
+        operation: "update",
+        resourceType: "secret",
+        targetId: "s-a",
+        newSecretName: "RENAMED",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        231,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+  });
+
+  // M6: `projectUpdate` (rename) — locates the project across every SM org's project list.
+  describe("credential request — operation: 'update', resourceType: 'project'", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("denies with reason notFound when the project can't be located in any SM org", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 240,
+        operation: "update",
+        resourceType: "project",
+        targetId: "proj-missing",
+        newSecretName: "renamed",
+      });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        240,
+        { approved: false, reason: "notFound" },
+        { status: "not_found" },
+      );
+    });
+
+    it("renames the project on approval and responds with status: updated, projectId, operation: update", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 241,
+        operation: "update",
+        resourceType: "project",
+        targetId: "proj-1",
+        newSecretName: "renamed-app",
+      });
+      await flush();
+
+      expect(mockUpdateProject).toHaveBeenCalledWith("proj-1", "org-1", "user-1", "renamed-app");
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        241,
+        { approved: true, projectId: "proj-1", itemName: "renamed-app" },
+        { status: "updated", projectId: "proj-1", operation: "update" },
+      );
+    });
+  });
+
+  // M6: shared secret/project delete confirmation.
+  describe("credential request — operation: 'delete'", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("secret: resolves the name before the dialog, then deletes on approval", async () => {
+      mockFindSecrets.mockResolvedValue([
+        {
+          secretId: "s-a",
+          name: "DB_PASSWORD",
+          organizationId: "org-1",
+          organizationName: "Acme Inc",
+        },
+      ]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 250,
+        operation: "delete",
+        resourceType: "secret",
+        targetId: "s-a",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ kind: "secret", itemName: "DB_PASSWORD" }),
+        }),
+      );
+      expect(mockDeleteSecret).toHaveBeenCalledWith("s-a", "org-1", "user-1");
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        250,
+        { approved: true, itemName: "DB_PASSWORD", secretId: "s-a" },
+        { status: "deleted", secretId: "s-a", operation: "delete" },
+      );
+    });
+
+    it("secret: denies with reason notFound without a dialog when the secret can't be located", async () => {
+      mockFindSecrets.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 251,
+        operation: "delete",
+        resourceType: "secret",
+        targetId: "s-missing",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockDeleteSecret).not.toHaveBeenCalled();
+    });
+
+    it("secret: denies when the user rejects the confirmation dialog, without calling deleteSecret", async () => {
+      mockFindSecrets.mockResolvedValue([
+        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
+      ]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({
+        requestId: 252,
+        operation: "delete",
+        resourceType: "secret",
+        targetId: "s-a",
+      });
+      await flush();
+
+      expect(mockDeleteSecret).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        252,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("secret: denies with a generic error and toast when the delete call fails after approval", async () => {
+      mockFindSecrets.mockResolvedValue([
+        { secretId: "s-a", name: "DB_PASSWORD", organizationId: "org-1" },
+      ]);
+      mockDeleteSecret.mockRejectedValue(new Error("server error"));
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 253,
+        operation: "delete",
+        resourceType: "secret",
+        targetId: "s-a",
+      });
+      await flush();
+
+      expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        253,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("project: resolves the contained-secret count before the dialog and deletes on approval", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockCountSecretsInProject.mockResolvedValue(3);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 254,
+        operation: "delete",
+        resourceType: "project",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockCountSecretsInProject).toHaveBeenCalledWith("proj-1", "org-1", "user-1");
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            kind: "project",
+            itemName: "my-app",
+            containedSecretCount: 3,
+          }),
+        }),
+      );
+      expect(mockDeleteProject).toHaveBeenCalledWith("proj-1", "org-1", "user-1");
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        254,
+        { approved: true, itemName: "my-app", projectId: "proj-1" },
+        { status: "deleted", projectId: "proj-1", operation: "delete" },
+      );
+    });
+
+    it("project: shows an unknown-count warning (containedSecretCount undefined) when the count can't be resolved", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockCountSecretsInProject.mockResolvedValue(undefined);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({
+        requestId: 255,
+        operation: "delete",
+        resourceType: "project",
+        targetId: "proj-1",
+      });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ containedSecretCount: undefined }),
+        }),
+      );
+    });
+
+    it("project: denies with reason notFound when the project can't be located", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([]);
+
+      credentialRequestSubject.next({
+        requestId: 256,
+        operation: "delete",
+        resourceType: "project",
+        targetId: "proj-missing",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+    });
+  });
+
+  // M6: `projectList` — the sole list-shaped release.
+  describe("credential request — operation: 'list', resourceType: 'project'", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("gathers projects across every SM org and releases the full list on one approval", async () => {
+      mockSmOrganizations.mockResolvedValue([
+        { id: "org-1", name: "Acme Inc" },
+        { id: "org-2", name: "Other Co" },
+      ]);
+      mockListProjects.mockImplementation(async (orgId: string) =>
+        orgId === "org-1"
+          ? [{ id: "proj-1", name: "my-app", write: true }]
+          : [{ id: "proj-2", name: "other-app", write: false }],
+      );
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: true }) });
+
+      credentialRequestSubject.next({ requestId: 260, operation: "list", resourceType: "project" });
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({
+            entries: [
+              { name: "my-app", organizationName: "Acme Inc", write: true },
+              { name: "other-app", organizationName: "Other Co", write: false },
+            ],
+          }),
+        }),
+      );
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        260,
+        {
+          approved: true,
+          projects: [
+            { id: "proj-1", name: "my-app", write: true, organization: "Acme Inc" },
+            { id: "proj-2", name: "other-app", write: false, organization: "Other Co" },
+          ],
+        },
+        { status: "listed", operation: "list" },
+      );
+    });
+
+    it("denies with reason notFound without a dialog when there are no readable projects", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([]);
+
+      credentialRequestSubject.next({ requestId: 261, operation: "list", resourceType: "project" });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        261,
+        { approved: false, reason: "notFound" },
+        { status: "not_found" },
+      );
+    });
+
+    it("denies when the user rejects the list dialog", async () => {
+      mockSmOrganizations.mockResolvedValue([{ id: "org-1", name: "Acme Inc" }]);
+      mockListProjects.mockResolvedValue([{ id: "proj-1", name: "my-app", write: true }]);
+      mockDialogOpen.mockReturnValue({ closed: of({ approved: false }) });
+
+      credentialRequestSubject.next({ requestId: 262, operation: "list", resourceType: "project" });
+      await flush();
+
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        262,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+  });
+
+  // M6 fail-closed: an unsupported resourceType/operation combination must deny, never fall
+  // through to the credential/secret lookup path.
+  describe("credential request — unsupported resourceType/operation combinations fail closed", () => {
+    beforeEach(async () => {
+      service = buildService(true);
+      await service.init();
+      agentAccessEnabledSubject.next(true);
+      accountSubject.next({ id: "user-1" as UserId });
+      activeAccountStatusSubject.next(AuthenticationStatus.Unlocked);
+      authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    });
+
+    it("denies operation: 'update' with resourceType: 'credential' without opening a dialog", async () => {
+      credentialRequestSubject.next({
+        requestId: 270,
+        operation: "update",
+        resourceType: "credential",
+        targetId: "cipher-1",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockGetAllDecrypted).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        270,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("denies operation: 'delete' with resourceType: 'credential' without opening a dialog", async () => {
+      credentialRequestSubject.next({
+        requestId: 271,
+        operation: "delete",
+        resourceType: "credential",
+        targetId: "cipher-1",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        271,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("denies operation: 'list' with resourceType: 'secret' without opening a dialog", async () => {
+      credentialRequestSubject.next({
+        requestId: 272,
+        operation: "list",
+        resourceType: "secret",
+      });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockCredentialRequestResponse).toHaveBeenCalledWith(
+        272,
+        { approved: false, reason: "denied" },
+        { status: "denied" },
+      );
+    });
+
+    it("never falls through to the credential/secret lookup path for an unsupported combination", async () => {
+      credentialRequestSubject.next({
+        requestId: 273,
+        operation: "update",
+        resourceType: "credential",
+        targetId: "cipher-1",
+      });
+      await flush();
+
+      expect(mockGetAllDecrypted).not.toHaveBeenCalled();
+      expect(mockGetAllDecryptedForUrl).not.toHaveBeenCalled();
+      expect(mockFindSecrets).not.toHaveBeenCalled();
     });
   });
 

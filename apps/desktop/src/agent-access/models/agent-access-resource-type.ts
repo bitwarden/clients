@@ -8,6 +8,8 @@
 export const AgentAccessResourceType = Object.freeze({
   Credential: "credential",
   Secret: "secret",
+  /** Secrets Manager project (M6) — list/create/update/delete operations only, never a value. */
+  Project: "project",
 } as const);
 export type AgentAccessResourceType =
   (typeof AgentAccessResourceType)[keyof typeof AgentAccessResourceType];

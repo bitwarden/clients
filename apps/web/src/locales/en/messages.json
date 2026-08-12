@@ -11626,6 +11626,24 @@
       }
     }
   },
+  "agentEditedSecretWithId": {
+    "message": "Agent updated a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentDeletedSecretWithId": {
+    "message": "Agent deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedProjectWithIdentifier": {
     "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
@@ -11752,6 +11770,33 @@
   },
   "createdProjectWithId": {
     "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentCreatedProjectWithId": {
+    "message": "Agent created a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentEditedProjectWithId": {
+    "message": "Agent updated a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "agentDeletedProjectWithId": {
+    "message": "Agent deleted a project with identifier: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
