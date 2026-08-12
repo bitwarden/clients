@@ -55,6 +55,7 @@ import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { AutoUnlockService } from "@bitwarden/unlock";
 import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -100,6 +101,7 @@ describe("SettingsDialogComponent", () => {
   const validationService = mock<ValidationService>();
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
+  const autoUnlockService = mock<AutoUnlockService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
@@ -156,6 +158,7 @@ describe("SettingsDialogComponent", () => {
           useValue: mock<NativeMessagingManifestService>(),
         },
         { provide: KeyService, useValue: keyService },
+        { provide: AutoUnlockService, useValue: autoUnlockService },
         { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
@@ -650,7 +653,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
@@ -665,7 +668,7 @@ describe("SettingsDialogComponent", () => {
           await (component as any).updateBiometricHandler(true);
 
           expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalled();
-          expect(keyService.refreshAdditionalKeys).not.toHaveBeenCalled();
+          expect(autoUnlockService.refreshAutoUnlockKey).not.toHaveBeenCalled();
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
 
           if (dialogResult) {
@@ -694,7 +697,7 @@ describe("SettingsDialogComponent", () => {
           mockUserId,
         );
         expect((component as any).form.controls.biometric.value).toBe(true);
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
         expect(desktopBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
           mockUserId,
           mockUserKey,
@@ -729,7 +732,7 @@ describe("SettingsDialogComponent", () => {
             false,
             mockUserId,
           );
-          expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+          expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(true);
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
         });
@@ -764,7 +767,7 @@ describe("SettingsDialogComponent", () => {
               false,
               mockUserId,
             );
-            expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+            expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
             expect((component as any).form.controls.biometric.value).toBe(true);
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
           });
@@ -801,7 +804,7 @@ describe("SettingsDialogComponent", () => {
                 false,
                 mockUserId,
               );
-              expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+              expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
               expect((component as any).form.controls.biometric.value).toBe(true);
               expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
             },
@@ -828,7 +831,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
         expect((component as any).form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -852,7 +855,7 @@ describe("SettingsDialogComponent", () => {
 
           await (component as any).updateBiometricHandler(true);
 
-          expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+          expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(false);
           expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
             true,
@@ -878,7 +881,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
     });
