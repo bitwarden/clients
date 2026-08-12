@@ -8,10 +8,11 @@ use common::{
     agent_with_keys, always_approving_agent, always_denying_agent,
     framed_invalid_session_bind_extension, framed_request_identities,
     framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, read_framed_response, test_ecdsa_p256_key,
-    test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key,
-    test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
-    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
+    parse_sign_response_algorithm, read_framed_response, session_bind_extension_with_fingerprint,
+    test_ecdsa_p256_key, test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob,
+    test_ecdsa_p521_key, test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob,
+    test_rsa_key, test_rsa_key_blob, test_rsa_key_with_destinations, unsupported_dsa_key_blob,
+    MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -514,6 +515,102 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
         .unwrap();
     let sign_response = read_framed_response(&mut client).await;
     assert_eq!(sign_response[0], 14, "expected SIGN_RESPONSE");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_filtered_by_bound_destination_host_fingerprint() {
+    setup();
+    // "Test Key" (ed25519) is unrestricted, so it's always offered. "Restricted RSA Key" is
+    // restricted to a destination that never matches this connection's session-bind fingerprint,
+    // so it must be omitted once the connection is bound.
+    let mut agent = agent_with_keys(vec![
+        test_ed25519_key(),
+        test_rsa_key_with_destinations("Restricted RSA Key", &["SHA256:some-other-host"]),
+    ]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    let (bind_frame, _fingerprint) = session_bind_extension_with_fingerprint(false);
+    client.write_all(&bind_frame).await.unwrap();
+    let bind_response = read_framed_response(&mut client).await;
+    assert_eq!(bind_response[0], 6, "session-bind should succeed");
+
+    // Session-bind and REQUEST_IDENTITIES must be sent over the same connection: the verified
+    // host fingerprint is per-connection state, not global to the agent.
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    let count = u32::from_be_bytes(response[1..5].try_into().unwrap());
+    assert_eq!(count, 1, "restricted key must be filtered out");
+    assert_eq!(parse_first_key_name(&response), "Test Key");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_includes_key_matching_bound_destination_host_fingerprint() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    // Bind first so the matching fingerprint is known, then insert an RSA key restricted to it.
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    let (bind_frame, fingerprint) = session_bind_extension_with_fingerprint(false);
+    client.write_all(&bind_frame).await.unwrap();
+    let bind_response = read_framed_response(&mut client).await;
+    assert_eq!(bind_response[0], 6, "session-bind should succeed");
+
+    agent
+        .replace(vec![
+            test_ed25519_key(),
+            test_rsa_key_with_destinations("Matching RSA Key", &[fingerprint.as_str()]),
+        ])
+        .unwrap();
+
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    let count = u32::from_be_bytes(response[1..5].try_into().unwrap());
+    assert_eq!(count, 2, "both unrestricted and matching keys are offered");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_unbound_connection_returns_all_keys_regardless_of_destinations() {
+    setup();
+    // A separate, unbound connection carries no session-bind state, so it must fall back to
+    // returning every key, including ones restricted to a specific destination — this is the same
+    // reason `ssh-add -L` always shows every identity regardless of the live SSH connection.
+    let mut agent = agent_with_keys(vec![
+        test_ed25519_key(),
+        test_rsa_key_with_destinations("Restricted RSA Key", &["SHA256:some-other-host"]),
+    ]);
+    agent.start().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    let count = u32::from_be_bytes(response[1..5].try_into().unwrap());
+    assert_eq!(count, 2, "unbound connection must see every key");
 
     agent.stop();
 }

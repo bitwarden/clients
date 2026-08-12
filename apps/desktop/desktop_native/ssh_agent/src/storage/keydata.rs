@@ -37,6 +37,8 @@ pub struct UnparsedSSHKeyData {
     pub name: String,
     /// Vault cipher ID associated with the key pair
     pub cipher_id: String,
+    /// SHA-256 host-key fingerprints this key is restricted to offering. Empty means unrestricted.
+    pub destination_fingerprints: Vec<String>,
 }
 
 /// Represents an SSH key and its associated metadata.
@@ -50,6 +52,8 @@ pub struct SSHKeyData {
     pub(super) name: String,
     /// Vault cipher ID associated with the key pair
     pub(super) cipher_id: String,
+    /// SHA-256 host-key fingerprints this key is restricted to offering. Empty means unrestricted.
+    pub(super) destination_fingerprints: Vec<String>,
 }
 
 impl SSHKeyData {
@@ -61,18 +65,22 @@ impl SSHKeyData {
     /// * `public_key` - The public key component
     /// * `name` - A human-readable name for the key
     /// * `cipher_id` - The vault cipher identifier associated with this key
+    /// * `destination_fingerprints` - SHA-256 host-key fingerprints this key is restricted to
+    ///   offering. Empty means unrestricted.
     #[must_use]
     pub fn new(
         private_key: PrivateKey,
         public_key: PublicKey,
         name: String,
         cipher_id: String,
+        destination_fingerprints: Vec<String>,
     ) -> Self {
         Self {
             private_key,
             public_key,
             name,
             cipher_id,
+            destination_fingerprints,
         }
     }
 
@@ -82,7 +90,12 @@ impl SSHKeyData {
     ///
     /// Returns an error if the PEM string cannot be parsed, the public key blob cannot be
     /// encoded, or the key algorithm is unsupported.
-    pub fn from_private_key_pem(pem: &str, name: String, cipher_id: String) -> Result<Self> {
+    pub fn from_private_key_pem(
+        pem: &str,
+        name: String,
+        cipher_id: String,
+        destination_fingerprints: Vec<String>,
+    ) -> Result<Self> {
         let ssh_key = ssh_key::PrivateKey::from_openssh(pem)
             .map_err(|e| anyhow!("Failed to parse private key: {e}"))?;
 
@@ -99,6 +112,7 @@ impl SSHKeyData {
             PublicKey { alg, blob },
             name,
             cipher_id,
+            destination_fingerprints,
         ))
     }
 
@@ -110,9 +124,14 @@ impl SSHKeyData {
             .into_iter()
             .filter_map(|k| {
                 let cipher_id = k.cipher_id.clone();
-                Self::from_private_key_pem(&k.private_key_pem, k.name, k.cipher_id)
-                    .inspect_err(|error| warn!(%error, %cipher_id, "Skipping un-parseable key"))
-                    .ok()
+                Self::from_private_key_pem(
+                    &k.private_key_pem,
+                    k.name,
+                    k.cipher_id,
+                    k.destination_fingerprints,
+                )
+                .inspect_err(|error| warn!(%error, %cipher_id, "Skipping un-parseable key"))
+                .ok()
             })
             .collect();
 
@@ -132,6 +151,25 @@ impl SSHKeyData {
     #[must_use]
     pub fn private_key(&self) -> &PrivateKey {
         &self.private_key
+    }
+
+    /// Determines whether this key should be offered for the given verified destination host-key
+    /// fingerprint.
+    ///
+    /// Returns `true` when `host_fingerprint` is `None` (no verified session-bind info), when this
+    /// key has no configured `destination_fingerprints` (unrestricted), or when `host_fingerprint`
+    /// is present in `destination_fingerprints`. Returns `false` only when this key is restricted
+    /// to other destinations.
+    #[must_use]
+    pub(super) fn is_offered_for(&self, host_fingerprint: Option<&str>) -> bool {
+        let Some(host_fingerprint) = host_fingerprint else {
+            return true;
+        };
+        self.destination_fingerprints.is_empty()
+            || self
+                .destination_fingerprints
+                .iter()
+                .any(|fp| fp == host_fingerprint)
     }
 }
 
@@ -239,6 +277,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
             TEST_SK_ED25519_PEM,
             "sk-test".to_string(),
             "cipher-sk-1".to_string(),
+            vec![],
         );
 
         assert!(result.is_err(), "sk-ssh-ed25519 key type must be rejected");
@@ -247,34 +286,39 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
     #[test]
     fn from_private_key_pem_ed25519_sets_correct_algorithm_string() {
         let data =
-            SSHKeyData::from_private_key_pem(TEST_ED25519_PEM, "k".into(), "id".into()).unwrap();
+            SSHKeyData::from_private_key_pem(TEST_ED25519_PEM, "k".into(), "id".into(), vec![])
+                .unwrap();
         assert_eq!(data.public_key().alg(), "ssh-ed25519");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p256_sets_correct_algorithm_string() {
         let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P256_PEM, "k".into(), "id".into()).unwrap();
+            SSHKeyData::from_private_key_pem(TEST_ECDSA_P256_PEM, "k".into(), "id".into(), vec![])
+                .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp256");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p384_sets_correct_algorithm_string() {
         let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P384_PEM, "k".into(), "id".into()).unwrap();
+            SSHKeyData::from_private_key_pem(TEST_ECDSA_P384_PEM, "k".into(), "id".into(), vec![])
+                .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp384");
     }
 
     #[test]
     fn from_private_key_pem_ecdsa_p521_sets_correct_algorithm_string() {
         let data =
-            SSHKeyData::from_private_key_pem(TEST_ECDSA_P521_PEM, "k".into(), "id".into()).unwrap();
+            SSHKeyData::from_private_key_pem(TEST_ECDSA_P521_PEM, "k".into(), "id".into(), vec![])
+                .unwrap();
         assert_eq!(data.public_key().alg(), "ecdsa-sha2-nistp521");
     }
 
     #[test]
     fn from_private_key_pem_rsa_sets_correct_algorithm_string() {
-        let data = SSHKeyData::from_private_key_pem(TEST_RSA_PEM, "k".into(), "id".into()).unwrap();
+        let data = SSHKeyData::from_private_key_pem(TEST_RSA_PEM, "k".into(), "id".into(), vec![])
+            .unwrap();
         assert_eq!(data.public_key().alg(), "ssh-rsa");
     }
 
@@ -283,6 +327,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
             private_key_pem: pem.to_string(),
             name: name.to_string(),
             cipher_id: format!("cipher-{name}"),
+            destination_fingerprints: vec![],
         }
     }
 
@@ -305,5 +350,39 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         let parsed = SSHKeyData::from_private_key_pems(vec![unparsed(TEST_SK_ED25519_PEM, "sk")]);
 
         assert!(parsed.is_empty());
+    }
+
+    fn keydata_with_destinations(destinations: &[&str]) -> SSHKeyData {
+        SSHKeyData::from_private_key_pem(
+            TEST_ED25519_PEM,
+            "k".into(),
+            "id".into(),
+            destinations.iter().map(|s| s.to_string()).collect(),
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn is_offered_for_no_host_fingerprint_returns_true_even_when_restricted() {
+        let key = keydata_with_destinations(&["SHA256:other"]);
+        assert!(key.is_offered_for(None));
+    }
+
+    #[test]
+    fn is_offered_for_unrestricted_key_returns_true_for_any_host() {
+        let key = keydata_with_destinations(&[]);
+        assert!(key.is_offered_for(Some("SHA256:anything")));
+    }
+
+    #[test]
+    fn is_offered_for_matching_destination_returns_true() {
+        let key = keydata_with_destinations(&["SHA256:a", "SHA256:b"]);
+        assert!(key.is_offered_for(Some("SHA256:b")));
+    }
+
+    #[test]
+    fn is_offered_for_non_matching_destination_returns_false() {
+        let key = keydata_with_destinations(&["SHA256:a", "SHA256:b"]);
+        assert!(!key.is_offered_for(Some("SHA256:c")));
     }
 }

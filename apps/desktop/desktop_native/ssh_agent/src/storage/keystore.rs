@@ -45,10 +45,23 @@ pub trait KeyStore: Send + Sync {
     /// * `Err(_)` if an error occurred during retrieval
     fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>>;
 
+    /// # Arguments
+    ///
+    /// * `host_fingerprint` - The verified SHA-256 fingerprint of the destination host key for the
+    ///   current connection, if session-bind information is available. When `None`, all keys are
+    ///   returned regardless of their configured destinations. When `Some`, keys restricted to
+    ///   other destinations are omitted.
+    ///
     /// # Returns
     ///
-    /// A vector of tuples containing each key's public key and human-readable name.
-    fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
+    /// A vector of tuples containing each offered key's public key and human-readable name.
+    // The lifetime is needed for `mockall::automock` to expand this method correctly; plain
+    // elision compiles fine without the attribute but fails with E0106 once it's applied.
+    #[allow(clippy::needless_lifetimes)]
+    fn get_all_public_keys_and_names<'a>(
+        &self,
+        host_fingerprint: Option<&'a str>,
+    ) -> Result<Vec<(PublicKey, String)>>;
 
     /// Atomically replaces all keys in the keystore.
     fn replace(&self, keys: Vec<Self::KeyData>) -> Result<()>;
@@ -112,15 +125,23 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .transpose()
     }
 
-    fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>> {
+    #[allow(clippy::needless_lifetimes)]
+    fn get_all_public_keys_and_names<'a>(
+        &self,
+        host_fingerprint: Option<&'a str>,
+    ) -> Result<Vec<(PublicKey, String)>> {
         self.secure_memory
             .lock()
             .expect("Mutex is not poisoned")
             .to_vec()?
             .into_iter()
-            .map(|bytes| {
-                SSHKeyData::try_from(bytes)
-                    .map(|key_data| (key_data.public_key().clone(), key_data.name().clone()))
+            .map(SSHKeyData::try_from)
+            .filter_map(|result| match result {
+                Ok(key_data) if key_data.is_offered_for(host_fingerprint) => {
+                    Some(Ok((key_data.public_key().clone(), key_data.name().clone())))
+                }
+                Ok(_) => None,
+                Err(error) => Some(Err(error)),
             })
             .collect::<Result<Vec<_>, _>>()
     }
@@ -175,6 +196,14 @@ mod tests {
     use crate::crypto::{PrivateKey, QueryableKeyData};
 
     fn create_test_keydata_ed25519(name: &str, cipher_id: &str) -> SSHKeyData {
+        create_test_keydata_ed25519_with_destinations(name, cipher_id, &[])
+    }
+
+    fn create_test_keydata_ed25519_with_destinations(
+        name: &str,
+        cipher_id: &str,
+        destinations: &[&str],
+    ) -> SSHKeyData {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
         let ssh_key = ssh_key::PrivateKey::new(
             ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
@@ -191,6 +220,7 @@ mod tests {
             },
             name.to_string(),
             cipher_id.to_string(),
+            destinations.iter().map(|s| s.to_string()).collect(),
         )
     }
 
@@ -209,6 +239,7 @@ mod tests {
             },
             name.to_string(),
             cipher_id.to_string(),
+            vec![],
         )
     }
 
@@ -216,7 +247,7 @@ mod tests {
     fn test_new_creates_empty_store() {
         let ks = InMemoryEncryptedKeyStore::new();
 
-        let result = ks.get_all_public_keys_and_names();
+        let result = ks.get_all_public_keys_and_names(None);
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
     }
@@ -251,6 +282,7 @@ mod tests {
             public_key.clone(),
             "updated-name".to_string(),
             "updated-cipher".to_string(),
+            vec![],
         );
 
         // insert second key with same public key
@@ -302,7 +334,7 @@ mod tests {
 
         ks.replace(vec![key1, key2]).unwrap();
 
-        let result = ks.get_all_public_keys_and_names().unwrap();
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 2);
         let names: Vec<String> = result.iter().map(|(_, n)| n.clone()).collect();
         assert!(names.contains(&"key1".to_string()));
@@ -318,7 +350,7 @@ mod tests {
         let new_key = create_test_keydata_rsa("new-key", "cipher-new");
         ks.replace(vec![new_key]).unwrap();
 
-        let result = ks.get_all_public_keys_and_names().unwrap();
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].1, "new-key");
     }
@@ -332,7 +364,7 @@ mod tests {
         ks.replace(vec![key1]).unwrap();
         ks.replace(vec![key2]).unwrap();
 
-        let result = ks.get_all_public_keys_and_names().unwrap();
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].1, "key2");
     }
@@ -345,7 +377,7 @@ mod tests {
 
         ks.replace(vec![]).unwrap();
 
-        let result = ks.get_all_public_keys_and_names().unwrap();
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 0);
     }
 
@@ -382,7 +414,7 @@ mod tests {
     #[test]
     fn test_get_all_empty_store() {
         let ks = InMemoryEncryptedKeyStore::new();
-        let result = ks.get_all_public_keys_and_names();
+        let result = ks.get_all_public_keys_and_names(None);
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
@@ -403,7 +435,7 @@ mod tests {
         ks.insert(key2).unwrap();
         ks.insert(key3).unwrap();
 
-        let result = ks.get_all_public_keys_and_names().unwrap();
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
         assert_eq!(result.len(), 3);
 
         let names: Vec<String> = result.iter().map(|(_, name)| name.clone()).collect();
@@ -417,5 +449,101 @@ mod tests {
         assert!(public_keys.contains(&pub_key1));
         assert!(public_keys.contains(&pub_key2));
         assert!(public_keys.contains(&pub_key3));
+    }
+
+    #[test]
+    fn test_get_all_unrestricted_key_is_always_returned() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519_with_destinations("key", "cipher", &[]);
+        ks.insert(key).unwrap();
+
+        let result = ks
+            .get_all_public_keys_and_names(Some("SHA256:host"))
+            .unwrap();
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_get_all_key_with_matching_destination_is_returned() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519_with_destinations("key", "cipher", &["SHA256:host"]);
+        ks.insert(key).unwrap();
+
+        let result = ks
+            .get_all_public_keys_and_names(Some("SHA256:host"))
+            .unwrap();
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_get_all_key_with_only_non_matching_destinations_is_excluded() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519_with_destinations("key", "cipher", &["SHA256:other"]);
+        ks.insert(key).unwrap();
+
+        let result = ks
+            .get_all_public_keys_and_names(Some("SHA256:host"))
+            .unwrap();
+        assert_eq!(result.len(), 0);
+    }
+
+    #[test]
+    fn test_get_all_key_with_multiple_destinations_one_matching_is_returned() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519_with_destinations(
+            "key",
+            "cipher",
+            &["SHA256:other", "SHA256:host"],
+        );
+        ks.insert(key).unwrap();
+
+        let result = ks
+            .get_all_public_keys_and_names(Some("SHA256:host"))
+            .unwrap();
+        assert_eq!(result.len(), 1);
+    }
+
+    #[test]
+    fn test_get_all_mixed_restricted_and_unrestricted_keys_returns_correct_subset() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let unrestricted =
+            create_test_keydata_ed25519_with_destinations("unrestricted", "cipher-1", &[]);
+        let matching =
+            create_test_keydata_ed25519_with_destinations("matching", "cipher-2", &["SHA256:host"]);
+        let non_matching = create_test_keydata_ed25519_with_destinations(
+            "non-matching",
+            "cipher-3",
+            &["SHA256:other"],
+        );
+        ks.insert(unrestricted).unwrap();
+        ks.insert(matching).unwrap();
+        ks.insert(non_matching).unwrap();
+
+        let result = ks
+            .get_all_public_keys_and_names(Some("SHA256:host"))
+            .unwrap();
+        let names: Vec<String> = result.iter().map(|(_, name)| name.clone()).collect();
+
+        assert_eq!(result.len(), 2);
+        assert!(names.contains(&"unrestricted".to_string()));
+        assert!(names.contains(&"matching".to_string()));
+        assert!(!names.contains(&"non-matching".to_string()));
+    }
+
+    #[test]
+    fn test_get_all_without_host_fingerprint_returns_everything_regardless_of_destinations() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let unrestricted =
+            create_test_keydata_ed25519_with_destinations("unrestricted", "cipher-1", &[]);
+        let restricted = create_test_keydata_ed25519_with_destinations(
+            "restricted",
+            "cipher-2",
+            &["SHA256:other"],
+        );
+        ks.insert(unrestricted).unwrap();
+        ks.insert(restricted).unwrap();
+
+        let result = ks.get_all_public_keys_and_names(None).unwrap();
+        assert_eq!(result.len(), 2);
     }
 }

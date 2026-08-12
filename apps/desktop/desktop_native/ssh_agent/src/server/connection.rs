@@ -188,7 +188,9 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
     };
 
     match message {
-        AgentMessage::RequestIdentities => handle_list_request(keystore, auth_policy).await,
+        AgentMessage::RequestIdentities => {
+            handle_list_request(session_bind_state, keystore, auth_policy).await
+        }
         AgentMessage::SignRequest {
             public_key,
             data,
@@ -213,6 +215,7 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
 }
 
 async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
+    session_bind_state: &SessionBindState,
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
 ) -> Vec<u8> {
@@ -231,7 +234,13 @@ async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
         return failure();
     }
 
-    match keystore.get_all_public_keys_and_names() {
+    let host_fingerprint = if session_bind_state.host_fingerprint.is_empty() {
+        None
+    } else {
+        Some(session_bind_state.host_fingerprint.as_str())
+    };
+
+    match keystore.get_all_public_keys_and_names(host_fingerprint) {
         Ok(keys) => build_identities_answer(keys),
         Err(error) => {
             error!(%error, "Failed to retrieve keys from keystore");
@@ -394,7 +403,7 @@ mod tests {
         keystore
             .expect_get_all_public_keys_and_names()
             .once()
-            .returning(|| {
+            .returning(|_host_fingerprint| {
                 Ok(vec![(
                     PublicKey {
                         alg: "ssh-ed25519".to_string(),
@@ -441,7 +450,7 @@ mod tests {
         keystore
             .expect_get_all_public_keys_and_names()
             .once()
-            .returning(|| Err(anyhow::anyhow!("keystore error")));
+            .returning(|_host_fingerprint| Err(anyhow::anyhow!("keystore error")));
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
         let response = super::handle_message(
@@ -454,6 +463,64 @@ mod tests {
         .await;
 
         assert_eq!(response, vec![FAILURE]);
+    }
+
+    #[tokio::test]
+    async fn list_request_without_session_bind_passes_none_host_fingerprint_to_keystore() {
+        let mut keystore = MockKeyStore::new();
+        keystore
+            .expect_get_all_public_keys_and_names()
+            // `.with(eq(...))` requires the predicate's `Borrow` impl to hold for any lifetime,
+            // which a plain `&str` reference can't satisfy against this mocked method's named
+            // lifetime; `.withf` sidesteps that by matching directly on the real, non-'static arg.
+            .withf(|host_fingerprint| host_fingerprint.is_none())
+            .once()
+            .returning(|_host_fingerprint| Ok(vec![]));
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+
+        let response = super::handle_message(
+            &[REQUEST_IDENTITIES],
+            None,
+            &SessionBindState::default(),
+            &Arc::new(keystore),
+            &auth_policy,
+        )
+        .await;
+
+        assert_eq!(response[0], IDENTITIES_ANSWER);
+    }
+
+    #[tokio::test]
+    async fn list_request_host_fingerprint_propagates_to_keystore() {
+        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
+        let ext_payload = make_extension_payload(b"session-bind@openssh.com", &bind_payload);
+
+        let mut state = SessionBindState::default();
+        super::handle_extension_message(&ext_payload, &mut state);
+        let expected_fingerprint = state.host_fingerprint.clone();
+        assert!(!expected_fingerprint.is_empty());
+
+        let mut keystore = MockKeyStore::new();
+        keystore
+            .expect_get_all_public_keys_and_names()
+            .withf(move |host_fingerprint| *host_fingerprint == Some(expected_fingerprint.as_str()))
+            .once()
+            .returning(|_host_fingerprint| Ok(vec![]));
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+
+        let response = super::handle_message(
+            &[REQUEST_IDENTITIES],
+            None,
+            &state,
+            &Arc::new(keystore),
+            &auth_policy,
+        )
+        .await;
+
+        assert_eq!(response[0], IDENTITIES_ANSWER);
     }
 
     #[tokio::test]

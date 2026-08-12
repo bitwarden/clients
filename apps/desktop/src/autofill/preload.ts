@@ -1,5 +1,7 @@
 import { ipcRenderer } from "electron";
 
+import type { sshagent_v2 } from "@bitwarden/desktop-napi";
+
 import { DesktopAutofillPreload } from "./desktop-autofill.preload";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
@@ -10,7 +12,9 @@ const sshAgent = {
   init: async (useV2: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
   },
-  replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+  // The V1 REPLACE handler shares this channel and ignores the extra destinationFingerprints
+  // field; only V2 (session-bind-aware destination filtering) reads it.
+  replace: (keys: sshagent_v2.SshKeyData[]): Promise<void> =>
     ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });

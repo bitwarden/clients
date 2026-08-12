@@ -30,6 +30,9 @@ pub mod sshagent_v2 {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
+        /// SHA-256 host-key fingerprints this key is restricted to offering. Empty means
+        /// unrestricted.
+        pub destination_fingerprints: Vec<String>,
     }
 
     /// SSH public key data
@@ -217,6 +220,7 @@ pub mod sshagent_v2 {
                     private_key_pem: k.private_key,
                     name: k.name,
                     cipher_id: k.cipher_id,
+                    destination_fingerprints: k.destination_fingerprints,
                 })
                 .collect();
 

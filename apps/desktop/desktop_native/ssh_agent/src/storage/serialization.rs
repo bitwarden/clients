@@ -28,6 +28,7 @@ struct SSHKeyDataSerializable {
     public_key: PublicKey,
     name: String,
     cipher_id: String,
+    destination_fingerprints: Vec<String>,
 }
 
 impl TryFrom<SSHKeyDataSerializable> for SSHKeyData {
@@ -42,6 +43,7 @@ impl TryFrom<SSHKeyDataSerializable> for SSHKeyData {
             public_key: key_data.public_key,
             name: key_data.name,
             cipher_id: key_data.cipher_id,
+            destination_fingerprints: key_data.destination_fingerprints,
         })
     }
 }
@@ -77,6 +79,7 @@ impl TryFrom<SSHKeyData> for Vec<u8> {
             public_key: key_data.public_key,
             name: key_data.name,
             cipher_id: key_data.cipher_id,
+            destination_fingerprints: key_data.destination_fingerprints,
         };
 
         Ok(rkyv::to_bytes::<RancorError>(&serializable)?.to_vec())
@@ -139,6 +142,7 @@ invalid_base64_data!!!
             },
             name: "test-key".to_string(),
             cipher_id: "test-cipher-123".to_string(),
+            destination_fingerprints: vec![],
         }
     }
 
@@ -157,6 +161,7 @@ invalid_base64_data!!!
             },
             name: "test-rsa-key".to_string(),
             cipher_id: "test-cipher-456".to_string(),
+            destination_fingerprints: vec![],
         }
     }
 
@@ -175,6 +180,7 @@ invalid_base64_data!!!
             },
             name: "test-ecdsa-p256-key".to_string(),
             cipher_id: "test-cipher-ecdsa".to_string(),
+            destination_fingerprints: vec![],
         }
     }
 
@@ -252,6 +258,7 @@ invalid_base64_data!!!
             },
             name: "test".to_string(),
             cipher_id: "cipher-123".to_string(),
+            destination_fingerprints: vec![],
         };
 
         let result = SSHKeyData::try_from(serializable);
@@ -269,6 +276,7 @@ invalid_base64_data!!!
             },
             name: "test".to_string(),
             cipher_id: "cipher-123".to_string(),
+            destination_fingerprints: vec![],
         };
 
         SSHKeyData::try_from(serializable).unwrap();
@@ -299,6 +307,21 @@ invalid_base64_data!!!
         assert_eq!(restored.cipher_id(), original.cipher_id());
         assert_eq!(restored.public_key(), original.public_key());
         assert_eq!(restored.private_key(), original.private_key());
+    }
+
+    #[test]
+    fn test_keydata_destination_fingerprints_survive_roundtrip() {
+        let mut original = create_test_keydata_ed25519();
+        original.destination_fingerprints =
+            vec!["SHA256:aaaa".to_string(), "SHA256:bbbb".to_string()];
+
+        let bytes: Vec<u8> = original.clone().try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
+
+        assert_eq!(
+            restored.destination_fingerprints,
+            original.destination_fingerprints
+        );
     }
 
     #[test]

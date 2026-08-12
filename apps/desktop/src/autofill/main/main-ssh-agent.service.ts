@@ -162,14 +162,11 @@ export class MainSshAgentService {
   }
 
   private registerV2IpcHandlers() {
-    ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.REPLACE,
-      async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
-        if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
-          this.agentStateV2.replace(keys);
-        }
-      },
-    );
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.REPLACE, async (_, keys: sshagent_v2.SshKeyData[]) => {
+      if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
+        this.agentStateV2.replace(keys);
+      }
+    });
 
     ipcMain.handle(
       SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE,

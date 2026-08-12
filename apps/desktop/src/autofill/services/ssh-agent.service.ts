@@ -30,7 +30,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -40,6 +40,12 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
+
+import { SshAgentDestinationsService } from "./ssh-agent-destinations.service";
+
+function fingerprintsEqual(a: string[] | undefined, b: string[]): boolean {
+  return (a ?? []).length === b.length && (a ?? []).every((fp, i) => fp === b[i]);
+}
 
 @Injectable({
   providedIn: "root",
@@ -66,6 +72,7 @@ export class SshAgentService implements OnDestroy {
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
     private configService: ConfigService,
+    private sshAgentDestinationsService: SshAgentDestinationsService,
   ) {}
 
   async init() {
@@ -174,7 +181,10 @@ export class SshAgentService implements OnDestroy {
 
           // V1, delete with PM-30758: isListRequest is not present in v2.
           if (isListRequest) {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
+            const destinations = await firstValueFrom(
+              this.sshAgentDestinationsService.destinationFingerprints$,
+            );
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers, destinations));
             await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             return;
           }
@@ -341,7 +351,10 @@ export class SshAgentService implements OnDestroy {
           concatMap(async ([message, ciphers]) => {
             const requestId = message.requestId as number;
             try {
-              await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+              const destinations = await firstValueFrom(
+                this.sshAgentDestinationsService.destinationFingerprints$,
+              );
+              await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? [], destinations));
             } catch (e) {
               // Refuse the request rather than leaving the agent's list callback unresolved, which
               // would hang the SSH client that is waiting on it.
@@ -393,12 +406,19 @@ export class SshAgentService implements OnDestroy {
                 // When locked, cipherViews$ emits null (caught by the filter below),
                 // so replace() is not called and existing keys are left in the native store.
                 return from(this.ensureAgentRunning(useV2)).pipe(
-                  // Subscribe to live cipher data for the active account.
-                  switchMap(() => this.cipherService.cipherViews$(account.id)),
+                  // Subscribe to live cipher data and destination preferences for the active
+                  // account. Combined so that a destination-only change (no cipher change) still
+                  // triggers a re-push.
+                  switchMap(() =>
+                    combineLatest([
+                      this.cipherService.cipherViews$(account.id),
+                      this.sshAgentDestinationsService.destinationFingerprints$,
+                    ]),
+                  ),
                   // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                  filter((views) => views != null),
+                  filter(([views]) => views != null),
                   // Project to the SSH key fields needed by the agent.
-                  map((views) => this.toAgentKeys(views)),
+                  map(([views, destinations]) => this.toAgentKeys(views, destinations)),
                   // Skip re-push when the SSH key set hasn't actually changed.
                   distinctUntilChanged((prev, curr) => {
                     // if the length is different, replace keys
@@ -406,12 +426,23 @@ export class SshAgentService implements OnDestroy {
                       return false;
                     }
                     const prevMap = new Map(
-                      prev.map((k) => [k.cipherId, { privateKey: k.privateKey, name: k.name }]),
+                      prev.map((k) => [
+                        k.cipherId,
+                        {
+                          privateKey: k.privateKey,
+                          name: k.name,
+                          destinationFingerprints: k.destinationFingerprints,
+                        },
+                      ]),
                     );
-                    // if any has either private key changed or the name changed, replace keys
+                    // if the private key, name, or destination fingerprints changed, replace keys
                     return curr.every((k) => {
                       const p = prevMap.get(k.cipherId);
-                      return p?.privateKey === k.privateKey && p?.name === k.name;
+                      return (
+                        p?.privateKey === k.privateKey &&
+                        p?.name === k.name &&
+                        fingerprintsEqual(p?.destinationFingerprints, k.destinationFingerprints)
+                      );
                     });
                   }),
                   concatMap(async (keys) => {
@@ -475,10 +506,16 @@ export class SshAgentService implements OnDestroy {
 
   private toAgentKeys(
     ciphers: CipherView[],
-  ): { name: string; privateKey: string; cipherId: string }[] {
+    destinations: Record<CipherId, string[]> = {},
+  ): { name: string; privateKey: string; cipherId: string; destinationFingerprints: string[] }[] {
     return ciphers
       .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
-      .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
+      .map((c) => ({
+        name: c.name,
+        privateKey: c.sshKey.privateKey,
+        cipherId: c.id,
+        destinationFingerprints: destinations[c.id as CipherId] ?? [],
+      }));
   }
 
   private async rememberAuthorization(

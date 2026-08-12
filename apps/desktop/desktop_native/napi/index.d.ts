@@ -482,6 +482,11 @@ export declare namespace sshagent_v2 {
     privateKey: string
     name: string
     cipherId: string
+    /**
+     * SHA-256 host-key fingerprints this key is restricted to offering. Empty means
+     * unrestricted.
+     */
+    destinationFingerprints: Array<string>
   }
 }
 

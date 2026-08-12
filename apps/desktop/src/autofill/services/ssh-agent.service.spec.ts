@@ -1,7 +1,7 @@
 import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -38,6 +38,7 @@ describe("SshAgentService", () => {
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let enabledSubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
+  let destinationsSubject: BehaviorSubject<Record<CipherId, string[]>>;
   let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
 
   let mockIsLoaded: jest.Mock;
@@ -59,6 +60,7 @@ describe("SshAgentService", () => {
     accountSubject = new BehaviorSubject<{ id: UserId } | null>(null);
     enabledSubject = new BehaviorSubject<boolean>(false);
     cipherViewsSubject = new BehaviorSubject<CipherView[] | null>(null);
+    destinationsSubject = new BehaviorSubject<Record<CipherId, string[]>>({});
     authStatusPerUser = new Map();
 
     mockIsLoaded = jest.fn().mockResolvedValue(false);
@@ -106,6 +108,10 @@ describe("SshAgentService", () => {
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
     const mockConfigService = { getFeatureFlag: jest.fn().mockResolvedValue(true) };
+    const mockSshAgentDestinationsService = {
+      destinationFingerprints$: destinationsSubject.asObservable(),
+      setDestinationFingerprints: jest.fn().mockResolvedValue(undefined),
+    };
 
     service = new SshAgentService(
       mockCipherService as any,
@@ -118,6 +124,7 @@ describe("SshAgentService", () => {
       mockDesktopSettingsService as any,
       mockAccountService as any,
       mockConfigService as any,
+      mockSshAgentDestinationsService as any,
     );
 
     await service.init();
@@ -137,7 +144,7 @@ describe("SshAgentService", () => {
 
     expect(mockInit).toHaveBeenCalledWith(true);
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "My Key", privateKey: "pem", cipherId: "c1" },
+      { name: "My Key", privateKey: "pem", cipherId: "c1", destinationFingerprints: [] },
     ]);
   });
 
@@ -219,7 +226,7 @@ describe("SshAgentService", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "User2 Key", privateKey: "pem2", cipherId: "c2" },
+      { name: "User2 Key", privateKey: "pem2", cipherId: "c2", destinationFingerprints: [] },
     ]);
   });
 
@@ -259,8 +266,8 @@ describe("SshAgentService", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
-      { name: "Key B", privateKey: "pem2", cipherId: "c2" },
+      { name: "Key A", privateKey: "pem1", cipherId: "c1", destinationFingerprints: [] },
+      { name: "Key B", privateKey: "pem2", cipherId: "c2", destinationFingerprints: [] },
     ]);
   });
 
@@ -280,7 +287,7 @@ describe("SshAgentService", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
+      { name: "Key A", privateKey: "pem1", cipherId: "c1", destinationFingerprints: [] },
     ]);
   });
 
@@ -303,7 +310,7 @@ describe("SshAgentService", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
+      { name: "Key A", privateKey: "pem1", cipherId: "c1", destinationFingerprints: [] },
     ]);
   });
 
@@ -335,7 +342,7 @@ describe("SshAgentService", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "New Name", privateKey: "pem1", cipherId: "c1" },
+      { name: "New Name", privateKey: "pem1", cipherId: "c1", destinationFingerprints: [] },
     ]);
   });
 
@@ -448,7 +455,7 @@ describe("SshAgentService", () => {
 
     expect(mockReplace).toHaveBeenCalledTimes(2);
     expect(mockReplace).toHaveBeenLastCalledWith([
-      { name: "Renamed", privateKey: "pem", cipherId: "c1" },
+      { name: "Renamed", privateKey: "pem", cipherId: "c1", destinationFingerprints: [] },
     ]);
   });
 
@@ -514,7 +521,47 @@ describe("SshAgentService", () => {
     await flush();
     await flush();
 
-    expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem", cipherId: "c1" }]);
+    expect(mockReplace).toHaveBeenCalledWith([
+      { name: "Key", privateKey: "pem", cipherId: "c1", destinationFingerprints: [] },
+    ]);
+  });
+
+  it("when a cipher's destination fingerprints change with no other change, re-pushes keys", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockReplace.mockClear();
+
+    destinationsSubject.next({ c1: ["SHA256:host"] } as Record<CipherId, string[]>);
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([
+      {
+        name: "Key",
+        privateKey: "pem",
+        cipherId: "c1",
+        destinationFingerprints: ["SHA256:host"],
+      },
+    ]);
+  });
+
+  it("when destination fingerprints are unchanged, does not re-push keys", async () => {
+    destinationsSubject.next({ c1: ["SHA256:host"] } as Record<CipherId, string[]>);
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockReplace.mockClear();
+
+    destinationsSubject.next({ c1: ["SHA256:host"] } as Record<CipherId, string[]>);
+    await flush();
+
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });
 
@@ -573,6 +620,7 @@ describe("SshAgentService – sign request authorization", () => {
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { destinationFingerprints$: of({}) } as any,
     );
 
     await service.init();
@@ -830,6 +878,7 @@ describe("SshAgentService – list keys request", () => {
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { destinationFingerprints$: of({}) } as any,
     );
 
     await service.init();
@@ -849,7 +898,7 @@ describe("SshAgentService – list keys request", () => {
     await flush();
 
     expect(mockReplace).toHaveBeenCalledWith([
-      { name: "My Key", privateKey: "pem", cipherId: "c1" },
+      { name: "My Key", privateKey: "pem", cipherId: "c1", destinationFingerprints: [] },
     ]);
     expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
   });
@@ -983,6 +1032,7 @@ describe("SshAgentService – concurrent sign requests", () => {
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { destinationFingerprints$: of({}) } as any,
     );
 
     await service.init();
@@ -1089,6 +1139,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
       { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
+      { destinationFingerprints$: of({}) } as any,
     );
 
     await service.init();

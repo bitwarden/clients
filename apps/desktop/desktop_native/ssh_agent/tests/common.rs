@@ -109,6 +109,7 @@ pub fn test_ed25519_key() -> SSHKeyData {
         TEST_ED25519_PEM,
         "Test Key".to_string(),
         "cipher-test-1".to_string(),
+        vec![],
     )
     .expect("test PEM should be valid")
 }
@@ -127,6 +128,18 @@ pub fn test_rsa_key() -> SSHKeyData {
         TEST_RSA_PEM,
         "Test RSA Key".to_string(),
         "cipher-rsa-1".to_string(),
+        vec![],
+    )
+    .expect("test RSA PEM should be valid")
+}
+
+/// Like [`test_rsa_key`], but restricted to the given destination host-key fingerprints.
+pub fn test_rsa_key_with_destinations(name: &str, destinations: &[&str]) -> SSHKeyData {
+    SSHKeyData::from_private_key_pem(
+        TEST_RSA_PEM,
+        name.to_string(),
+        "cipher-rsa-1".to_string(),
+        destinations.iter().map(|s| s.to_string()).collect(),
     )
     .expect("test RSA PEM should be valid")
 }
@@ -145,6 +158,7 @@ pub fn test_ecdsa_p256_key() -> SSHKeyData {
         TEST_ECDSA_P256_PEM,
         "Test ECDSA P-256 Key".to_string(),
         "cipher-ecdsa-p256".to_string(),
+        vec![],
     )
     .expect("test ECDSA P-256 PEM should be valid")
 }
@@ -163,6 +177,7 @@ pub fn test_ecdsa_p384_key() -> SSHKeyData {
         TEST_ECDSA_P384_PEM,
         "Test ECDSA P-384 Key".to_string(),
         "cipher-ecdsa-p384".to_string(),
+        vec![],
     )
     .expect("test ECDSA P-384 PEM should be valid")
 }
@@ -181,6 +196,7 @@ pub fn test_ecdsa_p521_key() -> SSHKeyData {
         TEST_ECDSA_P521_PEM,
         "Test ECDSA P-521 Key".to_string(),
         "cipher-ecdsa-p521".to_string(),
+        vec![],
     )
     .expect("test ECDSA P-521 PEM should be valid")
 }
@@ -335,11 +351,25 @@ fn make_session_bind_payload(
 
 /// Builds a framed EXTENSION message containing a valid session-bind payload.
 pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
-    use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+    session_bind_extension_with_fingerprint(is_forwarding).0
+}
+
+/// Like [`framed_session_bind_extension`], but also returns the SHA-256 fingerprint (in the same
+/// `SHA256:...` format the agent computes) of the host key used to sign the bind, so tests can
+/// configure destination-restricted keys that do or don't match it.
+pub fn session_bind_extension_with_fingerprint(is_forwarding: bool) -> (Vec<u8>, String) {
+    use ssh_key::{private::Ed25519Keypair, rand_core::OsRng, HashAlg};
 
     let keypair = Ed25519Keypair::random(&mut OsRng);
     let session_id = [0x42u8; 32];
     let bind_payload = make_session_bind_payload(&keypair, &session_id, is_forwarding);
+
+    let private_key = ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ed25519(keypair), "")
+        .expect("key generation not to fail.");
+    let fingerprint = private_key
+        .public_key()
+        .fingerprint(HashAlg::Sha256)
+        .to_string();
 
     let name = b"session-bind@openssh.com";
     let mut msg = vec![27u8]; // SSH2_AGENTC_EXTENSION
@@ -348,7 +378,7 @@ pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
 
     let mut framed = (msg.len() as u32).to_be_bytes().to_vec();
     framed.extend(msg);
-    framed
+    (framed, fingerprint)
 }
 
 /// Builds a framed EXTENSION message with the session-bind name but a garbage payload.
