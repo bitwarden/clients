@@ -23,6 +23,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { EncString, PureCrypto, V2UpgradeToken } from "@bitwarden/sdk-internal";
@@ -55,6 +56,7 @@ describe("DefaultUnlockService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  const keyService = mock<KeyService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -126,6 +128,7 @@ describe("DefaultUnlockService", () => {
       stateService,
       biometricStateService,
       v2UpgradeTokenStateService,
+      keyService,
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest

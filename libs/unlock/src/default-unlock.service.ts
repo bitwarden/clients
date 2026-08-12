@@ -15,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
@@ -24,6 +25,7 @@ import {
   BiometricStateService,
   KdfConfig,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
@@ -69,6 +71,7 @@ export class DefaultUnlockService implements UnlockService {
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private keyService: KeyService,
   ) {}
 
   registerOnUnlockAction(
@@ -155,6 +158,22 @@ export class DefaultUnlockService implements UnlockService {
       "DefaultUnlockService",
       "unlockWithDecryptedUserKey",
     );
+  }
+
+  async unlockWithAutoUnlockKey(userId: UserId): Promise<boolean> {
+    if (userId == null) {
+      return false;
+    }
+
+    const userKey = await this.keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, userId);
+    if (userKey == null) {
+      return false;
+    }
+
+    const startTime = performance.now();
+    await this.unlockWithDecryptedUserKey(userId, userKey);
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithAutoUnlockKey");
+    return true;
   }
 
   private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
