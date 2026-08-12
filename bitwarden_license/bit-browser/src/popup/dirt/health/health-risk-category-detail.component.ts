@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Component, ChangeDetectionStrategy, inject, computed, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
@@ -29,7 +29,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-/** The Health tab root, which owns running the scan this page renders. */
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
 
 @Component({
@@ -63,26 +62,18 @@ export class HealthRiskCategoryDetailComponent {
   readonly vaultHealthReportService = inject(VaultHealthReportService);
 
   readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
-
-  /** The report the overview's scan published for the active account. */
-  private readonly report$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+  readonly report = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+    ),
+    { initialValue: null },
   );
 
-  readonly report = toSignal(this.report$, { initialValue: null });
-
-  /** True once a scan result is available; the page renders nothing until then. */
-  readonly hasReport = computed(() => this.report() != null);
-
   constructor() {
-    // This page renders a report but never builds one, and it is reachable
-    // without the overview having run a scan: the popup restores its last route
-    // on open, and the published report is dropped on an account switch. Route
-    // back to the overview, which owns triggering the scan, rather than
-    // rendering a false all-clear.
-    this.report$.pipe(takeUntilDestroyed()).subscribe((report) => {
-      if (report == null) {
+    effect(() => {
+      // route back to overview when report isn't generated yet
+      if (this.report() == null) {
         void this.router.navigate([HEALTH_OVERVIEW_ROUTE]);
       }
     });

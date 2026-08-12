@@ -18,15 +18,6 @@ import { VaultHealthReportService } from "../abstractions/vault-health-report.se
 type ScopedReport = { userId: UserId; report: VaultHealthReportView };
 
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
-  /**
-   * Null until the first scan completes, so consumers can tell "not scanned yet"
-   * from "nothing at risk".
-   *
-   * The report is tagged with the user it was built for: this service outlives a
-   * lock or an account switch (the popup's Angular app is not recreated for
-   * either), and each item now carries a decrypted CipherView, so an untagged
-   * cache would serve one account's logins to the next.
-   */
   private readonly report = new BehaviorSubject<ScopedReport | null>(null);
 
   constructor(private cipherRiskService: CipherRiskService) {}
