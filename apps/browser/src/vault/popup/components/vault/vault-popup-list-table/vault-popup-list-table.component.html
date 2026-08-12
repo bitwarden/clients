@@ -31,6 +31,7 @@
     <bit-filter-menu
       key="cipherType"
       bitVaultFilterChip="cipherType"
+      [filterOptions]="cipherTypeOptions()"
       [placeholderText]="'type' | i18n"
       [unsetLabel]="'all' | i18n"
     >
@@ -43,6 +44,7 @@
       <bit-filter-menu
         key="organization"
         bitVaultFilterChip="organization"
+        [filterOptions]="organizationOptions()"
         [placeholderText]="'vault' | vfo1I18n: 'vaults'"
         [unsetLabel]="'all' | i18n"
       >
@@ -56,6 +58,7 @@
       <bit-filter-menu
         key="collection"
         bitVaultFilterChip="collection"
+        [filterOptions]="collectionOptions()"
         [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
         [unsetLabel]="'all' | i18n"
       >
@@ -69,6 +72,7 @@
       <bit-filter-menu
         key="folder"
         bitVaultFilterChip="folder"
+        [filterOptions]="folderOptions()"
         [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
         [unsetLabel]="'all' | i18n"
       >

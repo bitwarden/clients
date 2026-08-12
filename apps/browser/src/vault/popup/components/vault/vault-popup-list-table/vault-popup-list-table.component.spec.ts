@@ -43,7 +43,10 @@ import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vau
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
+import {
+  MY_VAULT_ID,
+  VaultPopupListFiltersService,
+} from "../../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -522,6 +525,67 @@ describe("VaultPopupListTableComponent", () => {
       fixture.detectChanges();
 
       expect(component["folderOptions"]().map((o) => o.value)).toEqual([parent, child]);
+    });
+
+    /**
+     * The chip matches its options by reference, but the form's value is frequently an
+     * equal-but-distinct object: the view cache rebuilds "My vault" as a fresh `Organization`, and
+     * `getAllFoldersNested` copies each `FolderView` per emission. Seeding the raw value would leave
+     * the chip active but label-less, so the directive resolves it against the option list first.
+     */
+    describe("identity-independent seeding", () => {
+      it("selects a seeded organization that is a different instance than its option", () => {
+        const option = { id: MY_VAULT_ID } as Organization;
+        organizations$.next([{ value: option, label: "My vault" }]);
+        // A distinct object with the same id — what `deserializeFilters` restores from the cache.
+        filterForm.controls.organization.setValue({ id: MY_VAULT_ID } as Organization);
+        fixture.detectChanges();
+
+        const chip = chipFor("organization");
+        expect(chip.active()).toBe(true);
+        // Resolved onto the option's own instance, so the chip's reference-based `isSelected` marks
+        // it selected — which is what drives the label and the menu/dialog checkmark.
+        expect(chip.value()).toBe(option);
+        expect(chip.isSelected(option)).toBe(true);
+      });
+
+      it("selects a seeded folder that is a different instance than its option", () => {
+        const option = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: option, label: "Work" }]);
+        filterForm.controls.folder.setValue({ id: "folder-1", name: "Work" } as FolderView);
+        fixture.detectChanges();
+
+        const chip = chipFor("folder");
+        expect(chip.value()).toBe(option);
+        expect(chip.isSelected(option)).toBe(true);
+      });
+
+      it("re-resolves onto the new instance when the options are rebuilt", () => {
+        const first = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: first, label: "Work" }]);
+        filterForm.controls.folder.setValue(first);
+        fixture.detectChanges();
+
+        // `folders$` re-emits rebuilt copies on any cipher change (a sync, an item edit).
+        const rebuilt = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: rebuilt, label: "Work" }]);
+        fixture.detectChanges();
+
+        const chip = chipFor("folder");
+        expect(chip.value()).toBe(rebuilt);
+        expect(chip.isSelected(rebuilt)).toBe(true);
+      });
+
+      it("leaves a selection that matches no option untouched", () => {
+        // The org filter can name a folder the current option list no longer contains; clearing it
+        // here would fight `validateOrganizationChange`, which owns that reset.
+        const orphan = { id: "folder-gone", name: "Archived" } as FolderView;
+        folders$.next([{ value: { id: "folder-1", name: "Work" } as FolderView, label: "Work" }]);
+        filterForm.controls.folder.setValue(orphan);
+        fixture.detectChanges();
+
+        expect(filterForm.controls.folder.value).toBe(orphan);
+      });
     });
   });
 

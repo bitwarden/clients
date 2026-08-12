@@ -2,7 +2,7 @@ import { DestroyRef, Directive, OnInit, effect, inject, input, untracked } from 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 
-import { FILTER_CONTROL } from "@bitwarden/components";
+import { ChipFilterOption, FILTER_CONTROL } from "@bitwarden/components";
 
 import {
   PopupListFilter,
@@ -11,6 +11,9 @@ import {
 
 /** The `filterForm` controls a chip can drive. */
 export type VaultFilterKey = keyof PopupListFilter;
+
+/** A filter value that carries an id — every dimension except `cipherType`, which is a scalar. */
+type IdentifiableFilterValue = { id?: string | null };
 
 /**
  * Bridges a `bit-filter-menu` chip to a control on `VaultPopupListFiltersService.filterForm`.
@@ -26,7 +29,7 @@ export type VaultFilterKey = keyof PopupListFilter;
  *
  * @example
  * ```html
- * <bit-filter-menu key="cipherType" bitVaultFilterChip="cipherType" placeholderText="Type">
+ * <bit-filter-menu key="cipherType" bitVaultFilterChip="cipherType" [filterOptions]="cipherTypeOptions()">
  * ```
  */
 @Directive({
@@ -42,6 +45,18 @@ export class VaultFilterChipDirective implements OnInit {
    * a fixed control, so this is a static binding rather than a reactive one.
    */
   readonly key = input.required<VaultFilterKey>({ alias: "bitVaultFilterChip" });
+
+  /**
+   * The chip's options, so a form value can be resolved to the instance the options actually hold.
+   *
+   * The chip matches its options by reference (`FilterMenuComponent.isSelected` compares with
+   * `===`), but the form's value is routinely an equal-but-distinct object: the view cache restores
+   * "My vault" as a fresh `Organization`, and `getAllFoldersNested` rebuilds a `FolderView` copy per
+   * emission — so `folders$` re-emits new instances on any cipher change. Seeding the raw value
+   * would leave the chip active (dismiss button, applied-count berry) but label-less, with nothing
+   * marked selected in the menu or the responsive dialog.
+   */
+  readonly filterOptions = input<ChipFilterOption<unknown>[]>([]);
 
   /**
    * Guards against the two directions echoing each other: whichever side is mid-write marks itself
@@ -61,6 +76,27 @@ export class VaultFilterChipDirective implements OnInit {
     return this.filtersService.filterForm.controls[this.key()] as FormControl<
       PopupListFilter[VaultFilterKey] | null
     >;
+  }
+
+  /**
+   * The option instance equal to `value`, matched on `id` for the object-valued dimensions and by
+   * identity for `cipherType`. Falls back to `value` itself when no option matches — the org filter
+   * can name a folder the current list no longer contains, and clearing it here would fight
+   * `validateOrganizationChange`, which owns that reset.
+   */
+  private resolveToOption(value: unknown): unknown {
+    if (value == null) {
+      return value;
+    }
+    if (typeof value !== "object") {
+      return value;
+    }
+    const id = (value as IdentifiableFilterValue).id;
+    // "Items with no folder" has a falsy id, so match on the property's presence rather than truthiness.
+    const match = this.filterOptions().find(
+      (option) => (option.value as IdentifiableFilterValue | undefined)?.id === id,
+    );
+    return match ? match.value : value;
   }
 
   constructor() {
@@ -85,6 +121,24 @@ export class VaultFilterChipDirective implements OnInit {
         }
       });
     });
+
+    // Re-resolve the chip onto the current option instances whenever the options are rebuilt, so a
+    // sync or item edit doesn't silently drop the chip's visible selection while the rows stay
+    // filtered. Reads `filterOptions` as the dependency; the form value is read untracked.
+    effect(() => {
+      this.filterOptions();
+
+      untracked(() => {
+        const value = this.formControl.value;
+        if (value == null) {
+          return;
+        }
+        const resolved = this.resolveToOption(value);
+        if (resolved !== this.control.value()) {
+          this.control.setValue(resolved);
+        }
+      });
+    });
   }
 
   ngOnInit() {
@@ -92,7 +146,7 @@ export class VaultFilterChipDirective implements OnInit {
 
     // Seed the chip from the form: it may already hold filters restored from the view cache before
     // this chip ever existed.
-    this.control.setValue(formControl.value ?? null);
+    this.control.setValue(this.resolveToOption(formControl.value ?? null));
 
     // Form → chip, for writes from outside the table — the vault header's own filter UI, the
     // organization-change validation that resets collection/folder, or `resetFilterForm()`.
@@ -102,7 +156,7 @@ export class VaultFilterChipDirective implements OnInit {
       }
       this.syncing = true;
       try {
-        this.control.setValue(value ?? null);
+        this.control.setValue(this.resolveToOption(value ?? null));
       } finally {
         this.syncing = false;
       }
