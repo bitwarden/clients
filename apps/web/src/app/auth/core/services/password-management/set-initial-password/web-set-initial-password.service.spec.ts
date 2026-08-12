@@ -31,6 +31,7 @@ import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";
@@ -53,6 +54,7 @@ describe("WebSetInitialPasswordService", () => {
   let routerService: MockProxy<RouterService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
+  let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -70,6 +72,7 @@ describe("WebSetInitialPasswordService", () => {
     routerService = mock<RouterService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     registerSdkService = mock<RegisterSdkService>();
+    unlockService = mock<UnlockService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
@@ -87,6 +90,7 @@ describe("WebSetInitialPasswordService", () => {
       routerService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 
