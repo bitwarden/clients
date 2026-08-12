@@ -101,7 +101,7 @@ export class SideNavComponent {
 
   constructor() {
     effect(() => {
-      this.sideNavService.version.set(this.vfo1Enabled() ? "2" : "1");
+      this.sideNavService.version.set(this.vfo1Enabled() ? "vfo1" : "default");
     });
   }
 }

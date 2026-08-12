@@ -85,9 +85,9 @@ describe("side-nav v1 content projection", () => {
     sideNavService = TestBed.inject(SideNavService);
   });
 
-  it("renders in version 1 by default", () => {
+  it("renders the default nav version by default", () => {
     fixture.detectChanges();
-    expect(sideNavService.version()).toBe("1");
+    expect(sideNavService.version()).toBe("default");
   });
 
   it("projects nav-group child items when side nav is open and group is open", () => {

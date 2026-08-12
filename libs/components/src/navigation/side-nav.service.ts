@@ -10,7 +10,7 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
-export type SideNavVersion = "1" | "2";
+export type SideNavVersion = "default" | "vfo1";
 
 @Injectable({
   providedIn: "root",
@@ -33,7 +33,7 @@ export class SideNavService {
 
   private rootFontSizePx: number;
 
-  readonly version = signal<SideNavVersion>("1");
+  readonly version = signal<SideNavVersion>("default");
 
   /**
    * Whether the side navigation is open or closed.

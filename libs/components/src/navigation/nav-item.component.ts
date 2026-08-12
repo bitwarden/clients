@@ -165,7 +165,7 @@ export class NavItemComponent extends NavBaseComponent {
     if (!this.focusVisibleWithin()) {
       return "";
     }
-    return this.sideNavService.version() === "2" ? FVW_RING_CLASSES : FVW_RING_CLASSES_V1;
+    return this.sideNavService.version() === "vfo1" ? FVW_RING_CLASSES : FVW_RING_CLASSES_V1;
   });
 
   protected onFocusIn(target: EventTarget) {

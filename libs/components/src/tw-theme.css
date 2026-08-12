@@ -405,7 +405,7 @@
   --color-nav-bg-admin: var(--color-gray-800);
   --color-nav-bg-admin-hover: rgba(var(--color-gray-700-rgb), 0.6);
 
-  /* Original variant tokens — retained for the version 1 side-nav (see [data-nav-version="1"]) */
+  /* Original variant tokens — retained for the default side-nav (see [data-nav-version="default"]) */
   --color-nav-fg-primary: var(--color-white);
   --color-nav-fg-secondary: var(--color-gray-900);
   --color-nav-bg-primary: var(--color-brand-800);
@@ -653,7 +653,7 @@
   --color-nav-bg-admin: var(--color-gray-950);
   --color-nav-bg-admin-hover: rgba(var(--color-gray-800-rgb), 0.6);
 
-  /* Original variant tokens — retained for the version 1 side-nav (see [data-nav-version="1"]) */
+  /* Original variant tokens — retained for the default side-nav (see [data-nav-version="default"]) */
   --color-nav-fg-primary: var(--color-white);
   --color-nav-fg-secondary: var(--color-white);
   --color-nav-bg-primary: var(--color-gray-800);
@@ -671,15 +671,15 @@
 }
 
 /**========================================
- * VERSION 1 SIDENAV PALETTE
+ * DEFAULT SIDENAV PALETTE
  * ========================================
- * The Tailwind nav tokens (bg-nav, fg-nav, nav-divider, nav-focus, …) map to the new v2
- * `brand`/`admin`/global families. The version 1 side-nav instead uses the original variant
+ * The Tailwind nav tokens (bg-nav, fg-nav, nav-divider, nav-focus, …) map to the new vfo1
+ * `brand`/`admin`/global families. The default side-nav instead uses the original variant
  * palette, so `bit-side-nav` marks its `<nav>` with `data-nav-version` and these overrides
  * redirect the shared tokens back to the original variables. Declared on the same element as the
  * secondary-variant remap (the `<nav>`) so the `var()` chains resolve per-variant, then inherit to
  * the projected nav items. */
-[data-nav-version="1"] {
+[data-nav-version="default"] {
   --color-nav-fg-body: var(--color-nav-fg-primary);
   --color-nav-fg-heading: var(--color-nav-fg-primary);
   --color-nav-border: var(--color-nav-border-primary);

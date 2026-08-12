@@ -2,7 +2,7 @@
 @let activeProduct = activeProduct$ | async;
 @let moreProducts = moreProducts$ | async;
 
-@if (version() === "2") {
+@if (version() === "vfo1") {
   <button
     [class.tw-p-3]="sideNavOpen()"
     [class.tw-justify-between]="sideNavOpen()"
@@ -131,7 +131,7 @@
   <app-upgrade-nav-button></app-upgrade-nav-button>
 }
 
-@if (version() !== "2" && moreProducts && moreProducts.length > 0) {
+@if (version() !== "vfo1" && moreProducts && moreProducts.length > 0) {
   <section class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0">
     <span class="tw-text-xs !tw-text-fg-nav tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
     @for (more of moreProducts; track more.name) {

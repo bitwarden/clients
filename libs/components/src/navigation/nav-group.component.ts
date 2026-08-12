@@ -59,7 +59,7 @@ export class NavGroupComponent extends NavBaseComponent {
    * nested groups. Only v2 top-level groups place it on the right (slot=end).
    */
   protected readonly toggleInStartSlot = computed(
-    () => this.sideNavService.version() === "1" || this.treeDepth() > 0,
+    () => this.sideNavService.version() === "default" || this.treeDepth() > 0,
   );
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */

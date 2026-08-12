@@ -8,7 +8,7 @@
 <ng-template #startSlot><ng-content select="[slot=start]"></ng-content></ng-template>
 <ng-template #endSlot><ng-content select="[slot=end]"></ng-content></ng-template>
 
-@if (version === "1") {
+@if (version === "default") {
   <div class="tw-cursor-pointer tw-ps-3 tw-pe-3">
     @if (open || icon()) {
       <div
