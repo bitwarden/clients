@@ -76,47 +76,37 @@ inside the menu item.
 
 ## Compact mode
 
-The bar adapts to its container in two stages, and neither needs consumer wiring. First: when the
-container is narrower than the bar's natural width, a `ResizeObserver` flips the bar into compact
-mode — action labels collapse and each rendered button exposes its label via tooltip instead.
+In a narrow container the bar collapses action labels to icons and exposes each label as a tooltip.
+No consumer wiring is needed.
 
 <Canvas of={stories.Compact} />
 
 ## Responsive packing
 
-Second: once collapsing labels no longer buys enough room, the bar moves primary actions into the
-overflow menu rather than clipping them. The count display, **Clear** button, and ellipsis trigger
-always stay in the row; only the primary-action row gives ground.
+When collapsing labels isn't enough, the bar moves primary actions into the overflow menu rather
+than clipping them. The count display, **Clear** button, and ellipsis trigger always stay in the
+row.
 
-Packing is first-fit in DOM order — the bar keeps as many leading actions visible as fit and moves
-the trailing ones into the menu. Declare `<bit-bulk-action>` entries most-important-first so the
-least important are the first to pack away.
+Packing is first-fit in DOM order, so **declare `<bit-bulk-action>` entries most-important-first** —
+the trailing ones are the first to pack away.
 
-A packed action keeps its icon and label as a menu item, invokes the same `[action]` callback, and
-carries its `[disabled]` state over. Nothing about an action's contract changes when it packs.
-Packed buttons are hidden in place rather than removed — the bar needs them in the DOM to measure —
-so assert on visibility, not presence, when testing this.
+An action's contract is unchanged when it packs: same `[action]` callback, same `[disabled]` state,
+same icon and label, now rendered as a menu item.
 
 <Canvas of={stories.WithOverflow} />
 
 ## Keyboard shortcut
 
 While the bar is visible, pressing <kbd>Cmd+B</kbd> (Mac) or <kbd>Ctrl+B</kbd> (Windows/Linux) moves
-focus to the first item in the bar. Pressing it again restores focus to whatever element was focused
-before — the same stash-and-restore pattern CDK Overlay uses internally.
+focus to the first item in the bar. Pressing it again returns focus to wherever it was before.
 
 ## Accessibility
 
 - The bar has `role="toolbar"` with `aria-orientation="horizontal"` and a localized `aria-label`.
-  Focus inside the bar follows a roving tabindex via Angular CDK's `FocusKeyManager` — horizontal
-  arrow keys move between items, <kbd>Home</kbd>/<kbd>End</kbd> jump to the ends, and navigation
-  wraps.
-- When the item holding the roving tabindex becomes unreachable — a primary action packs into the
-  menu, or the ellipsis trigger hides because the menu has nothing left to show — the bar hands the
-  tabindex to the next reachable item, and moves focus with it if the vanishing item had focus. The
-  toolbar never drops out of the tab order as the container resizes.
-- A visually-hidden `role="status" aria-live="polite"` region sits alongside the toolbar and
-  announces count changes — including the "Selection cleared" transition that fires after the bar
-  slides away.
+  Focus follows a roving tabindex — horizontal arrow keys move between items,
+  <kbd>Home</kbd>/<kbd>End</kbd> jump to the ends, and navigation wraps. The toolbar stays in the
+  tab order as the container resizes, even when the focused item packs into the menu.
+- Count changes are announced via a live region, including the "Selection cleared" transition that
+  fires after the bar slides away.
 - While hidden, the bar carries `inert` and `aria-hidden="true"` so it can't be focused or read by
   assistive technology.
