@@ -81,6 +81,7 @@ export function InlineMenuCipherItem({
         <button
           type="button"
           data-fill-cipher
+          tabindex="-1"
           class=${fillCipherButtonStyles}
           title=${fillLabel}
           aria-label=${fillLabel}
@@ -119,6 +120,7 @@ export function InlineMenuCipherItem({
         <button
           type="button"
           data-view-cipher
+          tabindex="-1"
           title=${viewButtonText}
           aria-label=${viewButtonAria}
           class=${viewCipherButtonStyles(theme)}
