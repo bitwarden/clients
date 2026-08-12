@@ -31,7 +31,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -272,9 +274,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
   }
+
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -3519,6 +3526,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

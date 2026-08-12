@@ -62,6 +62,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private isPasskeyAuthInProgress = false;
   private authStatus: AuthenticationStatus = AuthenticationStatus.Locked;
   private isInitialized = false;
+  private useLitComponents = false;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -102,6 +103,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       generatedPassword,
       showSaveLoginMenu,
       showAnimations = true,
+      useLitComponents = false,
     } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -113,6 +115,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.authStatus = authStatus;
     this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
+    this.useLitComponents = useLitComponents;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);

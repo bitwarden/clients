@@ -64,6 +64,33 @@ describe("AutofillInlineMenuList", () => {
       expect(container.classList.contains("no-animations")).toBe(true);
     });
 
+    it("stores useLitComponents from the init message when enabled", async () => {
+      postWindowMessage(
+        createInitAutofillInlineMenuListMessageMock({
+          authStatus: AuthenticationStatus.Unlocked,
+          ciphers: [],
+          portKey,
+          useLitComponents: true,
+        }),
+      );
+      await flushPromises();
+
+      expect(autofillInlineMenuList["useLitComponents"]).toBe(true);
+    });
+
+    it("defaults useLitComponents to false when omitted from the init message", async () => {
+      postWindowMessage(
+        createInitAutofillInlineMenuListMessageMock({
+          authStatus: AuthenticationStatus.Unlocked,
+          ciphers: [],
+          portKey,
+        }),
+      );
+      await flushPromises();
+
+      expect(autofillInlineMenuList["useLitComponents"]).toBe(false);
+    });
+
     describe("the locked inline menu for an unauthenticated user", () => {
       beforeEach(() => {
         postWindowMessage(
