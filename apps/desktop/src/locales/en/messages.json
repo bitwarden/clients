@@ -513,8 +513,8 @@
   "verificationCodeTotp": {
     "message": "Verification code (TOTP)"
   },
-  "verificationCodeTotpLower": {
-    "message": "verification code (TOTP)"
+  "verificationCodeLower": {
+    "message": "verification code"
   },
   "website": {
     "message": "Website"
