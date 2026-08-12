@@ -787,6 +787,7 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
