@@ -41,7 +41,7 @@ export class ExtendLeaseDialogComponent {
 
   protected readonly durationOptions = EXTENSION_DURATION_OPTIONS;
 
-  protected readonly formGroup = this.formBuilder.group({
+  protected readonly formGroup = this.formBuilder.nonNullable.group({
     durationSeconds: [EXTENSION_DURATION_OPTIONS[0].seconds, Validators.required],
     reason: ["", Validators.required],
   });
