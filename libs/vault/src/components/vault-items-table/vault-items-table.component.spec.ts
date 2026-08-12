@@ -1,3 +1,5 @@
+import { SelectionModel } from "@angular/cdk/collections";
+import { signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -28,6 +30,8 @@ import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/co
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import { compareVaultItems, VaultItem } from "../vault-item";
 
 import { VaultItemsTableColumn } from "./vault-items-table-row-action";
 import {
@@ -73,12 +77,32 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
   } as unknown as CipherListView;
 }
 
+/**
+ * A stand-in for the host-provided `VaultBatchBarService`, carrying only what the selection bridge
+ * touches: the CDK selection model it writes into, and the `selectedCount` signal it reads back to
+ * mirror clears. The real service would pull in the whole bulk-action dependency graph — dialogs,
+ * authorization, archive — none of which the bridge exercises.
+ */
+function batchBarDouble() {
+  const selection = new SelectionModel<VaultItem<CipherViewLike>>(
+    true,
+    [],
+    true,
+    compareVaultItems,
+  );
+  const selectedCount = signal(0);
+  selection.changed.subscribe(() => selectedCount.set(selection.selected.length));
+  return { selection, selectedCount };
+}
+
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
+  let batchBar: ReturnType<typeof batchBarDouble>;
 
   beforeEach(async () => {
+    batchBar = batchBarDouble();
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -113,6 +137,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: VaultBatchBarService, useValue: batchBar },
       ],
     }).compileComponents();
 
@@ -1177,6 +1202,154 @@ describe("VaultItemsTableComponent", () => {
 
         expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
       }));
+    });
+  });
+
+  /**
+   * The bridge from the table's own `TableSelectionModel<C>` to the batch bar's CDK
+   * `SelectionModel<VaultItem<C>>`. What matters is that the two stay in agreement, since the
+   * batch bar's `can*` permission signals and every bulk action read off its side.
+   */
+  describe("batch bar selection bridge", () => {
+    /** The table's selection model, which the checkbox column drives. */
+    function selectionModel() {
+      const model = bitTable().selectionModel();
+      if (!model) {
+        throw new Error("No selection model — the table should always configure selection");
+      }
+      return model;
+    }
+
+    /** The cipher ids the batch bar currently holds, in selection order. */
+    function batchBarIds(): (string | undefined)[] {
+      return batchBar.selection.selected.map((item) => item.cipher?.id as string | undefined);
+    }
+
+    it("wraps a selected cipher as a VaultItem on the batch bar", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      expect(batchBar.selection.selected).toEqual([{ cipher: amazon }]);
+    });
+
+    it("propagates every selected row, so bulk actions see the whole selection", () => {
+      const rows = [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ];
+      fixture.componentRef.setInput("ciphers", rows);
+      fixture.detectChanges();
+
+      selectionModel().select(...rows);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["a", "b"]);
+    });
+
+    it("drops a deselected row rather than accumulating", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      const apple = cipherView({ id: "b", name: "Apple ID" });
+      fixture.componentRef.setInput("ciphers", [amazon, apple]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon, apple);
+      fixture.detectChanges();
+      selectionModel().deselect(amazon);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("empties the batch bar when the table's selection is cleared", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(batchBar.selection.selected).toEqual([]);
+    });
+
+    /**
+     * The one inbound direction: the batch bar clears itself after a completed bulk action and on
+     * route-filter changes, and the checkboxes have to follow — otherwise rows stay checked against
+     * items that were just deleted or moved out of view.
+     */
+    it("clears the table's checkboxes when the batch bar clears its own selection", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(1);
+
+      batchBar.selection.clear();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+    });
+
+    /**
+     * The table's model is keyed by row reference, so a re-decrypt — same cipher, new object —
+     * leaves its selection holding a row that's no longer in the list. Whatever the table reports,
+     * the batch bar has to agree with it, or a bulk action would operate on a stale cipher.
+     */
+    it("keeps the batch bar in agreement after rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // A fresh decrypt of the same cipher — a new reference carrying the same id.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      const selectedRows = selectionModel().selected();
+      expect(batchBar.selection.selected).toEqual(selectedRows.map((cipher) => ({ cipher })));
+    });
+
+    /**
+     * `syncFromBatchBar` treats an empty batch bar as "clear the checkboxes", and it also runs on
+     * the component's first pass, when the bar is legitimately empty. A fresh selection must
+     * survive that — otherwise checking a row would clear itself on the next render.
+     */
+    it("does not clear a new selection on subsequent renders", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(1);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("selects only the rows surviving the active filter when select-all is used", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon", type: CipherType.Login }),
+        cipherView({ id: "b", name: "Visa", type: CipherType.Card }),
+      ]);
+      fixture.detectChanges();
+
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
     });
   });
 });
