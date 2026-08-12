@@ -11,6 +11,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from "@angular/core";
 
 import { measureWidth, revealForMeasurement } from "./measure";
@@ -144,6 +145,36 @@ export class OverflowListDirective {
   /** True after the first measurement — consumers gate initial paint on this. */
   readonly ready = signal(false);
 
+  /**
+   * True when the list is hiding the overflow trigger — nothing overflowed and the
+   * trigger isn't pinned visible. False until `ready`, since the trigger is left
+   * rendered through the first measurement pass.
+   */
+  readonly triggerHidden = computed(
+    () => this.ready() && this.overflow().length === 0 && !(this.trigger()?.alwaysShow() ?? false),
+  );
+
+  /**
+   * Elements the list is currently hiding: overflowed items, plus the trigger when
+   * it's hidden. Consumers that manage focus (a roving tabindex, say) read this to
+   * tell which of their controls have become unreachable.
+   */
+  readonly hiddenElements = computed(() => {
+    const items = this.items();
+    const hidden = new Set<HTMLElement>();
+    for (const i of this.overflow()) {
+      const el = items[i]?.elementRef.nativeElement;
+      if (el) {
+        hidden.add(el);
+      }
+    }
+    const trigger = this.trigger();
+    if (trigger && this.triggerHidden()) {
+      hidden.add(trigger.elementRef.nativeElement);
+    }
+    return hidden;
+  });
+
   constructor() {
     const ro = new ResizeObserver((entries) =>
       this.observedContainerWidth.set(entries[0].contentBoxSize[0].inlineSize),
@@ -167,6 +198,8 @@ export class OverflowListDirective {
       // Drop stale widths on this tick so `packed` falls back to all-displayed
       // instead of packing against measurements of a set we no longer have.
       this.itemWidths.set([]);
+      // Before the first pass this no-ops; the constructor's queued measurement
+      // reads `items()` when it runs, so it picks up the new set anyway.
       this.remeasure();
     });
 
@@ -184,10 +217,7 @@ export class OverflowListDirective {
       });
       const trigger = this.trigger();
       if (this.ready() && trigger) {
-        applyHide(
-          trigger.elementRef.nativeElement,
-          overflowList.length === 0 && !trigger.alwaysShow(),
-        );
+        applyHide(trigger.elementRef.nativeElement, this.triggerHidden());
       }
     });
   }
@@ -199,8 +229,16 @@ export class OverflowListDirective {
    *
    * Keeps the existing widths until the new measurement lands; clearing them
    * would flash all-displayed and overflow the row mid-resize.
+   *
+   * No-ops before the first measurement pass, so a caller can't race the
+   * directive's own initial measurement — that pass is already queued.
    */
   remeasure(): void {
+    // Read untracked: this runs inside callers' effects, and tracking `ready`
+    // would make every one of them re-run when it flips.
+    if (!untracked(this.ready)) {
+      return;
+    }
     afterNextRender(() => this.measureItems(), { injector: this.injector });
   }
 

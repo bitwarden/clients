@@ -35,7 +35,14 @@ interface Item {
           {{ item.id }}
         </button>
       }
-      <button bitOverflowTrigger type="button" [attr.data-width]="triggerWidth()">More</button>
+      <button
+        bitOverflowTrigger
+        type="button"
+        [alwaysShow]="alwaysShow()"
+        [attr.data-width]="triggerWidth()"
+      >
+        More
+      </button>
     </div>
   `,
 })
@@ -48,6 +55,7 @@ class HostComponent {
   readonly containerWidth = signal<number | null>(null);
   readonly pinnedIndex = signal<number | null>(null);
   readonly triggerWidth = signal(0);
+  readonly alwaysShow = signal(false);
   readonly list = viewChild.required(OverflowListDirective);
 }
 
@@ -185,6 +193,105 @@ describe("OverflowListDirective", () => {
       // Unlike the item-set-change path, `remeasure` must not clear the cache
       // up front — flashing all-displayed mid-resize would overflow the row.
       expect(list().overflow()).toEqual(before);
+    }));
+
+    it("no-ops before the first measurement pass has landed", fakeAsync(() => {
+      host.containerWidth.set(250);
+      settle();
+      expect(list().displayed()).toEqual([0, 1]);
+
+      // The first measurement resolves during setup, so wind `ready` back to
+      // reproduce the pre-measure window.
+      list().ready.set(false);
+      fixture.nativeElement
+        .querySelectorAll("button[bitOverflowItem]")
+        .forEach((el: HTMLElement) => el.setAttribute("data-width", "200"));
+
+      list().remeasure();
+      settle();
+
+      // The guard lives here rather than in every caller: a consumer-driven
+      // remeasure must not race the directive's own first measurement. Widths
+      // stay as they were, so the pack decision is unchanged.
+      expect(list().displayed()).toEqual([0, 1]);
+      expect(list().ready()).toBe(false);
+    }));
+  });
+
+  describe("triggerHidden", () => {
+    it("is false until the first measurement lands", fakeAsync(() => {
+      host.containerWidth.set(400);
+      fixture.detectChanges();
+
+      // Everything fits, but the trigger has to stay rendered through the
+      // first pass so it can be measured.
+      expect(list().ready()).toBe(false);
+      expect(list().triggerHidden()).toBe(false);
+    }));
+
+    it("is true once nothing overflows", fakeAsync(() => {
+      // 100 + 108 + 108 = 316 <= 400.
+      host.containerWidth.set(400);
+      settle();
+
+      expect(list().overflow()).toEqual([]);
+      expect(list().triggerHidden()).toBe(true);
+    }));
+
+    it("is false while something has overflowed", fakeAsync(() => {
+      host.containerWidth.set(150);
+      settle();
+
+      expect(list().overflow()).toEqual([1, 2]);
+      expect(list().triggerHidden()).toBe(false);
+    }));
+
+    it("is false when the trigger opts out with alwaysShow", fakeAsync(() => {
+      host.alwaysShow.set(true);
+      host.containerWidth.set(400);
+      settle();
+
+      expect(list().overflow()).toEqual([]);
+      expect(list().triggerHidden()).toBe(false);
+    }));
+  });
+
+  describe("hiddenElements", () => {
+    const itemEls = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("button[bitOverflowItem]"));
+    const triggerEl = (): HTMLElement =>
+      fixture.nativeElement.querySelector("button[bitOverflowTrigger]");
+
+    it("reports the overflowed items", fakeAsync(() => {
+      host.containerWidth.set(150);
+      settle();
+
+      const hidden = list().hiddenElements();
+      expect(hidden.has(itemEls()[0])).toBe(false);
+      expect(hidden.has(itemEls()[1])).toBe(true);
+      expect(hidden.has(itemEls()[2])).toBe(true);
+    }));
+
+    it("reports the trigger only while it is hidden", fakeAsync(() => {
+      host.containerWidth.set(150);
+      settle();
+      expect(list().hiddenElements().has(triggerEl())).toBe(false);
+
+      // Widen until nothing overflows — now the trigger is the hidden one.
+      host.containerWidth.set(400);
+      fixture.detectChanges();
+
+      const hidden = list().hiddenElements();
+      expect(hidden.has(triggerEl())).toBe(true);
+      expect(itemEls().some((el) => hidden.has(el))).toBe(false);
+    }));
+
+    it("is empty when everything fits and the trigger opts out", fakeAsync(() => {
+      host.alwaysShow.set(true);
+      host.containerWidth.set(400);
+      settle();
+
+      expect(list().hiddenElements().size).toBe(0);
     }));
   });
 
