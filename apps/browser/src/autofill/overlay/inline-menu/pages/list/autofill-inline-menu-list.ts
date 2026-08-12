@@ -673,6 +673,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
             inlineMenuCipherId: cipher.id,
           }),
         onTotpPeriodElapsed: () => this.postMessageToParent({ command: "refreshOverlayCiphers" }),
+        onListEdgeReached: this.showInlineMenuAccountCreation
+          ? () => this.newItemButtonElement?.focus()
+          : undefined,
       }),
     );
 
