@@ -267,9 +267,7 @@ export class Program extends BaseProgram {
         await this.exitIfNotAuthed();
         const userId = (await firstValueFrom(this.serviceContainer.accountService.activeAccount$))
           ?.id;
-        await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
-          userId,
-        );
+        await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
 
         const authStatus = await this.serviceContainer.authService.getAuthStatus();
         if (authStatus === AuthenticationStatus.Unlocked) {
@@ -506,7 +504,7 @@ export class Program extends BaseProgram {
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
           this.serviceContainer.authService,
-          this.serviceContainer.userAutoUnlockKeyService,
+          this.serviceContainer.unlockService,
         );
         const response = await command.run();
         this.processResponse(response);

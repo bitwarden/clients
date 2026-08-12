@@ -149,7 +149,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -358,7 +357,6 @@ export class ServiceContainer {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
@@ -763,6 +761,7 @@ export class ServiceContainer {
       this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -1114,8 +1113,6 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
-
     this.hibpApiService = new HibpApiService(this.apiService);
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1213,7 +1210,7 @@ export class ServiceContainer {
     // as this runs on every command and could be a performance hit
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (activeAccount?.id) {
-      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+      await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
     }
 
     this.inited = true;
