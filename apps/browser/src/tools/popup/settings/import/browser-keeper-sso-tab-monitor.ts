@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { KeeperSsoTabMonitor } from "@bitwarden/importer-ui";
+import { isSsoCallbackUrl, KeeperSsoTabMonitor } from "@bitwarden/importer-ui";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 
@@ -12,7 +12,7 @@ export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
     | undefined;
   private activeRemovedListener: ((tabId: number) => void) | undefined;
 
-  async launchAndWaitForToken(ssoUrl: string, callbackUrlPattern: RegExp): Promise<string> {
+  async launchAndWaitForToken(ssoUrl: string): Promise<string> {
     const tab = await BrowserApi.createNewTab(ssoUrl, true);
     this.activeTabId = tab.id;
 
@@ -30,7 +30,7 @@ export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
           return;
         }
 
-        if (!callbackUrlPattern.test(updatedTab.url)) {
+        if (!isSsoCallbackUrl(updatedTab.url, ssoUrl)) {
           return;
         }
 

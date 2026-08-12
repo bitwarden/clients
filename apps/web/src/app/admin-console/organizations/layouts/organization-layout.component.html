@@ -82,6 +82,7 @@
       route="integrations"
       *ngIf="integrationPageEnabled$ | async"
     ></bit-nav-item>
+    <app-pam-org-nav-slot [organization]="organization" />
     <bit-nav-group
       icon="bwi-cog"
       [text]="'settings' | i18n"

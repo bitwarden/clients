@@ -24,10 +24,12 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
@@ -58,7 +60,7 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
-    private autotypeService: DesktopAutotypeService,
+    private autotypeMvpService: DesktopAutotypeMvpService,
     private sdkLoadService: SdkLoadService,
     private ipcService: IpcService,
     private sharedUnlockLeaderService: SharedUnlockLeaderService,
@@ -66,6 +68,7 @@ export class InitService {
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
     private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
@@ -112,7 +115,11 @@ export class InitService {
       this.versionService.init();
       this.updateRestartService.init();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.legacyCompatKeyService,
+      );
       containerService.attachToGlobal(this.win);
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
@@ -120,7 +127,7 @@ export class InitService {
       }
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
-      await this.autotypeService.init();
+      await this.autotypeMvpService.init();
     };
   }
 }

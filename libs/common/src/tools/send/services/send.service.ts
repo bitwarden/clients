@@ -138,6 +138,14 @@ export class SendService implements InternalSendServiceAbstraction {
         } else {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
+      } else if (model.file.fileName) {
+        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
+        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
+        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        send.file.fileName = await this.encryptService.encryptString(
+          model.file.fileName,
+          model.cryptoKey,
+        );
       }
     }
 

@@ -11,6 +11,8 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { FakeMasterPasswordService } from "../../../key-management/master-password/services/fake-master-password.service";
@@ -37,6 +39,7 @@ describe("DefaultChangeEmailService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
 
   const mockUserId = newGuid() as UserId;
   const mockMasterPassword = "master-password";
@@ -51,6 +54,7 @@ describe("DefaultChangeEmailService", () => {
     kdfConfigService = mock<KdfConfigService>();
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
 
     sut = new DefaultChangeEmailService(
       configService,
@@ -58,6 +62,7 @@ describe("DefaultChangeEmailService", () => {
       kdfConfigService,
       apiService,
       keyService,
+      legacyCompatKeyService,
     );
 
     jest.resetAllMocks();
@@ -108,19 +113,19 @@ describe("DefaultChangeEmailService", () => {
         configService.getFeatureFlag.mockResolvedValue(false);
 
         const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as MasterKey;
-        keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
+        legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
         apiService.send.mockResolvedValue(undefined);
 
         // Act
         await sut.requestEmailToken(mockMasterPassword, mockNewEmail, mockUserId);
 
         // Assert: Legacy path derives and hashes master key
-        expect(keyService.getOrDeriveMasterKey).toHaveBeenCalledWith(
+        expect(legacyCompatKeyService.getOrDeriveMasterKey).toHaveBeenCalledWith(
           mockMasterPassword,
           mockUserId,
         );
-        expect(keyService.hashMasterKey).toHaveBeenCalled();
+        expect(legacyCompatKeyService.hashMasterKey).toHaveBeenCalled();
       });
     });
 
@@ -169,8 +174,8 @@ describe("DefaultChangeEmailService", () => {
         configService.getFeatureFlag.mockResolvedValue(false);
 
         const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as MasterKey;
-        keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
+        legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
         apiService.send.mockResolvedValue(undefined);
 
         // Act
@@ -240,8 +245,8 @@ describe("DefaultChangeEmailService", () => {
         await sut.requestEmailToken(mockMasterPassword, mockNewEmail, mockUserId);
 
         // Assert
-        expect(keyService.getOrDeriveMasterKey).not.toHaveBeenCalled();
-        expect(keyService.hashMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.getOrDeriveMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.hashMasterKey).not.toHaveBeenCalled();
       });
 
       /**
@@ -251,8 +256,8 @@ describe("DefaultChangeEmailService", () => {
         // Arrange
         configService.getFeatureFlag.mockResolvedValue(false);
         const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as MasterKey;
-        keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
+        legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.hashMasterKey.mockResolvedValue("existing-master-key-hash");
         apiService.send.mockResolvedValue(undefined);
 
         // Act
@@ -337,13 +342,13 @@ describe("DefaultChangeEmailService", () => {
           new Uint8Array(64).fill(3) as CsprngArray,
         ) as UserKey;
 
-        keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey
+        legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.hashMasterKey
           .mockResolvedValueOnce("existing-hash")
           .mockResolvedValueOnce("new-hash");
-        keyService.makeMasterKey.mockResolvedValue(mockNewMasterKey);
+        legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockNewMasterKey);
         keyService.userKey$.mockReturnValue(of(mockUserKey));
-        keyService.encryptUserKeyWithMasterKey.mockResolvedValue([
+        legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue([
           mockUserKey,
           { encryptedString: "encrypted-user-key" } as any,
         ]);
@@ -353,7 +358,7 @@ describe("DefaultChangeEmailService", () => {
         await sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId);
 
         // Assert: Legacy path derives master key from existing user
-        expect(keyService.getOrDeriveMasterKey).toHaveBeenCalledWith(
+        expect(legacyCompatKeyService.getOrDeriveMasterKey).toHaveBeenCalledWith(
           mockMasterPassword,
           mockUserId,
         );
@@ -511,13 +516,13 @@ describe("DefaultChangeEmailService", () => {
           new Uint8Array(64).fill(3) as CsprngArray,
         ) as UserKey;
 
-        keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey
+        legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+        legacyCompatKeyService.hashMasterKey
           .mockResolvedValueOnce("existing-hash")
           .mockResolvedValueOnce("new-hash");
-        keyService.makeMasterKey.mockResolvedValue(mockNewMasterKey);
+        legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockNewMasterKey);
         keyService.userKey$.mockReturnValue(of(mockUserKey));
-        keyService.encryptUserKeyWithMasterKey.mockResolvedValue([
+        legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue([
           mockUserKey,
           { encryptedString: "encrypted-user-key" } as any,
         ]);
@@ -746,9 +751,9 @@ describe("DefaultChangeEmailService", () => {
           kdfConfigService.getKdfConfig$.mockReturnValue(of(kdfConfig));
 
           const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as MasterKey;
-          keyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
-          keyService.hashMasterKey.mockResolvedValue("existing-hash");
-          keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+          legacyCompatKeyService.getOrDeriveMasterKey.mockResolvedValue(mockMasterKey);
+          legacyCompatKeyService.hashMasterKey.mockResolvedValue("existing-hash");
+          legacyCompatKeyService.makeMasterKey.mockResolvedValue(mockMasterKey);
           keyService.userKey$.mockReturnValue(of(null));
 
           await expect(
@@ -794,10 +799,10 @@ describe("DefaultChangeEmailService", () => {
         await sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId);
 
         // Assert
-        expect(keyService.getOrDeriveMasterKey).not.toHaveBeenCalled();
-        expect(keyService.makeMasterKey).not.toHaveBeenCalled();
-        expect(keyService.hashMasterKey).not.toHaveBeenCalled();
-        expect(keyService.encryptUserKeyWithMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.getOrDeriveMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.hashMasterKey).not.toHaveBeenCalled();
+        expect(legacyCompatKeyService.encryptUserKeyWithMasterKey).not.toHaveBeenCalled();
       });
     });
   });
