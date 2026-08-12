@@ -169,6 +169,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
@@ -179,6 +180,7 @@ import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
+import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/default-cipher-risk.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -204,6 +206,8 @@ import {
   BiometricStateService,
   DefaultBiometricStateService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DefaultLegacyCompatKeyService as LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   ActiveUserStateProvider,
@@ -271,6 +275,7 @@ export class ServiceContainer {
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
   keyService: KeyService;
+  legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
@@ -279,6 +284,7 @@ export class ServiceContainer {
   environmentService: EnvironmentService;
   cipherSdkService: CipherSdkService;
   cipherService: CipherService;
+  cipherRiskService: CipherRiskService;
   folderService: InternalFolderService;
   organizationUserApiService: OrganizationUserApiService;
   collectionService: DefaultCollectionService;
@@ -524,22 +530,29 @@ export class ServiceContainer {
     );
 
     this.keyService = new KeyService(
-      this.masterPasswordService,
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
       this.platformUtilsService,
       this.logService,
       this.stateService,
-      this.accountService,
       this.stateProvider,
-      this.kdfConfigService,
       this.accountCryptographicStateService,
+    );
+
+    this.legacyCompatKeyService = new LegacyCompatKeyService(
+      this.masterPasswordService,
+      this.keyGenerationService,
+      this.cryptoFunctionService,
+      this.encryptService,
+      this.logService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -601,7 +614,11 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.containerService = new ContainerService(this.keyService, this.encryptService);
+    this.containerService = new ContainerService(
+      this.keyService,
+      this.encryptService,
+      this.legacyCompatKeyService,
+    );
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -758,6 +775,7 @@ export class ServiceContainer {
       this.accountService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
       this.logService,
@@ -793,6 +811,7 @@ export class ServiceContainer {
       this.appIdService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
@@ -879,6 +898,7 @@ export class ServiceContainer {
       this.unlockService,
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
+      this.legacyCompatKeyService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -915,6 +935,7 @@ export class ServiceContainer {
 
     this.cipherService = new CipherService(
       this.keyService,
+      this.legacyCompatKeyService,
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
@@ -935,6 +956,8 @@ export class ServiceContainer {
       this.apiService,
       this.billingAccountProfileStateService,
     );
+
+    this.cipherRiskService = new DefaultCipherRiskService(this.sdkService, this.cipherService);
 
     this.folderService = new FolderService(
       this.keyService,
@@ -1022,11 +1045,8 @@ export class ServiceContainer {
       this.tokenService,
       this.authService,
       this.stateProvider,
-      this.securityStateService,
-      this.kdfConfigService,
-      this.accountCryptographicStateService,
-      this.v2UpgradeTokenStateService,
       this.configService,
+      this.sdkService,
     );
 
     this.totpService = new TotpService(this.sdkService);

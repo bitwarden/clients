@@ -133,8 +133,6 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   SharedUnlockLeaderService,
@@ -301,6 +299,11 @@ import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DefaultLegacyCompatKeyService,
+  LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
+} from "@bitwarden/legacy-crypto";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -431,6 +434,7 @@ export default class MainBackground {
   logService: LogServiceAbstraction;
   keyGenerationService: KeyGenerationService;
   keyService: KeyServiceAbstraction;
+  legacyCompatKeyService: LegacyCompatKeyServiceAbstraction;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
   masterPasswordUnlockService: MasterPasswordUnlockService;
@@ -558,7 +562,6 @@ export default class MainBackground {
   cipherEncryptionService: CipherEncryptionService;
   collectionEncryptionService: CollectionEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
-  private securityStateService: SecurityStateService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -764,10 +767,6 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.securityStateService = new DefaultSecurityStateService(
-      this.accountCryptographicStateService,
-    );
-
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
@@ -803,22 +802,29 @@ export default class MainBackground {
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
     this.keyService = new DefaultKeyService(
-      this.masterPasswordService,
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
       this.platformUtilsService,
       this.logService,
       this.stateService,
-      this.accountService,
       this.stateProvider,
-      this.kdfConfigService,
       this.accountCryptographicStateService,
+    );
+
+    this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
+      this.masterPasswordService,
+      this.keyGenerationService,
+      this.cryptoFunctionService,
+      this.encryptService,
+      this.logService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -976,6 +982,7 @@ export default class MainBackground {
       this.accountService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
       this.logService,
@@ -1060,6 +1067,7 @@ export default class MainBackground {
       this.appIdService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
@@ -1140,6 +1148,7 @@ export default class MainBackground {
 
     this.cipherService = new CipherService(
       this.keyService,
+      this.legacyCompatKeyService,
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
@@ -1181,7 +1190,11 @@ export default class MainBackground {
       this.restrictedItemTypesService,
     );
 
-    this.containerService = new ContainerService(this.keyService, this.encryptService);
+    this.containerService = new ContainerService(
+      this.keyService,
+      this.encryptService,
+      this.legacyCompatKeyService,
+    );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
@@ -1240,11 +1253,8 @@ export default class MainBackground {
       this.tokenService,
       this.authService,
       this.stateProvider,
-      this.securityStateService,
-      this.kdfConfigService,
-      this.accountCryptographicStateService,
-      this.v2UpgradeTokenStateService,
       this.configService,
+      this.sdkService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1558,6 +1568,7 @@ export default class MainBackground {
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.cryptoFunctionService,
       this.messagingService,
